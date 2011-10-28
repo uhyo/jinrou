@@ -1,14 +1,40 @@
 # Server-side Code
 
-exports.actions =
+exports.actions ={}
   
-  init: (cb) ->
-    cb "SocketStream version #{SS.version} is up and running. This message was sent over Socket.IO so everything is working OK."
+dbinit= ->
+    c=require('./dbsettings.coffee').mongo
+    mongodb=require 'mongodb'
+    global.DB= new mongodb.Db(c.database,new mongodb.Server(c.host,c.port))
+    global.M={}	# collections
+    
+    cols_count= (->
+      count=0
+      return (cb)->
+        console.log "count"
+        if ++count>=2
+          console.log "Mongodb Connected"
+    )()
 
-  # Quick Chat Demo
-  sendMessage: (message, cb) ->
-    if message.length > 0                             # Check for blank messages
-      SS.publish.broadcast 'newMessage', message      # Broadcast the message to everyone
-      cb true                                         # Confirm it was sent to the originating client
-    else
-      cb false
+    DB.open (err, client)->
+      if err?
+        console.log err
+        throw err
+      DB.authenticate c.user, c.pass, (err)->
+        if err?
+          console.log err
+          throw err
+        DB.collection "users", (err,col)->
+          if err?
+            console.log err
+            throw err
+          M.users=col
+          cols_count()
+        DB.collection "rooms", (err,col)->
+          if err?
+            console.log err
+            throw err
+          M.rooms=col
+          cols_count()
+
+dbinit()

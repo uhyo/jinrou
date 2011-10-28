@@ -1,0 +1,14 @@
+section.profile
+  h1 プロフィール
+  form#changeprofile(action="/")
+    h2 ユーザーID
+    p.userid {{= userid}}
+    h2 名前
+    p 表示される名前。
+    p.edit(data-pname="name",data-type="text",data-maxlength="20",data-required="required") {{= name}}
+    h2 コメント
+    p.edit(data-pname="comment",data-type="text",data-maxlength="100") {{= comment}}
+    
+    p
+      input(type="submit",value="変更")
+    

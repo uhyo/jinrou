@@ -12,8 +12,10 @@ exports.init = ->
 		e.preventDefault()
 		SS.client.app.showUrl t.href
 		return
+		
+	showUrl location.pathname
   
-exports.page=(templatename,params,pageobj,startparam,nohistory=false)->
+exports.page=page=(templatename,params=null,pageobj,startparam,nohistory=false)->
 	cdom=$("#content").get(0)
 	jQuery.data(cdom,"end")?()
 	jQuery.removeData cdom,"end"
@@ -23,6 +25,22 @@ exports.page=(templatename,params,pageobj,startparam,nohistory=false)->
 		pageobj.start(startparam)
 		jQuery.data cdom, "end", pageobj.end
 	unless nohistory
-		console.log {name:"page",templatename:templatename,params:params,pageobj:pageobj,startparam:startparam}
 		history.pushState JSON.stringify({name:"page",templatename:templatename,params:params,pageobj:pageobj,startparam:startparam}),null
 
+exports.showUrl=showUrl=(url)->
+	switch url
+		when "/my"
+			# プロフィールとか
+			SS.server.user.myProfile (user)->
+				page "templates-user-profile",user,SS.client.user.profile,null
+		when "/rooms"
+		else
+			page "templates-top",null,SS.client.top,null
+
+exports.login=login=(uid,ups,cb)->
+	SS.server.user.login {userid:uid,password:ups},(result)->
+		if !result
+			# OK
+			cb? true
+		else
+			cb? false

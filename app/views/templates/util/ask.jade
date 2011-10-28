@@ -1,0 +1,12 @@
+section.window
+  h1
+    {{= title}}
+    input.closer(type="button",value="×",name="no")
+  form(name="askform",action="/")
+    p {{= message}}
+    p
+      input(type="submit",name="yes",value="はい")
+      input(type="submit",name="no",value="いいえ")
+
+
+
