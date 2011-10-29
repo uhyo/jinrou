@@ -29,23 +29,25 @@ exports.actions=
 		unless @session.user_id
 			cb {error: "ログインしていません"}
 			return
-		room=
-			id:rooms.length	#ID連番
-			name: query.name
-			rule:
-				number:parseInt query.number
-			open:true
-		room.password=query.password ? null
-		room.comment=query.comment ? ""
-		unless room.rule.number
-			cb {error: "invalid players number"}
-			return
+		M.rooms.count (err,count)->
+			
+			room=
+				id:count	#ID連番
+				name: query.name
+				rule:
+					number:parseInt query.number
+				open:true
+			room.password=query.password ? null
+			room.comment=query.comment ? ""
+			unless room.rule.number
+				cb {error: "invalid players number"}
+				return
 	
-		SS.server.user.myProfile (user)=>
-			room.owner=
-				userid: user.userid
-				name: user.name
-			M.rooms.insert room
-			cb {id: room.id}
+			SS.server.user.myProfile (user)->
+				room.owner=
+					userid: user.userid
+					name: user.name
+				M.rooms.insert room
+				cb {id: room.id}
 	
 		
