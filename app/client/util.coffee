@@ -17,7 +17,7 @@ exports.formQuery=(form)->
 	el=form.elements
 	for e in el
 		if e.tagName.toLowerCase()=="input"
-			if e.type!="submit" && e.type!="reset" && e.type!="button"
+			if e.type!="submit" && e.type!="reset" && e.type!="button" && !e.disabled
 				q[e.name]=e.value
 	q
 #true,false

@@ -1,0 +1,24 @@
+section.rooms
+  h1 新しいルーム
+  form#newroomform
+    p
+      label
+        | ルームの名前
+        input(size="30",name="name",required)
+    p
+      label
+        input(type="checkbox",name="usepassword")
+        | パスワード
+      input(type="text",name="password",disabled,required)
+    p
+      label
+        | コメント
+        input(size="50",name="comment")
+    fieldset
+      legend ルール
+      p
+        label
+          | 人数
+          input(type="number",min="2",name="number",step="1",value="6")
+    p
+      input(type="submit",value="作成")

@@ -5,6 +5,10 @@ exports.start=->
 		form=je.target
 		SS.client.app.login form.elements["userid"].value, form.elements["password"].value,(result)->
 			if result
+				if form.elements["remember_me"].checked
+					# 記憶
+					localStorage.setItem "userid",form.elements["userid"].value
+					localStorage.setItem "password", form.elements["password"].value
 				SS.client.app.showUrl "/my"
 			else
 				$("#loginerror").text "ユーザーIDまたはパスワードが違います。"
