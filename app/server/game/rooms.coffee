@@ -1,6 +1,7 @@
 ###
 room: {
   id: Number
+  name: String
   owner:{
     userid: Userid
     name: String

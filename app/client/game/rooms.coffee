@@ -12,7 +12,7 @@ exports.start=->
 			td=tr.insertCell -1
 			a=document.createElement "a"
 			a.href="/room/#{room.id}"
-			a.textContent=room.id
+			a.textContent=room.name
 			td.appendChild a
 			
 			#owner
