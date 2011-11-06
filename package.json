@@ -1,6 +1,6 @@
 {
-  "name": "My new SocketStream app",
-  "description": "An awesome real time application",
+  "name": "Are you a werewolf?",
+  "description": "You are a werewolf.",
   "version": "0.1.0",
   "author": "Me <me@mydomain.com>",
   "private": true,

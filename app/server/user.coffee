@@ -10,6 +10,7 @@ exports.actions =
 			if response.success
 				@session.setUserId response.userid
 				@session.attributes.user=response
+				#@session.attributes.room=null	# 今入っている部屋
 				cb false
 			else
 				cb true

@@ -12,8 +12,20 @@ exports.start=->
 			td=tr.insertCell -1
 			a=document.createElement "a"
 			a.href="/room/#{room.id}"
-			a.textContent=room.name
+			a.textContent="#{room.name}(#{room.players.length})"
 			td.appendChild a
+			
+			#状態
+			td=tr.insertCell -1
+			td.textContent= switch room.mode
+				when "waiting"
+					"募集中"
+				when "playing"
+					"対戦中"
+				when "end"
+					"終了"
+				else
+					"不明"
 			
 			#owner
 			td=tr.insertCell -1
@@ -24,7 +36,7 @@ exports.start=->
 			
 			#ルール
 			td=tr.insertCell -1
-			td.textContent="#{room.rule.number}人"
+			td.textContent="#{room.number}人"
 			
 			#コメント
 			td=tr.insertCell -1

@@ -1,10 +1,13 @@
 # Client-side Code
 
 # Bind to socket events
-SS.socket.on 'disconnect', ->  $('#message').text('SocketStream server is down :-(')
-SS.socket.on 'reconnect', ->   $('#message').text('SocketStream server is up :-)')
+#SS.socket.on 'disconnect', ->  $('#message').text('SocketStream server is down :-(')
+#SS.socket.on 'reconnect', ->   $('#message').text('SocketStream server is up :-)')
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
+
+my_userid=null
+
 exports.init = ->
   	# 固定リンク
 	$("a").live "click", (e)->
@@ -57,13 +60,23 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 			# 新しい部屋
 			page "templates-game-newroom",null,SS.client.game.newroom,null
 		else
-			SS.server.user.logout ->
-				page "templates-top",null,SS.client.top,null
+			if result=url.match /^\/room\/(\d+)$/
+				# ルーム
+				page "templates-game-game",null,SS.client.game.game,parseInt result[1]
+			else
+				SS.server.user.logout ->
+					my_userid=null
+					localStorage.removeItem "userid"
+					localStorage.removeItem "password"
+					page "templates-top",null,SS.client.top,null
 
 exports.login=login=(uid,ups,cb)->
 	SS.server.user.login {userid:uid,password:ups},(result)->
 		if !result
 			# OK
+			my_userid=uid
+			$("#username").text uid
 			cb? true
 		else
 			cb? false
+exports.userid=->my_userid
