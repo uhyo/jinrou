@@ -64,11 +64,12 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				# ルーム
 				page "templates-game-game",null,SS.client.game.game,parseInt result[1]
 			else
+				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
 					my_userid=null
 					localStorage.removeItem "userid"
 					localStorage.removeItem "password"
-					page "templates-top",null,SS.client.top,null
+exports.refresh=->showUrl location.pathname,true
 
 exports.login=login=(uid,ups,cb)->
 	SS.server.user.login {userid:uid,password:ups},(result)->
@@ -80,3 +81,4 @@ exports.login=login=(uid,ups,cb)->
 		else
 			cb? false
 exports.userid=->my_userid
+
