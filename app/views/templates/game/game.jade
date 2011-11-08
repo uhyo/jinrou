@@ -20,6 +20,18 @@
           dd: input(name="Diviner",min="0",step="1",type="number")
           dt 人狼
           dd: input(name="Werewolf",min="1",step="1",type="number")
+      fieldset
+        legend ルール
+        p
+          | 一日目夜
+          select(name="scapegoat")
+            option(value="on") 身代わり君が死ぬ
+            option(value="off") 参加者が死ぬ
+            option(value="no") 誰も死なない
       p: input(type="submit",value="開始")
-        
+  form#speakform
+    p
+      input(size="50",name="comment",required)
+      input(type="submit",value="発言")
+  #logs
   

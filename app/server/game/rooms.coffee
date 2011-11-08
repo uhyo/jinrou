@@ -11,7 +11,7 @@ room: {
   mode: "waiting"/"playing"/"end"
 
   number: Number(プレイヤー数)
-  players:[Userid,Userid,Userid,...]
+  players:[PlayerObject,PlayerObject,...]
 }
 ###
 exports.actions=
@@ -43,20 +43,17 @@ exports.actions=
 				name: query.name
 				number:parseInt query.number
 				mode:"waiting"
-				players:[@session.user_id]
+				players:[@session.attributes.user]
 			room.password=query.password ? null
 			room.comment=query.comment ? ""
 			unless room.number
 				cb {error: "invalid players number"}
 				return
-	
-			SS.server.user.myProfile (user)->
-				room.owner=
-					userid: user.userid
-					name: user.name
-				M.rooms.insert room
-				SS.server.game.game.newGame room
-				cb {id: room.id}
+			room.owner=@session.attributes.user
+			M.rooms.insert room
+			SS.server.game.game.newGame room
+			cb {id: room.id}
+
 # 部屋に入る
 # 成功ならnull 失敗ならエラーメッセージ
 	join: (roomid,cb)->
@@ -67,21 +64,24 @@ exports.actions=
 			if room.error?
 				cb "その部屋はありません"
 				return
-			if @session.user_id in room.players
+			if @session.user_id in (room.players.map (x)->x.userid)
 				cb "すでに参加しています"
 				return
-			if room.players.length+1 >= room.number
+			if room.players.length >= room.number
 				# 満員
 				cb "これ以上入れません"
 				return
-			#room.players.push @session.user_id
-			M.rooms.update {id:roomid},{$push: {players:@session.user_id}},(err)=>
+			unless room.mode=="waiting"
+				cb "既に参加は締めきられています"
+				return
+			#room.players.push @session.attributes.user
+			M.rooms.update {id:roomid},{$push: {players:@session.attributes.user}},(err)=>
 				if err?
 					cb "エラー:#{err}"
 				else
 					cb null
 					# 入室通知
-					SS.publish.channel "room#{roomid}", "join", @session.user_id
+					SS.publish.channel "room#{roomid}", "join", @session.attributes.user
 # 部屋から出る
 	unjoin: (roomid,cb)->
 		unless @session.user_id
@@ -91,11 +91,14 @@ exports.actions=
 			if room.error?
 				cb "その部屋はありません"
 				return
-			unless @session.user_id in room.players
+			unless @session.user_id in (room.players.map (x)->x.userid)
 				cb "まだ参加していません"
 				return
+			unless room.mode=="waiting"
+				cb "もう始まっています"
+				return
 			#room.players=room.players.filter (x)=>x!=@session.user_id
-			M.rooms.update {id:roomid},{$pull: {players:@session.user_id}},(err)=>
+			M.rooms.update {id:roomid},{$pull: {players:{userid:@session.user_id}}},(err)=>
 				if err?
 					cb "エラー:#{err}"
 				else

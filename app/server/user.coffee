@@ -83,18 +83,10 @@ exports.actions =
 				if err?
 					cb {error:"プロフィール変更に失敗しました"}
 					return
+				delete record.password
 				@session.attributes.user=record
 				@session.save ->
 				cb record
-# 遊ぶゲームを変える
-# cb:エラーメッセージ
-	changeGame: (game,cb)->
-		unless SS.server.game.isGame game
-			cb "ゲーム名が無効です"
-			return
-		@session.attributes.game=game
-		@session.save ->
-			cb null
 
 
 #パスワードハッシュ化

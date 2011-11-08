@@ -18,26 +18,27 @@ exports.start=(roomid)->
 		# 新しいゲーム
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
-			
+			form.elements["number"].value=room.players.length
 			setplayersnumber form,room.players.length
 
 			$("#gamestartsec").removeAttr "hidden"
 		$("#roomname").text room.name
 		room.players.forEach (x)->
 			li=document.createElement "li"
+			li.title=x.userid
 			a=document.createElement "a"
-			a.href="/user/#{x}"
-			a.textContent=x
+			a.href="/user/#{x.userid}"
+			a.textContent=x.name
 			li.appendChild a
 			$("#players").append li
 		userid=SS.client.app.userid()
 		if room.mode=="waiting"
-			if room.players[0]==SS.client.app.userid()
+			if room.owner.userid==SS.client.app.userid()
 				# 自分
 				b=makebutton "ゲームを開始"
 				$("#playersinfo").append b
 				$(b).click newgamebutton
-			if room.players.filter((x)->x==userid).length==0
+			if room.players.filter((x)->x.userid==userid).length==0
 				# 未参加
 				b=makebutton "ゲームに参加"
 				$("#playersinfo").append b
@@ -78,23 +79,32 @@ exports.start=(roomid)->
 					form.elements["Human"].value=room.players.length-sum
 				
 				
-			$("#gamestart").submit (je)->
-				je.preventDefault()
+		$("#gamestart").submit (je)->
+			# いよいよゲーム開始だ！
+			query=SS.client.util.formQuery je.target
+			console.log query
+			SS.server.game.game.gameStart roomid,query,(result)->
+				if result?
+					SS.client.util.message "ルーム",result
+			je.preventDefault()
+		$("#speakform").submit (je)->
+			SS.server.game.game
 		# 誰かが参加した!!!!
 		join_id=SS.client.socket.on "join","room#{roomid}",(msg,channel)->
 			room.players.push msg
 			
 			li=document.createElement "li"
+			li.title=msg.userid
 			a=document.createElement "a"
-			a.href="/user/#{msg}"
-			a.textContent=msg
+			a.href="/user/#{msg.userid}"
+			a.textContent=msg.name
 			li.appendChild a
 			$("#players").append li
 		# 誰かが出て行った!!!
 		unjoin_id=SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x!=msg
 			
-			$("#players li").filter((idx)-> this.textContent==msg).remove()
+			$("#players li").filter((idx)-> this.title==msg).remove()
 		
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
