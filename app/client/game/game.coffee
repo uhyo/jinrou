@@ -86,6 +86,8 @@ exports.start=(roomid)->
 			SS.server.game.game.gameStart roomid,query,(result)->
 				if result?
 					SS.client.util.message "ルーム",result
+				else
+					$("#gamestartsec").attr "hidden","hidden"
 			je.preventDefault()
 		$("#speakform").submit (je)->
 			SS.server.game.game
