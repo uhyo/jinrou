@@ -81,6 +81,7 @@ exports.actions=
 				else
 					cb null
 					# 入室通知
+					SS.server.game.game.inlog room,@session.attributes.user
 					SS.publish.channel "room#{roomid}", "join", @session.attributes.user
 # 部屋から出る
 	unjoin: (roomid,cb)->
@@ -104,6 +105,7 @@ exports.actions=
 				else
 					cb null
 					# 退室通知
+					SS.server.game.game.outlog room,@session.attributes.user
 					SS.publish.channel "room#{roomid}", "unjoin", @session.user_id
 	
 	
