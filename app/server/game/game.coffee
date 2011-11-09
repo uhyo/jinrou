@@ -85,7 +85,7 @@ class Game
 		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "wolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行)
+	mode:"day"(昼) / "system"(システムメッセージ) /  "wolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと)
 	comment: String
 	userid:Userid
 	name:String
@@ -116,6 +116,9 @@ class Player
 		else
 			p=new jobs[obj.type] obj.id,obj.name
 		p
+	
+	# 人狼かどうか
+	isWerewolf:->@type=="Werewolf"
 		
 		
 class Human extends Player
@@ -205,7 +208,10 @@ exports.actions=
 		unless game?
 			cb {error:"そのゲームは存在しません"}
 			return
-		cb {logs:game.logs}
+		player=game.players.filter((x)=>x.id==@session.user_id)[0]
+		cb {
+			logs:game.logs.filter (x)-> islogOK player,x
+		}
 		
 	speak: (roomid,comment,cb)->
 		game=games[roomid]
@@ -219,10 +225,20 @@ exports.actions=
 			comment:comment
 			userid:@session.user_id
 			name:@session.attributes.user.name
+			to:null
 		if game.day<=0	#準備中
 			log.mode="prepare"
 		else
-			
+			# ゲームしている
+			player=game.filter((x)->x.id==@session.user_id)[0]
+			unless player?
+				# 観戦者
+				log.mode="audience"
+				log.to=@session.user_id
+			else if player.isWerewolf()
+				# 狼
+				log.mode="werewolf"
+				
 		splashlog roomid,game,log
 		cb null
 
@@ -230,7 +246,29 @@ splashlog=(roomid,game,log)->
 	game.logs.push log
 	unless log.to?
 		switch log.mode
-			when "prepare","system"
+			when "prepare","system","nextturn"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
+
+# プレイヤーにログを見せてもよいか			
+islogOK=(player,log)->
+	# player: Player / null
+	unless player?
+		# 観戦者
+		!log.to? && (log.type in ["day","system","prepare","nextturn"])
+	else if log.to? && log.to!=player.id
+		# 個人宛
+		false
+	else
+		if log.type in ["day","system","nextturn","prepare","monologue","skill"]
+			true
+		else if log.type=="wolf"
+			player.isWerewolf()
+		else if log.type=="heaven"
+			player.dead
+		else
+			false
+			true
+	
+			
 		
