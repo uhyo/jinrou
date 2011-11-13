@@ -57,6 +57,8 @@ class Game
 				pl=players[r]
 				@players.push new jobs[job] pl.userid,pl.name
 				players.splice r,1
+				SS.publish.user pl.userid, "getjob", makejobinfo this,player
+		SS.publish.channel "room#{@id}","socketreinfo",{}
 		cb null
 	#次のターンに進む
 	nextturn:->
@@ -85,7 +87,7 @@ class Game
 		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "wolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと)
+	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと)
 	comment: String
 	userid:Userid
 	name:String
@@ -168,6 +170,22 @@ exports.actions=
 			mode:"system"
 		if games[room.id]
 			splashlog room.id,games[room.id], log
+	# 状況に応じたチャンネルを割り当てる
+	playerchannel:(roomid,session)->
+		game=games[roomid]
+		unless game?
+			return
+		player=game.players.filter((x)->x.id==session.user_id)[0]
+		unless player?
+			session.channel.subscribe "room#{roomid}_audience"
+			return
+		if player.dead
+			session.channel.subscribe "room#{roomid}_heaven"
+		else if player.isWerewolf()
+			session.channel.subscribe "room#{roomid}_werewolf"
+			
+			
+		
 			
 
 #ゲーム開始処理
@@ -203,15 +221,18 @@ exports.actions=
 					cb null
 				else
 					cb result
+	# 情報を開示
 	getlog:(roomid,cb)->
 		game=games[roomid]
 		unless game?
 			cb {error:"そのゲームは存在しません"}
 			return
 		player=game.players.filter((x)=>x.id==@session.user_id)[0]
-		cb {
+		result= 
 			logs:game.logs.filter (x)-> islogOK player,x
-		}
+		result=makejobinfo game,player,result
+#		SS.server.game.game.playerchannel roomid,@session
+		cb result
 		
 	speak: (roomid,comment,cb)->
 		game=games[roomid]
@@ -230,17 +251,32 @@ exports.actions=
 			log.mode="prepare"
 		else
 			# ゲームしている
-			player=game.filter((x)->x.id==@session.user_id)[0]
+			player=game.players.filter((x)=>x.id==@session.user_id)[0]
 			unless player?
 				# 観戦者
 				log.mode="audience"
-				log.to=@session.user_id
-			else if player.isWerewolf()
-				# 狼
-				log.mode="werewolf"
+			else if !game.night
+				# 昼
+				log.mode="day"
+			else
+				# 夜
+				if player.isWerewolf()
+					# 狼
+					log.mode="werewolf"
+				else
+					# 村人
+					log.mode="monologue"
+					log.to=@session.user_id
 				
 		splashlog roomid,game,log
 		cb null
+	# プレイヤーに合わせてチャンネル設定してもらう
+	socketreinfo:(roomid)->
+		SS.server.game.game.playerchannel roomid,@session
+		
+	# 夜の仕事
+	job:(roomid,query)->
+		
 
 splashlog=(roomid,game,log)->
 	game.logs.push log
@@ -249,26 +285,43 @@ splashlog=(roomid,game,log)->
 			when "prepare","system","nextturn"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
+			when "werewolf"
+				# 狼
+				SS.publish.channel ["room#{roomid}_werewolf","room#{roomid}_heaven"], "log", log
+			when "audience"
+				# 観客
+				SS.publish.channel "room#{roomid}_audience","log",log
+	else
+		SS.publish.user log.to, "log", log
 
 # プレイヤーにログを見せてもよいか			
 islogOK=(player,log)->
 	# player: Player / null
 	unless player?
 		# 観戦者
-		!log.to? && (log.type in ["day","system","prepare","nextturn"])
+		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience"])
 	else if log.to? && log.to!=player.id
 		# 個人宛
 		false
 	else
-		if log.type in ["day","system","nextturn","prepare","monologue","skill"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill"]
 			true
-		else if log.type=="wolf"
+		else if log.mode=="werewolf"
 			player.isWerewolf()
-		else if log.type=="heaven"
+		else if log.mode=="heaven"
 			player.dead
 		else
 			false
-			true
-	
-			
+#job情報を
+makejobinfo = (game,player,result={})->
+	result.type= if player? then player.type else null
+	if player
+		if player.isWerewolf()
+			# 人狼は仲間が分かる
+			result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+				{
+					id:x.id
+					name:x.name
+				}
+	result
 		

@@ -11,6 +11,7 @@ exports.actions =
 				@session.setUserId response.userid
 				@session.attributes.user=response
 				#@session.attributes.room=null	# 今入っている部屋
+				@session.channel.unsubscribeAll()
 				cb false
 			else
 				cb true
@@ -18,6 +19,7 @@ exports.actions =
 # ログアウト
 	logout: (cb)->
 		@session.user.logout(cb)
+		@session.channel.unsubscribeAll()
 			
 # 新規登録
 # cb: エラーメッセージ（成功なら偽）

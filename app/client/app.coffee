@@ -44,10 +44,11 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 	unless nohistory
 		history.pushState null,null,url
 	if result=url.match /(https?:\/\/.+?)(\/.+)$/
-		if result[1]==location.origin
+		if result[1]=="#{location.protocol}//#{location.host}" #location.origin
 			url=result[2]
 		else
 			location.href=url
+	
 	switch url
 		when "/my"
 			# プロフィールとか

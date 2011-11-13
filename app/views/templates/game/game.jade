@@ -29,6 +29,22 @@
             option(value="off") 参加者が死ぬ
             option(value="no") 誰も死なない
       p: input(type="submit",value="開始")
+  .infobox
+    div
+      | あなたは
+      b#myjob ???
+      | です
+    #jobinfo
+  form#jobform.hidden
+    ul#form_players
+    #form_Werewolf.hidden
+      p
+        | 殺す人を一人選んで下さい（先着順）：
+        input(type="submit",value="殺す")
+    #form_Diviner.hidden
+      p
+        | 占う人を一人選んで下さい：
+        input(type="submit",value="占う")
   form#speakform
     p
       input(size="50",name="comment",required)

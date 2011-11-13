@@ -116,6 +116,7 @@ exports.actions=
 			cb "ログインして下さい"
 			return
 		@session.channel.subscribe "room#{roomid}"
+		SS.server.game.game.playerchannel roomid,@session
 		cb null
 	
 	# 成功ならnull 失敗ならエラーメッセージ
@@ -124,7 +125,8 @@ exports.actions=
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
-		@session.channel.unsubscribe "room#{roomid}"
+#		@session.channel.unsubscribe "room#{roomid}"
+		@session.channel.unsubscribeAll()
 		cb null
 #cb: (err)->
 setRoom=(roomid,room,cb)->

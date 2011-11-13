@@ -1,8 +1,11 @@
 this_room_id=null
 
-join_id=null
-unjoin_id=null
-log_id=null
+socket_ids=[]
+
+job_names=
+	"Human":"村人"
+	"Werewolf":"人狼"
+	"Diviner":"占い師"
 exports.start=(roomid)->
 	SS.server.game.rooms.enter roomid,(result)->
 		if result?
@@ -22,6 +25,9 @@ exports.start=(roomid)->
 				SS.client.util.message "エラー",result.error
 			else
 				result.logs.forEach getlog
+				getjobinfo result
+				
+				
 			
 		# 新しいゲーム
 		newgamebutton = (je)->
@@ -104,8 +110,14 @@ exports.start=(roomid)->
 					SS.client.util.message "エラー",result
 			je.preventDefault()
 			form.elements["comment"].value=""
+		
+		# 夜の仕事
+		$("#jobform").submit (je)->
+			form=je.target
+			SS.server.game.job room,SS.client.util.formQuery(form),	(result)->		
+			
 		# 誰かが参加した!!!!
-		join_id=SS.client.socket.on "join","room#{roomid}",(msg,channel)->
+		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
 			room.players.push msg
 			
 			li=document.createElement "li"
@@ -116,15 +128,23 @@ exports.start=(roomid)->
 			li.appendChild a
 			$("#players").append li
 		# 誰かが出て行った!!!
-		unjoin_id=SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
+		socket_ids.push SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x!=msg
 			
 			$("#players li").filter((idx)-> this.title==msg).remove()
-		# ログが流れてきた！！！
-		log_id=SS.client.socket.on "log",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0
+		# ログが流れてきた!!!
+		socket_ids.push SS.client.socket.on "log",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				# この部屋へのログ
 				getlog msg
+		# 職情報を教えてもらった!!!
+		socket_ids.push SS.client.socket.on "getjob",null,(msg,channel)->
+			if !channel || channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0
+				getjobinfo msg
+		# ソケット更新があるよ!!!
+		socket_ids.push SS.client.socket.on "socketreinfo",null,(msg,channel)->
+			if !channel || channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0
+				SS.server.game.game.socketreinfo roomid
 		
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
@@ -143,7 +163,11 @@ exports.start=(roomid)->
 		if log.name?
 			span=document.createElement "span"
 			span.classList.add "name"
-			span.textContent="#{log.name}:"
+			span.textContent=switch log.mode
+				when "monologue"
+					"#{log.name}の独り言:"
+				else
+					"#{log.name}:"
 			p.appendChild span
 		span=document.createElement "span"
 		span.classList.add "comment"
@@ -160,7 +184,12 @@ exports.start=(roomid)->
 		
 		logs=$("#logs").get 0
 		logs.insertBefore p,logs.firstChild
-		
+	# 役職情報をもらった
+	getjobinfo=(obj)->
+		if obj.type
+			$("#myjob").text job_names[obj.type]
+		if obj.wolves?
+			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
 	makebutton=(text)->
 		b=document.createElement "button"
 		b.type="button"
@@ -174,10 +203,14 @@ exports.end=->
 		if result?
 			SS.client.util.message "ルーム",result
 			return
-	SS.client.socket.off join_id
-	SS.client.socket.off unjoin_id
-	SS.client.socket.off log_id
+	alloff socket_ids...
 	document.body.classList.remove "day"
 	document.body.classList.remove "night"
+	
+#ソケットを全部off
+alloff= (ids...)->
+	ids.forEach (x)->
+		SS.client.socket.off x
+		
 	
 		
