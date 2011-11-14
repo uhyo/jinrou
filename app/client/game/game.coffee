@@ -139,12 +139,12 @@ exports.start=(roomid)->
 				getlog msg
 		# 職情報を教えてもらった!!!
 		socket_ids.push SS.client.socket.on "getjob",null,(msg,channel)->
-			if !channel || channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				getjobinfo msg
-		# ソケット更新があるよ!!!
-		socket_ids.push SS.client.socket.on "socketreinfo",null,(msg,channel)->
-			if !channel || channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0
-				SS.server.game.game.socketreinfo roomid
+		# 更新したほうがいい
+		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
+			SS.client.app.refresh()
+			
 		
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number

@@ -58,7 +58,6 @@ class Game
 				@players.push new jobs[job] pl.userid,pl.name
 				players.splice r,1
 				SS.publish.user pl.userid, "getjob", makejobinfo this,player
-		SS.publish.channel "room#{@id}","socketreinfo",{}
 		cb null
 	#次のターンに進む
 	nextturn:->
@@ -219,6 +218,7 @@ exports.actions=
 					game.nextturn()
 					game.save()
 					cb null
+					SS.publish.channel "room#{roomid}","refresh",{}
 				else
 					cb result
 	# 情報を開示
@@ -270,9 +270,6 @@ exports.actions=
 				
 		splashlog roomid,game,log
 		cb null
-	# プレイヤーに合わせてチャンネル設定してもらう
-	socketreinfo:(roomid)->
-		SS.server.game.game.playerchannel roomid,@session
 		
 	# 夜の仕事
 	job:(roomid,query)->
