@@ -35,13 +35,17 @@
       b#myjob ???
       | です
     #jobinfo
-  form#jobform.hidden
+  form#jobform(hidden)
     ul#form_players
-    #form_Werewolf.hidden
+    #form_day(hidden).jobformarea
+      p
+        | 処刑する人に投票して下さい：
+        input(type="submit",value="投票する")
+    #form_Werewolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい（先着順）：
         input(type="submit",value="殺す")
-    #form_Diviner.hidden
+    #form_Diviner(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
         input(type="submit",value="占う")

@@ -6,6 +6,7 @@ job_names=
 	"Human":"村人"
 	"Werewolf":"人狼"
 	"Diviner":"占い師"
+my_job=null
 exports.start=(roomid)->
 	SS.server.game.rooms.enter roomid,(result)->
 		if result?
@@ -24,8 +25,9 @@ exports.start=(roomid)->
 			if result.error?
 				SS.client.util.message "エラー",result.error
 			else
-				result.logs.forEach getlog
 				getjobinfo result
+				result.logs.forEach getlog
+				formplayers result.players
 				
 				
 			
@@ -78,7 +80,6 @@ exports.start=(roomid)->
 		jobs=["Diviner","Werewolf"]
 		form.addEventListener "input",(e)->
 			t=e.target
-			console.log t
 			if t.name in jobs
 				sum=0
 				jobs.forEach (x)->
@@ -111,10 +112,15 @@ exports.start=(roomid)->
 			je.preventDefault()
 			form.elements["comment"].value=""
 		
-		# 夜の仕事
+		# 夜の仕事（あと投票）
 		$("#jobform").submit (je)->
 			form=je.target
-			SS.server.game.job room,SS.client.util.formQuery(form),	(result)->		
+			SS.server.game.job room,SS.client.util.formQuery(form),	(result)->
+				if result?
+					SS.client.util.message "エラー",result
+				else
+					$("#jobform").attr "hidden","hidden"
+					
 			
 		# 誰かが参加した!!!!
 		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
@@ -175,6 +181,13 @@ exports.start=(roomid)->
 			span.textContent="#{log.day}日目の#{if log.night then '夜' else '昼'}になりました。"
 			document.body.classList.add (if log.night then "night" else "day")
 			document.body.classList.remove (if log.night then "day" else "night")
+			
+			$("#jobform").removeAttr "hidden"
+			$("#jobform div.jobformarea").attr "hidden","hidden"
+			if log.night
+				$("#form_#{my_job}").removeAttr "hidden"
+			else
+				$("#form_day").removeAttr "hidden"
 		else
 			span.textContent=log.comment
 			
@@ -186,10 +199,26 @@ exports.start=(roomid)->
 		logs.insertBefore p,logs.firstChild
 	# 役職情報をもらった
 	getjobinfo=(obj)->
+		my_job=obj.type
 		if obj.type
 			$("#myjob").text job_names[obj.type]
 		if obj.wolves?
 			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
+	# 参加者一覧をもらった（夜の仕事用）
+	formplayers=(players)->
+		players.forEach (x)->
+			li=document.createElement "li"
+			label=document.createElement "label"
+			label.textContent=x.name
+			input=document.createElement "input"
+			input.type="radio"
+			input.name="target"
+			input.value=x.id
+			input.disabled=x.dead
+			label.appendChild input
+			li.appendChild label
+			$("#form_players").append li
+			
 	makebutton=(text)->
 		b=document.createElement "button"
 		b.type="button"
