@@ -108,9 +108,9 @@ class Game
 		.forEach (x)=>
 			situation=switch x.found
 				#死因
-				case "werewolf"
+				when "werewolf"
 					"無惨な姿で発見されました"
-				case "punish"
+				when "punish"
 					"処刑されました"
 				else
 					"死んでました"				
@@ -119,11 +119,10 @@ class Game
 				comment:"#{x.name}は#{situation}"
 			splashlog @id,this,log
 			x.found=""	# 発見されました
+	# 投票終わりチェック
 	execute:->
-		# 投票終わりチェック
-		return unless @players.every (x)->x.dead || x.voteto
-		
-		tos={}	# 結果を入れるぞ！
+		return unless @players.every((x)->x.dead || x.voteto)
+		tos={}
 		@players.forEach (x)->
 			return unless x.dead || !x.voteto
 			voteresult[x.id]=x.voteto
@@ -458,7 +457,7 @@ exports.actions=
 				return
 			
 			# 能力をすべて発動したかどうかチェック
-			if game.players.every (x)->x.dead || x.sleeping()
+			if game.players.every( (x)->x.dead || x.sleeping())
 				game.midnight()
 				game.nextturn()
 		else
