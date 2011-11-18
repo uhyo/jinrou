@@ -87,9 +87,11 @@ class Game
 		if @night
 			@players.forEach (x)->x.sunset(this)
 		else
-			@players.forEach (x)->x.sunrise(this)
-			#死体処理
-			@bury()
+			@players.forEach (x)->
+				x.voteto=null
+				x.sunrise(this)
+		#死体処理
+		@bury()
 
 	#夜の能力を処理する
 	midnight:->
@@ -108,6 +110,8 @@ class Game
 				#死因
 				case "werewolf"
 					"無惨な姿で発見されました"
+				case "punish"
+					"処刑されました"
 				else
 					"死んでました"				
 			log=
@@ -146,7 +150,19 @@ class Game
 				r=x.publicinfo()
 				r.voteto=x.voteto
 				r
-		
+		splashlog @id,this,log
+		if revote
+			# 再投票
+			log=
+				mode:"system"
+				comment:"再投票になりました。"
+			splashlog @id,this,log
+			@player.forEach (player)->
+				player.voteto=null
+		else
+			# 結果が出た 死んだ!
+			player.dead=true	# 投票で死んだ
+			player.found="punish"
 ###
 logs:[{
 	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果）
@@ -198,7 +214,6 @@ class Player
 	isWerewolf:->@type=="Werewolf"
 	# 昼のはじまり
 	sunrise:(game)->
-		@voteto=null
 	# 夜のはじまり
 	sunset:(game)->
 	# 夜にもう寝たか
