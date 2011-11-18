@@ -165,33 +165,51 @@ exports.start=(roomid)->
 		
 	#ログをもらった
 	getlog=(log)->
-		p=document.createElement "p"
-		if log.name?
+		unless log.mode=="voteresult"
+			p=document.createElement "p"
+			if log.name?
+				span=document.createElement "span"
+				span.classList.add "name"
+				span.textContent=switch log.mode
+					when "monologue"
+						"#{log.name}の独り言:"
+					else
+						"#{log.name}:"
+				p.appendChild span
 			span=document.createElement "span"
-			span.classList.add "name"
-			span.textContent=switch log.mode
-				when "monologue"
-					"#{log.name}の独り言:"
+			span.classList.add "comment"
+			if log.mode=="nextturn"
+				span.textContent="#{log.day}日目の#{if log.night then '夜' else '昼'}になりました。"
+				document.body.classList.add (if log.night then "night" else "day")
+				document.body.classList.remove (if log.night then "day" else "night")
+			
+				$("#jobform").removeAttr "hidden"
+				$("#jobform div.jobformarea").attr "hidden","hidden"
+				if log.night
+					$("#form_#{my_job}").removeAttr "hidden"
 				else
-					"#{log.name}:"
-			p.appendChild span
-		span=document.createElement "span"
-		span.classList.add "comment"
-		if log.mode=="nextturn"
-			span.textContent="#{log.day}日目の#{if log.night then '夜' else '昼'}になりました。"
-			document.body.classList.add (if log.night then "night" else "day")
-			document.body.classList.remove (if log.night then "day" else "night")
-			
-			$("#jobform").removeAttr "hidden"
-			$("#jobform div.jobformarea").attr "hidden","hidden"
-			if log.night
-				$("#form_#{my_job}").removeAttr "hidden"
+					$("#form_day").removeAttr "hidden"
+		
 			else
-				$("#form_day").removeAttr "hidden"
-		else
-			span.textContent=log.comment
+				span.textContent=log.comment
 			
-		p.appendChild span
+			p.appendChild span
+		else
+			# 表を出す
+			p=document.createElement "table"
+			p.createCaption().textContent="投票結果"
+			vr=log.voteresult
+			tos={}
+			vr.forEach (player)->
+				if tos[player.voteto]?
+					tos[player.voteto]++
+				else
+					tos[player.voteto]=1
+			vr.forEach (player)->
+				tr=p.insertRow()
+				tr.insertCell().textContnet=player.name
+				tr.insertCell().textContent="#{tos[player.id]}票"
+				tr.insertCell().textContent="→#{vr.filter((x)->x.id==player.voteto)[0].name}"
 		
 		p.classList.add log.mode
 		

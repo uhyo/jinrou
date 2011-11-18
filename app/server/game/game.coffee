@@ -76,11 +76,6 @@ class Game
 		else
 			@night=true
 		
-		if @night
-			@players.forEach (x)->x.sunset(this)
-		else
-			@players.forEach (x)->x.sunrise(this)
-
 		log=
 			mode:"nextturn"
 			day:@day
@@ -88,6 +83,14 @@ class Game
 			userid:-1
 			name:null
 		splashlog @id,this,log
+
+		if @night
+			@players.forEach (x)->x.sunset(this)
+		else
+			@players.forEach (x)->x.sunrise(this)
+			#死体処理
+			@bury()
+
 	#夜の能力を処理する
 	midnight:->
 		wolf_flg=false	# 狼の処理が既に終わったか
@@ -112,15 +115,41 @@ class Game
 				comment:"#{x.name}は#{situation}"
 			splashlog @id,this,log
 			x.found=""	# 発見されました
-					
+	execute:->
+		# 投票終わりチェック
+		return unless @players.every (x)->x.dead || x.voteto
 		
-		
-		
-		
+		tos={}	# 結果を入れるぞ！
+		@players.forEach (x)->
+			return unless x.dead || !x.voteto
+			voteresult[x.id]=x.voteto
+			if tos[x.voteto]?
+				tos[x.voteto]++
+			else
+				tos[x.voteto]=1
+		max=0
+		for playerid,num of tos
+			if num>max then max=num	#最大値をみる
+		player=null
+		revote=false	# 際投票
+		for playerid,num of tos
+			if num==max
+				if player?
+					# 斎藤票だ!
+					revote=true
+					break
+				player=@getPlayer playerid
+		# 投票結果
+		log=
+			mode:"voteresult"
+			voteresult:@players.map (x)->
+				r=x.publicinfo()
+				r.voteto=x.voteto
+				r
 		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと)
+	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果）
 	comment: String
 	userid:Userid
 	name:String
@@ -129,8 +158,10 @@ logs:[{
 	  day:Number
 	  night:Boolean
 	(skillの場合)
-	jobtype: String
-	skillresult:Object / []
+	  jobtype: String
+	  skillresult:Object / []
+	(voteresultの場合)
+	  voteresult:[]
 },...]
 rule:{
     number: Number # プレイヤー数
@@ -431,7 +462,7 @@ splashlog=(roomid,game,log)->
 	game.logs.push log
 	unless log.to?
 		switch log.mode
-			when "prepare","system","nextturn"
+			when "prepare","system","nextturn","voteresult"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf"
@@ -453,7 +484,7 @@ islogOK=(player,log)->
 		# 個人宛
 		false
 	else
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult"]
 			true
 		else if log.mode=="werewolf"
 			player.isWerewolf()
