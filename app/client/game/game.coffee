@@ -212,6 +212,7 @@ exports.start=(roomid)->
 					# 終了
 					document.body.classList.add "finished"
 					document.body.classList.remove x for x in ["day","night"]
+					$("#jobform").attr "hidden","hidden"
 				else
 					document.body.classList.add (if log.night then "night" else "day")
 					document.body.classList.remove (if log.night then "day" else "night")
@@ -238,6 +239,9 @@ exports.start=(roomid)->
 			$("#myjob").text job_names[obj.type]
 		if obj.wolves?
 			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
+		if obj.winner?
+			# 勝敗
+			$("#jobinfo").text "#{if obj.winner then '勝利' else '敗北'}しました"
 		if obj.dead
 			# 自分は既に死んでいる
 			document.body.classList.add "heaven"

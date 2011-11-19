@@ -612,6 +612,7 @@ makejobinfo = (game,player,result={})->
 		if player.dead || game.finished
 			# 情報を開示する
 			result.allplayers=game.players.map (x)->x.serialize()
+		result.winner=player.winner
 	
 	result
 		
