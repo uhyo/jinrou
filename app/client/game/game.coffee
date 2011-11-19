@@ -28,7 +28,7 @@ exports.start=(roomid)->
 				getjobinfo result
 				result.logs.forEach getlog
 				formplayers result.players
-				
+						
 				
 			
 		# 新しいゲーム
@@ -115,12 +115,13 @@ exports.start=(roomid)->
 		# 夜の仕事（あと投票）
 		$("#jobform").submit (je)->
 			form=je.target
-			SS.server.game.job room,SS.client.util.formQuery(form),	(result)->
+			je.preventDefault()
+			$("#jobform").attr "hidden","hidden"
+			SS.server.game.game.job roomid,SS.client.util.formQuery(form), (result)->
 				if result?
+					console.log SS.client.util.message, result
 					SS.client.util.message "エラー",result
-				else
-					$("#jobform").attr "hidden","hidden"
-					
+					$("#jobform").removeAttr "hidden"
 			
 		# 誰かが参加した!!!!
 		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
@@ -150,6 +151,17 @@ exports.start=(roomid)->
 		# 更新したほうがいい
 		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
 			SS.client.app.refresh()
+		# 投票フォームオープン
+		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+				if msg
+					$("#jobform").removeAttr "hidden"
+				else
+					$("#jobform").attr "hidden","hidden"
+		# プレイヤー情報更新
+		socket_ids.push SS.client.socket.on "playersinfo",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+				formplayers msg
 			
 		
 	setplayersnumber=(form,number)->
@@ -165,7 +177,23 @@ exports.start=(roomid)->
 		
 	#ログをもらった
 	getlog=(log)->
-		unless log.mode=="voteresult"
+		if log.mode == "voteresult"
+			# 表を出す
+			p=document.createElement "table"
+			p.createCaption().textContent="投票結果"
+			vr=log.voteresult
+			tos={}
+			vr.forEach (player)->
+				if tos[player.voteto]?
+					tos[player.voteto]++
+				else
+					tos[player.voteto]=1
+			vr.forEach (player)->
+				tr=p.insertRow(-1)
+				tr.insertCell(-1).textContent=player.name
+				tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
+				tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name}"
+		else
 			p=document.createElement "p"
 			if log.name?
 				span=document.createElement "span"
@@ -178,38 +206,26 @@ exports.start=(roomid)->
 				p.appendChild span
 			span=document.createElement "span"
 			span.classList.add "comment"
+			span.textContent=log.comment
 			if log.mode=="nextturn"
-				span.textContent="#{log.day}日目の#{if log.night then '夜' else '昼'}になりました。"
-				document.body.classList.add (if log.night then "night" else "day")
-				document.body.classList.remove (if log.night then "day" else "night")
-			
-				$("#jobform").removeAttr "hidden"
-				$("#jobform div.jobformarea").attr "hidden","hidden"
-				if log.night
-					$("#form_#{my_job}").removeAttr "hidden"
+				if log.finished
+					# 終了
+					document.body.classList.add "finished"
+					document.body.classList.remove x for x in ["day","night"]
 				else
-					$("#form_day").removeAttr "hidden"
+					document.body.classList.add (if log.night then "night" else "day")
+					document.body.classList.remove (if log.night then "day" else "night")
+				unless document.body.classList.contains "heaven"
+					$("#jobform").removeAttr "hidden"
+					$("#jobform div.jobformarea").attr "hidden","hidden"
+					if log.night
+						$("#form_#{my_job}").removeAttr "hidden"
+					else
+						$("#form_day").removeAttr "hidden"
 		
-			else
-				span.textContent=log.comment
+
 			
 			p.appendChild span
-		else
-			# 表を出す
-			p=document.createElement "table"
-			p.createCaption().textContent="投票結果"
-			vr=log.voteresult
-			tos={}
-			vr.forEach (player)->
-				if tos[player.voteto]?
-					tos[player.voteto]++
-				else
-					tos[player.voteto]=1
-			vr.forEach (player)->
-				tr=p.insertRow()
-				tr.insertCell().textContnet=player.name
-				tr.insertCell().textContent="#{tos[player.id]}票"
-				tr.insertCell().textContent="→#{vr.filter((x)->x.id==player.voteto)[0].name}"
 		
 		p.classList.add log.mode
 		
@@ -222,10 +238,33 @@ exports.start=(roomid)->
 			$("#myjob").text job_names[obj.type]
 		if obj.wolves?
 			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
+		if obj.dead
+			# 自分は既に死んでいる
+			document.body.classList.add "heaven"
+			
+		if obj.allplayers
+			$("#players").empty()
+			obj.allplayers.forEach (x)->
+				li=document.createElement "li"
+				li.title=x.userid
+				a=document.createElement "a"
+				a.href="/user/#{x.id}"
+				a.textContent=x.name+" "
+				li.appendChild a
+				if x.type
+					b=document.createElement "b"
+					b.textContent=job_names[x.type]
+					li.appendChild b
+				if x.dead
+					li.classList.add "dead"
+				$("#players").append li
 	# 参加者一覧をもらった（夜の仕事用）
 	formplayers=(players)->
+		$("#form_players").empty()
 		players.forEach (x)->
 			li=document.createElement "li"
+			if x.dead
+				li.classList.add "dead"
 			label=document.createElement "label"
 			label.textContent=x.name
 			input=document.createElement "input"

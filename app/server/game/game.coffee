@@ -6,6 +6,8 @@ class Game
 		@finished=false	#終了したかどうか
 		@day=0	#何日目か(0=準備中)
 		@night=false # false:昼 true:夜
+		
+		@winner=null	# 勝ったチーム名
 	# JSON用object化(DB保存用）
 	serialize:->
 		{
@@ -16,6 +18,7 @@ class Game
 			finished:@finished
 			day:@day
 			night:@night
+			winner:@winner
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -26,6 +29,7 @@ class Game
 		game.finished=obj.finished
 		game.day=obj.day
 		game.night=obj.night
+		game.winner=obj.winner
 		game
 	# IDからプレイヤー
 	getPlayer:(id)->
@@ -58,14 +62,14 @@ class Game
 			while i++<num
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
-				@players.push new jobs[job] pl.userid,pl.name
+				newpl=new jobs[job] pl.userid,pl.name
+				@players.push newpl
 				players.splice r,1
-				SS.publish.user pl.userid, "getjob", makejobinfo this,player
+				#SS.publish.user pl.userid, "getjob", makejobinfo this,newpl
 		cb null
 #======== ゲーム進行の処理
 	#次のターンに進む
 	nextturn:->
-		console.log "nextturn!"
 		if @day<=0
 			# はじまる前
 			@day=1
@@ -75,6 +79,8 @@ class Game
 			@night=false
 		else
 			@night=true
+			
+		return if @judge()
 		
 		log=
 			mode:"nextturn"
@@ -82,16 +88,32 @@ class Game
 			night:@night
 			userid:-1
 			name:null
+			comment:"#{@day}日目の#{if @night then '夜' else '昼'}になりました。"
 		splashlog @id,this,log
 
 		if @night
-			@players.forEach (x)->x.sunset(this)
+			@players.forEach (x)=>
+				return if x.dead
+				x.sunset this
 		else
-			@players.forEach (x)->
+			@players.forEach (x)=>
 				x.voteto=null
-				x.sunrise(this)
+				return if x.dead
+				x.sunrise this
 		#死体処理
 		@bury()
+		SS.publish.channel "room#{@id}","playersinfo",@players.map (x)->x.publicinfo()
+		@players.filter((x)->x.dead).forEach (x)=>
+			# 死んだ人には状況更新をしてあげる
+			SS.publish.user x.id,"getjob",makejobinfo this,x
+		@judge()
+		if @night
+			@checkjobs()
+	#全員寝たかチェック
+	checkjobs:->
+		if @players.every( (x)->x.dead || x.sleeping())
+			@midnight()
+			@nextturn()
 
 	#夜の能力を処理する
 	midnight:->
@@ -104,8 +126,7 @@ class Game
 				wolf_flg=true
 	# 死んだ人を処理する
 	bury:->
-		@players.filter (x)->x.dead && x.found
-		.forEach (x)=>
+		@players.filter((x)->x.dead && x.found).forEach (x)=>
 			situation=switch x.found
 				#死因
 				when "werewolf"
@@ -119,13 +140,13 @@ class Game
 				comment:"#{x.name}は#{situation}"
 			splashlog @id,this,log
 			x.found=""	# 発見されました
+			SS.publish.user x.id,"refresh",{}
 	# 投票終わりチェック
 	execute:->
 		return unless @players.every((x)->x.dead || x.voteto)
 		tos={}
 		@players.forEach (x)->
-			return unless x.dead || !x.voteto
-			voteresult[x.id]=x.voteto
+			return if x.dead || !x.voteto
 			if tos[x.voteto]?
 				tos[x.voteto]++
 			else
@@ -133,6 +154,7 @@ class Game
 		max=0
 		for playerid,num of tos
 			if num>max then max=num	#最大値をみる
+		#console.log JSON.stringify tos
 		player=null
 		revote=false	# 際投票
 		for playerid,num of tos
@@ -145,7 +167,7 @@ class Game
 		# 投票結果
 		log=
 			mode:"voteresult"
-			voteresult:@players.map (x)->
+			voteresult:@players.filter((x)->!x.dead).map (x)->
 				r=x.publicinfo()
 				r.voteto=x.voteto
 				r
@@ -156,25 +178,62 @@ class Game
 				mode:"system"
 				comment:"再投票になりました。"
 			splashlog @id,this,log
-			@player.forEach (player)->
+			@players.forEach (player)->
 				player.voteto=null
+			SS.publish.channel "room#{@id}","voteform",true
 		else
 			# 結果が出た 死んだ!
 			player.dead=true	# 投票で死んだ
 			player.found="punish"
+			@nextturn()
+	# 勝敗決定
+	judge:->
+		humans=@players.filter((x)->!x.dead && !x.isWerewolf()).length
+		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
+		console.log "humans:#{humans}, wolves:#{wolves}"
+		
+		team=null
+		if wolves==0
+			# 村人勝利
+			team="Human"
+		else if humans<=wolves
+			# 人狼勝利
+			team="Werewolf"
+			
+		if team?
+			# 勝敗決定
+			@finished=true
+			@winner=team
+			@players.forEach (x)->
+				x.winner= x.team==team	#勝利陣営にいたか
+			log=
+				mode:"nextturn"
+				finished:true
+				comment:switch team
+					when "Human"
+						"村から人狼がいなくなりました。"
+					when "Werewolf"
+						"人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…"
+			splashlog @id,this,log
+			
+			
+			SS.publish.channel "room#{@id}","refresh",{}
+			return true
+		else
+			return false
+			
+		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果）
+	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果）
 	comment: String
 	userid:Userid
-	name:String
+	name?:String
 	to:Userid / null (あると、その人だけ）
 	(nextturnの場合)
 	  day:Number
 	  night:Boolean
-	(skillの場合)
-	  jobtype: String
-	  skillresult:Object / []
+	  finished?:Boolean
 	(voteresultの場合)
 	  voteresult:[]
 },...]
@@ -187,6 +246,7 @@ class Player
 	constructor:(@id,@name)->
 		@dead=false
 		@found=null	# 死体の発見状況
+		@winner=null	# 勝敗
 	serialize:->
 		{
 			type:@type
@@ -212,7 +272,7 @@ class Player
 	# 人狼かどうか
 	isWerewolf:->@type=="Werewolf"
 	# 昼のはじまり
-	sunrise:(game)->
+	sunrise:(game)->console.log "sunrise!"
 	# 夜のはじまり
 	sunset:(game)->
 	# 夜にもう寝たか
@@ -227,14 +287,18 @@ class Player
 	#人狼に食われて死ぬかどうか
 	willDieWerewolf:true
 	#占いの結果
-	fortuneResult:"Human"
+	fortuneResult:"村人"
+	#チーム Human/Werewolf
+	team: "Human"
 		
 		
 		
 class Human extends Player
 	type:"Human"
+	jobname:"村人"
 class Werewolf extends Player
 	type:"Werewolf"
+	jobname:"人狼"
 	sunset:(game)->
 		@target=null
 	sleeping:->@target?
@@ -243,6 +307,11 @@ class Werewolf extends Player
 			if x.isWerewolf()
 				x.target=playerid
 		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
+		splashlog game.id,game,log
 		return true
 	midnight:(game)->
 		t=game.players.filter((x)=>x.id==@target)[0]
@@ -252,11 +321,13 @@ class Werewolf extends Player
 			t.found="werewolf"
 		
 	willDieWerewolf:false
-	fortuneResult:"Werewolf"
+	fortuneResult:"人狼"
+	team: "Werewolf"
 		
 		
 class Diviner extends Player
 	type:"Diviner"
+	jobname:"占い師"
 	constructor:->
 		super
 		@results=[]
@@ -265,16 +336,22 @@ class Diviner extends Player
 		super
 		@target=null
 	sleeping:->@target?
+	job:(game,playerid)->
+		super
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+		splashlog game.id,game,log
 	sunrise:(game)->
 		super
-		if @results.length
-			# 欝等ないしのログ
-			log=
-				mode:"skill"
-				to:@id
-				jobtype:"Diviner"
-				skillresult:@results
-			splashlog game.id,game,log
+		r=@results[@results.length-1]
+		return unless r?
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{r.player.name}を占ったところ、#{r.result}でした。"
+		splashlog game.id,game,log
 				
 	midnight:(game)->
 		super
@@ -404,7 +481,7 @@ exports.actions=
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
-		if game.day<=0	#準備中
+		if game.day<=0 || game.finished	#準備中
 			log.mode="prepare"
 		else
 			# ゲームしている
@@ -412,6 +489,9 @@ exports.actions=
 			unless player?
 				# 観戦者
 				log.mode="audience"
+			else if player.dead
+				# 天国
+				log.mode="heaven"
 			else if !game.night
 				# 昼
 				log.mode="day"
@@ -441,32 +521,37 @@ exports.actions=
 		unless player?
 			cb "参加していません"
 			return
+		if player.dead
+			cb "お前は既に死んでいる"
+			return
 		unless to=game.players.filter((x)->x.id==query.target)[0]
 			cb "その対象は存在しません"
 			return
-		unless to.dead
+		if to.dead
 			cb "対象は既に死んでいます"
 			return
 		if game.night
 			# 夜
 			if player.sleeping()
-				cb "失敗しました"
+				cb "既に能力を行使しています"
 				return
 			unless player.job game,query.target
 				cb "失敗しました"
 				return
 			
 			# 能力をすべて発動したかどうかチェック
-			if game.players.every( (x)->x.dead || x.sleeping())
-				game.midnight()
-				game.nextturn()
+			game.checkjobs()
 		else
 			# 投票
 			if player.voteto?
 				cb "既に投票しています"
 				return
 			player.voteto=query.target
-			cb null
+			log=
+				mode:"system"
+				to:player.id
+				comment:"#{player.name}は#{to.name}に投票しました"
+			splashlog game.id,game,log
 			# 投票が終わったかチェック
 			game.execute()
 		cb null
@@ -476,7 +561,7 @@ splashlog=(roomid,game,log)->
 	game.logs.push log
 	unless log.to?
 		switch log.mode
-			when "prepare","system","nextturn","voteresult"
+			when "prepare","system","nextturn","voteresult","day"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf"
@@ -484,9 +569,13 @@ splashlog=(roomid,game,log)->
 				SS.publish.channel ["room#{roomid}_werewolf","room#{roomid}_heaven"], "log", log
 			when "audience"
 				# 観客
-				SS.publish.channel "room#{roomid}_audience","log",log
+				SS.publish.channel ["room#{roomid}_audience","room#{roomid}_heaven"],"log",log
+			when "heaven"
+				# 天国
+				SS.publish.channel "room#{roomid}_heaven","log",log
 	else
 		SS.publish.user log.to, "log", log
+		SS.publish.channel "room#{roomid}_heaven","log",log
 
 # プレイヤーにログを見せてもよいか			
 islogOK=(player,log)->
@@ -494,6 +583,8 @@ islogOK=(player,log)->
 	unless player?
 		# 観戦者
 		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience"])
+	else if player.dead || player.winner?	# nullなら未終了 true/falseなら終了済み
+		true
 	else if log.to? && log.to!=player.id
 		# 個人宛
 		false
@@ -517,5 +608,10 @@ makejobinfo = (game,player,result={})->
 					id:x.id
 					name:x.name
 				}
+		result.dead=player.dead
+		if player.dead || game.finished
+			# 情報を開示する
+			result.allplayers=game.players.map (x)->x.serialize()
+	
 	result
 		
