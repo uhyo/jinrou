@@ -83,7 +83,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman","Guard"]
+		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox"]
 		jobsforminput=(e)->
 			t=e.target
 			if t.name in jobs
@@ -206,6 +206,18 @@ exports.start=(roomid)->
 			1
 		else
 			0
+		#13人以上：共有者
+		form.elements["Couple"].value=if huall>=13
+			hu-=2
+			2
+		else
+			0
+		# 15人以上：妖狐
+		form.elements["Fox"].value=if huall>=15
+			hu--
+			1
+		else
+			0
 		
 		form.elements["Human"].value=hu
 		
@@ -272,7 +284,11 @@ exports.start=(roomid)->
 		if obj.type
 			$("#myjob").text obj.jobname
 		if obj.wolves?
-			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
+			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
+		if obj.peers?
+			$("#jobinfo").text "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+		if obj.foxes?
+			$("#jobinfo").text "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
 		if obj.winner?
 			# 勝敗
 			$("#jobinfo").text "#{if obj.winner then '勝利' else '敗北'}しました"
@@ -284,7 +300,7 @@ exports.start=(roomid)->
 			$("#players").empty()
 			obj.allplayers.forEach (x)->
 				li=document.createElement "li"
-				li.title=x.userid
+				li.title=x.id
 				a=document.createElement "a"
 				a.href="/user/#{x.id}"
 				a.textContent=x.name+" "

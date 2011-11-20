@@ -146,7 +146,7 @@ class Game
 		@players.filter((x)->x.dead && x.found).forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf"
+				when "werewolf","curse"
 					"無惨な姿で発見されました"
 				when "punish"
 					"処刑されました"
@@ -205,7 +205,7 @@ class Game
 			@nextturn()
 	# 勝敗決定
 	judge:->
-		humans=@players.filter((x)->!x.dead && !x.isWerewolf()).length
+		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
 		console.log "humans:#{humans}, wolves:#{wolves}"
 		
@@ -216,6 +216,11 @@ class Game
 		else if humans<=wolves
 			# 人狼勝利
 			team="Werewolf"
+			
+		if team?
+			# 妖狐判定
+			if @players.some((x)->!x.dead && x.type=="Fox")
+				team="Fox"
 			
 		if team?
 			# 勝敗決定
@@ -231,6 +236,9 @@ class Game
 						"村から人狼がいなくなりました。"
 					when "Werewolf"
 						"人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…"
+					when "Fox"
+						"村は妖狐のものとなりました。"
+						
 			splashlog @id,this,log
 			
 			
@@ -242,7 +250,7 @@ class Game
 		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果）
+	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐)
 	comment: String
 	userid:Userid
 	name?:String
@@ -291,7 +299,8 @@ class Player
 			name:@name
 			dead:@dead
 		}
-	
+	# 村人かどうか
+	isHuman:->@type!="Werewolf" && @type!="Fox"
 	# 人狼かどうか
 	isWerewolf:->@type=="Werewolf"
 	# 昼のはじまり（死体処理よりも前）
@@ -392,6 +401,10 @@ class Diviner extends Player
 				player: p.publicinfo()
 				result: p.fortuneResult
 			}
+			if p.type=="Fox"
+				# 妖狐呪殺
+				p.dead=true
+				p.found="curse"
 class Psychic extends Player
 	type:"Psychic"
 	jobname:"霊能者"
@@ -420,8 +433,14 @@ class Guard extends Player
 			comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
 		splashlog game.id,game,log
 		game.getPlayer(playerid).guarded=true	# 護衛
-	
-	
+class Couple extends Player
+	type:"Couple"
+	jobname:"共有者"
+class Fox extends Player
+	type:"Fox"
+	jobname:"妖狐"
+	team:"Fox"
+	willDieWerewolf:false
 
 games={}
 
@@ -433,6 +452,8 @@ jobs=
 	Psychic:Psychic
 	Madman:Madman
 	Guard:Guard
+	Couple:Couple
+	Fox:Fox
 
 
 exports.actions=
@@ -479,6 +500,10 @@ exports.actions=
 			session.channel.subscribe "room#{roomid}_heaven"
 		else if player.isWerewolf()
 			session.channel.subscribe "room#{roomid}_werewolf"
+		else if player.type=="Couple"
+			session.channel.subscribe "room#{roomid}_couple"
+		else if player.type=="Fox"
+			session.channel.subscribe "room#{roomid}_fox"
 			
 			
 		
@@ -564,6 +589,12 @@ exports.actions=
 				if player.isWerewolf()
 					# 狼
 					log.mode="werewolf"
+				else if player.type=="Couple"
+					# 共有者
+					log.mode="couple"
+				else if player.type=="Fox"
+					# 洋子
+					log.mode="fox"
 				else
 					# 村人
 					log.mode="monologue"
@@ -631,6 +662,10 @@ splashlog=(roomid,game,log)->
 			when "werewolf"
 				# 狼
 				SS.publish.channel ["room#{roomid}_werewolf","room#{roomid}_heaven"], "log", log
+			when "couple"
+				SS.publish.channel ["room#{roomid}_couple","room#{roomid}_heaven"],"log",log
+			when "fox"
+				SS.publish.channel ["room#{roomid}_fox","room#{roomid}_heaven"],"log",log
 			when "audience"
 				# 観客
 				SS.publish.channel ["room#{roomid}_audience","room#{roomid}_heaven"],"log",log
@@ -657,6 +692,10 @@ islogOK=(player,log)->
 			true
 		else if log.mode=="werewolf"
 			player.isWerewolf()
+		else if log.mode=="couple"
+			player.type=="Couple"
+		else if log.mode=="fox"
+			player.type=="Fox"
 		else if log.mode=="heaven"
 			player.dead
 		else
@@ -668,10 +707,15 @@ makejobinfo = (game,player,result={})->
 		if player.isWerewolf()
 			# 人狼は仲間が分かる
 			result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
-				{
-					id:x.id
-					name:x.name
-				}
+				x.publicinfo()
+		if player.type=="Couple"
+			# 共有者は仲間が分かる
+			result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
+				x.publicinfo()
+		if player.type=="Fox"
+			# 妖狐は仲間が分かる
+			result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
+				x.publicinfo()
 		result.dead=player.dead
 		result.sleeping=if game.night then player.sleeping() else null
 		result.jobname=player.jobname
