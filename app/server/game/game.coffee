@@ -265,6 +265,8 @@ class Player
 		@found=null	# 死体の発見状況
 		@winner=null	# 勝敗
 		@scapegoat=false	# 身代わりくんかどうか
+		
+		@guarded=false	# 護衛フラグ
 	serialize:->
 		{
 			type:@type
@@ -293,7 +295,7 @@ class Player
 	# 人狼かどうか
 	isWerewolf:->@type=="Werewolf"
 	# 昼のはじまり（死体処理よりも前）
-	sunrise:(game)->console.log "sunrise!"
+	sunrise:(game)->@guarded=false
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
 	# 夜にもう寝たか
@@ -339,7 +341,7 @@ class Werewolf extends Player
 	midnight:(game)->
 		t=game.getPlayer @target
 		return unless t?
-		if t.willDieWerewolf
+		if t.willDieWerewolf && !t.guarded
 			# 死んだ
 			t.dead=true
 			t.found="werewolf"
@@ -406,6 +408,20 @@ class Madman extends Player
 	type:"Madman"
 	jobname:"狂人"
 	team:"Werewolf"
+class Guard extends Player
+	type:"Guard"
+	jobname:"狩人"
+	sleeping:->@target?
+	job:(game,playerid)->
+		super
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
+		splashlog game.id,game,log
+		game.getPlayer(playerid).guarded=true	# 護衛
+	
+	
 
 games={}
 
@@ -416,6 +432,7 @@ jobs=
 	Diviner:Diviner
 	Psychic:Psychic
 	Madman:Madman
+	Guard:Guard
 
 
 exports.actions=

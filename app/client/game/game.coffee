@@ -83,7 +83,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman"]
+		jobs=["Diviner","Werewolf","Psychic","Madman","Guard"]
 		jobsforminput=(e)->
 			t=e.target
 			if t.name in jobs
@@ -196,6 +196,12 @@ exports.start=(roomid)->
 			0
 		#10人異常：狂人
 		form.elements["Madman"].value=if huall>=10
+			hu--
+			1
+		else
+			0
+		#11人以上：狩人
+		form.elements["Guard"].value=if huall>=11
 			hu--
 			1
 		else

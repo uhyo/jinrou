@@ -20,10 +20,12 @@
           dd: input(name="Diviner",min="0",step="1",type="number")
           dt 霊能者
           dd: input(name="Psychic",min="0",step="1",type="number")
-          dt 人狼
-          dd: input(name="Werewolf",min="1",step="1",type="number")
           dt 狂人
           dd: input(name="Madman",min="0",step="1",type="number")
+          dt 狩人
+          dd: input(name="Guard",min="0",step="1",type="number")
+          dt 人狼
+          dd: input(name="Werewolf",min="1",step="1",type="number")
       fieldset
         legend ルール
         p
@@ -53,6 +55,10 @@
       p
         | 占う人を一人選んで下さい：
         input(type="submit",value="占う")
+    #form_Guard(hidden).jobformarea
+      p
+        | 護衛する人を一人選んで下さい:
+        input(type="submit",value="護衛する")
   form#speakform
     p
       input(size="50",name="comment",required)
