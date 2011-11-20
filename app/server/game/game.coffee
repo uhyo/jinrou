@@ -494,6 +494,8 @@ class Guard extends Player
 	type:"Guard"
 	jobname:"狩人"
 	sleeping:->@target?
+	sunset:->
+		@target=null
 	job:(game,playerid)->
 		super
 		log=
@@ -501,7 +503,8 @@ class Guard extends Player
 			to:@id
 			comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
 		splashlog game.id,game,log
-		game.getPlayer(playerid).guarded=true	# 護衛
+		unless playerid==@id
+			game.getPlayer(playerid).guarded=true	# 護衛
 class Couple extends Player
 	type:"Couple"
 	jobname:"共有者"

@@ -11,7 +11,7 @@ body, html
 body
   font normal 1em sans-serif
   //vertical-gradient #eee, #fff
-  text-align center
+  margin-left 20px
 
 p
   margin-bottom 1em
@@ -21,12 +21,13 @@ a
 
 h1
   font-size 1.5em
-  font-weight normal
-  color #0057c5
-  text-shadow 1px 1px 2px white
+//  font-weight normal
+//  color #0057c5
+//  text-shadow 1px 1px 2px white
 
 #content
   padding 0
+  clear both
 //header
 body header
   padding 0
@@ -84,11 +85,80 @@ body.night
 body.day
   background-color rgb(255,217,83)
   
-body.heaven
+body,body.heaven
   background-color rgb(255,255,240)
   color #000000
   a
     color #000a68
+    
+.game
+  .players
+    h1
+      font-size 1.2em
 //players
+#players li
+  display inline-block
+  margin-left 1em
+.infobox
+    border 2px dashed currentColor
+    padding 8px
+    margin 5px
 #players li.dead
   text-decoration line-through
+#form_players li
+  display inline-block
+  margin-left 0.8em
+#speakform
+  border-top 1px solid currentColor
+  padding-top 5px
+
+//logs
+#logs
+  p
+    margin 0
+    padding 1px
+  .day
+    background-color rgb(255,217,83)
+    borderud 1px dashed rgb(255,234,90)
+    color #000000
+  .system
+    background-color #cccccc
+    borderud 1px dashed #aaaaaa
+    font-weight bold
+    color #000000
+  .werewolf,.monologue
+    background-color #000044
+    borderud 1px dashed #000066
+    color #ffffff
+  .heaven,.prepare
+    background-color rgb(255,255,240)
+    borderud 1px dashedd #fffff8
+    color #000000
+  .skill
+    background-color #cc0000
+    borderud 2px dashed #700000
+    color #ffffff
+    font-weight bold
+  .nextturn
+    background-color #eeeeee
+    borderud 1px dashed #aaaaaa
+    font-weight bold
+    color #000000
+  .audience
+    background-color #ddffdd
+    borderud 1px dashed #eeffee
+    color #000000
+  .couple
+    background-color #ddddff
+    borderud 1px dashed #eeffee
+    color #000000
+  .fox
+    background-color #934293
+    color #ffffff
+  table.voteresult
+    border-collapse collapse
+    td
+      border 1px solid currentColor
+      padding 2px
+    
+
