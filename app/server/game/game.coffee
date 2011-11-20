@@ -292,9 +292,9 @@ class Player
 	
 	# 人狼かどうか
 	isWerewolf:->@type=="Werewolf"
-	# 昼のはじまり
+	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->console.log "sunrise!"
-	# 夜のはじまり
+	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
 	# 夜にもう寝たか
 	sleeping:->true
@@ -309,6 +309,8 @@ class Player
 	willDieWerewolf:true
 	#占いの結果
 	fortuneResult:"村人"
+	#霊能の結果
+	psychicResult:"村人"
 	#チーム Human/Werewolf
 	team: "Human"
 		
@@ -344,6 +346,7 @@ class Werewolf extends Player
 		
 	willDieWerewolf:false
 	fortuneResult:"人狼"
+	psychicResult:"人狼"
 	team: "Werewolf"
 		
 		
@@ -387,6 +390,22 @@ class Diviner extends Player
 				player: p.publicinfo()
 				result: p.fortuneResult
 			}
+class Psychic extends Player
+	type:"Psychic"
+	jobname:"霊能者"
+	sunset:(game)->
+		super
+		game.players.forEach (x)=>
+			if x.dead && x.found	# 未発見
+				log=
+					mode:"skill"
+					to:@id
+					comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
+				splashlog game.id,game,log
+class Madman extends Player
+	type:"Madman"
+	jobname:"狂人"
+	team:"Werewolf"
 
 games={}
 
@@ -395,6 +414,8 @@ jobs=
 	Human:Human
 	Werewolf:Werewolf
 	Diviner:Diviner
+	Psychic:Psychic
+	Madman:Madman
 
 
 exports.actions=
@@ -636,9 +657,13 @@ makejobinfo = (game,player,result={})->
 				}
 		result.dead=player.dead
 		result.sleeping=if game.night then player.sleeping() else null
+		result.jobname=player.jobname
 		if player.dead || game.finished
 			# 情報を開示する
-			result.allplayers=game.players.map (x)->x.serialize()
+			result.allplayers=game.players.map (x)->
+				r=x.serialize()
+				r.jobname=x.jobname
+				r
 		result.winner=player.winner
 	
 	result

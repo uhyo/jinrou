@@ -2,11 +2,6 @@
 this_room_id=null
 
 socket_ids=[]
-
-job_names=
-	"Human":"村人"
-	"Werewolf":"人狼"
-	"Diviner":"占い師"
 my_job=null
 exports.start=(roomid)->
 	getenter=(result)->
@@ -88,7 +83,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf"]
+		jobs=["Diviner","Werewolf","Psychic","Madman"]
 		jobsforminput=(e)->
 			t=e.target
 			if t.name in jobs
@@ -184,6 +179,7 @@ exports.start=(roomid)->
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
 		hu=number	# 村人
+		huall=hu
 		if form.elements["scapegoat"].value=="on"
 			hu++
 		# 人狼
@@ -192,6 +188,19 @@ exports.start=(roomid)->
 		# 占い師
 		form.elements["Diviner"].value=1
 		hu--
+		#9人異常：霊能者
+		form.elements["Psychic"].value=if huall>=9
+			hu--
+			1
+		else
+			0
+		#10人異常：狂人
+		form.elements["Madman"].value=if huall>=10
+			hu--
+			1
+		else
+			0
+		
 		form.elements["Human"].value=hu
 		
 	#ログをもらった
@@ -255,7 +264,7 @@ exports.start=(roomid)->
 	getjobinfo=(obj)->
 		my_job=obj.type
 		if obj.type
-			$("#myjob").text job_names[obj.type]
+			$("#myjob").text obj.jobname
 		if obj.wolves?
 			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"	
 		if obj.winner?
@@ -276,7 +285,7 @@ exports.start=(roomid)->
 				li.appendChild a
 				if x.type
 					b=document.createElement "b"
-					b.textContent=job_names[x.type]
+					b.textContent=x.jobname
 					li.appendChild b
 				if x.dead
 					li.classList.add "dead"
