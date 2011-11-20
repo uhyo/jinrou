@@ -1,3 +1,4 @@
+
 this_room_id=null
 
 socket_ids=[]
@@ -8,13 +9,23 @@ job_names=
 	"Diviner":"占い師"
 my_job=null
 exports.start=(roomid)->
-	SS.server.game.rooms.enter roomid,(result)->
+	getenter=(result)->
 		if result?
 			# エラー
-			SS.client.util.message "ルーム",result
+			if result=="password"
+				#パスワード入力
+				SS.client.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
+					unless pass?
+						SS.client.app.showUrl "/rooms"
+						return
+					SS.server.game.rooms.enter roomid,pass,getenter
+					sessionStorage.roompassword = pass
+			else
+				SS.client.util.message "ルーム",result
 			return
 		this_room_id=roomid
 		SS.server.game.rooms.oneRoom roomid,initroom
+	SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,getenter
 	initroom=(room)->
 		unless room?
 			SS.client.util.message "ルーム","そのルームは存在しません。"
@@ -224,7 +235,7 @@ exports.start=(roomid)->
 				else
 					document.body.classList.add (if log.night then "night" else "day")
 					document.body.classList.remove (if log.night then "day" else "night")
-				unless document.body.classList.contains "heaven"
+				unless document.body.classList.contains("heaven") || document.body.classList.contains "finished"
 					$("#jobform").removeAttr "hidden"
 					$("#jobform div.jobformarea").attr "hidden","hidden"
 					if log.night

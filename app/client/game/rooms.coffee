@@ -7,6 +7,8 @@ exports.start=->
 			
 		rooms.forEach (room)->
 			tr=tb.insertRow -1
+			if room.needpassword
+				tr.classList.add "lock"
 		
 			#No.
 			td=tr.insertCell -1

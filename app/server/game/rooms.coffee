@@ -20,7 +20,10 @@ exports.actions=
 			if err?
 				cb {error:err}
 				return
-			results.forEach (x)->delete x.password
+			results.forEach (x)->
+				if x.password?
+					x.needpassword=true
+					delete x.password
 			console.log results
 			cb results
 	oneRoom:(roomid,cb)->
@@ -111,13 +114,20 @@ exports.actions=
 	
 	# 成功ならnull 失敗ならエラーメッセージ
 	# 部屋ルームに入る
-	enter: (roomid,cb)->
+	enter: (roomid,password,cb)->
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
-		@session.channel.subscribe "room#{roomid}"
-		SS.server.game.game.playerchannel roomid,@session
-		cb null
+		SS.server.game.rooms.oneRoom roomid,(room)=>
+			if room.error?
+				cb room.error
+				return
+			if room.password? && room.password!=password
+				cb "password"
+				return
+			@session.channel.subscribe "room#{roomid}"
+			SS.server.game.game.playerchannel roomid,@session
+			cb null
 	
 	# 成功ならnull 失敗ならエラーメッセージ
 	# 部屋ルームから出る
