@@ -43,18 +43,22 @@ class Game
 	setplayers:(joblist,players,cb)->
 		jnumber=0
 		players=players.concat []
+		if @rule.scapegoat=="on"
+			players.push {
+				userid:"身代わりくん"
+				name:"身代わりくん"
+				scapegoat:true
+			}
+		@players=[]
 		for job,num of joblist
 			jnumber+=parseInt num
+			if parseInt(num)<0
+				cb "プレイヤー数が不正です（#{job}:#{num})"
+				return
 		if jnumber!=players.length
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
 			return
-		if @rule.scapegoat=="on"
-			players.push {
-				userid:-1
-				name:"身代わりくん"
-			}
-		@players=[]
 			
 		# ひとり決める
 		for job,num of joblist
@@ -65,6 +69,9 @@ class Game
 				newpl=new jobs[job] pl.userid,pl.name
 				@players.push newpl
 				players.splice r,1
+				if pl.scapegoat
+					# 身代わりくん
+					newpl.scapegoat=true
 				#SS.publish.user pl.userid, "getjob", makejobinfo this,newpl
 		cb null
 #======== ゲーム進行の処理
@@ -95,6 +102,16 @@ class Game
 			@players.forEach (x)=>
 				return if x.dead
 				x.sunset this
+			if @day==1
+				# 始まったばかり
+				if @rule.scapegoat=="on"
+					@players.forEach (x)->
+						if x.type=="Werewolf"
+							x.target="身代わりくん"
+				else if @rule.scapegoat=="no"
+					@players.forEach (x)->
+						if x.type=="Werewolf"
+							x.target=""	# 誰も殺さない
 		else
 			@players.forEach (x)=>
 				x.voteto=null
@@ -247,12 +264,14 @@ class Player
 		@dead=false
 		@found=null	# 死体の発見状況
 		@winner=null	# 勝敗
+		@scapegoat=false	# 身代わりくんかどうか
 	serialize:->
 		{
 			type:@type
 			id:@id
 			name:@name
 			dead:@dead
+			scapegoat:@scapegoat
 		}
 	@unserialize:(obj)->
 		p=null
@@ -260,6 +279,8 @@ class Player
 			p=new Player obj.id,obj.name
 		else
 			p=new jobs[obj.type] obj.id,obj.name
+		p.dead=obj.dead
+		p.scapegoat=obj.scapegoat
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -314,7 +335,8 @@ class Werewolf extends Player
 		splashlog game.id,game,log
 		return true
 	midnight:(game)->
-		t=game.players.filter((x)=>x.id==@target)[0]
+		t=game.getPlayer @target
+		return unless t?
 		if t.willDieWerewolf
 			# 死んだ
 			t.dead=true
@@ -335,6 +357,10 @@ class Diviner extends Player
 	sunset:(game)->
 		super
 		@target=null
+		if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			@job game,game.players[r].id
 	sleeping:->@target?
 	job:(game,playerid)->
 		super
@@ -609,6 +635,7 @@ makejobinfo = (game,player,result={})->
 					name:x.name
 				}
 		result.dead=player.dead
+		result.sleeping=if game.night then player.sleeping() else null
 		if player.dead || game.finished
 			# 情報を開示する
 			result.allplayers=game.players.map (x)->x.serialize()

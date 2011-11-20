@@ -78,7 +78,7 @@ exports.start=(roomid)->
 
 		form=$("#gamestart").get 0
 		jobs=["Diviner","Werewolf"]
-		form.addEventListener "input",(e)->
+		jobsforminput=(e)->
 			t=e.target
 			if t.name in jobs
 				sum=0
@@ -91,7 +91,13 @@ exports.start=(roomid)->
 				else
 					jobs.forEach (x)->
 						form.elements[x].setCustomValidity ""
-					form.elements["Human"].value=room.players.length-sum
+					pl=room.players.length	#人数
+					if form.elements["scapegoat"].value=="on"
+						# 身代わりくん
+						pl++
+					form.elements["Human"].value=pl-sum
+		form.addEventListener "input",jobsforminput,false
+		form.addEventListener "change",jobsforminput,false
 				
 				
 		$("#gamestart").submit (je)->
@@ -167,6 +173,8 @@ exports.start=(roomid)->
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
 		hu=number	# 村人
+		if form.elements["scapegoat"].value=="on"
+			hu++
 		# 人狼
 		form.elements["Werewolf"].value=2
 		hu-=2
