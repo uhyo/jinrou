@@ -162,6 +162,7 @@ class Game
 		@judge()
 		if @night
 			@checkjobs()
+		@save()
 	#全員寝たかチェック
 	checkjobs:->
 		if @players.every( (x)->x.dead || x.sleeping())
