@@ -24,7 +24,6 @@ exports.actions=
 				if x.password?
 					x.needpassword=true
 					delete x.password
-			console.log results
 			cb results
 	oneRoom:(roomid,cb)->
 		M.rooms.findOne {id:roomid},(err,result)->

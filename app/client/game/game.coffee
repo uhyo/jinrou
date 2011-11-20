@@ -218,6 +218,10 @@ exports.start=(roomid)->
 			1
 		else
 			0
+			
+		form.elements["poisoner"].checked= huall>=20
+		form.elements["decider"].checked= huall>=16
+		form.elements["authority"].checked= huall>=16
 		
 		form.elements["Human"].value=hu
 		
@@ -228,12 +232,7 @@ exports.start=(roomid)->
 			p=document.createElement "table"
 			p.createCaption().textContent="投票結果"
 			vr=log.voteresult
-			tos={}
-			vr.forEach (player)->
-				if tos[player.voteto]?
-					tos[player.voteto]++
-				else
-					tos[player.voteto]=1
+			tos=log.tos
 			vr.forEach (player)->
 				tr=p.insertRow(-1)
 				tr.insertCell(-1).textContent=player.name

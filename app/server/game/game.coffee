@@ -40,7 +40,7 @@ class Game
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
-	setplayers:(joblist,players,cb)->
+	setplayers:(joblist,options,players,cb)->
 		jnumber=0
 		players=players.concat []
 		if @rule.scapegoat=="on"
@@ -49,6 +49,13 @@ class Game
 				name:"身代わりくん"
 				scapegoat:true
 			}
+		if options.poisoner
+			# 埋毒者
+			joblist["Poisoner"]=1
+			joblist["Werewolf"]++
+			joblist["Human"]-=2
+		else
+			joblist["Poisoner"]=0
 		@players=[]
 		for job,num of joblist
 			jnumber+=parseInt num
@@ -59,6 +66,28 @@ class Game
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
 			return
+		# まず身代わりくんを決めてあげる
+		if @rule.scapegoat=="on"
+			# 人狼、妖狼にはならない
+			while true
+				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","Fox"])
+				r=Math.floor Math.random()*jobss.length
+				continue unless joblist[jobss[r]]
+				# 役職はjobss[r]
+				scpg_index=0
+				sc=players.filter((x,i)->
+					if x.scapegoat
+						scpg_index=i
+						true
+					else
+						false
+				)[0]
+				newpl=new jobs[jobss[r]] sc.userid,sc.name	#身代わりくん
+				@players.push newpl
+				players.splice scpg_index,1	# 身代わりくんは消す
+				joblist[jobss[r]]--
+				break
+			
 			
 		# ひとり決める
 		for job,num of joblist
@@ -73,6 +102,13 @@ class Game
 					# 身代わりくん
 					newpl.scapegoat=true
 				#SS.publish.user pl.userid, "getjob", makejobinfo this,newpl
+		if options.decider
+			r=Math.floor Math.random()*players.length
+			@players[r].decider=true
+		if options.authority
+			r=Math.floor Math.random()*players.length
+			@players[r].authority=true
+		
 		cb null
 #======== ゲーム進行の処理
 	#次のターンに進む
@@ -146,7 +182,7 @@ class Game
 		@players.filter((x)->x.dead && x.found).forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","curse"
+				when "werewolf","curse","poison"
 					"無惨な姿で発見されました"
 				when "punish"
 					"処刑されました"
@@ -165,9 +201,9 @@ class Game
 		@players.forEach (x)->
 			return if x.dead || !x.voteto
 			if tos[x.voteto]?
-				tos[x.voteto]++
+				tos[x.voteto]+=if x.authority then 2 else 1
 			else
-				tos[x.voteto]=1
+				tos[x.voteto]=if x.authority then 2 else 1
 		max=0
 		for playerid,num of tos
 			if num>max then max=num	#最大値をみる
@@ -188,7 +224,17 @@ class Game
 				r=x.publicinfo()
 				r.voteto=x.voteto
 				r
+			tos:tos
 		splashlog @id,this,log
+		if revote
+			# 同率!
+			dcs=@players.filter (x)->!x.dead && x.decider	# 決定者たち
+			for onedc in dcs
+				if tos[onedc.voteto]==max
+					# こいつだ！
+					revote=false
+					player=@getPlayer onedc.voteto
+					break
 		if revote
 			# 再投票
 			log=
@@ -202,6 +248,13 @@ class Game
 			# 結果が出た 死んだ!
 			player.dead=true	# 投票で死んだ
 			player.found="punish"
+			if player.type=="Poisoner"
+				# 埋毒者の逆襲
+				r=Math.floor Math.random()*@players.filter((x)->!x.dead).length
+				pl=@players[r]	# 被害者
+				pl.dead=true
+				pl.found="poison"
+				
 			@nextturn()
 	# 勝敗決定
 	judge:->
@@ -242,6 +295,8 @@ class Game
 			splashlog @id,this,log
 			
 			
+			# ルームを終了状態にする
+			M.rooms.update {id:@id},{$set:{mode:"end"}}
 			SS.publish.channel "room#{@id}","refresh",{}
 			return true
 		else
@@ -261,6 +316,7 @@ logs:[{
 	  finished?:Boolean
 	(voteresultの場合)
 	  voteresult:[]
+	  tos:Object
 },...]
 rule:{
     number: Number # プレイヤー数
@@ -275,6 +331,9 @@ class Player
 		@scapegoat=false	# 身代わりくんかどうか
 		
 		@guarded=false	# 護衛フラグ
+		
+		@decider=false	# 決定者
+		@authority=false# 権力者
 	serialize:->
 		{
 			type:@type
@@ -282,6 +341,8 @@ class Player
 			name:@name
 			dead:@dead
 			scapegoat:@scapegoat
+			decider:@decider
+			authority:@authority
 		}
 	@unserialize:(obj)->
 		p=null
@@ -291,6 +352,8 @@ class Player
 			p=new jobs[obj.type] obj.id,obj.name
 		p.dead=obj.dead
 		p.scapegoat=obj.scapegoat
+		p.decider=obj.decider
+		p.authority=obj.authority
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -354,6 +417,12 @@ class Werewolf extends Player
 			# 死んだ
 			t.dead=true
 			t.found="werewolf"
+			if t.type=="Poisoner"
+				# 埋毒者の逆襲
+				r=Math.floor Math.random()*game.players.filter((x)->!x.dead && x.isWerewolf()).length
+				pl=game.players[r]	# 被害狼
+				pl.dead=true
+				pl.found="poison"
 		
 	willDieWerewolf:false
 	fortuneResult:"人狼"
@@ -441,6 +510,9 @@ class Fox extends Player
 	jobname:"妖狐"
 	team:"Fox"
 	willDieWerewolf:false
+class Poisoner extends Player
+	type:"Poisoner"
+	jobname:"埋毒者"
 
 games={}
 
@@ -454,6 +526,7 @@ jobs=
 	Guard:Guard
 	Couple:Couple
 	Fox:Fox
+	Poisoner:Poisoner
 
 
 exports.actions=
@@ -470,7 +543,6 @@ exports.actions=
 				console.log err
 				throw err
 			games[doc.id]=Game.unserialize doc
-			console.log games[doc.id]
 	inlog:(room,player)->
 		log=
 			comment:"#{player.name}さんが訪れました。"
@@ -532,8 +604,11 @@ exports.actions=
 			joblist={}
 			for job of jobs
 				joblist[job]=query[job]	# 仕事の数
+			options={}
+			for opt in ["poisoner","decider","authority"]
+				options[opt]=query[opt] ? null
 			
-			game.setplayers joblist,room.players,(result)->
+			game.setplayers joblist,options,room.players,(result)->
 				unless result?
 					# プレイヤー初期化に成功
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}

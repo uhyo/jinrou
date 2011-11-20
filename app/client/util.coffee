@@ -18,7 +18,7 @@ exports.formQuery=(form)->
 	for e in el
 		if !e.disabled && e.name
 			if (tag=e.tagName.toLowerCase())=="input"
-				if e.type=="radio"
+				if e.type in ["radio","checkbox"]
 					if e.checked
 						q[e.name]=e.value
 				else if e.type!="submit" && e.type!="reset" && e.type!="button"
