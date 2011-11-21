@@ -8,6 +8,11 @@ class Game
 		@night=false # false:昼 true:夜
 		
 		@winner=null	# 勝ったチーム名
+		# DBには現れない
+		@timerid=null
+		@voting=false	# 投票猶予時間
+		@timer_start=null	# 残り時間のカウント開始時間（秒）
+		@timer_remain=null	# 残り時間全体（秒）
 	# JSON用object化(DB保存用）
 	serialize:->
 		{
@@ -69,10 +74,13 @@ class Game
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
+			console.log players.length
+			console.log joblist
 			while true
 				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","Fox"])
 				r=Math.floor Math.random()*jobss.length
-				continue unless joblist[jobss[r]]
+				continue unless joblist[jobss[r]]>0
+				console.log "#{jobss[r]} : #{joblist[jobss[r]]}"
 				# 役職はjobss[r]
 				scpg_index=0
 				sc=players.filter((x,i)->
@@ -87,14 +95,16 @@ class Game
 				players.splice scpg_index,1	# 身代わりくんは消す
 				joblist[jobss[r]]--
 				break
-			
+			console.log joblist
 			
 		# ひとり決める
 		for job,num of joblist
 			i=0
 			while i++<num
+				console.log players.length
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
+				console.log pl
 				newpl=new jobs[job] pl.userid,pl.name
 				@players.push newpl
 				players.splice r,1
@@ -113,6 +123,7 @@ class Game
 #======== ゲーム進行の処理
 	#次のターンに進む
 	nextturn:->
+		clearTimeout @timerid
 		if @day<=0
 			# はじまる前
 			@day=1
@@ -149,6 +160,7 @@ class Game
 						if x.type=="Werewolf"
 							x.target=""	# 誰も殺さない
 		else
+			@voting=false
 			@players.forEach (x)=>
 				x.voteto=null
 				return if x.dead
@@ -163,11 +175,15 @@ class Game
 		if @night
 			@checkjobs()
 		@save()
-	#全員寝たかチェック
+		@timer()
+	#全員寝たかチェック 寝たなら処理してtrue
 	checkjobs:->
 		if @players.every( (x)->x.dead || x.sleeping())
 			@midnight()
 			@nextturn()
+			true
+		else
+			false
 
 	#夜の能力を処理する
 	midnight:->
@@ -188,7 +204,7 @@ class Game
 				when "punish"
 					"処刑されました"
 				else
-					"死んでました"				
+					"突然お亡くなりになられました"				
 			log=
 				mode:"system"
 				comment:"#{x.name}は#{situation}"
@@ -197,7 +213,7 @@ class Game
 			SS.publish.user x.id,"refresh",{}
 	# 投票終わりチェック
 	execute:->
-		return unless @players.every((x)->x.dead || x.voteto)
+		return false unless @players.every((x)->x.dead || x.voteto)
 		tos={}
 		@players.forEach (x)->
 			return if x.dead || !x.voteto
@@ -245,7 +261,7 @@ class Game
 			@players.forEach (player)->
 				player.voteto=null
 			SS.publish.channel "room#{@id}","voteform",true
-		else
+		else if player
 			# 結果が出た 死んだ!
 			player.dead=true	# 投票で死んだ
 			player.found="punish"
@@ -257,6 +273,7 @@ class Game
 				pl.found="poison"
 				
 			@nextturn()
+		return true
 	# 勝敗決定
 	judge:->
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
@@ -302,7 +319,70 @@ class Game
 			return true
 		else
 			return false
-			
+	timer:->
+		return if @day<=0 || @finished
+		func=null
+		time=null
+		timeout= =>
+			# 残り時間を知らせるぞ!
+			@timer_start=parseInt Date.now()/1000
+			@timer_remain=time
+			SS.publish.channel "room#{@id}","time",time
+			if time>60
+				@timerid=setTimeout timeout,60000
+				time-=60
+			else if time>0
+				@timerid=setTimeout timeout,time*1000
+				time=0
+			else
+				# 時間切れ
+				func()
+		if @night
+			# 夜
+			time=@rule.night
+			return unless time
+			func= =>
+				# ね な い こ だ れ だ
+				unless @checkjobs()
+					@players.forEach (x)->
+						return if x.dead || x.sleeping()
+						x.dead=true
+						x.found="gone"	# 突然死
+					@checkjobs()
+						
+		else if !@voting
+			# 昼
+			time=@rule.day
+			return unless time
+			func= =>
+				unless @execute()
+					if @rule.remain
+						# 猶予があるよ
+						@voting=true
+						log=
+							mode:"system"
+							comment:"昼の討論時間が終了しました。投票して下さい。"
+						splashlog @id,this,log
+						@timer()
+					else
+						# 突然死
+						@players.forEach (x)->
+							return if x.dead || x.voteto
+							x.dead=true
+							x.found="gone"
+						@execute()
+		else
+			# 猶予時間も過ぎたよ!
+			time=@rule.voting
+			func= =>
+				unless @execute()
+					@players.forEach (x)->
+						return if x.dead || x.voteto
+						x.dead=true
+						x.found="gone"
+					@execute()
+		timeout()
+		
 		
 ###
 logs:[{
@@ -603,11 +683,14 @@ exports.actions=
 			game.setrule {
 				number: room.players.length
 				scapegoat : query.scapegoat
+				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
+				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
+				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
 			}
 			
 			joblist={}
 			for job of jobs
-				joblist[job]=query[job]	# 仕事の数
+				joblist[job]=parseInt query[job]	# 仕事の数
 			options={}
 			for opt in ["poisoner","decider","authority"]
 				options[opt]=query[opt] ? null
@@ -634,6 +717,10 @@ exports.actions=
 			players:game.players.filter (x)->x.publicinfo()
 		result=makejobinfo game,player,result
 #		SS.server.game.game.playerchannel roomid,@session
+		result.timer=if game.timerid?
+			game.timer_remain-(Date.now()/1000-game.timer_start)	# 全体 - 経過時間
+		else
+			null
 		cb result
 		
 	speak: (roomid,comment,cb)->
@@ -649,6 +736,7 @@ exports.actions=
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
+		return if game.voting	# 投票猶予時間は発言できない
 		if game.day<=0 || game.finished	#準備中
 			log.mode="prepare"
 		else

@@ -3,6 +3,10 @@ this_room_id=null
 
 socket_ids=[]
 my_job=null
+
+timerid=null	# setTimeout
+remain_time=null
+
 exports.start=(roomid)->
 	getenter=(result)->
 		if result?
@@ -34,6 +38,7 @@ exports.start=(roomid)->
 				getjobinfo result
 				result.logs.forEach getlog
 				formplayers result.players
+				gettimer parseInt(result.timer) if result.timer?
 						
 				
 			
@@ -174,7 +179,11 @@ exports.start=(roomid)->
 		socket_ids.push SS.client.socket.on "playersinfo",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				formplayers msg
-			
+		# 残り時間
+		socket_ids.push SS.client.socket.on "time",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+				gettimer parseInt msg
+				
 		
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
@@ -328,6 +337,17 @@ exports.start=(roomid)->
 			label.appendChild input
 			li.appendChild label
 			$("#form_players").append li
+	# タイマー情報をもらった
+	gettimer=(msg)->
+		remain_time=parseInt msg
+		unless timerid?
+			timerid=setInterval ->
+				remain_time--
+				return if remain_time<0
+				min=parseInt remain_time/60
+				sec=remain_time%60
+				$("#time").text "#{min}:#{sec}"
+			,1000
 			
 	makebutton=(text)->
 		b=document.createElement "button"
