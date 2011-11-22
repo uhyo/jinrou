@@ -1,0 +1,24 @@
+== 汝は人狼なりや? ==
+Are you a werewolf?
+
+== version ==
+1.0
+
+== requirements ==
+* SocketStream
+* hashlib
+
+== jobs ==
+* 村人
+* 占い師
+* 霊能者
+* 狂人
+* 狩人
+* 共有者
+* 埋毒者
+* 人狼
+* 妖狐
+
+=== options ===
+* 決定者
+* 権力者
