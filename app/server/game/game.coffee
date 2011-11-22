@@ -48,12 +48,6 @@ class Game
 	setplayers:(joblist,options,players,cb)->
 		jnumber=0
 		players=players.concat []
-		if @rule.scapegoat=="on"
-			players.push {
-				userid:"身代わりくん"
-				name:"身代わりくん"
-				scapegoat:true
-			}
 		if options.poisoner
 			# 埋毒者
 			joblist["Poisoner"]=1
@@ -61,38 +55,30 @@ class Game
 			joblist["Human"]-=2
 		else
 			joblist["Poisoner"]=0
+		plsl=players.length
+		if @rule.scapegoat=="on"
+			plsl++
 		@players=[]
 		for job,num of joblist
 			jnumber+=parseInt num
 			if parseInt(num)<0
 				cb "プレイヤー数が不正です（#{job}:#{num})"
 				return
-		if jnumber!=players.length
+		if jnumber!=plsl
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
 			return
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
-			console.log players.length
-			console.log joblist
 			while true
 				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","Fox"])
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
-				console.log "#{jobss[r]} : #{joblist[jobss[r]]}"
 				# 役職はjobss[r]
-				scpg_index=0
-				sc=players.filter((x,i)->
-					if x.scapegoat
-						scpg_index=i
-						true
-					else
-						false
-				)[0]
-				newpl=new jobs[jobss[r]] sc.userid,sc.name	#身代わりくん
+				newpl=new jobs[jobss[r]] "身代わりくん","身代わりくん"	#身代わりくん
+				newpl.scapegoat=true
 				@players.push newpl
-				players.splice scpg_index,1	# 身代わりくんは消す
 				joblist[jobss[r]]--
 				break
 			console.log joblist
@@ -134,6 +120,8 @@ class Game
 		else
 			@night=true
 			
+		#死体処理
+		@bury()
 		return if @judge()
 		
 		log=
@@ -211,6 +199,14 @@ class Game
 			splashlog @id,this,log
 			x.found=""	# 発見されました
 			SS.publish.user x.id,"refresh",{}
+			if @rule.will=="die"
+				# 死んだら遺言発表
+				log=
+					mode:"will"
+					name:x.name
+					comment:x.will
+				splashlog @id,this,log
+				
 	# 投票終わりチェック
 	execute:->
 		return false unless @players.every((x)->x.dead || x.voteto)
@@ -386,7 +382,7 @@ class Game
 		
 ###
 logs:[{
-	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐)
+	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
 	comment: String
 	userid:Userid
 	name?:String
@@ -415,6 +411,8 @@ class Player
 		
 		@decider=false	# 決定者
 		@authority=false# 権力者
+		
+		@will=null	# 遺言
 	serialize:->
 		{
 			type:@type
@@ -424,6 +422,7 @@ class Player
 			scapegoat:@scapegoat
 			decider:@decider
 			authority:@authority
+			will:@will
 		}
 	@unserialize:(obj)->
 		p=null
@@ -435,6 +434,7 @@ class Player
 		p.scapegoat=obj.scapegoat
 		p.decider=obj.decider
 		p.authority=obj.authority
+		p.will=obj.will
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -522,6 +522,7 @@ class Diviner extends Player
 		super
 		@target=null
 		if @scapegoat
+			console.log "Goat!"
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
 			@job game,game.players[r].id
@@ -686,6 +687,7 @@ exports.actions=
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
+				will: query.will
 			}
 			
 			joblist={}
@@ -700,7 +702,6 @@ exports.actions=
 					# プレイヤー初期化に成功
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}
 					game.nextturn()
-					game.save()
 					cb null
 					SS.publish.channel "room#{roomid}","refresh",{}
 				else
@@ -769,7 +770,6 @@ exports.actions=
 				
 		splashlog roomid,game,log
 		cb null
-		
 	# 夜の仕事・投票
 	job:(roomid,query,cb)->
 		game=games[roomid]
@@ -817,13 +817,34 @@ exports.actions=
 			# 投票が終わったかチェック
 			game.execute()
 		cb null
+	#遺言
+	will:(roomid,will,cb)->
+		game=games[roomid]
+		unless game?
+			cb "そのゲームは存在しません"
+			return
+		unless @session.user_id
+			cb "ログインして下さい"
+			return
+		unless game.rule.will
+			cb "遺言は使えません"
+			return
+		player=game.players.filter((x)=>x.id==@session.user_id)[0]
+		unless player?
+			cb "参加していません"
+			return
+		if player.dead
+			cb "お前は既に死んでいる"
+			return
+		player.will=will
+		cb null
 		
 
 splashlog=(roomid,game,log)->
 	game.logs.push log
 	unless log.to?
 		switch log.mode
-			when "prepare","system","nextturn","voteresult","day"
+			when "prepare","system","nextturn","voteresult","day","will"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf"
@@ -848,14 +869,14 @@ islogOK=(player,log)->
 	# player: Player / null
 	unless player?
 		# 観戦者
-		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience"])
+		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience","voteresult","will"])
 	else if player.dead || player.winner?	# nullなら未終了 true/falseなら終了済み
 		true
 	else if log.to? && log.to!=player.id
 		# 個人宛
 		false
 	else
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult","will"]
 			true
 		else if log.mode=="werewolf"
 			player.isWerewolf()

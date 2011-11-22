@@ -95,17 +95,17 @@ exports.start=(roomid)->
 				sum=0
 				jobs.forEach (x)->
 					sum+=parseInt form.elements[x].value
-				if room.players.length<sum
+				pl=room.players.length
+				if form.elements["scapegoat"].value=="on"
+					# 身代わりくん
+					pl++
+				if pl<sum
 					# 多すぎる！
 					#jobs.forEach (x)->
 					t.setCustomValidity "役職の数が多すぎます。"
 				else
 					jobs.forEach (x)->
 						form.elements[x].setCustomValidity ""
-					pl=room.players.length	#人数
-					if form.elements["scapegoat"].value=="on"
-						# 身代わりくん
-						pl++
 					form.elements["Human"].value=pl-sum
 		form.addEventListener "input",jobsforminput,false
 		form.addEventListener "change",jobsforminput,false
@@ -128,6 +128,22 @@ exports.start=(roomid)->
 					SS.client.util.message "エラー",result
 			je.preventDefault()
 			form.elements["comment"].value=""
+		.get(0).elements["willbutton"].addEventListener "click", (e)->
+			# 遺言フォームオープン
+			if $("#willform").attr "hidden"
+				$("#willform").removeAttr "hidden"
+				e.target.value="遺言を隠す"
+			else
+				$("#willform").attr "hidden","hidden"
+				e.target.value="遺言"
+		$("#willform").submit (je)->
+			form=je.target
+			je.preventDefault()
+			SS.server.game.game.will roomid,form.elements["will"].value,(result)->
+				if result?
+					SS.client.util.message "エラー",result
+				else
+					$("#willform").attr "hidden","hidden"
 		
 		# 夜の仕事（あと投票）
 		$("#jobform").submit (je)->
@@ -139,6 +155,8 @@ exports.start=(roomid)->
 					console.log SS.client.util.message, result
 					SS.client.util.message "エラー",result
 					$("#jobform").removeAttr "hidden"
+					
+		#========================================
 			
 		# 誰かが参加した!!!!
 		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
@@ -255,6 +273,8 @@ exports.start=(roomid)->
 				span.textContent=switch log.mode
 					when "monologue"
 						"#{log.name}の独り言:"
+					when "will"
+						#{log.name}の遺言:"
 					else
 						"#{log.name}:"
 				p.appendChild span
@@ -278,7 +298,13 @@ exports.start=(roomid)->
 					else
 						$("#form_day").removeAttr "hidden"
 		
-
+			else if log.mode=="will"
+				# 遺言
+				spp=span.firstChild	# Text
+				wr=0
+				while (wr=spp.nodeValue.indexOf("\n"))>=0
+					spp=spp.splitText wr
+					span.insertBefore document.createElement("br"),spp
 			
 			p.appendChild span
 		
