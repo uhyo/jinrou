@@ -25,7 +25,7 @@ exports.config =
 
   # HTTP(S) request-based API module
   api:
-    enabled:      true
+    enabled:      false
     prefix:       'api'
     https_only:   false
   
