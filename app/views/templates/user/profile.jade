@@ -11,6 +11,8 @@ section.profile
     
     p
       input(type="submit",value="変更")
+  h1 対戦成績
+  p 勝ち {{= typeof(win)!=="undefined" ? win.length : 0}}回　負け {{= typeof(lose)!=="undefined" ? lose.length : 0}}回　突然死 {{= typeof(gone)!=="undefined" ? gone.length : 0}}回
   p
     a(href="/rooms") ルーム一覧
     

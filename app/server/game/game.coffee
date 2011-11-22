@@ -199,7 +199,7 @@ class Game
 			splashlog @id,this,log
 			x.found=""	# 発見されました
 			SS.publish.user x.id,"refresh",{}
-			if @rule.will=="die"
+			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
 				log=
 					mode:"will"
@@ -250,13 +250,7 @@ class Game
 					break
 		if revote
 			# 再投票
-			log=
-				mode:"system"
-				comment:"再投票になりました。"
-			splashlog @id,this,log
-			@players.forEach (player)->
-				player.voteto=null
-			SS.publish.channel "room#{@id}","voteform",true
+			@dorevote()
 		else if player
 			# 結果が出た 死んだ!
 			player.dead=true	# 投票で死んだ
@@ -270,6 +264,19 @@ class Game
 				
 			@nextturn()
 		return true
+	# 再投票
+	dorevote:->
+		log=
+			mode:"system"
+			comment:"再投票になりました。"
+		splashlog @id,this,log
+		@players.forEach (player)->
+			player.voteto=null
+		SS.publish.channel "room#{@id}","voteform",true
+		if @voting
+			# 投票猶予の場合初期化
+			clearTimeout @timerid
+			@timer()
 	# 勝敗決定
 	judge:->
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
@@ -293,8 +300,13 @@ class Game
 			# 勝敗決定
 			@finished=true
 			@winner=team
-			@players.forEach (x)->
+			@players.forEach (x)=>
 				x.winner= x.team==team	#勝利陣営にいたか
+				# ユーザー情報
+				if x.winner
+					M.users.update {userid:x.id},{$push: {win:@id}}
+				else
+					M.users.update {userid:x.id},{$push: {lose:@id}}
 			log=
 				mode:"nextturn"
 				finished:true
@@ -340,12 +352,16 @@ class Game
 			func= =>
 				# ね な い こ だ れ だ
 				unless @checkjobs()
-					@players.forEach (x)->
+					@players.forEach (x)=>
 						return if x.dead || x.sleeping()
 						x.dead=true
 						x.found="gone"	# 突然死
+						# 突然死記録
+						M.users.update {userid:x.id},{$push:{gone:@id}}
+					@bury()
 					@checkjobs()
-						
+				else
+					return
 		else if !@voting
 			# 昼
 			time=@rule.day
@@ -362,21 +378,39 @@ class Game
 						@timer()
 					else
 						# 突然死
+						revoting=false
 						@players.forEach (x)->
 							return if x.dead || x.voteto
 							x.dead=true
 							x.found="gone"
-						@execute()
+							revoting=true
+						@bury()
+						@judge()
+						if revoting
+							@dorevote()
+						else
+							@execute()
+				else
+					return
 		else
 			# 猶予時間も過ぎたよ!
-			time=@rule.voting
+			time=@rule.remain
 			func= =>
 				unless @execute()
+					revoting=false
 					@players.forEach (x)->
 						return if x.dead || x.voteto
 						x.dead=true
 						x.found="gone"
-					@execute()
+						revoting=true
+					@bury()
+					@judge()
+					if revoting
+						@dorevote()
+					else
+						@execute()
+				else
+					return
 		timeout()
 		
 		

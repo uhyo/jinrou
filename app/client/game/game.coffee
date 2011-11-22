@@ -274,7 +274,7 @@ exports.start=(roomid)->
 					when "monologue"
 						"#{log.name}の独り言:"
 					when "will"
-						#{log.name}の遺言:"
+						"#{log.name}の遺言:"
 					else
 						"#{log.name}:"
 				p.appendChild span

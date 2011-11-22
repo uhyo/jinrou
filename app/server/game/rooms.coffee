@@ -16,7 +16,7 @@ room: {
 ###
 exports.actions=
 	getRooms:(cb)->
-		M.rooms.find().toArray (err,results)->
+		M.rooms.find({mode:{$ne:"end"}}).toArray (err,results)->
 			if err?
 				cb {error:err}
 				return

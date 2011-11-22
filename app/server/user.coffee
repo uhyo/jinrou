@@ -100,4 +100,7 @@ makeuserdata=(query)->
 		password: SS.server.user.crpassword(query.password)
 		name: query.userid
 		comment: ""
+		win:[]	# 勝ち試合
+		lose:[]	# 負け試合
+		gone:[]	# 行方不明試合
 	}
