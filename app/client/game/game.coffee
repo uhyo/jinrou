@@ -37,10 +37,9 @@ exports.start=(roomid)->
 			else
 				getjobinfo result
 				result.logs.forEach getlog
-				formplayers result.players
 				gettimer parseInt(result.timer) if result.timer?
-						
-				
+
+
 			
 		# 新しいゲーム
 		newgamebutton = (je)->
@@ -114,7 +113,6 @@ exports.start=(roomid)->
 		$("#gamestart").submit (je)->
 			# いよいよゲーム開始だ！
 			query=SS.client.util.formQuery je.target
-			console.log query
 			SS.server.game.game.gameStart roomid,query,(result)->
 				if result?
 					SS.client.util.message "ルーム",result
@@ -152,7 +150,6 @@ exports.start=(roomid)->
 			$("#jobform").attr "hidden","hidden"
 			SS.server.game.game.job roomid,SS.client.util.formQuery(form), (result)->
 				if result?
-					console.log SS.client.util.message, result
 					SS.client.util.message "エラー",result
 					$("#jobform").removeAttr "hidden"
 					
@@ -193,10 +190,6 @@ exports.start=(roomid)->
 					$("#jobform").removeAttr "hidden"
 				else
 					$("#jobform").attr "hidden","hidden"
-		# プレイヤー情報更新
-		socket_ids.push SS.client.socket.on "playersinfo",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
-				formplayers msg
 		# 残り時間
 		socket_ids.push SS.client.socket.on "time",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
@@ -281,24 +274,7 @@ exports.start=(roomid)->
 			span=document.createElement "span"
 			span.classList.add "comment"
 			span.textContent=log.comment
-			if log.mode=="nextturn"
-				if log.finished
-					# 終了
-					document.body.classList.add "finished"
-					document.body.classList.remove x for x in ["day","night"]
-					$("#jobform").attr "hidden","hidden"
-				else
-					document.body.classList.add (if log.night then "night" else "day")
-					document.body.classList.remove (if log.night then "day" else "night")
-				unless document.body.classList.contains("heaven") || document.body.classList.contains "finished"
-					$("#jobform").removeAttr "hidden"
-					$("#jobform div.jobformarea").attr "hidden","hidden"
-					if log.night
-						$("#form_#{my_job}").removeAttr "hidden"
-					else
-						$("#form_day").removeAttr "hidden"
-		
-			else if log.mode=="will"
+			if log.mode=="will"
 				# 遺言
 				spp=span.firstChild	# Text
 				wr=0
@@ -314,6 +290,7 @@ exports.start=(roomid)->
 		logs.insertBefore p,logs.firstChild
 	# 役職情報をもらった
 	getjobinfo=(obj)->
+		console.log obj
 		my_job=obj.type
 		if obj.type
 			$("#myjob").text obj.jobname
@@ -346,7 +323,23 @@ exports.start=(roomid)->
 				if x.dead
 					li.classList.add "dead"
 				$("#players").append li
-	# 参加者一覧をもらった（夜の仕事用）
+		if game=obj.game
+			if game.finished
+				# 終了
+				document.body.classList.add "finished"
+				document.body.classList.remove x for x in ["day","night"]
+				$("#jobform").attr "hidden","hidden"
+			else
+				document.body.classList.add (if game.night then "night" else "day")
+				document.body.classList.remove (if game.night then "day" else "night")
+			unless $("#jobform").get(0).hidden= obj.dead || game.finished ||  obj.sleeping || !obj.type
+				# 代入しつつの　投票フォーム必要な場合
+				$("#jobform div.jobformarea").attr "hidden","hidden"
+				$("#form_day").get(0).hidden= game.night
+				if game.night
+					$("#form_#{my_job}").removeAttr "hidden"
+		if game?.players
+			formplayers game.players
 	formplayers=(players)->
 		$("#form_players").empty()
 		players.forEach (x)->

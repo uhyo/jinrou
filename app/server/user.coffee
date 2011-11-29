@@ -1,11 +1,14 @@
 # Server-side Code
-hashlib=require('hashlib');
+#hashlib=require('hashlib');
+crypto=require('crypto');
 exports.actions =
 
 # ログイン
 # cb: 失敗なら真
 	login: (query,cb)->
-		@session.authenticate 'auth', query, (response)=>
+		console.log auth=require('./auth.coffee');
+		#@session.authenticate './session_storage/internal.coffee', query, (response)=>
+		auth.authenticate query,(response)=>
 			console.log "auth!"+response.success
 			if response.success
 				@session.setUserId response.userid
@@ -92,7 +95,14 @@ exports.actions =
 
 
 #パスワードハッシュ化
-	crpassword: (raw)-> raw && hashlib.sha256(raw+hashlib.md5(raw))
+#	crpassword: (raw)-> raw && hashlib.sha256(raw+hashlib.md5(raw))
+	crpassword: (raw)->
+		return "" unless raw
+		sha256=crypto.createHash "sha256"
+		md5=crypto.createHash "md5"
+		md5.update raw	# md5でハッシュ化
+		sha256.update raw+md5.digest 'hex'	# sha256でさらにハッシュ化
+		sha256.digest 'hex'	# 結果を返す
 #ユーザーデータ作る
 makeuserdata=(query)->
 	{

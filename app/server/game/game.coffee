@@ -36,6 +36,15 @@ class Game
 		game.night=obj.night
 		game.winner=obj.winner
 		game
+	# 公開情報
+	publicinfo:->
+		{
+			rule:@rule
+			finished:@finished
+			players:@players.map (x)->x.publicinfo()
+			day:@day
+			night:@night
+		}
 	# IDからプレイヤー
 	getPlayer:(id)->
 		@players.filter((x)->x.id==id)[0]
@@ -155,11 +164,10 @@ class Game
 				x.sunrise this
 		#死体処理
 		@bury()
-		SS.publish.channel "room#{@id}","playersinfo",@players.map (x)->x.publicinfo()
-		@players.filter((x)->x.dead).forEach (x)=>
-			# 死んだ人には状況更新をしてあげる
-			SS.publish.user x.id,"getjob",makejobinfo this,x
 		@judge()
+		@players.forEach (x)=>
+			# 全員状況更新をしてあげる
+			SS.publish.user x.id,"getjob",makejobinfo this,x
 		if @night
 			@checkjobs()
 		@save()
@@ -749,7 +757,6 @@ exports.actions=
 		player=game.players.filter((x)=>x.id==@session.user_id)[0]
 		result= 
 			logs:game.logs.filter (x)-> islogOK player,x
-			players:game.players.filter (x)->x.publicinfo()
 		result=makejobinfo game,player,result
 #		SS.server.game.game.playerchannel roomid,@session
 		result.timer=if game.timerid?
@@ -925,6 +932,7 @@ islogOK=(player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
+	result.game=game.publicinfo()
 	if player
 		if player.isWerewolf()
 			# 人狼は仲間が分かる
@@ -939,7 +947,8 @@ makejobinfo = (game,player,result={})->
 			result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 				x.publicinfo()
 		result.dead=player.dead
-		result.sleeping=if game.night then player.sleeping() else null
+		# 投票が終了したかどうか（フォーム表示するかどうか判断）
+		result.sleeping=if game.night then player.sleeping() else if player.voteto? then true else false
 		result.jobname=player.jobname
 		if player.dead || game.finished
 			# 情報を開示する
@@ -948,6 +957,6 @@ makejobinfo = (game,player,result={})->
 				r.jobname=x.jobname
 				r
 		result.winner=player.winner
-	
+
 	result
 		
