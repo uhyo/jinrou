@@ -156,6 +156,10 @@ class Game
 					@players.forEach (x)->
 						if x.type=="Werewolf"
 							x.target=""	# 誰も殺さない
+				# 狩人は一日目護衛しない
+				@players.forEach (x)->
+					if x.type=="Guard"
+						x.target=""	# 誰も守らない
 		else
 			@voting=false
 			@players.forEach (x)=>
@@ -165,13 +169,15 @@ class Game
 		#死体処理
 		@bury()
 		@judge()
-		@players.forEach (x)=>
-			# 全員状況更新をしてあげる
-			SS.publish.user x.id,"getjob",makejobinfo this,x
+		@splashjobinfo()
 		if @night
 			@checkjobs()
 		@save()
 		@timer()
+	#全員に状況更新
+	splashjobinfo:->
+		@players.forEach (x)=>
+			SS.publish.user x.id,"getjob",makejobinfo this,x
 	#全員寝たかチェック 寝たなら処理してtrue
 	checkjobs:->
 		if @players.every( (x)->x.dead || x.sleeping())
@@ -205,6 +211,12 @@ class Game
 				mode:"system"
 				comment:"#{x.name}は#{situation}"
 			splashlog @id,this,log
+			if x.found=="punish"
+				# 処刑→霊能
+				@players.forEach (y)=>
+					if y.type=="Psychic"
+						# 霊能
+						y.results.push x
 			x.found=""	# 発見されました
 			SS.publish.user x.id,"refresh",{}
 			if @rule.will=="die" && x.will
@@ -281,6 +293,7 @@ class Game
 		@players.forEach (player)->
 			player.voteto=null
 		SS.publish.channel "room#{@id}","voteform",true
+		@splashjobinfo()
 		if @voting
 			# 投票猶予の場合初期化
 			clearTimeout @timerid
@@ -289,7 +302,6 @@ class Game
 	judge:->
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
-		console.log "humans:#{humans}, wolves:#{wolves}"
 		
 		team=null
 		if wolves==0
@@ -564,7 +576,6 @@ class Diviner extends Player
 		super
 		@target=null
 		if @scapegoat
-			console.log "Goat!"
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
 			@job game,game.players[r].id
@@ -601,15 +612,19 @@ class Diviner extends Player
 class Psychic extends Player
 	type:"Psychic"
 	jobname:"霊能者"
-	sunset:(game)->
+	constructor:->
 		super
-		game.players.forEach (x)=>
-			if x.dead && x.found	# 未発見
-				log=
-					mode:"skill"
-					to:@id
-					comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
-				splashlog game.id,game,log
+		@results=[]	# 処刑された人(Playerが入る）
+	sunset:(game)->	#bury済みであること!
+		super
+		@results.forEach (x)=>
+			log=
+				mode:"skill"
+				to:@id
+				comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
+			splashlog game.id,game,log
+		@results.length=0;
+
 class Madman extends Player
 	type:"Madman"
 	jobname:"狂人"
@@ -773,12 +788,15 @@ exports.actions=
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
+		unless comment
+			cb "コメントがありません"
+			return
 		log =
 			comment:comment
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
-		return if game.voting	# 投票猶予時間は発言できない
+		return if !game.finished && !game.night && game.voting	# 投票猶予時間は発言できない
 		if game.day<=0 || game.finished	#準備中
 			log.mode="prepare"
 		else
