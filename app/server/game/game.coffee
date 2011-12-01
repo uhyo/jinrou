@@ -915,7 +915,7 @@ exports.actions=
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
-		unless game.rule.will
+		unless !game.rule || game.rule.will
 			cb "遺言は使えません"
 			return
 		player=game.players.filter((x)=>x.id==@session.user_id)[0]

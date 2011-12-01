@@ -98,14 +98,7 @@ exports.start=(roomid)->
 				if form.elements["scapegoat"].value=="on"
 					# 身代わりくん
 					pl++
-				if pl<sum
-					# 多すぎる！
-					#jobs.forEach (x)->
-					t.setCustomValidity "役職の数が多すぎます。"
-				else
-					jobs.forEach (x)->
-						form.elements[x].setCustomValidity ""
-					form.elements["Human"].value=pl-sum
+				form.elements["Human"].value=pl-sum
 		form.addEventListener "input",jobsforminput,false
 		form.addEventListener "change",jobsforminput,false
 				
