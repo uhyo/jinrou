@@ -35,6 +35,7 @@ class Game
 		game.day=obj.day
 		game.night=obj.night
 		game.winner=obj.winner
+		game.timer()
 		game
 	# 公開情報
 	publicinfo:->
@@ -90,23 +91,19 @@ class Game
 				@players.push newpl
 				joblist[jobss[r]]--
 				break
-			console.log joblist
 			
 		# ひとり決める
 		for job,num of joblist
 			i=0
 			while i++<num
-				console.log players.length
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
-				console.log pl
 				newpl=new jobs[job] pl.userid,pl.name
 				@players.push newpl
 				players.splice r,1
 				if pl.scapegoat
 					# 身代わりくん
 					newpl.scapegoat=true
-				#SS.publish.user pl.userid, "getjob", makejobinfo this,newpl
 		if options.decider
 			r=Math.floor Math.random()*players.length
 			@players[r].decider=true
@@ -179,11 +176,15 @@ class Game
 		@players.forEach (x)=>
 			SS.publish.user x.id,"getjob",makejobinfo this,x
 	#全員寝たかチェック 寝たなら処理してtrue
-	checkjobs:->
+	#timeoutがtrueならば時間切れなので時間でも待たない
+	checkjobs:(timeout)->
 		if @players.every( (x)->x.dead || x.sleeping())
-			@midnight()
-			@nextturn()
-			true
+			if timeout || !@rule.night	#夜に時間がある場合は待ってあげる
+				@midnight()
+				@nextturn()
+				true
+			else
+				false
 		else
 			false
 
@@ -218,7 +219,7 @@ class Game
 						# 霊能
 						y.results.push x
 			x.found=""	# 発見されました
-			SS.publish.user x.id,"refresh",{}
+			SS.publish.user x.id,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
 				log=
@@ -343,7 +344,7 @@ class Game
 			
 			# ルームを終了状態にする
 			M.rooms.update {id:@id},{$set:{mode:"end"}}
-			SS.publish.channel "room#{@id}","refresh",{}
+			SS.publish.channel "room#{@id}","refresh",{id:@id}
 			return true
 		else
 			return false
@@ -371,7 +372,7 @@ class Game
 			return unless time
 			func= =>
 				# ね な い こ だ れ だ
-				unless @checkjobs()
+				unless @checkjobs true
 					@players.forEach (x)=>
 						return if x.dead || x.sleeping()
 						x.dead=true
@@ -379,7 +380,7 @@ class Game
 						# 突然死記録
 						M.users.update {userid:x.id},{$push:{gone:@id}}
 					@bury()
-					@checkjobs()
+					@checkjobs true
 				else
 					return
 		else if !@voting
@@ -432,6 +433,28 @@ class Game
 				else
 					return
 		timeout()
+	# プレイヤーごとに　見せてもよいログをリストにする
+	makelogs:(player)->
+		@logs.map (x)=>
+			if islogOK player,x
+				x
+			else
+				# 見られなかったけど見たい人用
+				if x.mode=="werewolf" && @rule.wolfsound=="aloud"
+					{
+						mode: "werewolf"
+						name: "狼の遠吠え"
+						comment: "アオォーーン・・・"
+					}
+				else if x.mode=="couple" && @rule.couplesound=="aloud"
+					{
+						mode: "couple"
+						name: "共有者の小声"
+						comment: "ヒソヒソ・・・"
+					}
+				else
+					null
+		.filter (x)->x?
 		
 		
 ###
@@ -714,9 +737,13 @@ exports.actions=
 			session.channel.subscribe "room#{roomid}_heaven"
 		else if player.isWerewolf()
 			session.channel.subscribe "room#{roomid}_werewolf"
-		else if player.type=="Couple"
+		else
+			session.channel.subscribe "room#{roomid}_notwerewolf"
+		if player.type=="Couple"
 			session.channel.subscribe "room#{roomid}_couple"
-		else if player.type=="Fox"
+		else if !player.dead
+			session.channel.subscribe "room#{roomid}_notcouple"
+		if player.type=="Fox"
 			session.channel.subscribe "room#{roomid}_fox"
 			
 			
@@ -745,6 +772,8 @@ exports.actions=
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
 				will: query.will
+				wolfsound:query.wolfsound	# 狼の声が聞こえるか
+				couplesound:query.couplesound	# 共有者の声が聞こえるか
 			}
 			
 			joblist={}
@@ -760,7 +789,7 @@ exports.actions=
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}
 					game.nextturn()
 					cb null
-					SS.publish.channel "room#{roomid}","refresh",{}
+					SS.publish.channel "room#{roomid}","refresh",{id:@id}
 				else
 					cb result
 	# 情報を開示
@@ -771,7 +800,8 @@ exports.actions=
 			return
 		player=game.players.filter((x)=>x.id==@session.user_id)[0]
 		result= 
-			logs:game.logs.filter (x)-> islogOK player,x
+			#logs:game.logs.filter (x)-> islogOK player,x
+			logs:game.makelogs player
 		result=makejobinfo game,player,result
 #		SS.server.game.game.playerchannel roomid,@session
 		result.timer=if game.timerid?
@@ -909,8 +939,23 @@ splashlog=(roomid,game,log)->
 			when "werewolf"
 				# 狼
 				SS.publish.channel ["room#{roomid}_werewolf","room#{roomid}_heaven"], "log", log
+				if game.rule.wolfsound=="aloud"
+					# 狼の遠吠えが聞こえる
+					log2=
+						mode:"werewolf"
+						comment:"アオォーーン・・・"
+						name:"狼の遠吠え"
+					SS.publish.channel "room#{roomid}_notwerewolf","log",log2
+					
 			when "couple"
 				SS.publish.channel ["room#{roomid}_couple","room#{roomid}_heaven"],"log",log
+				if game.rule.couplesound=="aloud"
+					# 共有者の小声が聞こえる
+					log2=
+						mode:"couple"
+						comment:"ヒソヒソ・・・"
+						name:"共有者の小声"
+					SS.publish.channel "room#{roomid}_notcouple","log",log2
 			when "fox"
 				SS.publish.channel ["room#{roomid}_fox","room#{roomid}_heaven"],"log",log
 			when "audience"
@@ -951,6 +996,7 @@ islogOK=(player,log)->
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
 	result.game=game.publicinfo()
+	result.id=game.id
 	if player
 		if player.isWerewolf()
 			# 人狼は仲間が分かる

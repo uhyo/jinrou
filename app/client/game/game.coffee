@@ -182,7 +182,8 @@ exports.start=(roomid)->
 				getjobinfo msg
 		# 更新したほうがいい
 		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
-			SS.client.app.refresh()
+			if msg.id==roomid
+				SS.client.app.refresh()
 		# 投票フォームオープン
 		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
@@ -243,6 +244,9 @@ exports.start=(roomid)->
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
 		
+		form.elements["wolfsound"].checked=true
+	
+		
 		form.elements["Human"].value=hu
 		
 	#ログをもらった
@@ -291,6 +295,7 @@ exports.start=(roomid)->
 	# 役職情報をもらった
 	getjobinfo=(obj)->
 		console.log obj
+		return unless obj.id==this_room_id
 		my_job=obj.type
 		if obj.type
 			$("#myjob").text obj.jobname
@@ -329,6 +334,9 @@ exports.start=(roomid)->
 				document.body.classList.add "finished"
 				document.body.classList.remove x for x in ["day","night"]
 				$("#jobform").attr "hidden","hidden"
+				if timerid
+					clearInterval timerid
+					timerid=null
 			else
 				document.body.classList.add (if game.night then "night" else "day")
 				document.body.classList.remove (if game.night then "day" else "night")
