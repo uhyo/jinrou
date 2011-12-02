@@ -9,7 +9,7 @@ exports.actions =
 		console.log auth=require('./auth.coffee');
 		#@session.authenticate './session_storage/internal.coffee', query, (response)=>
 		auth.authenticate query,(response)=>
-			console.log "auth!"+response.success
+			console.log response
 			if response.success
 				@session.setUserId response.userid
 				@session.attributes.user=response

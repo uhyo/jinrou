@@ -345,6 +345,7 @@ class Game
 			# ルームを終了状態にする
 			M.rooms.update {id:@id},{$set:{mode:"end"}}
 			SS.publish.channel "room#{@id}","refresh",{id:@id}
+			@save()
 			return true
 		else
 			return false
