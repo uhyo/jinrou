@@ -276,7 +276,7 @@ exports.start=(roomid)->
 				spp=span.firstChild	# Text
 				wr=0
 				while (wr=spp.nodeValue.indexOf("\n"))>=0
-					spp=spp.splitText wr
+					spp=spp.splitText wr+1
 					span.insertBefore document.createElement("br"),spp
 			
 			p.appendChild span
