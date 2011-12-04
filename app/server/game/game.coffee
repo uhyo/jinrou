@@ -46,6 +46,7 @@ class Game
 				r=x.publicinfo()
 				if obj?.openjob
 					r.jobname=x.jobname
+					r.option=x.optionString()
 				r
 			day:@day
 			night:@night
@@ -543,6 +544,14 @@ class Player
 			name:@name
 			dead:@dead
 		}
+	optionString:->
+		# 付加能力を文字列化
+		arr=[]
+		if @decider
+			arr.push "決定者"
+		if @authority
+			arr.push "権力者"
+		arr.join "・"
 	# 村人かどうか
 	isHuman:->!@isWerewolf() && @type!="Fox"
 	# 人狼かどうか
@@ -695,7 +704,7 @@ class Guard extends Player
 			log=
 				mode:"skill"
 				to:@id
-				comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
+				comment:"#{@name}は#{game.getPlayer(playerid).name}を護衛しました。"
 			splashlog game.id,game,log
 			null
 		else

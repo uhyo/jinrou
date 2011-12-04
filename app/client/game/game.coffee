@@ -343,6 +343,8 @@ exports.start=(roomid)->
 			if x.jobname
 				b=document.createElement "b"
 				b.textContent=x.jobname
+				if x.option
+					b.textContent+= "（#{x.option}）"
 				li.appendChild b
 			if x.dead
 				li.classList.add "dead"
