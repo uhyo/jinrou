@@ -62,13 +62,6 @@ class Game
 	setplayers:(joblist,options,players,cb)->
 		jnumber=0
 		players=players.concat []
-		if options.poisoner
-			# 埋毒者
-			joblist["Poisoner"]=1
-			joblist["Werewolf"]++
-			joblist["Human"]-=2
-		else
-			joblist["Poisoner"]=0
 		plsl=players.length
 		if @rule.scapegoat=="on"
 			plsl++
@@ -86,7 +79,7 @@ class Game
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
 			while true
-				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","Fox"])
+				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox"])
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
@@ -152,11 +145,11 @@ class Game
 				# 始まったばかり
 				if @rule.scapegoat=="on"
 					@players.forEach (x)->
-						if x.type=="Werewolf"
+						if x.isWerewolf()
 							x.target="身代わりくん"
 				else if @rule.scapegoat=="no"
 					@players.forEach (x)->
-						if x.type=="Werewolf"
+						if x.isWerewolf()
 							x.target=""	# 誰も殺さない
 				# 狩人は一日目護衛しない
 				@players.forEach (x)->
@@ -551,9 +544,9 @@ class Player
 			dead:@dead
 		}
 	# 村人かどうか
-	isHuman:->@type!="Werewolf" && @type!="Fox"
+	isHuman:->!@isWerewolf() && @type!="Fox"
 	# 人狼かどうか
-	isWerewolf:->@type=="Werewolf"
+	isWerewolf:->false
 	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->@guarded=false
 	# 夜のはじまり（死体処理よりも前）
@@ -588,6 +581,10 @@ class Werewolf extends Player
 		@target=null
 	sleeping:->@target?
 	job:(game,playerid)->
+		tp = game.getPlayer playerid
+		if game.rule.wolfattack!="ok" && tp?.isWerewolf()
+			# 人狼は人狼に攻撃できない
+			return "人狼は人狼を殺せません"
 		game.players.forEach (x)->
 			if x.isWerewolf()
 				x.target=playerid
@@ -611,6 +608,8 @@ class Werewolf extends Player
 				pl=game.players[r]	# 被害狼
 				pl.dead=true
 				pl.found="poison"
+				
+	isWerewolf:->true
 		
 	willDieWerewolf:false
 	fortuneResult:"人狼"
@@ -624,7 +623,7 @@ class Diviner extends Player
 	constructor:->
 		super
 		@results=[]
-			# {player:Player, result:"Human"/"Werewolf"}
+			# {player:Player, result:String}
 	sunset:(game)->
 		super
 		@target=null
@@ -712,6 +711,11 @@ class Fox extends Player
 class Poisoner extends Player
 	type:"Poisoner"
 	jobname:"埋毒者"
+class BigWolf extends Werewolf
+	type:"BigWolf"
+	jobname:"大狼"
+	fortuneResult:"村人"
+	psychicResult:"大狼"	
 
 games={}
 
@@ -726,6 +730,7 @@ jobs=
 	Couple:Couple
 	Fox:Fox
 	Poisoner:Poisoner
+	BigWolf:BigWolf
 
 
 exports.actions=
@@ -809,13 +814,14 @@ exports.actions=
 				wolfsound:query.wolfsound	# 狼の声が聞こえるか
 				couplesound:query.couplesound	# 共有者の声が聞こえるか
 				heavenview:query.heavenview	# 死んだ後役職が見られるか
+				wolfattack:query.wolfattack	# 人狼が人狼を殺しに行けるか
 			}
 			
 			joblist={}
 			for job of jobs
 				joblist[job]=parseInt query[job]	# 仕事の数
 			options={}
-			for opt in ["poisoner","decider","authority"]
+			for opt in ["decider","authority"]
 				options[opt]=query[opt] ? null
 			
 			game.setplayers joblist,options,room.players,(result)->

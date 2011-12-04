@@ -26,14 +26,15 @@
           dd: input(name="Guard",min="0",step="1",type="number",size="5")
           dt 共有者
           dd: input(name="Couple",min="0",step="1",type="number",size="5")
+          dt 埋毒者
+          dd: input(name="Poisoner",min="0",step="1",type="number",size="5")
           dt 人狼
-          dd: input(name="Werewolf",min="1",step="1",type="number",size="5")
+          dd: input(name="Werewolf",min="0",step="1",type="number",size="5")
           dt 妖狐
           dd: input(name="Fox",min="0",step="1",type="number",size="5")
+          dt 大狼
+          dd: input(name="BigWolf",min="0",step="1",type="number",size="5")
         p
-          label
-            | 埋毒者
-            input(name="poisoner",value="1",type="checkbox")
           label
             | 決定者
             input(name="decider",value="1",type="checkbox")
@@ -75,6 +76,9 @@
           label
             | 死んだ後は役職一覧が見られる
             input(name="heavenview",type="checkbox",value="view")
+          label
+            | 人狼は人狼を殺しに行ける
+            input(name="wolfattack",type="checkbox",value="ok")
       p: input(type="submit",value="開始")
   .infobox
     div
@@ -89,6 +93,10 @@
         | 処刑する人に投票して下さい：
         input(type="submit",value="投票する")
     #form_Werewolf(hidden).jobformarea
+      p
+        | 殺す人を一人選んで下さい（先着順）：
+        input(type="submit",value="殺す")
+    #form_BigWolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい（先着順）：
         input(type="submit",value="殺す")
