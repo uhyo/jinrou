@@ -780,7 +780,10 @@ exports.actions=
 		player=game.players.filter((x)->x.id==session.user_id)[0]
 		unless player?
 			session.channel.subscribe "room#{roomid}_audience"
+			session.channel.subscribe "room#{roomid}_notwerewolf"
+			session.channel.subscribe "room#{roomid}_notcouple"
 			return
+			
 		if player.dead
 			session.channel.subscribe "room#{roomid}_heaven"
 		else if player.isWerewolf()
