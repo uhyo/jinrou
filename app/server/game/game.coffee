@@ -875,12 +875,15 @@ exports.actions=
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
-		return if !game.finished && !game.night && game.voting	# 投票猶予時間は発言できない
+		if !game.finished  && game.voting	# 投票猶予時間は発言できない
+			player=game.getPlayer @session.user_id
+			if player && !player.dead
+				return	#まだ死んでいないプレイヤーの場合は発言できないよ!
 		if game.day<=0 || game.finished	#準備中
 			log.mode="prepare"
 		else
 			# ゲームしている
-			player=game.players.filter((x)=>x.id==@session.user_id)[0]
+			player=gamegetPlayer @session.user_id
 			unless player?
 				# 観戦者
 				log.mode="audience"
