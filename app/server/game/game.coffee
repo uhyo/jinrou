@@ -38,11 +38,15 @@ class Game
 		game.timer()
 		game
 	# 公開情報
-	publicinfo:->
+	publicinfo:(obj)->	#obj:オプション
 		{
 			rule:@rule
 			finished:@finished
-			players:@players.map (x)->x.publicinfo()
+			players:@players.map (x)->
+				r=x.publicinfo()
+				if obj?.openjob
+					r.jobname=x.jobname
+				r
 			day:@day
 			night:@night
 		}
@@ -175,6 +179,8 @@ class Game
 	splashjobinfo:->
 		@players.forEach (x)=>
 			SS.publish.user x.id,"getjob",makejobinfo this,x
+		# プレイヤー以外にも
+		SS.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
 	#全員寝たかチェック 寝たなら処理してtrue
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
@@ -775,6 +781,7 @@ exports.actions=
 				will: query.will
 				wolfsound:query.wolfsound	# 狼の声が聞こえるか
 				couplesound:query.couplesound	# 共有者の声が聞こえるか
+				heavenview:query.heavenview	# 死んだ後役職が見られるか
 			}
 			
 			joblist={}
@@ -995,7 +1002,7 @@ islogOK=(player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
-	result.game=game.publicinfo()
+	result.game=game.publicinfo({openjob:game.finished || (player.dead && game.rule.heavenview=="view")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
 		if player.isWerewolf()
@@ -1014,12 +1021,6 @@ makejobinfo = (game,player,result={})->
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
 		result.sleeping=if game.night then player.sleeping() else if player.voteto? then true else false
 		result.jobname=player.jobname
-		if player.dead || game.finished
-			# 情報を開示する
-			result.allplayers=game.players.map (x)->
-				r=x.serialize()
-				r.jobname=x.jobname
-				r
 		result.winner=player.winner
 
 	result

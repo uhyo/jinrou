@@ -49,14 +49,15 @@ exports.start=(roomid)->
 
 			$("#gamestartsec").removeAttr "hidden"
 		$("#roomname").text room.name
-		room.players.forEach (x)->
-			li=document.createElement "li"
-			li.title=x.userid
-			a=document.createElement "a"
-			a.href="/user/#{x.userid}"
-			a.textContent=x.name
-			li.appendChild a
-			$("#players").append li
+		if room.mode=="waiting"
+			room.players.forEach (x)->
+				li=document.createElement "li"
+				li.title=x.userid
+				a=document.createElement "a"
+				a.href="/user/#{x.userid}"
+				a.textContent=x.name
+				li.appendChild a
+				$("#players").append li
 		userid=SS.client.app.userid()
 		if room.mode=="waiting"
 			if room.owner.userid==SS.client.app.userid()
@@ -239,6 +240,7 @@ exports.start=(roomid)->
 		form.elements["authority"].checked= huall>=16
 		
 		form.elements["wolfsound"].checked=true
+		form.elements["heavenview"].checked=true
 	
 		
 		form.elements["Human"].value=hu
@@ -309,19 +311,6 @@ exports.start=(roomid)->
 		if obj.allplayers
 			$("#players").empty()
 			obj.allplayers.forEach (x)->
-				li=document.createElement "li"
-				li.title=x.id
-				a=document.createElement "a"
-				a.href="/user/#{x.id}"
-				a.textContent=x.name+" "
-				li.appendChild a
-				if x.type
-					b=document.createElement "b"
-					b.textContent=x.jobname
-					li.appendChild b
-				if x.dead
-					li.classList.add "dead"
-				$("#players").append li
 		if game=obj.game
 			if game.finished
 				# 終了
@@ -344,7 +333,24 @@ exports.start=(roomid)->
 			formplayers game.players
 	formplayers=(players)->
 		$("#form_players").empty()
+		$("#players").empty()
 		players.forEach (x)->
+			# 上の一覧用
+			li=document.createElement "li"
+			li.title=x.id
+			a=document.createElement "a"
+			a.href="/user/#{x.id}"
+			a.textContent=x.name+" "
+			li.appendChild a
+			if x.jobname
+				b=document.createElement "b"
+				b.textContent=x.jobname
+				li.appendChild b
+			if x.dead
+				li.classList.add "dead"
+			$("#players").append li
+
+			# 投票フォーム用
 			li=document.createElement "li"
 			if x.dead
 				li.classList.add "dead"
