@@ -790,7 +790,7 @@ exports.actions=
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}
 					game.nextturn()
 					cb null
-					SS.publish.channel "room#{roomid}","refresh",{id:@id}
+					SS.publish.channel "room#{roomid}","refresh",{id:roomid}
 				else
 					cb result
 	# 情報を開示
@@ -804,7 +804,6 @@ exports.actions=
 			#logs:game.logs.filter (x)-> islogOK player,x
 			logs:game.makelogs player
 		result=makejobinfo game,player,result
-#		SS.server.game.game.playerchannel roomid,@session
 		result.timer=if game.timerid?
 			game.timer_remain-(Date.now()/1000-game.timer_start)	# 全体 - 経過時間
 		else

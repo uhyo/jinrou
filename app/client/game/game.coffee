@@ -90,15 +90,15 @@ exports.start=(roomid)->
 		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox"]
 		jobsforminput=(e)->
 			t=e.target
-			if t.name in jobs
-				sum=0
-				jobs.forEach (x)->
-					sum+=parseInt form.elements[x].value
-				pl=room.players.length
-				if form.elements["scapegoat"].value=="on"
-					# 身代わりくん
-					pl++
-				form.elements["Human"].value=pl-sum
+			form=t.form
+			sum=0
+			jobs.forEach (x)->
+				sum+=parseInt form.elements[x].value
+			pl=room.players.length
+			if form.elements["scapegoat"].value=="on"
+				# 身代わりくん
+				pl++
+			form.elements["Human"].value=pl-sum
 		form.addEventListener "input",jobsforminput,false
 		form.addEventListener "change",jobsforminput,false
 				
@@ -175,6 +175,7 @@ exports.start=(roomid)->
 				getjobinfo msg
 		# 更新したほうがいい
 		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
+			console.log msg
 			if msg.id==roomid
 				SS.client.app.refresh()
 		# 投票フォームオープン
@@ -383,8 +384,7 @@ exports.end=->
 			SS.client.util.message "ルーム",result
 			return
 	alloff socket_ids...
-	document.body.classList.remove "day"
-	document.body.classList.remove "night"
+	document.body.classList.remove x for x in ["day","night","finished","heaven"]
 	
 #ソケットを全部off
 alloff= (ids...)->
