@@ -32,6 +32,9 @@ exports.init = ->
 			showUrl p
 	else
 		showUrl "/"
+	window.addEventListener "popstate",(e)->
+		# location.pathname
+		showUrl location.pathname,true
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
 	cdom=$("#content").get(0)
@@ -67,6 +70,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム
 				page "templates-game-game",null,SS.client.game.game,parseInt result[1]
+			else if result=url.match /^\/user\/(\w+)$/
+				# ユーザー
+				page "templates-user-view",null,SS.client.user.view,result[1]
 			else
 				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
