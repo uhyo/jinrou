@@ -37,7 +37,7 @@ exports.start=(roomid)->
 			else
 				getjobinfo result
 				result.logs.forEach getlog
-				gettimer parseInt(result.timer) if result.timer?
+				gettimer parseInt(result.timer),null if result.timer?
 
 
 			
@@ -189,7 +189,7 @@ exports.start=(roomid)->
 		# 残り時間
 		socket_ids.push SS.client.socket.on "time",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
-				gettimer parseInt msg
+				gettimer parseInt(msg.time),msg.mode
 				
 		
 	setplayersnumber=(form,number)->
@@ -290,7 +290,6 @@ exports.start=(roomid)->
 		logs.insertBefore p,logs.firstChild
 	# 役職情報をもらった
 	getjobinfo=(obj)->
-		console.log obj
 		return unless obj.id==this_room_id
 		my_job=obj.type
 		if obj.type
@@ -308,9 +307,6 @@ exports.start=(roomid)->
 			# 自分は既に死んでいる
 			document.body.classList.add "heaven"
 			
-		if obj.allplayers
-			$("#players").empty()
-			obj.allplayers.forEach (x)->
 		if game=obj.game
 			if game.finished
 				# 終了
@@ -329,8 +325,8 @@ exports.start=(roomid)->
 				$("#form_day").get(0).hidden= game.night
 				if game.night
 					$("#form_#{my_job}").removeAttr "hidden"
-		if game?.players
-			formplayers game.players
+			if game.day>0 && game.players
+				formplayers game.players
 	formplayers=(players)->
 		$("#form_players").empty()
 		$("#players").empty()
@@ -365,16 +361,16 @@ exports.start=(roomid)->
 			li.appendChild label
 			$("#form_players").append li
 	# タイマー情報をもらった
-	gettimer=(msg)->
+	gettimer=(msg,mode)->
 		remain_time=parseInt msg
-		unless timerid?
-			timerid=setInterval ->
-				remain_time--
-				return if remain_time<0
-				min=parseInt remain_time/60
-				sec=remain_time%60
-				$("#time").text "#{min}:#{sec}"
-			,1000
+		clearInterval timerid if timerid?
+		timerid=setInterval ->
+			remain_time--
+			return if remain_time<0
+			min=parseInt remain_time/60
+			sec=remain_time%60
+			$("#time").text "#{mode || ''} #{min}:#{sec}"
+		,1000
 			
 	makebutton=(text)->
 		b=document.createElement "button"

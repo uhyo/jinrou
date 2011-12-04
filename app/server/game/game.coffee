@@ -143,6 +143,7 @@ class Game
 			comment:"#{@day}日目の#{if @night then '夜' else '昼'}になりました。"
 		splashlog @id,this,log
 
+		@voting=false
 		if @night
 			@players.forEach (x)=>
 				return if x.dead
@@ -162,7 +163,6 @@ class Game
 					if x.type=="Guard"
 						x.target=""	# 誰も守らない
 		else
-			@voting=false
 			@players.forEach (x)=>
 				x.voteto=null
 				return if x.dead
@@ -185,7 +185,7 @@ class Game
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
 		if @players.every( (x)->x.dead || x.sleeping())
-			if timeout || !@rule.night	#夜に時間がある場合は待ってあげる
+			if @voting || timeout || !@rule.night	#夜に時間がある場合は待ってあげる
 				@midnight()
 				@nextturn()
 				true
@@ -359,11 +359,12 @@ class Game
 		return if @day<=0 || @finished
 		func=null
 		time=null
+		mode=null	# なんのカウントか
 		timeout= =>
 			# 残り時間を知らせるぞ!
 			@timer_start=parseInt Date.now()/1000
 			@timer_remain=time
-			SS.publish.channel "room#{@id}","time",time
+			SS.publish.channel "room#{@id}","time",{time:time, mode:mode}
 			if time>60
 				@timerid=setTimeout timeout,60000
 				time-=60
@@ -373,26 +374,47 @@ class Game
 			else
 				# 時間切れ
 				func()
-		if @night
+		if @night && !@voting
 			# 夜
 			time=@rule.night
+			mode="夜"
 			return unless time
 			func= =>
 				# ね な い こ だ れ だ
 				unless @checkjobs true
-					@players.forEach (x)=>
-						return if x.dead || x.sleeping()
-						x.dead=true
-						x.found="gone"	# 突然死
-						# 突然死記録
-						M.users.update {userid:x.id},{$push:{gone:@id}}
-					@bury()
-					@checkjobs true
+					if @rule.remain
+						# 猶予時間があるよ
+						@voting=true
+						@timer()
+					else
+						@players.forEach (x)=>
+							return if x.dead || x.sleeping()
+							x.dead=true
+							x.found="gone"	# 突然死
+							# 突然死記録
+							M.users.update {userid:x.id},{$push:{gone:@id}}
+						@bury()
+						@checkjobs true
 				else
 					return
+		else if @night
+			# 夜の猶予
+			time=@rule.remain
+			mode="猶予"
+			func= =>
+				# ね な い こ だ れ だ
+				@players.forEach (x)=>
+					return if x.dead || x.sleeping()
+					x.dead=true
+					x.found="gone"	# 突然死
+					# 突然死記録
+					M.users.update {userid:x.id},{$push:{gone:@id}}
+				@bury()
+				@checkjobs true				
 		else if !@voting
 			# 昼
 			time=@rule.day
+			mode="昼"
 			return unless time
 			func= =>
 				unless @execute()
@@ -423,6 +445,7 @@ class Game
 		else
 			# 猶予時間も過ぎたよ!
 			time=@rule.remain
+			mode="猶予"
 			func= =>
 				unless @execute()
 					revoting=false
@@ -540,7 +563,7 @@ class Player
 	# 夜の仕事
 	job:(game,playerid)->
 		@target=playerid
-		return true
+		null
 	# 夜の仕事を行う
 	midnight:(game)->
 	
@@ -574,7 +597,7 @@ class Werewolf extends Player
 			to:@id
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
 		splashlog game.id,game,log
-		return true
+		null
 	midnight:(game)->
 		t=game.getPlayer @target
 		return unless t?
@@ -617,6 +640,7 @@ class Diviner extends Player
 			to:@id
 			comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
 		splashlog game.id,game,log
+		null
 	sunrise:(game)->
 		super
 		r=@results[@results.length-1]
@@ -666,14 +690,17 @@ class Guard extends Player
 	sunset:->
 		@target=null
 	job:(game,playerid)->
-		super
-		log=
-			mode:"skill"
-			to:@id
-			comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
-		splashlog game.id,game,log
 		unless playerid==@id
 			game.getPlayer(playerid).guarded=true	# 護衛
+			super
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@id}は#{game.getPlayer(playerid).name}を護衛しました。"
+			splashlog game.id,game,log
+			null
+		else
+			"自分を護衛することはできません"
 class Couple extends Player
 	type:"Couple"
 	jobname:"共有者"
@@ -893,8 +920,9 @@ exports.actions=
 			if player.sleeping()
 				cb "既に能力を行使しています"
 				return
-			unless player.job game,query.target
-				cb "失敗しました"
+			# エラーメッセージ
+			if ret=player.job game,query.target
+				cb ret
 				return
 			
 			# 能力をすべて発動したかどうかチェック
@@ -1002,7 +1030,7 @@ islogOK=(player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
-	result.game=game.publicinfo({openjob:game.finished || (player.dead && game.rule.heavenview=="view")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
+	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule.heavenview=="view")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
 		if player.isWerewolf()
