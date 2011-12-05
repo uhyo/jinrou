@@ -5,6 +5,18 @@ exports.showWindow=showWindow=(templatename,tmpl)->
 	win=$("##{templatename}").tmpl(tmpl).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn()#.draggable()
 	$(".getfocus",win.get(0)).focus()
 	win
+#編集域を返す
+exports.blankWindow=->
+	win=showWindow "templates-util-blank"
+	div=document.createElement "div"
+	$("form[name='okform']",win).before div
+	win.submit (je)-> je.preventDefault()
+	win.click (je)->
+		t=je.target
+		if t.name=="ok"
+			closeWindow t
+	$(div)
+	
 
 #要素を含むWindowを消す
 exports.closeWindow=closeWindow= (node)->

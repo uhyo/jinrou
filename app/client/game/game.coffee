@@ -6,8 +6,15 @@ my_job=null
 
 timerid=null	# setTimeout
 remain_time=null
+this_rule=null	# ルールオブジェクトがある
 
 exports.start=(roomid)->
+	this_rule=null
+	timerid=null
+	remain_time=null
+	my_job=null
+	this_room_id=null
+	
 	getenter=(result)->
 		if result?
 			# エラー
@@ -122,12 +129,59 @@ exports.start=(roomid)->
 			form.elements["comment"].value=""
 		.get(0).elements["willbutton"].addEventListener "click", (e)->
 			# 遺言フォームオープン
-			if $("#willform").attr "hidden"
-				$("#willform").removeAttr "hidden"
+			wf=$("#willform").get 0
+			if wf.hidden
+				wf.hidden=false
 				e.target.value="遺言を隠す"
 			else
-				$("#willform").attr "hidden","hidden"
+				wf.hidden=true
 				e.target.value="遺言"
+		# ルール表示
+		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
+			return unless this_rule?
+			win=SS.client.util.blankWindow()
+			p=document.createElement "p"
+			p.textContent=Object.keys(this_rule.jobscount).map (x)->
+				"#{x}#{this_rule.jobscount[x]}"
+			.join " "
+			win.append p
+			rulestr=
+				"will":
+					"_name":"遺言"
+					"_default":"なし"
+					"die":"あり"
+				"wolfsound":
+					"_name":"人狼の遠吠え"
+					"_default":"聞こえない"
+					"aloud":"聞こえる"
+				"couplesound":
+					"_name":"共有者の声"
+					"_default":"聞こえない"
+					"aloud":"聞こえる"
+				"heavenview":
+					"_name":"死んだ後"
+					"_default":"役職は分からない"
+					"view":"役職や全員の発言が見える"
+				"wolfattack":
+					"_name":"人狼が人狼を襲う"
+					"_default":"不可"
+					"ok":"可能"
+				"guardmyself":
+					"_name":"狩人の自分守り"
+					"_default":"不可"
+					"ok":"可能"
+				"votemyself":
+					"_name":"昼に自分へ投票"
+					"_default":"不可"
+					"ok":"可能"
+			Object.keys(this_rule.rule).forEach (x)->
+				tru=rulestr[x]
+				return unless tru?
+				p=document.createElement "p"
+				p.textContent="#{tru._name} : #{tru[this_rule.rule[x]] ? tru._default}"
+				win.append p
+				
+			
 		$("#willform").submit (je)->
 			form=je.target
 			je.preventDefault()
@@ -176,7 +230,6 @@ exports.start=(roomid)->
 				getjobinfo msg
 		# 更新したほうがいい
 		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
-			console.log msg
 			if msg.id==roomid
 				SS.client.app.refresh()
 		# 投票フォームオープン
@@ -329,6 +382,11 @@ exports.start=(roomid)->
 					$("#form_#{my_job}").removeAttr "hidden"
 			if game.day>0 && game.players
 				formplayers game.players
+				unless this_rule?
+					$("#speakform").get(0).elements["rulebutton"].disabled=false
+				this_rule=
+					jobscount:game.jobscount
+					rule:game.rule
 	formplayers=(players)->
 		$("#form_players").empty()
 		$("#players").empty()
@@ -389,6 +447,7 @@ exports.end=->
 		if result?
 			SS.client.util.message "ルーム",result
 			return
+	clearInterval timerid if timerid?
 	alloff socket_ids...
 	document.body.classList.remove x for x in ["day","night","finished","heaven"]
 	

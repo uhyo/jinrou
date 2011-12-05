@@ -24,6 +24,7 @@ class Game
 			day:@day
 			night:@night
 			winner:@winner
+			jobscount:@jobscount
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -35,6 +36,7 @@ class Game
 		game.day=obj.day
 		game.night=obj.night
 		game.winner=obj.winner
+		game.jobscount=obj.jobscount
 		game.timer()
 		game
 	# 公開情報
@@ -50,6 +52,7 @@ class Game
 				r
 			day:@day
 			night:@night
+			jobscount:@jobscount
 		}
 	# IDからプレイヤー
 	getPlayer:(id)->
@@ -76,6 +79,14 @@ class Game
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
 			return
+
+		# 名前と数を出したやつ
+		@jobscount={}
+		for job,num of joblist
+			continue unless num>0
+			testpl=new jobs[job]
+			@jobscount[testpl.jobname]=num
+
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
@@ -108,6 +119,8 @@ class Game
 		if options.authority
 			r=Math.floor Math.random()*players.length
 			@players[r].authority=true
+		
+		
 		
 		cb null
 #======== ゲーム進行の処理
@@ -823,12 +836,12 @@ exports.actions=
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
 				will: query.will
-				wolfsound:query.wolfsound	# 狼の声が聞こえるか
-				couplesound:query.couplesound	# 共有者の声が聞こえるか
-				heavenview:query.heavenview	# 死んだ後役職が見られるか
-				wolfattack:query.wolfattack	# 人狼が人狼を殺しに行けるか
-				guardmyself:query.guardmyself	# 狩人が自分を守れるか
-				votemyself:query.votemyself	# 自分に吊り投票できるか
+				wolfsound:query.wolfsound ? null	# 狼の声が聞こえるか
+				couplesound:query.couplesound ? null	# 共有者の声が聞こえるか
+				heavenview:query.heavenview ? null	# 死んだ後役職が見られるか
+				wolfattack:query.wolfattack ? null	# 人狼が人狼を殺しに行けるか
+				guardmyself:query.guardmyself ? null	# 狩人が自分を守れるか
+				votemyself:query.votemyself ? null	# 自分に吊り投票できるか
 			}
 			
 			joblist={}
