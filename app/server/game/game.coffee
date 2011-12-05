@@ -473,7 +473,7 @@ class Game
 	# プレイヤーごとに　見せてもよいログをリストにする
 	makelogs:(player)->
 		@logs.map (x)=>
-			if islogOK player,x
+			if islogOK this,player,x
 				x
 			else
 				# 見られなかったけど見たい人用
@@ -868,7 +868,7 @@ exports.actions=
 			return
 		player=game.players.filter((x)=>x.id==@session.user_id)[0]
 		result= 
-			#logs:game.logs.filter (x)-> islogOK player,x
+			#logs:game.logs.filter (x)-> islogOK game,player,x
 			logs:game.makelogs player
 		result=makejobinfo game,player,result
 		result.timer=if game.timerid?
@@ -901,7 +901,7 @@ exports.actions=
 			log.mode="prepare"
 		else
 			# ゲームしている
-			player=gamegetPlayer @session.user_id
+			player=game.getPlayer @session.user_id
 			unless player?
 				# 観戦者
 				log.mode="audience"
@@ -1005,6 +1005,24 @@ exports.actions=
 
 splashlog=(roomid,game,log)->
 	game.logs.push log
+	hv=(ch)->
+		# チャンネルにheavenを加える
+		if game.rule.heavenview=="view"
+			if ch instanceof Array
+				ch.concat ["room#{roomid}_heaven"]
+			else
+				[ch,"room#{roomid}_heaven"]
+		else
+			ch
+	hvn=(ch)->
+		# チャンネルにheavenを加える viewでないとき
+		if game.rule.heavenview!="view"
+			if ch.concat?
+				ch.concat ["room#{roomid}_heaven"]
+			else
+				[ch,"room#{roomid}_heaven"]
+		else
+			ch
 	unless log.to?
 		switch log.mode
 			when "prepare","system","nextturn","voteresult","day","will"
@@ -1012,43 +1030,45 @@ splashlog=(roomid,game,log)->
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf"
 				# 狼
-				SS.publish.channel ["room#{roomid}_werewolf","room#{roomid}_heaven"], "log", log
+				SS.publish.channel hv("room#{roomid}_werewolf"), "log", log
 				if game.rule.wolfsound=="aloud"
 					# 狼の遠吠えが聞こえる
 					log2=
 						mode:"werewolf"
 						comment:"アオォーーン・・・"
 						name:"狼の遠吠え"
-					SS.publish.channel "room#{roomid}_notwerewolf","log",log2
+					SS.publish.channel hvn("room#{roomid}_notwerewolf"),"log",log2
 					
 			when "couple"
-				SS.publish.channel ["room#{roomid}_couple","room#{roomid}_heaven"],"log",log
+				SS.publish.channel hv("room#{roomid}_couple"),"log",log
 				if game.rule.couplesound=="aloud"
 					# 共有者の小声が聞こえる
 					log2=
 						mode:"couple"
 						comment:"ヒソヒソ・・・"
 						name:"共有者の小声"
-					SS.publish.channel "room#{roomid}_notcouple","log",log2
+					SS.publish.channel hvn("room#{roomid}_notcouple"),"log",log2
 			when "fox"
-				SS.publish.channel ["room#{roomid}_fox","room#{roomid}_heaven"],"log",log
+				SS.publish.channel hv("room#{roomid}_fox"),"log",log
 			when "audience"
 				# 観客
-				SS.publish.channel ["room#{roomid}_audience","room#{roomid}_heaven"],"log",log
+				SS.publish.channel hv("room#{roomid}_audience"),"log",log
 			when "heaven"
 				# 天国
 				SS.publish.channel "room#{roomid}_heaven","log",log
 	else
 		SS.publish.user log.to, "log", log
-		SS.publish.channel "room#{roomid}_heaven","log",log
+		if game.rule.heavenview=="view"
+			SS.publish.channel "room#{roomid}_heaven","log",log
 
 # プレイヤーにログを見せてもよいか			
-islogOK=(player,log)->
+islogOK=(game,player,log)->
 	# player: Player / null
+	return true if game.finished	# 終了ならtrue
 	unless player?
 		# 観戦者
 		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience","voteresult","will"])
-	else if player.dead || player.winner?	# nullなら未終了 true/falseなら終了済み
+	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id
 		# 個人宛
