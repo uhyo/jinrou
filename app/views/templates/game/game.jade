@@ -77,8 +77,15 @@
             | 死んだ後は役職一覧が見られる
             input(name="heavenview",type="checkbox",value="view")
           label
-            | 人狼は人狼を殺しに行ける
+            | 人狼は人狼を殺しに行ける(死にません)
             input(name="wolfattack",type="checkbox",value="ok")
+          label
+            | 狩人は自分を守れる
+            input(name="guardmyself",type="checkbox",value="ok")
+          label
+            | 昼は自分に投票できる
+            input(name="votemyself",type="checkbox",value="ok")
+          
       p: input(type="submit",value="開始")
   .infobox
     div

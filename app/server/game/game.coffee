@@ -698,7 +698,7 @@ class Guard extends Player
 	sunset:->
 		@target=null
 	job:(game,playerid)->
-		unless playerid==@id
+		unless playerid==@id && game.rule.guardmyself!="ok"
 			game.getPlayer(playerid).guarded=true	# 護衛
 			super
 			log=
@@ -827,6 +827,8 @@ exports.actions=
 				couplesound:query.couplesound	# 共有者の声が聞こえるか
 				heavenview:query.heavenview	# 死んだ後役職が見られるか
 				wolfattack:query.wolfattack	# 人狼が人狼を殺しに行けるか
+				guardmyself:query.guardmyself	# 狩人が自分を守れるか
+				votemyself:query.votemyself	# 自分に吊り投票できるか
 			}
 			
 			joblist={}
@@ -952,6 +954,9 @@ exports.actions=
 			# 投票
 			if player.voteto?
 				cb "既に投票しています"
+				return
+			if player.voteto==player.id && game.rule.votemyself!="ok"
+				cb "自分には投票できません"
 				return
 			player.voteto=query.target
 			log=
