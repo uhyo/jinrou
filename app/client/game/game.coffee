@@ -146,6 +146,12 @@ exports.start=(roomid)->
 			.join " "
 			win.append p
 			rulestr=
+				"scapegoat":
+					"_name":"一日目"
+					"_default":""
+					"on":"身代わり君が死ぬ"
+					"off":"参加者が死ぬ"
+					"no":"誰も死なない"
 				"will":
 					"_name":"遺言"
 					"_default":"なし"
@@ -174,6 +180,10 @@ exports.start=(roomid)->
 					"_name":"昼に自分へ投票"
 					"_default":"不可"
 					"ok":"可能"
+				"deadfox":
+					"_name":"妖狐の呪殺死体"
+					"_default":"人狼によるのと区別がつかない"
+					"ok":"人狼によるのと区別が付く"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?

@@ -215,8 +215,13 @@ class Game
 		@players.filter((x)->x.dead && x.found).forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","curse","poison"
+				when "werewolf","poison"
 					"無惨な姿で発見されました"
+				when "curse"	# 呪殺
+					if @rule.deadfox=="obvious"
+						"呪殺されました"
+					else
+						"無惨な姿で発見されました"
 				when "punish"
 					"処刑されました"
 				else
@@ -842,6 +847,7 @@ exports.actions=
 				wolfattack:query.wolfattack ? null	# 人狼が人狼を殺しに行けるか
 				guardmyself:query.guardmyself ? null	# 狩人が自分を守れるか
 				votemyself:query.votemyself ? null	# 自分に吊り投票できるか
+				deadfox:query.deadfox ? null
 			}
 			
 			joblist={}
