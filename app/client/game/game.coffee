@@ -294,6 +294,7 @@ exports.start=(roomid)->
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
 		
+		form.elements["will"].checked=true
 		form.elements["wolfsound"].checked=true
 		form.elements["heavenview"].checked=true
 	
