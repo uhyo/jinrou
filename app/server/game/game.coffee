@@ -114,10 +114,10 @@ class Game
 					# 身代わりくん
 					newpl.scapegoat=true
 		if options.decider
-			r=Math.floor Math.random()*players.length
+			r=Math.floor Math.random()*@players.length
 			@players[r].decider=true
 		if options.authority
-			r=Math.floor Math.random()*players.length
+			r=Math.floor Math.random()*@players.length
 			@players[r].authority=true
 		
 		
