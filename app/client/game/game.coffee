@@ -130,12 +130,14 @@ exports.start=(roomid)->
 		.get(0).elements["willbutton"].addEventListener "click", (e)->
 			# 遺言フォームオープン
 			wf=$("#willform").get 0
+			console.log wf
 			if wf.hidden
 				wf.hidden=false
 				e.target.value="遺言を隠す"
 			else
 				wf.hidden=true
 				e.target.value="遺言"
+		,false
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?

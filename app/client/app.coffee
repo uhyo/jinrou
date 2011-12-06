@@ -63,6 +63,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/rooms"
 			# 部屋一覧
 			page "templates-game-rooms",null,SS.client.game.rooms, null
+		when "/rooms/log"
+			# 終わった部屋
+			page "templates-game-rooms",null,SS.client.game.rooms,"log"
 		when "/newroom"
 			# 新しい部屋
 			page "templates-game-newroom",null,SS.client.game.newroom,null

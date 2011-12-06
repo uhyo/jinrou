@@ -15,8 +15,15 @@ room: {
 }
 ###
 exports.actions=
-	getRooms:(cb)->
-		M.rooms.find({mode:{$ne:"end"}}).toArray (err,results)->
+	getRooms:(mode,cb)->
+		if mode=="log"
+			query=
+				mode:"end"
+		else
+			query=
+				mode:
+					$ne:"end"
+		M.rooms.find(query).toArray (err,results)->
 			if err?
 				cb {error:err}
 				return
@@ -124,6 +131,7 @@ exports.actions=
 			if room.password? && room.password!=password
 				cb "password"
 				return
+
 			@session.channel.subscribe "room#{roomid}"
 			SS.server.game.game.playerchannel roomid,@session
 			cb null

@@ -746,6 +746,9 @@ class BigWolf extends Werewolf
 
 games={}
 
+# ゲームを得る
+getGame=(id)->
+
 # 仕事一覧
 jobs=
 	Human:Human
@@ -869,19 +872,32 @@ exports.actions=
 	# 情報を開示
 	getlog:(roomid,cb)->
 		game=games[roomid]
-		unless game?
-			cb {error:"そのゲームは存在しません"}
-			return
-		player=game.players.filter((x)=>x.id==@session.user_id)[0]
-		result= 
-			#logs:game.logs.filter (x)-> islogOK game,player,x
-			logs:game.makelogs player
-		result=makejobinfo game,player,result
-		result.timer=if game.timerid?
-			game.timer_remain-(Date.now()/1000-game.timer_start)	# 全体 - 経過時間
+		ne= =>
+			# ゲーム後の行動
+			player=game.players.filter((x)=>x.id==@session.user_id)[0]
+			result= 
+				#logs:game.logs.filter (x)-> islogOK game,player,x
+				logs:game.makelogs player
+			result=makejobinfo game,player,result
+			result.timer=if game.timerid?
+				game.timer_remain-(Date.now()/1000-game.timer_start)	# 全体 - 経過時間
+			else
+				null
+			cb result
+		if game?
+			ne()
 		else
-			null
-		cb result
+			# DBから読もうとする
+			M.games.findOne {id:roomid}, (err,doc)=>
+				if err?
+					console.log err
+					throw err
+				unless doc?
+					cb {error:"そのゲームは存在しません"}
+					return
+				games[roomid]=game=Game.unserialize doc
+				ne()
+			return
 		
 	speak: (roomid,comment,cb)->
 		game=games[roomid]

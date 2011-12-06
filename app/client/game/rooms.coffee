@@ -1,6 +1,6 @@
-exports.start=->
+exports.start=(mode)->
 	tb=$("#roomlist").get(0)
-	SS.server.game.rooms.getRooms (rooms)->
+	SS.server.game.rooms.getRooms mode,(rooms)->
 		if rooms.error?
 			SS.client.util.message "エラー","ルーム一覧を取得できませんでした。"
 			return
