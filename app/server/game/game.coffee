@@ -831,12 +831,15 @@ class Magician extends Player
 		pl=game.getPlayer playerid
 		return unless pl?
 		return unless pl.dead
+		# 確率判定
+		r=if pl.scapegoat then 0.6 else 0.3
+		unless Math.random()<r
+			# 失敗
+			return
 		pl.dead=false
 		# 蘇生 目を覚まさせる
 		SS.publish.user pl.id,"refresh",{id:game.id}
 
-
-		
 games={}
 
 # ゲームを得る
