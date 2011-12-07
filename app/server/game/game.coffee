@@ -292,14 +292,8 @@ class Game
 			@dorevote()
 		else if player
 			# 結果が出た 死んだ!
+			player.punished game
 			player.dead=true	# 投票で死んだ
-			player.found="punish"
-			if player.type=="Poisoner"
-				# 埋毒者の逆襲
-				r=Math.floor Math.random()*@players.filter((x)->!x.dead).length
-				pl=@players[r]	# 被害者
-				pl.dead=true
-				pl.found="poison"
 				
 			@nextturn()
 		return true
@@ -598,6 +592,17 @@ class Player
 	#勝利かどうか team:勝利陣営名
 	isWinner:(game,team)->
 		team==@team	# 自分の陣営かどうか
+	# つられたとき
+	punished:(game)->
+		@found="punish"
+
+	# 噛まれたとき
+	bitten: (game)->
+		@.dead=true
+		@.found="werewolf"
+	# 役職情報を載せる
+	makejobinfo:(game,obj)->
+
 		
 		
 		
@@ -630,14 +635,7 @@ class Werewolf extends Player
 		return unless t?
 		if t.willDieWerewolf && !t.guarded
 			# 死んだ
-			t.dead=true
-			t.found="werewolf"
-			if t.type=="Poisoner"
-				# 埋毒者の逆襲
-				r=Math.floor Math.random()*game.players.filter((x)->!x.dead && x.isWerewolf()).length
-				pl=game.players[r]	# 被害狼
-				pl.dead=true
-				pl.found="poison"
+			t.bitten game
 				
 	isWerewolf:->true
 		
@@ -645,6 +643,11 @@ class Werewolf extends Player
 	fortuneResult:"人狼"
 	psychicResult:"人狼"
 	team: "Werewolf"
+	makejobinfo:(game,result)->
+		# 人狼は仲間が分かる
+		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+			x.publicinfo()
+
 		
 		
 class Diviner extends Player
@@ -733,14 +736,41 @@ class Guard extends Player
 class Couple extends Player
 	type:"Couple"
 	jobname:"共有者"
+	makejobinfo:(game,result)->
+		# 共有者は仲間が分かる
+		result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
+			x.publicinfo()
+
 class Fox extends Player
 	type:"Fox"
 	jobname:"妖狐"
 	team:"Fox"
 	willDieWerewolf:false
+	makejobinfo:(game,result)->
+		# 妖狐は仲間が分かる
+		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
+			x.publicinfo()
+
 class Poisoner extends Player
 	type:"Poisoner"
 	jobname:"埋毒者"
+	punished:(game)->
+		# 埋毒者の逆襲
+		canbedead = game.players.filter (x)->!x.dead	# 生きている人たち
+		r=Math.floor Math.random()*canbedead.length
+		pl=canbedead[r]	# 被害者
+		pl.dead=true
+		pl.found="poison"
+
+	bitten:(game)->
+		super
+		# 埋毒者の逆襲
+		canbedead = game.players.filter (x)->!x.dead && x.isWerewolf()	# 狼たち
+		r=Math.floor Math.random()*canbedead.length
+		pl=canbedead[r]	# 被害狼
+		pl.dead=true
+		pl.found="poison"
+
 class BigWolf extends Werewolf
 	type:"BigWolf"
 	jobname:"大狼"
@@ -750,8 +780,34 @@ class BigWolf extends Werewolf
 class Bat extends Player
 	type:"Bat"
 	jobname:"こうもり"
+	team:""
 	isWinner:(game,team)->
 		!@dead	# 生きて入ればとにかく勝利
+class Noble extends Player
+	type:"Noble"
+	jobname:"貴族"
+	bitten:(game)->
+		# 奴隷たち
+		slaves = game.players.filter (x)->!x.dead && x.type=="Slave"
+		unless slaves.length
+			super	# 自分が死ぬ
+		else
+			# 奴隷が代わりに死ぬ
+			slaves.forEach (x)->
+				x.bitten game
+class Slave extends Player
+	type:"Slave"
+	jobname:"奴隷"
+	isWinner:(game,team)->
+		nobles=game.players.filter (x)->!x.dead && x.type=="Noble"
+		if team==@team && nobles.length==0
+			true	# 村人陣営の勝ちで貴族は死んだ
+		else
+			false
+	makejobinfo:(game,result)->
+		# 奴隷は貴族が分かる
+		result.nobles=game.players.filter((x)->x.type=="Noble").map (x)->
+			x.publicinfo()
 
 games={}
 
@@ -771,6 +827,8 @@ jobs=
 	Poisoner:Poisoner
 	BigWolf:BigWolf
 	Bat:Bat
+	Noble:Noble
+	Slave:Slave
 
 
 exports.actions=
@@ -1124,18 +1182,7 @@ makejobinfo = (game,player,result={})->
 	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule.heavenview=="view")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
-		if player.isWerewolf()
-			# 人狼は仲間が分かる
-			result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
-				x.publicinfo()
-		if player.type=="Couple"
-			# 共有者は仲間が分かる
-			result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
-				x.publicinfo()
-		if player.type=="Fox"
-			# 妖狐は仲間が分かる
-			result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
-				x.publicinfo()
+		player.makejobinfo game,result
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
 		result.sleeping=if game.night then player.sleeping() else if player.voteto? then true else false
