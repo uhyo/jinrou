@@ -224,6 +224,8 @@ class Game
 						"無惨な姿で発見されました"
 				when "punish"
 					"処刑されました"
+				when "spygone"
+					"村を去りました"
 				else
 					"突然お亡くなりになられました"				
 			log=
@@ -519,6 +521,7 @@ class Player
 		@found=null	# 死体の発見状況
 		@winner=null	# 勝敗
 		@scapegoat=false	# 身代わりくんかどうか
+		@spygone=false	# 村を去ったかどうか
 		
 		@guarded=false	# 護衛フラグ
 		
@@ -536,6 +539,7 @@ class Player
 			decider:@decider
 			authority:@authority
 			will:@will
+			spygone:@spygone
 		}
 	@unserialize:(obj)->
 		p=null
@@ -548,6 +552,7 @@ class Player
 		p.decider=obj.decider
 		p.authority=obj.authority
 		p.will=obj.will
+		p.spygone=obj.spygone
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -574,6 +579,8 @@ class Player
 	sunset:(game)->
 	# 夜にもう寝たか
 	sleeping:->true
+	# 夜に仕事を追えたか（基本sleepingと一致）
+	jobdone:->@sleeping()
 	# 夜の仕事
 	job:(game,playerid)->
 		@target=playerid
@@ -839,6 +846,33 @@ class Magician extends Player
 		pl.dead=false
 		# 蘇生 目を覚まさせる
 		SS.publish.user pl.id,"refresh",{id:game.id}
+class Spy extends Player
+	type:"Spy"
+	jobname:"スパイ"
+	team:"WereWolf"
+	sleeping:->true	# 能力使わなくてもいい
+	jobdone:->@spygone	# 能力を使ったか
+	job:(game,playerid)->
+		return "既に能力を発動しています" if @spygone
+		@spygone=true
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は村を去ることに決めました。"
+		splashlog game.id,game,log
+		null
+	midnight:(game)->
+		if !@dead && @spygone
+			# 村を去る
+			@spygone=true
+			@dead=true
+			@found="spygone"
+	isWinner:(game,team)->
+		team==@team && @dead && @spygone
+	
+		
+	
+	
 
 games={}
 
@@ -861,6 +895,7 @@ jobs=
 	Noble:Noble
 	Slave:Slave
 	Magician:Magician
+	Spy:Spy
 
 
 exports.actions=
@@ -1029,7 +1064,12 @@ exports.actions=
 				log.mode="audience"
 			else if player.dead
 				# 天国
-				log.mode="heaven"
+				if player.spygone
+					# スパイなら会話に参加できない
+					log.mode="monologue"
+					log.to=@session.user_id
+				else
+					log.mode="heaven"
 			else if !game.night
 				# 昼
 				log.mode="day"
@@ -1075,7 +1115,7 @@ exports.actions=
 			return
 		if game.night
 			# 夜
-			if player.sleeping()
+			if player.jobdone()
 				cb "既に能力を行使しています"
 				return
 			# エラーメッセージ

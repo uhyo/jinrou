@@ -300,7 +300,7 @@ exports.start=(roomid)->
 		else
 			0
 			
-		form.elements[x].value=0 for x in ["Poisoner","BigWolf","Bat","Noble","Slave","Magician"]
+		form.elements[x].value=0 for x in ["Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy"]
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
