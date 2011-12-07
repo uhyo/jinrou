@@ -808,7 +808,35 @@ class Slave extends Player
 		# 奴隷は貴族が分かる
 		result.nobles=game.players.filter((x)->x.type=="Noble").map (x)->
 			x.publicinfo()
+class Magician extends Player
+	type:"Magician"
+	jobname:"魔術師"
+	sunset:(game)->
+		@target=if game.day<3 then "" else null
+	job:(game,playerid)->
+		if game.day<3
+			# まだ発動できない
+			return "まだ能力を発動できません"
+		@target=playerid
+		pl=game.getPlayer playerid
+		
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}に死者蘇生術をかけました。"
+		splashlog game.id,game,log
+		null
+	sleeping:->@target?
+	midnight:(game)->
+		pl=game.getPlayer playerid
+		return unless pl?
+		return unless pl.dead
+		pl.dead=false
+		# 蘇生 目を覚まさせる
+		SS.publish.user pl.id,"refresh",{id:game.id}
 
+
+		
 games={}
 
 # ゲームを得る
@@ -829,6 +857,7 @@ jobs=
 	Bat:Bat
 	Noble:Noble
 	Slave:Slave
+	Magician:Magician
 
 
 exports.actions=
