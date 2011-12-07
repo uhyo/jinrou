@@ -340,7 +340,7 @@ class Game
 			@finished=true
 			@winner=team
 			@players.forEach (x)=>
-				x.winner= x.team==team	#勝利陣営にいたか
+				x.winner= x.isWinner game,team	#勝利か
 				# ユーザー情報
 				if x.winner
 					M.users.update {userid:x.id},{$push: {win:@id}}
@@ -595,6 +595,9 @@ class Player
 	psychicResult:"村人"
 	#チーム Human/Werewolf
 	team: "Human"
+	#勝利かどうか team:勝利陣営名
+	isWinner:(game,team)->
+		team==@team	# 自分の陣営かどうか
 		
 		
 		
@@ -742,7 +745,13 @@ class BigWolf extends Werewolf
 	type:"BigWolf"
 	jobname:"大狼"
 	fortuneResult:"村人"
-	psychicResult:"大狼"	
+	psychicResult:"大狼"
+	
+class Bat extends Player
+	type:"Bat"
+	jobname:"こうもり"
+	isWinner:(game,team)->
+		!@dead	# 生きて入ればとにかく勝利
 
 games={}
 
@@ -761,6 +770,7 @@ jobs=
 	Fox:Fox
 	Poisoner:Poisoner
 	BigWolf:BigWolf
+	Bat:Bat
 
 
 exports.actions=

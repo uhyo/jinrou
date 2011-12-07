@@ -302,6 +302,7 @@ exports.start=(roomid)->
 			
 		form.elements["Poisoner"].value=0
 		form.elements["BigWolf"].value=0
+		form.elements["Bat"].value=0
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
