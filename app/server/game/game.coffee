@@ -868,7 +868,7 @@ class Spy extends Player
 			@dead=true
 			@found="spygone"
 	isWinner:(game,team)->
-		team==@team && @dead && @spygone
+		team==@team && @dead && @spygone	# 人狼が勝った上で自分は任務完了の必要あり
 	
 		
 	

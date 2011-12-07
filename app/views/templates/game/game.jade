@@ -135,6 +135,10 @@
       p
         | 蘇生する人を一人選んで下さい:
         input(type="submit",value="蘇生する")
+    #form_Spy(hidden).jobformarea
+      p
+        | （対象選択は無視されます）
+        input(type="submit",value="任務完了")
   form#speakform
     p
       input(size="50",name="comment",required)
