@@ -294,7 +294,7 @@ class Game
 			@dorevote()
 		else if player
 			# 結果が出た 死んだ!
-			player.punished game
+			player.punished this
 			player.dead=true	# 投票で死んだ
 				
 			@nextturn()
@@ -336,7 +336,7 @@ class Game
 			@finished=true
 			@winner=team
 			@players.forEach (x)=>
-				x.winner= x.isWinner game,team	#勝利か
+				x.winner= x.isWinner this,team	#勝利か
 				# ユーザー情報
 				if x.winner
 					M.users.update {userid:x.id},{$push: {win:@id}}
@@ -587,7 +587,10 @@ class Player
 		null
 	# 夜の仕事を行う
 	midnight:(game)->
-	
+	# 夜の仕事に対象が必要かどうか
+	needstarget:true
+	# 死人が対象かどうか
+	dead_target:false
 	#人狼に食われて死ぬかどうか
 	willDieWerewolf:true
 	#占いの結果
@@ -644,7 +647,7 @@ class Werewolf extends Player
 			# 死んだ
 			t.bitten game
 		# 逃亡者を探す
-		runners=game.players.filter (x)->!x.dead && x.type=="Fugitive"
+		runners=game.players.filter (x)=>!x.dead && x.type=="Fugitive" && x.target==@target
 		runners.forEach (x)->
 			x.bitten game	# その家に逃げていたら逃亡者も死ぬ
 				
@@ -823,11 +826,14 @@ class Magician extends Player
 	type:"Magician"
 	jobname:"魔術師"
 	sunset:(game)->
-		@target=if game.day<3 then "" else null
+		#@target=if game.day<3 then "" else null
+		@target=null
+		if game.players.every((x)->!x.dead)
+			@target=""	# 誰も死んでいないなら能力発動しない
 	job:(game,playerid)->
-		if game.day<3
-			# まだ発動できない
-			return "まだ能力を発動できません"
+#		if game.day<3
+#			# まだ発動できない
+#			return "まだ能力を発動できません"
 		@target=playerid
 		pl=game.getPlayer playerid
 		
@@ -839,7 +845,8 @@ class Magician extends Player
 		null
 	sleeping:->@target?
 	midnight:(game)->
-		pl=game.getPlayer playerid
+		return unless @target?
+		pl=game.getPlayer @target
 		return unless pl?
 		return unless pl.dead
 		# 確率判定
@@ -850,15 +857,20 @@ class Magician extends Player
 		pl.dead=false
 		# 蘇生 目を覚まさせる
 		SS.publish.user pl.id,"refresh",{id:game.id}
+	dead_target:true
+	makejobinfo:(game,result)->
+		console.log "Magician: makeloginfo"
+		result.dead_target=true	# 死人から選ぶ
 class Spy extends Player
 	type:"Spy"
 	jobname:"スパイ"
-	team:"WereWolf"
+	team:"Werewolf"
 	sleeping:->true	# 能力使わなくてもいい
 	jobdone:->@spygone	# 能力を使ったか
 	job:(game,playerid)->
 		return "既に能力を発動しています" if @spygone
 		@spygone=true
+		@guarded=true	# 人狼に教われても死なない
 		log=
 			mode:"skill"
 			to:@id
@@ -871,19 +883,29 @@ class Spy extends Player
 			@spygone=true
 			@dead=true
 			@found="spygone"
+	needstarget:false
 	isWinner:(game,team)->
 		team==@team && @dead && @spygone	# 人狼が勝った上で自分は任務完了の必要あり
+	makejobinfo:(game,result)->
+		# スパイは人狼が分かる
+		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+			x.publicinfo()
+
 class Fugitive extends Player
 	type:"Fugitive"
 	jobname:"逃亡者"
 	willDieWerewolf:false	# 人狼に直接噛まれても死なない
 	sunset:(game)->
 		@target=null
+	sleeping:->@target?
 	job:(game,playerid)->
 		# 逃亡先
 		pl=game.getPlayer playerid
 		if pl?.dead
 			return "死者の家には逃げられません"
+		if playerid==@id
+			return "自分の家へは逃げられません"
+			return
 		@target=playerid
 		log=
 			mode:"skill"
@@ -894,8 +916,8 @@ class Fugitive extends Player
 		
 	midnight:(game)->
 		# 人狼の家に逃げていたら即死
-		pl=game.getPlayer playerid
-		if pl.dead && pl.isWerewolf()
+		pl=game.getPlayer @target
+		if !pl.dead && pl.isWerewolf()
 			@bitten game
 		
 	isWinner:(game,team)->
@@ -925,6 +947,7 @@ jobs=
 	Slave:Slave
 	Magician:Magician
 	Spy:Spy
+	Fugitive:Fugitive
 
 
 exports.actions=
@@ -1136,14 +1159,17 @@ exports.actions=
 		if player.dead
 			cb "お前は既に死んでいる"
 			return
-		unless to=game.players.filter((x)->x.id==query.target)[0]
+		if !(to=game.players.filter((x)->x.id==query.target)[0]) && player.needstarget
 			cb "その対象は存在しません"
 			return
-		if to.dead
+		if to?.dead && (!player.dead_target || !game.night)
 			cb "対象は既に死んでいます"
 			return
 		if game.night
 			# 夜
+			if !to?.dead && player.dead_target
+				cb "対象はまだ生きています"
+				return
 			if player.jobdone()
 				cb "既に能力を行使しています"
 				return
@@ -1286,7 +1312,7 @@ makejobinfo = (game,player,result={})->
 		player.makejobinfo game,result
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
-		result.sleeping=if game.night then player.sleeping() else if player.voteto? then true else false
+		result.sleeping=if game.night then player.jobdone() else if player.voteto? then true else false
 		result.jobname=player.jobname
 		result.winner=player.winner
 

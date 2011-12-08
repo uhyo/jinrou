@@ -95,7 +95,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf"]
+		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy","Fugitive"]
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
@@ -395,13 +395,13 @@ exports.start=(roomid)->
 				if game.night
 					$("#form_#{my_job}").removeAttr "hidden"
 			if game.day>0 && game.players
-				formplayers game.players
+				formplayers game.players,!!obj.dead_target && game.night
 				unless this_rule?
 					$("#speakform").get(0).elements["rulebutton"].disabled=false
 				this_rule=
 					jobscount:game.jobscount
 					rule:game.rule
-	formplayers=(players)->
+	formplayers=(players,deadflg)->	#deadflg:死人から選ぶ
 		$("#form_players").empty()
 		$("#players").empty()
 		players.forEach (x)->
@@ -432,7 +432,10 @@ exports.start=(roomid)->
 			input.type="radio"
 			input.name="target"
 			input.value=x.id
-			input.disabled=x.dead
+			input.disabled=if deadflg
+					!x.dead
+				else
+					x.dead
 			label.appendChild input
 			li.appendChild label
 			$("#form_players").append li
