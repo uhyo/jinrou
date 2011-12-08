@@ -605,8 +605,8 @@ class Player
 
 	# 噛まれたとき
 	bitten: (game)->
-		@.dead=true
-		@.found="werewolf"
+		@dead=true
+		@found="werewolf"
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 
@@ -643,6 +643,10 @@ class Werewolf extends Player
 		if t.willDieWerewolf && !t.guarded
 			# 死んだ
 			t.bitten game
+		# 逃亡者を探す
+		runners=game.players.filter (x)->!x.dead && x.type=="Fugitive"
+		runners.forEach (x)->
+			x.bitten game	# その家に逃げていたら逃亡者も死ぬ
 				
 	isWerewolf:->true
 		
@@ -869,8 +873,33 @@ class Spy extends Player
 			@found="spygone"
 	isWinner:(game,team)->
 		team==@team && @dead && @spygone	# 人狼が勝った上で自分は任務完了の必要あり
-	
+class Fugitive extends Player
+	type:"Fugitive"
+	jobname:"逃亡者"
+	willDieWerewolf:false	# 人狼に直接噛まれても死なない
+	sunset:(game)->
+		@target=null
+	job:(game,playerid)->
+		# 逃亡先
+		pl=game.getPlayer playerid
+		if pl?.dead
+			return "死者の家には逃げられません"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}の家の近くへ逃亡しました。"
+		splashlog game.id,game,log
+		null
 		
+	midnight:(game)->
+		# 人狼の家に逃げていたら即死
+		pl=game.getPlayer playerid
+		if pl.dead && pl.isWerewolf()
+			@bitten game
+		
+	isWinner:(game,team)->
+		team==@team && !@dead	# 村人勝利で生存
 	
 	
 

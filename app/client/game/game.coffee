@@ -300,7 +300,7 @@ exports.start=(roomid)->
 		else
 			0
 			
-		form.elements[x].value=0 for x in ["Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy"]
+		form.elements[x].value=0 for x in ["Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy","Fugitive"]
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
@@ -367,6 +367,8 @@ exports.start=(roomid)->
 			$("#jobinfo").text "共有者は#{obj.peers.map((x)->x.name).join(',')}"
 		if obj.foxes?
 			$("#jobinfo").text "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
+		if obj.nobles?
+			$("#jobinfo").text "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
 		if obj.winner?
 			# 勝敗
 			$("#jobinfo").text "#{if obj.winner then '勝利' else '敗北'}しました"
