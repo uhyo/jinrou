@@ -92,7 +92,7 @@ class Game
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
 			while true
-				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox"])
+				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox","TinyFox"])
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
