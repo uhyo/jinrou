@@ -13,6 +13,7 @@ class Game
 		@voting=false	# 投票猶予時間
 		@timer_start=null	# 残り時間のカウント開始時間（秒）
 		@timer_remain=null	# 残り時間全体（秒）
+		@revote_num=0	# 再投票を行った回数
 	# JSON用object化(DB保存用）
 	serialize:->
 		{
@@ -171,9 +172,10 @@ class Game
 						x.target=""	# 誰も守らない
 		else
 			@players.forEach (x)=>
-				x.voteto=null
 				return if x.dead
+				x.votestart this
 				x.sunrise this
+			@revote_num=0	# 再投票の回数は0にリセット
 		#死体処理
 		@bury()
 		@judge()
@@ -212,7 +214,9 @@ class Game
 				wolf_flg=true
 	# 死んだ人を処理する
 	bury:->
-		@players.filter((x)->x.dead && x.found).forEach (x)=>
+		deads=@players.filter (x)->x.dead && x.found
+		deads=shuffle deads	# 順番バラバラ
+		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
 				when "werewolf","poison"
@@ -301,12 +305,16 @@ class Game
 		return true
 	# 再投票
 	dorevote:->
+		@revote_num++
+		if @revote_num>=10	# 10回再投票
+			@judge()
+			return
 		log=
 			mode:"system"
 			comment:"再投票になりました。"
 		splashlog @id,this,log
-		@players.forEach (player)->
-			player.voteto=null
+		@players.forEach (player)=>
+			player.votestart this
 		SS.publish.channel "room#{@id}","voteform",true
 		@splashjobinfo()
 		if @voting
@@ -315,6 +323,21 @@ class Game
 			@timer()
 	# 勝敗決定
 	judge:->
+		if @revote_num>=10
+			# 再投票の引き分け
+			@finished=true
+			@winner=null
+			log=
+				mode:"nextturn"
+				finished:true
+				comment:"引き分けになりました。"
+						
+			splashlog @id,this,log			
+			M.rooms.update {id:@id},{$set:{mode:"end"}}
+			SS.publish.channel "room#{@id}","refresh",{id:@id}
+			@save()
+			return true
+
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
 		
@@ -574,7 +597,17 @@ class Player
 	# 人狼かどうか
 	isWerewolf:->false
 	# 昼のはじまり（死体処理よりも前）
-	sunrise:(game)->@guarded=false
+	sunrise:(game)->
+		@guarded=false
+	# 昼の投票準備
+	votestart:(game)->
+		@voteto=null
+		if @scapegoat
+			# 身代わりくんは投票
+			alives=game.players.filter (x)->!x.dead
+			r=Math.floor Math.random()*alives.length	# 投票先
+			@voteto=game.players[r].id
+		
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
 	# 夜にもう寝たか
@@ -608,6 +641,7 @@ class Player
 
 	# 噛まれたとき
 	bitten: (game)->
+		return if @dead
 		@dead=true
 		@found="werewolf"
 	# 役職情報を載せる
@@ -1320,4 +1354,11 @@ makejobinfo = (game,player,result={})->
 		result.winner=player.winner
 
 	result
+	
+# 配列シャッフル（破壊的）
+shuffle= (arr)->
+	ret=[]
+	while arr.length
+		ret.push arr.splice(Math.floor(Math.random()*arr.length),1)[0]
+	ret
 		
