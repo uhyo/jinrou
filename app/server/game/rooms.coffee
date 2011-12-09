@@ -9,6 +9,7 @@ room: {
   password: Hashed Password
   comment: String
   mode: "waiting"/"playing"/"end"
+  made: Time(Number)(作成された日時）
 
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
@@ -53,6 +54,7 @@ exports.actions=
 				number:parseInt query.number
 				mode:"waiting"
 				players:[@session.attributes.user]
+				made:Date.now()
 			room.password=query.password ? null
 			room.comment=query.comment ? ""
 			unless room.number

@@ -350,6 +350,9 @@ exports.start=(roomid)->
 					span.insertBefore document.createElement("br"),spp
 			
 			p.appendChild span
+			if log.time?
+				time=SS.client.util.timeFromDate new Date log.time
+				p.appendChild time
 		
 		p.classList.add log.mode
 		

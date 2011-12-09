@@ -1185,7 +1185,7 @@ exports.actions=
 			if player.voteto?
 				cb "既に投票しています"
 				return
-			if player.voteto==player.id && game.rule.votemyself!="ok"
+			if query.target==player.id && game.rule.votemyself!="ok"
 				cb "自分には投票できません"
 				return
 			player.voteto=query.target
@@ -1221,6 +1221,7 @@ exports.actions=
 		
 
 splashlog=(roomid,game,log)->
+	log.time=Date.now()	# 時間を付加
 	game.logs.push log
 	hv=(ch)->
 		# チャンネルにheavenを加える
@@ -1254,6 +1255,7 @@ splashlog=(roomid,game,log)->
 						mode:"werewolf"
 						comment:"アオォーーン・・・"
 						name:"狼の遠吠え"
+						time:log.time
 					SS.publish.channel hvn("room#{roomid}_notwerewolf"),"log",log2
 					
 			when "couple"
@@ -1264,6 +1266,7 @@ splashlog=(roomid,game,log)->
 						mode:"couple"
 						comment:"ヒソヒソ・・・"
 						name:"共有者の小声"
+						time:log.time
 					SS.publish.channel hvn("room#{roomid}_notcouple"),"log",log2
 			when "fox"
 				SS.publish.channel hv("room#{roomid}_fox"),"log",log

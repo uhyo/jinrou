@@ -79,3 +79,13 @@ exports.message=(title,message,cb)->
 		if t.name=="ok"
 			cb? true
 			closeWindow t
+# Dateをtime要素に
+exports.timeFromDate=(date)->
+	zero2=(num)->
+		"00#{num}".slice -2	# 0埋め
+	dat="#{date.getFullYear()}-#{zero2(date.getMonth()+1)}-#{zero2(date.getDate())}"
+	tim="#{zero2(date.getHours())}:#{zero2(date.getMinutes())}:#{zero2(date.getSeconds())}"
+	time=document.createElement "time"
+	time.datetime="#{dat}T#{tim}+09:00"
+	time.textContent="#{dat} #{tim}"
+	time

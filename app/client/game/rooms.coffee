@@ -40,6 +40,11 @@ exports.start=(mode)->
 			td=tr.insertCell -1
 			td.textContent="#{room.number}人"
 			
+			#日時
+			td=tr.insertCell -1
+			if room.made?
+				td.appendChild SS.client.util.timeFromDate new Date room.made
+			
 			#コメント
 			td=tr.insertCell -1
 			td.textContent=room.comment
