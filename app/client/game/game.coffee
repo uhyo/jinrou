@@ -95,7 +95,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy","Fugitive"]
+		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","Fugitive"]
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
@@ -300,7 +300,7 @@ exports.start=(roomid)->
 		else
 			0
 			
-		form.elements[x].value=0 for x in ["Poisoner","BigWolf","Bat","Noble","Slave","Magician","Spy","Fugitive"]
+		form.elements[x].value=0 for x in ["Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","Fugitive"]
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16

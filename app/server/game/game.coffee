@@ -351,7 +351,7 @@ class Game
 			
 		if team?
 			# 妖狐判定
-			if @players.some((x)->!x.dead && x.type=="Fox")
+			if @players.some((x)->!x.dead && x.team=="Fox")
 				team="Fox"
 			
 		if team?
@@ -593,7 +593,7 @@ class Player
 			arr.push "権力者"
 		arr.join "・"
 	# 村人かどうか
-	isHuman:->!@isWerewolf() && @type!="Fox"
+	isHuman:->!@isWerewolf()
 	# 人狼かどうか
 	isWerewolf:->false
 	# 昼のはじまり（死体処理よりも前）
@@ -794,6 +794,7 @@ class Fox extends Player
 	jobname:"妖狐"
 	team:"Fox"
 	willDieWerewolf:false
+	isHuman:->false
 	makejobinfo:(game,result)->
 		# 妖狐は仲間が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
@@ -824,6 +825,40 @@ class BigWolf extends Werewolf
 	jobname:"大狼"
 	fortuneResult:"村人"
 	psychicResult:"大狼"
+class TinyFox extends Diviner
+	type:"TinyFox"
+	jobname:"子狐"
+	fortuneResult:"村人"
+	psychicResult:"子狐"
+	team:"Fox"
+	isHuman:->false
+	makejobinfo:(game,result)->
+		# 子狐は妖狐が分かる
+		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
+			x.publicinfo()
+	sunrise:(game)->
+		super
+		r=@results[@results.length-1]
+		return unless r?
+		# たまに失敗
+		if Math.random() < 0.5
+			r.result="なんだかとても怪しい人"
+		else
+			r.result+="ぽい人"
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}の占いの結果、#{r.player.name}は#{r.result}かな？"
+		splashlog game.id,game,log
+	midnight:(game)->
+		super
+		p=game.getPlayer @target
+		if p?
+			@results.push {
+				player: p.publicinfo()
+				result: p.fortuneResult
+			}
+	
 	
 class Bat extends Player
 	type:"Bat"
@@ -976,6 +1011,7 @@ jobs=
 	Fox:Fox
 	Poisoner:Poisoner
 	BigWolf:BigWolf
+	TinyFox:TinyFox
 	Bat:Bat
 	Noble:Noble
 	Slave:Slave

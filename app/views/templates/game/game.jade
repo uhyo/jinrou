@@ -34,6 +34,8 @@
           dd: input(name="Fox",min="0",step="1",type="number",size="5")
           dt 大狼
           dd: input(name="BigWolf",min="0",step="1",type="number",size="5")
+          dt 子狐
+          dd: input(name="TinyFox",min="0",step="1",type="number",size="5")
         fieldset
           legend 桃栗特殊役職
           dl.jobs
@@ -126,6 +128,10 @@
         | 殺す人を一人選んで下さい（先着順）：
         input(type="submit",value="殺す")
     #form_Diviner(hidden).jobformarea
+      p
+        | 占う人を一人選んで下さい：
+        input(type="submit",value="占う")
+    #form_TinyFox(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
         input(type="submit",value="占う")
