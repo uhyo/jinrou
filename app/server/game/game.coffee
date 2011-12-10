@@ -1140,6 +1140,14 @@ exports.actions=
 			mode:"system"
 		if games[room.id]
 			splashlog room.id,games[room.id], log
+	kicklog:(room,player)->
+		log=
+			comment:"#{player.name}さんが追い出されました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
 	# 状況に応じたチャンネルを割り当てる
 	playerchannel:(roomid,session)->
 		game=games[roomid]

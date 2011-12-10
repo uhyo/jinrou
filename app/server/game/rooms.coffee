@@ -119,6 +119,31 @@ exports.actions=
 					# 退室通知
 					SS.server.game.game.outlog room,@session.attributes.user
 					SS.publish.channel "room#{roomid}", "unjoin", @session.user_id
+	# 部屋から追い出す
+	kick:(roomid,id,cb)->
+		unless @session.user_id
+			cb "ログインして下さい"
+			return
+		SS.server.game.rooms.oneRoom roomid,(room)=>
+			if !room || room.error?
+				cb "その部屋はありません"
+				return
+			if room.owner.userid != @session.user_id
+				cb "オーナーしかkickできません"
+				return
+			unless room.mode=="waiting"
+				cb "もう始まっています"
+				return
+			M.rooms.update {id:roomid},{$pull: {players:{userid:id}}},(err)=>
+				if err?
+					cb "エラー:#{err}"
+				else
+					cb null
+					# 退室通知
+					SS.server.user.userData id,null,(user)->
+						SS.server.game.game.kicklog room,user
+						SS.publish.channel "room#{roomid}", "unjoin",id
+					SS.publish.user id,"refresh",{id:roomid}
 	
 	
 	# 成功ならnull 失敗ならエラーメッセージ

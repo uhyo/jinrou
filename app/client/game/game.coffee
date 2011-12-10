@@ -72,6 +72,13 @@ exports.start=(roomid)->
 				b=makebutton "ゲームを開始"
 				$("#playersinfo").append b
 				$(b).click newgamebutton
+				b=makebutton "参加者を追い出す"
+				$("#playersinfo").append b
+				$(b).click (je)->
+					SS.client.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
+						SS.server.game.rooms.kick roomid,id,(result)->
+							if result?
+								cb "エラー",result
 			if room.players.filter((x)->x.userid==userid).length==0
 				# 未参加
 				b=makebutton "ゲームに参加"
