@@ -1047,7 +1047,7 @@ class Fugitive extends Player
 	sunset:(game)->
 		@target=null
 		@willDieWerewolf=false
-		if game.day<=1	# 一日目は逃げない
+		if game.day<=1 && game.rule.scapegoat!="off"	# 一日目は逃げない
 			@target=""
 			@willDieWerewolf=true	# 一日目だけは死ぬ
 		else if @scapegoat
