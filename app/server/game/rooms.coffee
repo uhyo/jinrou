@@ -72,7 +72,8 @@ exports.actions=
 			cb "ログインして下さい"
 			return
 		SS.server.game.rooms.oneRoom roomid,(room)=>
-			if room.error?
+		
+			if !room || room.error?
 				cb "その部屋はありません"
 				return
 			if @session.user_id in (room.players.map (x)->x.userid)
@@ -100,7 +101,7 @@ exports.actions=
 			cb "ログインして下さい"
 			return
 		SS.server.game.rooms.oneRoom roomid,(room)=>
-			if room.error?
+			if !room || room.error?
 				cb "その部屋はありません"
 				return
 			unless @session.user_id in (room.players.map (x)->x.userid)
@@ -127,6 +128,9 @@ exports.actions=
 			cb "ログインして下さい"
 			return
 		SS.server.game.rooms.oneRoom roomid,(room)=>
+			if !room?
+				cb "その部屋はありません"
+				return
 			if room.error?
 				cb room.error
 				return
