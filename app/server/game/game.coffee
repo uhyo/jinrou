@@ -1046,8 +1046,10 @@ class Fugitive extends Player
 	willDieWerewolf:false	# 人狼に直接噛まれても死なない
 	sunset:(game)->
 		@target=null
+		@willDieWerewolf=false
 		if game.day<=1	# 一日目は逃げない
 			@target=""
+			@willDieWerewolf=true	# 一日目だけは死ぬ
 		else if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
@@ -1072,6 +1074,7 @@ class Fugitive extends Player
 	midnight:(game)->
 		# 人狼の家に逃げていたら即死
 		pl=game.getPlayer @target
+		return unless pl?
 		if !pl.dead && pl.isWerewolf()
 			@bitten game
 		
