@@ -770,7 +770,7 @@ class Guard extends Player
 	type:"Guard"
 	jobname:"狩人"
 	sleeping:->@target?
-	sunset:->
+	sunset:(game)->
 		@target=null
 		if @scapegoat
 			# 身代わり君の自動占い
