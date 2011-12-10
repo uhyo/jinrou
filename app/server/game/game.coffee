@@ -949,7 +949,12 @@ class Spy extends Player
 	jobname:"スパイ"
 	team:"Werewolf"
 	sleeping:->true	# 能力使わなくてもいい
-	jobdone:->@flag=="spygone"	# 能力を使ったか
+	jobdone:->@flag in["spygone","day1"]	# 能力を使ったか
+	sunrise:(game)->
+		if game.day<=1
+			@flag="day1"	# まだ去れない
+		else
+			@flag=null
 	job:(game,playerid)->
 		return "既に能力を発動しています" if @flag=="spygone"
 		@flag="spygone"
