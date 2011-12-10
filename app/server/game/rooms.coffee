@@ -176,6 +176,27 @@ exports.actions=
 #		@session.channel.unsubscribe "room#{roomid}"
 		@session.channel.unsubscribeAll()
 		cb null
+	# 部屋を削除
+	del: (roomid,cb)->
+		unless @session.user_id
+			cb "ログインして下さい"
+			return
+		SS.server.game.rooms.oneRoom roomid,(room)=>
+			if !room || room.error?
+				cb "その部屋はありません"
+				return
+			if room.owner.userid != @session.user_id
+				cb "オーナーしか削除できません"
+				return
+			unless room.mode=="waiting"
+				cb "もう始まっています"
+				return
+			M.rooms.update {id:roomid},{$set: {mode:"end"}},(err)=>
+				if err?
+					cb "エラー:#{err}"
+				else
+					cb null
+					SS.server.game.game.deletedlog room	
 #cb: (err)->
 setRoom=(roomid,room,cb)->
 	M.rooms.update {id:roomid},room,cb

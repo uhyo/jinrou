@@ -1148,6 +1148,14 @@ exports.actions=
 			mode:"system"
 		if games[room.id]
 			splashlog room.id,games[room.id], log
+	deletedlog:(room)->
+		log=
+			comment:"この部屋は廃村になりました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
 	# 状況に応じたチャンネルを割り当てる
 	playerchannel:(roomid,session)->
 		game=games[roomid]

@@ -79,6 +79,14 @@ exports.start=(roomid)->
 						SS.server.game.rooms.kick roomid,id,(result)->
 							if result?
 								cb "エラー",result
+				b=makebutton "部屋を削除"
+				$("#playersinfo").append b
+				$(b).click (je)->
+					SS.client.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
+						if cb
+							SS.server.game.rooms.del roomid,(result)->
+								if result?
+									cb "エラー",result
 			if room.players.filter((x)->x.userid==userid).length==0
 				# 未参加
 				b=makebutton "ゲームに参加"
