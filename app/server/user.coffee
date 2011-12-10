@@ -6,10 +6,9 @@ exports.actions =
 # ログイン
 # cb: 失敗なら真
 	login: (query,cb)->
-		console.log auth=require('./auth.coffee');
+		auth=require('./auth.coffee');
 		#@session.authenticate './session_storage/internal.coffee', query, (response)=>
 		auth.authenticate query,(response)=>
-			console.log response
 			if response.success
 				@session.setUserId response.userid
 				@session.attributes.user=response
