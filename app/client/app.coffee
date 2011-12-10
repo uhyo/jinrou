@@ -13,9 +13,11 @@ my_userid=null
 
 exports.init = ->
   	# 固定リンク
-	$("a").live "click", (e)->
-		t=e.target
-		e.preventDefault()
+	$("a").live "click", (je)->
+		t=je.target
+		return if je.isDefaultPrevented()
+		je.preventDefault()
+
 		SS.client.app.showUrl t.href
 		return
 		
@@ -47,8 +49,6 @@ exports.page=page=(templatename,params=null,pageobj,startparam)->
 		jQuery.data cdom, "end", pageobj.end
 
 exports.showUrl=showUrl=(url,nohistory=false)->
-	unless nohistory
-		history.pushState null,null,url
 	if result=url.match /(https?:\/\/.+?)(\/.+)$/
 		if result[1]=="#{location.protocol}//#{location.host}" #location.origin
 			url=result[2]
@@ -76,12 +76,21 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 			else if result=url.match /^\/user\/(\w+)$/
 				# ユーザー
 				page "templates-user-view",null,SS.client.user.view,result[1]
+			else if result=url.match /^\/manual\/job\/(\w+)$/
+				# ジョブ情報
+				win=SS.client.util.blankWindow()
+				$("#templates-jobs-#{result[1]}").tmpl().appendTo win
+				return
 			else
 				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
 					my_userid=null
 					localStorage.removeItem "userid"
 					localStorage.removeItem "password"
+	unless nohistory
+		history.pushState null,null,url
+					
+					
 exports.refresh=->showUrl location.pathname,true
 
 exports.login=login=(uid,ups,cb)->

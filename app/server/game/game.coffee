@@ -86,7 +86,9 @@ class Game
 		for job,num of joblist
 			continue unless num>0
 			testpl=new jobs[job]
-			@jobscount[testpl.jobname]=num
+			@jobscount[job]=
+				name:testpl.jobname
+				number:num
 
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"

@@ -143,9 +143,12 @@ exports.start=(roomid)->
 			return unless this_rule?
 			win=SS.client.util.blankWindow()
 			p=document.createElement "p"
-			p.textContent=Object.keys(this_rule.jobscount).map (x)->
-				"#{x}#{this_rule.jobscount[x]}"
-			.join " "
+			Object.keys(this_rule.jobscount).forEach (x)->
+				a=document.createElement "a"
+				a.href="/manual/job/#{x}"
+				a.textContent="#{this_rule.jobscount[x].name}#{this_rule.jobscount[x].number}"
+				p.appendChild a
+				p.appendChild document.createTextNode " "
 			win.append p
 			rulestr=
 				"scapegoat":
