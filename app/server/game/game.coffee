@@ -1055,6 +1055,7 @@ class Fugitive extends Player
 			r=Math.floor Math.random()*game.players.length
 			if @job game,game.players[r].id
 				@sunset	sleeping:->@target?
+	sleeping:->@target?
 	job:(game,playerid)->
 		# 逃亡先
 		pl=game.getPlayer playerid

@@ -141,6 +141,9 @@ exports.actions=
 					cb null
 					# 退室通知
 					SS.server.user.userData id,null,(user)->
+						unless user?
+							cb "そのユーザーは存在しません"
+							return
 						SS.server.game.game.kicklog room,user
 						SS.publish.channel "room#{roomid}", "unjoin",id
 					SS.publish.user id,"refresh",{id:roomid}
