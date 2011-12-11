@@ -24,7 +24,7 @@ exports.actions=
 			query=
 				mode:
 					$ne:"end"
-		M.rooms.find(query).toArray (err,results)->
+		M.rooms.find(query).sort({made:-1}).toArray (err,results)->
 			if err?
 				cb {error:err}
 				return
