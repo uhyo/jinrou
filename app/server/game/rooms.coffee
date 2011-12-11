@@ -134,6 +134,9 @@ exports.actions=
 			unless room.mode=="waiting"
 				cb "もう始まっています"
 				return
+			unless room.players.some((x)->x.userid==id)
+				cb "そのユーザーは参加していません"
+				return
 			M.rooms.update {id:roomid},{$pull: {players:{userid:id}}},(err)=>
 				if err?
 					cb "エラー:#{err}"
@@ -141,9 +144,6 @@ exports.actions=
 					cb null
 					# 退室通知
 					SS.server.user.userData id,null,(user)->
-						unless user?
-							cb "そのユーザーは存在しません"
-							return
 						SS.server.game.game.kicklog room,user
 						SS.publish.channel "room#{roomid}", "unjoin",id
 					SS.publish.user id,"refresh",{id:roomid}
