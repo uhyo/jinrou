@@ -69,6 +69,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/newroom"
 			# 新しい部屋
 			page "templates-game-newroom",null,SS.client.game.newroom,null
+		when "/lobby"
+			# ロビー
+			page "templates-lobby",null,SS.client.lobby,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム

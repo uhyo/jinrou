@@ -12,7 +12,7 @@ dbinit= ->
       count=0
       return (cb)->
         console.log "count"
-        if ++count>=3
+        if ++count>=4
           console.log "Mongodb Connected"
           # ゲームデータ読み込みをしてもらう
           SS.server.game.game.loadDB()
@@ -43,6 +43,12 @@ dbinit= ->
             console.log err
             throw err
           M.games=col
+          cols_count()
+        DB.collection "lobby",(err,col)->	# ロビーのログ
+          if err?
+            console.log err
+            throw err
+          M.lobby=col
           cols_count()
 
 dbinit()
