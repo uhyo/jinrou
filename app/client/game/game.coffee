@@ -110,7 +110,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive","Merchant","QueenSpectator","MadWolf"]
+		jobs=SS.shared.game.jobs.filter (x)->x!="Human"	# 村人は自動で決定する
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
@@ -285,6 +285,8 @@ exports.start=(roomid)->
 		
 	setplayersnumber=(form,number)->
 		form.elements["number"]=number
+		form.elements[x].value=0 for x in SS.shared.game.jobs
+
 		hu=number	# 村人
 		huall=hu
 		if form.elements["scapegoat"].value=="on"
@@ -326,7 +328,6 @@ exports.start=(roomid)->
 		else
 			0
 			
-		form.elements[x].value=0 for x in ["Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive","Merchant","QueenSpectator","MadWolf"]
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16

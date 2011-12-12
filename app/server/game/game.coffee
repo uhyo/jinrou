@@ -93,7 +93,8 @@ class Game
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
-			while true
+			i=0	# 無限ループ防止
+			while ++i<100
 				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox","TinyFox","WolfDiviner","MadWolf"])
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
@@ -103,6 +104,10 @@ class Game
 				@players.push newpl
 				joblist[jobss[r]]--
 				break
+			if @players.length==0
+				# 決まっていない
+				cb "配役に失敗しました"
+				return
 			
 		# ひとり決める
 		for job,num of joblist
@@ -1368,7 +1373,7 @@ exports.actions=
 			}
 			
 			joblist={}
-			for job of jobs
+			for job in SS.shared.game.jobs
 				joblist[job]=parseInt query[job]	# 仕事の数
 			options={}
 			for opt in ["decider","authority"]
