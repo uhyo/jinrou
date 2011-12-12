@@ -430,13 +430,13 @@ exports.start=(roomid)->
 						# 開けるべきフォームが指定されている
 						$("#form_#{x}").get(0).hidden=false
 			if game.day>0 && game.players
-				formplayers game.players,!!obj.dead_target && game.night
+				formplayers game.players,if game.night then obj.job_target else 1
 				unless this_rule?
 					$("#speakform").get(0).elements["rulebutton"].disabled=false
 				this_rule=
 					jobscount:game.jobscount
 					rule:game.rule
-	formplayers=(players,deadflg)->	#deadflg:死人から選ぶ
+	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()
 		players.forEach (x)->
@@ -467,10 +467,7 @@ exports.start=(roomid)->
 			input.type="radio"
 			input.name="target"
 			input.value=x.id
-			input.disabled=if deadflg
-					!x.dead
-				else
-					x.dead
+			input.disabled=!((x.dead && (jobflg&2))||(!x.dead && (jobflg&1)))
 			label.appendChild input
 			li.appendChild label
 			$("#form_players").append li

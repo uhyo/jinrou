@@ -652,10 +652,11 @@ class Player
 		null
 	# 夜の仕事を行う
 	midnight:(game)->
-	# 夜の仕事に対象が必要かどうか
-	needstarget:true
-	# 死人が対象かどうか
-	dead_target:false
+	# 対象
+	job_target:1	# ビットフラグ
+	# 対象用の値
+	@JOB_T_ALIVE:1	# 生きた人が対象
+	@JOB_T_DEAD :2	# 死んだ人が対象
 	#人狼に食われて死ぬかどうか
 	willDieWerewolf:true
 	#占いの結果
@@ -683,6 +684,7 @@ class Player
 		obj.open ?=[]
 		if !@jobdone()
 			obj.open.push @type
+		obj.job_target=@job_target
 		# 女王観戦者が見える
 		if @team=="Human"
 			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
@@ -990,10 +992,9 @@ class Magician extends Player
 		pl.dead=false
 		# 蘇生 目を覚まさせる
 		SS.publish.user pl.id,"refresh",{id:game.id}
-	dead_target:true
+	job_target:Player.JOB_T_DEAD
 	makejobinfo:(game,result)->
 		super
-		result.dead_target=true	# 死人から選ぶ
 class Spy extends Player
 	type:"Spy"
 	jobname:"スパイ"
@@ -1021,7 +1022,7 @@ class Spy extends Player
 			@flag="spygone"
 			@dead=true
 			@found="spygone"
-	needstarget:false
+	job_target:0
 	isWinner:(game,team)->
 		team==@team && @dead && @flag=="spygone"	# 人狼が勝った上で自分は任務完了の必要あり
 	makejobinfo:(game,result)->
@@ -1206,6 +1207,58 @@ class Neet extends Player
 	sleeping:->true
 	voted:->true
 	isWinner:->true
+class Liar extends Player
+	type:"Liar"
+	jobname:"嘘つき"
+	job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD	# 死人も生存も
+	sunset:(game)->
+		@target=null
+		@result=null	# 占い結果
+		if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			@job game,game.players[r].id,{}
+	sleeping:->@target?
+	job:(game,playerid,query)->
+		# 占い
+		if @target?
+			return "既に占い対象を決定しています"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+		splashlog game.id,game,log
+		null
+	sunrise:(game)->
+		super
+		return unless @result?
+		log=
+			mode:"skill"
+			to:@id
+			comment:"あんまり自信ないけど、霊能占いの結果、#{@result.player.name}は#{@result.result}だと思う。たぶん。"
+		splashlog game.id,game,log
+	midnight:(game)->
+		super
+		p=game.getPlayer @target
+		if p?
+			@result=
+				player: p.publicinfo()
+				result: if Math.random()<0.3
+					# 成功
+					if p.isWerewolf()
+						"人狼"
+					else
+						"村人"
+				else
+					# 逆
+					if p.isWerewolf()
+						"村人"
+					else
+						"人狼"
+	isWinner:(game,team)->team==@team && !@dead	# 村人勝利で生存
+	
+	
 		
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1264,6 +1317,7 @@ jobs=
 	QueenSpectator:QueenSpectator
 	MadWolf:MadWolf
 	Neet:Neet
+	Liar:Liar
 
 
 exports.actions=
@@ -1491,15 +1545,15 @@ exports.actions=
 		if player.dead
 			cb {error:"お前は既に死んでいる"}
 			return
-		if !(to=game.players.filter((x)->x.id==query.target)[0]) && player.needstarget
+		if !(to=game.players.filter((x)->x.id==query.target)[0]) && player.job_target!=0
 			cb {error:"その対象は存在しません"}
 			return
-		if to?.dead && (!player.dead_target || !game.night)
+		if to?.dead && (!(player.job_target & Player.JOB_T_DEAD) || !game.night)
 			cb {error:"対象は既に死んでいます"}
 			return
 		if game.night
 			# 夜
-			if !to?.dead && player.dead_target
+			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE)
 				cb {error:"対象はまだ生きています"}
 				return
 			if player.jobdone()
