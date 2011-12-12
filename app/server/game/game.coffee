@@ -217,7 +217,7 @@ class Game
 		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","poison"
+				when "werewolf","poison","hinamizawa"
 					"無惨な姿で発見されました"
 				when "curse"	# 呪殺
 					if @rule.deadfox=="obvious"
@@ -297,7 +297,6 @@ class Game
 		else if player
 			# 結果が出た 死んだ!
 			player.punished this
-			player.dead=true	# 投票で死んだ
 				
 			@nextturn()
 		return true
@@ -666,6 +665,7 @@ class Player
 		team==@team	# 自分の陣営かどうか
 	# つられたとき
 	punished:(game)->
+		@dead=true
 		@found="punish"
 
 	# 噛まれたとき
@@ -679,6 +679,10 @@ class Player
 		obj.open ?=[]
 		if !@jobdone()
 			obj.open.push @type
+		# 女王観戦者が見える
+		if @team=="Human"
+			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
+				x.publicinfo()
 
 		
 		
@@ -799,6 +803,9 @@ class Madman extends Player
 	type:"Madman"
 	jobname:"狂人"
 	team:"Werewolf"
+	makejobinfo:(game,result)->
+		super
+		delete result.queens
 class Guard extends Player
 	type:"Guard"
 	jobname:"狩人"
@@ -848,6 +855,7 @@ class Poisoner extends Player
 	jobname:"埋毒者"
 	punished:(game)->
 		# 埋毒者の逆襲
+		super
 		canbedead = game.players.filter (x)->!x.dead	# 生きている人たち
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害者
@@ -1164,6 +1172,25 @@ class Merchant extends Player
 		SS.publish.user newpl.id,"refresh",{id:game.id}	
 		@flag=query.Merchant_kit	# 発送済み
 		null
+class QueenSpectator extends Player
+	type:"QueenSpectator"
+	jobname:"女王観戦者"
+	punished:(game)->
+		super
+		# 感染
+		humans = game.players.filter (x)->!x.dead && (x.team=="Human"||x.type=="Madman")	# 生きている人たち
+		humans.forEach (x)->
+			x.dead=true
+			x.found="hinamizawa"
+
+	bitten:(game)->
+		super
+		# 感染
+		humans = game.players.filter (x)->!x.dead && (x.team=="Human"||x.type=="Madman")	# 生きている人たち
+		humans.forEach (x)->
+			x.dead=true
+			x.found="hinamizawa"
+		
 
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
@@ -1218,6 +1245,7 @@ jobs=
 	WolfDiviner:WolfDiviner
 	Fugitive:Fugitive
 	Merchant:Merchant
+	QueenSpectator:QueenSpectator
 
 
 exports.actions=
