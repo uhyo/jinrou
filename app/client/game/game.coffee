@@ -402,6 +402,8 @@ exports.start=(roomid)->
 			$("#jobinfo").text "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
 		if obj.queens?.length>0
 			$("#jobinfo").text "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
+		if obj.spy2s?.length>0
+			$("#jobinfo").text "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
 		if obj.winner?
 			# 勝敗
 			$("#jobinfo").text "#{if obj.winner then '勝利' else '敗北'}しました"

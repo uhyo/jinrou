@@ -741,6 +741,9 @@ class Werewolf extends Player
 		# 人狼は仲間が分かる
 		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
 			x.publicinfo()
+		# スパイ2も分かる
+		result.spy2s=game.players.filter((x)->x.type=="Spy2").map (x)->
+			x.publicinfo()
 
 		
 		
@@ -1257,9 +1260,37 @@ class Liar extends Player
 					else
 						"人狼"
 	isWinner:(game,team)->team==@team && !@dead	# 村人勝利で生存
+class Spy2 extends Player
+	type:"Spy2"
+	jobname:"スパイⅡ"
+	team:"Werewolf"
+	makejobinfo:(game,result)->
+		super
+		# スパイは人狼が分かる
+		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+			x.publicinfo()
 	
-	
-		
+	punished:(game)->
+		super
+		@publishdocument game
+
+	bitten:(game)->
+		super
+		@publishdocument game
+			
+	publishdocument:(game)->
+		str=game.players.map (x)->
+			"#{x.name}:#{x.jobname}"
+		.join " "
+		log=
+			mode:"system"
+			comment:"#{@name}の調査報告書が発見されました。　#{str}"
+		splashlog game.id,game,log
+			
+	isWinner:(game,team)-> team==@team && !@dead
+
+
+
 
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
@@ -1318,6 +1349,7 @@ jobs=
 	MadWolf:MadWolf
 	Neet:Neet
 	Liar:Liar
+	Spy2:Spy2
 
 
 exports.actions=
