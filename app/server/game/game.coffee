@@ -252,7 +252,7 @@ class Game
 				
 	# 投票終わりチェック
 	execute:->
-		return false unless @players.every((x)->x.dead || x.voteto)
+		return false unless @players.every((x)->x.dead || x.voted())
 		tos={}
 		@players.forEach (x)->
 			return if x.dead || !x.voteto
@@ -263,7 +263,11 @@ class Game
 		max=0
 		for playerid,num of tos
 			if num>max then max=num	#最大値をみる
-		#console.log JSON.stringify tos
+		if max==0
+			# 誰も投票していない
+			@revote_num=Infinity
+			@judge()
+			return
 		player=null
 		revote=false	# 際投票
 		for playerid,num of tos
@@ -318,22 +322,9 @@ class Game
 			# 投票猶予の場合初期化
 			clearTimeout @timerid
 			@timer()
+	
 	# 勝敗決定
 	judge:->
-		if @revote_num>=10
-			# 再投票の引き分け
-			@finished=true
-			@winner=null
-			log=
-				mode:"nextturn"
-				finished:true
-				comment:"引き分けになりました。"
-						
-			splashlog @id,this,log			
-			M.rooms.update {id:@id},{$set:{mode:"end"}}
-			SS.publish.channel "room#{@id}","refresh",{id:@id}
-			@save()
-			return true
 
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
@@ -350,6 +341,10 @@ class Game
 			# 妖狐判定
 			if @players.some((x)->!x.dead && x.team=="Fox")
 				team="Fox"
+
+		if @revote_num>=10
+			# 再投票多すぎ
+			team="Draw"	# 引き分け
 			
 		if team?
 			# 勝敗決定
@@ -360,7 +355,7 @@ class Game
 				# ユーザー情報
 				if x.winner
 					M.users.update {userid:x.id},{$push: {win:@id}}
-				else
+				else if team!="Draw"
 					M.users.update {userid:x.id},{$push: {lose:@id}}
 			log=
 				mode:"nextturn"
@@ -372,6 +367,8 @@ class Game
 						"人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…"
 					when "Fox"
 						"村は妖狐のものとなりました。"
+					when "Draw"
+						"引き分けになりました。"
 						
 			splashlog @id,this,log
 			
@@ -458,7 +455,7 @@ class Game
 						# 突然死
 						revoting=false
 						@players.forEach (x)->
-							return if x.dead || x.voteto
+							return if x.dead || x.voted()
 							x.dead=true
 							x.found="gone"
 							revoting=true
@@ -478,7 +475,7 @@ class Game
 				unless @execute()
 					revoting=false
 					@players.forEach (x)->
-						return if x.dead || x.voteto
+						return if x.dead || x.voted()
 						x.dead=true
 						x.found="gone"
 						revoting=true
@@ -642,6 +639,8 @@ class Player
 	sleeping:->true
 	# 夜に仕事を追えたか（基本sleepingと一致）
 	jobdone:->@sleeping()
+	# 昼に投票を終えたか
+	voted:->@voteto?
 	# 夜の仕事
 	job:(game,playerid,query)->
 		@target=playerid
@@ -1195,6 +1194,13 @@ class MadWolf extends Werewolf
 	jobname:"狂人狼"
 	team:"Human"
 	sleeping:->true
+class Neet extends Player
+	type:"Neet"
+	jobname:"ニート"
+	team:""
+	sleeping:->true
+	voted:->true
+	isWinner:->true
 		
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1252,6 +1258,7 @@ jobs=
 	Merchant:Merchant
 	QueenSpectator:QueenSpectator
 	MadWolf:MadWolf
+	Neet:Neet
 
 
 exports.actions=
