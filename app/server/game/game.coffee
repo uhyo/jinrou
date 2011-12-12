@@ -1544,6 +1544,8 @@ exports.actions=
 splashlog=(roomid,game,log)->
 	log.time=Date.now()	# 時間を付加
 	game.logs.push log
+	#DBに追加
+	M.games.update {id:roomid},{$push:{logs:log}}
 	hv=(ch)->
 		# チャンネルにheavenを加える
 		if game.rule.heavenview=="view"
