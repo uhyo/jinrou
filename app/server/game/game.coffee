@@ -1178,7 +1178,7 @@ class QueenSpectator extends Player
 	punished:(game)->
 		super
 		# 感染
-		humans = game.players.filter (x)->!x.dead && (x.team=="Human"||x.type=="Madman")	# 生きている人たち
+		humans = game.players.filter (x)->!x.dead && x.isHuman()	# 生きている人たち
 		humans.forEach (x)->
 			x.dead=true
 			x.found="hinamizawa"
@@ -1186,10 +1186,15 @@ class QueenSpectator extends Player
 	bitten:(game)->
 		super
 		# 感染
-		humans = game.players.filter (x)->!x.dead && (x.team=="Human"||x.type=="Madman")	# 生きている人たち
+		humans = game.players.filter (x)->!x.dead && x.isHuman()	# 生きている人たち
 		humans.forEach (x)->
 			x.dead=true
 			x.found="hinamizawa"
+class MadWolf extends Werewolf
+	type:"MadWolf"
+	jobname:"狂人狼"
+	team:"Human"
+	sleeping:->true
 		
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1246,6 +1251,7 @@ jobs=
 	Fugitive:Fugitive
 	Merchant:Merchant
 	QueenSpectator:QueenSpectator
+	MadWolf:MadWolf
 
 
 exports.actions=
