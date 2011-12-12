@@ -98,7 +98,7 @@ class Game
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
-				newpl=new jobs[jobss[r]] "身代わりくん","身代わりくん"	#身代わりくん
+				newpl=Player.factory jobss[r],"身代わりくん","身代わりくん"	#身代わりくん
 				newpl.scapegoat=true
 				@players.push newpl
 				joblist[jobss[r]]--
@@ -110,7 +110,7 @@ class Game
 			while i++<num
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
-				newpl=new jobs[job] pl.userid,pl.name
+				newpl=Player.factory job, pl.userid,pl.name
 				@players.push newpl
 				players.splice r,1
 				if pl.scapegoat
@@ -550,8 +550,27 @@ class Player
 		@authority=false# 権力者
 		
 		@will=null	# 遺言
+	@factory:(type,id,name,main={},sub={})->
+		p=null
+		if type=="Complex"
+			# 複合 mainとsubを使用
+			myComplex=Object.create main #Complexから
+			Object.getOwnPropertyNames(Complex.prototype).forEach (x)->	# 手動でComplexを継承
+				console.log "Complex.prototype => myComplex: #{x}"
+				myComplex[x]=Complex.prototype[x]
+			# 混合役職
+			p=Object.create myComplex
+			Object.getOwnPropertyNames(p).forEach (x)->
+				delete p[x]
+			p.main=main
+			p.sub=sub
+		else if !jobs[type]?
+			p=new Player id,name
+		else
+			p=new jobs[type] id,name
+		p
 	serialize:->
-		{
+		r=
 			type:@type
 			id:@id
 			name:@name
@@ -561,13 +580,18 @@ class Player
 			authority:@authority
 			will:@will
 			flag:@flag
-		}
+		if @isComplex()
+			r.type="Complex"
+			r.Complex_main=@main.serialize()
+			r.Complex_sub=@sub.serialize()
+		r
 	@unserialize:(obj)->
-		p=null
-		unless jobs[obj.type]?
-			p=new Player obj.id,obj.name
+		p=if obj.type=="Complex"
+			# 複合
+			Player.factory obj.type,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub)
 		else
-			p=new jobs[obj.type] obj.id,obj.name
+			# 普通
+			Player.factory obj.type,obj.id,obj.name
 		p.dead=obj.dead
 		p.scapegoat=obj.scapegoat
 		p.decider=obj.decider
@@ -594,6 +618,10 @@ class Player
 	isHuman:->!@isWerewolf()
 	# 人狼かどうか
 	isWerewolf:->false
+	# Complexかどうか
+	isComplex:->false
+	# jobtypeが合っているかどうか（夜）
+	isJobType:(type)->type==@type
 	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->
 		@guarded=false
@@ -616,7 +644,7 @@ class Player
 	# 夜に仕事を追えたか（基本sleepingと一致）
 	jobdone:->@sleeping()
 	# 夜の仕事
-	job:(game,playerid,commandname)->
+	job:(game,playerid,query)->
 		@target=playerid
 		null
 	# 夜の仕事を行う
@@ -647,6 +675,10 @@ class Player
 		@found="werewolf"
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
+		# 開くべきフォームを配列で（生きている場合）
+		obj.open ?=[]
+		if !@jobdone()
+			obj.open.push @type
 
 		
 		
@@ -695,6 +727,7 @@ class Werewolf extends Player
 	psychicResult:"人狼"
 	team: "Werewolf"
 	makejobinfo:(game,result)->
+		super
 		# 人狼は仲間が分かる
 		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
 			x.publicinfo()
@@ -714,7 +747,7 @@ class Diviner extends Player
 		if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
-			@job game,game.players[r].id
+			@job game,game.players[r].id,{}
 	sleeping:->@target?
 	job:(game,playerid)->
 		super
@@ -775,7 +808,7 @@ class Guard extends Player
 		if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
-			if @job game,game.players[r].id
+			if @job game,game.players[r].id,{}
 				@sunset
 	job:(game,playerid)->
 		unless playerid==@id && game.rule.guardmyself!="ok"
@@ -793,6 +826,7 @@ class Couple extends Player
 	type:"Couple"
 	jobname:"共有者"
 	makejobinfo:(game,result)->
+		super
 		# 共有者は仲間が分かる
 		result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
 			x.publicinfo()
@@ -804,6 +838,7 @@ class Fox extends Player
 	willDieWerewolf:false
 	isHuman:->false
 	makejobinfo:(game,result)->
+		super
 		# 妖狐は仲間が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
@@ -844,7 +879,7 @@ class TinyFox extends Diviner
 		if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
-			if @job game,game.players[r].id
+			if @job game,game.players[r].id,{}
 				@sunset	makejobinfo:(game,result)->
 		# 子狐は妖狐が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
@@ -901,6 +936,7 @@ class Slave extends Player
 		else
 			false
 	makejobinfo:(game,result)->
+		super
 		# 奴隷は貴族が分かる
 		result.nobles=game.players.filter((x)->x.type=="Noble").map (x)->
 			x.publicinfo()
@@ -914,7 +950,7 @@ class Magician extends Player
 		if !@target? && @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
-			@job game,game.players[r].id
+			@job game,game.players[r].id,{}
 	job:(game,playerid)->
 		if game.day<3
 			# まだ発動できない
@@ -944,7 +980,7 @@ class Magician extends Player
 		SS.publish.user pl.id,"refresh",{id:game.id}
 	dead_target:true
 	makejobinfo:(game,result)->
-		console.log "Magician: makeloginfo"
+		super
 		result.dead_target=true	# 死人から選ぶ
 class Spy extends Player
 	type:"Spy"
@@ -977,6 +1013,7 @@ class Spy extends Player
 	isWinner:(game,team)->
 		team==@team && @dead && @flag=="spygone"	# 人狼が勝った上で自分は任務完了の必要あり
 	makejobinfo:(game,result)->
+		super
 		# スパイは人狼が分かる
 		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
 			x.publicinfo()
@@ -989,8 +1026,8 @@ class WolfDiviner extends Werewolf
 		@result=null	# 占い結果
 	sleeping:->@target?	# 占いは必須ではない
 	jobdone:->@target? && @flag?
-	job:(game,playerid,commandname)->
-		if commandname!="divine"
+	job:(game,playerid,query)->
+		if query.commandname!="divine"
 			# 人狼の仕事
 			return super
 		# 占い
@@ -1053,7 +1090,7 @@ class Fugitive extends Player
 		else if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
-			if @job game,game.players[r].id
+			if @job game,game.players[r].id,{}
 				@sunset	sleeping:->@target?
 	sleeping:->@target?
 	job:(game,playerid)->
@@ -1081,8 +1118,79 @@ class Fugitive extends Player
 		
 	isWinner:(game,team)->
 		team==@team && !@dead	# 村人勝利で生存
-	
-	
+class Merchant extends Player
+	type:"Merchant"
+	jobname:"商人"
+	constructor:->
+		super
+		@flag=null	# 発送済みかどうか
+	sleeping:->true
+	jobdone:->@flag?
+	job:(game,playerid,query)->
+		if @flag?
+			return "既に商品を発送しています"
+		# 即時発送
+		unless query.Merchant_kit in ["Diviner","Psychic","Guard"]
+			return "発送する商品が不正です"
+		kit_names=
+			"Diviner":"占いセット"
+			"Psychic":"霊能セット"
+			"Guard":"狩人セット"
+		pl=game.getPlayer playerid
+		unless pl?
+			return "発送先が不正です"
+		if pl.dead
+			return "発送先は既に死んでいます"
+		# 複合させる
+		sub=Player.factory query.Merchant_kit,pl.id,pl.name	# 副を作る
+		sub.sunset game
+		newpl=Player.factory "Complex",pl.id,pl.name,pl,sub
+		game.players.forEach (x,i)->	# 入れ替え
+			if x.id==newpl.id
+				game.players[i]=newpl
+			else
+				x
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{newpl.name}へ#{kit_names[query.Merchant_kit]}を発送しました。"
+		splashlog game.id,game,log
+		# 入れ替え先は気づいてもらう
+		log=
+			mode:"skill"
+			to:newpl.id
+			comment:"#{newpl.name}へ#{kit_names[query.Merchant_kit]}が到着しました。"
+		splashlog game.id,game,log
+		SS.publish.user newpl.id,"refresh",{id:game.id}	
+		@flag=query.Merchant_kit	# 発送済み
+		null
+
+# 複合役職 Player.factoryで適切に生成されることを期待
+# superはメイン役職 @mainにメイン @subにサブ
+class Complex extends Player
+	isComplex:->true
+	jobdone:-> @main.jobdone() && @sub.jobdone()	# ジョブの場合はサブも考慮
+	job:(game,playerid,query)->	# どちらの
+		if @main.isJobType(query.jobtype) && !@main.jobdone()
+			@main.job game,playerid,query
+		else if @sub.isJobType(query.jobtype) && !@sub.jobdone()
+			@sub.job game,playerid,query
+		
+	isJobType:(type)->
+		@main.isJobType(type) || @sub.isJobType(type)
+	sunset:(game)->
+		@main.sunset game
+		@sub.sunset game
+	midnight:(game)->
+		@main.midnight game
+		@sub.midnight game
+	sunrise:(game)->
+		@main.sunrise game
+		@sub.sunrise game
+	makejobinfo:(game,result)->
+		@sub.makejobinfo game,result
+		@main.makejobinfo game,result
+		
 
 games={}
 
@@ -1109,6 +1217,7 @@ jobs=
 	Spy:Spy
 	WolfDiviner:WolfDiviner
 	Fugitive:Fugitive
+	Merchant:Merchant
 
 
 exports.actions=
@@ -1351,7 +1460,7 @@ exports.actions=
 				cb {error:"既に能力を行使しています"}
 				return
 			# エラーメッセージ
-			if ret=player.job game,query.target,query.commandname
+			if ret=player.job game,query.target,query
 				cb {error:ret}
 				return
 			

@@ -110,7 +110,7 @@ exports.start=(roomid)->
 							SS.client.app.refresh()						
 
 		form=$("#gamestart").get 0
-		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive"]
+		jobs=["Diviner","Werewolf","Psychic","Madman","Guard","Couple","Fox","Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive","Merchant"]
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
@@ -238,6 +238,7 @@ exports.start=(roomid)->
 			if bt.type=="submit"
 				# 送信ボタン
 				bt.form.elements["commandname"].value=bt.name	# コマンド名教えてあげる
+				bt.form.elements["jobtype"].value=bt.dataset.job	# 役職名も教えてあげる
 		#========================================
 			
 		# 誰かが参加した!!!!
@@ -325,7 +326,7 @@ exports.start=(roomid)->
 		else
 			0
 			
-		form.elements[x].value=0 for x in ["Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive"]
+		form.elements[x].value=0 for x in ["Poisoner","BigWolf","TinyFox","Bat","Noble","Slave","Magician","Spy","WolfDiviner","Fugitive","Merchant"]
 			
 		form.elements["decider"].checked= huall>=16
 		form.elements["authority"].checked= huall>=16
@@ -386,6 +387,7 @@ exports.start=(roomid)->
 	# 役職情報をもらった
 	getjobinfo=(obj)->
 		return unless obj.id==this_room_id
+		console.log obj
 		my_job=obj.type
 		if obj.type
 			$("#myjob").text obj.jobname
@@ -419,9 +421,11 @@ exports.start=(roomid)->
 			unless $("#jobform").get(0).hidden= obj.dead || game.finished ||  obj.sleeping || !obj.type
 				# 代入しつつの　投票フォーム必要な場合
 				$("#jobform div.jobformarea").attr "hidden","hidden"
-				$("#form_day").get(0).hidden= game.night
+				$("#form_day").get(0).hidden= game.night || obj.sleeping
 				if game.night
-					$("#form_#{my_job}").removeAttr "hidden"
+					obj.open?.forEach (x)->
+						# 開けるべきフォームが指定されている
+						$("#form_#{x}").get(0).hidden=false
 			if game.day>0 && game.players
 				formplayers game.players,!!obj.dead_target && game.night
 				unless this_rule?

@@ -53,6 +53,8 @@
             dd: input(name="WolfDiviner",min="0",step="1",type="number",size="5")
             dt 逃亡者
             dd: input(name="Fugitive",min="0",step="1",type="number",size="5")
+            dt 商人
+            dd: input(name="Merchant",min="0",step="1",type="number",size="5")
         p
           label
             | 決定者
@@ -117,6 +119,7 @@
     #jobinfo
   form#jobform(hidden)
     input(type="hidden",name="commandname")
+    input(type="hidden",name="jobtype")
     ul#form_players
     #form_day(hidden).jobformarea
       p
@@ -125,40 +128,48 @@
     #form_Werewolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す")
+        input(type="submit",value="殺す",data-job="Werewolf")
     #form_BigWolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す")
+        input(type="submit",value="殺す",data-job="BigWolf")
     #form_WolfDiviner(hidden).jobformarea
       p
         | 殺す/占う人を一人選んで下さい（占いは必須ではありません）：
-        input(type="submit",value="占う",name="divine")
-        input(type="submit",value="殺す",name="wolf")
+        input(type="submit",value="占う",name="divine",data-job="WolfDiviner")
+        input(type="submit",value="殺す",name="wolf",data-job="WolfDiviner")
     #form_Diviner(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
-        input(type="submit",value="占う")
+        input(type="submit",value="占う",data-job="Diviner")
     #form_TinyFox(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
-        input(type="submit",value="占う")
+        input(type="submit",value="占う",data-job="TinyFox")
     #form_Guard(hidden).jobformarea
       p
         | 護衛する人を一人選んで下さい:
-        input(type="submit",value="護衛する")
+        input(type="submit",value="護衛する",data-job="Guard")
     #form_Magician(hidden).jobformarea
       p
         | 蘇生する人を一人選んで下さい:
-        input(type="submit",value="蘇生する")
+        input(type="submit",value="蘇生する",data-job="Magician")
     #form_Spy(hidden).jobformarea
       p
         | （対象選択は無視されます）
-        input(type="submit",value="任務完了")
+        input(type="submit",value="任務完了",data-job="Spy")
     #form_Fugitive(hidden).jobformarea
       p
         | 逃亡先を一人選んで下さい:
-        input(type="submit",value="逃亡する")
+        input(type="submit",value="逃亡する",data-job="Fugitive")
+    #form_Merchant(hidden).jobformarea
+      p
+        | 商品と発送先を選択して下さい:
+        select(name="Merchant_kit")
+          option(value="Diviner") 占いセット
+          option(value="Psychic") 霊能セット
+          option(value="Guard") 狩人セット
+        input(type="submit",value="発送する",data-job="Merchant")
   form#speakform
     p
       input(size="50",name="comment",required)
