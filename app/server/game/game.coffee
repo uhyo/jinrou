@@ -1288,7 +1288,34 @@ class Spy2 extends Player
 		splashlog game.id,game,log
 			
 	isWinner:(game,team)-> team==@team && !@dead
-
+class Copier extends Player
+	type:"Copier"
+	jobname:"コピー"
+	team:""
+	isHuman:->false
+	sleeping:->true
+	jobdone:->@target?
+	job:(game,playerid,query)->
+		# コピー先
+		if @target?
+			return "既にコピーしています"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}の能力をコピーしました。"
+		splashlog game.id,game,log
+		p=game.getPlayer playerid
+		newpl=Player.factory p.type,@id,@name
+		game.players.forEach (x,i)->	# 入れ替え
+			if x.id==newpl.id
+				game.players[i]=newpl
+			else
+				x
+		SS.publish.user @id,"refresh",{id:game.id}
+		null
+	isWinner:(game,team)->null
+		
 
 
 
@@ -1350,6 +1377,7 @@ jobs=
 	Neet:Neet
 	Liar:Liar
 	Spy2:Spy2
+	Copier:Copier
 
 
 exports.actions=

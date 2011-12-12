@@ -63,6 +63,8 @@
             dd: input(name="Liar",min="0",step="1",type="number",size="5")
             dt スパイⅡ
             dd: input(name="Spy2",min="0",step="1",type="number",size="5")
+            dt コピー
+            dd: input(name="Copier",min="0",step="1",type="number",size="5")
         p
           label
             | 決定者
@@ -182,6 +184,10 @@
       p
         | 占う人を一人選んで下さい：
         input(type="submit",value="占う",data-job="Liar")
+    #form_Copier(hidden).jobformarea
+      p
+        | コピー対象を選択して下さい（必須ではありません）：
+        input(type="submit",value="コピー",data-job="Copier")
   form#speakform
     p
       input(size="50",name="comment",required)
