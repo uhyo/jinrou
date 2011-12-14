@@ -349,7 +349,7 @@ class Game
 	# 再投票
 	dorevote:->
 		@revote_num++
-		if @revote_num>=10	# 10回再投票
+		if @revote_num>=4	# 4回再投票
 			@judge()
 			return
 		log=
