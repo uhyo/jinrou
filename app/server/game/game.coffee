@@ -76,6 +76,24 @@ class Game
 			if parseInt(num)<0
 				cb "プレイヤー数が不正です（#{job}:#{num})"
 				return
+
+		if options.yaminabe
+			# 闇鍋のときはランダムに決める
+			frees=plsl	# 決める
+			#でも人外はもう決まってる
+			for job in SS.shared.game.nonhumans
+				frees-=parseInt joblist[job]
+			#plslが残り自由に決めるかず
+			possibility=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans)
+			for job in possibility
+				joblist[job]=0	# 一旦初期化
+			
+			while frees>0
+				r=Math.floor Math.random()*possibility.length
+				job=possibility[r]
+				joblist[job]++
+				frees--	# ひとつ追加
+							
 		if jnumber!=plsl
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
@@ -83,19 +101,20 @@ class Game
 
 		# 名前と数を出したやつ
 		@jobscount={}
-		for job,num of joblist
-			continue unless num>0
-			testpl=new jobs[job]
-			@jobscount[job]=
-				name:testpl.jobname
-				number:num
+		unless options.yaminabe
+			for job,num of joblist
+				continue unless num>0
+				testpl=new jobs[job]
+				@jobscount[job]=
+					name:testpl.jobname
+					number:num
 
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
 			i=0	# 無限ループ防止
 			while ++i<100
-				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox","TinyFox","WolfDiviner","MadWolf"]) && joblist[x]>0
+				jobss=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans) && joblist[x]>0
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
@@ -1341,7 +1360,6 @@ class Copier extends Player
 				game.players[i]=newpl
 			else
 				x
-		SS.publish.user @id,"refresh",{id:game.id}
 		null
 	isWinner:(game,team)->null
 class Light extends Player
@@ -1545,7 +1563,7 @@ exports.actions=
 			for job in SS.shared.game.jobs
 				joblist[job]=parseInt query[job]	# 仕事の数
 			options={}
-			for opt in ["decider","authority"]
+			for opt in ["decider","authority","yaminabe"]
 				options[opt]=query[opt] ? null
 			
 			game.setplayers joblist,options,room.players,(result)->
