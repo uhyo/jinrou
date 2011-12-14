@@ -46,10 +46,10 @@ exports.actions=
 		unless @session.user_id
 			cb {error: "ログインしていません"}
 			return
-		M.rooms.count (err,count)=>
-			
+		M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
+			id=if doc? then doc.id+1 else 1
 			room=
-				id:count	#ID連番
+				id:id	#ID連番
 				name: query.name
 				number:parseInt query.number
 				mode:"waiting"

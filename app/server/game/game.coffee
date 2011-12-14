@@ -95,7 +95,7 @@ class Game
 			# 人狼、妖狼にはならない
 			i=0	# 無限ループ防止
 			while ++i<100
-				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox","TinyFox","WolfDiviner","MadWolf"])
+				jobss=Object.keys(jobs).filter (x)->!(x in ["Werewolf","BigWolf","Fox","TinyFox","WolfDiviner","MadWolf"]) && joblist[x]>0
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
@@ -178,6 +178,22 @@ class Game
 					if x.type=="Guard"
 						x.target=""	# 誰も守らない
 		else
+			# 処理
+			if @rule.deathnote
+				# デスノート採用
+				alives=@players.filter (x)->!x.dead
+				if alives.length>0
+					r=Math.floor Math.random()*alives.length
+					pl=alives[r]
+					sub=Player.factory "Light",pl.id,pl.name	# 副を作る
+					sub.sunset this
+					newpl=Player.factory "Complex",pl.id,pl.name,pl,sub
+					@players.forEach (x,i)=>	# 入れ替え
+						if x.id==newpl.id
+							@players[i]=newpl
+						else
+							x
+				
 			@players.forEach (x)=>
 				return if x.dead
 				x.votestart this
@@ -233,6 +249,8 @@ class Game
 					"処刑されました"
 				when "spygone"
 					"村を去りました"
+				when "deathnote"
+					"死体で発見されました"
 				else
 					"突然お亡くなりになられました"				
 			log=
@@ -587,6 +605,9 @@ class Player
 			r.Complex_sub=@sub.serialize()
 		r
 	@unserialize:(obj)->
+		unless obj?
+			return null
+
 		p=if obj.type=="Complex"
 			# 複合
 			Player.factory obj.type,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub)
@@ -689,6 +710,14 @@ class Player
 		if @team=="Human"
 			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
 				x.publicinfo()
+	
+	# Complexから抜ける
+	uncomplex:(game)->
+		# 自分が@subだとする
+		game.players.forEach (x,i)=>
+			return unless x.isComplex()
+			if x.sub==this
+				x.sub=null	# ただの透過Complex
 
 		
 		
@@ -1315,34 +1344,58 @@ class Copier extends Player
 		SS.publish.user @id,"refresh",{id:game.id}
 		null
 	isWinner:(game,team)->null
+class Light extends Player
+	type:"Light"
+	jobname:"デスノート"
+	sleeping:->true
+	jobdone:->@target?
+	job:(game,playerid,query)->
+		# コピー先
+		if @target?
+			return "既に対象を選択しています"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}の名前を死神の手帳に書きました。"
+		splashlog game.id,game,log
+		null		
+	midnight:(game)->
+		t=game.getPlayer @target
+		return unless t?
+		return if t.dead
+		t.dead=true
+		t.found="deathnote"
 		
-
+		# 誰かに移る処理
+		@uncomplex game	# 自分からは抜ける
+		
 
 
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
 class Complex extends Player
 	isComplex:->true
-	jobdone:-> @main.jobdone() && @sub.jobdone()	# ジョブの場合はサブも考慮
+	jobdone:-> @main.jobdone() && @sub?.jobdone()	# ジョブの場合はサブも考慮
 	job:(game,playerid,query)->	# どちらの
 		if @main.isJobType(query.jobtype) && !@main.jobdone()
 			@main.job game,playerid,query
-		else if @sub.isJobType(query.jobtype) && !@sub.jobdone()
+		else if @sub?.isJobType(query.jobtype) && !@sub?.jobdone()
 			@sub.job game,playerid,query
 		
 	isJobType:(type)->
 		@main.isJobType(type) || @sub.isJobType(type)
 	sunset:(game)->
 		@main.sunset game
-		@sub.sunset game
+		@sub?.sunset game
 	midnight:(game)->
 		@main.midnight game
-		@sub.midnight game
+		@sub?.midnight game
 	sunrise:(game)->
 		@main.sunrise game
-		@sub.sunrise game
+		@sub?.sunrise game
 	makejobinfo:(game,result)->
-		@sub.makejobinfo game,result
+		@sub?.makejobinfo game,result
 		@main.makejobinfo game,result
 		
 
@@ -1378,6 +1431,7 @@ jobs=
 	Liar:Liar
 	Spy2:Spy2
 	Copier:Copier
+	Light:Light
 
 
 exports.actions=
@@ -1484,6 +1538,7 @@ exports.actions=
 				guardmyself:query.guardmyself ? null	# 狩人が自分を守れるか
 				votemyself:query.votemyself ? null	# 自分に吊り投票できるか
 				deadfox:query.deadfox ? null
+				deathnote:query.deathnote ? null	# デスノート採用
 			}
 			
 			joblist={}

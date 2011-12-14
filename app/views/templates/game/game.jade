@@ -72,6 +72,9 @@
           label
             | 権力者
             input(name="authority",value="1",type="checkbox")
+          label
+            | 死神の手帳
+            input(name="deathnote",value="1",type="checkbox")
       fieldset
         legend ルール
         p
@@ -188,6 +191,10 @@
       p
         | コピー対象を選択して下さい（必須ではありません）：
         input(type="submit",value="コピー",data-job="Copier")
+    #form_Light(hidden).jobformarea
+      p
+        | あなたは死神の手帳を持っています（必須ではありません）：
+        input(type="submit",value="手帳に書く",data-job="Light")
   form#speakform
     p
       input(size="50",name="comment",required)
