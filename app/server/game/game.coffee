@@ -146,7 +146,8 @@ class Game
 		if options.authority
 			r=Math.floor Math.random()*@players.length
 			@players[r].authority=true
-		
+		# プレイヤーシャッフル
+		@players=shuffle @players
 		
 		
 		cb null
