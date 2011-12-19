@@ -6,8 +6,15 @@ Are you a werewolf?
 
 == requirements ==
 * SocketStream
-* hashlib
-* node-mongo
+* mongodb
+
+== usage ==
+# git clone git://github.com/uhyo/jinrou.git
+# cd jinrou
+# npm install
+# (run mongodb)
+# (run redis)
+# socketstream start
 
 == jobs ==
 === 基本 ===
@@ -44,4 +51,6 @@ Are you a werewolf?
 * 権力者
 * 死神の手帳
 * 闇鍋
+
+
 
