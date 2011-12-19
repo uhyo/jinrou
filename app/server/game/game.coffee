@@ -101,7 +101,7 @@ class Game
 
 		# 名前と数を出したやつ
 		@jobscount={}
-		unless options.yaminabe
+		unless options.yaminabe=="hide"
 			for job,num of joblist
 				continue unless num>0
 				testpl=new jobs[job]
@@ -237,7 +237,7 @@ class Game
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
 		if @players.every( (x)->x.dead || x.sleeping())
-			if @voting || timeout || !@rule.night	#夜に時間がある場合は待ってあげる
+			if @voting || timeout || !@rule.night || @rule.waitingnight!="wait"	#夜に時間がある場合は待ってあげる
 				@midnight()
 				@nextturn()
 				true
@@ -385,7 +385,7 @@ class Game
 			if @players.some((x)->!x.dead && x.team=="Fox")
 				team="Fox"
 
-		if @revote_num>=10
+		if @revote_num>=4
 			# 再投票多すぎ
 			team="Draw"	# 引き分け
 			
@@ -818,19 +818,21 @@ class Diviner extends Player
 			to:@id
 			comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
 		splashlog game.id,game,log
+		if game.rule.divineresult=="immediate"
+			@dodivine game
+			@showdivineresult game
 		null
 	sunrise:(game)->
 		super
-		r=@results[@results.length-1]
-		return unless r?
-		log=
-			mode:"skill"
-			to:@id
-			comment:"#{@name}が#{r.player.name}を占ったところ、#{r.result}でした。"
-		splashlog game.id,game,log
+		unless game.rule.divineresult=="immediate"
+			@showdivineresult game
 				
 	midnight:(game)->
 		super
+		unless game.rule.divineresult=="immediate"
+			@dodivine game
+	#占い実行
+	dodivine:(game)->
 		p=game.getPlayer @target
 		if p?
 			@results.push {
@@ -841,6 +843,14 @@ class Diviner extends Player
 				# 妖狐呪殺
 				p.dead=true
 				p.found="curse"
+	showdivineresult:(game)->
+		r=@results[@results.length-1]
+		return unless r?
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{r.player.name}を占ったところ、#{r.result}でした。"
+		splashlog game.id,game,log		
 class Psychic extends Player
 	type:"Psychic"
 	jobname:"霊能者"
@@ -946,12 +956,20 @@ class TinyFox extends Diviner
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
 			if @job game,game.players[r].id,{}
-				@sunset	makejobinfo:(game,result)->
+				@sunset
+	makejobinfo:(game,result)->
 		# 子狐は妖狐が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
-	sunrise:(game)->
-		super
+
+	dodivine:(game)->
+		p=game.getPlayer @target
+		if p?
+			@results.push {
+				player: p.publicinfo()
+				result: p.fortuneResult
+			}
+	showdivineresult:(game)->
 		r=@results[@results.length-1]
 		return unless r?
 		# たまに失敗
@@ -963,15 +981,7 @@ class TinyFox extends Diviner
 			mode:"skill"
 			to:@id
 			comment:"#{@name}の占いの結果、#{r.player.name}は#{r.result}かな？"
-		splashlog game.id,game,log
-	midnight:(game)->
-		super
-		p=game.getPlayer @target
-		if p?
-			@results.push {
-				player: p.publicinfo()
-				result: p.fortuneResult
-			}
+		splashlog game.id,game,log			
 	
 	
 class Bat extends Player
@@ -1052,7 +1062,7 @@ class Spy extends Player
 	jobname:"スパイ"
 	team:"Werewolf"
 	sleeping:->true	# 能力使わなくてもいい
-	jobdone:->@flag in["spygone","day1"]	# 能力を使ったか
+	jobdone:->@flag in ["spygone","day1"]	# 能力を使ったか
 	sunrise:(game)->
 		if game.day<=1
 			@flag="day1"	# まだ去れない
@@ -1107,14 +1117,20 @@ class WolfDiviner extends Werewolf
 		null
 	sunrise:(game)->
 		super
+		unless game.rule.divineresult=="immediate"
+			@dodivine game
+	midnight:(game)->
+		super
+		unless game.rule.divineresult=="immediate"
+			@showdivineresult game
+	dodivine:(game)->
 		return unless @result?
 		log=
 			mode:"skill"
 			to:@id
 			comment:"#{@name}が#{@result.player.name}を占ったところ、#{@result.result}でした。"
 		splashlog game.id,game,log
-	midnight:(game)->
-		super
+	showdivineresult:(game)->
 		p=game.getPlayer @flag
 		if p?
 			@result=
@@ -1140,6 +1156,8 @@ class WolfDiviner extends Werewolf
 						game.players[i]=newpl
 					else
 						x
+		
+	
 		
 
 class Fugitive extends Player
@@ -1368,6 +1386,8 @@ class Light extends Player
 	jobname:"デスノート"
 	sleeping:->true
 	jobdone:->@target?
+	sunset:(game)->
+		@target=null
 	job:(game,playerid,query)->
 		# コピー先
 		if @target?
@@ -1558,6 +1578,8 @@ exports.actions=
 				votemyself:query.votemyself ? null	# 自分に吊り投票できるか
 				deadfox:query.deadfox ? null
 				deathnote:query.deathnote ? null	# デスノート採用
+				divineresult:query.divineresult ? null
+				waitingnight:query.waitingnight ? null
 			}
 			
 			joblist={}
@@ -1682,12 +1704,12 @@ exports.actions=
 		if !(to=game.players.filter((x)->x.id==query.target)[0]) && player.job_target!=0
 			cb {error:"その対象は存在しません"}
 			return
-		if to?.dead && (!(player.job_target & Player.JOB_T_DEAD) || !game.night)
+		if to?.dead && (!(player.job_target & Player.JOB_T_DEAD) || !game.night) && (player.job_target & Player.JOB_T_ALIVE)
 			cb {error:"対象は既に死んでいます"}
 			return
 		if game.night
 			# 夜
-			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE)
+			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
 				cb {error:"対象はまだ生きています"}
 				return
 			if player.jobdone()

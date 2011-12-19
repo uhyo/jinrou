@@ -204,6 +204,14 @@ exports.start=(roomid)->
 					"_name":"妖狐の呪殺死体"
 					"_default":"人狼によるのと区別がつかない"
 					"ok":"人狼によるのと区別が付く"
+				"divineresult":
+					"_name":"占い結果"
+					"_default":"翌朝分かる"
+					"immediate":"すぐ分かる"
+				"waitingnight":
+					"_name":"夜は時間限界まで待つか"
+					"_default":"待たない"
+					"wait":"待つ"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?
@@ -351,7 +359,7 @@ exports.start=(roomid)->
 				tr=p.insertRow(-1)
 				tr.insertCell(-1).textContent=player.name
 				tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
-				tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name}"
+				tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
 		else
 			p=document.createElement "p"
 			if log.name?
@@ -388,25 +396,29 @@ exports.start=(roomid)->
 	# 役職情報をもらった
 	getjobinfo=(obj)->
 		return unless obj.id==this_room_id
-		console.log obj
 		my_job=obj.type
+		$("#jobinfo").empty()
+		pp=(text)->
+			p=document.createElement "p"
+			p.textContent=text
+			p
 		if obj.type
-			$("#myjob").text obj.jobname
+			$("#jobinfo").append $ "<p>あなたは<b>#{obj.jobname}</b>です（<a href='/manual/job/#{obj.type}'>詳細</a>)</p>"
 		if obj.wolves?
-			$("#jobinfo").text "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
+			$("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
 		if obj.peers?
-			$("#jobinfo").text "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+			$("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
 		if obj.foxes?
-			$("#jobinfo").text "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
+			$("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
 		if obj.nobles?
-			$("#jobinfo").text "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
+			$("#jobinfo").append pp "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
 		if obj.queens?.length>0
-			$("#jobinfo").text "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
+			$("#jobinfo").append pp "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
 		if obj.spy2s?.length>0
-			$("#jobinfo").text "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
+			$("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
 		if obj.winner?
 			# 勝敗
-			$("#jobinfo").text "#{if obj.winner then '勝利' else '敗北'}しました"
+			$("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
 		if obj.dead
 			# 自分は既に死んでいる
 			document.body.classList.add "heaven"
