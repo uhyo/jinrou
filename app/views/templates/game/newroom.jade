@@ -20,5 +20,12 @@ section.rooms
         label
           | 人数
           input(type="number",min="2",name="number",step="1",value="30")
+      p
+        label
+          | 覆面
+          select(name="blind")
+            option(value="",selected) なし
+            option(value="yes") あり（終了後に公開）
+            option(value="complete") あり（最後まで非公開）
     p
       input(type="submit",value="作成")

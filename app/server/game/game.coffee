@@ -45,11 +45,14 @@ class Game
 		{
 			rule:@rule
 			finished:@finished
-			players:@players.map (x)->
+			players:@players.map (x)=>
 				r=x.publicinfo()
 				if obj?.openjob
 					r.jobname=x.jobname
 					r.option=x.optionString()
+				unless @rule.blind=="complete" || (@rule.blind=="yes" && !@finished)
+					# 公開してもよい
+					r.realid=x.realid
 				r
 			day:@day
 			night:@night
@@ -58,6 +61,8 @@ class Game
 	# IDからプレイヤー
 	getPlayer:(id)->
 		@players.filter((x)->x.id==id)[0]
+	getPlayerReal:(realid)->
+		@players.filter((x)->x.realid==realid)[0]
 	# DBにセーブ
 	save:->
 		M.games.update {id:@id},@serialize()
@@ -118,7 +123,7 @@ class Game
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
-				newpl=Player.factory jobss[r],"身代わりくん","身代わりくん"	#身代わりくん
+				newpl=Player.factory jobss[r],"身代わりくん","身代わりくん","身代わりくん"	#身代わりくん
 				newpl.scapegoat=true
 				@players.push newpl
 				joblist[jobss[r]]--
@@ -134,7 +139,7 @@ class Game
 			while i++<num
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
-				newpl=Player.factory job, pl.userid,pl.name
+				newpl=Player.factory job, pl.realid,pl.userid,pl.name
 				@players.push newpl
 				players.splice r,1
 				if pl.scapegoat
@@ -205,9 +210,9 @@ class Game
 				if alives.length>0
 					r=Math.floor Math.random()*alives.length
 					pl=alives[r]
-					sub=Player.factory "Light",pl.id,pl.name	# 副を作る
+					sub=Player.factory "Light",pl.realid,pl.id,pl.name	# 副を作る
 					sub.sunset this
-					newpl=Player.factory "Complex",pl.id,pl.name,pl,sub
+					newpl=Player.factory "Complex",pl.realid,pl.id,pl.name,pl,sub
 					@players.forEach (x,i)=>	# 入れ替え
 						if x.id==newpl.id
 							@players[i]=newpl
@@ -230,7 +235,7 @@ class Game
 	#全員に状況更新
 	splashjobinfo:->
 		@players.forEach (x)=>
-			SS.publish.user x.id,"getjob",makejobinfo this,x
+			SS.publish.user x.realid,"getjob",makejobinfo this,x
 		# プレイヤー以外にも
 		SS.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
 	#全員寝たかチェック 寝たなら処理してtrue
@@ -284,7 +289,7 @@ class Game
 						# 霊能
 						y.results.push x
 			x.found=""	# 発見されました
-			SS.publish.user x.id,"refresh",{id:@id}
+			SS.publish.user x.realid,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
 				log=
@@ -397,9 +402,9 @@ class Game
 				x.winner= x.isWinner this,team	#勝利か
 				# ユーザー情報
 				if x.winner
-					M.users.update {userid:x.id},{$push: {win:@id}}
+					M.users.update {userid:x.realid},{$push: {win:@id}}
 				else if team!="Draw"
-					M.users.update {userid:x.id},{$push: {lose:@id}}
+					M.users.update {userid:x.realid},{$push: {lose:@id}}
 			log=
 				mode:"nextturn"
 				finished:true
@@ -460,7 +465,7 @@ class Game
 							x.dead=true
 							x.found="gone"	# 突然死
 							# 突然死記録
-							M.users.update {userid:x.id},{$push:{gone:@id}}
+							M.users.update {userid:x.realid},{$push:{gone:@id}}
 						@bury()
 						@checkjobs true
 				else
@@ -476,7 +481,7 @@ class Game
 					x.dead=true
 					x.found="gone"	# 突然死
 					# 突然死記録
-					M.users.update {userid:x.id},{$push:{gone:@id}}
+					M.users.update {userid:x.realid},{$push:{gone:@id}}
 				@bury()
 				@checkjobs true				
 		else if !@voting
@@ -576,7 +581,8 @@ rule:{
   }
 ###
 class Player
-	constructor:(@id,@name)->
+	constructor:(@realid,@id,@name)->
+		# realid:本当のid id:仮のidかもしれない
 		@dead=false
 		@found=null	# 死体の発見状況
 		@winner=null	# 勝敗
@@ -589,13 +595,12 @@ class Player
 		@authority=false# 権力者
 		
 		@will=null	# 遺言
-	@factory:(type,id,name,main={},sub={})->
+	@factory:(type,realid,id,name,main={},sub={})->
 		p=null
 		if type=="Complex"
 			# 複合 mainとsubを使用
 			myComplex=Object.create main #Complexから
 			Object.getOwnPropertyNames(Complex.prototype).forEach (x)->	# 手動でComplexを継承
-				console.log "Complex.prototype => myComplex: #{x}"
 				myComplex[x]=Complex.prototype[x]
 			# 混合役職
 			p=Object.create myComplex
@@ -604,14 +609,15 @@ class Player
 			p.main=main
 			p.sub=sub
 		else if !jobs[type]?
-			p=new Player id,name
+			p=new Player realid,id,name
 		else
-			p=new jobs[type] id,name
+			p=new jobs[type] realid,id,name
 		p
 	serialize:->
 		r=
 			type:@type
 			id:@id
+			realid:@realid
 			name:@name
 			dead:@dead
 			scapegoat:@scapegoat
@@ -630,10 +636,10 @@ class Player
 
 		p=if obj.type=="Complex"
 			# 複合
-			Player.factory obj.type,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub)
+			Player.factory obj.type,obj.realid,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub)
 		else
 			# 普通
-			Player.factory obj.type,obj.id,obj.name
+			Player.factory obj.type,obj.realid,obj.id,obj.name
 		p.dead=obj.dead
 		p.scapegoat=obj.scapegoat
 		p.decider=obj.decider
@@ -1225,9 +1231,9 @@ class Merchant extends Player
 		if pl.dead
 			return "発送先は既に死んでいます"
 		# 複合させる
-		sub=Player.factory query.Merchant_kit,pl.id,pl.name	# 副を作る
+		sub=Player.factory query.Merchant_kit,pl.realid,pl.id,pl.name	# 副を作る
 		sub.sunset game
-		newpl=Player.factory "Complex",pl.id,pl.name,pl,sub
+		newpl=Player.factory "Complex",pl.realid,pl.id,pl.name,pl,sub
 		game.players.forEach (x,i)->	# 入れ替え
 			if x.id==newpl.id
 				game.players[i]=newpl
@@ -1373,7 +1379,7 @@ class Copier extends Player
 			comment:"#{@name}が#{game.getPlayer(playerid).name}の能力をコピーしました。"
 		splashlog game.id,game,log
 		p=game.getPlayer playerid
-		newpl=Player.factory p.type,@id,@name
+		newpl=Player.factory p.type,@realid,@id,@name
 		game.players.forEach (x,i)->	# 入れ替え
 			if x.id==newpl.id
 				game.players[i]=newpl
@@ -1524,7 +1530,7 @@ exports.actions=
 		game=games[roomid]
 		unless game?
 			return
-		player=game.players.filter((x)->x.id==session.user_id)[0]
+		player=game.players.filter((x)->x.realid==session.user_id)[0]
 		unless player?
 			session.channel.subscribe "room#{roomid}_audience"
 			session.channel.subscribe "room#{roomid}_notwerewolf"
@@ -1555,7 +1561,7 @@ exports.actions=
 		unless game?
 			cb "そのゲームは存在しません"
 			return
-		SS.server.game.rooms.oneRoom roomid,(room)->
+		SS.server.game.rooms.oneRoomS roomid,(room)->
 			if room.error? 
 				cb room.error
 				return
@@ -1565,6 +1571,8 @@ exports.actions=
 				return
 			game.setrule {
 				number: room.players.length
+				blind:room.blind
+				
 				scapegoat : query.scapegoat
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
@@ -1603,7 +1611,7 @@ exports.actions=
 		game=games[roomid]
 		ne= =>
 			# ゲーム後の行動
-			player=game.players.filter((x)=>x.id==@session.user_id)[0]
+			player=game.getPlayerReal @session.user_id
 			result= 
 				#logs:game.logs.filter (x)-> islogOK game,player,x
 				logs:game.makelogs player
@@ -1639,20 +1647,23 @@ exports.actions=
 		unless comment
 			cb "コメントがありません"
 			return
+		player=game.getPlayerReal @session.user_id
 		log =
 			comment:comment
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
+		if player?
+			log.name=player.name
+			log.userid=player.id
+			
 		if !game.finished  && game.voting	# 投票猶予時間は発言できない
-			player=game.getPlayer @session.user_id
 			if player && !player.dead
 				return	#まだ死んでいないプレイヤーの場合は発言できないよ!
 		if game.day<=0 || game.finished	#準備中
 			log.mode="prepare"
 		else
 			# ゲームしている
-			player=game.getPlayer @session.user_id
 			unless player?
 				# 観戦者
 				log.mode="audience"
@@ -1661,7 +1672,7 @@ exports.actions=
 				if player.type=="Spy" && player.flag=="spygone"
 					# スパイなら会話に参加できない
 					log.mode="monologue"
-					log.to=@session.user_id
+					log.to=player.id
 				else
 					log.mode="heaven"
 			else if !game.night
@@ -1681,7 +1692,7 @@ exports.actions=
 				else
 					# 村人
 					log.mode="monologue"
-					log.to=@session.user_id
+					log.to=player.id
 				
 		splashlog roomid,game,log
 		cb null
@@ -1694,7 +1705,7 @@ exports.actions=
 		unless @session.user_id
 			cb {error:"ログインして下さい"}
 			return
-		player=game.players.filter((x)=>x.id==@session.user_id)[0]
+		player=game.getPlayerReal @session.user_id
 		unless player?
 			cb {error:"参加していません"}
 			return
@@ -1752,7 +1763,7 @@ exports.actions=
 		unless !game.rule || game.rule.will
 			cb "遺言は使えません"
 			return
-		player=game.players.filter((x)=>x.id==@session.user_id)[0]
+		player=game.getPlayerReal @session.user_id
 		unless player?
 			cb "参加していません"
 			return
@@ -1822,7 +1833,9 @@ splashlog=(roomid,game,log)->
 				# 天国
 				SS.publish.channel "room#{roomid}_heaven","log",log
 	else
-		SS.publish.user log.to, "log", log
+		pl=game.getPlayer log.to
+		if pl
+			SS.publish.user pl.realid, "log", log
 		if game.rule.heavenview=="view"
 			SS.publish.channel "room#{roomid}_heaven","log",log
 
@@ -1836,6 +1849,7 @@ islogOK=(game,player,log)->
 	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id
+		console.log "no! : #{log.to} -> #{player.id}"
 		# 個人宛
 		false
 	else

@@ -7,6 +7,7 @@ my_job=null
 timerid=null	# setTimeout
 remain_time=null
 this_rule=null	# ルールオブジェクトがある
+enter_result=null #enter
 
 exports.start=(roomid)->
 	this_rule=null
@@ -16,9 +17,12 @@ exports.start=(roomid)->
 	this_room_id=null
 	
 	getenter=(result)->
-		if result?
+		if result.error?
 			# エラー
-			if result=="password"
+			SS.client.util.message "ルーム",result.error
+			return
+		else if result.require?
+			if result.require=="password"
 				#パスワード入力
 				SS.client.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
 					unless pass?
@@ -26,9 +30,8 @@ exports.start=(roomid)->
 						return
 					SS.server.game.rooms.enter roomid,pass,getenter
 					sessionStorage.roompassword = pass
-			else
-				SS.client.util.message "ルーム",result
 			return
+		enter_result=result
 		this_room_id=roomid
 		SS.server.game.rooms.oneRoom roomid,initroom
 	SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,getenter
@@ -45,6 +48,8 @@ exports.start=(roomid)->
 				getjobinfo result
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
+				console.log result
+										
 
 
 			
@@ -57,14 +62,50 @@ exports.start=(roomid)->
 			$("#gamestartsec").removeAttr "hidden"
 		$("#roomname").text room.name
 		if room.mode=="waiting"
+			# 開始前のユーザー一覧は roomから取得する
 			room.players.forEach (x)->
 				li=document.createElement "li"
 				li.title=x.userid
-				a=document.createElement "a"
-				a.href="/user/#{x.userid}"
-				a.textContent=x.name
-				li.appendChild a
+				if room.blind
+					li.textContent=x.name
+				else
+					a=document.createElement "a"
+					a.href="/user/#{x.userid}"
+					a.textContent=x.name
+					li.appendChild a
 				$("#players").append li
+			console.log enter_result
+			unless enter_result?.joined
+				# 未参加
+				b=makebutton "ゲームに参加"
+				$("#playersinfo").append b
+				$(b).click (je)->
+					# 参加
+					opt={}
+					into=->
+						SS.server.game.rooms.join roomid,opt,(result)->
+							if result?
+								SS.client.util.message "ルーム",result
+							else
+								SS.client.app.refresh()
+					if room.blind
+						# 参加者名
+						SS.client.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
+							if name
+								opt.name=name
+								into()
+					else
+						into()
+			else
+				b=makebutton "ゲームから脱退"
+				$("#playersinfo").append b
+				$(b).click (je)->
+					# 脱退
+					SS.server.game.rooms.unjoin roomid,(result)->
+						if result?
+							SS.client.util.message "ルーム",result
+						else
+							SS.client.app.refresh()
 		userid=SS.client.app.userid()
 		if room.mode=="waiting"
 			if room.owner.userid==SS.client.app.userid()
@@ -87,27 +128,7 @@ exports.start=(roomid)->
 							SS.server.game.rooms.del roomid,(result)->
 								if result?
 									SS.client.util.message "エラー",result
-			if room.players.filter((x)->x.userid==userid).length==0
-				# 未参加
-				b=makebutton "ゲームに参加"
-				$("#playersinfo").append b
-				$(b).click (je)->
-					# 参加
-					SS.server.game.rooms.join roomid,(result)->
-						if result?
-							SS.client.util.message "ルーム",result
-						else
-							SS.client.app.refresh()
-			else
-				b=makebutton "ゲームから脱退"
-				$("#playersinfo").append b
-				$(b).click (je)->
-					# 脱退
-					SS.server.game.rooms.unjoin roomid,(result)->
-						if result?
-							SS.client.util.message "ルーム",result
-						else
-							SS.client.app.refresh()						
+
 
 		form=$("#gamestart").get 0
 		jobs=SS.shared.game.jobs.filter (x)->x!="Human"	# 村人は自動で決定する
@@ -255,14 +276,18 @@ exports.start=(roomid)->
 			
 			li=document.createElement "li"
 			li.title=msg.userid
-			a=document.createElement "a"
-			a.href="/user/#{msg.userid}"
-			a.textContent=msg.name
-			li.appendChild a
+			if room.blind
+				li.textContent=msg.name
+			else
+				a=document.createElement "a"
+				a.href="/user/#{msg.userid}"
+				a.textContent=msg.name
+				li.appendChild a
 			$("#players").append li
 		# 誰かが出て行った!!!
 		socket_ids.push SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
-			room.players=room.players.filter (x)->x!=msg
+			console.log msg
+			room.players=room.players.filter (x)->x.userid!=msg
 			
 			$("#players li").filter((idx)-> this.title==msg).remove()
 		# ログが流れてきた!!!
@@ -457,10 +482,13 @@ exports.start=(roomid)->
 			# 上の一覧用
 			li=document.createElement "li"
 			li.title=x.id
-			a=document.createElement "a"
-			a.href="/user/#{x.id}"
-			a.textContent=x.name+" "
-			li.appendChild a
+			if x.realid
+				a=document.createElement "a"
+				a.href="/user/#{x.realid}"
+				a.textContent=x.name+" "
+				li.appendChild a
+			else
+				li.textContent=x.name+" "
 			if x.jobname
 				b=document.createElement "b"
 				b.textContent=x.jobname
