@@ -31,4 +31,11 @@ exports.start=->
 						SS.client.util.message "エラー",result.error
 					else
 						SS.client.app.page "templates-user-profile",result,SS.client.user.profile
+	$("#morescore").submit (je)->
+		je.preventDefault()
+		SS.server.user.analyzeScore (obj)->
+			if obj.error?
+				SS.client.util.message "エラー",obj.error
+			console.log obj
+		
 exports.end=->

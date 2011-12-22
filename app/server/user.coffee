@@ -1,5 +1,4 @@
 # Server-side Code
-#hashlib=require('hashlib');
 crypto=require('crypto');
 exports.actions =
 
@@ -57,8 +56,14 @@ exports.actions =
 			#	delete record.email
 			cb record
 	myProfile: (cb)->
-		u=@session.attributes.user
+		u=JSON.parse JSON.stringify @session.attributes.user
 		if u
+			u.wp = unless u.win? && u.lose?
+				"???"
+			else if u.win.length+u.lose.length==0
+				"???"
+			else
+				"#{(u.win.length/(u.win.length+u.lose.length)*100).toPrecision(2)}%"
 			cb u
 		else
 			cb null
@@ -91,6 +96,29 @@ exports.actions =
 				@session.attributes.user=record
 				@session.save ->
 				cb record
+	# 成績をくわしく見る
+	analyzeScore:(cb)->
+		unless @session.user_id
+			cb {error:"ログインして下さい"}
+			return
+		myid=@session.user_id
+		# DBから自分のやつを引っ張ってくる
+		results=[]
+		cursor=M.games.find {finished:true,players:{$elemMatch:{realid:myid}}}
+		cursor.each (err,game)->
+			console.log game?.id
+			unless game?
+				# 終了
+				cb {results:results}
+				return
+			player=game.players.filter((x)->x.realid==myid)[0] # me
+			return unless player?
+			console.log player.type
+			console.log player.winner
+			results.push {type:player.type, winner:player.winner}
+			
+			
+			
 
 
 #パスワードハッシュ化

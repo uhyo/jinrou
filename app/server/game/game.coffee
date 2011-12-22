@@ -289,6 +289,7 @@ class Game
 						# 霊能
 						y.results.push x
 			x.found=""	# 発見されました
+			console.log "buried_found: #{x.realid}"
 			SS.publish.user x.realid,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
