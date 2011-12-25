@@ -745,6 +745,9 @@ class Player
 			return unless x.isComplex()
 			if x.sub==this
 				x.sub=null	# ただの透過Complex
+	# 護衛されたことを知らせる
+	youareguarded:->
+		@guarded=true
 
 		
 		
@@ -894,7 +897,7 @@ class Guard extends Player
 				@sunset
 	job:(game,playerid)->
 		unless playerid==@id && game.rule.guardmyself!="ok"
-			game.getPlayer(playerid).guarded=true	# 護衛
+			game.getPlayer(playerid).youareguarded()	# 護衛
 			super
 			log=
 				mode:"skill"
@@ -1443,6 +1446,9 @@ class Complex extends Player
 	makejobinfo:(game,result)->
 		@sub?.makejobinfo game,result
 		@main.makejobinfo game,result
+	youareguarded:->
+		@main.youareguarded()
+		@sub?.youareguarded()
 		
 
 games={}
