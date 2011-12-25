@@ -349,7 +349,7 @@ class Game
 			@dorevote()
 		else if player
 			# 結果が出た 死んだ!
-			player.punished this
+			player.die this,"punish"
 				
 			@nextturn()
 		return true
@@ -463,8 +463,7 @@ class Game
 					else
 						@players.forEach (x)=>
 							return if x.dead || x.sleeping()
-							x.dead=true
-							x.found="gone"	# 突然死
+							x.die this,"gone" # 突然死
 							# 突然死記録
 							M.users.update {userid:x.realid},{$push:{gone:@id}}
 						@bury()
@@ -479,8 +478,7 @@ class Game
 				# ね な い こ だ れ だ
 				@players.forEach (x)=>
 					return if x.dead || x.sleeping()
-					x.dead=true
-					x.found="gone"	# 突然死
+					x.die this,"gone" # 突然死
 					# 突然死記録
 					M.users.update {userid:x.realid},{$push:{gone:@id}}
 				@bury()
@@ -505,8 +503,7 @@ class Game
 						revoting=false
 						@players.forEach (x)->
 							return if x.dead || x.voted()
-							x.dead=true
-							x.found="gone"
+							x.die this,"gone"
 							revoting=true
 						@bury()
 						@judge()
@@ -525,8 +522,7 @@ class Game
 					revoting=false
 					@players.forEach (x)->
 						return if x.dead || x.voted()
-						x.dead=true
-						x.found="gone"
+						x.die this,"gone"
 						revoting=true
 					@bury()
 					@judge()
@@ -578,7 +574,7 @@ logs:[{
 },...]
 rule:{
     number: Number # プレイヤー数
-    scapegoat : "on"(身代わり君が死ぬ） "off"(参加者が死ぬ) "no"(誰も死なない)
+    scapegoat : "on"(身代わり君が死ぬ) "off"(参加者が死ぬ) "no"(誰も死なない)
   }
 ###
 class Player
@@ -716,20 +712,26 @@ class Player
 	#勝利かどうか team:勝利陣営名
 	isWinner:(game,team)->
 		team==@team	# 自分の陣営かどうか
+	# 死んだとき(found:死因))
+	die:(game,found)->
+		return if @dead
+		@dead=true
+		@found=found
+		if found=="punish"
+			@punished game
+		else if found=="werewolf"
+			@bitten game
+		
 	# つられたとき
 	punished:(game)->
-		@dead=true
-		@found="punish"
 		# 霊となって霊能のもとへ結果を知らせにいく
 		game.players.filter((x)->!x.dead).forEach (x)=>
-			x.getPsychicResult? this	# 霊能へ
+			x.getPsychicResult? this	# 霊能
 		
 
 	# 噛まれたとき
 	bitten: (game)->
 		return if @dead
-		@dead=true
-		@found="werewolf"
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
@@ -787,11 +789,11 @@ class Werewolf extends Player
 		return unless t?
 		if t.willDieWerewolf && !t.guarded && !t.dead
 			# 死んだ
-			t.bitten game
+			t.die game,"werewolf"
 		# 逃亡者を探す
 		runners=game.players.filter (x)=>!x.dead && x.type=="Fugitive" && x.target==@target
 		runners.forEach (x)->
-			x.bitten game	# その家に逃げていたら逃亡者も死ぬ
+			x.die game,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 				
 	isWerewolf:->true
 		
@@ -855,8 +857,7 @@ class Diviner extends Player
 			}
 			if p.type=="Fox"
 				# 妖狐呪殺
-				p.dead=true
-				p.found="curse"
+				p.die game,"curse"
 	showdivineresult:(game)->
 		r=@results[@results.length-1]
 		return unless r?
@@ -874,11 +875,11 @@ class Psychic extends Player
 	sunset:(game)->
 		super
 		if game.rule.psychicresult=="sunset"
-			showpsychicresult game
+			@showpsychicresult game
 	sunrise:(game)->
 		super
 		unless game.rule.psychicresult=="sunset"
-			showpsychicresult game
+			@showpsychicresult game
 		
 	showpsychicresult:(game)->
 		@results.forEach (x)=>
@@ -952,8 +953,7 @@ class Poisoner extends Player
 		canbedead = game.players.filter (x)->!x.dead	# 生きている人たち
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害者
-		pl.dead=true
-		pl.found="poison"
+		pl.die game,"poison"
 
 	bitten:(game)->
 		super
@@ -961,8 +961,7 @@ class Poisoner extends Player
 		canbedead = game.players.filter (x)->!x.dead && x.isWerewolf()	# 狼たち
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害狼
-		pl.dead=true
-		pl.found="poison"
+		pl.die game,"poison"
 
 class BigWolf extends Werewolf
 	type:"BigWolf"
@@ -1107,8 +1106,7 @@ class Spy extends Player
 		if !@dead && @flag=="spygone"
 			# 村を去る
 			@flag="spygone"
-			@dead=true
-			@found="spygone"
+			@die game,"spygone"
 	job_target:0
 	isWinner:(game,team)->
 		team==@team && @dead && @flag=="spygone"	# 人狼が勝った上で自分は任務完了の必要あり
@@ -1163,12 +1161,10 @@ class WolfDiviner extends Werewolf
 				result: p.jobname
 			if p.type=="Fox"
 				# 妖狐呪殺
-				p.dead=true
-				p.found="curse"
+				p.die game,"curse"
 			if p.type=="Diviner"
 				# 逆呪殺
-				@dead=true
-				@found="curse"
+				@die game,"curse"
 			if p.type=="Madman"
 				# 狂人変化
 				jobnames=Object.keys jobs
@@ -1222,7 +1218,7 @@ class Fugitive extends Player
 		pl=game.getPlayer @target
 		return unless pl?
 		if !pl.dead && pl.isWerewolf()
-			@bitten game
+			@die game,"werewolf"
 		
 	isWinner:(game,team)->
 		team==@team && !@dead	# 村人勝利で生存
@@ -1275,21 +1271,13 @@ class Merchant extends Player
 class QueenSpectator extends Player
 	type:"QueenSpectator"
 	jobname:"女王観戦者"
-	punished:(game)->
+	die:(game,found)->
 		super
 		# 感染
 		humans = game.players.filter (x)->!x.dead && x.isHuman()	# 生きている人たち
 		humans.forEach (x)->
-			x.dead=true
-			x.found="hinamizawa"
+			x.die game,"hinamizawa"
 
-	bitten:(game)->
-		super
-		# 感染
-		humans = game.players.filter (x)->!x.dead && x.isHuman()	# 生きている人たち
-		humans.forEach (x)->
-			x.dead=true
-			x.found="hinamizawa"
 class MadWolf extends Werewolf
 	type:"MadWolf"
 	jobname:"狂人狼"
@@ -1362,11 +1350,7 @@ class Spy2 extends Player
 		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
 			x.publicinfo()
 	
-	punished:(game)->
-		super
-		@publishdocument game
-
-	bitten:(game)->
+	die:(game,found)->
 		super
 		@publishdocument game
 			
@@ -1376,7 +1360,7 @@ class Spy2 extends Player
 		.join " "
 		log=
 			mode:"system"
-			comment:"#{@name}の調査報告書が発見されました。　#{str}"
+			comment:"#{@name}の調査報告書が発見されました。"
 		splashlog game.id,game,log
 			
 	isWinner:(game,team)-> team==@team && !@dead
@@ -1428,8 +1412,7 @@ class Light extends Player
 		t=game.getPlayer @target
 		return unless t?
 		return if t.dead
-		t.dead=true
-		t.found="deathnote"
+		t.die "deathnote"
 		
 		# 誰かに移る処理
 		@uncomplex game	# 自分からは抜ける
