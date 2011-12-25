@@ -1362,6 +1362,10 @@ class Spy2 extends Player
 			mode:"system"
 			comment:"#{@name}の調査報告書が発見されました。"
 		splashlog game.id,game,log
+		log2=
+			mode:"will"
+			comment:str
+		splashlog game.id,game,log2
 			
 	isWinner:(game,team)-> team==@team && !@dead
 class Copier extends Player
