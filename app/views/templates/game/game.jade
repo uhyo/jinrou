@@ -133,6 +133,11 @@
             select(name="divineresult")
               option(value="immediate") すぐに分かる
               option(value="sunrise",selected) 翌朝分かる
+          label(title="霊能結果が表示されるタイミングを調節できます。")
+            | 霊能結果
+            select(name="psychicresult")
+              option(value="sunset") 夜に分かる
+              option(value="sunrise",selected) 翌朝分かる
           label(title="有効な場合、夜は全員が能力を行使しても時間切れまでは進みません。")
             | 夜は時間切れまで待つ
             input(name="waitingnight",type="checkbox",value="wait",checked)

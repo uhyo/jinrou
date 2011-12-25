@@ -282,12 +282,12 @@ class Game
 				mode:"system"
 				comment:"#{x.name}は#{situation}"
 			splashlog @id,this,log
-			if x.found=="punish"
-				# 処刑→霊能
-				@players.forEach (y)=>
-					if y.type=="Psychic"
-						# 霊能
-						y.results.push x
+#			if x.found=="punish"
+#				# 処刑→霊能
+#				@players.forEach (y)=>
+#					if y.type=="Psychic"
+#						# 霊能
+#						y.results.push x
 			x.found=""	# 発見されました
 			console.log "buried_found: #{x.realid}"
 			SS.publish.user x.realid,"refresh",{id:@id}
@@ -720,6 +720,10 @@ class Player
 	punished:(game)->
 		@dead=true
 		@found="punish"
+		# 霊となって霊能のもとへ結果を知らせにいく
+		game.players.filter((x)->!x.dead).forEach (x)=>
+			x.getPsychicResult? this	# 霊能へ
+		
 
 	# 噛まれたとき
 	bitten: (game)->
@@ -867,15 +871,26 @@ class Psychic extends Player
 	constructor:->
 		super
 		@results=[]	# 処刑された人(Playerが入る）
-	sunset:(game)->	#bury済みであること!
+	sunset:(game)->
 		super
+		if game.rule.psychicresult=="sunset"
+			showpsychicresult game
+	sunrise:(game)->
+		super
+		unless game.rule.psychicresult=="sunset"
+			showpsychicresult game
+		
+	showpsychicresult:(game)->
 		@results.forEach (x)=>
 			log=
 				mode:"skill"
 				to:@id
 				comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
 			splashlog game.id,game,log
-		@results.length=0;
+		@results.length=0
+		
+	getPsychicResult:(pl)->
+		@results.push pl
 
 class Madman extends Player
 	type:"Madman"
@@ -1594,6 +1609,7 @@ exports.actions=
 				deadfox:query.deadfox ? null
 				deathnote:query.deathnote ? null	# デスノート採用
 				divineresult:query.divineresult ? null
+				psychicresult:query.psychicresult ? null
 				waitingnight:query.waitingnight ? null
 			}
 			
