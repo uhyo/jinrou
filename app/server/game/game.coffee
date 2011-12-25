@@ -1654,49 +1654,59 @@ exports.actions=
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
+		# ログを流す
+		dosp=->
+			
+			if !game.finished  && game.voting	# 投票猶予時間は発言できない
+				if player && !player.dead
+					return	#まだ死んでいないプレイヤーの場合は発言できないよ!
+			if game.day<=0 || game.finished	#準備中
+				log.mode="prepare"
+			else
+				# ゲームしている
+				unless player?
+					# 観戦者
+					log.mode="audience"
+				else if player.dead
+					# 天国
+					if player.type=="Spy" && player.flag=="spygone"
+						# スパイなら会話に参加できない
+						log.mode="monologue"
+						log.to=player.id
+					else
+						log.mode="heaven"
+				else if !game.night
+					# 昼
+					log.mode="day"
+				else
+					# 夜
+					if player.isWerewolf()
+						# 狼
+						log.mode="werewolf"
+					else if player.type=="Couple"
+						# 共有者
+						log.mode="couple"
+					else if player.type=="Fox"
+						# 洋子
+						log.mode="fox"
+					else
+						# 村人
+						log.mode="monologue"
+						log.to=player.id
+				
+			splashlog roomid,game,log
+			cb null
 		if player?
 			log.name=player.name
 			log.userid=player.id
-			
-		if !game.finished  && game.voting	# 投票猶予時間は発言できない
-			if player && !player.dead
-				return	#まだ死んでいないプレイヤーの場合は発言できないよ!
-		if game.day<=0 || game.finished	#準備中
-			log.mode="prepare"
+			dosp()
 		else
-			# ゲームしている
-			unless player?
-				# 観戦者
-				log.mode="audience"
-			else if player.dead
-				# 天国
-				if player.type=="Spy" && player.flag=="spygone"
-					# スパイなら会話に参加できない
-					log.mode="monologue"
-					log.to=player.id
-				else
-					log.mode="heaven"
-			else if !game.night
-				# 昼
-				log.mode="day"
-			else
-				# 夜
-				if player.isWerewolf()
-					# 狼
-					log.mode="werewolf"
-				else if player.type=="Couple"
-					# 共有者
-					log.mode="couple"
-				else if player.type=="Fox"
-					# 洋子
-					log.mode="fox"
-				else
-					# 村人
-					log.mode="monologue"
-					log.to=player.id
-				
-		splashlog roomid,game,log
-		cb null
+			# ルーム情報から探す
+			SS.server.game.rooms.oneRoomS roomid,(room)=>
+				pl=room.players.filter((x)=>x.realid==@session.user_id)[0]
+				if pl?
+					log.name=pl.name
+				dosp()
 	# 夜の仕事・投票
 	job:(roomid,query,cb)->
 		game=games[roomid]
