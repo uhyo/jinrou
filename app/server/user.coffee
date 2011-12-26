@@ -106,16 +106,20 @@ exports.actions =
 		results=[]
 		cursor=M.games.find {finished:true,players:{$elemMatch:{realid:myid}}}
 		cursor.each (err,game)->
-			console.log game?.id
 			unless game?
 				# 終了
 				cb {results:results}
 				return
 			player=game.players.filter((x)->x.realid==myid)[0] # me
 			return unless player?
-			console.log player.type
-			console.log player.winner
-			results.push {type:player.type, winner:player.winner,id:game.id}
+			plinfo=(pl)->
+				unless pl.type=="Complex"
+					{type:pl.type, winner:pl.winner}
+				else
+					plinfo pl.Complex_main
+			pobj=plinfo player
+			pobj.id=game.id
+			results.push pobj
 			
 			
 			

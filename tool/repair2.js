@@ -40,8 +40,8 @@ function getdb(games){
 					//winner判定
 					switch(pl.type){
 					case "Complex":
-						chk(pl.main);
-						pl.winner=pl.main.winner;
+						chk(pl.Complex_main);
+						pl.winner=pl.Complex_main.winner;
 						break;
 					case "Bat":
 						pl.winner=!pl.dead;	//こうもりは死ななければOK

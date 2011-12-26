@@ -10,6 +10,10 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf"]
+# 狼陣営
+exports.wolves=["Werewolf","BigWolf","WolfDiviner","Madman"]
+# 狐陣営
+exports.foxes=["Fox","TinyFox"]
 
 # ここには入らない役職
 # Neet

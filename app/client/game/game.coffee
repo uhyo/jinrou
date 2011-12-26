@@ -229,6 +229,10 @@ exports.start=(roomid)->
 					"_name":"占い結果"
 					"_default":"翌朝分かる"
 					"immediate":"すぐ分かる"
+				"psychicresult":
+					"_name":"霊能結果"
+					"_default":"翌朝分かる"
+					"sunrise":"すぐ分かる"
 				"waitingnight":
 					"_name":"夜は時間限界まで待つか"
 					"_default":"待たない"

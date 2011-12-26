@@ -400,7 +400,7 @@ class Game
 			@finished=true
 			@winner=team
 			@players.forEach (x)=>
-				x.winner= x.isWinner this,team	#勝利か
+				x.setWinner x.isWinner this,team	#勝利か
 				# ユーザー情報
 				if x.winner
 					M.users.update {userid:x.realid},{$push: {win:@id}}
@@ -714,6 +714,8 @@ class Player
 	#勝利かどうか team:勝利陣営名
 	isWinner:(game,team)->
 		team==@team	# 自分の陣営かどうか
+	# 勝敗設定
+	setWinner:(winner)->@winner=winner
 	# 死んだとき(found:死因))
 	die:(game,found)->
 		return if @dead
@@ -1453,6 +1455,9 @@ class Complex extends Player
 	youareguarded:->
 		@main.youareguarded()
 		@sub?.youareguarded()
+	setWinner:(winner)->
+		@winner=winner
+		@main.setWinner winner
 		
 
 games={}
