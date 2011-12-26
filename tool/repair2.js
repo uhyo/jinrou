@@ -34,9 +34,9 @@ function getdb(games){
 				chk(pl);
 			});
 			function chk(pl){
-				console.log(pl.id+":"+pl.winner+"("+pl.type+")");
-				if(!pl.winner){
+				if(pl.winner==null){
 					//pl.realid=pl.id;
+					console.log(pl.id+":"+pl.winner+"("+pl.type+")");
 					//winner判定
 					switch(pl.type){
 					case "Complex":
@@ -68,8 +68,8 @@ function getdb(games){
 							pl.winner= gw=="Human"
 						}
 					}
+					console.log(" -> "+pl.winner);
 				}
-				console.log(" -> "+pl.winner);
 				
 			}
 			games.update({id:game.id},game);
