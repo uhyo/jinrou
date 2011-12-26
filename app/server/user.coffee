@@ -115,7 +115,7 @@ exports.actions =
 			return unless player?
 			console.log player.type
 			console.log player.winner
-			results.push {type:player.type, winner:player.winner}
+			results.push {type:player.type, winner:player.winner,id:game.id}
 			
 			
 			

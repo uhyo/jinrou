@@ -622,6 +622,7 @@ class Player
 			authority:@authority
 			will:@will
 			flag:@flag
+		#	winner:@winner
 		if @isComplex()
 			r.type="Complex"
 			r.Complex_main=@main.serialize()
@@ -643,6 +644,7 @@ class Player
 		p.authority=obj.authority
 		p.will=obj.will
 		p.flag=obj.flag
+		p.winner=obj.winner
 		p
 	publicinfo:->
 		# 見せてもいい情報
