@@ -622,7 +622,7 @@ class Player
 			authority:@authority
 			will:@will
 			flag:@flag
-		#	winner:@winner
+			winner:@winner
 		if @isComplex()
 			r.type="Complex"
 			r.Complex_main=@main.serialize()

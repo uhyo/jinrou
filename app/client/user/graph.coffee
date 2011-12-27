@@ -1,12 +1,13 @@
 # graph module
 class Graph
 	margin:10
-	desc:200
 	constructor:(@size)->
 		@canvas=document.createElement "canvas"
 		@canvas.height=@size+@margin*2
-		@canvas.width=@size+@margin*3+@desc
+		@canvas.width=@size+@margin*2
 		@ctx=@canvas.getContext '2d'
+		@canvas.style.float="left"
+		@canvas.style.clear="both"
 		
 		@data=null
 	setData:(@data)->
@@ -30,20 +31,17 @@ class CircleGraph extends Graph
 					arr.name=name
 					vals?.push arr
 					su+=chk value,arr
-					console.log "push:",arr
 				else
 					vals?.push name
-					console.log "push:",name
 					su+=value
 					
 			su
 				
 		@vals=[]
 		@sum=chk @data,@vals
-		console.log @vals
 		#大きい順にsort
 		@depth=1	# 深度 最高いくつの深さがあるか
-		sortv=(vals,data,dp=1)->	#dp: 現在の深度
+		sortv=(vals,data,dp=1)=>	#dp: 現在の深度
 			@depth=Math.max @depth,dp
 			vals.forEach (x)->
 				if x instanceof Array
@@ -56,21 +54,23 @@ class CircleGraph extends Graph
 		@table=document.createElement "table"
 		datatable= (data,vals,names,dp=0)=>
 			for name in vals
-				continue unless data[name]
+				_name=name
+				if typeof name=="object" then _name=name.name
+				thissum=chk data[_name]
+				continue unless thissum
 				tr=@table.insertRow -1
 				td=tr.insertCell -1
-				td.style.color=names[name].color
+				td.style.color=names[_name].color ? "#cccccc"
 				i=0
 				spaces= ("　" while i++<dp).join ""
 				td.textContent="#{spaces}■"
 				td=tr.insertCell -1
-				if typeof data[name]=="object"
+				if typeof data[_name]=="object"
 					# 子がある
-					thissum=chk data[name]
-					td.textContent="#{names[name].name} #{thissum}(#{(thissum/@sum*100).toPrecision(2)}%)"
-					datatable data[name],vals[name],names[name],dp+1
+					td.textContent="#{names[_name].name} #{thissum}(#{(thissum/@sum*100).toPrecision(2)}%)"
+					datatable data[_name],name,names[_name],dp+1
 				else
-					td.textContent="#{names[name].name} #{data[name]}(#{(data[name]/@sum*100).toPrecision(2)}%)"
+					td.textContent="#{names[_name].name} #{data[_name]}(#{(data[_name]/@sum*100).toPrecision(2)}%)"
 		datatable @data,@vals,@names
 		if @canvas.parentNode
 			@canvas.parentNode.insertBefore @table,@canvas.nextSibling
@@ -97,22 +97,25 @@ class CircleGraph extends Graph
 		onepart=(data,vals,names,start,dp=1)=>
 			#start: 始点の角度
 			for name in vals
+				_name=name
 				# 順番に描画
-				rad=Math.PI*2*@getsum(data[name])/@sum*@circ
+				if typeof name=="object"
+					_name=name.name	#valsのオブジェクトにはname
+				rad=Math.PI*2*@getsum(data[_name])/@sum*@circ
 			
 				ctx.beginPath()
 				# 外側の弧
-				ctx.arc tx,ty,r,start+startangle,start+rad+startangle,false
+				ctx.arc tx,ty,r*dp/@depth,start+startangle,start+rad+startangle,false
 				# 内側の弧
 				ctx.arc tx,ty,r*(dp-1)/@depth,start+rad+startangle,start+startangle,true
 				ctx.closePath()
-				if typeof data[name]=="object"
+				ctx.fillStyle=names[_name].color ? "#cccccc"
+				ctx.fill()
+				if typeof name=="object"
 					# 子供たち
-					onepart data[name],vals[name],names[name],start,dp+1
+					onepart data[_name],name,names[_name],start,dp+1
 				start+=rad	#描画した
 			
-				ctx.fillStyle=names[name].color ? "#cccccc"
-				ctx.fill()
 				
 		onepart @data,@vals,@names,0
 
@@ -121,7 +124,7 @@ class CircleGraph extends Graph
 		unless typeof data=="object"
 			return data
 		sum=0
-		for value of data
+		for name,value of data
 			sum+=@getsum value
 		sum
 		

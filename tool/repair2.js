@@ -1,6 +1,6 @@
 /*
 JINROU data recoverer:
-adds 'winner' to each player 2011-12-16
+adds 'winner' to each player 2011-12-26
 
 */
 var user="test", password="test";	//自分でパスワードを入れてね

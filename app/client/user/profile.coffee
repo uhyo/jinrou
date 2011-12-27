@@ -45,18 +45,102 @@ exports.start=->
 				Human:
 					name:"村人陣営"
 					color:"#00CC00"
+					Human:
+						name:"村人"
+						color:"#dddddd"
+					Diviner:
+						name:"占い師"
+						color:"#00b3ff"
+					Psychic:
+						name:"霊能者"
+						color:"#bb00ff"
+					Guard:
+						name:"狩人"
+						color:"#969ad4"
+					Couple:
+						name:"共有者"
+						color:"#ffffab"
+					Poisoner:
+						name:"埋毒者"
+						color:"#853c24"
+					Noble:
+						name:"貴族"
+						color:"#ffff00"
+					Slave:
+						name:"奴隷"
+						color:"#1417d9"
+					Magician:
+						name:"魔術師"
+						color:"#f03eba"
+					Fugitive:
+						name:"逃亡者"
+						color:"#e8b279"
+					Merchant:
+						name:"商人"
+						color:"#e06781"
+					QueenSpectator:
+						name:"女王観戦者"
+						color:"#faeebe"
+					Liar:
+						name:"嘘つき"
+						color:"#a3e4e6"
+					Copier:
+						name:"コピー"
+						color:"#ffffff"
+					
+					
+					
+					
 				Werewolf:
 					name:"人狼陣営"
 					color:"#DD0000"
+					Werewolf:
+						name:"人狼"
+						color:"#220000"
+					Madman:
+						name:"狂人"
+						color:"#ffbb00"
+					BigWolf:
+						name:"大狼"
+						color:"#660000"
+					Spy:
+						name:"スパイ"
+						color:"#ad5d28"
+					WolfDiviner:
+						name:"人狼占い"
+						color:"#5b0080"
+					MadWolf:
+						name:"狂人狼"
+						color:"#847430"
+					Spy2:
+						name:"スパイⅡ"
+						color:"#d3b959"
+					
+					
 				Fox:
 					name:"妖狐陣営"
 					color:"#934293"
+					Fox:
+						name:"妖狐"
+						color:"#934293"
+					TinyFox:
+						name:"子狐"
+						color:"#dd81f0"
+						
+					
 				Bat:
 					name:"こうもり"
 					color:"#000066"
+					Bat:
+						name:"こうもり"
+						color:"#000066"
+					
 				Neet:
 					name:"ニート"
-					color:"#CCCCCC"
+					color:"#aaaaaa"
+					Neet:
+						name:"ニート"
+						color:"#aaaaaa"
 
 			results.forEach (x)->	# 陣営チェック
 				x.team=
@@ -71,7 +155,7 @@ exports.start=->
 					else
 						"Human"
 				
-			grp=(size=100)->
+			grp=(size=200)->
 				# 新しいグラフ作成して追加まで
 				graph=SS.client.user.graph.circleGraph size
 				p=document.createElement "p"
@@ -87,8 +171,15 @@ exports.start=->
 				win:{}
 				lose:{}
 			for x in teams
-				gs.win[x]=results.filter((y)->y.team==x && y.winner==true).length
-				gs.lose[x]=results.filter((y)->y.team==x && y.winner==false).length
+				gs.win[x]={}
+				gs.lose[x]={}
+			results.forEach (x)->
+				if x.winner==true
+					gs.win[x.team][x.type] ?= 0
+					gs.win[x.team][x.type]++
+				else if x.winner==false
+					gs.lose[x.team][x.type] ?= 0
+					gs.lose[x.team][x.type]++
 			console.log merge {
 					name:"勝ち"
 					color:"#FF0000"
@@ -103,20 +194,6 @@ exports.start=->
 					color:"#0000FF"
 				},teamcolors
 			}
-			graph.openAnimate 0.2
-			# 陣営別グラフ
-			graph=grp()
-			graph.hide()
-			# 陣営ごとにまとめる
-			gs=
-				Human:0
-				Werewolf:0
-				Fox:0
-				Bat:0
-				Neet:0
-			for x in teams
-				gs[x]=results.filter((y)->y.team==x).length
-			graph.setData gs,teamcolors
 			graph.openAnimate 0.2
 				
 		
