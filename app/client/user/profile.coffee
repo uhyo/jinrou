@@ -115,6 +115,9 @@ exports.start=->
 					Spy2:
 						name:"スパイⅡ"
 						color:"#d3b959"
+					Light:
+						name:"デスノート"
+						color:"#2d158c"
 					
 					
 				Fox:

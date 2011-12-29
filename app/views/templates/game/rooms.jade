@@ -10,6 +10,10 @@ section.rooms
         th 日時
         th コメント
     tbody#roomlist
+  form#pager
+    p
+      input(type="button",name="prev",value="前のページ")
+      input(type="button",name="next",value="次のページ")
   p
     a(href="/newroom") 新しいルーム
     | |

@@ -15,8 +15,10 @@ room: {
   players:[PlayerObject,PlayerObject,...]
 }
 ###
+page_number=10
+
 exports.actions=
-	getRooms:(mode,cb)->
+	getRooms:(mode,page,cb)->
 		if mode=="log"
 			query=
 				mode:"end"
@@ -24,7 +26,7 @@ exports.actions=
 			query=
 				mode:
 					$ne:"end"
-		M.rooms.find(query).sort({made:-1}).toArray (err,results)->
+		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
 				cb {error:err}
 				return
