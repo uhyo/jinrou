@@ -20,7 +20,7 @@ exports.config =
   # Redis support. Must be enabled before hosting your app!
   # Install Redis 2.2 or above from http://redis.io/ then run 'redis-server'
   redis:
-    enabled:      false
+    enabled:      true
     db_index:     0       # if you're sharing one Redis server across multiple apps, give each app a different db_index from 0 - 15
 
   # HTTP(S) request-based API module
