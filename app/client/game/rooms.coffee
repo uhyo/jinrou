@@ -1,11 +1,12 @@
 exports.start=(mode)->
 	page=0
 	tb=$("#roomlist").get(0)
-	SS.server.game.rooms.getRooms mode,page,rooms
 	getroom=(rooms)->
 		if rooms.error?
 			SS.client.util.message "エラー","ルーム一覧を取得できませんでした。"
 			return
+		while tb.rows.length>0
+			tb.deleteRow 0
 			
 		rooms.forEach (room)->
 			tr=tb.insertRow -1
@@ -67,4 +68,14 @@ exports.start=(mode)->
 			#コメント
 			td=tr.insertCell -1
 			td.textContent=room.comment
+	SS.server.game.rooms.getRooms mode,page,getroom
+	$("#pager").click (je)->
+		t=je.target
+		if t.name=="prev"
+			page--
+			if page<0 then page=0
+			SS.server.game.rooms.getRooms mode,page,getroom
+		else if t.name=="next"
+			page++
+			SS.server.game.rooms.getRooms mode,page,getroom
 			

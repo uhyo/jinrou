@@ -26,6 +26,7 @@ exports.actions=
 			query=
 				mode:
 					$ne:"end"
+		console.log "#{mode} #{page} #{page_number}"
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
 				cb {error:err}
