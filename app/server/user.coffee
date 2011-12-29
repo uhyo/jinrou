@@ -56,6 +56,9 @@ exports.actions =
 			#	delete record.email
 			cb record
 	myProfile: (cb)->
+		unless @session.user_id
+			cb null
+			return
 		u=JSON.parse JSON.stringify @session.attributes.user
 		if u
 			u.wp = unless u.win? && u.lose?
