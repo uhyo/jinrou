@@ -11,7 +11,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf"]
 # 狼陣営
-exports.wolves=["Werewolf","BigWolf","WolfDiviner","Madman"]
+exports.wolves=["Werewolf","BigWolf","WolfDiviner","Madman","Spy","Spy2"]
 # 狐陣営
 exports.foxes=["Fox","TinyFox"]
 

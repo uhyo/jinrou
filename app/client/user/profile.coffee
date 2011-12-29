@@ -89,8 +89,10 @@ exports.start=->
 						color:"#ffffff"
 					Light:
 						name:"デスノート"
-						color:"#2d158c"
-					
+						color:"#2d158c"					
+					MadWolf:
+						name:"狂人狼"
+						color:"#847430"
 					
 					
 					
@@ -112,9 +114,6 @@ exports.start=->
 					WolfDiviner:
 						name:"人狼占い"
 						color:"#5b0080"
-					MadWolf:
-						name:"狂人狼"
-						color:"#847430"
 					Spy2:
 						name:"スパイⅡ"
 						color:"#d3b959"
