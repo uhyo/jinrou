@@ -2,6 +2,8 @@
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox",
+# 特殊役職2
+"Devil","ToughGuy"
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -11,7 +13,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil"]
 # 狼陣営
 exports.wolves=["Werewolf","BigWolf","WolfDiviner","Madman","Spy","Spy2","Fanatic"]
 # 狐陣営

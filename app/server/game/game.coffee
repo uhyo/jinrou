@@ -395,6 +395,9 @@ class Game
 			# 妖狐判定
 			if @players.some((x)->!x.dead && x.isFox())
 				team="Fox"
+		# 悪魔くん判定
+		if @players.some((x)->x.type=="Devil" && x.flag=="winner")
+			team="Devil"
 
 		if @revote_num>=4
 			# 再投票多すぎ
@@ -421,6 +424,8 @@ class Game
 						"人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…"
 					when "Fox"
 						"村は妖狐のものとなりました。"
+					when "Devil"
+						"村は悪魔くんのものとなりました。"
 					when "Draw"
 						"引き分けになりました。"
 						
@@ -1456,7 +1461,46 @@ class Immoral extends Player
 		# 妖狐が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
-		
+class Devil extends Player
+	type:"Devil"
+	jobname:"悪魔くん"
+	team:"Devil"
+	die:(game,found)->
+		return if @dead
+		if found=="werewolf"
+			# 死なないぞ！
+			unless @flag
+				# まだ噛まれていない
+				@flag="bitten"
+		else if found=="punish"
+			# 処刑されたぞ！
+			if @flag=="bitten"
+				# 噛まれたあと処刑された
+				@flag="winner"
+			else
+				super
+		else
+			super
+	isWinner:(game,team)->team==@team && @flag=="winner"
+class ToughGuy extends Player
+	type:"ToughGuy"
+	jobname:"タフガイ"
+	die:(game,found)->
+		if found=="werewolf"
+			# 狼の襲撃に耐える
+			@flag="bitten"
+		else
+			super
+	sunset:(game)->
+		super
+		if @flag=="bitten"
+			# 噛まれた次の夜
+			@flag="dying"
+	midnight:(game)->
+		super
+		if @flag=="dying"
+			@dead=true
+			@found="werewolf"
 
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1527,6 +1571,8 @@ jobs=
 	Light:Light
 	Fanatic:Fanatic
 	Immoral:Immoral
+	Devil:Devil
+	ToughGuy:ToughGuy
 
 
 exports.actions=

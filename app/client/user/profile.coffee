@@ -93,6 +93,9 @@ exports.start=->
 					MadWolf:
 						name:"狂人狼"
 						color:"#847430"
+					ToughGuy:
+						name:"タフガイ"
+						color:"#ff5900"
 					
 					
 					
@@ -142,6 +145,12 @@ exports.start=->
 					Bat:
 						name:"こうもり"
 						color:"#000066"
+				Devil:
+					name:"悪魔くん"
+					color:"#735f9e"
+					Devil:
+						name:"悪魔くん"
+						color:"#735f9e"
 					
 				Neet:
 					name:"ニート"
