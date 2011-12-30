@@ -117,6 +117,9 @@ exports.start=->
 					Spy2:
 						name:"スパイⅡ"
 						color:"#d3b959"
+					Fanatic:
+						name:"狂信者"
+						color:"#94782b"
 					
 					
 				Fox:
@@ -128,6 +131,9 @@ exports.start=->
 					TinyFox:
 						name:"子狐"
 						color:"#dd81f0"
+					Immoral:
+						name:"背徳者"
+						color:"#5c2f5c"
 						
 					
 				Bat:

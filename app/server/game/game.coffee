@@ -258,6 +258,9 @@ class Game
 			player.midnight this
 	# 死んだ人を処理する
 	bury:->
+		@players.forEach (x)=>
+			unless x.dead
+				x.beforebury this
 		deads=@players.filter (x)->x.dead && x.found
 		deads=shuffle deads	# 順番バラバラ
 		deads.forEach (x)=>
@@ -276,6 +279,8 @@ class Game
 					"村を去りました"
 				when "deathnote"
 					"死体で発見されました"
+				when "foxsuicide"
+					"狐の後を追って自ら死を選びました"
 				else
 					"突然お亡くなりになられました"				
 			log=
@@ -289,7 +294,6 @@ class Game
 #						# 霊能
 #						y.results.push x
 			x.found=""	# 発見されました
-			console.log "buried_found: #{x.realid}"
 			SS.publish.user x.realid,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
@@ -298,6 +302,7 @@ class Game
 					name:x.name
 					comment:x.will
 				splashlog @id,this,log
+		deads.length
 				
 	# 投票終わりチェック
 	execute:->
@@ -388,7 +393,7 @@ class Game
 			
 		if team?
 			# 妖狐判定
-			if @players.some((x)->!x.dead && x.team=="Fox")
+			if @players.some((x)->!x.dead && x.isFox())
 				team="Fox"
 
 		if @revote_num>=4
@@ -665,6 +670,8 @@ class Player
 	isHuman:->!@isWerewolf()
 	# 人狼かどうか
 	isWerewolf:->false
+	# 洋子かどうか
+	isFox:->false
 	# Complexかどうか
 	isComplex:->false
 	# jobtypeが合っているかどうか（夜）
@@ -728,14 +735,14 @@ class Player
 		
 	# つられたとき
 	punished:(game)->
-		# 霊となって霊能のもとへ結果を知らせにいく
-		game.players.filter((x)->!x.dead).forEach (x)=>
-			x.getPsychicResult? this	# 霊能
+
 		
 
 	# 噛まれたとき
 	bitten: (game)->
 		return if @dead
+	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
+	beforebury: (game)->
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
@@ -893,9 +900,11 @@ class Psychic extends Player
 				comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
 			splashlog game.id,game,log
 		@results.length=0
-		
-	getPsychicResult:(pl)->
-		@results.push pl
+	
+	# 処刑で死んだ人を調べる
+	beforebury:(game)->
+		game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
+			@results.push x
 
 class Madman extends Player
 	type:"Madman"
@@ -942,6 +951,7 @@ class Fox extends Player
 	team:"Fox"
 	willDieWerewolf:false
 	isHuman:->false
+	isFox:->true
 	makejobinfo:(game,result)->
 		super
 		# 妖狐は仲間が分かる
@@ -979,6 +989,7 @@ class TinyFox extends Diviner
 	psychicResult:"子狐"
 	team:"Fox"
 	isHuman:->false
+	isFox:->true
 	sunset:(game)->
 		if @scapegoat
 			# 身代わり君の自動占い
@@ -1424,6 +1435,27 @@ class Light extends Player
 		
 		# 誰かに移る処理
 		@uncomplex game	# 自分からは抜ける
+class Fanatic extends Madman
+	type:"Fanatic"
+	jobname:"狂信者"
+	makejobinfo:(game,result)->
+		super
+		# 狂信者は人狼が分かる
+		result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+			x.publicinfo()
+class Immoral extends Player
+	type:"Immoral"
+	jobname:"背徳者"
+	team:"Fox"
+	beforebury:(game)->
+		# 狐が全員死んでいたら自殺
+		unless game.players.some((x)->!x.dead && x.isFox())
+			@die game,"foxsuicide"
+	makejobinfo:(game,result)->
+		super
+		# 妖狐が分かる
+		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
+			x.publicinfo()
 		
 
 
@@ -1493,6 +1525,8 @@ jobs=
 	Spy2:Spy2
 	Copier:Copier
 	Light:Light
+	Fanatic:Fanatic
+	Immoral:Immoral
 
 
 exports.actions=
