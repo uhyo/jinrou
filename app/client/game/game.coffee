@@ -232,7 +232,7 @@ exports.start=(roomid)->
 				"psychicresult":
 					"_name":"霊能結果"
 					"_default":"翌朝分かる"
-					"sunrise":"すぐ分かる"
+					"sunset":"すぐ分かる"
 				"waitingnight":
 					"_name":"夜は時間限界まで待つか"
 					"_default":"待たない"

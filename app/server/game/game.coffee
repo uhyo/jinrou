@@ -1422,6 +1422,7 @@ class Copier extends Player
 				game.players[i]=newpl
 			else
 				x
+		
 		null
 	isWinner:(game,team)->null
 class Light extends Player
