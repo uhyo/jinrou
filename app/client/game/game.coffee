@@ -494,8 +494,12 @@ exports.start=(roomid)->
 			else
 				li.textContent=x.name+" "
 			if x.jobname
+				console.log x
 				b=document.createElement "b"
-				b.textContent=x.jobname
+				if x.originalJobname? && x.originalJobname!=x.jobname
+					b.textContent="#{x.originalJobname}→#{x.jobname}"
+				else
+					b.textContent=x.jobname
 				if x.option
 					b.textContent+= "（#{x.option}）"
 				li.appendChild b

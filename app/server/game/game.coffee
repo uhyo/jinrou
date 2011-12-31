@@ -50,6 +50,7 @@ class Game
 				if obj?.openjob
 					r.jobname=x.jobname
 					r.option=x.optionString()
+					r.originalJobname=x.originalJobname
 				unless @rule.blind=="complete" || (@rule.blind=="yes" && !@finished)
 					# 公開してもよい
 					r.realid=x.realid
@@ -602,6 +603,9 @@ class Player
 		@authority=false# 権力者
 		
 		@will=null	# 遺言
+		# もとの役職
+		@originalType=@type
+		@originalJobname=@jobname
 	@factory:(type,realid,id,name,main={},sub={})->
 		p=null
 		if type=="Complex"
@@ -633,6 +637,8 @@ class Player
 			will:@will
 			flag:@flag
 			winner:@winner
+			originalType:@originalType
+			originalJobname:@originalJobname
 		if @isComplex()
 			r.type="Complex"
 			r.Complex_main=@main.serialize()
@@ -655,6 +661,8 @@ class Player
 		p.will=obj.will
 		p.flag=obj.flag
 		p.winner=obj.winner
+		p.originalType=obj.originalType
+		p.originalJobname=obj.originalJobname
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -1407,6 +1415,8 @@ class Copier extends Player
 		splashlog game.id,game,log
 		p=game.getPlayer playerid
 		newpl=Player.factory p.type,@realid,@id,@name
+		newpl.originalType=@originalType
+		newpl.originalJobname=@originalJobname
 		game.players.forEach (x,i)->	# 入れ替え
 			if x.id==newpl.id
 				game.players[i]=newpl
