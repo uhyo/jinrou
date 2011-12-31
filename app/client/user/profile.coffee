@@ -39,7 +39,7 @@ exports.start=->
 				SS.client.util.message "エラー",obj.error
 			results=obj.results
 			console.log results
-			teams=["Human","Werewolf","Fox","Bat","Neet"]	# 陣営一覧
+			teams=["Human","Werewolf","Fox","Devil","Bat","Neet"]	# 陣営一覧
 			# 陣営色
 			teamcolors=
 				Human:
@@ -167,6 +167,8 @@ exports.start=->
 						"Fox"
 					else if x.type=="Bat"
 						"Bat"
+					else if x.type=="Devil"
+						"Devil"
 					else if x.type=="Neet"
 						"Neet"
 					else
