@@ -494,7 +494,7 @@ exports.start=(roomid)->
 			else
 				li.textContent=x.name+" "
 			if x.jobname
-				console.log x
+				#console.log x
 				b=document.createElement "b"
 				if x.originalJobname? && x.originalJobname!=x.jobname
 					b.textContent="#{x.originalJobname}→#{x.jobname}"
@@ -503,6 +503,15 @@ exports.start=(roomid)->
 				if x.option
 					b.textContent+= "（#{x.option}）"
 				li.appendChild b
+				if x.winner?
+					b=document.createElement "b"
+					if x.winner
+						b.classList.add "win"
+						b.textContent="勝利"
+					else
+						b.classList.add "lose"
+						b.textContent="敗北"
+					li.appendChild b
 			if x.dead
 				li.classList.add "dead"
 			$("#players").append li

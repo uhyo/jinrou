@@ -51,6 +51,7 @@ class Game
 					r.jobname=x.jobname
 					r.option=x.optionString()
 					r.originalJobname=x.originalJobname
+					r.winner=x.winner
 				unless @rule.blind=="complete" || (@rule.blind=="yes" && !@finished)
 					# 公開してもよい
 					r.realid=x.realid
