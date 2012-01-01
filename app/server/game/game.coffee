@@ -1508,9 +1508,12 @@ class ToughGuy extends Player
 			@flag="bitten"
 		else
 			super
-	sunset:(game)->
-		super
+	sunrise:(game)->
 		if @flag=="bitten"
+			@flag="dying"	# 死にそう！
+	beforebury:(game)->
+		super
+		if @flag=="dying"
 			# 噛まれた次の夜
 			@dead=true
 			@found="werewolf"
