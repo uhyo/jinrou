@@ -1511,12 +1511,13 @@ class ToughGuy extends Player
 	sunrise:(game)->
 		if @flag=="bitten"
 			@flag="dying"	# 死にそう！
-	beforebury:(game)->
+	sunset:(game)->
 		super
 		if @flag=="dying"
 			# 噛まれた次の夜
 			@dead=true
 			@found="werewolf"
+			game.bury()
 
 
 # 複合役職 Player.factoryで適切に生成されることを期待
