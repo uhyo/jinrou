@@ -1453,7 +1453,7 @@ class Light extends Player
 		t=game.getPlayer @target
 		return unless t?
 		return if t.dead
-		t.die "deathnote"
+		t.die game,"deathnote"
 		
 		# 誰かに移る処理
 		@uncomplex game	# 自分からは抜ける
