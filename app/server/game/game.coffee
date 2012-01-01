@@ -1046,15 +1046,20 @@ class Bat extends Player
 class Noble extends Player
 	type:"Noble"
 	jobname:"貴族"
-	bitten:(game)->
-		# 奴隷たち
-		slaves = game.players.filter (x)->!x.dead && x.type=="Slave"
-		unless slaves.length
-			super	# 自分が死ぬ
+	die:(game,found)->
+		if found=="werewolf"
+			return if @dead
+			# 奴隷たち
+			slaves = game.players.filter (x)->!x.dead && x.type=="Slave"
+			unless slaves.length
+				super	# 自分が死ぬ
+			else
+				# 奴隷が代わりに死ぬ
+				slaves.forEach (x)->
+					x.die game,"werewolf"
 		else
-			# 奴隷が代わりに死ぬ
-			slaves.forEach (x)->
-				x.bitten game
+			super
+
 class Slave extends Player
 	type:"Slave"
 	jobname:"奴隷"
