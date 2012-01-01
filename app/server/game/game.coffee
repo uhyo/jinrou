@@ -1996,6 +1996,8 @@ makejobinfo = (game,player,result={})->
 		result.sleeping=if game.night then player.jobdone() else if player.voteto? then true else false
 		result.jobname=player.jobname
 		result.winner=player.winner
+		if game.rule.will=="die"
+			result.will=player.will
 
 	result
 	

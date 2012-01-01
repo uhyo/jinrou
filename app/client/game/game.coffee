@@ -451,6 +451,8 @@ exports.start=(roomid)->
 		if obj.dead
 			# 自分は既に死んでいる
 			document.body.classList.add "heaven"
+		if obj.will
+			$("#willform").get(0).elements["will"].value=obj.will
 			
 		if game=obj.game
 			if game.finished
