@@ -187,8 +187,8 @@ class Game
 
 		@voting=false
 		if @night
-			@players.forEach (x)=>
-				return if x.dead
+			alives=@players.filter (x)->!x.dead
+			alives.forEach (x)=>
 				x.sunset this
 			if @day==1
 				# 始まったばかり
@@ -255,14 +255,14 @@ class Game
 
 	#夜の能力を処理する
 	midnight:->
-		@players.forEach (player)=>
-			return if player.dead
+		alives=@players.filter (x)->!x.dead
+		alives.forEach (player)=>
 			player.midnight this
 	# 死んだ人を処理する
 	bury:->
-		@players.forEach (x)=>
-			unless x.dead
-				x.beforebury this
+		alives=@players.filter (x)->!x.dead
+		alives.forEach (x)=>
+			x.beforebury this
 		deads=@players.filter (x)->x.dead && x.found
 		deads=shuffle deads	# 順番バラバラ
 		deads.forEach (x)=>
@@ -1509,6 +1509,7 @@ class ToughGuy extends Player
 		else
 			super
 	sunrise:(game)->
+		super
 		if @flag=="bitten"
 			@flag="dying"	# 死にそう！
 	sunset:(game)->
@@ -1517,7 +1518,7 @@ class ToughGuy extends Player
 			# 噛まれた次の夜
 			@dead=true
 			@found="werewolf"
-			game.bury()
+			#game.bury()
 
 
 # 複合役職 Player.factoryで適切に生成されることを期待
