@@ -1507,10 +1507,6 @@ class ToughGuy extends Player
 		super
 		if @flag=="bitten"
 			# 噛まれた次の夜
-			@flag="dying"
-	midnight:(game)->
-		super
-		if @flag=="dying"
 			@dead=true
 			@found="werewolf"
 

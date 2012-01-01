@@ -174,8 +174,11 @@ exports.start=->
 					else
 						"Human"
 				
-			grp=(size=200)->
+			grp=(title,size=200)->
 				# 新しいグラフ作成して追加まで
+				h2=document.createElement "h2"
+				h2.textContent=title
+				$("#grapharea").append h2
 				graph=SS.client.user.graph.circleGraph size
 				p=document.createElement "p"
 				p.appendChild graph.canvas
@@ -183,7 +186,7 @@ exports.start=->
 				graph
 			
 			# 勝率グラフ
-			graph=grp()
+			graph=grp "勝敗ごとの陣営"
 			graph.hide()
 			# 勝敗を陣営ごとに
 			gs=
@@ -199,10 +202,6 @@ exports.start=->
 				else if x.winner==false
 					gs.lose[x.team][x.type] ?= 0
 					gs.lose[x.team][x.type]++
-			console.log merge {
-					name:"勝ち"
-					color:"#FF0000"
-				},teamcolors
 			graph.setData gs,{
 				win:merge {
 					name:"勝ち"
@@ -213,6 +212,28 @@ exports.start=->
 					color:"#0000FF"
 				},teamcolors
 			}
+			graph.openAnimate 0.2
+			# 役職ごとの勝率
+			graph=grp "役職ごとの勝敗"
+			graph.hide()
+			gs={}
+			names=merge teamcolors,{}	#コピー
+			for team of names
+				gs[team]={}
+				
+				for type of names[team]
+					continue if type in ["name","color"]
+					names[team][type].win=
+						name:"勝ち"
+						color:"#FF0000"
+					names[team][type].lose=
+						name:"負け"
+						color:"#0000FF"
+					gs[team][type]=
+						win:results.filter((x)->x.type==type && x.winner==true).length
+						lose:results.filter((x)->x.type==type && x.winner==false).length
+			console.log gs,names
+			graph.setData gs,names
 			graph.openAnimate 0.2
 				
 		

@@ -46,7 +46,7 @@ class CircleGraph extends Graph
 			vals.forEach (x)->
 				if x instanceof Array
 					sortv x,data[x.name],dp+1
-			vals.sort (a,b)->(chk data[b])-(chk data[a])
+			vals.sort (a,b)->(chk data[if b instanceof Array then b.name else b])-(chk data[if a instanceof Array then a.name else a])
 		sortv @vals,@data
 		#table作成
 		if @table?.parentNode
