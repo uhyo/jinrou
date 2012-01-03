@@ -198,9 +198,9 @@ exports.actions=
 	# 成功ならjoined 失敗ならエラーメッセージ
 	# 部屋ルームに入る
 	enter: (roomid,password,cb)->
-		unless @session.user_id
-			cb {error:"ログインして下さい"}
-			return
+		#unless @session.user_id
+		#	cb {error:"ログインして下さい"}
+		#	return
 		SS.server.game.rooms.oneRoomS roomid,(room)=>
 			if !room?
 				cb {error:"その部屋はありません"}
@@ -221,9 +221,9 @@ exports.actions=
 	# 成功ならnull 失敗ならエラーメッセージ
 	# 部屋ルームから出る
 	exit: (roomid,cb)->
-		unless @session.user_id
-			cb "ログインして下さい"
-			return
+		#unless @session.user_id
+		#	cb "ログインして下さい"
+		#	return
 #		@session.channel.unsubscribe "room#{roomid}"
 		@session.channel.unsubscribeAll()
 		cb null

@@ -27,13 +27,13 @@ exports.init = ->
 				p = location.pathname
 				if p=="/" then p="/my"		
 			else
-				p="/"
+				#p="/"
 				# 無効
 				localStorage.removeItem "userid"
 				localStorage.removeItem "password"
 			showUrl p
 	else
-		showUrl "/"
+		showUrl location.pathname
 	window.addEventListener "popstate",(e)->
 		# location.pathname
 		showUrl location.pathname,true
