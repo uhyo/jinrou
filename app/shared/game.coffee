@@ -105,6 +105,16 @@ exports.jobrules=[
         title:"一般的な配役。"
         rule:normal2
       }
+      {
+        name:"普通3"
+        title:"少人数でも狐が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          ret.Fox++
+          if number<10
+            ret.Werewolf--
+          ret
+      }
     ]
   }
   {
