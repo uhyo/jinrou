@@ -11,7 +11,6 @@ dbinit= ->
     cols_count= (->
       count=0
       return (cb)->
-        console.log "count"
         if ++count>=4
           console.log "Mongodb Connected"
           # ゲームデータ読み込みをしてもらう

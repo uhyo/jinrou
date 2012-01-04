@@ -871,7 +871,7 @@ class Psychic extends Player
 	jobname:"霊能者"
 	constructor:->
 		super
-		@results=[]	# 処刑された人(Playerが入る）
+		@flag=""	# ここにメッセージを入れよう
 	sunset:(game)->
 		super
 		if game.rule.psychicresult=="sunset"
@@ -882,18 +882,20 @@ class Psychic extends Player
 			@showpsychicresult game
 		
 	showpsychicresult:(game)->
-		@results.forEach (x)=>
+		return unless @flag?
+		@flag.split("\n").forEach (x)=>
+			return unless x
 			log=
 				mode:"skill"
 				to:@id
-				comment:"霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。"
+				comment:x
 			splashlog game.id,game,log
-		@results.length=0
+		@flag=""
 	
 	# 処刑で死んだ人を調べる
 	beforebury:(game)->
 		game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
-			@results.push x
+			@flag += "霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。\n"
 
 class Madman extends Player
 	type:"Madman"
