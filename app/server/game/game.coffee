@@ -779,7 +779,7 @@ class Werewolf extends Player
 				x.target=playerid
 		@target=playerid
 		log=
-			mode:"skill"
+			mode:"wolfskill"
 			to:@id
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
 		splashlog game.id,game,log
@@ -1885,7 +1885,7 @@ exports.actions=
 				return
 			player.voteto=query.target
 			log=
-				mode:"system"
+				mode:"voteto"
 				to:player.id
 				comment:"#{player.name}は#{to.name}に投票しました"
 			splashlog game.id,game,log
@@ -1943,10 +1943,10 @@ splashlog=(roomid,game,log)->
 			when "prepare","system","nextturn","voteresult","day","will"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
-			when "werewolf"
+			when "werewolf","wolfskill"
 				# 狼
 				SS.publish.channel hv("room#{roomid}_werewolf"), "log", log
-				if game.rule.wolfsound=="aloud"
+				if log.mode=="werewolf" && game.rule.wolfsound=="aloud"
 					# 狼の遠吠えが聞こえる
 					log2=
 						mode:"werewolf"
@@ -1990,13 +1990,12 @@ islogOK=(game,player,log)->
 	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id
-		console.log "no! : #{log.to} -> #{player.id}"
 		# 個人宛
 		false
 	else
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult","will"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult","will","voteto"]
 			true
-		else if log.mode=="werewolf"
+		else if log.mode in ["werewolf","wolfskill"]
 			player.isWerewolf()
 		else if log.mode=="couple"
 			player.type=="Couple"
