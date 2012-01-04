@@ -364,12 +364,15 @@ class Game
 	
 	# 勝敗決定
 	judge:->
-
+		alives=@players.filter((x)->!x.dead).length
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
 		
 		team=null
-		if wolves==0
+		if alives==0
+			# 全滅
+			team="Draw"
+		else if wolves==0
 			# 村人勝利
 			team="Human"
 		else if humans<=wolves
@@ -392,13 +395,14 @@ class Game
 			# 勝敗決定
 			@finished=true
 			@winner=team
-			@players.forEach (x)=>
-				x.setWinner x.isWinner this,team	#勝利か
-				# ユーザー情報
-				if x.winner
-					M.users.update {userid:x.realid},{$push: {win:@id}}
-				else if team!="Draw"
-					M.users.update {userid:x.realid},{$push: {lose:@id}}
+			if team!="Draw"
+				@players.forEach (x)=>
+					x.setWinner x.isWinner this,team	#勝利か
+					# ユーザー情報
+					if x.winner
+						M.users.update {userid:x.realid},{$push: {win:@id}}
+					else
+						M.users.update {userid:x.realid},{$push: {lose:@id}}
 			log=
 				mode:"nextturn"
 				finished:true
