@@ -17,6 +17,17 @@ custom = ->
       console.log request.connection.address().address
     # Unless you're serving a response you'll need to call next() here 
     next()
+    
+referrerstop=(request, response, next)->
+  unless /^http:\/\/masao\.kuronowish\.com/.test request.headers.Referrer
+    next()
+    return  
+  response.statusCode=403
+  response.end """
+<!doctype html>
+<html><head><meta charset="UTF-8"><title>403 Forbidden</title></head>
+<body><h1>403 Forbidden</h1><p>Bad referrer</p><footer><p><small>&copy; 2011-2012 うひょ</small></p></footer></body></html>"""
+  
    
 
 # CONNECT MIDDLEWARE
@@ -29,6 +40,7 @@ exports.primary =
     #connect.logger()            # example of calling in-built connect middleware. be sure to install connect in THIS project and uncomment out the line above
     #require('connect-i18n')()   # example of using 3rd-party middleware from https://github.com/senchalabs/connect/wiki
     #custom()                      # example of using your own custom middleware (using the example above)
+    referrerstop
   ]
 
 # Stack for Secondary Server

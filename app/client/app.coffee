@@ -5,7 +5,6 @@ SS.socket.on 'disconnect', ->
 	SS.client.util.message "サーバー","接続が切断されました。"
 SS.socket.on 'reconnect', ->
 	SS.client.util.message "サーバー","接続が回復しました。"
-	SS.client.app.refresh()
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
