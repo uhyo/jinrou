@@ -67,7 +67,25 @@ exports.prompt=(title,message,opt,cb)->
 		else if t.name=="cancel"
 			cb? null
 			closeWindow t
-	
+
+#arr: [{name:"aaa",value:"foo"}, ...]
+exports.selectprompt=(title,message,arr,cb)->
+	win = showWindow "templates-util-selectprompt",{title:title,message:message}
+	sel=win.find("select.prompt").get(0)
+	for obj in arr
+		opt=document.createElement "option"
+		opt.textContent=obj.name
+		opt.value=obj.value
+		sel.add opt
+	win.submit (je)-> je.preventDefault()
+	win.click (je)->
+		t=je.target
+		if t.name=="ok"
+			cb? sel.value
+			closeWindow t
+		else if t.name=="cancel"
+			cb? null
+			closeWindow t
 		
 
 

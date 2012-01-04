@@ -195,7 +195,7 @@ exports.actions=
 				else
 					cb null
 					# 退室通知
-					user=room.players.filter((x)=>x.id==id)[0]
+					user=room.players.filter((x)=>x.userid==id)[0]
 					if user?
 						SS.server.game.game.kicklog room,user
 						SS.publish.channel "room#{roomid}", "unjoin",id

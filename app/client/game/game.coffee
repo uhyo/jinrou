@@ -116,7 +116,8 @@ exports.start=(roomid)->
 				b=makebutton "参加者を追い出す"
 				$("#playersinfo").append b
 				$(b).click (je)->
-					SS.client.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
+					SS.client.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+#					SS.client.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
 						SS.server.game.rooms.kick roomid,id,(result)->
 							if result?
 								SS.client.util.message "エラー",result
