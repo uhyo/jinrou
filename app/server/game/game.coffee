@@ -1626,14 +1626,16 @@ exports.actions=
 			
 		if player.dead
 			session.channel.subscribe "room#{roomid}_heaven"
-		if player.isWerewolf()
-			session.channel.subscribe "room#{roomid}_werewolf"
-		else if game.rule.heavenview!="view" || !player.dead
-			session.channel.subscribe "room#{roomid}_notwerewolf"
-		if player.type=="Couple"
-			session.channel.subscribe "room#{roomid}_couple"
-		else if !player.dead || game.rule.heavenview!="view"
-			session.channel.subscribe "room#{roomid}_notcouple"
+		if game.rule.heavenview!="view" || !player.dead
+			if player.isWerewolf()
+				session.channel.subscribe "room#{roomid}_werewolf"
+			else
+				session.channel.subscribe "room#{roomid}_notwerewolf"
+		if game.rule.heavenview!="view" || !player.dead
+			if player.type=="Couple"
+				session.channel.subscribe "room#{roomid}_couple"
+			else
+				session.channel.subscribe "room#{roomid}_notcouple"
 		if player.type=="Fox"
 			session.channel.subscribe "room#{roomid}_fox"
 			
