@@ -19,7 +19,7 @@ custom = ->
     next()
     
 referrerstop=(request, response, next)->
-  unless /^http:\/\/masao\.kuronowish\.com/.test request.headers.Referrer
+  unless /^http:\/\/masao\.kuronowish\.com/.test request.headers.referer
     next()
     return  
   response.statusCode=403
