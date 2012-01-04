@@ -10,12 +10,15 @@
       p
         | 現在の人数 : 
         output(name="number")
-        | 人
+        | 人 - 
+        span#jobsmonitor
       fieldset
         legend 役職
-        dl.jobs
+        p: select#jobruleselect(name="jobrule")
+        dl.jobs#jobsfield(hidden)
           dt 村人
-          dd: output(name="Human")
+          dd: output(name="Human",data-jobname="村人")
+        //-
           dt 占い師
           dd: input(name="Diviner",min="0",step="1",type="number",size="5")
           dt 霊能者
@@ -44,35 +47,18 @@
           dd: input(name="Devil",min="0",step="1",type="number",size="5")
           dt タフガイ
           dd: input(name="ToughGuy",min="0",step="1",type="number",size="5")
-        fieldset
-          legend 桃栗特殊役職
-          dl.jobs
-            dt こうもり
-            dd: input(name="Bat",min="0",step="1",type="number",size="5")
-            dt 貴族
-            dd: input(name="Noble",min="0",step="1",type="number",size="5")
-            dt 奴隷
-            dd: input(name="Slave",min="0",step="1",type="number",size="5")
-            dt 魔術師
-            dd: input(name="Magician",min="0",step="1",type="number",size="5")
-            dt スパイ
-            dd: input(name="Spy",min="0",step="1",type="number",size="5")
-            dt 人狼占い
-            dd: input(name="WolfDiviner",min="0",step="1",type="number",size="5")
-            dt 逃亡者
-            dd: input(name="Fugitive",min="0",step="1",type="number",size="5")
-            dt 商人
-            dd: input(name="Merchant",min="0",step="1",type="number",size="5")
-            dt 女王観戦者
-            dd: input(name="QueenSpectator",min="0",step="1",type="number",size="5")
-            dt 狂人狼
-            dd: input(name="MadWolf",min="0",step="1",type="number",size="5")
-            dt 嘘つき
-            dd: input(name="Liar",min="0",step="1",type="number",size="5")
-            dt スパイⅡ
-            dd: input(name="Spy2",min="0",step="1",type="number",size="5")
-            dt コピー
-            dd: input(name="Copier",min="0",step="1",type="number",size="5")
+        fieldset#yaminabe_opt(hidden)
+          legend 闇鍋オプション
+          p
+            label(title="チェックするとプレイ中は役職一覧が分かりません)
+              | 役職一覧も非公開
+              input(name="yaminabe_hidejobs",value="1",type="checkbox")
+            label
+              | 人狼の数
+              input(name="yaminabe_Werewolf",value="1",type="number",min="0",step="1",size=5)
+            label
+              | 妖狐の数
+              input(name="yaminabe_Fox",value="0",type="number",min="0",step="1",size=5)
         p
           label
             | 決定者
@@ -83,12 +69,6 @@
           label
             | 死神の手帳
             input(name="deathnote",value="1",type="checkbox")
-          label
-            | 闇鍋
-            select(name="yaminabe")
-              option(value="",selected) なし
-              option(value="on") あり(役職一覧は公開)
-              option(value="hide") あり(役職一覧も非公開)
       fieldset
         legend ルール
         p
@@ -114,16 +94,16 @@
         p
           label(title="遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。")
             | 遺言
-            input(name="will",type="checkbox",value="die")
+            input(name="will",type="checkbox",value="die",checked)
           label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")
             | 人狼の遠吠え
-            input(name="wolfsound",type="checkbox",value="aloud")
+            input(name="wolfsound",type="checkbox",value="aloud",checked)
           label(title="有効な場合、共有者の声が参加者全員に聞こえます。共有者以外は内容は分かりません。")
             | 共有者の声
             input(name="couplesound",type="checkbox",value="aloud")
           label(title="有効な場合、霊界で役職一覧が見られ、夜の発言や能力も全て把握できます。")
             | 死んだ後は役職一覧が見られる
-            input(name="heavenview",type="checkbox",value="view")
+            input(name="heavenview",type="checkbox",value="view",checked)
           label(title="有効な場合、人狼の襲撃先として人狼を選択できます。その場合でも人狼が死ぬことはありません。")
             | 人狼は人狼を殺しに行ける
             input(name="wolfattack",type="checkbox",value="ok")

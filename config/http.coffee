@@ -12,7 +12,9 @@
 custom = ->
 
   (request, response, next) ->
-    # console.log 'This is my custom middleware. The URL requested is', request.url
+    if request.url=="/"
+      console.log 'This is my custom middleware. The URL requested is', request.url
+      console.log request.connection.address().address
     # Unless you're serving a response you'll need to call next() here 
     next()
    
@@ -26,7 +28,7 @@ exports.primary =
   [
     #connect.logger()            # example of calling in-built connect middleware. be sure to install connect in THIS project and uncomment out the line above
     #require('connect-i18n')()   # example of using 3rd-party middleware from https://github.com/senchalabs/connect/wiki
-    #custom                      # example of using your own custom middleware (using the example above)
+    #custom()                      # example of using your own custom middleware (using the example above)
   ]
 
 # Stack for Secondary Server

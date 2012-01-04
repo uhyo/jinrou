@@ -38,141 +38,15 @@ exports.start=->
 			if obj.error?
 				SS.client.util.message "エラー",obj.error
 			results=obj.results
-			console.log results
-			teams=["Human","Werewolf","Fox","Devil","Bat","Neet"]	# 陣営一覧
 			# 陣営色
-			teamcolors=
-				Human:
-					name:"村人陣営"
-					color:"#00CC00"
-					Human:
-						name:"村人"
-						color:"#dddddd"
-					Diviner:
-						name:"占い師"
-						color:"#00b3ff"
-					Psychic:
-						name:"霊能者"
-						color:"#bb00ff"
-					Guard:
-						name:"狩人"
-						color:"#969ad4"
-					Couple:
-						name:"共有者"
-						color:"#ffffab"
-					Poisoner:
-						name:"埋毒者"
-						color:"#853c24"
-					Noble:
-						name:"貴族"
-						color:"#ffff00"
-					Slave:
-						name:"奴隷"
-						color:"#1417d9"
-					Magician:
-						name:"魔術師"
-						color:"#f03eba"
-					Fugitive:
-						name:"逃亡者"
-						color:"#e8b279"
-					Merchant:
-						name:"商人"
-						color:"#e06781"
-					QueenSpectator:
-						name:"女王観戦者"
-						color:"#faeebe"
-					Liar:
-						name:"嘘つき"
-						color:"#a3e4e6"
-					Copier:
-						name:"コピー"
-						color:"#ffffff"
-					Light:
-						name:"デスノート"
-						color:"#2d158c"					
-					MadWolf:
-						name:"狂人狼"
-						color:"#847430"
-					ToughGuy:
-						name:"タフガイ"
-						color:"#ff5900"
-					
-					
-					
-				Werewolf:
-					name:"人狼陣営"
-					color:"#DD0000"
-					Werewolf:
-						name:"人狼"
-						color:"#220000"
-					Madman:
-						name:"狂人"
-						color:"#ffbb00"
-					BigWolf:
-						name:"大狼"
-						color:"#660000"
-					Spy:
-						name:"スパイ"
-						color:"#ad5d28"
-					WolfDiviner:
-						name:"人狼占い"
-						color:"#5b0080"
-					Spy2:
-						name:"スパイⅡ"
-						color:"#d3b959"
-					Fanatic:
-						name:"狂信者"
-						color:"#94782b"
-					
-					
-				Fox:
-					name:"妖狐陣営"
-					color:"#934293"
-					Fox:
-						name:"妖狐"
-						color:"#934293"
-					TinyFox:
-						name:"子狐"
-						color:"#dd81f0"
-					Immoral:
-						name:"背徳者"
-						color:"#5c2f5c"
-						
-					
-				Bat:
-					name:"こうもり"
-					color:"#000066"
-					Bat:
-						name:"こうもり"
-						color:"#000066"
-				Devil:
-					name:"悪魔くん"
-					color:"#735f9e"
-					Devil:
-						name:"悪魔くん"
-						color:"#735f9e"
-					
-				Neet:
-					name:"ニート"
-					color:"#aaaaaa"
-					Neet:
-						name:"ニート"
-						color:"#aaaaaa"
+			teamcolors=merge SS.shared.game.jobinfo,{}
 
 			results.forEach (x)->	# 陣営チェック
-				x.team=
-					if x.type in SS.shared.game.wolves
-						"Werewolf"					
-					else if x.type in SS.shared.game.foxes
-						"Fox"
-					else if x.type=="Bat"
-						"Bat"
-					else if x.type=="Devil"
-						"Devil"
-					else if x.type=="Neet"
-						"Neet"
-					else
-						"Human"
+				for team of SS.shared.game.teams
+					if x.type in SS.shared.game.teams[team]
+						x.team=team
+						break
+
 				
 			grp=(title,size=200)->
 				# 新しいグラフ作成して追加まで
@@ -192,10 +66,11 @@ exports.start=->
 			gs=
 				win:{}
 				lose:{}
-			for x in teams
+			for x of SS.shared.game.teams
 				gs.win[x]={}
 				gs.lose[x]={}
 			results.forEach (x)->
+				console.log x.winner,x.team,gs
 				if x.winner==true
 					gs.win[x.team][x.type] ?= 0
 					gs.win[x.team][x.type]++

@@ -74,7 +74,7 @@ class Game
 	setplayers:(joblist,options,players,cb)->
 		jnumber=0
 		players=players.concat []
-		plsl=players.length
+		plsl=players.length	#実際の参加人数（身代わり含む）
 		if @rule.scapegoat=="on"
 			plsl++
 		@players=[]
@@ -84,23 +84,6 @@ class Game
 				cb "プレイヤー数が不正です（#{job}:#{num})"
 				return
 
-		if options.yaminabe
-			# 闇鍋のときはランダムに決める
-			frees=plsl	# 決める
-			#でも人外はもう決まってる
-			for job in SS.shared.game.nonhumans
-				frees-=parseInt joblist[job]
-			#plslが残り自由に決めるかず
-			possibility=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans)
-			for job in possibility
-				joblist[job]=0	# 一旦初期化
-			
-			while frees>0
-				r=Math.floor Math.random()*possibility.length
-				job=possibility[r]
-				joblist[job]++
-				frees--	# ひとつ追加
-							
 		if jnumber!=plsl
 			# 数が合わない
 			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
@@ -108,7 +91,7 @@ class Game
 
 		# 名前と数を出したやつ
 		@jobscount={}
-		unless options.yaminabe=="hide"
+		unless options.yaminabe_hidejobs
 			for job,num of joblist
 				continue unless num>0
 				testpl=new jobs[job]
@@ -742,19 +725,7 @@ class Player
 		return if @dead
 		@dead=true
 		@found=found
-		if found=="punish"
-			@punished game
-		else if found=="werewolf"
-			@bitten game
-		
-	# つられたとき
-	punished:(game)->
 
-		
-
-	# 噛まれたとき
-	bitten: (game)->
-		return if @dead
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
 	# 役職情報を載せる
@@ -975,20 +946,16 @@ class Fox extends Player
 class Poisoner extends Player
 	type:"Poisoner"
 	jobname:"埋毒者"
-	punished:(game)->
-		# 埋毒者の逆襲
+	die:(game,found)->
 		super
+		# 埋毒者の逆襲
 		canbedead = game.players.filter (x)->!x.dead	# 生きている人たち
+		if found=="werewolf"
+			# 噛まれた場合は狼のみ
+			canbedead=canbedead.filter (x)->x.isWerewolf()
+		return if canbedead.length==0
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害者
-		pl.die game,"poison"
-
-	bitten:(game)->
-		super
-		# 埋毒者の逆襲
-		canbedead = game.players.filter (x)->!x.dead && x.isWerewolf()	# 狼たち
-		r=Math.floor Math.random()*canbedead.length
-		pl=canbedead[r]	# 被害狼
 		pl.die game,"poison"
 
 class BigWolf extends Werewolf
@@ -1683,9 +1650,57 @@ exports.actions=
 				# すでに開始している
 				cb "そのゲームは既に開始しています"
 				return
+			
+			options={}	# オプションズ
+			for opt in ["decider","authority"]
+				options[opt]=query[opt] ? null
+
+			joblist={}
+			for job of jobs
+				joblist[job]=0	# 一旦初期化
+			frees=room.players.length	# 参加者の数
+			if query.scapegoat=="on"	# 身代わりくん
+				frees++
+
+			if query.jobrule=="特殊ルール.自由配役"	# 自由のときはクエリを参考にする
+				for job in SS.shared.game.jobs
+					joblist[job]=parseInt query[job]	# 仕事の数
+			else if query.jobrule=="特殊ルール.闇鍋"
+				# 闇鍋のときはランダムに決める
+				options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
+				#でも人外はもう決まってる
+				# 人狼
+				joblist.Werewolf=parseInt query.yaminabe_Werewolf
+				frees-=joblist.Werewolf
+				# 狐
+				joblist.Fox=parseInt query.yaminabe_Fox
+				frees-=joblist.Fox
+				possibility=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans)
+			
+				while frees>0
+					r=Math.floor Math.random()*possibility.length
+					job=possibility[r]
+					joblist[job]++
+					frees--	# ひとつ追加
+			else
+				# 配役に従ってアレする
+				func=SS.shared.game.getrulefunc query.jobrule
+				unless func
+					cb "不明な配役です"
+					return
+				joblist=func frees
+				sum=0	# 穴を埋めつつ合計数える
+				for job of jobs
+					unless joblist[job]?
+						joblist[job]=0
+					else
+						sum+=joblist[job]
+				joblist.Human=frees-sum	# 残りは村人だ!
+
 			game.setrule {
 				number: room.players.length
 				blind:room.blind
+				jobrule:query.jobrule ? null				
 				
 				scapegoat : query.scapegoat
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
@@ -1704,13 +1719,6 @@ exports.actions=
 				psychicresult:query.psychicresult ? null
 				waitingnight:query.waitingnight ? null
 			}
-			
-			joblist={}
-			for job in SS.shared.game.jobs
-				joblist[job]=parseInt query[job]	# 仕事の数
-			options={}
-			for opt in ["decider","authority","yaminabe"]
-				options[opt]=query[opt] ? null
 			
 			game.setplayers joblist,options,room.players,(result)->
 				unless result?

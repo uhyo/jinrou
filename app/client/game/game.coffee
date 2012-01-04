@@ -135,14 +135,19 @@ exports.start=(roomid)->
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
-			sum=0
-			jobs.forEach (x)->
-				sum+=parseInt form.elements[x].value
 			pl=room.players.length
+			if t.name=="jobrule"
+				# ルール変更があった
+				setplayersbyjobrule form,pl
+				return
 			if form.elements["scapegoat"].value=="on"
 				# 身代わりくん
 				pl++
+			sum=0
+			jobs.forEach (x)->
+				sum+=parseInt form.elements[x].value
 			form.elements["Human"].value=pl-sum
+			setjobsmonitor form
 		form.addEventListener "input",jobsforminput,false
 		form.addEventListener "change",jobsforminput,false
 				
@@ -318,63 +323,104 @@ exports.start=(roomid)->
 		socket_ids.push SS.client.socket.on "time",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				gettimer parseInt(msg.time),msg.mode
+	
+	# 役職入力フォームを作る
+	for job in SS.shared.game.jobs
+		# 探す
+		continue if job=="Human"	# 村人だけは既に置いてある（あまり）
+		for team,members of SS.shared.game.teams
+			if job in members
+				dt=document.createElement "dt"
+				dt.textContent=SS.shared.game.jobinfo[team][job].name
+				dd=document.createElement "dd"
+				input=document.createElement "input"
+				input.type="number"
+				input.min=0; input.step=1; input.size=5; input.value=0
+				input.name=job
+				input.dataset.jobname=SS.shared.game.jobinfo[team][job].name
+				dd.appendChild input
+				$("#jobsfield").append(dt).append dd
+	# 配役タイプ
+	setjobrule=(rulearr,names,parent)->
+		for obj in rulearr
+			# name,title, ruleをもつ
+			if obj.rule instanceof Array
+				# さらに子
+				optgroup=document.createElement "optgroup"
+				optgroup.label=obj.name
+				parent.appendChild optgroup
+				setjobrule obj.rule,names.concat([obj.name]),optgroup
+			else
+				# option
+				option=document.createElement "option"
+				option.textContent=obj.name
+				option.value=names.concat([obj.name]).join "."
+				option.title=obj.title
+				parent.appendChild option
 				
-		
-	setplayersnumber=(form,number)->
-		form.elements["number"]=number
-		form.elements[x].value=0 for x in SS.shared.game.jobs
-
-		hu=number	# 村人
-		huall=hu
-		if form.elements["scapegoat"].value=="on"
-			hu++
-		# 人狼
-		form.elements["Werewolf"].value=2
-		hu-=2
-		# 占い師
-		form.elements["Diviner"].value=1
-		hu--
-		#9人異常：霊能者
-		form.elements["Psychic"].value=if huall>=9
-			hu--
-			1
-		else
-			0
-		#10人異常：狂人
-		form.elements["Madman"].value=if huall>=10
-			hu--
-			1
-		else
-			0
-		#11人以上：狩人
-		form.elements["Guard"].value=if huall>=11
-			hu--
-			1
-		else
-			0
-		#13人以上：共有者
-		form.elements["Couple"].value=if huall>=13
-			hu-=2
-			2
-		else
-			0
-		# 15人以上：妖狐
-		form.elements["Fox"].value=if huall>=15
-			hu--
-			1
-		else
-			0
-			
-			
-		form.elements["decider"].checked= huall>=16
-		form.elements["authority"].checked= huall>=16
-		
-		form.elements["will"].checked=true
-		form.elements["wolfsound"].checked=true
-		form.elements["heavenview"].checked=true
+	setjobrule SS.shared.game.jobrules.concat([
+		name:"特殊ルール"
+		rule:[
+			{
+				name:"自由配役"
+				title:"配役を自由に設定できます。"
+				rule:null
+			}
+			{
+				name:"闇鍋"
+				title:"配役がランダムに設定されます。"
+				rule:null
+			}
+		]
+	]),[],$("#jobruleselect").get 0
 	
 		
-		form.elements["Human"].value=hu
+	setplayersnumber=(form,number)->
+		
+		setplayersbyjobrule form,number
+	# 配役一覧をアレする
+	setplayersbyjobrule=(form,number)->
+		jobrulename=form.elements["jobrule"].value
+		if jobrulename=="特殊ルール.自由配役"
+			$("#jobsfield").get(0).hidden=false
+			$("#yaminabe_opt").get(0).hidden=true
+			return
+		else if jobrulename=="特殊ルール.闇鍋"
+			$("#jobsfield").get(0).hidden=true
+			$("#yaminabe_opt").get(0).hidden=false
+			setjobsmonitor form
+			return
+		else
+			$("#jobsfield").get(0).hidden=true
+			$("#yaminabe_opt").get(0).hidden=true
+		if form.elements["scapegoat"].value=="on"
+			number++	# 身代わりくん
+		obj= SS.shared.game.getrulefunc jobrulename
+		return unless obj?
+
+		form.elements["number"]=number
+		form.elements[x].value=0 for x in SS.shared.game.jobs
+		jobs=obj number
+		count=0	#村人以外
+		for job,num of jobs
+			form.elements[job]?.value=num
+			count+=num
+		form.elements["Human"].value=number-count	# 村人
+		setjobsmonitor form
+	# 配役をテキストで書いてあげる
+	setjobsmonitor=(form)->
+		text=""
+		if form.elements["jobrule"].value=="特殊ルール.闇鍋"
+			# 闇鍋の場合
+			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
+			return
+		for job in SS.shared.game.jobs
+			input=form.elements[job]
+			num=input.value
+			continue unless parseInt num
+			text+="#{input.dataset.jobname}#{num} "
+		$("#jobsmonitor").text text
+		
 		
 	#ログをもらった
 	getlog=(log)->

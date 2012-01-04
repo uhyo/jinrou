@@ -10,10 +10,13 @@ exports.actions =
 		auth.authenticate query,(response)=>
 			if response.success
 				@session.setUserId response.userid
+				response.ip=SS.io.sockets.sockets[@request.socket_id]?.handshake.address.address
 				@session.attributes.user=response
 				#@session.attributes.room=null	# 今入っている部屋
 				@session.channel.unsubscribeAll()
 				cb false
+				# IPアドレスを記録してあげる
+				M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
 			else
 				cb true
 				
@@ -147,4 +150,5 @@ makeuserdata=(query)->
 		win:[]	# 勝ち試合
 		lose:[]	# 負け試合
 		gone:[]	# 行方不明試合
+		ip:""	# IPアドレス
 	}

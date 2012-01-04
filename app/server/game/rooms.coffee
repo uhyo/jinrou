@@ -26,7 +26,6 @@ exports.actions=
 			query=
 				mode:
 					$ne:"end"
-		console.log "#{mode} #{page} #{page_number}"
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
 				cb {error:err}
@@ -48,6 +47,7 @@ exports.actions=
 			# クライアントからの問い合わせの場合
 			result.players.forEach (p)->
 				delete p.realid
+				delete p.ip
 			cb result
 	oneRoomS:(roomid,cb)->
 		M.rooms.findOne {id:roomid},(err,result)=>
@@ -111,8 +111,14 @@ exports.actions=
 				userid:@session.user_id
 				realid:@session.user_id
 				name:su.name
+				ip:su.ip
 				
 			user.realid = @session.user_id
+			# 同IP制限
+			###if room.players.some((x)->x.ip==su.ip)
+				cb "重複参加はできません"
+				return
+			###
 			if room.blind
 				unless opt?.name
 					cb "名前を入力して下さい"
@@ -137,6 +143,7 @@ exports.actions=
 				else
 					cb null
 					# 入室通知
+					delete user.ip
 					SS.server.game.game.inlog room,user
 					SS.publish.channel "room#{roomid}", "join", user
 # 部屋から出る
