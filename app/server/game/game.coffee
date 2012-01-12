@@ -103,8 +103,14 @@ class Game
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
 			i=0	# 無限ループ防止
+			nogoat=[]	#身代わりがならない役職
+			if @rule.safety!="free"
+				nogoat=nogoat.concat SS.shared.game.nonhumans	#人外は除く
+			if @rule.safety=="full"
+				# 危ない
+				nogoat=nogoat.concat ["QueenSpectator","Spy2"]
 			while ++i<100
-				jobss=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans) && joblist[x]>0
+				jobss=Object.keys(jobs).filter (x)->!(x in nogoat) && joblist[x]>0
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
@@ -173,20 +179,6 @@ class Game
 			alives=@players.filter (x)->!x.dead
 			alives.forEach (x)=>
 				x.sunset this
-			if @day==1
-				# 始まったばかり
-				if @rule.scapegoat=="on"
-					@players.forEach (x)->
-						if x.isWerewolf()
-							x.target="身代わりくん"
-				else if @rule.scapegoat=="no"
-					@players.forEach (x)->
-						if x.isWerewolf()
-							x.target=""	# 誰も殺さない
-				# 狩人は一日目護衛しない
-				@players.forEach (x)->
-					if x.type=="Guard"
-						x.target=""	# 誰も守らない
 		else
 			# 処理
 			if @rule.deathnote
@@ -687,7 +679,7 @@ class Player
 			# 身代わりくんは投票
 			alives=game.players.filter (x)->!x.dead
 			r=Math.floor Math.random()*alives.length	# 投票先
-			@voteto=game.players[r].id
+			@voteto=alives[r].id
 			if game.rule.votemyself!="ok" && @voteto==@id && alives.length>1
 				# 自分投票
 				@votestart game	# やり直し
@@ -766,6 +758,19 @@ class Werewolf extends Player
 	jobname:"人狼"
 	sunset:(game)->
 		@target=null
+		if game.day==1
+			# 一日目は殺さないかも
+			if game.rule.scapegoat=="on"
+				@target="身代わりくん"
+			else if game.rule.scapegoat=="no"
+				@target=""	# 誰も殺さない
+		else
+			if @scapegoat && game.players.filter((x)->x.isWerewolf()).length==1
+				# 自分しか人狼がいない
+				r=Math.floor Math.random()*game.players.length
+				if @job game,game.players[r].id,{}
+					@sunset
+
 	sleeping:->@target?
 	job:(game,playerid)->
 		tp = game.getPlayer playerid
@@ -910,7 +915,10 @@ class Guard extends Player
 	sleeping:->@target?
 	sunset:(game)->
 		@target=null
-		if @scapegoat
+		if game.day==1
+			# 狩人は一日目護衛しない
+			@target=""	# 誰も守らない
+		else if @scapegoat
 			# 身代わり君の自動占い
 			r=Math.floor Math.random()*game.players.length
 			if @job game,game.players[r].id,{}
@@ -1675,18 +1683,46 @@ exports.actions=
 					joblist[job]=parseInt query[job]	# 仕事の数
 			else if query.jobrule=="特殊ルール.闇鍋"
 				# 闇鍋のときはランダムに決める
+				pls=frees	# プレイヤーの数をとっておく
+				plsh=Math.floor pls/2	# 過半数
+		
 				options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
 				#でも人外はもう決まってる
 				# 人狼
 				joblist.Werewolf=parseInt query.yaminabe_Werewolf
+				if isNaN joblist.Werewolf
+					joblist.Werewolf=1
 				frees-=joblist.Werewolf
 				# 狐
 				joblist.Fox=parseInt query.yaminabe_Fox
+				if isNaN joblist.Fox
+					joblist.Fox=0
 				frees-=joblist.Fox
-				possibility=Object.keys(jobs).filter (x)->!(x in SS.shared.game.nonhumans)
+				
+				# 闇鍋のときは入れないのがある
+				exceptions=[]
+				if query.safety!="free"
+					exceptions=exceptions.concat SS.shared.game.nonhumans	# 基本人外は選ばれない
+				if query.safety=="full"	# 安全
+					if joblist.Fox==0
+						exceptions.push "Immoral"	# 狐がいないのに背徳は出ない
+					
+
+				
+				possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
+				
+				wolf_teams=joblist.Werewolf	# 人狼陣営の数(PP防止)
+				wts=Object.keys SS.shared.game.jobinfo.Werewolf	# 人狼陣営一覧（nameとcolorが余計だけど）
 			
 				while frees>0
 					r=Math.floor Math.random()*possibility.length
+					if query.yaminabe_nopp
+						if r in wts
+							wolf_teams++	# 人狼陣営が増えた
+						if wolf_teams>=plsh
+							# 人狼が過半数を越えた（PP）
+							wolf_teams--	# やめた
+							continue
 					job=possibility[r]
 					joblist[job]++
 					frees--	# ひとつ追加
@@ -1726,6 +1762,7 @@ exports.actions=
 				divineresult:query.divineresult ? null
 				psychicresult:query.psychicresult ? null
 				waitingnight:query.waitingnight ? null
+				safety:query.safety ? null
 			}
 			
 			game.setplayers joblist,options,room.players,(result)->

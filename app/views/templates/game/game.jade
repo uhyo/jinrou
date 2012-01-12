@@ -50,15 +50,20 @@
         fieldset#yaminabe_opt(hidden)
           legend 闇鍋オプション
           p
-            label(title="チェックするとプレイ中は役職一覧が分かりません)
-              | 役職一覧も非公開
-              input(name="yaminabe_hidejobs",value="1",type="checkbox")
             label
               | 人狼の数
               input(name="yaminabe_Werewolf",value="1",type="number",min="0",step="1",size=5)
             label
               | 妖狐の数
               input(name="yaminabe_Fox",value="0",type="number",min="0",step="1",size=5)
+          p
+            label(title="チェックするとプレイ中は役職一覧が分かりません")
+              | 役職一覧も非公開
+              input(name="yaminabe_hidejobs",value="1",type="checkbox")
+            label(title="配役の時点で狼陣営の数が村人陣営を上回らないようにします")
+              | 初日PPを防ぐ
+              input(name="yaninabe_nopp",value="1",type="checkbox",checked)
+
         p
           label
             | 決定者
@@ -129,6 +134,12 @@
           label(title="有効な場合、夜は全員が能力を行使しても時間切れまでは進みません。")
             | 夜は時間切れまで待つ
             input(name="waitingnight",type="checkbox",value="wait",checked)
+          label(title="チェックを外すとゲームが成立しないような組み合わせになる可能性もあります")
+            | 身代わりセーフティ
+            select(name="safety",title="役職決定時に身代わり君の役職に気をつけます")
+              option(value="full",selected) あり
+              option(value="no") なし
+              option(value="free") なんでもあり
           
       p: input(type="submit",value="開始")
   .infobox
