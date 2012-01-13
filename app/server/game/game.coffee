@@ -1597,6 +1597,47 @@ class Cupid extends Player
 			SS.publish.user pl.id,"refresh",{id:game.id}	
 
 		null
+# ストーカー
+class Stalker extends Player
+	type:"Stalker"
+	jobname:"ストーカー"
+	team:""
+	sunset:(game)->
+		super
+		if game.day==1
+			@target=null
+		else
+			@target=""
+			if @scapegoat
+				alives=game.players.filter (x)->!x.dead
+				r=Math.floor Math.random()*alives.length
+				pl=alives[r]
+				@job game,pl.id,{}
+	sleeping:->@target?
+	job:(game,playerid,query)->
+		if @target?
+			return "既に対象は決定しています"
+		if game.day>=2	#もう遅い
+			return "もうストーキングできません"
+	
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}（#{pl.jobname}）のストーカーになりました。"
+		splashlog game.id,game,log
+		@flag=playerid	# ストーキング対象プレイヤー
+		null
+	isWinner:(game,team)->team==game.getPlayer(@flag)?.team
+	makejobinfo:(game,result)->
+		super
+		result.stalking=game.getPlayer @flag
+		
+		
+		
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
 class Complex
@@ -1687,6 +1728,7 @@ jobs=
 	Devil:Devil
 	ToughGuy:ToughGuy
 	Cupid:Cupid
+	Stalker:Stalker
 	
 complexes=
 	Complex:Complex

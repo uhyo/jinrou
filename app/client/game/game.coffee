@@ -494,7 +494,9 @@ exports.start=(roomid)->
 			$("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
 		if obj.friends?.length>0
 			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
-			
+		if obj.stalking?
+			$("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
+		
 		if obj.winner?
 			# 勝敗
 			$("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"

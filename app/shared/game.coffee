@@ -4,7 +4,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox",
 # 特殊役職2
-"Devil","ToughGuy","Cupid"
+"Devil","ToughGuy","Cupid","Stalker"
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -26,6 +26,7 @@ exports.teams=
 	Bat:["Bat"]
 	Devil:["Devil"]
 	Friend:["Cupid"]
+	Others:["Stalker"]
 	Neet:["Neet"]
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
@@ -365,6 +366,12 @@ exports.jobinfo=
 		Cupid:
 			name:"キューピッド"
 			color:"#ffb5e5"
+	Others:
+		name:"その他"
+		color:"#cccccc"
+		Stalker:
+			name:"ストーカー"
+			color:"#ad6628"
 		
 	Neet:
 		name:"ニート"
