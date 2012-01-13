@@ -3,8 +3,8 @@ exports.start=->
 	$("#number_of_jobs").text SS.shared.game.jobs.length
 	
 	# 役職一覧ページ
-	if location.pathname=="/manual/joblist"
-		j=$("#joblist_main")
+	j=$("#joblist_main")
+	if j.get 0
 		for job in SS.shared.game.jobs
 			j.append $("#templates-jobs-#{job}").tmpl()
 				
