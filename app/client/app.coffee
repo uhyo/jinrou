@@ -15,6 +15,7 @@ exports.init = ->
 	$("a").live "click", (je)->
 		t=je.target
 		return if je.isDefaultPrevented()
+		return if t.target=="_blank"
 		je.preventDefault()
 
 		SS.client.app.showUrl t.href
