@@ -140,6 +140,11 @@
               option(value="full",selected) あり
               option(value="no") なし
               option(value="free") なんでもあり
+          label(title="恋人陣営の勝利条件を設定します。")
+            | 恋人陣営の勝利
+            select(name="friendsjudge")
+              option(value="alive",title="妖狐と同様です。",selected) 終了時に生存
+              option(value="ruin") 恋人だけ生存
           
       p: input(type="submit",value="開始")
   .infobox
@@ -210,6 +215,10 @@
       p
         | あなたは死神の手帳を持っています（必須ではありません）：
         input(type="submit",value="手帳に書く",data-job="Light")
+    #form_Cupid(hidden).jobformarea
+      p
+        | 恋人にする2人を1人ずつ選んで下さい:
+        input(type="submit",value="恋の矢を放つ",data-job="Cupid")
   form#speakform
     p
       input(size="50",name="comment",required)

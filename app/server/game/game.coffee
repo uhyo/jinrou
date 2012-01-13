@@ -108,7 +108,7 @@ class Game
 				nogoat=nogoat.concat SS.shared.game.nonhumans	#人外は除く
 			if @rule.safety=="full"
 				# 危ない
-				nogoat=nogoat.concat ["QueenSpectator","Spy2"]
+				nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner"]
 			while ++i<100
 				jobss=Object.keys(jobs).filter (x)->!(x in nogoat) && joblist[x]>0
 				r=Math.floor Math.random()*jobss.length
@@ -189,7 +189,7 @@ class Game
 					pl=alives[r]
 					sub=Player.factory "Light",pl.realid,pl.id,pl.name	# 副を作る
 					sub.sunset this
-					newpl=Player.factory "Complex",pl.realid,pl.id,pl.name,pl,sub
+					newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,sub,Complex
 					@players.forEach (x,i)=>	# 入れ替え
 						if x.id==newpl.id
 							@players[i]=newpl
@@ -258,6 +258,8 @@ class Game
 					"死体で発見されました"
 				when "foxsuicide"
 					"狐の後を追って自ら死を選びました"
+				when "friendsuicide"
+					"恋人の後を追って自ら死を選びました"
 				else
 					"突然お亡くなりになられました"				
 			log=
@@ -375,9 +377,18 @@ class Game
 			# 妖狐判定
 			if @players.some((x)->!x.dead && x.isFox())
 				team="Fox"
+			# 恋人判定
+			if @rule.friendjudge=="alive"
+				# 終了時に恋人生存
+				friends=@players.filter (x)->x.isFriend()
+				if friends.every((x)->!x.dead)
+					team="Friend"
 		# 悪魔くん判定
 		if @players.some((x)->x.type=="Devil" && x.flag=="winner")
 			team="Devil"
+		if @players.filter((x)->!x.dead).every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
+			# 恋人のみ生存
+			team="Friend"
 
 		if @revote_num>=4
 			# 再投票多すぎ
@@ -407,6 +418,8 @@ class Game
 						"村は妖狐のものとなりました。"
 					when "Devil"
 						"村は悪魔くんのものとなりました。"
+					when "Friend"
+						"#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。"
 					when "Draw"
 						"引き分けになりました。"
 						
@@ -586,17 +599,21 @@ class Player
 		# もとの役職
 		@originalType=@type
 		@originalJobname=@jobname
-	@factory:(type,realid,id,name,main={},sub={})->
+	@factory:(type,realid,id,name,main=null,sub=null,cmpl=null)->
 		p=null
-		if type=="Complex"
+		if cmpl?
 			# 複合 mainとsubを使用
+			#cmpl: 複合の親として使用するオブジェクト
 			myComplex=Object.create main #Complexから
-			Object.getOwnPropertyNames(Complex.prototype).forEach (x)->	# 手動でComplexを継承
-				myComplex[x]=Complex.prototype[x]
+			sample=new cmpl	# 手動でComplexを継承したい
+			Object.keys(sample).forEach (x)->
+				delete sample[x]	# own propertyは全部消す
+			for name of sample
+				# sampleのown Propertyは一つもない
+				myComplex[name]=sample[name]
 			# 混合役職
 			p=Object.create myComplex
-			Object.getOwnPropertyNames(p).forEach (x)->
-				delete p[x]
+
 			p.main=main
 			p.sub=sub
 		else if !jobs[type]?
@@ -622,7 +639,8 @@ class Player
 		if @isComplex()
 			r.type="Complex"
 			r.Complex_main=@main.serialize()
-			r.Complex_sub=@sub.serialize()
+			r.Complex_sub=@sub?.serialize()
+			r.Complex_type=@cmplType
 		r
 	@unserialize:(obj)->
 		unless obj?
@@ -630,7 +648,8 @@ class Player
 
 		p=if obj.type=="Complex"
 			# 複合
-			Player.factory obj.type,obj.realid,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub)
+			cmplobj=complexes[obj.Complex_type ? "Complex"]
+			Player.factory null,obj.realid,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub),cmplobj
 		else
 			# 普通
 			Player.factory obj.type,obj.realid,obj.id,obj.name
@@ -665,6 +684,8 @@ class Player
 	isWerewolf:->false
 	# 洋子かどうか
 	isFox:->false
+	# 恋人かどうか
+	isFriend:->false
 	# Complexかどうか
 	isComplex:->false
 	# jobtypeが合っているかどうか（夜）
@@ -724,6 +745,8 @@ class Player
 
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
+	# 占われたとき（結果は別にとられる）
+	divined:(game)->
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
@@ -860,9 +883,7 @@ class Diviner extends Player
 				player: p.publicinfo()
 				result: p.fortuneResult
 			}
-			if p.type=="Fox"
-				# 妖狐呪殺
-				p.die game,"curse"
+			p.divined game
 	showdivineresult:(game)->
 		r=@results[@results.length-1]
 		return unless r?
@@ -956,6 +977,10 @@ class Fox extends Player
 		# 妖狐は仲間が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
+	divined:(game)->
+		# 妖狐呪殺
+		@die game,"curse"
+
 
 class Poisoner extends Player
 	type:"Poisoner"
@@ -1174,9 +1199,7 @@ class WolfDiviner extends Werewolf
 			@result=
 				player: p.publicinfo()
 				result: p.jobname
-			if p.type=="Fox"
-				# 妖狐呪殺
-				p.die game,"curse"
+			p.divined game
 			if p.type=="Diviner"
 				# 逆呪殺
 				@die game,"curse"
@@ -1186,6 +1209,7 @@ class WolfDiviner extends Werewolf
 				newjob=jobnames[Math.floor Math.random()*jobnames.length]
 				plobj=p.serialize()
 				plobj.type=newjob
+				plobj.originalJobname="#{p.originalJobname}→#{plobj.jobname}"
 				newpl=Player.unserialize plobj	# 新生狂人
 				game.players.forEach (x,i)->	# 入れ替え
 					if x.id==newpl.id
@@ -1263,7 +1287,7 @@ class Merchant extends Player
 		# 複合させる
 		sub=Player.factory query.Merchant_kit,pl.realid,pl.id,pl.name	# 副を作る
 		sub.sunset game
-		newpl=Player.factory "Complex",pl.realid,pl.id,pl.name,pl,sub
+		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,sub,Complex	# Complex
 		game.players.forEach (x,i)->	# 入れ替え
 			if x.id==newpl.id
 				game.players[i]=newpl
@@ -1403,13 +1427,14 @@ class Copier extends Player
 		p=game.getPlayer playerid
 		newpl=Player.factory p.type,@realid,@id,@name
 		newpl.originalType=@originalType
-		newpl.originalJobname=@originalJobname
+		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 		game.players.forEach (x,i)->	# 入れ替え
 			if x.id==newpl.id
 				game.players[i]=newpl
 			else
 				x
 		
+		SS.publish.user newpl.id,"refresh",{id:game.id}	
 		null
 	isWinner:(game,team)->null
 class Light extends Player
@@ -1500,41 +1525,130 @@ class ToughGuy extends Player
 			@dead=true
 			@found="werewolf"
 			#game.bury()
+class Cupid extends Player
+	type:"Cupid"
+	jobname:"キューピッド"
+	team:"Friend"
+	constructor:->
+		super
+		@flag=null	# 恋人1
+		@target=null	# 恋人2
+	sunset:(game)->
+		if game.day>=2
+			# 2日目以降はもう遅い
+			@flag=""
+			@target=""
+		else
+			@flag=null
+			@target=null
+			if @scapegoat
+				# 身代わり君の自動占い
+				alives=game.players.filter (x)->!x.dead
+				i=0
+				while i++<2
+					r=Math.floor Math.random()*alives.length
+					@job game,alives[r].id,{}
+					alives.splice r,1
+	sleeping:->@flag? && @target?
+	job:(game,playerid,query)->
+		if @flag? && @target?
+			return "既に対象は決定しています"
+		if game.day>=2	#もう遅い
+			return "もう恋の矢を放てません"
+	
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		
+		unless @flag?
+			@flag=playerid
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は恋人の1人目に#{pl.name}を選びました。"
+			splashlog game.id,game,log
+			return null
+		if @flag==playerid
+			return "もう一人別の人を選んで下さい"
+			
+		@target=playerid
+		# 恋人二人が決定した
+		
+		for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
+			# 2人ぶん処理
+		
+			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Friend	# 恋人だ！
+			newpl.main?.originalJobname="#{newpl.main.originalJobname}→恋人（#{newpl.jobname})"
+			game.players.forEach (x,i)->	# 入れ替え
+				if x.id==newpl.id
+					game.players[i]=newpl
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{newpl.name}へ恋の矢を放ちました。"
+			splashlog game.id,game,log
+			log=
+				mode:"skill"
+				to:newpl.id
+				comment:"#{newpl.name}は恋人になりました。"
+			splashlog game.id,game,log
+		# 2人とも更新する
+		for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
+			SS.publish.user pl.id,"refresh",{id:game.id}	
 
-
+		null
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
-class Complex extends Player
+class Complex
+	cmplType:"Complex"	# 複合親そのものの名前
 	isComplex:->true
-	jobdone:-> @main.jobdone() && @sub?.jobdone()	# ジョブの場合はサブも考慮
+	jobdone:-> @main.jobdone() && (!@sub?.jobdone? || @sub.jobdone())	# ジョブの場合はサブも考慮
 	job:(game,playerid,query)->	# どちらの
 		if @main.isJobType(query.jobtype) && !@main.jobdone()
 			@main.job game,playerid,query
-		else if @sub?.isJobType(query.jobtype) && !@sub?.jobdone()
-			@sub.job game,playerid,query
+		else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?()
+			@sub.job? game,playerid,query
 		
 	isJobType:(type)->
-		@main.isJobType(type) || @sub.isJobType(type)
+		@main.isJobType(type) || @sub?.isJobType?(type)
 	sunset:(game)->
 		@main.sunset game
-		@sub?.sunset game
+		@sub?.sunset? game
 	midnight:(game)->
 		@main.midnight game
-		@sub?.midnight game
+		@sub?.midnight? game
 	sunrise:(game)->
 		@main.sunrise game
-		@sub?.sunrise game
+		@sub?.sunrise? game
 	makejobinfo:(game,result)->
-		@sub?.makejobinfo game,result
+		@sub?.makejobinfo? game,result
 		@main.makejobinfo game,result
 	youareguarded:->
 		@main.youareguarded()
-		@sub?.youareguarded()
+		@sub?.youareguarded?()
 	setWinner:(winner)->
 		@winner=winner
 		@main.setWinner winner
-		
 
+#superがつかえないので注意
+class Friend extends Complex	# 恋人
+	cmplType:"Friend"
+	team:"Friend"
+	isFriend:->true
+	team:"Friend"
+	beforebury:(game)->
+		@main.beforebury game
+		@sub?.beforebury? game
+		friends=game.players.filter (x)->x.isFriend()	#恋人たち
+		# 恋人が誰か死んだら自殺
+		if friends.length>1 && friends.some((x)->x.dead)
+			@die game,"friendsuicide"
+	makejobinfo:(game,result)->
+		@sub?.makejobinfo? game,result
+		@main.makejobinfo game,result
+		# 恋人が分かる
+		result.friends=game.players.filter((x)->x.isFriend()).map (x)->
+			x.publicinfo()
 games={}
 
 # ゲームを得る
@@ -1572,6 +1686,11 @@ jobs=
 	Immoral:Immoral
 	Devil:Devil
 	ToughGuy:ToughGuy
+	Cupid:Cupid
+	
+complexes=
+	Complex:Complex
+	Friend:Friend
 
 
 exports.actions=
@@ -1763,6 +1882,7 @@ exports.actions=
 				psychicresult:query.psychicresult ? null
 				waitingnight:query.waitingnight ? null
 				safety:query.safety ? null
+				friendsjudge:query.friendsjudge ? null
 			}
 			
 			game.setplayers joblist,options,room.players,(result)->

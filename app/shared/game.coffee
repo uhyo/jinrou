@@ -4,7 +4,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox",
 # 特殊役職2
-"Devil","ToughGuy"
+"Devil","ToughGuy","Cupid"
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -25,6 +25,7 @@ exports.teams=
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
+	Friend:["Cupid"]
 	Neet:["Neet"]
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
@@ -110,10 +111,25 @@ exports.jobrules=[
         title:"少人数でも狐が出る配役。"
         rule:(number)->
           ret=normal1 number
+          ret.Fox ?= 0
           ret.Fox++
-          if number<10
+          if number<10 && ret.Werewolf>1
             ret.Werewolf--
           ret
+      }
+    ]
+  }
+  {
+    name:"特殊役職配役"
+    rule:[
+      {
+        name:"恋人"
+        title:"恋人が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          if ret.Fox>0	#NaNかも
+            ret.Fox--
+          ret.Cupid++
       }
     ]
   }
@@ -343,6 +359,12 @@ exports.jobinfo=
 		Devil:
 			name:"悪魔くん"
 			color:"#735f9e"
+	Friend:
+		name:"恋人陣営"
+		color:"#ffb5e5"
+		Cupid:
+			name:"キューピッド"
+			color:"#ffb5e5"
 		
 	Neet:
 		name:"ニート"

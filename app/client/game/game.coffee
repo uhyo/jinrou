@@ -492,6 +492,9 @@ exports.start=(roomid)->
 			$("#jobinfo").append pp "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
 		if obj.spy2s?.length>0
 			$("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
+		if obj.friends?.length>0
+			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
+			
 		if obj.winner?
 			# 勝敗
 			$("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
@@ -545,8 +548,11 @@ exports.start=(roomid)->
 			if x.jobname
 				#console.log x
 				b=document.createElement "b"
-				if x.originalJobname? && x.originalJobname!=x.jobname
-					b.textContent="#{x.originalJobname}→#{x.jobname}"
+				if x.originalJobname?
+					if x.originalJobname==x.jobname || x.originalJobname.indexOf("→")>=0
+						b.textContent=x.originalJobname
+					else
+						b.textContent="#{x.originalJobname}→#{x.jobname}"
 				else
 					b.textContent=x.jobname
 				if x.option
