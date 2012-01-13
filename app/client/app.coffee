@@ -71,6 +71,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/lobby"
 			# ロビー
 			page "templates-lobby",null,SS.client.lobby,null
+		when "/manual"
+			# マニュアルトップ
+			page "templates-manual-top",null,SS.client.manual,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム
@@ -83,6 +86,8 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				win=SS.client.util.blankWindow()
 				$("#templates-jobs-#{result[1]}").tmpl().appendTo win
 				return
+			else if result=url.match /^\/manual\/(\w+)$/
+				page "templates-manual-#{result[1]}",null,SS.client.manual,null
 			else
 				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
