@@ -14,6 +14,9 @@ class Game
 		@timer_start=null	# 残り時間のカウント開始時間（秒）
 		@timer_remain=null	# 残り時間全体（秒）
 		@revote_num=0	# 再投票を行った回数
+		
+		@werewolf_target=null	# 人狼の襲い先
+		@werewolf_flag=null	# 人狼襲撃に関するフラグ
 	# JSON用object化(DB保存用）
 	serialize:->
 		{
@@ -176,6 +179,23 @@ class Game
 
 		@voting=false
 		if @night
+			# 人狼の襲い先
+			unless !(@day==1 && @rule.scapegoat!="off")
+				@werewolf_target=null
+			else if @rule.scapegoat=="on"
+				@werewolf_target="身代わりくん"	# みがわり
+			else
+				@werewolf_target=""	# 誰も襲わない
+			
+			if @werewolf_flag=="Diseased"
+				# 病人フラグが立っている（今日は襲撃できない
+				@werewolf_target=""
+				@werewolf_flag=null
+				log=
+					mode:"wolfskill"
+					comment:"人狼たちは病気になりました。今日は襲撃できません。"
+				splashlog @id,this,log
+			
 			alives=@players.filter (x)->!x.dead
 			alives.forEach (x)=>
 				x.sunset this
@@ -218,7 +238,7 @@ class Game
 	#全員寝たかチェック 寝たなら処理してtrue
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
-		if @players.every( (x)->x.dead || x.sleeping())
+		if @players.every( (x)=>x.dead || x.sleeping(@))
 			if @voting || timeout || !@rule.night || @rule.waitingnight!="wait"	#夜に時間がある場合は待ってあげる
 				@midnight()
 				@nextturn()
@@ -233,6 +253,17 @@ class Game
 		alives=@players.filter (x)->!x.dead
 		alives.forEach (player)=>
 			player.midnight this
+			
+		# 狼の処理
+		t=@getPlayer @werewolf_target
+		return unless t?
+		if t.willDieWerewolf && !t.guarded && !t.dead
+			# 死んだ
+			t.die this,"werewolf"
+		# 逃亡者を探す
+		runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@target
+		runners.forEach (x)=>
+			x.die this,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 	# 死んだ人を処理する
 	bury:->
 		alives=@players.filter (x)->!x.dead
@@ -466,7 +497,7 @@ class Game
 						@timer()
 					else
 						@players.forEach (x)=>
-							return if x.dead || x.sleeping()
+							return if x.dead || x.sleeping(@)
 							x.die this,"gone" # 突然死
 							# 突然死記録
 							M.users.update {userid:x.realid},{$push:{gone:@id}}
@@ -481,7 +512,7 @@ class Game
 			func= =>
 				# ね な い こ だ れ だ
 				@players.forEach (x)=>
-					return if x.dead || x.sleeping()
+					return if x.dead || x.sleeping(@)
 					x.die this,"gone" # 突然死
 					# 突然死記録
 					M.users.update {userid:x.realid},{$push:{gone:@id}}
@@ -708,9 +739,9 @@ class Player
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
 	# 夜にもう寝たか
-	sleeping:->true
+	sleeping:(game)->true
 	# 夜に仕事を追えたか（基本sleepingと一致）
-	jobdone:->@sleeping()
+	jobdone:(game)->@sleeping game
 	# 昼に投票を終えたか
 	voted:->@voteto?
 	# 夜の仕事
@@ -751,7 +782,7 @@ class Player
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
 		obj.open ?=[]
-		if !@jobdone()
+		if !@jobdone(game)
 			obj.open.push @type
 		obj.job_target=@job_target
 		# 女王観戦者が見える
@@ -786,47 +817,30 @@ class Werewolf extends Player
 	jobname:"人狼"
 	sunset:(game)->
 		@target=null
-		if game.day==1
-			# 一日目は殺さないかも
-			if game.rule.scapegoat=="on"
-				@target="身代わりくん"
-			else if game.rule.scapegoat=="no"
-				@target=""	# 誰も殺さない
-		else
+		unless game.day==1 && game.rule.scapegoat!="off"
 			if @scapegoat && game.players.filter((x)->x.isWerewolf()).length==1
 				# 自分しか人狼がいない
 				r=Math.floor Math.random()*game.players.length
 				if @job game,game.players[r].id,{}
 					@sunset
 
-	sleeping:->@target?
+	sleeping:(game)->game.werewolf_target?
 	job:(game,playerid)->
 		tp = game.getPlayer playerid
-		if @target?
+		if game.werewolf_target?
 			return "既に対象は決定しています"
 		if game.rule.wolfattack!="ok" && tp?.isWerewolf()
 			# 人狼は人狼に攻撃できない
 			return "人狼は人狼を殺せません"
-		game.players.forEach (x)->
-			if x.isWerewolf()
-				x.target=playerid
-		@target=playerid
+		game.werewolf_target=playerid
 		log=
 			mode:"wolfskill"
 			to:@id
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
 		splashlog game.id,game,log
+		# お知らせする
+		SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
 		null
-	midnight:(game)->
-		t=game.getPlayer @target
-		return unless t?
-		if t.willDieWerewolf && !t.guarded && !t.dead
-			# 死んだ
-			t.die game,"werewolf"
-		# 逃亡者を探す
-		runners=game.players.filter (x)=>!x.dead && x.type=="Fugitive" && x.target==@target
-		runners.forEach (x)->
-			x.die game,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 				
 	isWerewolf:->true
 		
@@ -1680,9 +1694,15 @@ class ApprenticeSeer extends Player
 			
 			# 更新
 			SS.publish.user newpl.realid,"refresh",{id:game.id}
-	
-			
-
+class Diseased extends Player
+	type:"Diseased"
+	jobname:"病人"
+	die:(game,found)->
+		return if @dead
+		if found=="werewolf"
+			# 噛まれた場合次の日人狼襲撃できない！
+			game.werewolf_flag="Diseased"	# 病人フラグを立てる
+		super
 	
 		
 		
@@ -1691,11 +1711,11 @@ class ApprenticeSeer extends Player
 class Complex
 	cmplType:"Complex"	# 複合親そのものの名前
 	isComplex:->true
-	jobdone:-> @main.jobdone() && (!@sub?.jobdone? || @sub.jobdone())	# ジョブの場合はサブも考慮
+	jobdone:(game)-> @main.jobdone(game) && (!@sub?.jobdone? || @sub.jobdone(game))	# ジョブの場合はサブも考慮
 	job:(game,playerid,query)->	# どちらの
-		if @main.isJobType(query.jobtype) && !@main.jobdone()
+		if @main.isJobType(query.jobtype) && !@main.jobdone(game)
 			@main.job game,playerid,query
-		else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?()
+		else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
 			@sub.job? game,playerid,query
 		
 	isJobType:(type)->
@@ -1779,6 +1799,7 @@ jobs=
 	Stalker:Stalker
 	Cursed:Cursed
 	ApprenticeSeer:ApprenticeSeer
+	Diseased:Diseased
 	
 complexes=
 	Complex:Complex
@@ -2113,7 +2134,7 @@ exports.actions=
 			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
 				cb {error:"対象はまだ生きています"}
 				return
-			if player.jobdone()
+			if player.jobdone(game)
 				cb {error:"既に能力を行使しています"}
 				return
 			# エラーメッセージ
@@ -2122,7 +2143,7 @@ exports.actions=
 				return
 			
 			# 能力をすべて発動したかどうかチェック
-			cb {jobdone:player.jobdone()}
+			cb {jobdone:player.jobdone(game)}
 			game.checkjobs()
 		else
 			# 投票
@@ -2263,7 +2284,7 @@ makejobinfo = (game,player,result={})->
 		player.makejobinfo game,result
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
-		result.sleeping=if game.night then player.jobdone() else if player.voteto? then true else false
+		result.sleeping=if game.night then player.jobdone(game) else if player.voteto? then true else false
 		result.jobname=player.jobname
 		result.winner=player.winner
 		if game.rule.will=="die"

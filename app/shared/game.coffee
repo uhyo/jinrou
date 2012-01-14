@@ -12,7 +12,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 桃栗期間限定役職
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
-"Cursed","ApprenticeSeer",
+"Cursed","ApprenticeSeer","Diseased"
 ]
 # ここには入らない役職
 # Light, Neet
@@ -22,7 +22,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -313,6 +313,9 @@ exports.jobinfo=
 		ApprenticeSeer:
 			name:"見習い占い師"
 			color:"#bfecff"
+		Diseased:
+			name:"病人"
+			color:"#b35b98"
 		
 		
 		
