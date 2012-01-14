@@ -180,7 +180,7 @@ class Game
 		@voting=false
 		if @night
 			# 人狼の襲い先
-			unless !(@day==1 && @rule.scapegoat!="off")
+			unless @day==1 && @rule.scapegoat!="off"
 				@werewolf_target=null
 			else if @rule.scapegoat=="on"
 				@werewolf_target="身代わりくん"	# みがわり
@@ -630,6 +630,9 @@ class Player
 		# もとの役職
 		@originalType=@type
 		@originalJobname=@jobname
+		
+		#非保存フラグ
+		@muted=false	# 呪いをかける者に呪いをかけられている
 	@factory:(type,realid,id,name,main=null,sub=null,cmpl=null)->
 		p=null
 		if cmpl?
@@ -738,6 +741,7 @@ class Player
 		
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
+		@muted=false
 	# 夜にもう寝たか
 	sleeping:(game)->true
 	# 夜に仕事を追えたか（基本sleepingと一致）
@@ -1703,6 +1707,46 @@ class Diseased extends Player
 			# 噛まれた場合次の日人狼襲撃できない！
 			game.werewolf_flag="Diseased"	# 病人フラグを立てる
 		super
+class Spellcaster extends Player
+	type:"Spellcaster"
+	jobname:"呪いをかける者"
+	sleeping:->true
+	jobdone:->@target?
+	sunset:(game)->
+		@target=null
+	job:(game,playerid,query)->
+		if @target?
+			return "既に対象を選択しています"
+		arr=[]
+		try
+		  arr=JSON.parse @flag
+		catch error
+		  arr=[]
+		unless arr instanceof Array
+			arr=[]
+		if playerid in arr
+			# 既に呪いをかけたことがある
+			return "その対象には既に呪いをかけています"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}に呪いをかけました。"
+		splashlog game.id,game,log
+		arr.push playerid
+		@flag=JSON.stringify arr
+		null		
+	midnight:(game)->
+		t=game.getPlayer @target
+		return unless t?
+		return if t.dead
+		log=
+			mode:"skill"
+			to:t.id
+			comment:"呪いをかけられました。昼に発言できません。"
+		splashlog game.id,game,log
+		
+		t.muted=true
 	
 		
 		
@@ -1800,6 +1844,7 @@ jobs=
 	Cursed:Cursed
 	ApprenticeSeer:ApprenticeSeer
 	Diseased:Diseased
+	Spellcaster:Spellcaster
 	
 complexes=
 	Complex:Complex
@@ -2078,6 +2123,10 @@ exports.actions=
 				else if !game.night
 					# 昼
 					log.mode="day"
+					if player.muted
+						# 呪いをかけられている
+						log.mode="monologue"
+						log.to=player.id
 				else
 					# 夜
 					if player.isWerewolf()
