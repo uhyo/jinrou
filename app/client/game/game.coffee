@@ -463,6 +463,7 @@ exports.start=(roomid)->
 				while (wr=spp.nodeValue.indexOf("\n"))>=0
 					spp=spp.splitText wr+1
 					span.insertBefore document.createElement("br"),spp
+			parselognode span
 			
 			p.appendChild span
 			if log.time?
@@ -624,6 +625,30 @@ exports.end=->
 alloff= (ids...)->
 	ids.forEach (x)->
 		SS.client.socket.off x
+		
+# ノードのコメントなどをパースする
+parselognode=(node)->
+	if node.nodeType==Node.TEXT_NODE
+		# text node
+		return unless node.parentNode
+		result=document.createDocumentFragment()
+		while node.nodeValue
+			if res=node.nodeValue.match /^(.*?)#(\d+)/
+				if res[1]
+					# 前の部分
+					node=node.splitText res[1].length
+				a=document.createElement "a"
+				a.href="/room/#{res[2]}"
+				a.textContent="##{res[2]}"
+				node=node.splitText res[2].length+1	# その部分どける
+				node.parentNode.replaceChild a,node.previousSibling
+				continue
+			break
+	else if node.childNodes
+		for ch in node.childNodes
+			if ch.parentNode?.isSameNode node
+				parselognode ch
+			
 		
 	
 		

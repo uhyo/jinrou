@@ -769,6 +769,11 @@ class Player
 	# 護衛されたことを知らせる
 	youareguarded:->
 		@guarded=true
+	# 自分自身を変える
+	transform:(game,newpl)->
+		game.players.forEach (x,i)=>
+			if x.id==@id
+				game.players[i]=newpl
 
 		
 		
@@ -1211,11 +1216,8 @@ class WolfDiviner extends Werewolf
 				plobj.type=newjob
 				plobj.originalJobname="#{p.originalJobname}→#{plobj.jobname}"
 				newpl=Player.unserialize plobj	# 新生狂人
-				game.players.forEach (x,i)->	# 入れ替え
-					if x.id==newpl.id
-						game.players[i]=newpl
-					else
-						x
+				@transform game,newpl
+
 		
 	
 		
@@ -1288,11 +1290,8 @@ class Merchant extends Player
 		sub=Player.factory query.Merchant_kit,pl.realid,pl.id,pl.name	# 副を作る
 		sub.sunset game
 		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,sub,Complex	# Complex
-		game.players.forEach (x,i)->	# 入れ替え
-			if x.id==newpl.id
-				game.players[i]=newpl
-			else
-				x
+		pl.transform game,newpl
+
 		log=
 			mode:"skill"
 			to:@id
@@ -1428,11 +1427,8 @@ class Copier extends Player
 		newpl=Player.factory p.type,@realid,@id,@name
 		newpl.originalType=@originalType
 		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
-		game.players.forEach (x,i)->	# 入れ替え
-			if x.id==newpl.id
-				game.players[i]=newpl
-			else
-				x
+		@transform game,newpl
+
 		
 		SS.publish.user newpl.id,"refresh",{id:game.id}	
 		null
@@ -1579,9 +1575,7 @@ class Cupid extends Player
 			pl.originalJobname="#{pl.originalJobname}→恋人（#{pl.jobname}）"
 		
 			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Friend	# 恋人だ！
-			game.players.forEach (x,i)->	# 入れ替え
-				if x.id==newpl.id
-					game.players[i]=newpl
+			pl.transform game,newpl	# 入れ替え
 			log=
 				mode:"skill"
 				to:@id
@@ -1660,16 +1654,33 @@ class Cursed extends Player
 			newpl=Player.factory "Werewolf",@realid,@id,@name
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
-			game.players.forEach (x,i)->	# 入れ替え
-				if x.id==newpl.id
-					game.players[i]=newpl
+			@transform game,newpl
 			newpl.sunset game
 					
 			# 人狼側に知らせる
 			SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
 			# 自分も知らせる
 			SS.publish.user newpl.realid,"refresh",{id:game.id}	
-
+class ApprenticeSeer extends Player
+	type:"ApprenticeSeer"
+	jobname:"見習い占い師"
+	beforebury:(game)->
+		# 占い師が誰か死んでいたら占い師に進化
+		unless game.players.some((x)->!x.dead && x.isJobType("Diviner"))
+			newpl=Player.factory "Diviner",@realid,@id,@name
+			newpl.originalType=@originalType
+			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{newpl.jobname}になりました。"
+			splashlog game.id,game,log
+			
+			@transform game,newpl
+			
+			# 更新
+			SS.publish.user newpl.realid,"refresh",{id:game.id}
+	
 			
 
 	
@@ -1767,6 +1778,7 @@ jobs=
 	Cupid:Cupid
 	Stalker:Stalker
 	Cursed:Cursed
+	ApprenticeSeer:ApprenticeSeer
 	
 complexes=
 	Complex:Complex
