@@ -12,7 +12,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 桃栗期間限定役職
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
-"Cursed","ApprenticeSeer","Diseased","Spellcaster",
+"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest",
 ]
 # ここには入らない役職
 # Light, Neet
@@ -22,7 +22,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -319,6 +319,12 @@ exports.jobinfo=
 		Spellcaster:
 			name:"呪いをかける者"
 			color:"#4b4f7d"
+		Lycan:
+			name:"狼憑き"
+			color:"#7d5f5f"
+		Priest:
+			name:"聖職者"
+			color:"#fff94a"
 		
 		
 		

@@ -795,12 +795,31 @@ class Player
 				x.publicinfo()
 	
 	# Complexから抜ける
-	uncomplex:(game)->
-		# 自分が@subだとする
+	uncomplex:(game,flag=false)->
+		#flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
+		# parentobj[name]がPlayerであること calleeは呼び出し元のオブジェクト
+		chk=(parentobj,name,callee)->
+			return unless parentobj?[name]?
+			if parentobj[name].isComplex()
+				if flag
+					# mainまたはsubである
+					if parentobj[name].main==callee || parentobj[name].sub==callee
+						parentobj[name]=parentobj[name].main
+					else
+						chk parentobj[name],"main",callee
+						chk parentobj[name],"sub",callee
+				else
+					# 自分がComplexである
+					if parentobj[name]==callee
+						parentobj[name]=parentobj[name].main	# Complexを解消
+					else
+						chk parentobj[name],"main",callee
+						chk parentobj[name],"sub",callee
+		
 		game.players.forEach (x,i)=>
-			return unless x.isComplex()
-			if x.sub==this
-				x.sub=null	# ただの透過Complex
+			if x.id==@id
+				chk game.players,i,this
+				
 	# 護衛されたことを知らせる
 	youareguarded:->
 		@guarded=true
@@ -842,8 +861,6 @@ class Werewolf extends Player
 			to:@id
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
 		splashlog game.id,game,log
-		# お知らせする
-		SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
 		null
 				
 	isWerewolf:->true
@@ -1476,7 +1493,7 @@ class Light extends Player
 		t.die game,"deathnote"
 		
 		# 誰かに移る処理
-		@uncomplex game	# 自分からは抜ける
+		@uncomplex game,true	# 自分からは抜ける
 class Fanatic extends Madman
 	type:"Fanatic"
 	jobname:"狂信者"
@@ -1747,7 +1764,44 @@ class Spellcaster extends Player
 		splashlog game.id,game,log
 		
 		t.muted=true
-	
+class Lycan extends Player
+	type:"Lycan"
+	jobname:"狼憑き"
+	fortuneResult:"人狼"
+class Priest extends Player
+	type:"Priest"
+	jobname:"聖職者"
+	sleeping:->true
+	jobdone:->@flag?
+	sunset:(game)->
+		@target=null
+	job:(game,playerid,query)->
+		if @flag?
+			return "既に能力を使用しています"
+		if @target?
+			return "既に対象を選択しています"
+		pl=game.getPlayer playerid
+		unless pl?
+			return "その対象は存在しません"
+		if playerid==@id
+			return "自分を対象にはできません"
+
+		@target=playerid
+		@flag="done"	# すでに能力を発動している
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を聖なる力で守りました。"
+		splashlog game.id,game,log
+		
+		# その場で変える
+		# 複合させる
+
+		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,HolyProtected	# 守られた人
+		pl.transform game,newpl
+
+		null		
+
 		
 		
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1802,6 +1856,17 @@ class Friend extends Complex	# 恋人
 		# 恋人が分かる
 		result.friends=game.players.filter((x)->x.isFriend()).map (x)->
 			x.publicinfo()
+# 聖職者にまもられた人
+class HolyProtected extends Complex
+	cmplType:"HolyProtected"
+	die:(game,found)->
+		# 一回耐える 死なない代わりに元に戻る
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は聖なる力で守られました。"
+		splashlog game.id,game,log
+		@uncomplex game
 games={}
 
 # ゲームを得る
@@ -1845,10 +1910,13 @@ jobs=
 	ApprenticeSeer:ApprenticeSeer
 	Diseased:Diseased
 	Spellcaster:Spellcaster
+	Lycan:Lycan
+	Priest:Priest
 	
 complexes=
 	Complex:Complex
 	Friend:Friend
+	HolyProtected:HolyProtected
 
 
 exports.actions=
