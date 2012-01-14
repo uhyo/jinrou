@@ -1663,6 +1663,7 @@ class Cursed extends Player
 			game.players.forEach (x,i)->	# 入れ替え
 				if x.id==newpl.id
 					game.players[i]=newpl
+			newpl.sunset game
 					
 			# 人狼側に知らせる
 			SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
