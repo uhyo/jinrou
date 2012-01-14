@@ -10,7 +10,9 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 桃栗基本特殊役職
 "Bat","Noble","Slave","Magician","Spy","WolfDiviner",
 # 桃栗期間限定役職
-"Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier"
+"Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
+# 究極の人狼の役職
+"Cursed",
 ]
 # ここには入らない役職
 # Light, Neet
@@ -20,7 +22,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -305,6 +307,9 @@ exports.jobinfo=
 		ToughGuy:
 			name:"タフガイ"
 			color:"#ff5900"
+		Cursed:
+			name:"呪われた者"
+			color:"#bda3bf"
 		
 		
 		

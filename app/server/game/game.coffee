@@ -378,7 +378,7 @@ class Game
 			if @players.some((x)->!x.dead && x.isFox())
 				team="Fox"
 			# 恋人判定
-			if @rule.friendsjudge=="alive"
+			if @rule.friendsjudge=="alive" && @players.some((x)->x.isFriend())
 				# 終了時に恋人生存
 				friends=@players.filter (x)->x.isFriend()
 				if friends.every((x)->!x.dead)
@@ -1576,9 +1576,9 @@ class Cupid extends Player
 		
 		for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
 			# 2人ぶん処理
+			pl.originalJobname="#{pl.originalJobname}→恋人（#{pl.jobname}）"
 		
 			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Friend	# 恋人だ！
-			newpl.main?.originalJobname="#{newpl.main.originalJobname}→恋人（#{newpl.jobname})"
 			game.players.forEach (x,i)->	# 入れ替え
 				if x.id==newpl.id
 					game.players[i]=newpl
@@ -1636,11 +1636,42 @@ class Stalker extends Player
 		super
 		result.stalking=game.getPlayer @flag
 # 呪われた者
-class Accursed extends Player
-	type:"Accursed"
+class Cursed extends Player
+	type:"Cursed"
 	jobname:"呪われた者"
+	die:(game,found)->
+		return if @dead
+		if found=="werewolf"
+			# 噛まれた場合人狼側になる
+			unless @flag
+				# まだ噛まれていない
+				@flag="bitten"
+		else
+			super
+	sunset:(game)->
+		if @flag=="bitten"
+			# この夜から人狼になる
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は呪われて人狼になりました。"
+			splashlog game.id,game,log
+			
+			newpl=Player.factory "Werewolf",@realid,@id,@name
+			newpl.originalType=@originalType
+			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
+			game.players.forEach (x,i)->	# 入れ替え
+				if x.id==newpl.id
+					game.players[i]=newpl
+					
+			# 人狼側に知らせる
+			SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
+			# 自分も知らせる
+			SS.publish.user newpl.realid,"refresh",{id:game.id}	
+
+			
+
 	
-		
 		
 		
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -1734,6 +1765,7 @@ jobs=
 	ToughGuy:ToughGuy
 	Cupid:Cupid
 	Stalker:Stalker
+	Cursed:Cursed
 	
 complexes=
 	Complex:Complex
