@@ -378,7 +378,7 @@ class Game
 			if @players.some((x)->!x.dead && x.isFox())
 				team="Fox"
 			# 恋人判定
-			if @rule.friendjudge=="alive"
+			if @rule.friendsjudge=="alive"
 				# 終了時に恋人生存
 				friends=@players.filter (x)->x.isFriend()
 				if friends.every((x)->!x.dead)
@@ -1635,6 +1635,11 @@ class Stalker extends Player
 	makejobinfo:(game,result)->
 		super
 		result.stalking=game.getPlayer @flag
+# 呪われた者
+class Accursed extends Player
+	type:"Accursed"
+	jobname:"呪われた者"
+	
 		
 		
 		
