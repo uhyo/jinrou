@@ -12,7 +12,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 桃栗期間限定役職
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
-"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest",
+"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI",
 ]
 # ここには入らない役職
 # Light, Neet
@@ -22,7 +22,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -325,6 +325,12 @@ exports.jobinfo=
 		Priest:
 			name:"聖職者"
 			color:"#fff94a"
+		Prince:
+			name:"プリンス"
+			color:"#e5ff00"
+		PI:
+			name:"超常現象研究者"
+			color:"#573670"
 		
 		
 		

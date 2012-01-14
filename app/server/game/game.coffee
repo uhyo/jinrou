@@ -1800,9 +1800,86 @@ class Priest extends Player
 		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,HolyProtected	# 守られた人
 		pl.transform game,newpl
 
-		null		
-
+		null
+class Prince extends Player
+	type:"Prince"
+	jobname:"プリンス"
+	die:(game,found)->
+		if found=="punish" && !@flag?
+			# 処刑された
+			@flag="used"	# 能力使用済
+			log=
+				mode:"system"
+				comment:"#{@name}は#{@jobname}でした。処刑は行われませんでした。"
+			splashlog game.id,game,log
+		else
+			super
+# Paranormal Investigator
+class PI extends Diviner
+	type:"PI"
+	jobname:"超常現象研究者"
+	constructor:->
+		super
+		@results=[]
+			# {player:Player, result:String}
+	sunset:(game)->
+		super
+		@target=null
+	sleeping:->true
+	jobdone:->@flag?
+	job:(game,playerid)->
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}とその両隣を調査しました。"
+		splashlog game.id,game,log
+		if game.rule.divineresult=="immediate"
+			@dodivine game
+			@showdivineresult game
+		@flag="done"	# 能力一回限り
+		null
+	#占い実行
+	dodivine:(game)->
+		pls=[]
+		game.players.forEach (x,i)=>
+			if x.id==@target
+				pls.push x
+				# 前
+				if i==0
+					pls.push game.players[game.players.length-1]
+				else
+					pls.push game.players[i-1]
+				# 後
+				if i>=game.players.length-1
+					pls.push game.players[0]
+				else
+					pls.push game.players[i+1]
+				
 		
+		if pls.length>0
+			rs=pls.map((x)->x?.fortuneResult).filter((x)->x!="村人")	# 村人以外
+			# 重複をとりのぞく
+			nrs=[]
+			rs.forEach (x,i)->
+				if rs.indexOf(x,i+1)<0
+					nrs.push x
+			@results.push {
+				player: game.getPlayer(@target).publicinfo()
+				result: nrs
+			}
+	showdivineresult:(game)->
+		r=@results[@results.length-1]
+		return unless r?
+		resultstring=if r.result.length>0
+			"#{r.result.join ","}が発見されました"
+		else
+			"全員村人でした"
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{r.player.name}とその両隣を調査したところ、#{resultstring}。"
+		splashlog game.id,game,log	
 		
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
@@ -1912,6 +1989,8 @@ jobs=
 	Spellcaster:Spellcaster
 	Lycan:Lycan
 	Priest:Priest
+	Prince:Prince
+	PI:PI
 	
 complexes=
 	Complex:Complex

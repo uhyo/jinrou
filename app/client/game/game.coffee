@@ -404,7 +404,8 @@ exports.start=(roomid)->
 		return unless obj?
 
 		form.elements["number"]=number
-		form.elements[x].value=0 for x in SS.shared.game.jobs
+		for x in SS.shared.game.jobs
+			form.elements[x].value=0
 		jobs=obj number
 		count=0	#村人以外
 		for job,num of jobs
