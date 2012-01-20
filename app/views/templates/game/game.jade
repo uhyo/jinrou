@@ -247,6 +247,10 @@
       p
         | 信者にする人を一人選んで下さい:
         input(type="submit",value="信者にする",data-job="CultLeader")
+    #form_Vampire(hidden).jobformarea
+      p
+        | 襲撃する人を一人選んで下さい:
+        input(type="submit",value="殺す",data-job="Vampire")
   form#speakform
     p
       input(size="50",name="comment",required)

@@ -274,7 +274,7 @@ class Game
 		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","poison","hinamizawa"
+				when "werewolf","poison","hinamizawa","vampire"
 					"無惨な姿で発見されました"
 				when "curse"	# 呪殺
 					if @rule.deadfox=="obvious"
@@ -394,17 +394,21 @@ class Game
 		alives=aliveps.length
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
+		vampires=@players.filter((x)->!x.dead && x.isVampire()).length
 		
 		team=null
 		if alives==0
 			# 全滅
 			team="Draw"
-		else if wolves==0
+		else if wolves==0 && vampires==0
 			# 村人勝利
 			team="Human"
-		else if humans<=wolves
+		else if humans<=wolves && vampires==0
 			# 人狼勝利
 			team="Werewolf"
+		else if humans<=vampires && wolves==0
+			# ヴァンパイア勝利
+			team="Vampire"
 			
 		if team?
 			# 妖狐判定
@@ -459,6 +463,8 @@ class Game
 						"#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。"
 					when "Cult"
 						"村はカルトに支配されました。"
+					when "Vampire"
+						"ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去って行った…"
 					when "Draw"
 						"引き分けになりました。"
 						
@@ -732,6 +738,8 @@ class Player
 	isComplex:->false
 	# カルト信者かどうか
 	isCult:->false
+	# ヴァンパイアかどうか
+	isVampire:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
 	# 昼のはじまり（死体処理よりも前）
@@ -2008,9 +2016,43 @@ class CultLeader extends Player
 		super
 		# 信者は分かる
 		result.cultmembers=game.players.filter((x)->x.isCult()).map (x)->
-			x.publicinfo()		
-		
-
+			x.publicinfo()
+class Vampire extends Player
+	type:"Vampire"
+	jobname:"ヴァンパイア"
+	team:"Vampire"
+	willDieWerewolf:false
+	fortuneResult:"ヴァンパイア"
+	sleeping:->@target?
+	isHuman:->false
+	isVampire:->true
+	sunset:(game)->
+		@target=null
+		if @scapegoat
+			r=Math.floor Math.random()*game.players.length
+			if @job game,game.players[r].id,{}
+				@sunset
+	job:(game,playerid,query)->
+		# 襲う先
+		if @target?
+			return "既に対象を選択しています"
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を襲撃しました。"
+		splashlog game.id,game,log
+		null		
+	midnight:(game)->
+		t=game.getPlayer @target
+		return unless t?
+		return if t.dead
+		t.die game,"vampire"
+	makejobinfo:(game,result)->
+		super
+		# ヴァンパイアが分かる
+		result.vampires=game.players.filter((x)->x.isVampire()).map (x)->
+			x.publicinfo()
 			
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -2133,6 +2175,7 @@ jobs=
 	Sorcerer:Sorcerer
 	Doppleganger:Doppleganger
 	CultLeader:CultLeader
+	Vampire:Vampire
 	
 complexes=
 	Complex:Complex

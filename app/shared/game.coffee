@@ -13,13 +13,13 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
-"Doppleganger","CultLeader",
+"Doppleganger","CultLeader","Vampire",
 ]
 # ここには入らない役職
 # Light, Neet
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire"]
 
 # チームたち
 exports.teams=
@@ -29,7 +29,7 @@ exports.teams=
 	Bat:["Bat"]
 	Devil:["Devil"]
 	Friend:["Cupid"]
-	Others:["Stalker","Doppleganger","CultLeader"],
+	Others:["Stalker","Doppleganger","CultLeader","Vampire"],
 	Neet:["Neet"]
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
@@ -408,6 +408,9 @@ exports.jobinfo=
 		CultLeader:
 			name:"カルトリーダー"
 			color:"#b09d87"
+		Vampire:
+			name:"ヴァンパイア"
+			color:"#8f00bf"
 		
 	Neet:
 		name:"ニート"
