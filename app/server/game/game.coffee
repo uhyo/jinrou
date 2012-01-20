@@ -389,7 +389,9 @@ class Game
 	
 	# 勝敗決定
 	judge:->
-		alives=@players.filter((x)->!x.dead).length
+		aliveps=@players.filter (x)->!x.dead	# 生きている人を集める
+		# 数える
+		alives=aliveps.length
 		humans=@players.filter((x)->!x.dead && x.isHuman()).length
 		wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
 		
@@ -414,10 +416,14 @@ class Game
 				friends=@players.filter (x)->x.isFriend()
 				if friends.every((x)->!x.dead)
 					team="Friend"
+		# カルト判定
+		if aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
+			# 全員信者
+			team="Cult"
 		# 悪魔くん判定
 		if @players.some((x)->x.type=="Devil" && x.flag=="winner")
 			team="Devil"
-		if @players.filter((x)->!x.dead).every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
+		if aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
 			# 恋人のみ生存
 			team="Friend"
 
@@ -451,6 +457,8 @@ class Game
 						"村は悪魔くんのものとなりました。"
 					when "Friend"
 						"#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。"
+					when "Cult"
+						"村はカルトに支配されました。"
 					when "Draw"
 						"引き分けになりました。"
 						
@@ -722,6 +730,8 @@ class Player
 	isFriend:->false
 	# Complexかどうか
 	isComplex:->false
+	# カルト信者かどうか
+	isCult:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
 	# 昼のはじまり（死体処理よりも前）
@@ -1960,7 +1970,47 @@ class Doppleganger extends Player
 			splashlog game.id,game,log
 
 		
-			SS.publish.user newpl.id,"refresh",{id:game.id}	
+			SS.publish.user newpl.id,"refresh",{id:game.id}
+class CultLeader extends Player
+	type:"CultLeader"
+	jobname:"カルトリーダー"
+	team:"Cult"
+	sleeping:->@target?
+	sunset:(game)->
+		super
+		@target=null
+		if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			@job game,game.players[r].id,{}
+	job:(game,playerid)->
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を信者にしました。"
+		splashlog game.id,game,log
+		null
+	midnight:(game)->
+		t=game.getPlayer @target
+		return unless t?
+		return if t.dead
+		log=
+			mode:"skill"
+			to:t.id
+			comment:"#{t.name}はカルトの信者になりました。"
+
+		# 信者		
+		newpl=Player.factory null,t.realid,t.id,t.name, t,null,CultMember	# 合体
+		t.transform game,newpl
+
+	makejobinfo:(game,result)->
+		super
+		# 信者は分かる
+		result.cultmembers=game.players.filter((x)->x.isCult()).map (x)->
+			x.publicinfo()		
+		
+
 			
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -2029,6 +2079,10 @@ class HolyProtected extends Complex
 			comment:"#{@name}は聖なる力で守られました。"
 		splashlog game.id,game,log
 		@uncomplex game
+# カルトの信者になった人
+class CultMember extends Complex
+	cmplType:"CultMember"
+	isCult:->true
 games={}
 
 # ゲームを得る
@@ -2078,11 +2132,13 @@ jobs=
 	PI:PI
 	Sorcerer:Sorcerer
 	Doppleganger:Doppleganger
+	CultLeader:CultLeader
 	
 complexes=
 	Complex:Complex
 	Friend:Friend
 	HolyProtected:HolyProtected
+	CultMember:CultMember
 
 
 exports.actions=

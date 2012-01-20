@@ -502,6 +502,8 @@ exports.start=(roomid)->
 			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
 		if obj.stalking?
 			$("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
+		if obj.cultmembers?
+			$("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
 		
 		if obj.winner?
 			# 勝敗
