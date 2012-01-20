@@ -13,6 +13,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
+"Doppleganger",
 ]
 # ここには入らない役職
 # Light, Neet
@@ -28,7 +29,7 @@ exports.teams=
 	Bat:["Bat"]
 	Devil:["Devil"]
 	Friend:["Cupid"]
-	Others:["Stalker"]
+	Others:["Stalker","Doppleganger"]
 	Neet:["Neet"]
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
@@ -401,6 +402,9 @@ exports.jobinfo=
 		Stalker:
 			name:"ストーカー"
 			color:"#ad6628"
+		Doppleganger:
+			name:"ドッペルゲンガー"
+			color:"#bbbbbb"
 		
 	Neet:
 		name:"ニート"

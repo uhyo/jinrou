@@ -1321,6 +1321,8 @@ class Merchant extends Player
 			return "発送先が不正です"
 		if pl.dead
 			return "発送先は既に死んでいます"
+		if pl.id==@id
+			return "自分には発送できません"
 		# 複合させる
 		sub=Player.factory query.Merchant_kit,pl.realid,pl.id,pl.name	# 副を作る
 		sub.sunset game
@@ -1878,6 +1880,13 @@ class Sorcerer extends Diviner
 	jobname:"妖術師"
 	team:"Werewolf"
 	sleeping:->@target?
+	sunset:(game)->
+		super
+		@target=null
+		if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			@job game,game.players[r].id,{}
 	job:(game,playerid)->
 		@target=playerid
 		log=
@@ -1909,7 +1918,50 @@ class Sorcerer extends Diviner
 			to:@id
 			comment:"#{@name}が#{r.player.name}を調べたところ、#{resultstring}。"
 		splashlog game.id,game,log
+class Doppleganger extends Player
+	type:"Doppleganger"
+	jobname:"ドッペルゲンガー"
+	sleeping:->true
+	jobdone:->@flag?
+	team:""	# 最初はチームに属さない!
+	job:(game,playerid)->
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		if pl.id==@id
+			return "自分を対象にできません"
+		if pl.dead
+			return "対象は既に死んでいます"
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}のドッペルゲンガーになりました。"
+		splashlog game.id,game,log
+		@flag=playerid	# ドッペルゲンガー先
+		null
+	beforebury:(game)->
+		founds=game.players.filter (x)->x.dead && x.found
+		# 対象が死んだら移る
+		if founds.some((x)=>x.id==@flag)
+			p=game.getPlayer @flag	# その人
 
+			newplmain=Player.factory p.type,@realid,@id,@name
+			newplmain.originalType=@originalType
+			newplmain.originalJobname="#{@originalJobname}→#{newplmain.jobname}"
+			# まだドッペルゲンガーできる
+			sub=Player.factory "Doppleganger",@realid,@id,@name
+			
+			newpl=Player.factory null,@realid,@id,@name, newplmain,sub,Complex	# 合体
+			@transform game,newpl
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{newpl.jobname}になりました。"
+			splashlog game.id,game,log
+
+		
+			SS.publish.user newpl.id,"refresh",{id:game.id}	
+			
 
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
@@ -1940,6 +1992,9 @@ class Complex
 	youareguarded:->
 		@main.youareguarded()
 		@sub?.youareguarded?()
+	beforebury:(game)->
+		@main.beforebury game
+		@sub?.beforebury? game
 	setWinner:(winner)->
 		@winner=winner
 		@main.setWinner winner
@@ -2022,6 +2077,7 @@ jobs=
 	Prince:Prince
 	PI:PI
 	Sorcerer:Sorcerer
+	Doppleganger:Doppleganger
 	
 complexes=
 	Complex:Complex
