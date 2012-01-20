@@ -410,6 +410,12 @@ class Game
 			# ヴァンパイア勝利
 			team="Vampire"
 			
+		if team=="Werewolf" && wolves==1
+			# 一匹狼判定
+			lw=aliveps.filter((x)->x.isWerewolf())[0]
+			if lw?.isJobType "LoneWolf"
+				team="LoneWolf"
+			
 		if team?
 			# 妖狐判定
 			if @players.some((x)->!x.dead && x.isFox())
@@ -465,6 +471,8 @@ class Game
 						"村はカルトに支配されました。"
 					when "Vampire"
 						"ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去って行った…"
+					when "LoneWolf"
+						"人狼は最後の村人を喰い殺すと次の獲物を求めて独り去って行くのだった…"
 					when "Draw"
 						"引き分けになりました。"
 						
@@ -2053,6 +2061,10 @@ class Vampire extends Player
 		# ヴァンパイアが分かる
 		result.vampires=game.players.filter((x)->x.isVampire()).map (x)->
 			x.publicinfo()
+class LoneWolf extends Werewolf
+	type:"LoneWolf"
+	jobname:"一匹狼"
+	team:"LoneWolf"
 			
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -2176,6 +2188,7 @@ jobs=
 	Doppleganger:Doppleganger
 	CultLeader:CultLeader
 	Vampire:Vampire
+	LoneWolf:LoneWolf
 	
 complexes=
 	Complex:Complex
