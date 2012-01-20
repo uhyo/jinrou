@@ -1818,13 +1818,6 @@ class Prince extends Player
 class PI extends Diviner
 	type:"PI"
 	jobname:"超常現象研究者"
-	constructor:->
-		super
-		@results=[]
-			# {player:Player, result:String}
-	sunset:(game)->
-		super
-		@target=null
 	sleeping:->true
 	jobdone:->@flag?
 	job:(game,playerid)->
@@ -1879,8 +1872,45 @@ class PI extends Diviner
 			mode:"skill"
 			to:@id
 			comment:"#{@name}が#{r.player.name}とその両隣を調査したところ、#{resultstring}。"
-		splashlog game.id,game,log	
-		
+		splashlog game.id,game,log
+class Sorcerer extends Diviner
+	type:"Sorcerer"
+	jobname:"妖術師"
+	team:"Werewolf"
+	sleeping:->@target?
+	job:(game,playerid)->
+		@target=playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{game.getPlayer(playerid).name}を調べました。"
+		splashlog game.id,game,log
+		if game.rule.divineresult=="immediate"
+			@dodivine game
+			@showdivineresult game
+		null
+	#占い実行
+	dodivine:(game)->
+		pl=game.getPlayer @target
+		if pl?
+			@results.push {
+				player: game.getPlayer(@target).publicinfo()
+				result: pl.isJobType "Diviner"
+			}
+	showdivineresult:(game)->
+		r=@results[@results.length-1]
+		return unless r?
+		resultstring=if r.result
+			"占い師でした"
+		else
+			"占い師ではありませんでした"
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}が#{r.player.name}を調べたところ、#{resultstring}。"
+		splashlog game.id,game,log
+
+
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
 class Complex
@@ -1991,6 +2021,7 @@ jobs=
 	Priest:Priest
 	Prince:Prince
 	PI:PI
+	Sorcerer:Sorcerer
 	
 complexes=
 	Complex:Complex

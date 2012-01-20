@@ -12,7 +12,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 桃栗期間限定役職
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
-"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI",
+"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
 ]
 # ここには入らない役職
 # Light, Neet
@@ -23,7 +23,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 # チームたち
 exports.teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2"]
+	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
@@ -358,6 +358,9 @@ exports.jobinfo=
 		Fanatic:
 			name:"狂信者"
 			color:"#94782b"
+		Sorcerer:
+			name:"妖術師"
+			color:"#b91be0"
 		
 		
 	Fox:
