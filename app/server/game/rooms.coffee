@@ -92,8 +92,9 @@ exports.actions=
 			return
 		M.blacklist.findOne {$or:[{userid:@session.user_id},{ip:@session.attributes.user.ip}]},(err,doc)=>
 			if doc?
-				cb "参加は禁止されています"
-				return
+				if !doc.expires || doc.expires.getTime()>=Date.now()
+					cb "参加は禁止されています"
+					return
 			
 			SS.server.game.rooms.oneRoomS roomid,(room)=>
 		
