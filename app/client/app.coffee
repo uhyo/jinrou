@@ -75,6 +75,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/manual"
 			# マニュアルトップ
 			page "templates-manual-top",null,SS.client.manual,null
+		when "/admin/blacklist"
+			# アク禁
+			page "templates-admin-blacklist",null,SS.client.admin.blacklist,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム

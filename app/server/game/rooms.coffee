@@ -90,62 +90,67 @@ exports.actions=
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		M.blacklist.findOne {$or:[{userid:@session.user_id},{ip:@session.attributes.user.ip}]},(err,doc)=>
+			if doc?
+				cb "参加は禁止されています"
+				return
+			
+			SS.server.game.rooms.oneRoomS roomid,(room)=>
 		
-			if !room || room.error?
-				cb "その部屋はありません"
-				return
-			if @session.user_id in (room.players.map (x)->x.realid)
-				cb "すでに参加しています"
-				return
-			if room.players.length >= room.number
-				# 満員
-				cb "これ以上入れません"
-				return
-			unless room.mode=="waiting"
-				cb "既に参加は締めきられています"
-				return
-			#room.players.push @session.attributes.user
-			su=@session.attributes.user
-			user=
-				userid:@session.user_id
-				realid:@session.user_id
-				name:su.name
-				ip:su.ip
-				
-			user.realid = @session.user_id
-			# 同IP制限
-			###if room.players.some((x)->x.ip==su.ip)
-				cb "重複参加はできません"
-				return
-			###
-			if room.blind
-				unless opt?.name
-					cb "名前を入力して下さい"
+				if !room || room.error?
+					cb "その部屋はありません"
 					return
-				# 覆面
-				makeid=->	# ID生成
-					re=""
-					while !re
-						i=0
-						while i<20
-							re+="0123456789abcdef"[Math.floor Math.random()*16]
-							i++
-						if room.players.some((x)->x.userid==re)
-							re=""
-					re
-				user.name=opt.name
-				user.userid=makeid()
+				if @session.user_id in (room.players.map (x)->x.realid)
+					cb "すでに参加しています"
+					return
+				if room.players.length >= room.number
+					# 満員
+					cb "これ以上入れません"
+					return
+				unless room.mode=="waiting"
+					cb "既に参加は締めきられています"
+					return
+				#room.players.push @session.attributes.user
+				su=@session.attributes.user
+				user=
+					userid:@session.user_id
+					realid:@session.user_id
+					name:su.name
+					ip:su.ip
+				
+				user.realid = @session.user_id
+				# 同IP制限
+				###if room.players.some((x)->x.ip==su.ip)
+					cb "重複参加はできません"
+					return
+				###
+				if room.blind
+					unless opt?.name
+						cb "名前を入力して下さい"
+						return
+					# 覆面
+					makeid=->	# ID生成
+						re=""
+						while !re
+							i=0
+							while i<20
+								re+="0123456789abcdef"[Math.floor Math.random()*16]
+								i++
+							if room.players.some((x)->x.userid==re)
+								re=""
+						re
+					user.name=opt.name
+					user.userid=makeid()
 						
-			M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
-				if err?
-					cb "エラー:#{err}"
-				else
-					cb null
-					# 入室通知
-					delete user.ip
-					SS.server.game.game.inlog room,user
-					SS.publish.channel "room#{roomid}", "join", user
+				M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
+					if err?
+						cb "エラー:#{err}"
+					else
+						cb null
+						# 入室通知
+						delete user.ip
+						SS.server.game.game.inlog room,user
+						SS.publish.channel "room#{roomid}", "join", user
 # 部屋から出る
 	unjoin: (roomid,cb)->
 		unless @session.user_id

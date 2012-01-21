@@ -127,7 +127,39 @@ exports.actions =
 			pobj.id=game.id
 			results.push pobj
 			
-			
+	
+	######
+	# blacklist一覧を得る
+	getBlacklist:(query,cb)->
+		unless query?.password==SS.config.admin.password
+			cb {error:"パスワードが違います"}
+			return
+		M.blacklist.find().limit(100).skip(100*(query.page ? 0)).toArray (err,docs)->
+			cb {docs:docs}
+	addBlacklist:(query,cb)->
+		unless query?.password==SS.config.admin.password
+			cb {error:"パスワードが違います"}
+			return
+		M.users.findOne {userid:query.userid},(err,doc)->
+			unless doc?
+				cb {error:"そのユーザーは見つかりません"}
+				return
+			addquery=
+				userid:doc.userid
+				ip:doc.ip
+			if query.expire=="some"
+				d=new Date()
+				d.setMonth d.getMonth()+parseInt query.month
+				d.setDate d.getDate()+parseInt query.day
+				addquery.expires=d
+			M.blacklist.insert addquery,{safe:true},(err,doc)->
+				cb null
+	removeBlacklist:(query,cb)->
+		unless query?.password==SS.config.admin.password
+			cb {error:"パスワードが違います"}
+			return
+		M.blacklist.remove {userid:query.userid},(err)->
+			cb null
 			
 
 
