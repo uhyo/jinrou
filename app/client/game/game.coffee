@@ -73,8 +73,11 @@ exports.start=(roomid)->
 					a.href="/user/#{x.userid}"
 					a.textContent=x.name
 					li.appendChild a
+				if x.start	# 準備完了している
+					b=document.createElement "b"
+					b.textContent="[ready]"
+					li.appendChild b
 				$("#players").append li
-			console.log enter_result
 			unless enter_result?.joined
 				# 未参加
 				b=makebutton "ゲームに参加"
@@ -106,6 +109,14 @@ exports.start=(roomid)->
 							SS.client.util.message "ルーム",result
 						else
 							SS.client.app.refresh()
+				if room.mode=="waiting"
+					# 開始前
+					b=makebutton "準備完了/準備中"
+					$("#playersinfo").append b
+					$(b).click (je)->
+						SS.server.game.rooms.ready roomid,(result)->
+						if result?
+							SS.client.util.message "ルーム",result
 		userid=SS.client.app.userid()
 		if room.mode=="waiting"
 			if room.owner.userid==SS.client.app.userid()
@@ -300,10 +311,19 @@ exports.start=(roomid)->
 			$("#players").append li
 		# 誰かが出て行った!!!
 		socket_ids.push SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
-			console.log msg
 			room.players=room.players.filter (x)->x.userid!=msg
 			
 			$("#players li").filter((idx)-> this.title==msg).remove()
+		# 準備
+		socket_ids.push SS.client.socket.on "ready","room#{roomid}",(msg,channel)->
+			li=$("#players li").filter((idx)-> this.title==msg.userid)
+			if msg.start
+				b=document.createElement "b"
+				b.textContent="[ready]"
+				li.append b
+			else
+				li.find("b").remove()
+			
 		# ログが流れてきた!!!
 		socket_ids.push SS.client.socket.on "log",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()

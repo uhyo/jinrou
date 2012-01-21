@@ -14,6 +14,7 @@ room: {
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
 }
+PlayerObject.start=Boolean
 ###
 page_number=10
 
@@ -118,6 +119,7 @@ exports.actions=
 					realid:@session.user_id
 					name:su.name
 					ip:su.ip
+					start:false
 				
 				user.realid = @session.user_id
 				# 同IP制限
@@ -177,6 +179,33 @@ exports.actions=
 					user=room.players.filter((x)=>x.realid==@session.user_id)[0]
 					SS.server.game.game.outlog room,user ? @session.attributes.user
 					SS.publish.channel "room#{roomid}", "unjoin", user?.userid
+	ready:(roomid,cb)->
+		# 準備ができたか？
+		unless @session.user_id
+			cb "ログインして下さい"
+			return
+		SS.server.game.rooms.oneRoomS roomid,(room)=>
+			if !room || room.error?
+				cb "その部屋はありません"
+				return
+			unless @session.user_id in (room.players.map (x)->x.realid)
+				cb "まだ参加していません"
+				return
+			unless room.mode=="waiting"
+				cb "もう始まっています"
+				return
+			room.players.forEach (x,i)=>
+				if x.realid==@session.user_id
+					query={$set:{}}
+					query.$set["players.#{i}.start"]=!x.start
+					M.rooms.update {id:roomid},query, (err)=>
+						if err?
+							cb "エラー:#{err}"
+						else
+							cb null
+							# ready? 知らせる
+							SS.publish.channel "room#{roomid}", "ready", {userid:x.userid,start:!x.start}
+
 	# 部屋から追い出す
 	kick:(roomid,id,cb)->
 		unless @session.user_id

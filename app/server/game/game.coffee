@@ -2289,6 +2289,9 @@ exports.actions=
 				# すでに開始している
 				cb "そのゲームは既に開始しています"
 				return
+			if room.players.some((x)->!x.start)
+				cb "まだ全員の準備ができていません"
+				return
 			
 			options={}	# オプションズ
 			for opt in ["decider","authority"]
