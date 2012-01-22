@@ -2304,26 +2304,31 @@ exports.actions=
 			if query.scapegoat=="on"	# 身代わりくん
 				frees++
 
-			if query.jobrule=="特殊ルール.自由配役"	# 自由のときはクエリを参考にする
+			if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]	# 自由のときはクエリを参考にする
 				for job in SS.shared.game.jobs
 					joblist[job]=parseInt query[job]	# 仕事の数
-			else if query.jobrule=="特殊ルール.闇鍋"
+			if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
 				# 闇鍋のときはランダムに決める
 				pls=frees	# プレイヤーの数をとっておく
 				plsh=Math.floor pls/2	# 過半数
 		
 				options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
-				#でも人外はもう決まってる
-				# 人狼
-				joblist.Werewolf=parseInt query.yaminabe_Werewolf
-				if isNaN joblist.Werewolf
-					joblist.Werewolf=1
-				frees-=joblist.Werewolf
-				# 狐
-				joblist.Fox=parseInt query.yaminabe_Fox
-				if isNaN joblist.Fox
-					joblist.Fox=0
-				frees-=joblist.Fox
+				if query.jobrule=="特殊ルール.闇鍋"
+					#でも人外はもう決まってる
+					# 人狼
+					joblist.Werewolf=parseInt query.yaminabe_Werewolf
+					if isNaN joblist.Werewolf
+						joblist.Werewolf=1
+					frees-=joblist.Werewolf
+					# 狐
+					joblist.Fox=parseInt query.yaminabe_Fox
+					if isNaN joblist.Fox
+						joblist.Fox=0
+					frees-=joblist.Fox
+				else
+					# 一部闇鍋のときは村人のみ闇鍋
+					frees=joblist.Human ? 0
+					joblist.Human=0
 				
 				# 闇鍋のときは入れないのがある
 				exceptions=[]

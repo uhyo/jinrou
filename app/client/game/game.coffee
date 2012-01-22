@@ -396,6 +396,11 @@ exports.start=(roomid)->
 				title:"配役がランダムに設定されます。"
 				rule:null
 			}
+			{
+				name:"一部闇鍋"
+				title:"一部の配役を固定して残りをランダムにします。"
+				rule:null
+			}
 		]
 	]),[],$("#jobruleselect").get 0
 	
@@ -406,7 +411,7 @@ exports.start=(roomid)->
 	# 配役一覧をアレする
 	setplayersbyjobrule=(form,number)->
 		jobrulename=form.elements["jobrule"].value
-		if jobrulename=="特殊ルール.自由配役"
+		if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
 			$("#jobsfield").get(0).hidden=false
 			$("#yaminabe_opt").get(0).hidden=true
 			return
@@ -440,7 +445,11 @@ exports.start=(roomid)->
 			# 闇鍋の場合
 			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
 			return
+		if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
+			text="闇鍋 / "
+
 		for job in SS.shared.game.jobs
+			continue if job=="Human" && form.elements["jobrule"].value=="特殊ルール.一部闇鍋"	#一部闇鍋は村人部分だけ闇鍋
 			input=form.elements[job]
 			num=input.value
 			continue unless parseInt num
