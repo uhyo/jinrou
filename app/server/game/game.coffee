@@ -250,7 +250,7 @@ class Game
 
 	#夜の能力を処理する
 	midnight:->
-		alives=@players.filter (x)->!x.dead
+		alives=shuffle @players.filter (x)->!x.dead
 		alives.forEach (player)=>
 			player.midnight this
 			
