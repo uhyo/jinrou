@@ -17,15 +17,19 @@ a
   color #000a68
 
 h1
-  font-size 1.5em
+  font-size 1.8em
   font-weight bold
   margin-top 0.2em
   margin-bottom 0.3em
+  text-shadow 1px 1px 2px rgba(100,100,100,0.4)
 h2
+  font-size 1.3em
+  text-shadow 1px 1px 1px rgba(100,100,100,0.4)
   font-weight bold
   margin 0.5em 0
   
 h3
+  text-shadow 1px 1px 1px rgba(100,100,100,0.4)
   margin 0.2em 0
   font-weight bold
   
@@ -39,15 +43,29 @@ strong
   padding 0
   clear both
 //header
-body header
-  padding 0
-  border-bottom 1px solid #0057c5
+body > header
+  margin-left -20px
+  padding 4px 0 4px 8px
+  background-color #000000
+  vertical-gradient #565656,#131313
+  border-bottom 1px solid #aaaaaa
+  color #ffffff
   h1
-    float left
+    // 月下人狼
+    display inline-block
     margin 0
+    font-family 'Takao明朝',serif
+    font-size 2em
+    text-shadow  1px 1px 1px rgba(200,200,200,0.4)
+  #userinfo,nav
+    display inline-block
+    vertical-align 40%
   nav ul li
     display inline-block
     margin-right 1em
+    a
+      color #ffffff
+      text-decoration none
 
 .error
   color #dd0000
@@ -85,6 +103,8 @@ body header
 section.profile
   p.edit
     background-color #bbbbbb
+    padding 2px
+    border-radius 3px
   p.edit:empty
     height 1em
   form input[type="text"]
@@ -109,7 +129,7 @@ body.night
 body.day
   background-color rgb(255,217,83)
   
-body,body.heaven
+body.heaven
   background-color rgb(255,255,240)
   color #000000
   a
@@ -220,4 +240,6 @@ dl.jobs
     width 2.8em
 
 b
+  font-weight bold
+dt
   font-weight bold
