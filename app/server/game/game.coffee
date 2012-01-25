@@ -1788,7 +1788,7 @@ class Spellcaster extends Player
 		log=
 			mode:"skill"
 			to:t.id
-			comment:"呪いをかけられました。昼に発言できません。"
+			comment:"#{t.name}は呪いをかけられました。昼に発言できません。"
 		splashlog game.id,game,log
 		
 		t.muted=true
