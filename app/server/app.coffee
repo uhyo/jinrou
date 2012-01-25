@@ -1,6 +1,9 @@
 # Server-side Code
 
-exports.actions ={}
+exports.actions =
+	# 外部URLを教えてあげる
+	backdoor:(name,cb)->
+		cb SS.config.backdoor[name]
   
 dbinit= ->
     c=require('./dbsettings.coffee').mongo

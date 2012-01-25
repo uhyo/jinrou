@@ -94,6 +94,10 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				page "templates-manual-#{result[1]}",null,SS.client.manual,null
 			else if result=url.match /^\/events\/(\w+)$/
 				page "templates-manual-events-#{result[1]}",null,SS.client.manual,null
+			else if result=url.match /^\/backdoor\/(\w+)$/
+				SS.server.app.backdoor result[1],(url)->
+					if url?
+						location.href=url
 			else
 				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
