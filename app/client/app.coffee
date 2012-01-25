@@ -92,6 +92,8 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				return
 			else if result=url.match /^\/manual\/(\w+)$/
 				page "templates-manual-#{result[1]}",null,SS.client.manual,null
+			else if result=url.match /^\/events\/(\w+)$/
+				page "templates-manual-events-#{result[1]}",null,SS.client.manual,null
 			else
 				page "templates-top",null,SS.client.top,null
 				SS.server.user.logout ->
