@@ -56,7 +56,7 @@ normal1=(number)->
     if number>=16
       ret.Madman++
       ret.Guard++
-  if number>=12
+  if number>=13
     ret.Couple=2 #共有
     if number>=18
       ret.Couple++

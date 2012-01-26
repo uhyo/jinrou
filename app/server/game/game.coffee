@@ -17,6 +17,15 @@ class Game
 		
 		@werewolf_target=null	# 人狼の襲い先
 		@werewolf_flag=null	# 人狼襲撃に関するフラグ
+		@gamelogs={}
+		###
+		さまざまな出来事 一日ごと
+		id: 動作した人
+		gamelogs={
+			"1":[ {id:(id),type:(type/null),target:(id,null),event:(String),flag:(String)},
+			],
+			"2":[...],...}
+		###
 	# JSON用object化(DB保存用）
 	serialize:->
 		{
@@ -29,6 +38,7 @@ class Game
 			night:@night
 			winner:@winner
 			jobscount:@jobscount
+			gamelogs:@gamelogs
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -41,6 +51,7 @@ class Game
 		game.night=obj.night
 		game.winner=obj.winner
 		game.jobscount=obj.jobscount
+		game.gamelogss=obj.gamelogs ? {}
 		game.timer()
 		game
 	# 公開情報
@@ -71,6 +82,17 @@ class Game
 	# DBにセーブ
 	save:->
 		M.games.update {id:@id},@serialize()
+	# gamelogsに追加
+	addGamelog:(obj)->
+		@gamelogs ?= []
+		@gamelogs.push {
+			id:obj.id ? null
+			type:obj.type ? null
+			target:obj.target ? null
+			event:obj.event ? null
+			flag:obj.flag ? null
+			day:@day	# 何気なく日付も追加
+		}
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
@@ -179,6 +201,7 @@ class Game
 
 		@voting=false
 		if @night
+			# jobデータを作る
 			# 人狼の襲い先
 			unless @day==1 && @rule.scapegoat!="off"
 				@werewolf_target=null
@@ -257,7 +280,9 @@ class Game
 		# 狼の処理
 		t=@getPlayer @werewolf_target
 		return unless t?
-		if t.willDieWerewolf && !t.guarded && !t.dead
+		# 噛まれた
+		t.addGamelog this,"bitten"
+		if t.willDieWerewolf && !t.dead
 			# 死んだ
 			t.die this,"werewolf"
 		# 逃亡者を探す
@@ -303,6 +328,12 @@ class Game
 #					if y.type=="Psychic"
 #						# 霊能
 #						y.results.push x
+			@addGamelog {	# 死んだときと死因を記録
+				id:x.id
+				type:x.type
+				event:"found"
+				flag:x.found
+			}
 			x.found=""	# 発見されました
 			SS.publish.user x.realid,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
@@ -643,8 +674,6 @@ class Player
 		@scapegoat=false	# 身代わりくんかどうか
 		@flag=null	# 役職ごとの自由なフラグ
 		
-		@guarded=false	# 護衛フラグ
-		
 		@decider=false	# 決定者
 		@authority=false# 権力者
 		
@@ -672,6 +701,7 @@ class Player
 
 			p.main=main
 			p.sub=sub
+			p.cmplFlag=null
 		else if !jobs[type]?
 			p=new Player realid,id,name
 		else
@@ -697,6 +727,7 @@ class Player
 			r.Complex_main=@main.serialize()
 			r.Complex_sub=@sub?.serialize()
 			r.Complex_type=@cmplType
+			r.Complex_flag=@cmplFlag
 		r
 	@unserialize:(obj)->
 		unless obj?
@@ -718,6 +749,8 @@ class Player
 		p.winner=obj.winner
 		p.originalType=obj.originalType
 		p.originalJobname=obj.originalJobname
+		if p.isComplex()
+			p.cmplFlag=obj.Complex_flag
 		p
 	publicinfo:->
 		# 見せてもいい情報
@@ -752,7 +785,6 @@ class Player
 	isJobType:(type)->type==@type
 	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->
-		@guarded=false
 	# 昼の投票準備
 	votestart:(game)->
 		@voteto=null
@@ -806,8 +838,8 @@ class Player
 
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
-	# 占われたとき（結果は別にとられる）
-	divined:(game)->
+	# 占われたとき（結果は別にとられる player:占い元）
+	divined:(game,player)->
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
@@ -846,14 +878,22 @@ class Player
 			if x.id==@id
 				chk game.players,i,this
 				
-	# 護衛されたことを知らせる
-	youareguarded:->
-		@guarded=true
 	# 自分自身を変える
 	transform:(game,newpl)->
+		@addGamelog game,"transform",newpl.type
 		game.players.forEach (x,i)=>
 			if x.id==@id
 				game.players[i]=newpl
+	# 自分のイベントを記述
+	addGamelog:(game,event,flag,target,type=@type)->
+		game.addGamelog {
+			id:@id
+			type:type
+			target:target
+			event:event
+			flag:flag
+		}
+			
 
 		
 		
@@ -949,7 +989,8 @@ class Diviner extends Player
 				player: p.publicinfo()
 				result: p.fortuneResult
 			}
-			p.divined game
+			p.divined game,this
+			@addGamelog game,"divine",p.type,@target	# 占った
 	showdivineresult:(game)->
 		r=@results[@results.length-1]
 		return unless r?
@@ -1012,13 +1053,18 @@ class Guard extends Player
 				@sunset
 	job:(game,playerid)->
 		unless playerid==@id && game.rule.guardmyself!="ok"
-			game.getPlayer(playerid).youareguarded()	# 護衛
 			super
+			pl=game.getPlayer(playerid)
 			log=
 				mode:"skill"
 				to:@id
-				comment:"#{@name}は#{game.getPlayer(playerid).name}を護衛しました。"
+				comment:"#{@name}は#{pl.name}を護衛しました。"
 			splashlog game.id,game,log
+			# 複合させる
+
+			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Guarded	# 守られた人
+			newpl.cmplFlag=@id	# 護衛元cmplFlag
+			pl.transform game,newpl
 			null
 		else
 			"自分を護衛することはできません"
@@ -1043,9 +1089,11 @@ class Fox extends Player
 		# 妖狐は仲間が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
-	divined:(game)->
+	divined:(game,player)->
+		super
 		# 妖狐呪殺
 		@die game,"curse"
+		player.addGamelog game,"cursekill",null,@id	# 呪殺した
 
 
 class Poisoner extends Player
@@ -1062,6 +1110,7 @@ class Poisoner extends Player
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害者
 		pl.die game,"poison"
+		@addGamelog game,"poisonkill",nulll,pl.id
 
 class BigWolf extends Werewolf
 	type:"BigWolf"
@@ -1090,18 +1139,15 @@ class TinyFox extends Diviner
 	dodivine:(game)->
 		p=game.getPlayer @target
 		if p?
+			success= Math.random()<0.5	# 成功したかどうか
 			@results.push {
 				player: p.publicinfo()
-				result: p.fortuneResult
+				result: if success then "#{p.fortuneResult}ぽい人" else "なんだかとても怪しい人"
 			}
+			@addGamelog game,"foxdivine",success,p.id
 	showdivineresult:(game)->
 		r=@results[@results.length-1]
 		return unless r?
-		# たまに失敗
-		if Math.random() < 0.5
-			r.result="なんだかとても怪しい人"
-		else
-			r.result+="ぽい人"
 		log=
 			mode:"skill"
 			to:@id
@@ -1129,6 +1175,8 @@ class Noble extends Player
 				# 奴隷が代わりに死ぬ
 				slaves.forEach (x)->
 					x.die game,"werewolf"
+					x.addGamelog game,"slavevictim"
+				@addGamelog game,"nobleavoid"
 		else
 			super
 
@@ -1180,10 +1228,12 @@ class Magician extends Player
 		r=if pl.scapegoat then 0.6 else 0.3
 		unless Math.random()<r
 			# 失敗
+			@addGamelog game,"raise",false,pl.id
 			return
 		pl.dead=false
 		# 蘇生 目を覚まさせる
 		SS.publish.user pl.id,"refresh",{id:game.id}
+		@addGamelog game,"raise",true,pl.id
 	job_target:Player.JOB_T_DEAD
 	makejobinfo:(game,result)->
 		super
@@ -1201,7 +1251,6 @@ class Spy extends Player
 	job:(game,playerid)->
 		return "既に能力を発動しています" if @flag=="spygone"
 		@flag="spygone"
-		@guarded=true	# 人狼に教われても死なない
 		log=
 			mode:"skill"
 			to:@id
@@ -1243,6 +1292,7 @@ class WolfDiviner extends Werewolf
 			to:@id
 			comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
 		splashlog game.id,game,log
+		@addGamelog game,"wolfdivine",null,@target	# 占った
 		null
 	sunrise:(game)->
 		super
@@ -1265,7 +1315,7 @@ class WolfDiviner extends Werewolf
 			@result=
 				player: p.publicinfo()
 				result: p.jobname
-			p.divined game
+			p.divined game,this
 			if p.type=="Diviner"
 				# 逆呪殺
 				@die game,"curse"
@@ -1306,13 +1356,13 @@ class Fugitive extends Player
 			return "死者の家には逃げられません"
 		if playerid==@id
 			return "自分の家へは逃げられません"
-			return
 		@target=playerid
 		log=
 			mode:"skill"
 			to:@id
 			comment:"#{@name}は#{pl.name}の家の近くへ逃亡しました。"
 		splashlog game.id,game,log
+		@addGamelog game,"runto",null,pl.id
 		null
 		
 	midnight:(game)->
@@ -1368,6 +1418,7 @@ class Merchant extends Player
 		splashlog game.id,game,log
 		SS.publish.user newpl.id,"refresh",{id:game.id}	
 		@flag=query.Merchant_kit	# 発送済み
+		@addGamelog game,"sendkit",@flag,newpl.id
 		null
 class QueenSpectator extends Player
 	type:"QueenSpectator"
@@ -1426,6 +1477,7 @@ class Liar extends Player
 		super
 		p=game.getPlayer @target
 		if p?
+			@addGamelog game,"liardivine",null,p.id
 			@result=
 				player: p.publicinfo()
 				result: if Math.random()<0.3
@@ -1826,6 +1878,7 @@ class Priest extends Player
 		# 複合させる
 
 		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,HolyProtected	# 守られた人
+		newpl.cmplFlag=@id	# 護衛元
 		pl.transform game,newpl
 
 		null
@@ -1840,6 +1893,7 @@ class Prince extends Player
 				mode:"system"
 				comment:"#{@name}は#{@jobname}でした。処刑は行われませんでした。"
 			splashlog game.id,game,log
+			@addGamelog game,"princeCO"
 		else
 			super
 # Paranormal Investigator
@@ -1893,8 +1947,10 @@ class PI extends Diviner
 		r=@results[@results.length-1]
 		return unless r?
 		resultstring=if r.result.length>0
+			@addGamelog game,"PIdivine",true,r.player.id
 			"#{r.result.join ","}が発見されました"
 		else
+			@addGamelog game,"PIdivine",false,r.player.id
 			"全員村人でした"
 		log=
 			mode:"skill"
@@ -1984,6 +2040,7 @@ class Doppleganger extends Player
 				to:@id
 				comment:"#{@name}は#{newpl.jobname}になりました。"
 			splashlog game.id,game,log
+			@addGamelog "game","dopplemove",newpl.type,newpl.id
 
 		
 			SS.publish.user newpl.id,"refresh",{id:game.id}
@@ -2069,6 +2126,7 @@ class LoneWolf extends Werewolf
 
 # 複合役職 Player.factoryで適切に生成されることを期待
 # superはメイン役職 @mainにメイン @subにサブ
+# @cmplFlag も持っていい
 class Complex
 	cmplType:"Complex"	# 複合親そのものの名前
 	isComplex:->true
@@ -2093,9 +2151,6 @@ class Complex
 	makejobinfo:(game,result)->
 		@sub?.makejobinfo? game,result
 		@main.makejobinfo game,result
-	youareguarded:->
-		@main.youareguarded()
-		@sub?.youareguarded?()
 	beforebury:(game)->
 		@main.beforebury game
 		@sub?.beforebury? game
@@ -2124,6 +2179,7 @@ class Friend extends Complex	# 恋人
 			x.publicinfo()
 # 聖職者にまもられた人
 class HolyProtected extends Complex
+	# cmplFlag: 護衛元
 	cmplType:"HolyProtected"
 	die:(game,found)->
 		# 一回耐える 死なない代わりに元に戻る
@@ -2132,11 +2188,29 @@ class HolyProtected extends Complex
 			to:@id
 			comment:"#{@name}は聖なる力で守られました。"
 		splashlog game.id,game,log
+		game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
+		
 		@uncomplex game
 # カルトの信者になった人
 class CultMember extends Complex
 	cmplType:"CultMember"
 	isCult:->true
+# 狩人に守られた人
+class Guarded extends Complex
+	# cmplFlag: 護衛元ID
+	cmplType:"Guarded"
+	die:(game,found)->
+		unless found=="werewolf"
+			@main.die game,found
+		else
+			# 狼に噛まれた場合は耐える
+			game.getPlayer(@cmplFlag).addGamelog game,"GJ",null,@id
+
+	sunrise:(game)->
+		# 一日しか守られない
+		@main.sunrise game
+		@sub?.sunrise? game
+		@uncomplex game
 games={}
 
 # ゲームを得る
@@ -2195,6 +2269,7 @@ complexes=
 	Friend:Friend
 	HolyProtected:HolyProtected
 	CultMember:CultMember
+	Guarded:Guarded
 
 
 exports.actions=
@@ -2361,8 +2436,9 @@ exports.actions=
 				# 配役に従ってアレする
 				func=SS.shared.game.getrulefunc query.jobrule
 				unless func
-					cb "不明な配役です"
-					return
+					if query.jobrule!="特殊ルール.自動配役"
+						cb "不明な配役です"
+						return
 				joblist=func frees
 				sum=0	# 穴を埋めつつ合計数える
 				for job of jobs
@@ -2540,10 +2616,20 @@ exports.actions=
 			if player.jobdone(game)
 				cb {error:"既に能力を行使しています"}
 				return
+			unless player.isJobType query.jobtype
+				cb {error:"役職が違います"}
+				return
 			# エラーメッセージ
 			if ret=player.job game,query.target,query
 				cb {error:ret}
 				return
+			# 能力発動を記録
+			game.addGamelog {
+				id:player.id
+				type:query.jobtype
+				target:query.target
+				event:"job"
+			}
 			
 			# 能力をすべて発動したかどうかチェック
 			cb {jobdone:player.jobdone(game)}
@@ -2563,6 +2649,12 @@ exports.actions=
 				comment:"#{player.name}は#{to.name}に投票しました"
 			splashlog game.id,game,log
 			# 投票が終わったかチェック
+			game.addGamelog {
+				id:player.id
+				type:player.type
+				target:query.target
+				event:"vote"
+			}
 			cb {jobdone:true}
 			game.execute()
 	#遺言
