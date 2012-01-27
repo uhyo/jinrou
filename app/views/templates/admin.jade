@@ -1,0 +1,46 @@
+section.admin#admin
+  h1 メニュー
+  p 下のメニューから操作項目を選択して下さい:
+  ul
+    li(data-opener="blacklist") アク禁管理
+    li(data-opener="grandalert") 全体告知
+  section#blacklist(hidden)
+    h1 アク禁管理
+    table
+      thead
+        tr
+          th ユーザーID
+          th IPアドレス
+          th 期限
+          th 解除
+      tbody#blacklisttable
+    h2 新規アク禁
+    form#newbanform
+      p
+        | アク禁にするユーザーID:
+        input(name="userid",size="20",required)
+      p
+        | 期間:
+        label
+          input(type="radio",name="expire",value="forever",checked)
+          無期限
+        | |
+        input(type="radio",name="expire",value="some")
+        input(name="month",type="number",step="1",value="0",min="0")
+        | ヶ月
+        input(name="day",type="number",step="1",value="0",min="0")
+        | 日
+      p
+        input(type="submit",value="OK")
+  section#grandalert(hidden)
+    h1 全体告知
+    form#alertform
+      p
+        | タイトル:
+        input(name="title",size="20",value="お知らせ")
+      p
+        | 内容:
+        input(name="message",size="50",placeholder="メッセージ",required)
+      p: input(type="submit",value="送信")
+        
+        

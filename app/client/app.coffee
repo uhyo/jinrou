@@ -5,6 +5,10 @@ SS.socket.on 'disconnect', ->
 	SS.client.util.message "サーバー","接続が切断されました。"
 SS.socket.on 'reconnect', ->
 	SS.client.util.message "サーバー","接続が回復しました。"
+	
+# 全体告知
+SS.events.on 'grandalert', (msg)->
+	SS.client.util.message msg.title,msg.message
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
@@ -34,9 +38,10 @@ exports.init = ->
 			showUrl p
 	else
 		showUrl location.pathname
-	window.addEventListener "popstate",(e)->
+	window.addEventListener "popstate",((e)->
 		# location.pathname
 		showUrl location.pathname,true
+	),false
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
 	cdom=$("#content").get(0)
@@ -75,9 +80,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/manual"
 			# マニュアルトップ
 			page "templates-manual-top",null,SS.client.manual,null
-		when "/admin/blacklist"
-			# アク禁
-			page "templates-admin-blacklist",null,SS.client.admin.blacklist,null
+		when "/admin"
+			# 管理者ページ
+			page "templates-admin",null,SS.client.admin,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム
