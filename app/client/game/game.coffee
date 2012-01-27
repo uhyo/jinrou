@@ -45,6 +45,7 @@ exports.start=(roomid)->
 			if result.error?
 				SS.client.util.message "エラー",result.error
 			else
+				$("#playersinfo").empty()
 				getjobinfo result
 				$("#logs").empty()
 				
