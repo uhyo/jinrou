@@ -5,10 +5,18 @@ makePrize=->
 	for job,prs of wincountprize
 		for num,name of prs
 			prizes["wincount_#{job}_#{num}"]=name
+	for job,prs of losecountprize
+		for num,name of prs
+			prizes["losecount_#{job}_#{num}"]=name
 	# 次に何かをカウントして合計する賞を作る
-	for type,obj of counterprize
-		for num,name of obj.names
-			prizes["#{type}_#{num}"]=name
+	for prizeobjs in [counterprize,allcounterprize,allplayersprize]
+		for type,obj of prizeobjs
+			for num,name of obj.names
+				prizes["#{type}_#{num}"]=name
+	# 単品の賞
+	for prizeobjs in [ownprizesprize]
+		for prizename,obj of prizeobjs
+			prizes[prizename]=obj.name
 	prizes
 
 
@@ -63,6 +71,20 @@ getpl=(game,userid)->
 getplreal=(game,userid)->
 	game.players.filter((x)->x.realid==userid)[0]
 
+# Complexのtype一致を確かめる
+chkCmplType=(obj,cmpltype)->
+	if obj.type=="Complex"
+		obj.Complex_type==cmpltype || chkCmplType obj.Complex_main,cmpltype
+	else
+		false
+# あるプレイヤーのある時点での役職を調べる
+getTypeAtTime=(game,userid,day)->
+	id=(pl=getpl(game,userid)).id
+	ls=game.gamelogs.filter (x)->x.event=="transform" && x.id==id && x.day>day	# 変化履歴を調べる
+	return ls[0]?.type ? pl.type
+
+	
+
 counterprize=
 	# 呪殺
 	cursekill:
@@ -71,9 +93,17 @@ counterprize=
 			15:"狐の天敵"
 			30:"魔弾の狙撃手"
 			50:"疾風怒濤の極大射程"
-		func:(game,userid)->
+		func:(game,id)->
 			# 呪殺を数える
-			game.gamelogs.filter((x)->x.id==userid && x.event=="cursekill").length
+			game.gamelogs.filter((x)->x.id==id && x.event=="cursekill").length
+	# 初日黒
+	divineblack2:
+		names:
+			3:"千里眼"
+			10:"心眼"
+		func:(game,id)->
+			game.gamelogs.filter((x)->x.id==id && x.event=="divine" && x.flag in SS.shared.game.blacks).length
+		
 	# GJ判定
 	GJ:
 		names:
@@ -82,18 +112,64 @@ counterprize=
 			30:"精霊の守護者"
 			50:"仁王"
 			100:"守護神"
-		func:(game,userid)->
-			game.gamelogs.filter((x)->x.id==userid && x.event=="GJ").length
+		func:(game,id)->
+			game.gamelogs.filter((x)->x.id==id && x.event=="GJ").length
+	# 恋人の勝利回数
+	lovers_wincount:
+		names:
+			5:"両思い"
+			10:"ラブラブカップル"
+			20:"婚約"
+			30:"結婚"
+			50:"ベストカップル"
+		func:(game,id)->
+			pl=getpl game,id
+			if pl.winner && chkCmplType pl,"Friend"
+				1
+			else
+				0
+	# 恋人の敗北回数
+	lovers_losecount:
+		names:
+			10:"失恋"
+			30:"離婚"
+		func:(game,id)->
+			pl=getpl game,id
+			if pl.winner && chkCmplType pl,"Friend"
+				1
+			else
+				0
+	# 商品を受け取った回数
+	getkits_merchant:
+		names:
+			10:"お得意様"
+		func:(game,id)->
+			game.gamelogs.filter((x)->x.target==id && x.event=="sendkit").length
+	# 商品を人狼側に送った回数
+	sendkits_to_wolves:
+		names:
+			10:"発注ミス"
+		func:(game,id)->
+			game.gamelogs.filter((x)->x.id==id && x.event=="sendkit" && getTypeAtTime(game,x.target,x.day)).length
+	# コピーせずに終了
+	nocopy:
+		names:
+			5:"優柔不断"
+		func:(game,id)->
+			if getpl(game,id).type=="Copier"
+				1
+			else
+				0
 	# 2日目昼に吊られた
-###
 	day2hanged:
 		names:
-			5:"???"
+			20:"怪しい人"
 		func:(game,userid)->
 			game.gamelogs.filter((x)->
 				x.id==userid && x.event=="found" && x.flag=="punish" && x.day==2
 			).length
 	# 生き残った日数合計
+###
 	alivedays:
 		names:
 			50:"???50"
@@ -105,6 +181,56 @@ counterprize=
 			else
 				game.day
 ###
+# allcounterprizeはrealidが渡されるので注意
+allcounterprize=
+	# 総試合数
+	allgamecount:
+		names:
+			5:"ビギナー"
+			15:"ルーキー"
+			30:"経験者"
+			50:"エリート"
+			75:"エース"
+			100:"キャプテン"
+			150:"ベテラン"
+			200:"歴戦の絆"
+			300:"百戦錬磨"
+			400:"カリスマ"
+			500:"アルティメット"
+			600:"超電磁砲"
+			750:"不敗神話"
+			1000:"永遠の旅人"
+			1250:"冥王"
+			1500:"終末の巨人"
+			2000:"レジェンド"
+		func:(docs,realid)->docs.length
+# docsから自分のみを抜き出したmesに対する処理
+allplayersprize=
+	# 総勝利数
+	allwincount:
+		names:
+			5:"ポイントゲッター"
+			10:"討つべし！"
+			20:"期待の新星"
+			30:"到達の証"
+			50:"撃墜王"
+			75:"勝利の絆"
+			100:"武王"
+			150:"スペシャリスト"
+			200:"未来を紡ぎし者"
+			300:"マスター"
+			400:"絶対王者"
+			500:"天下無双"
+			750:"天衣無縫"
+			1000:"全知全能"
+			1500:"月の頭脳"
+		func:(playerdocs,realid)->playerdocs.filter((x)->x.winner).length
+# 称号一覧を元にして判定（数ではないので注意）
+ownprizesprize=
+	prizecount_100:
+		name:"全てを超越せし者"
+		# Booleanで返すこと
+		func:(prizes,realid)->prizes.length>=100
 
 
 prizes=makePrize()	# 賞の一覧 {"prize1":"賞1","prize2","賞2"} というようにIDと名前の辞書
@@ -112,7 +238,7 @@ prizes=makePrize()	# 賞の一覧 {"prize1":"賞1","prize2","賞2"} というよ
 # 内部用
 exports.actions=
 	checkPrize:(userid,cb)->
-		console.log "checking: #{userid}"
+		#console.log "checking: #{userid}"
 		# あるuseridのユーザーの賞をチェックする
 		M.games.find({"players.realid":userid}).toArray (err,docs)->
 			# 自分が参加したゲームを全て出す
@@ -139,17 +265,43 @@ exports.actions=
 							if num<=count
 								result.push "losecount_#{job}_#{num}"
 							else
-								break						
+								break
+			# docsに自分のIDを追加する
+			docs.forEach (game)->
+				game.myid=getplreal(game,userid).id
 			# カウント称号
 			for prizename,obj of counterprize
-				count=docs.sum (game)->obj.func game,userid
+				count=docs.sum (game)->obj.func game,game.myid
 				for num in Object.keys(obj.names)
 					# 昇順
 					if num<=count
 						result.push "#{prizename}_#{num}"
 					else
 						break
-			console.log "#{userid} : #{JSON.stringify result}"
+			# docごとカウント称号
+			for prizename,obj of allcounterprize
+				count=obj.func docs,userid
+				for num in Object.keys(obj.names)
+					# 昇順
+					if num<=count
+						result.push "#{prizename}_#{num}"
+					else
+						break
+			# mesでカウントする称号
+			for prizename,obj of allplayersprize
+				count=obj.func mes,userid
+				for num in Object.keys(obj.names)
+					# 昇順
+					if num<=count
+						result.push "#{prizename}_#{num}"
+					else
+						break
+			# prizesでカウントする称号
+			for prizename,obj of ownprizesprize
+				bool=obj.func result,userid
+				if bool
+					result.push prizename
+			#console.log "#{userid} : #{JSON.stringify result}"
 			cb result
 						
 	
@@ -167,4 +319,7 @@ exports.actions=
 ・カウント系称号
 "(称号名)_(回数)" というIDをつける
 例） "cursekill_5"
+
+・単品系称号
+"(称号名)" というIDをつける
 ###

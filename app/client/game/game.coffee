@@ -45,17 +45,16 @@ exports.start=(roomid)->
 			if result.error?
 				SS.client.util.message "エラー",result.error
 			else
-				$("#playersinfo").empty()
+				if result.game?.day>=1
+					# ゲームが始まったら消す
+					$("#playersinfo").empty()
 				getjobinfo result
 				$("#logs").empty()
 				
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
+
 		SS.server.game.game.getlog roomid,sentlog
-										
-
-
-			
 		# 新しいゲーム
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
@@ -120,8 +119,8 @@ exports.start=(roomid)->
 					$("#playersinfo").append b
 					$(b).click (je)->
 						SS.server.game.rooms.ready roomid,(result)->
-						if result?
-							SS.client.util.message "ルーム",result
+							if result?
+								SS.client.util.message "ルーム",result
 		userid=SS.client.app.userid()
 		if room.mode=="waiting"
 			if room.owner.userid==SS.client.app.userid()
@@ -145,6 +144,10 @@ exports.start=(roomid)->
 							SS.server.game.rooms.del roomid,(result)->
 								if result?
 									SS.client.util.message "エラー",result
+										
+
+
+			
 
 
 		form=$("#gamestart").get 0
@@ -343,7 +346,9 @@ exports.start=(roomid)->
 			if msg.id==roomid
 				#SS.client.app.refresh()
 				SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,(result)->
+					#SS.server.game.rooms.oneRoom roomid,initroom
 					SS.server.game.game.getlog roomid,sentlog
+				SS.server.rooms.oneRoom roomid,(r)->room=r
 		# 投票フォームオープン
 		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
