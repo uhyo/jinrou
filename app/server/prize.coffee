@@ -36,6 +36,14 @@ wincountprize=
 		30:"時の継承者"
 		50:"巫女"
 		100:"シャーマンキング"
+# 敗北回数による賞
+losecountprize=
+	Human:
+		20: "堕落者"
+	Diviner:
+		20: "占い詐欺師"
+	Psychic:
+		20: "小田霧響子"
 		
 ###
 特殊な回数カウント系称号
@@ -109,9 +117,11 @@ exports.actions=
 		M.games.find({"players.realid":userid}).toArray (err,docs)->
 			# 自分が参加したゲームを全て出す
 			result=[]	# 賞の一覧
-			# 勝利数に関係する称号
+			# 勝敗数に関係する称号
 			# 勝った試合のみ抜き出して自分だけにする
-			wins=docs.map((x)->x.players.filter((pl)->pl.realid==userid)[0]).filter((x)->x.winner)
+			mes=docs.map((x)->x.players.filter((pl)->pl.realid==userid)[0])
+			wins=mes.filter((x)->x.winner)
+			loses=mes.filter((x)->x.winner==false)
 			for team,jobs of SS.shared.game.teams
 				for job in jobs
 					count=wins.filter((x)->x.originalType==job).length
@@ -122,6 +132,14 @@ exports.actions=
 								result.push "wincount_#{job}_#{num}"
 							else
 								break
+					count=loses.filter((x)->x.originalType==job).length
+					if count>0 && losecountprize[job]?
+						for num in Object.keys(losecountprize[job])
+							# 少ないほうから順に称号チェック
+							if num<=count
+								result.push "losecount_#{job}_#{num}"
+							else
+								break						
 			# カウント称号
 			for prizename,obj of counterprize
 				count=docs.sum (game)->obj.func game,userid
@@ -142,6 +160,9 @@ exports.actions=
 ・役職ごとの勝利回数賞
 "wincount_(役職名)_(回数)" というIDをつける
 例） "wincount_Diviner_5"
+・役職ごとの敗北回数賞
+"losecount_(役職名)_(回数)" というIDをつける
+例) "losecount_Human_20"
 
 ・カウント系称号
 "(称号名)_(回数)" というIDをつける
