@@ -680,7 +680,7 @@ parselognode=(node)->
 			break
 	else if node.childNodes
 		for ch in node.childNodes
-			if ch.parentNode?.isSameNode node
+			if ch.parentNode=== node
 				parselognode ch
 			
 		
