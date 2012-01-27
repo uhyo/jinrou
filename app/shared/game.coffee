@@ -53,16 +53,17 @@ normal1=(number)->
   if number>=6
     ret.Madman=1 #狂人
     ret.Guard=1 #狩人
-    if number>=16
+    if number>=18
       ret.Madman++
+    if number>=19
       ret.Guard++
   if number>=13
     ret.Couple=2 #共有
-    if number>=18
+    if number>=20
       ret.Couple++
   if number>=11
     ret.Fox=1 #狐
-    if number>=17
+    if number>=19
       ret.Fox++
   ret
 normal2=(number)->

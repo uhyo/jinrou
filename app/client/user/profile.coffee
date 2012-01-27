@@ -2,7 +2,7 @@
 
 name_length_max=20
 
-exports.start=->
+exports.start=(user)->
 	$("section.profile p.edit").click (je)->
 		t=je.target
 		inp=document.createElement "input"
@@ -110,7 +110,38 @@ exports.start=->
 			console.log gs,names
 			graph.setData gs,names
 			graph.openAnimate 0.2
-				
+	# 称号
+	unless user.prizenames?.length>0
+		# 称号がない
+		$("#prizearea").html "<p>獲得称号はありません。</p>"
+	else
+		ull=$("#prizes")
+		user.prizenames.forEach (obj)->
+			li=document.createElement "li"
+			label=document.createElement "label"
+			input=document.createElement "input"
+			input.name="prizeselect"
+			input.type="radio"
+			input.value=obj.id
+			if obj.id==user.nowprize
+				input.checked=true
+			label.appendChild input
+			label.appendChild document.createTextNode obj.name
+			li.appendChild label
+			ull.append li
+		$("#prizearea").submit (je)->
+			je.preventDefault()
+			que=SS.client.util.formQuery je.target
+			SS.client.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+				if result
+					query=
+						password:result
+						prize:que.prizeselect
+					SS.server.user.usePrize query,(result)->
+						if result?.error?
+							SS.client.util.message "エラー",result.error
+					
+			
 		
 exports.end=->
 

@@ -59,7 +59,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/my"
 			# プロフィールとか
 			SS.server.user.myProfile (user)->
-				page "templates-user-profile",user,SS.client.user.profile,null
+				page "templates-user-profile",user,SS.client.user.profile,user
 		when "/rooms"
 			# 部屋一覧
 			page "templates-game-rooms",null,SS.client.game.rooms, null

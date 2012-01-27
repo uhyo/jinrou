@@ -55,6 +55,7 @@ exports.actions =
 				cb null
 				return
 			delete record.password
+			delete rocord.prize
 			#unless password && record.password==SS.server.user.crpassword(password)
 			#	delete record.email
 			cb record
@@ -70,6 +71,10 @@ exports.actions =
 				"???"
 			else
 				"#{(u.win.length/(u.win.length+u.lose.length)*100).toPrecision(2)}%"
+			# 称号の処理をしてあげる
+			u.prize ?= []
+			u.prizenames=u.prize.map (x)->{id:x,name:SS.server.prize.prizeName x}
+			delete u.prize
 			cb u
 		else
 			cb null
@@ -102,6 +107,28 @@ exports.actions =
 				@session.attributes.user=record
 				@session.save ->
 				cb record
+	usePrize: (query,cb)->
+		# 表示する称号を変える query.prize
+		M.users.findOne {"userid":@session.user_id,"password":SS.server.user.crpassword(query.password)},(err,record)=>
+			if err?
+				cb {error:"DB err:#{err}"}
+				return
+			if !record?
+				cb {error:"ユーザー認証に失敗しました"}
+				return
+			if query.prize=="_none"
+				# なくす
+				M.users.update {"userid":@session.user_id}, {$set:{nowprize:null}},{safe:true},(err)=>
+					@session.attributes.user.ownprize=null
+					cb null
+			else
+				unless SS.server.prize.prizeName query.prize
+					cb {error:"その称号はありません"}
+					return
+				M.users.update {"userid":@session.user_id}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
+					@session.attributes.user.ownprize=query.prize
+					cb null
+		
 	# 成績をくわしく見る
 	analyzeScore:(cb)->
 		unless @session.user_id
@@ -183,4 +210,7 @@ makeuserdata=(query)->
 		lose:[]	# 負け試合
 		gone:[]	# 行方不明試合
 		ip:""	# IPアドレス
+		prize:[]# 現在持っている称号
+		ownprize:[]	# 何かで与えられた称号（prizeに含まれる）
+		nowprize:null	# 現在設定している称号
 	}

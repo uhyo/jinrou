@@ -18,7 +18,7 @@ eventごとに列挙。
 
 ### found
 死んだ
-* found: 死因
+* flag: 死因
 
 ### transform
 役職が変化した
@@ -30,6 +30,10 @@ eventごとに列挙。
 ### vote
 投票した
 * target: 投票先ID
+
+### getprize
+称号を手に入れた
+* flag: 称号ID
 
 
 ## 占い師系

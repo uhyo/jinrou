@@ -17,14 +17,13 @@ class Game
 		
 		@werewolf_target=null	# 人狼の襲い先
 		@werewolf_flag=null	# 人狼襲撃に関するフラグ
-		@gamelogs={}
+		@gamelogs=[]
 		###
-		さまざまな出来事 一日ごと
+		さまざまな出来事
 		id: 動作した人
-		gamelogs={
-			"1":[ {id:(id),type:(type/null),target:(id,null),event:(String),flag:(String)},
-			],
-			"2":[...],...}
+		gamelogs=[
+			{id:(id),type:(type/null),target:(id,null),event:(String),flag:(String),day:(Number)},
+			{...},
 		###
 	# JSON用object化(DB保存用）
 	serialize:->
@@ -176,6 +175,10 @@ class Game
 	#次のターンに進む
 	nextturn:->
 		clearTimeout @timerid
+		#死体処理
+		@bury()
+		return if @judge()
+
 		if @day<=0
 			# はじまる前
 			@day=1
@@ -186,9 +189,6 @@ class Game
 		else
 			@night=true
 			
-		#死体処理
-		@bury()
-		return if @judge()
 		
 		log=
 			mode:"nextturn"
@@ -514,6 +514,7 @@ class Game
 			M.rooms.update {id:@id},{$set:{mode:"end"}}
 			SS.publish.channel "room#{@id}","refresh",{id:@id}
 			@save()
+			@prize_check()
 			return true
 		else
 			return false
@@ -643,9 +644,35 @@ class Game
 				else
 					null
 		.filter (x)->x?
-		
-		
-###
+	prize_check:->
+		pls=@players.filter (x)->x.realid!="身代わりくん"
+		# 各々に対して処理
+		query={userid:{$in:pls.map (x)->x.realid}}
+		M.users.find(query).each (err,doc)=>
+			return unless doc?
+			oldprize=doc.prize	# 賞の一覧
+			
+			# 賞を算出しなおしてもらう
+			SS.server.prize.checkPrize doc.userid,(prize)=>
+				prize=prize.concat doc.ownprize if doc.ownprize?
+				# 新規に獲得した賞を探す
+				newprizes= prize.filter (x)->!(x in oldprize)
+				if newprizes.length>0
+					M.users.update {userid:doc.userid},{$set:{prize:prize}}
+					pl=@getPlayerReal doc.userid
+					newprizes.forEach (x)=>
+						log=
+							mode:"system"
+							comment:"#{pl.name}は#{SS.server.prize.prizeQuote SS.server.prize.prizeName x}を獲得しました。"
+						splashlog @id,this,log
+						@addGamelog {
+							id: pl.id
+							type:pl.type
+							event:"getprize"
+							flag:x
+							target:null
+						}
+	###
 logs:[{
 	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
 	comment: String
@@ -2287,8 +2314,12 @@ exports.actions=
 				throw err
 			games[doc.id]=Game.unserialize doc
 	inlog:(room,player)->
+		name="#{player.name}"
+		pr=SS.server.prize.prizeName player.nowprize
+		if pr
+			name="#{SS.server.prize.prizeQuote pr}#{name}"
 		log=
-			comment:"#{player.name}さんが訪れました。"
+			comment:"#{name}さんが訪れました。"
 			userid:-1
 			name:null
 			mode:"system"

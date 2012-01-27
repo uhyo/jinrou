@@ -120,6 +120,7 @@ exports.actions=
 					name:su.name
 					ip:su.ip
 					start:false
+					nowprize:su.nowprize
 				
 				user.realid = @session.user_id
 				# 同IP制限
