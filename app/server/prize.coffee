@@ -44,6 +44,146 @@ wincountprize=
 		30:"時の継承者"
 		50:"巫女"
 		100:"シャーマンキング"
+	Guard:
+		5:"救命係"
+		10:"キーパー"
+		30:"精霊の守護者"
+		50:"仁王"
+		100:"守護神"
+	Madman:
+		5:"世間知らず"
+		10:"狂戦士"
+		30:"ドラマメイカー"
+		50:"狂世界の王"
+		100:"バーサーカーソウル"
+	Couple:
+		5:"キズナ"
+		10:"親友"
+		30:"ふたりは・・・"
+		50:"阿吽の呼吸"
+		100:"双魔"
+	Werewolf:
+		5:"狼少年"
+		10:"狼男"
+		20:"一騎当千"
+		30:"征服王"
+		50:"グラディエーター"
+		75:"破壊神"
+		100:"覇王"
+		200:"天帝"
+	Fox:
+		3:"ペテン師"
+		10:"潜伏者"
+		30:"天狐"
+		50:"策士の九尾"
+		100:"神獣"
+	Poisoner:
+		5:"誘爆"
+		10:"諸刃の剣"
+	BigWolf:
+		5:"狼のリーダー"
+		10:"凶暴剽悍"
+	TinyFox:
+		5:"腰巾着"
+		10:"親の心子知らず"
+	Devil:
+		5:"小悪魔"
+		10:"デビル"
+		30:"魔王"
+	ToughGuy:
+		5:"ラッキーマン"
+		15:"不屈"
+		30:"忍耐の化身"
+	Cupid:
+		5:"恋の立役者"
+		15:"ラブメーカー"
+	Stalker:
+		5:"歪んだ愛"
+		15:"百鬼夜行"
+	Fanatic:
+		5:"狼の理解者"
+		15:"狡猾"
+	Immoral:
+		5:"狐様のためなら・・・"
+		15:"インペリアル"
+	Bat:
+		5:"バットマン"
+		15:"戦場のナンパ師"
+	Noble:
+		5:"成金"
+		15:"セレブ"
+	Slave:
+		5:"下克上"
+		15:"天変地異"
+	Magician:
+		5:"マジシャン"
+		15:"暗黒の魔法使い"
+	Fugitive:
+		5:"逃げるが勝ち"
+	WolfDiviner:
+		5:"総司令"
+	Spy:
+		5:"諜報員"
+		15:"ステルス"
+	Merchant:
+		5:"店長"
+		10:"村の命綱"
+	QueenSpectator:
+		5:"雛見沢症候群"
+		15:"運命を打ち破りし者"
+	MadWolf:
+		5:"怒れる狼"
+	Liar:
+		5:"二枚舌"
+	Spy2:
+		5:"特殊調査員"
+		15:"ビッグボス"
+	Copier:
+		5:"モノマネ師"
+	Cursed:
+		5:"混血"
+		15:"半人半狼"
+	ApprenticeSeer:
+		5:"次期注目度No.1"
+		10:"永遠の二番手"
+	Diseased:
+		5:"O157"
+	Spellcaster:
+		5:"寡黙な人形"
+	Lycan:
+		5:"不吉な影"
+	Priest:
+		5:"神僕"
+	Prince:
+		5:"王子様"
+		15:"氷帝"
+		30:"凌駕"
+	PI:
+		5:"理科系の男"
+		15:"鷹の目"
+	Doppleganger:
+		5:"臨機応変"
+		10:"変幻自在"
+		30:"無限の転生者"
+	CultLeader:
+		5:"教祖様"
+		10:"指導者"
+	Vampire:
+		5:"リトルウィング"
+		10:"吸血鬼の末裔"
+		30:"公爵"
+		50:"覚醒の魔族"
+	LoneWolf:
+		5:"孤高の戦士"
+	Light:
+		3:"キラ"
+		10:"新世界の神"
+	Neet:
+		3:"明日から本気出す"
+		10:"ホームレス"
+		
+	
+	
 # 敗北回数による賞
 losecountprize=
 	Human:
@@ -52,6 +192,39 @@ losecountprize=
 		20: "占い詐欺師"
 	Psychic:
 		20: "小田霧響子"
+	Guard:
+		20: "居眠り門番"
+	Madman:
+		20:"指名手配犯"
+	Couple:
+		20:"犬猿の仲"
+	Werewolf:
+		20:"負け犬"
+	Fox:
+		10:"村の嫌われ者"
+	Poisoner:
+		5:"病原体"
+	BigWolf:
+		5:"単細胞"
+	TinyFox:
+		5:"青二才"
+	Devil:
+		15:"インプ"
+	ToughGuy:
+		10:"ウドの大木"
+	Cupid:
+		5:"届かぬ思い"
+	Stalker:
+		10:"逮捕"
+	QueenSpectator:
+		10:"繰り返される惨劇"
+	Diseased:
+		10:"隔離された者"
+	LoneWolf:
+		10:"ぼっち"
+	
+	
+	
 		
 ###
 特殊な回数カウント系称号
@@ -209,8 +382,8 @@ allplayersprize=
 	# 総勝利数
 	allwincount:
 		names:
-			5:"ポイントゲッター"
-			10:"討つべし！"
+			5:"かけだし"
+			10:"ポイントゲッター"
 			20:"期待の新星"
 			30:"到達の証"
 			50:"撃墜王"
@@ -225,6 +398,16 @@ allplayersprize=
 			1000:"全知全能"
 			1500:"月の頭脳"
 		func:(playerdocs,realid)->playerdocs.filter((x)->x.winner).length
+	# 総敗北数
+	alllosecount:
+		names:
+			150:"カモネギ"
+		func:(playerdocs,realid)->playerdocs.filter((x)->x.winner==false).length
+	# 最終日に生存
+	aliveatlast:
+		names:
+			30:"最終兵器"
+		func:(playerdocs,realid)->playerdocs.filter((x)->!x.dead).length
 # 称号一覧を元にして判定（数ではないので注意）
 ownprizesprize=
 	prizecount_100:
