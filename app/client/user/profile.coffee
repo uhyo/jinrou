@@ -116,19 +116,77 @@ exports.start=(user)->
 		$("#prizearea").html "<p>獲得称号はありません。</p>"
 	else
 		ull=$("#prizes")
+		prizedictionary={}	# 称号のidと名前対応
 		user.prizenames.forEach (obj)->
 			li=document.createElement "li"
-			label=document.createElement "label"
-			input=document.createElement "input"
-			input.name="prizeselect"
-			input.type="radio"
-			input.value=obj.id
-			if obj.id==user.nowprize
-				input.checked=true
-			label.appendChild input
-			label.appendChild document.createTextNode obj.name
-			li.appendChild label
+			li.textContent=obj.name
+			li.dataset.id=obj.id
+			li.classList.add "prizetip"
+			li.draggable=true
 			ull.append li
+			prizedictionary[obj.id]=obj.name
+		ull=$("#conjunctions")
+		for te in SS.shared.prize.conjunctions
+			li=document.createElement "li"
+			li.textContent=te
+			li.classList.add "conjtip"
+			li.draggable=true
+			ull.append li
+		# 消すやつを追加
+		li=document.createElement "li"
+		li.textContent="消す"
+		li.classList.add "deleter"
+		li.draggable=true
+		ull.append li
+		
+		# 編集部分
+		ull=$("#prizeedit")
+		unless user.nowprize?	# 無い場合はデフォルト
+			for te in SS.shared.prize.prizes_composition
+				li=document.createElement "li"
+				li.classList.add (if te=="prize" then "prizetip" else "conjtip")
+				ull.append li
+		else
+			for obj in user.nowprize
+				li=document.createElement "li"
+				if obj.type=="prize"
+					li.classList.add "prizetip"
+					li.dataset.id=obj.value
+					li.textContent=prizedictionary[obj.value]
+				else
+					li.classList.add "conjtip"
+					li.textContent=obj.value
+				ull.append li
+		$("#prizeedit li").each ->
+			@dropzone="copy"
+			
+		# dragstart
+		dragstart=(e)->
+			e.dataTransfer.setData 'Text',JSON.stringify {id:e.target.dataset.id, value:e.target.textContent,deleter:e.target.classList.contains "deleter"}
+		$("#pdragzone").get(0).addEventListener "dragstart",dragstart,false
+		ull.get(0).addEventListener "dragover",((e)->
+			if e.target.tagName=="LI"
+				e.preventDefault()	# ドロップできる
+		),false
+		ull.get(0).addEventListener "drop",((e)->
+			t=e.target
+			if t.tagName=="LI"
+				e.preventDefault()
+				obj=JSON.parse e.dataTransfer.getData("Text")
+				if obj.deleter	#消す
+					delete t.dataset.id
+					t.textContent=""
+					return
+				if obj.id	# prizeだ
+					if t.classList.contains "prizetip"
+						t.dataset.id=obj.id
+						t.textContent=obj.value
+				else
+					if t.classList.contains "conjtip"
+						t.textContent=obj.value
+		),false
+		
+			
 		$("#prizearea").submit (je)->
 			je.preventDefault()
 			que=SS.client.util.formQuery je.target
@@ -136,7 +194,22 @@ exports.start=(user)->
 				if result
 					query=
 						password:result
-						prize:que.prizeselect
+					prize=[]
+					$("#prizeedit li").each ->
+						if @dataset.id
+							# prizeだ
+							prize.push {
+								type:"prize"
+								value:@dataset.id
+							}
+						else
+							prize.push {
+								type:"conjunction"
+								value:@textContent
+							}
+						null
+					query.prize=prize
+					
 					SS.server.user.usePrize query,(result)->
 						if result?.error?
 							SS.client.util.message "エラー",result.error

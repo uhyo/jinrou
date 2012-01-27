@@ -2324,7 +2324,15 @@ exports.actions=
 			games[doc.id]=Game.unserialize doc
 	inlog:(room,player)->
 		name="#{player.name}"
-		pr=SS.server.prize.prizeName player.nowprize
+		pr=""
+		player.nowprize?.forEach? (x)->
+			if x.type=="prize"
+				prname=SS.server.prize.prizeName x.value
+				if prname?
+					pr+=prname
+			else
+				# 接続
+				pr+=x.value
 		if pr
 			name="#{SS.server.prize.prizeQuote pr}#{name}"
 		log=

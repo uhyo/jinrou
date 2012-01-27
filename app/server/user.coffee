@@ -116,20 +116,26 @@ exports.actions =
 			if !record?
 				cb {error:"ユーザー認証に失敗しました"}
 				return
-			if query.prize=="_none"
-				# なくす
-				M.users.update {"userid":@session.user_id}, {$set:{nowprize:null}},{safe:true},(err)=>
-					@session.attributes.user.nowprize=null
-					console.log @session.attributes.user.nowprize
-					cb null
+			if typeof query.prize?.every=="function"
+				console.log record.prize
+				if query.prize.every((x,i)->x.type==SS.shared.prize.prizes_composition[i])
+					# 合致する
+					if query.prize.every((x)->
+						if x.type=="prize"
+							!x.value || x.value in record.prize	# 持っている称号のみ
+						else
+							!x.value || x.value in SS.shared.prize.conjunctions
+					)
+						# 所持もOK
+						M.users.update {"userid":@session.user_id}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
+								@session.attributes.user.nowprize=query.prize
+							cb null
+					else
+						cb {error:"肩書きが不正です"}
+				else
+					cb {error:"肩書きが不正です"}
 			else
-				unless SS.server.prize.prizeName query.prize
-					cb {error:"その称号はありません"}
-					return
-				M.users.update {"userid":@session.user_id}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
-					@session.attributes.user.nowprize=query.prize
-					console.log @session.attributes.user.nowprize
-					cb null
+				cb {error:"肩書きが不正です"}
 		
 	# 成績をくわしく見る
 	analyzeScore:(cb)->
@@ -183,5 +189,6 @@ makeuserdata=(query)->
 		ip:""	# IPアドレス
 		prize:[]# 現在持っている称号
 		ownprize:[]	# 何かで与えられた称号（prizeに含まれる）
-		nowprize:null	# 現在設定している称号
+		nowprize:null	# 現在設定している肩書き
+				# [{type:"prize",value:(prizeid)},{type:"conjunction",value:"が"},...]
 	}

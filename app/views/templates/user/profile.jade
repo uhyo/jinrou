@@ -16,12 +16,13 @@ section.profile
   p 勝率: {{= typeof(wp)!=="undefined" ? wp : ""}}
   form#morescore: p: input(type="submit",name="submit",value="詳細情報を見る")
   #grapharea
-  h1 称号
-  form#prizearea
-    h2 称号選択
-    p 入室時に名前の前に表示する称号を設定できます。
-    ul#prizes
-      li: label
-        input(name="prizeselect",type="radio",value="_none")
-        （なし）
-    p: input(type="submit",value="変更")
+  section
+    h1 称号
+    p 入室時に名前の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
+    #pdragzone
+      ul#prizes
+      ul#conjunctions
+    ul#prizeedit
+    form#prizearea
+      p
+        input(type="submit",value="OK")
