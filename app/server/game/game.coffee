@@ -1555,6 +1555,14 @@ class Copier extends Player
 	isHuman:->false
 	sleeping:->true
 	jobdone:->@target?
+	sunset:(game)->
+		@target=null
+		if @scapegoat
+			alives=game.players.filter (x)->!x.dead
+			r=Math.floor Math.random()*alives.length
+			pl=alives[r]
+			@job game,pl.id,{}
+
 	job:(game,playerid,query)->
 		# コピー先
 		if @target?
@@ -1742,13 +1750,13 @@ class Stalker extends Player
 		super
 		if game.day==1
 			@target=null
-		else
-			@target=""
 			if @scapegoat
 				alives=game.players.filter (x)->!x.dead
 				r=Math.floor Math.random()*alives.length
 				pl=alives[r]
 				@job game,pl.id,{}
+		else
+			@target=""
 	sleeping:->@target?
 	job:(game,playerid,query)->
 		if @target?
