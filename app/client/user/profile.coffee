@@ -140,7 +140,6 @@ exports.start=(user)->
 					SS.server.user.usePrize query,(result)->
 						if result?.error?
 							SS.client.util.message "エラー",result.error
-					
 			
 		
 exports.end=->

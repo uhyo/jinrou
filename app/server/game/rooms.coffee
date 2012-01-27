@@ -254,11 +254,10 @@ exports.actions=
 			if room.password? && room.password!=password
 				cb {require:"password"}
 				return
+			@session.channel.unsubscribeAll()
 
 			@session.channel.subscribe "room#{roomid}"
 			SS.server.game.game.playerchannel roomid,@session
-			@session.channel.list (list)->
-				console.log "#{roomid} : #{list}"
 			cb {joined:room.players.some((x)=>x.realid==@session.user_id)}
 	
 	# 成功ならnull 失敗ならエラーメッセージ

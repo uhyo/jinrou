@@ -41,14 +41,16 @@ exports.start=(roomid)->
 			SS.client.app.showUrl "/rooms"
 			return
 		# 今までのログを送ってもらう
-		SS.server.game.game.getlog roomid,(result)->
+		sentlog=(result)->
 			if result.error?
 				SS.client.util.message "エラー",result.error
 			else
 				getjobinfo result
+				$("#logs").empty()
+				
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
-				console.log result
+		SS.server.game.game.getlog roomid,sentlog
 										
 
 
@@ -91,6 +93,8 @@ exports.start=(roomid)->
 								SS.client.util.message "ルーム",result
 							else
 								SS.client.app.refresh()
+
+
 					if room.blind
 						# 参加者名
 						SS.client.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
@@ -336,7 +340,9 @@ exports.start=(roomid)->
 		# 更新したほうがいい
 		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
 			if msg.id==roomid
-				SS.client.app.refresh()
+				#SS.client.app.refresh()
+				SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,(result)->
+					SS.server.game.game.getlog roomid,sentlog
 		# 投票フォームオープン
 		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
@@ -680,7 +686,7 @@ parselognode=(node)->
 			break
 	else if node.childNodes
 		for ch in node.childNodes
-			if ch.parentNode=== node
+			if ch.parentNode== node
 				parselognode ch
 			
 		

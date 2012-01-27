@@ -119,14 +119,16 @@ exports.actions =
 			if query.prize=="_none"
 				# なくす
 				M.users.update {"userid":@session.user_id}, {$set:{nowprize:null}},{safe:true},(err)=>
-					@session.attributes.user.ownprize=null
+					@session.attributes.user.nowprize=null
+					console.log @session.attributes.user.nowprize
 					cb null
 			else
 				unless SS.server.prize.prizeName query.prize
 					cb {error:"その称号はありません"}
 					return
 				M.users.update {"userid":@session.user_id}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
-					@session.attributes.user.ownprize=query.prize
+					@session.attributes.user.nowprize=query.prize
+					console.log @session.attributes.user.nowprize
 					cb null
 		
 	# 成績をくわしく見る
