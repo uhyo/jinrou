@@ -458,7 +458,7 @@ class Game
 				if friends.every((x)->!x.dead)
 					team="Friend"
 		# カルト判定
-		if aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
+		if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
 			# 全員信者
 			team="Cult"
 		# 悪魔くん判定
@@ -2100,7 +2100,8 @@ class CultLeader extends Player
 			to:t.id
 			comment:"#{t.name}はカルトの信者になりました。"
 
-		# 信者		
+		# 信者
+		splashlog game.id,game,log
 		newpl=Player.factory null,t.realid,t.id,t.name, t,null,CultMember	# 合体
 		t.transform game,newpl
 
