@@ -55,7 +55,7 @@ exports.actions =
 				cb null
 				return
 			delete record.password
-			delete rocord.prize
+			delete record.prize
 			#unless password && record.password==SS.server.user.crpassword(password)
 			#	delete record.email
 			cb record
