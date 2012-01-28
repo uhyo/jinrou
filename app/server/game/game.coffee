@@ -2490,13 +2490,12 @@ exports.actions=
 					if job=="Spy2"
 						possibility.splice r,1
 					
-			else
+			else if query.jobrule!="特殊ルール.自由配役"
 				# 配役に従ってアレする
 				func=SS.shared.game.getrulefunc query.jobrule
 				unless func
-					if query.jobrule!="特殊ルール.自由配役"
-						cb "不明な配役です"
-						return
+					cb "不明な配役です"
+					return
 				joblist=func frees
 				sum=0	# 穴を埋めつつ合計数える
 				for job of jobs
