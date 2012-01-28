@@ -240,6 +240,44 @@ exports.jobrules=[
           ret.Madman=number-count	#残り全部狂人
           ret
       }
+      {
+        name:"五つ巴人狼"
+        title:"5つの勢力がひしめく。"
+        rule:(number)->
+          ret={}
+          ret.Diviner=1
+          ret.Psychic=1
+          ret.Guard=1
+          ret.Madman=1
+          ret.Werewolf=2
+          ret.Fox=1
+          ret.Devil=1
+          ret.Cupid=1
+          ret.Copier=1
+          if number>=14
+            ret.Priest=1
+            ret.Doppleganger=1
+          if number>=16
+            ret.Stalker=1
+            ret.Bat=1
+          if number>=20
+            ret.ApprenticeSeer=1
+            ret.Fox++
+          if number>=22
+            ret.Werewolf++
+          if number>=26
+            ret.WolfDiviner++
+            ret.Werewolf--
+            ret.Immoral=1
+          if number>=28
+            ret.Noble++
+            ret.Slave++
+          if number>=35
+            ret.Werewolf++
+          ret
+            
+          
+      }
     ]
   }
 ]

@@ -1141,7 +1141,7 @@ class Poisoner extends Player
 		r=Math.floor Math.random()*canbedead.length
 		pl=canbedead[r]	# 被害者
 		pl.die game,"poison"
-		@addGamelog game,"poisonkill",nulll,pl.id
+		@addGamelog game,"poisonkill",null,pl.id
 
 class BigWolf extends Werewolf
 	type:"BigWolf"
@@ -1581,6 +1581,7 @@ class Copier extends Player
 		newpl=Player.factory p.type,@realid,@id,@name
 		newpl.originalType=@originalType
 		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
+		newpl.sunset game	# 初期化してあげる
 		@transform game,newpl
 
 		
@@ -1752,7 +1753,7 @@ class Stalker extends Player
 	team:""
 	sunset:(game)->
 		super
-		if game.day==1
+		if !@flag	# ストーキング先を決めていない
 			@target=null
 			if @scapegoat
 				alives=game.players.filter (x)->!x.dead
