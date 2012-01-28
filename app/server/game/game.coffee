@@ -1785,7 +1785,10 @@ class Stalker extends Player
 		splashlog game.id,game,log
 		@flag=playerid	# ストーキング対象プレイヤー
 		null
-	isWinner:(game,team)->team==game.getPlayer(@flag)?.team
+	isWinner:(game,team)->
+		pl=game.getPlayer @flag
+		return false unless pl?
+		return team==pl.team || pl.isWinner game,team
 	makejobinfo:(game,result)->
 		super
 		result.stalking=game.getPlayer @flag
