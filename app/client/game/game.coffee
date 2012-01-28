@@ -352,7 +352,7 @@ exports.start=(roomid)->
 				SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,(result)->
 					#SS.server.game.rooms.oneRoom roomid,initroom
 					SS.server.game.game.getlog roomid,sentlog
-				SS.server.rooms.oneRoom roomid,(r)->room=r
+				SS.server.game.rooms.oneRoom roomid,(r)->room=r
 		# 投票フォームオープン
 		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()

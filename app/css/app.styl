@@ -220,11 +220,6 @@ body.heaven
   .fox
     background-color #934293
     color #ffffff
-  table.voteresult
-    border-collapse collapse
-    td
-      border 1px solid currentColor
-      padding 2px
   .will
     background-color #222222
     color #ffffff
@@ -281,3 +276,19 @@ b
   font-weight bold
 dt
   font-weight bold
+  
+table
+  border-collapse collapse
+  td,th
+    border 1px solid currentColor
+    padding 2px
+  th
+    font-weight bold
+.casting table
+  tr:nth-child(4n+1),tr:nth-child(4n+3)
+    backdound-color #ffffff
+  tr:nth-child(4n+2)
+    background-color #eeeeee
+  tr:nth-child(4n)
+    background-color #dddddd
+

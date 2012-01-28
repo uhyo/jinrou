@@ -35,9 +35,9 @@ exports.init = ->
 				# 無効
 				localStorage.removeItem "userid"
 				localStorage.removeItem "password"
-			showUrl p
+			showUrl decodeURIComponent p
 	else
-		showUrl location.pathname
+		showUrl decodeURIComponent location.pathname
 	window.addEventListener "popstate",((e)->
 		# location.pathname
 		showUrl location.pathname,true
@@ -95,6 +95,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				win=SS.client.util.blankWindow()
 				$("#templates-jobs-#{result[1]}").tmpl().appendTo win
 				return
+			else if result=url.match /^\/manual\/casting\/(.+)$/
+				# キャスティング情報
+				page "templates-pages-casting",null,SS.client.pages.casting,result[1]
 			else if result=url.match /^\/manual\/(\w+)$/
 				page "templates-manual-#{result[1]}",null,SS.client.manual,null
 			else if result=url.match /^\/events\/(\w+)$/

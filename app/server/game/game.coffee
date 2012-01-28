@@ -814,6 +814,8 @@ class Player
 	isVampire:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
+	# 投票先決定
+	dovote:(target)->@voteto=target
 	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->
 	# 昼の投票準備
@@ -2189,6 +2191,12 @@ class Complex
 	sunrise:(game)->
 		@main.sunrise game
 		@sub?.sunrise? game
+	votestart:(game)->
+		@main.votestart game
+	voted:->@main.voted()
+	dovote:(target)->
+		@main.dovote target
+	
 	makejobinfo:(game,result)->
 		@sub?.makejobinfo? game,result
 		@main.makejobinfo game,result
@@ -2700,7 +2708,7 @@ exports.actions=
 			if query.target==player.id && game.rule.votemyself!="ok"
 				cb {error:"自分には投票できません"}
 				return
-			player.voteto=query.target
+			player.dovote query.target
 			log=
 				mode:"voteto"
 				to:player.id

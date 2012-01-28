@@ -241,8 +241,8 @@ exports.jobrules=[
           ret
       }
       {
-        name:"五つ巴人狼"
-        title:"5つの勢力がひしめく。"
+        name:"六つ巴人狼"
+        title:"6つの勢力がひしめく。"
         rule:(number)->
           ret={}
           ret.Diviner=1
@@ -260,20 +260,31 @@ exports.jobrules=[
           if number>=16
             ret.Stalker=1
             ret.Bat=1
+          if number>=18
+            ret.Werewolf++
           if number>=20
             ret.ApprenticeSeer=1
             ret.Fox++
-          if number>=22
+          if number>=23
+            ret.Vampire=1
+          if number>=25
             ret.Werewolf++
-          if number>=26
-            ret.WolfDiviner++
+          if number>=27
+            ret.WolfDiviner=1
             ret.Werewolf--
             ret.Immoral=1
-          if number>=28
-            ret.Noble++
-            ret.Slave++
+          if number>=29
+            ret.Noble=1
+            ret.Slave=1
+          if number>=30
+            ret.Werewolf--
+            ret.LoneWolf=1
           if number>=35
             ret.Werewolf++
+          if number>=36
+            ret.Fox++
+          if number>=38
+            ret.Vampire++
           ret
             
           
