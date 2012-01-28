@@ -145,6 +145,9 @@
             select(name="friendsjudge")
               option(value="alive",title="妖狐と同様です。",selected) 終了時に生存
               option(value="ruin") 恋人だけ生存
+          label(title="噛まれたときに噛まれた側に知らされます。")
+            | 噛まれたら分かる
+            input(name="noticebitten",type="checkbox",value="notice")
           
       p: input(type="submit",value="開始")
   .infobox

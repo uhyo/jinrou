@@ -282,6 +282,10 @@ class Game
 		return unless t?
 		# 噛まれた
 		t.addGamelog this,"bitten"
+		if @rule.noticebitten=="notice" || t.isJobType "Devil"
+			log=
+				mode:"skill"
+				comment:"#{t.name}は人狼に襲われました。"
 		if t.willDieWerewolf && !t.dead
 			# 死んだ
 			t.die this,"werewolf"
@@ -2075,7 +2079,7 @@ class Doppleganger extends Player
 				to:@id
 				comment:"#{@name}は#{newpl.jobname}になりました。"
 			splashlog game.id,game,log
-			@addGamelog "game","dopplemove",newpl.type,newpl.id
+			@addGamelog game,"dopplemove",newpl.type,newpl.id
 
 		
 			SS.publish.user newpl.id,"refresh",{id:game.id}
@@ -2524,6 +2528,7 @@ exports.actions=
 				waitingnight:query.waitingnight ? null
 				safety:query.safety ? null
 				friendsjudge:query.friendsjudge ? null
+				noticebitten:query.noticebitten ? null
 			}
 			
 			game.setplayers joblist,options,room.players,(result)->

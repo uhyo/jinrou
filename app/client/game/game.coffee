@@ -266,6 +266,10 @@ exports.start=(roomid)->
 					"_name":"恋人の勝利条件"
 					"alive":"終了時に生存"
 					"_default":"恋人だけ生存"
+				"noticebitten":
+					"_name":"噛まれたら分かるか"
+					"notice":"分かる"
+					"_default":分からない"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?
