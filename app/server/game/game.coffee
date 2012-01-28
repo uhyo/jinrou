@@ -409,9 +409,12 @@ class Game
 		if @revote_num>=4	# 4回再投票
 			@judge()
 			return
+		remains=4-@revote_num
 		log=
 			mode:"system"
 			comment:"再投票になりました。"
+		if isFinite remains
+			log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
 		splashlog @id,this,log
 		@players.forEach (player)=>
 			player.votestart this
