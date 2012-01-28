@@ -591,6 +591,7 @@ exports.start=(roomid)->
 	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()
+		$("#playernumberinfo").text "生存者#{players.filter((x)->!x.dead).length}人 / 死亡者#{players.filter((x)->x.dead).length}人"
 		players.forEach (x)->
 			# 上の一覧用
 			li=document.createElement "li"

@@ -152,7 +152,7 @@ exports.start=(user)->
 				if obj.type=="prize"
 					li.classList.add "prizetip"
 					li.dataset.id=obj.value
-					li.textContent=prizedictionary[obj.value]
+					li.textContent=prizedictionary[obj.value] ? ""
 				else
 					li.classList.add "conjtip"
 					li.textContent=obj.value
@@ -196,11 +196,11 @@ exports.start=(user)->
 						password:result
 					prize=[]
 					$("#prizeedit li").each ->
-						if @dataset.id
+						if @classList.contains "prizetip"
 							# prizeだ
 							prize.push {
 								type:"prize"
-								value:@dataset.id
+								value:@dataset.id ? null
 							}
 						else
 							prize.push {

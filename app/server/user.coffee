@@ -73,7 +73,7 @@ exports.actions =
 				"#{(u.win.length/(u.win.length+u.lose.length)*100).toPrecision(2)}%"
 			# 称号の処理をしてあげる
 			u.prize ?= []
-			u.prizenames=u.prize.map (x)->{id:x,name:SS.server.prize.prizeName x}
+			u.prizenames=u.prize.map (x)->{id:x,name:SS.server.prize.prizeName(x) ? null}
 			delete u.prize
 			cb u
 		else
@@ -116,8 +116,8 @@ exports.actions =
 			if !record?
 				cb {error:"ユーザー認証に失敗しました"}
 				return
+			console.log query.prize
 			if typeof query.prize?.every=="function"
-				console.log record.prize
 				if query.prize.every((x,i)->x.type==SS.shared.prize.prizes_composition[i])
 					# 合致する
 					if query.prize.every((x)->
