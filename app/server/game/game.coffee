@@ -2494,7 +2494,7 @@ exports.actions=
 				# 配役に従ってアレする
 				func=SS.shared.game.getrulefunc query.jobrule
 				unless func
-					if query.jobrule!="特殊ルール.自動配役"
+					if query.jobrule!="特殊ルール.自由配役"
 						cb "不明な配役です"
 						return
 				joblist=func frees
