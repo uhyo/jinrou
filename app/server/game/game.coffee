@@ -2480,6 +2480,11 @@ exports.actions=
 					job=possibility[r]
 					joblist[job]++
 					frees--	# ひとつ追加
+					
+					# スパイIIは2人いるとかわいそうなので入れない
+					if job=="Spy2"
+						possibility.splice r,1
+					
 			else
 				# 配役に従ってアレする
 				func=SS.shared.game.getrulefunc query.jobrule
