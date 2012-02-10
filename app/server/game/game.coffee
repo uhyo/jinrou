@@ -917,10 +917,12 @@ class Player
 	# 自分自身を変える
 	transform:(game,newpl)->
 		@addGamelog game,"transform",newpl.type
+		###
 		tr=(parent,name)=>
 			if parent[name]?.isComplex? && parent[name].id==@id	# Playerだよね
 				if parent[name]==this
 					# ここを変える
+
 					parent[name]=newpl
 					return
 				if parent[name].isComplex()
@@ -929,8 +931,38 @@ class Player
 					
 		game.players.forEach (x,i)=>
 			if x.id==@id
-				tr game.players,i
+				tr game.players,i,nulld
 				#game.players[i]=newpl
+		###
+		pa=@getParent game
+		unless pa?
+			# 親なんていない
+			game.players.forEach (x,i)=>
+				if x.id==@id
+					game.players[i]=newpl
+		else
+			# 親がいた
+			if pa.main==this
+				# 親書き換え
+				newparent=Player.factory null,newpl.realid,newpl.id,newpl.name,newpl,pa.sub,complexes[pa.cmplType]
+				pa.transform game,newparent	# たのしい再帰
+			else
+				# サブだった
+				pa.sub=newpl
+	getParent:(game)->
+		chk=(parent,name)=>
+			if parent[name]?.isComplex?()
+				if parent[name].main==this || parent[name].sub==this
+					return parent[name]
+				else
+					return chk(parent[name],"main") || chk(parent[name],"sub")
+			else
+				return null
+		for pl,i in game.players
+			c=chk game.players,i
+			return c if c?
+		return null	# 親なんていない
+			
 	# 自分のイベントを記述
 	addGamelog:(game,event,flag,target,type=@type)->
 		game.addGamelog {
@@ -2088,12 +2120,26 @@ class Doppleganger extends Player
 
 			newplmain=Player.factory p.type,@realid,@id,@name
 			newplmain.originalType=@originalType
-			newplmain.originalJobname="#{@originalJobname}→#{newplmain.jobname}"
+			
+			me=game.getPlayer @id
+			newplmain.originalJobname="#{me.originalJobname}→#{newplmain.jobname}"
 			# まだドッペルゲンガーできる
 			sub=Player.factory "Doppleganger",@realid,@id,@name
 			
 			newpl=Player.factory null,@realid,@id,@name, newplmain,sub,Complex	# 合体
-			@transform game,newpl
+			
+			pa=@getParent game	# 親を得る
+			unless pa?
+				# 親はいない
+				@transform game,newpl
+			else
+				# 親がいる
+				if pa.sub==this
+					# subなら親ごと置換
+					pa.transform game,newpl
+				else
+					# mainなら自分だけ置換
+					@transform game,newpl
 			log=
 				mode:"skill"
 				to:@id

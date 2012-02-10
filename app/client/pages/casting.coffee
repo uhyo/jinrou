@@ -21,7 +21,7 @@ exports.start=(rolename)->
 	appendjob=(type)->
 		th=document.createElement "th"
 		a=document.createElement "a"
-		a.href="/manual/jobs/#{type}"
+		a.href="/manual/job/#{type}"
 		a.textContent=getjobname type
 		th.appendChild a
 		jobs.push type
