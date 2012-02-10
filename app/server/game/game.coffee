@@ -882,11 +882,13 @@ class Player
 		obj.open ?=[]
 		if !@jobdone(game)
 			obj.open.push @type
-		obj.job_target=@job_target
+		obj.job_target=@getjob_target()
 		# 女王観戦者が見える
 		if @team=="Human"
 			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
 				x.publicinfo()
+	# 仕事先情報を教える
+	getjob_target:->@job_target
 	
 	# Complexから抜ける
 	uncomplex:(game,flag=false)->
@@ -1872,7 +1874,7 @@ class ApprenticeSeer extends Player
 	jobname:"見習い占い師"
 	beforebury:(game)->
 		# 占い師が誰か死んでいたら占い師に進化
-		unless game.players.some((x)->!x.dead && x.isJobType("Diviner"))
+		if game.players.some((x)->x.dead && x.isJobType("Diviner"))
 			newpl=Player.factory "Diviner",@realid,@id,@name
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
@@ -2269,6 +2271,11 @@ class Complex
 	setWinner:(winner)->
 		@winner=winner
 		@main.setWinner winner
+	getjob_target:->
+		if @sub?
+			@main.getjob_target() | @sub.getjob_target()	# ビットフラグ
+		else
+			@main.getjob_target()
 
 #superがつかえないので注意
 class Friend extends Complex	# 恋人
