@@ -212,6 +212,12 @@ exports.start=(roomid)->
 				p.appendChild document.createTextNode " "
 			win.append p
 			rulestr=
+				"decider":
+					"_name":"決定者"
+					"1":"あり"
+				"authority":
+					"_name":"権力者"
+					"1":"あり"
 				"scapegoat":
 					"_name":"一日目"
 					"_default":""

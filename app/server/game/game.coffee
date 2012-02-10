@@ -1064,7 +1064,7 @@ class Psychic extends Player
 	# 処刑で死んだ人を調べる
 	beforebury:(game)->
 		game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
-			@flag += "霊能結果：前日処刑された#{x.name}は#{x.psychicResult}でした。\n"
+			@flag += "#{@name}の霊能の結果、前日処刑された#{x.name}は#{x.psychicResult}でした。\n"
 
 class Madman extends Player
 	type:"Madman"
@@ -2503,6 +2503,9 @@ exports.actions=
 					# スパイIIは2人いるとかわいそうなので入れない
 					if job=="Spy2"
 						possibility.splice r,1
+				if joblist.Magician>0 && query.heavenview=="view"
+					# 魔術師いるのに
+					query.heavenview=null
 					
 			else if query.jobrule!="特殊ルール.自由配役"
 				# 配役に従ってアレする
@@ -2522,7 +2525,10 @@ exports.actions=
 			game.setrule {
 				number: room.players.length
 				blind:room.blind
-				jobrule:query.jobrule ? null				
+				jobrule:query.jobrule ? null	
+				
+				decider:query.decider ? null
+				authority:query.authority ? null
 				
 				scapegoat : query.scapegoat
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
