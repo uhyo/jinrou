@@ -290,7 +290,7 @@ class Game
 			# 死んだ
 			t.die this,"werewolf"
 		# 逃亡者を探す
-		runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@target
+		runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@werewolf_target
 		runners.forEach (x)=>
 			x.die this,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 	# 死んだ人を処理する
@@ -471,7 +471,7 @@ class Game
 		# 悪魔くん判定
 		if @players.some((x)->x.type=="Devil" && x.flag=="winner")
 			team="Devil"
-		if aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
+		if alives>0 && aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
 			# 恋人のみ生存
 			team="Friend"
 
@@ -917,9 +917,20 @@ class Player
 	# 自分自身を変える
 	transform:(game,newpl)->
 		@addGamelog game,"transform",newpl.type
+		tr=(parent,name)=>
+			if parent[name]?.isComplex? && parent[name].id==@id	# Playerだよね
+				if parent[name]==this
+					# ここを変える
+					parent[name]=newpl
+					return
+				if parent[name].isComplex()
+					tr parent[name],"main"
+					tr parent[name],"sub"
+					
 		game.players.forEach (x,i)=>
 			if x.id==@id
-				game.players[i]=newpl
+				tr game.players,i
+				#game.players[i]=newpl
 	# 自分のイベントを記述
 	addGamelog:(game,event,flag,target,type=@type)->
 		game.addGamelog {
