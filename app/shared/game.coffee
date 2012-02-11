@@ -139,6 +139,15 @@ exports.jobrules=[
             ret.Fox--
           ret.Cupid++
       }
+      {
+        name:"背徳者"
+        title:"背徳者が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          if ret.Fox>0
+            ret.Immoral?=0
+            ret.Immoral+=1
+      }
     ]
   }
   {

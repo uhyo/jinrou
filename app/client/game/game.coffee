@@ -282,8 +282,10 @@ exports.start=(roomid)->
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?
+				val=tru[this_rule.rule[x]] ? tru._default
+				return unless val
 				p=document.createElement "p"
-				p.textContent="#{tru._name} : #{tru[this_rule.rule[x]] ? tru._default}"
+				p.textContent="#{tru._name} : #{val}"
 				win.append p
 				
 			
