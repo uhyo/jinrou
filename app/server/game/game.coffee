@@ -17,7 +17,11 @@ class Game
 		
 		@werewolf_target=null	# 人狼の襲い先
 		@werewolf_flag=null	# 人狼襲撃に関するフラグ
+
+		@slientexpires=0	# 静かにしてろ！（この時間まで）
+
 		@gamelogs=[]
+		
 		###
 		さまざまな出来事
 		id: 動作した人
@@ -249,6 +253,10 @@ class Game
 		@splashjobinfo()
 		if @night
 			@checkjobs()
+		else
+			# 昼は15秒ルールがあるかも
+			if @rule.silentrule>0
+				@silentexpires=Date.now()+@rule.silentrule*1000	# これまでは黙っていよう！
 		@save()
 		@timer()
 	#全員に状況更新
@@ -2532,10 +2540,10 @@ exports.actions=
 				
 			ruleinfo_str=""	# 開始告知
 
-			ruleinfo_str = SS.shared.game.getrulestr query.jobrule,query
 			if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]	# 自由のときはクエリを参考にする
 				for job in SS.shared.game.jobs
 					joblist[job]=parseInt query[job]	# 仕事の数
+				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
 			if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
 				# 闇鍋のときはランダムに決める
 				pls=frees	# プレイヤーの数をとっておく
@@ -2559,6 +2567,7 @@ exports.actions=
 					frees=joblist.Human ? 0
 					joblist.Human=0
 				
+				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
 				# 闇鍋のときは入れないのがある
 				exceptions=[]
 				if query.safety!="free"
@@ -2625,6 +2634,8 @@ exports.actions=
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
+				# (n=15)秒ルール
+				silentrule: parseInt(query.silentrule) ? 0
 			}
 			for x in ["jobrule",
 			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
@@ -2715,6 +2726,9 @@ exports.actions=
 				else if !game.night
 					# 昼
 					log.mode="day"
+					if game.silentexpires && game.silentexpires>=Date.now()
+						# まだ発言できない（15秒ルール）
+						return
 					if player.muted
 						# 呪いをかけられている
 						log.mode="monologue"

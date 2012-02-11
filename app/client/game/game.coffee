@@ -205,6 +205,7 @@ exports.start=(roomid)->
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?
+			console.log this_rule
 			win=SS.client.util.blankWindow()
 			p=document.createElement "p"
 			Object.keys(this_rule.jobscount).forEach (x)->
@@ -298,6 +299,9 @@ exports.start=(roomid)->
 			SS.server.game.game.will roomid,form.elements["will"].value,(result)->
 				if result?
 					SS.client.util.message "エラー",result
+				else
+					$("#willform").get(0).hidden=true
+					$("#speakform").get(0).elements["willbutton"].value="遺言"
 		
 		# 夜の仕事（あと投票）
 		$("#jobform").submit (je)->
