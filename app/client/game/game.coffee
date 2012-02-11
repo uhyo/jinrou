@@ -519,7 +519,6 @@ exports.start=(roomid)->
 			span=document.createElement "div"
 			span.classList.add "comment"
 			wrdv=document.createElement "div"
-			log.comment=log.comment.replace /(\w{30})(?=\w)/g,"$1\u200b"
 			wrdv.textContent=log.comment
 			if log.mode=="will"
 				# 遺言
@@ -672,17 +671,40 @@ exports.parselognode=parselognode=(node)->
 		# text node
 		return unless node.parentNode
 		result=document.createDocumentFragment()
-		while node.nodeValue
-			if res=node.nodeValue.match /^(.*?)#(\d+)/
+		while v=node.nodeValue
+			if res=v.match /^(.*?)(https?:\/\/)([^\s\/]+)(\/\S*)?/
 				if res[1]
 					# 前の部分
 					node=node.splitText res[1].length
+					parselognode node.previousSibling
+				console.log res
+				url = res[2]+res[3]+(res[4] ? "")
+				a=document.createElement "a"
+				a.href=url
+				if res[4] in ["","/"] && res[3].length<10
+					a.textContent=res[3]
+				else if res[0].length<10
+					a.textContent=res[0]
+				else
+					a.textContent="#{res[3].slice(0,10)}..."
+				a.target="_blank"
+				node=node.splitText url.length
+				node.parentNode.replaceChild a,node.previousSibling
+				continue
+				
+			if res=v.match /^(.*?)#(\d+)/
+				if res[1]
+					# 前の部分
+					node=node.splitText res[1].length
+					parselognode node.previousSibling
 				a=document.createElement "a"
 				a.href="/room/#{res[2]}"
 				a.textContent="##{res[2]}"
 				node=node.splitText res[2].length+1	# その部分どける
 				node.parentNode.replaceChild a,node.previousSibling
 				continue
+			node.nodeValue=v.replace /(\w{30})(?=\w)/g,"$1\u200b"
+
 			break
 	else if node.childNodes
 		for ch in node.childNodes

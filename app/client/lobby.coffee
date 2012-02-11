@@ -12,7 +12,6 @@ exports.start=->
 		span=document.createElement "div"
 		span.classList.add "comment"
 		wrdv=document.createElement "div"
-		log.comment=log.comment.replace /(\w{30})(?=\w)/g,"$1\u200b"
 		wrdv.textContent=log.comment
 		SS.client.game.game.parselognode wrdv
 		span.appendChild wrdv

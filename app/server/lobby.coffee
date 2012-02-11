@@ -16,7 +16,6 @@ heartbeat=(userid)->
 	timer=setTimeout (->
 		# heartbeatする
 		SS.publish.user userid,"lobby_heartbeat",null
-		console.log "heartbeat sent:#{new Date()}"
 		time=Date.now()
 		timer2=setTimeout (->
 			# 3秒猶予
