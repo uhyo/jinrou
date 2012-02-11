@@ -281,10 +281,9 @@ counterprize=
 	GJ:
 		names:
 			5:"防御の達人"
-			10:"キーパー"
-			30:"精霊の守護者"
-			50:"仁王"
-			100:"守護神"
+			10:"鉄壁"
+			30:"村の救世主"
+			50:"歴戦のガーディアン"
 		func:(game,id)->
 			game.gamelogs.filter((x)->x.id==id && x.event=="GJ").length
 	# 恋人の勝利回数
