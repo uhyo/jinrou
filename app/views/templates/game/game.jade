@@ -149,6 +149,12 @@
           label(title="噛まれたときに噛まれた側に知らされます。")
             | 噛まれたら分かる
             input(name="noticebitten",type="checkbox",value="notice")
+          label(title="チェックを入れると、投票結果は表示されません。")
+            | 投票結果を隠す
+            input(name="voteresult",type="checkbox",value="hide")
+          label(title="ありにすると、処刑された人の霊能結果が全員に公開されます。")
+            | GM霊能
+            input(name="GMpsychic",type="checkbox",value="on")
           
       p: input(type="submit",value="開始")
   .infobox

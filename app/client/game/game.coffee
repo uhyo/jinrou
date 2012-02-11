@@ -279,6 +279,9 @@ exports.start=(roomid)->
 					"_name":"噛まれたら分かるか"
 					"notice":"分かる"
 					"_default":"分からない"
+				"voteresult":
+					"_name":"投票結果"
+					"hide":"隠す"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?

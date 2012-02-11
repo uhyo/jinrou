@@ -399,6 +399,13 @@ class Game
 		else if player
 			# 結果が出た 死んだ!
 			player.die this,"punish"
+			
+			if player.dead && @rule.GMpsychic=="on"
+				# GM霊能
+				log=
+					mode:"system"
+					comment:"処刑された#{player.name}の霊能結果は#{player.psychicResult}でした。"
+				splashlog @id,this,log
 				
 			@nextturn()
 		return true
@@ -2611,35 +2618,22 @@ exports.actions=
 				mode:"system"
 				comment:"配役: #{ruleinfo_str}"
 			splashlog game.id,game,log
-
-			game.setrule {
+			
+			ruleobj={
 				number: room.players.length
 				blind:room.blind
-				jobrule:query.jobrule ? null	
-				
-				decider:query.decider ? null
-				authority:query.authority ? null
-				
-				scapegoat : query.scapegoat
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
-				will: query.will
-				wolfsound:query.wolfsound ? null	# 狼の声が聞こえるか
-				couplesound:query.couplesound ? null	# 共有者の声が聞こえるか
-				heavenview:query.heavenview ? null	# 死んだ後役職が見られるか
-				wolfattack:query.wolfattack ? null	# 人狼が人狼を殺しに行けるか
-				guardmyself:query.guardmyself ? null	# 狩人が自分を守れるか
-				votemyself:query.votemyself ? null	# 自分に吊り投票できるか
-				deadfox:query.deadfox ? null
-				deathnote:query.deathnote ? null	# デスノート採用
-				divineresult:query.divineresult ? null
-				psychicresult:query.psychicresult ? null
-				waitingnight:query.waitingnight ? null
-				safety:query.safety ? null
-				friendsjudge:query.friendsjudge ? null
-				noticebitten:query.noticebitten ? null
 			}
+			for x in ["jobrule",
+			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
+			"wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
+			"safety","friendsjudge","noticebitten","voteresult","GMpsychic"]
+			
+				ruleobj[x]=query[x] ? null
+
+			game.setrule ruleobj
 			
 			game.setplayers joblist,options,room.players,(result)->
 				unless result?
@@ -2873,7 +2867,7 @@ splashlog=(roomid,game,log)->
 			ch
 	unless log.to?
 		switch log.mode
-			when "prepare","system","nextturn","voteresult","day","will"
+			when "prepare","system","nextturn","day","will"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf","wolfskill"
@@ -2906,6 +2900,14 @@ splashlog=(roomid,game,log)->
 			when "heaven"
 				# 天国
 				SS.publish.channel "room#{roomid}_heaven","log",log
+			when "voteresult"
+				if game.rule.voteresult=="hide"
+					# 公開しないときは天国のみ
+					SS.publish.channel "room#{roomid}_heaven","log",log
+				else
+					# それ以外は全員
+					SS.publish.channel "room#{roomid}","log",log
+					
 	else
 		pl=game.getPlayer log.to
 		if pl
@@ -2919,14 +2921,19 @@ islogOK=(game,player,log)->
 	return true if game.finished	# 終了ならtrue
 	unless player?
 		# 観戦者
-		!log.to? && (log.mode in ["day","system","prepare","nextturn","audience","voteresult","will"])
+		if log.mode in ["day","system","prepare","nextturn","audience","will"]
+			!log.to?	# 観戦者にも公開
+		else if log.mode=="voteresult"
+			game.rule.voteresult!="hide"	# 投票結果公開なら公開
+		else
+			false	# その他は非公開
 	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id
 		# 個人宛
 		false
 	else
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill","voteresult","will","voteto"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto"]
 			true
 		else if log.mode in ["werewolf","wolfskill"]
 			player.isWerewolf()
@@ -2936,6 +2943,8 @@ islogOK=(game,player,log)->
 			player.type=="Fox"
 		else if log.mode=="heaven"
 			player.dead
+		else if log.mode=="voteresult"
+			game.rule.voteresult!="hide"	# 隠すかどうか
 		else
 			false
 #job情報を
