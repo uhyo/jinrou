@@ -66,6 +66,7 @@ exports.start=(roomid)->
 		if room.mode=="waiting"
 			# 開始前のユーザー一覧は roomから取得する
 			room.players.forEach (x)->
+				###
 				li=document.createElement "li"
 				li.title=x.userid
 				if room.blind
@@ -79,6 +80,8 @@ exports.start=(roomid)->
 					b=document.createElement "b"
 					b.textContent="[ready]"
 					li.appendChild b
+				###
+				li=makeplayerbox x,room.blind
 				$("#players").append li
 			unless enter_result?.joined
 				# 未参加
@@ -316,7 +319,7 @@ exports.start=(roomid)->
 		# 誰かが参加した!!!!
 		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
 			room.players.push msg
-			
+			###
 			li=document.createElement "li"
 			li.title=msg.userid
 			if room.blind
@@ -326,21 +329,22 @@ exports.start=(roomid)->
 				a.href="/user/#{msg.userid}"
 				a.textContent=msg.name
 				li.appendChild a
+			###
+			li=makeplayerbox msg,room.blind
 			$("#players").append li
 		# 誰かが出て行った!!!
 		socket_ids.push SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x.userid!=msg
 			
-			$("#players li").filter((idx)-> this.title==msg).remove()
+			$("#players li").filter((idx)-> this.dataset.id==msg).remove()
 		# 準備
 		socket_ids.push SS.client.socket.on "ready","room#{roomid}",(msg,channel)->
-			li=$("#players li").filter((idx)-> this.title==msg.userid)
-			if msg.start
-				b=document.createElement "b"
-				b.textContent="[ready]"
-				li.append b
-			else
-				li.find("b").remove()
+			for pl in room.players
+				if pl.userid==msg.userid
+					pl.start=msg.start
+					li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
+					console.log li
+					li.replaceWith makeplayerbox pl,room.blind
 			
 		# ログが流れてきた!!!
 		socket_ids.push SS.client.socket.on "log",null,(msg,channel)->
@@ -483,43 +487,54 @@ exports.start=(roomid)->
 	getlog=(log)->
 		if log.mode == "voteresult"
 			# 表を出す
-			p=document.createElement "table"
-			p.createCaption().textContent="投票結果"
+			p=document.createElement "div"
+			div=document.createElement "div"
+			div.classList.add "name"
+			p.appendChild div
+			
+			tb=document.createElement "table"
+			tb.createCaption().textContent="投票結果"
 			vr=log.voteresult
 			tos=log.tos
 			vr.forEach (player)->
-				tr=p.insertRow(-1)
+				tr=tb.insertRow(-1)
 				tr.insertCell(-1).textContent=player.name
 				tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
 				tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
+			p.appendChild tb
 		else
 			p=document.createElement "p"
+			div=document.createElement "div"
+			div.classList.add "name"
 			if log.name?
-				span=document.createElement "span"
-				span.classList.add "name"
-				span.textContent=switch log.mode
+				div.textContent=switch log.mode
 					when "monologue"
 						"#{log.name}の独り言:"
 					when "will"
 						"#{log.name}の遺言:"
 					else
 						"#{log.name}:"
-				p.appendChild span
-			span=document.createElement "span"
+			p.appendChild div
+			
+			span=document.createElement "div"
 			span.classList.add "comment"
-			span.textContent=log.comment
+			wrdv=document.createElement "div"
+			log.comment=log.comment.replace /(\w{30})(?=\w)/g,"$1\u200b"
+			wrdv.textContent=log.comment
 			if log.mode=="will"
 				# 遺言
-				spp=span.firstChild	# Text
+				spp=wrdv.firstChild	# Text
 				wr=0
 				while (wr=spp.nodeValue.indexOf("\n"))>=0
 					spp=spp.splitText wr+1
-					span.insertBefore document.createElement("br"),spp
-			parselognode span
+					wrdv.insertBefore document.createElement("br"),spp
+			parselognode wrdv
+			span.appendChild wrdv
 			
 			p.appendChild span
 			if log.time?
 				time=SS.client.util.timeFromDate new Date log.time
+				time.classList.add "time"
 				p.appendChild time
 		
 		p.classList.add log.mode
@@ -600,39 +615,7 @@ exports.start=(roomid)->
 		$("#playernumberinfo").text "生存者#{players.filter((x)->!x.dead).length}人 / 死亡者#{players.filter((x)->x.dead).length}人"
 		players.forEach (x)->
 			# 上の一覧用
-			li=document.createElement "li"
-			li.title=x.id
-			if x.realid
-				a=document.createElement "a"
-				a.href="/user/#{x.realid}"
-				a.textContent=x.name+" "
-				li.appendChild a
-			else
-				li.textContent=x.name+" "
-			if x.jobname
-				#console.log x
-				b=document.createElement "b"
-				if x.originalJobname?
-					if x.originalJobname==x.jobname || x.originalJobname.indexOf("→")>=0
-						b.textContent=x.originalJobname
-					else
-						b.textContent="#{x.originalJobname}→#{x.jobname}"
-				else
-					b.textContent=x.jobname
-				if x.option
-					b.textContent+= "（#{x.option}）"
-				li.appendChild b
-				if x.winner?
-					b=document.createElement "b"
-					if x.winner
-						b.classList.add "win"
-						b.textContent="勝利"
-					else
-						b.classList.add "lose"
-						b.textContent="敗北"
-					li.appendChild b
-			if x.dead
-				li.classList.add "dead"
+			li=makeplayerbox x
 			$("#players").append li
 
 			# 投票フォーム用
@@ -706,6 +689,56 @@ parselognode=(node)->
 			if ch.parentNode== node
 				parselognode ch
 			
-		
+# #players用要素
+makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
+	#df=document.createDocumentFragment()
+	df=document.createElement tagname
 	
+	df.dataset.id=obj.userid
+	p=document.createElement "p"
+	p.classList.add "name"
+	
+	console.log obj
+	
+	unless blindflg
+		a=document.createElement "a"
+		a.href="/user/#{obj.realid ? obj.userid}"
+		a.textContent=obj.name
+		p.appendChild a
+	else
+		p.textContent=obj.name
+	df.appendChild p
+
+	if obj.jobname
+		p=document.createElement "p"
+		p.classList.add "job"
+		if obj.originalJobname?
+			if obj.originalJobname==obj.jobname || obj.originalJobname.indexOf("→")>=0
+				p.textContent=obj.originalJobname
+			else
+				p.textContent="#{obj.originalJobname}→#{obj.jobname}"
+		else
+			p.textContent=obj.jobname
+		if obj.option
+			p.textContent+= "（#{obj.option}）"
+		df.appendChild p
+		if obj.winner?
+			p=document.createElement "p"
+			p.classList.add "outcome"
+			if obj.winner
+				p.classList.add "win"
+				p.textContent="勝利"
+			else
+				p.classList.add "lose"
+				p.textContent="敗北"
+			df.appendChild p
+	if obj.dead
+		df.classList.add "dead"
+	if obj.start
+		# 準備完了
+		p=document.createElement "p"
+		p.classList.add "job"
+		p.textContent="[ready]"
+		df.appendChild p
+	df
 		

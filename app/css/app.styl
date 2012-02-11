@@ -149,17 +149,22 @@ body.heaven
 //players
 #players li
   display inline-block
+  vertical-align top
   margin-left 1em
-  b.win
+  p.job,p.outcome
+    font-weight bold
+  p.outcome.win
     color:#ff0000
-  b.lose
+  p.outcome.lose
     color:#0000ff
 .infobox
     border 2px dashed currentColor
     padding 8px
     margin 5px
 #players li.dead, #form_players li.dead
-  text-decoration line-through
+  background-color rgba(0,0,0,0.1)
+  p.name
+    text-decoration line-through
 #form_players li
   display inline-block
   margin-left 0.8em
@@ -173,15 +178,37 @@ body.heaven
 
 //logs
 #logs
+  //display table
+  width 100%
   p
     margin 0
     padding 1px
+    display table-row
+    width 100%
     time
       font-size x-small
       opacity 0.5
       margin-left 2em
-  span.name
-    font-weight bold
+    div.name
+      font-weight bold
+      display table-cell
+      max-width 10em
+      overflow-x:hidden
+      white-space nowrap
+    div.comment
+      display table-cell
+      width 100%
+      /*div
+        //white-space pre-wrap
+        white-space -moz-pre-wrap
+        white-space -webkit-pre-wrap
+        white-space pre-line
+        word-wrap break-word
+        max-width 600px*/
+    time.time
+      display table-cell
+      white-space nowrap
+      max-width 20ex
   .day
     background-color rgb(255,217,83)
     borderud 1px dashed rgb(255,234,90)
@@ -197,7 +224,7 @@ body.heaven
     color #ffffff
   .heaven,.prepare
     background-color rgb(255,255,240)
-    borderud 1px dashedd #fffff8
+    borderud 1px dashed #fffff8
     color #000000
   .skill,.wolfskill
     background-color #cc0000
@@ -228,6 +255,12 @@ body.heaven
   .will
     background-color #222222
     color #ffffff
+  .voteresult
+    display table-row
+    div.name
+      display table-cell
+    table
+      display inline-table
 //jobs
 dl.jobs
   dt
@@ -291,7 +324,7 @@ table
     font-weight bold
 .casting table
   tr:nth-child(4n+1),tr:nth-child(4n+3)
-    backdound-color #ffffff
+    background-color #ffffff
   tr:nth-child(4n+2)
     background-color #eeeeee
   tr:nth-child(4n)
