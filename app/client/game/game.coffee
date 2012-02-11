@@ -445,7 +445,7 @@ exports.start=(roomid)->
 		jobrulename=form.elements["jobrule"].value
 		if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
 			$("#jobsfield").get(0).hidden=false
-			$("#yaminabe_opt").get(0).hidden=true
+			$("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
 			return
 		else if jobrulename=="特殊ルール.闇鍋"
 			$("#jobsfield").get(0).hidden=true
