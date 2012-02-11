@@ -438,16 +438,12 @@ exports.actions=
 							# 少ないほうから順に称号チェック
 							if num<=count
 								result.push "wincount_#{job}_#{num}"
-							else
-								break
 					count=loses.filter((x)->x.originalType==job).length
 					if count>0 && losecountprize[job]?
 						for num in Object.keys(losecountprize[job])
 							# 少ないほうから順に称号チェック
 							if num<=count
 								result.push "losecount_#{job}_#{num}"
-							else
-								break
 			# docsに自分のIDを追加する
 			docs.forEach (game)->
 				game.myid=getplreal(game,userid).id
@@ -458,8 +454,6 @@ exports.actions=
 					# 昇順
 					if num<=count
 						result.push "#{prizename}_#{num}"
-					else
-						break
 			# docごとカウント称号
 			for prizename,obj of allcounterprize
 				count=obj.func docs,userid
@@ -467,8 +461,6 @@ exports.actions=
 					# 昇順
 					if num<=count
 						result.push "#{prizename}_#{num}"
-					else
-						break
 			# mesでカウントする称号
 			for prizename,obj of allplayersprize
 				count=obj.func mes,userid
@@ -476,8 +468,6 @@ exports.actions=
 					# 昇順
 					if num<=count
 						result.push "#{prizename}_#{num}"
-					else
-						break
 			# prizesでカウントする称号
 			for prizename,obj of ownprizesprize
 				bool=obj.func result,userid
@@ -485,7 +475,7 @@ exports.actions=
 					result.push prizename
 			#console.log "#{userid} : #{JSON.stringify result}"
 			cb result
-						
+
 	
 	prizeName:(prizeid)->prizes[prizeid]	# IDを名前に
 	prizeQuote:(prizename)->"≪#{prizename}≫"

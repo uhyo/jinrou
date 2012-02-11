@@ -295,8 +295,6 @@ exports.start=(roomid)->
 			SS.server.game.game.will roomid,form.elements["will"].value,(result)->
 				if result?
 					SS.client.util.message "エラー",result
-				else
-					$("#willform").attr "hidden","hidden"
 		
 		# 夜の仕事（あと投票）
 		$("#jobform").submit (je)->

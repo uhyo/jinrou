@@ -641,12 +641,14 @@ class Game
 						mode: "werewolf"
 						name: "狼の遠吠え"
 						comment: "アオォーーン・・・"
+						time: x.time
 					}
 				else if x.mode=="couple" && @rule.couplesound=="aloud"
 					{
 						mode: "couple"
 						name: "共有者の小声"
 						comment: "ヒソヒソ・・・"
+						time: x.time
 					}
 				else
 					null
@@ -2408,16 +2410,18 @@ exports.actions=
 	inlog:(room,player)->
 		name="#{player.name}"
 		pr=""
-		player.nowprize?.forEach? (x)->
-			if x.type=="prize"
-				prname=SS.server.prize.prizeName x.value
-				if prname?
-					pr+=prname
-			else
-				# 接続
-				pr+=x.value
-		if pr
-			name="#{SS.server.prize.prizeQuote pr}#{name}"
+		unless room.blind in ["complete","yes"]
+			# 覆面のときは称号OFF
+			player.nowprize?.forEach? (x)->
+				if x.type=="prize"
+					prname=SS.server.prize.prizeName x.value
+					if prname?
+						pr+=prname
+				else
+					# 接続
+					pr+=x.value
+			if pr
+				name="#{SS.server.prize.prizeQuote pr}#{name}"
 		log=
 			comment:"#{name}さんが訪れました。"
 			userid:-1
