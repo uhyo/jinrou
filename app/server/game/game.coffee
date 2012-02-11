@@ -975,6 +975,11 @@ class Player
 			event:event
 			flag:flag
 		}
+	# フラグ類を新しいPlayerオブジェクトへ移動
+	transferData:(newpl)->
+		return unless newpl?
+		newpl.scapegoat=@scapegoat
+		
 			
 
 		
@@ -1409,6 +1414,7 @@ class WolfDiviner extends Werewolf
 				plobj.type=newjob
 				plobj.originalJobname="#{p.originalJobname}→#{plobj.jobname}"
 				newpl=Player.unserialize plobj	# 新生狂人
+				p.transferData newpl
 				@transform game,newpl
 
 		
@@ -1630,6 +1636,7 @@ class Copier extends Player
 		splashlog game.id,game,log
 		p=game.getPlayer playerid
 		newpl=Player.factory p.type,@realid,@id,@name
+		p.transferData newpl
 		newpl.originalType=@originalType
 		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 		newpl.sunset game	# 初期化してあげる
@@ -1863,6 +1870,7 @@ class Cursed extends Player
 			newpl=Player.factory "Werewolf",@realid,@id,@name
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
+			@transferData newpl
 			@transform game,newpl
 			newpl.sunset game
 					
@@ -1877,6 +1885,7 @@ class ApprenticeSeer extends Player
 		# 占い師が誰か死んでいたら占い師に進化
 		if game.players.some((x)->x.dead && x.isJobType("Diviner"))
 			newpl=Player.factory "Diviner",@realid,@id,@name
+			@transferData newpl
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 			log=
@@ -2122,6 +2131,7 @@ class Doppleganger extends Player
 			p=game.getPlayer @flag	# その人
 
 			newplmain=Player.factory p.type,@realid,@id,@name
+			@transferData newplmain
 			newplmain.originalType=@originalType
 			
 			me=game.getPlayer @id
