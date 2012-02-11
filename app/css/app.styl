@@ -152,6 +152,7 @@ body.heaven
   vertical-align top
   margin-left 0.5em
   min-width 5em
+  min-height 2em
   p.job,p.outcome
     font-weight bold
   p.outcome.win
@@ -162,10 +163,13 @@ body.heaven
     border 2px dashed currentColor
     padding 8px
     margin 5px
-#players li.dead, #form_players li.dead
+#players li.dead
   background-color rgba(0,0,0,0.1)
   p.name
     text-decoration line-through
+#form_players li.dead
+  text-decoration line-through
+
 #form_players li
   display inline-block
   margin-left 0.8em

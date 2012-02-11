@@ -188,8 +188,7 @@ class Game
 			@night=false
 		else
 			@night=true
-			
-		
+	
 		log=
 			mode:"nextturn"
 			day:@day
@@ -1838,7 +1837,7 @@ class Stalker extends Player
 		return team==pl.team || pl.isWinner game,team
 	makejobinfo:(game,result)->
 		super
-		result.stalking=game.getPlayer @flag
+		result.stalking=game.getPlayer(@flag).publicinfo()
 # 呪われた者
 class Cursed extends Player
 	type:"Cursed"
@@ -2513,7 +2512,10 @@ exports.actions=
 			frees=room.players.length	# 参加者の数
 			if query.scapegoat=="on"	# 身代わりくん
 				frees++
+				
+			ruleinfo_str=""	# 開始告知
 
+			ruleinfo_str = SS.shared.game.getrulestr query.jobrule,query
 			if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]	# 自由のときはクエリを参考にする
 				for job in SS.shared.game.jobs
 					joblist[job]=parseInt query[job]	# 仕事の数
@@ -2574,6 +2576,10 @@ exports.actions=
 				if joblist.Magician>0 && query.heavenview=="view"
 					# 魔術師いるのに
 					query.heavenview=null
+					log=
+						mode:"system"
+						comment:"魔術師が存在するので、天国から役職が見られなくなりました。"
+					splashlog game.id,game,log
 					
 			else if query.jobrule!="特殊ルール.自由配役"
 				# 配役に従ってアレする
@@ -2589,6 +2595,12 @@ exports.actions=
 					else
 						sum+=joblist[job]
 				joblist.Human=frees-sum	# 残りは村人だ!
+				ruleinfo_str=SS.shared.game.getrulestr query.jobrule,joblist
+				
+			log=
+				mode:"system"
+				comment:"配役: #{ruleinfo_str}"
+			splashlog game.id,game,log
 
 			game.setrule {
 				number: room.players.length

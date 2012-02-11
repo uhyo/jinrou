@@ -313,8 +313,29 @@ exports.getrulefunc=(name)->
 		#配列でない
 		return
 	obj
+# ルールの名前を書く
+exports.getrulestr=(rule,jobs={})->
+	text=""
+	if rule=="特殊ルール.闇鍋"
+		# 闇鍋の場合
+		return "闇鍋 / 人狼#{jobs.Werewolf} 妖狐#{jobs.Fox}"
+	if rule=="特殊ルール.一部闇鍋"
+		text="一部闇鍋 / "
+	else
+		text="#{rule.split('.').pop()} / "
 
-# 
+	for job in SS.shared.game.jobs
+		continue if job=="Human" && rule=="特殊ルール.一部闇鍋"	#一部闇鍋は村人部分だけ闇鍋
+		num=jobs[job]
+		continue unless parseInt num
+		text+="#{SS.shared.game.getjobname job}#{num} "
+	return text
+# 職の名前
+exports.getjobname=(job)->
+	for name,team of SS.shared.game.jobinfo
+		if team[job]?
+			return team[job].name
+	return null
 exports.jobinfo=
 	Human:
 		name:"村人陣営"

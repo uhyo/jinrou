@@ -343,7 +343,6 @@ exports.start=(roomid)->
 				if pl.userid==msg.userid
 					pl.start=msg.start
 					li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
-					console.log li
 					li.replaceWith makeplayerbox pl,room.blind
 			
 		# ログが流れてきた!!!
@@ -480,7 +479,7 @@ exports.start=(roomid)->
 			num=input.value
 			continue unless parseInt num
 			text+="#{input.dataset.jobname}#{num} "
-		$("#jobsmonitor").text text
+		$("#jobsmonitor").text SS.shared.game.getrulestr form.elements["jobrule"].value, SS.client.util.formQuery form
 		
 		
 	#ログをもらった
@@ -540,6 +539,18 @@ exports.start=(roomid)->
 		
 		logs=$("#logs").get 0
 		logs.insertBefore p,logs.firstChild
+	
+	# プレイヤーオブジェクトのプロパティを得る
+	###
+	getprop=(obj,propname)->
+		if obj[propname]?
+			obj[propname]
+		else if obj.main?
+			getprop obj.main,propname
+		else
+			undefined
+	getname=(obj)->getprop obj,"name"
+	###
 	# 役職情報をもらった
 	getjobinfo=(obj)->
 		return unless obj.id==this_room_id
@@ -566,6 +577,7 @@ exports.start=(roomid)->
 		if obj.friends?.length>0
 			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
 		if obj.stalking?
+			console.log obj.stalking
 			$("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
 		if obj.cultmembers?
 			$("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
@@ -719,8 +731,6 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 	df.dataset.id=obj.userid
 	p=document.createElement "p"
 	p.classList.add "name"
-	
-	console.log obj
 	
 	unless blindflg
 		a=document.createElement "a"
