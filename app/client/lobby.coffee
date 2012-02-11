@@ -3,18 +3,26 @@ exports.start=->
 	# ロビーに入る
 	getlog=(log)->
 		p=document.createElement "p"
+		div=document.createElement "div"
+		div.classList.add "name"
 		if log.name?
-			span=document.createElement "span"
-			span.classList.add "name"
-			span.textContent="#{log.name}:"
-			p.appendChild span
-		span=document.createElement "span"
+			div.textContent="#{log.name}:"
+		p.appendChild div
+		
+		span=document.createElement "div"
 		span.classList.add "comment"
-		span.textContent=log.comment
+		wrdv=document.createElement "div"
+		log.comment=log.comment.replace /(\w{30})(?=\w)/g,"$1\u200b"
+		wrdv.textContent=log.comment
+		SS.client.game.game.parselognode wrdv
+		span.appendChild wrdv
+		
 		p.appendChild span
 		if log.time?
 			time=SS.client.util.timeFromDate new Date log.time
+			time.classList.add "time"
 			p.appendChild time
+
 		$("#logs").prepend p
 	appenduser=(user)->
 		li=document.createElement "li"
@@ -38,7 +46,7 @@ exports.start=->
 		users=$("#users")
 		obj.players.forEach appenduser
 
-		obj.logs.forEach getlog
+		obj.logs.reverse().forEach getlog
 	$("#lobbyform").submit (je)->
 		je.preventDefault()
 		SS.server.lobby.say je.target.elements["comment"].value,(result)->

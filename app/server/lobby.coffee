@@ -34,17 +34,18 @@ heartbeat=(userid)->
 exports.actions =
 	enter:(cb)->
 		if @session.user_id
-			plobj=
-				userid:@session.user_id
-				name:@session.attributes.user.name
-				heartbeat:Date.now()	# 最終heartbeatタイム
-			players.push plobj
+			unless players.some((x)=>x.userid==@session.user_id)
+				plobj=
+					userid:@session.user_id
+					name:@session.attributes.user.name
+					heartbeat:Date.now()	# 最終heartbeatタイム
+				players.push plobj
 
-			SS.publish.channel "lobby","enter",plobj
+				SS.publish.channel "lobby","enter",plobj
 			heartbeat @session.user_id
 
 		@session.channel.subscribe 'lobby'
-		M.lobby.find().sort({time:1}).limit(100).toArray (err,docs)->
+		M.lobby.find().sort({time:-1}).limit(100).toArray (err,docs)->
 			if err?
 				console.log err
 				throw err

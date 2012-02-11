@@ -667,7 +667,7 @@ alloff= (ids...)->
 		SS.client.socket.off x
 		
 # ノードのコメントなどをパースする
-parselognode=(node)->
+exports.parselognode=parselognode=(node)->
 	if node.nodeType==Node.TEXT_NODE
 		# text node
 		return unless node.parentNode
