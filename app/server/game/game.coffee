@@ -2426,7 +2426,7 @@ class Oldman extends Player
 	jobname:"老人"
 	midnight:(game)->
 		# 夜の終わり
-		wolves=game.players.filter (x)->!x.dead && x.isWerewolf()
+		wolves=game.players.filter (x)->x.isWerewolf()
 		if wolves.length*2<=game.day
 			# 寿命
 			@die game,"infirm"
@@ -2434,7 +2434,12 @@ class Tanner extends Player
 	type:"Tanner"
 	jobname:"皮なめし職人"
 	team:""
-	isWinner:(game,team)->@dead
+	die:(game,found)->
+		if found=="gone"
+			# 突然死はダメ
+			@flag="gone"
+		super
+	isWinner:(game,team)->@dead && @flag!="gone"
 
 	
 
