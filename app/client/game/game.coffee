@@ -446,10 +446,13 @@ exports.start=(roomid)->
 		if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
 			$("#jobsfield").get(0).hidden=false
 			$("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
+			$("#yaminabe_opt_nums").get(0).hidden=true
+			setjobsmonitor form
 			return
 		else if jobrulename=="特殊ルール.闇鍋"
 			$("#jobsfield").get(0).hidden=true
 			$("#yaminabe_opt").get(0).hidden=false
+			$("#yaminabe_opt_nums").get(0).hidden=false
 			setjobsmonitor form
 			return
 		else

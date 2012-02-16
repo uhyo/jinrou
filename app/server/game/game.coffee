@@ -1859,7 +1859,9 @@ class Stalker extends Player
 		return team==pl.team || pl.isWinner game,team
 	makejobinfo:(game,result)->
 		super
-		result.stalking=game.getPlayer(@flag).publicinfo()
+		p=game.getPlayer @flag
+		if p?
+			result.stalking=p.publicinfo()
 # 呪われた者
 class Cursed extends Player
 	type:"Cursed"
