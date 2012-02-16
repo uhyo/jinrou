@@ -268,6 +268,13 @@
       p
         | 蘇生する人を一人選んで下さい（非強制）:
         input(type="submit",value="蘇生する",data-job="Cat")
+    #form_Witch(hidden).jobformarea
+      p
+        | 使う薬と対象を選んで下さい（非強制）:
+        select(name="Witch_drug")
+          option(value="revive") 蘇生薬
+          option(value="kill") 毒薬
+        input(type="submit",value="薬を使う",data-job="Witch")
   form#speakform
     p
       input(size="50",name="comment",required)

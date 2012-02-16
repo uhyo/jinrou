@@ -127,6 +127,17 @@ GJした
 *target: 占い先
 * flag:人外を発見したかどうか
 
+## 魔女
+### witchraise
+蘇生した
+
+*target: 蘇生先
+
+### witchkill
+殺害した
+
+*target: 札がイサキ
+
 ## ドッペルゲンガー
 ### dopplemove
 死んだので移動した

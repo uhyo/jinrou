@@ -313,7 +313,7 @@ class Game
 		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","poison","hinamizawa","vampire"
+				when "werewolf","poison","hinamizawa","vampire","witch"
 					"無惨な姿で発見されました"
 				when "curse"	# 呪殺
 					if @rule.deadfox=="obvious"
@@ -2332,6 +2332,94 @@ class Cat extends Poisoner
 	job_target:Player.JOB_T_DEAD
 	makejobinfo:(game,result)->
 		super
+class Witch extends Player
+	type:"Witch"
+	jobname:"魔女"
+	job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD	# 死人も生存も
+	sleeping:->true
+	jobdone:->@target? || (@flag in [3,5,6])
+	# @flag:ビットフラグ 1:蘇生1使用済 2:蘇生2使用済 4:殺害使用済 8:今晩蘇生使用 16:今晩殺人使用
+	constructor:->
+		super
+		@flag=0	# 発送済みかどうか
+	sunset:(game)->
+		@target=null
+		unless @flag
+			@flag=0
+	job:(game,playerid,query)->
+		# query.Witch_drug
+		pl=game.getPlayer playerid
+		unless pl?
+			return "薬の使用先が不正です"
+		if pl.id==@id
+			return "自分には使用できません"
+
+		if query.Witch_drug=="revive"
+			# 蘇生薬
+			if (@flag&3)==3
+				# 蘇生薬は使い切った
+				return "もう薬は使えません"
+			else if (@flag&4) && (@flag&3)
+				# すでに薬は2つ使っている
+				return "もう薬は使えません"
+			
+			if !pl.dead
+				return "使用先はまだ死んでいません"
+			
+			# 薬を使用
+			@flag |= 8	# 今晩蘇生使用
+			if (@flag&1)==0
+				@flag |= 1	# 1つ目
+			else
+				@flag |= 2	# 2つ目
+			@target=playerid
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{pl.name}に蘇生薬を使いました。"
+			splashlog game.id,game,log
+		else
+			# 殺害薬
+			if (@flag&3)==3 || (@flag&4)
+				return "もう毒薬は使えません"
+			
+			if pl.dead
+				return "使用先は既に死んでいます"
+			
+			# 薬を使用
+			@flag |= 20
+			@target=playerid
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{pl.name}に毒薬を使いました。"
+			splashlog game.id,game,log
+		null
+	midnight:(game)->
+		return unless @target?
+		pl=game.getPlayer @target
+		return unless pl?
+		
+		if @flag & 8
+			# 蘇生
+			@flag^=8
+			pl.dead=false
+			# 蘇生 目を覚まさせる
+			@addGamelog game,"witchraise",null,pl.id
+			log=
+				mode:"skill"
+				to:pl.id
+				comment:"#{pl.name}は蘇生しました。"
+			splashlog game.id,game,log
+			SS.publish.user pl.id,"refresh",{id:game.id}
+		else if @flag & 16
+			# 殺害
+			@flag ^= 16
+			@addGamelog game,"witchkill",null,pl.id
+			pl.die game,"witch"
+
+
+	
 
 			
 
@@ -2486,6 +2574,7 @@ jobs=
 	Vampire:Vampire
 	LoneWolf:LoneWolf
 	Cat:Cat
+	Witch:Witch
 	
 complexes=
 	Complex:Complex

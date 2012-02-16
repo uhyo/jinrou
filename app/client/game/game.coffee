@@ -565,6 +565,7 @@ exports.start=(roomid)->
 	getjobinfo=(obj)->
 		return unless obj.id==this_room_id
 		my_job=obj.type
+		console.log obj
 		$("#jobinfo").empty()
 		pp=(text)->
 			p=document.createElement "p"
