@@ -2677,12 +2677,12 @@ exports.actions=
 					# スパイIIは2人いるとかわいそうなので入れない
 					if job=="Spy2"
 						possibility.splice r,1
-				if joblist.Magician>0 && query.heavenview=="view"
+				if (joblist.Magician>0 || joblist.Cat>0) && query.heavenview=="view"
 					# 魔術師いるのに
 					query.heavenview=null
 					log=
 						mode:"system"
-						comment:"魔術師が存在するので、天国から役職が見られなくなりました。"
+						comment:"蘇生役職が存在するので、天国から役職が見られなくなりました。"
 					splashlog game.id,game,log
 					
 			else if query.jobrule!="特殊ルール.自由配役"
