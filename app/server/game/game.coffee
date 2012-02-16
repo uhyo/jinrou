@@ -2430,6 +2430,11 @@ class Oldman extends Player
 		if wolves.length*2<=game.day
 			# 寿命
 			@die game,"infirm"
+class Tanner extends Player
+	type:"Tanner"
+	jobname:"皮なめし職人"
+	team:""
+	isWinner:(game,team)->@dead
 
 	
 
@@ -2598,6 +2603,7 @@ jobs=
 	Cat:Cat
 	Witch:Witch
 	Oldman:Oldman
+	Tanner:Tanner
 	
 complexes=
 	Complex:Complex
