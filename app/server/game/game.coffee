@@ -330,6 +330,8 @@ class Game
 					"狐の後を追って自ら死を選びました"
 				when "friendsuicide"
 					"恋人の後を追って自ら死を選びました"
+				when "infirm"
+					"老衰で死亡しました"
 				else
 					"突然お亡くなりになられました"				
 			log=
@@ -735,8 +737,6 @@ class Player
 		@originalType=@type
 		@originalJobname=@jobname
 		
-		#非保存フラグ
-		@muted=false	# 呪いをかける者に呪いをかけられている
 	@factory:(type,realid,id,name,main=null,sub=null,cmpl=null)->
 		p=null
 		if cmpl?
@@ -834,6 +834,8 @@ class Player
 	isCult:->false
 	# ヴァンパイアかどうか
 	isVampire:->false
+	# 黙っているかどうか
+	isMuted:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
 	# 投票先決定
@@ -854,7 +856,6 @@ class Player
 		
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
-		@muted=false
 	# 夜にもう寝たか
 	sleeping:(game)->true
 	# 夜に仕事を追えたか（基本sleepingと一致）
@@ -1973,7 +1974,10 @@ class Spellcaster extends Player
 			comment:"#{t.name}は呪いをかけられました。昼に発言できません。"
 		splashlog game.id,game,log
 		
-		t.muted=true
+		# 複合させる
+
+		newpl=Player.factory null,t.realid,t.id,t.name,t,null,Muted	# 黙る人
+		t.transform game,newpl
 class Lycan extends Player
 	type:"Lycan"
 	jobname:"狼憑き"
@@ -2417,7 +2421,15 @@ class Witch extends Player
 			@flag ^= 16
 			@addGamelog game,"witchkill",null,pl.id
 			pl.die game,"witch"
-
+class Oldman extends Player
+	type:"Oldman"
+	jobname:"老人"
+	midnight:(game)->
+		# 夜の終わり
+		wolves=game.players.filter (x)->!x.dead && x.isWerewolf()
+		if wolves.length*2<=game.day
+			# 寿命
+			@die game,"infirm"
 
 	
 
@@ -2521,6 +2533,16 @@ class Guarded extends Complex
 		@main.sunrise game
 		@sub?.sunrise? game
 		@uncomplex game
+# 黙らされた人
+class Muted extends Complex
+	cmplType:"Muted"
+	isMuted:->true
+
+	sunrise:(game)->
+		# 一日しか効かない
+		@main.sunrise game
+		@sub?.sunrise? game
+		@uncomplex game
 games={}
 
 # ゲームを得る
@@ -2575,6 +2597,7 @@ jobs=
 	LoneWolf:LoneWolf
 	Cat:Cat
 	Witch:Witch
+	Oldman:Oldman
 	
 complexes=
 	Complex:Complex
@@ -2582,6 +2605,7 @@ complexes=
 	HolyProtected:HolyProtected
 	CultMember:CultMember
 	Guarded:Guarded
+	Muted:Muted
 
 
 exports.actions=
@@ -2896,7 +2920,7 @@ exports.actions=
 					if game.silentexpires && game.silentexpires>=Date.now()
 						# まだ発言できない（15秒ルール）
 						return
-					if player.muted
+					if player.isMuted()
 						# 呪いをかけられている
 						log.mode="monologue"
 						log.to=player.id
