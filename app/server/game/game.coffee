@@ -280,9 +280,12 @@ class Game
 
 	#夜の能力を処理する
 	midnight:->
-		alives=shuffle @players.filter (x)->!x.dead
-		alives.forEach (player)=>
-			player.midnight this
+		players=shuffle @players.filter (x)->!x.dead
+		players.forEach (player)=>
+			unless player.dead
+				player.midnight this
+			else
+				player.deadnight this
 			
 		# 狼の処理
 		t=@getPlayer @werewolf_target
@@ -864,6 +867,8 @@ class Player
 		null
 	# 夜の仕事を行う
 	midnight:(game)->
+	# 夜死んでいたときにmidnightの代わりに呼ばれる
+	deadnight:(game)->
 	# 対象
 	job_target:1	# ビットフラグ
 	# 対象用の値
@@ -1334,8 +1339,13 @@ class Magician extends Player
 			return
 		pl.dead=false
 		# 蘇生 目を覚まさせる
-		SS.publish.user pl.id,"refresh",{id:game.id}
 		@addGamelog game,"raise",true,pl.id
+		log=
+			mode:"skill"
+			to:pl.id
+			comment:"#{pl.name}は蘇生しました。"
+		splashlog game.id,game,log
+		SS.publish.user pl.id,"refresh",{id:game.id}
 	job_target:Player.JOB_T_DEAD
 	makejobinfo:(game,result)->
 		super
@@ -2258,6 +2268,71 @@ class LoneWolf extends Werewolf
 	type:"LoneWolf"
 	jobname:"一匹狼"
 	team:"LoneWolf"
+class Cat extends Poisoner
+	type:"Cat"
+	jobname:"猫又"
+	sunset:(game)->
+		@target=if game.day<2 then "" else null
+		if game.players.every((x)->!x.dead)
+			@target=""	# 誰も死んでいないなら能力発動しない
+		if !@target? && @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			unless @job game,game.players[r].id,{}
+				@target=""
+	job:(game,playerid)->
+		if game.day<2
+			# まだ発動できない
+			return "まだ能力を発動できません"
+		@target=playerid
+		pl=game.getPlayer playerid
+		
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}に死者蘇生術をかけました。"
+		splashlog game.id,game,log
+		null
+	jobdone:->@target?
+	sleeping:->true
+	midnight:(game)->
+		return unless @target?
+		pl=game.getPlayer @target
+		return unless pl?
+		return unless pl.dead
+		# 確率判定
+		r=Math.random() # 0<=r<1
+		unless r<=0.25
+			# 失敗
+			@addGamelog game,"catraise",false,pl.id
+			return
+		if r<=0.05
+			# 5%の確率で誤爆
+			deads=game.players.filter (x)->x.dead
+			if deads.length==0
+				# 誰もいないじゃん
+				@addGamelog game,"catraise",false,pl.id
+				return
+			pl=deads[Math.floor(Math.random()*deads.length)]
+			@addGamelog game,"catraise",pl.id,@target
+		else
+			@addGamelog game,"catraise",true,@target
+		pl.dead=false
+		# 蘇生 目を覚まさせる
+		log=
+			mode:"skill"
+			to:pl.id
+			comment:"#{pl.name}は蘇生しました。"
+		splashlog game.id,game,log
+		SS.publish.user pl.id,"refresh",{id:game.id}
+	deadnight:(game)->
+		@target=@id
+		@midnight game
+		
+	job_target:Player.JOB_T_DEAD
+	makejobinfo:(game,result)->
+		super
+
 			
 
 # 複合役職 Player.factoryで適切に生成されることを期待
@@ -2410,6 +2485,7 @@ jobs=
 	CultLeader:CultLeader
 	Vampire:Vampire
 	LoneWolf:LoneWolf
+	Cat:Cat
 	
 complexes=
 	Complex:Complex

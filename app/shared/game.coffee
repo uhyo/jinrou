@@ -2,7 +2,7 @@
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
 # 特殊役職?
-"Poisoner","BigWolf","TinyFox",
+"Poisoner","BigWolf","TinyFox","Cat",
 # 特殊役職2
 "Devil","ToughGuy","Cupid","Stalker"
 # るる鯖で見つけた役職
@@ -26,7 +26,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf"]
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -138,6 +138,7 @@ exports.jobrules=[
           if ret.Fox>0	#NaNかも
             ret.Fox--
           ret.Cupid++
+          ret
       }
       {
         name:"背徳者"
@@ -147,6 +148,15 @@ exports.jobrules=[
           if ret.Fox>0
             ret.Immoral?=0
             ret.Immoral+=1
+          ret
+      }
+      {
+        name:"猫又あり"
+        title:"猫又が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          ret.Cat=1
+          ret
       }
     ]
   }
@@ -415,6 +425,9 @@ exports.jobinfo=
 		PI:
 			name:"超常現象研究者"
 			color:"#573670"
+		Cat:
+			name:"猫又"
+			color:"#9200C7"
 		
 		
 		

@@ -264,6 +264,10 @@
       p
         | 襲撃する人を一人選んで下さい:
         input(type="submit",value="殺す",data-job="Vampire")
+    #form_Cat(hidden).jobformarea
+      p
+        | 蘇生する人を一人選んで下さい（非強制）:
+        input(type="submit",value="蘇生する",data-job="Cat")
   form#speakform
     p
       input(size="50",name="comment",required)

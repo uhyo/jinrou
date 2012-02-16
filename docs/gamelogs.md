@@ -61,6 +61,12 @@ GJした
 
 * target: 殺した相手
 
+## 猫又
+### catraise
+蘇生させた
+* target: もともとの蘇生相手
+* flag:成功ならtrue 失敗ならfalse 誤爆なら誤爆先のID
+
 ## 子狐
 ### foxdivine
 占った
