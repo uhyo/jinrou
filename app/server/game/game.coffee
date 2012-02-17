@@ -1911,7 +1911,7 @@ class ApprenticeSeer extends Player
 	jobname:"見習い占い師"
 	beforebury:(game)->
 		# 占い師が誰か死んでいたら占い師に進化
-		if game.players.some((x)->x.dead && x.isJobType("Diviner"))
+		if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
 			newpl=Player.factory "Diviner",@realid,@id,@name
 			@transferData newpl
 			newpl.originalType=@originalType
