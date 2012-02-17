@@ -2343,7 +2343,7 @@ class Witch extends Player
 	job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD	# 死人も生存も
 	sleeping:->true
 	jobdone:->@target? || (@flag in [3,5,6])
-	# @flag:ビットフラグ 1:蘇生1使用済 2:蘇生2使用済 4:殺害使用済 8:今晩蘇生使用 16:今晩殺人使用
+	# @flag:ビットフラグ 1:殺害1使用済 2:殺害2使用済 4:蘇生使用済 8:今晩蘇生使用 16:今晩殺人使用
 	constructor:->
 		super
 		@flag=0	# 発送済みかどうか
@@ -2359,8 +2359,8 @@ class Witch extends Player
 		if pl.id==@id
 			return "自分には使用できません"
 
-		if query.Witch_drug=="revive"
-			# 蘇生薬
+		if query.Witch_drug=="kill"
+			# 毒薬
 			if (@flag&3)==3
 				# 蘇生薬は使い切った
 				return "もう薬は使えません"
@@ -2368,11 +2368,11 @@ class Witch extends Player
 				# すでに薬は2つ使っている
 				return "もう薬は使えません"
 			
-			if !pl.dead
-				return "使用先はまだ死んでいません"
+			if pl.dead
+				return "使用先は既に死んでいます"
 			
 			# 薬を使用
-			@flag |= 8	# 今晩蘇生使用
+			@flag |= 16	# 今晩殺害使用
 			if (@flag&1)==0
 				@flag |= 1	# 1つ目
 			else
@@ -2381,23 +2381,23 @@ class Witch extends Player
 			log=
 				mode:"skill"
 				to:@id
-				comment:"#{@name}は#{pl.name}に蘇生薬を使いました。"
+				comment:"#{@name}は#{pl.name}に毒薬を使いました。"
 			splashlog game.id,game,log
 		else
-			# 殺害薬
+			# 蘇生薬
 			if (@flag&3)==3 || (@flag&4)
-				return "もう毒薬は使えません"
+				return "もう蘇生薬は使えません"
 			
-			if pl.dead
-				return "使用先は既に死んでいます"
+			if !pl.dead
+				return "使用先はまだ生きています"
 			
 			# 薬を使用
-			@flag |= 20
+			@flag |= 12
 			@target=playerid
 			log=
 				mode:"skill"
 				to:@id
-				comment:"#{@name}は#{pl.name}に毒薬を使いました。"
+				comment:"#{@name}は#{pl.name}に蘇生薬を使いました。"
 			splashlog game.id,game,log
 		null
 	midnight:(game)->
