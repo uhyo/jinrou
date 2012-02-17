@@ -541,6 +541,7 @@ class Game
 			SS.publish.channel "room#{@id}","refresh",{id:@id}
 			@save()
 			@prize_check()
+			clearTimeout @timer
 			return true
 		else
 			return false
