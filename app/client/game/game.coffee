@@ -186,7 +186,7 @@ exports.start=(roomid)->
 			je.preventDefault()
 		$("#speakform").submit (je)->
 			form=je.target
-			SS.server.game.game.speak roomid,form.elements["comment"].value,(result)->
+			SS.server.game.game.speak roomid,SS.client.util.formQuery(form),(result)->
 				if result?
 					SS.client.util.message "エラー",result
 			je.preventDefault()
@@ -631,6 +631,34 @@ exports.start=(roomid)->
 				this_rule=
 					jobscount:game.jobscount
 					rule:game.rule
+			if obj.type=="GameMaster"
+				# ゲームマスター用ツール
+				# 発言先選択
+				select=document.createElement "select"
+				select.name="gmsayopt"	# GMの発言先
+				optgroup=document.createElement "optgroup"
+				optgroup.label="全体"
+				opt=document.createElement "option"
+				opt.value="All"	# 全体
+				opt.textContent="全体へ"
+				opt.selected=true
+				optgroup.appendChild opt
+				opt=document.createElement "option"
+				opt.value="AllDeads"
+				opt.textContent="霊界へ"
+				optgroup.appendChild opt
+				# 個別
+				optgroup2=document.createElement "optgroup"
+				optgroup2.label="個別"
+				for pl in game.players
+					opt=document.createElement "option"
+					opt.value="Player_#{pl.id}"
+					opt.textContent=pl.name
+					optgroup2.appendChild opt
+				select.appendChild optgroup
+				select.appendChild optgroup2
+				
+				$("#gmsayopt").empty().append select
 	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()

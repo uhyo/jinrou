@@ -2804,7 +2804,7 @@ exports.actions=
 				while frees>0
 					r=Math.floor Math.random()*possibility.length
 					if query.yaminabe_nopp
-						if r in wts
+						if possibility[r] in wts
 							wolf_teams++	# 人狼陣営が増えた
 						if wolf_teams>=plsh
 							# 人狼が過半数を越えた（PP）
@@ -2903,7 +2903,7 @@ exports.actions=
 				ne()
 			return
 		
-	speak: (roomid,comment,cb)->
+	speak: (roomid,query,cb)->
 		game=games[roomid]
 		unless game?
 			cb "そのゲームは存在しません"
@@ -2911,6 +2911,10 @@ exports.actions=
 		unless @session.user_id
 			cb "ログインして下さい"
 			return
+		unless query?
+			cb "不正な操作です"
+			return
+		comment=query.comment
 		unless comment
 			cb "コメントがありません"
 			return
@@ -2933,6 +2937,29 @@ exports.actions=
 				unless player?
 					# 観戦者
 					log.mode="audience"
+				else if player.isJobType "GameMaster"
+					# ゲームマスターのお言葉である
+					unless query.gmsayopt=="string"
+						return
+					if result=query.gmsayopt.match /^Player_(.+)$/
+						# 個別発言
+						log.mode="gmreply"
+						pl=game.getPlayer result[1]
+						unless pl?
+							return
+						log.to=pl.id
+						log.name="GM→#{pl.name}"
+					else if query.gmsayopt=="All"
+						# 全員へ
+						log.mode="gm"
+						log.name="ゲームマスター"
+					else if query.gmsayopt="AllDeads"
+						# 霊界へ
+						log.mode="gmheaven"
+						log.name="GM→霊界"
+					else
+						return
+						
 				else if player.dead
 					# 天国
 					if player.type=="Spy" && player.flag=="spygone"
@@ -3104,7 +3131,7 @@ splashlog=(roomid,game,log)->
 			SS.publish.channel ch,"log",log
 	unless log.to?
 		switch log.mode
-			when "prepare","system","nextturn","day","will"
+			when "prepare","system","nextturn","day","will","gm"
 				# 全員に送ってよい
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf","wolfskill"
@@ -3134,7 +3161,7 @@ splashlog=(roomid,game,log)->
 			when "audience"
 				# 観客
 				flash hv("room#{roomid}_audience"),log
-			when "heaven"
+			when "heaven","gmheaven"
 				# 天国
 				flash "room#{roomid}_heaven",log
 			when "voteresult"
@@ -3160,7 +3187,7 @@ islogOK=(game,player,log)->
 	return true if game.finished	# 終了ならtrue
 	unless player?
 		# 観戦者
-		if log.mode in ["day","system","prepare","nextturn","audience","will"]
+		if log.mode in ["day","system","prepare","nextturn","audience","will","gm"]
 			!log.to?	# 観戦者にも公開
 		else if log.mode=="voteresult"
 			game.rule.voteresult!="hide"	# 投票結果公開なら公開
@@ -3174,7 +3201,7 @@ islogOK=(game,player,log)->
 		# 個人宛
 		false
 	else
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply"]
 			true
 		else if log.mode in ["werewolf","wolfskill"]
 			player.isWerewolf()
@@ -3182,7 +3209,7 @@ islogOK=(game,player,log)->
 			player.type=="Couple"
 		else if log.mode=="fox"
 			player.type=="Fox"
-		else if log.mode=="heaven"
+		else if log.mode in ["heaven","gmheaven"]
 			player.dead
 		else if log.mode=="voteresult"
 			game.rule.voteresult!="hide"	# 隠すかどうか
@@ -3191,7 +3218,7 @@ islogOK=(game,player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
-	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule.heavenview=="view")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
+	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule.heavenview=="view") || player.isJobType("GameMaster")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
 		player.makejobinfo game,result
