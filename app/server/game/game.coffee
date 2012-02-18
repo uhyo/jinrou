@@ -1,5 +1,9 @@
 class Game
-	constructor:(@id)->
+	constructor:(room)->
+		@id=room.id
+		# GMがいる場合
+		@gm= if room.gm then room.owner.userid else null
+		
 		@logs=[]
 		@players=[]
 		@rule=null
@@ -42,6 +46,7 @@ class Game
 			winner:@winner
 			jobscount:@jobscount
 			gamelogs:@gamelogs
+			gm:@gm
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -55,6 +60,7 @@ class Game
 		game.winner=obj.winner
 		game.jobscount=obj.jobscount
 		game.gamelogss=obj.gamelogs ? {}
+		game.gm=obj.gm
 		game.timer()
 		game
 	# 公開情報
@@ -81,7 +87,7 @@ class Game
 	getPlayer:(id)->
 		@players.filter((x)->x.id==id)[0]
 	getPlayerReal:(realid)->
-		@players.filter((x)->x.realid==realid)[0]
+		@players.filter((x)->x.realid==realid)[0] || if @gm==realid then new GameMaster realid,realid,"ゲームマスター"
 	# DBにセーブ
 	save:->
 		M.games.update {id:@id},@serialize()
@@ -2443,6 +2449,12 @@ class Tanner extends Player
 	isWinner:(game,team)->@dead && @flag!="gone"
 
 	
+# 処理上便宜的に使用
+class GameMaster extends Player
+	type:"GameMaster"
+	jobname:"ゲームマスター"
+	team:""
+	isWinner:(game,team)->true
 
 			
 
@@ -2623,7 +2635,7 @@ complexes=
 exports.actions=
 #内部用
 	newGame: (room,rule)->
-		game=new Game room.id,rule
+		game=new Game room,rule
 		games[room.id]=game
 		M.games.insert game.serialize()
 	loadDB:->
@@ -2685,11 +2697,14 @@ exports.actions=
 		game=games[roomid]
 		unless game?
 			return
-		player=game.players.filter((x)->x.realid==session.user_id)[0]
+		player=game.getPlayerReal session.user_id
 		unless player?
 			session.channel.subscribe "room#{roomid}_audience"
 			session.channel.subscribe "room#{roomid}_notwerewolf"
 			session.channel.subscribe "room#{roomid}_notcouple"
+			return
+		if player.isJobType "GameMaster"
+			session.channel.subscribe "room#{roomid}_gamemaster"
 			return
 			
 		if player.dead
@@ -3082,6 +3097,11 @@ splashlog=(roomid,game,log)->
 				[ch,"room#{roomid}_heaven"]
 		else
 			ch
+	flash=(ch,log)->
+		if game.dm?
+			SS.publish.channel ["room#{roomid}_gamemaster"].concat(ch),"log",log
+		else
+			SS.publish.channel ch,"log",log
 	unless log.to?
 		switch log.mode
 			when "prepare","system","nextturn","day","will"
@@ -3089,7 +3109,7 @@ splashlog=(roomid,game,log)->
 				SS.publish.channel "room#{roomid}","log",log
 			when "werewolf","wolfskill"
 				# 狼
-				SS.publish.channel hv("room#{roomid}_werewolf"), "log", log
+				flash hv("room#{roomid}_werewolf"), log
 				if log.mode=="werewolf" && game.rule.wolfsound=="aloud"
 					# 狼の遠吠えが聞こえる
 					log2=
@@ -3100,7 +3120,7 @@ splashlog=(roomid,game,log)->
 					SS.publish.channel "room#{roomid}_notwerewolf","log",log2
 					
 			when "couple"
-				SS.publish.channel hv("room#{roomid}_couple"),"log",log
+				flash hv("room#{roomid}_couple"),log
 				if game.rule.couplesound=="aloud"
 					# 共有者の小声が聞こえる
 					log2=
@@ -3110,27 +3130,29 @@ splashlog=(roomid,game,log)->
 						time:log.time
 					SS.publish.channel "room#{roomid}_notcouple","log",log2
 			when "fox"
-				SS.publish.channel hv("room#{roomid}_fox"),"log",log
+				flash hv("room#{roomid}_fox"),log
 			when "audience"
 				# 観客
-				SS.publish.channel hv("room#{roomid}_audience"),"log",log
+				flash hv("room#{roomid}_audience"),log
 			when "heaven"
 				# 天国
-				SS.publish.channel "room#{roomid}_heaven","log",log
+				flash "room#{roomid}_heaven",log
 			when "voteresult"
 				if game.rule.voteresult=="hide"
 					# 公開しないときは天国のみ
-					SS.publish.channel "room#{roomid}_heaven","log",log
+					flash "room#{roomid}_heaven",log
 				else
 					# それ以外は全員
-					SS.publish.channel "room#{roomid}","log",log
+					flash "room#{roomid}",log
 					
 	else
 		pl=game.getPlayer log.to
 		if pl
 			SS.publish.user pl.realid, "log", log
 		if game.rule.heavenview=="view"
-			SS.publish.channel "room#{roomid}_heaven","log",log
+			flash "room#{roomid}_heaven",log
+		else
+			SS.publish.channel "room#{roomid}_gamemaster","log",log
 
 # プレイヤーにログを見せてもよいか			
 islogOK=(game,player,log)->
@@ -3144,6 +3166,8 @@ islogOK=(game,player,log)->
 			game.rule.voteresult!="hide"	# 投票結果公開なら公開
 		else
 			false	# その他は非公開
+	else if player.isJobType "GameMaster"
+		true	# GMには全てが見えるのであった
 	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id
