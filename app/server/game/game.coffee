@@ -2549,7 +2549,7 @@ class Muted extends Complex
 	cmplType:"Muted"
 	isMuted:->true
 
-	sunrise:(game)->
+	sunset:(game)->
 		# 一日しか効かない
 		@main.sunrise game
 		@sub?.sunrise? game

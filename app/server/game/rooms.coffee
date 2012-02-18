@@ -13,6 +13,7 @@ room: {
   blind:""/"hide"/"complete"
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
+  gm: Booelan(trueならオーナーGM)
 }
 PlayerObject.start=Boolean
 ###
@@ -81,6 +82,7 @@ exports.actions=
 				cb {error: "invalid players number"}
 				return
 			room.owner=@session.attributes.user
+			room.gm = query.ownerGM=="yes"
 			M.rooms.insert room
 			SS.server.game.game.newGame room
 			cb {id: room.id}
@@ -111,6 +113,9 @@ exports.actions=
 					return
 				unless room.mode=="waiting"
 					cb "既に参加は締めきられています"
+					return
+				if room.gm && room.owner.userid==@session.user_id
+					cb "ゲームマスターは参加できません"
 					return
 				#room.players.push @session.attributes.user
 				su=@session.attributes.user

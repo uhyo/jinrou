@@ -255,6 +255,12 @@ getTypeAtTime=(game,userid,day)->
 	id=(pl=getpl(game,userid)).id
 	ls=game.gamelogs.filter (x)->x.event=="transform" && x.id==id && x.day>day	# 変化履歴を調べる
 	return ls[0]?.type ? pl.type
+# チームを調べる
+getTeamByType=(type)->
+	for name,arr of SS.shared.game.teams
+		if type in arr
+			return name
+	return ""
 
 	
 
@@ -322,7 +328,7 @@ counterprize=
 		names:
 			10:"発注ミス"
 		func:(game,id)->
-			game.gamelogs.filter((x)->x.id==id && x.event=="sendkit" && getTypeAtTime(game,x.target,x.day)).length
+			game.gamelogs.filter((x)->x.id==id && x.event=="sendkit" && getTeamByType(getTypeAtTime(game,x.target,x.day))=="Werewolf").length
 	# コピーせずに終了
 	nocopy:
 		names:
@@ -340,6 +346,7 @@ counterprize=
 			game.gamelogs.filter((x)->
 				x.id==userid && x.event=="found" && x.flag=="punish" && x.day==2
 			).length
+		
 	# 生き残った日数合計
 ###
 	alivedays:
@@ -407,6 +414,17 @@ allplayersprize=
 		names:
 			30:"最終兵器"
 		func:(playerdocs,realid)->playerdocs.filter((x)->!x.dead).length
+	# 村人陣営で勝利した数
+	winteam_Human:
+		names:
+			10:"白"
+		func:(playerdocs,realid)->playerdocs.filter((x)->x.winner && getTeamByType(x.originalType)=="Human").length
+	# 人狼陣営で勝利した数
+	winteam_Werewolf:
+		names:
+			10:"黒"
+		func:(playerdocs,realid)->playerdocs.filter((x)->x.winner && getTeamByType(x.originalType)=="Werewolf").length
+
 # 称号一覧を元にして判定（数ではないので注意）
 ownprizesprize=
 	prizecount_100:
