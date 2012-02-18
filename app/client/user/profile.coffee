@@ -213,8 +213,8 @@ exports.start=(user)->
 					SS.server.user.usePrize query,(result)->
 						if result?.error?
 							SS.client.util.message "エラー",result.error
-			
-		
+	
+	SS.client.game.rooms.start()	# ルーム一覧を表示してもらう	
 exports.end=->
 
 #Object2つをマージ（obj1ベース）

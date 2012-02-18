@@ -11,6 +11,17 @@ section.profile
     
     p
       input(type="submit",value="変更")
+  h1 ルーム
+  table.roomstable
+    thead
+      tr
+        th ルーム名
+        th 状態
+        th オーナー
+        th 最大人数
+        th 日時
+        th コメント
+    tbody#roomlist
   h1 対戦成績
   p 勝ち {{= typeof(win)!=="undefined" ? win.length : 0}}回　負け {{= typeof(lose)!=="undefined" ? lose.length : 0}}回　突然死 {{= typeof(gone)!=="undefined" ? gone.length : 0}}回
   p 勝率: {{= typeof(wp)!=="undefined" ? wp : ""}}
