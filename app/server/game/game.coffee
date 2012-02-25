@@ -1406,8 +1406,8 @@ class WolfDiviner extends Werewolf
 		@target=null
 		@flag=null	# 占い対象
 		@result=null	# 占い結果
-	sleeping:->@target?	# 占いは必須ではない
-	jobdone:->@target? && @flag?
+	sleeping:(game)->game.werewolf_target?	# 占いは必須ではない
+	jobdone:(game)->game.werewolf_target? && @flag?
 	job:(game,playerid,query)->
 		if query.commandname!="divine"
 			# 人狼の仕事
