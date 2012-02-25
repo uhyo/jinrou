@@ -2945,11 +2945,13 @@ exports.actions=
 			userid:@session.user_id
 			name:@session.attributes.user.name
 			to:null
+		if query.size in ["big","small"]
+			log.size=query.size
 		# ログを流す
 		dosp=->
 			
 			if !game.finished  && game.voting	# 投票猶予時間は発言できない
-				if player && !player.dead
+				if player && !player.dead && !player.isJobType("GameMaster")
 					return	#まだ死んでいないプレイヤーの場合は発言できないよ!
 			if game.day<=0 || game.finished	#準備中
 				log.mode="prepare"
@@ -2991,6 +2993,11 @@ exports.actions=
 						log.to=player.id
 					else
 						log.mode="heaven"
+				else if query.size=="monologue"
+					# 独り言モードだ
+					log.mode="monologue"
+					log.to=player.id
+					
 				else if !game.night
 					# 昼
 					log.mode="day"
