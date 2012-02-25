@@ -1049,7 +1049,6 @@ class Werewolf extends Player
 		game.werewolf_target=playerid
 		log=
 			mode:"wolfskill"
-			to:@id
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
 		splashlog game.id,game,log
 		null

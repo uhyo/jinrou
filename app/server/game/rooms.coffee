@@ -256,7 +256,7 @@ exports.actions=
 			if room.error?
 				cb {error:room.error}
 				return
-			if room.password? && room.password!=password
+			if room.password? && room.password!=password && room.password!=SS.config.admin.password
 				cb {require:"password"}
 				return
 			@session.channel.unsubscribeAll()
