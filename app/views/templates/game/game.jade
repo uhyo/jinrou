@@ -284,6 +284,11 @@
       input(size="50",name="comment",required)
       input(type="submit",value="発言")
       span#gmsayopt
+      select(name="size")
+        option(value="small") 小さく
+        option(value="",selected) 普通
+        option(value="big") 大きく
+        option(value="monologue") 独り言
       span#time
       input(type="button",value="遺言",name="willbutton")
       input(type="button",value="ルール",name="rulebutton",disabled)

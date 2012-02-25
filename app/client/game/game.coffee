@@ -527,6 +527,10 @@ exports.start=(roomid)->
 			
 			span=document.createElement "div"
 			span.classList.add "comment"
+			if log.size in ["big","small"]
+				# 大/小発言
+				span.classList.add log.size
+			
 			wrdv=document.createElement "div"
 			wrdv.textContent=log.comment
 			if log.mode=="will"
