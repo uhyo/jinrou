@@ -1342,7 +1342,7 @@ class Magician extends Player
 			comment:"#{@name}は#{pl.name}に死者蘇生術をかけました。"
 		splashlog game.id,game,log
 		null
-	sleeping:->@target?
+	sleeping:(game)->game.day<3 || @target?
 	midnight:(game)->
 		return unless @target?
 		pl=game.getPlayer @target
