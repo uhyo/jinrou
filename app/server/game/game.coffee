@@ -145,7 +145,7 @@ class Game
 				nogoat=nogoat.concat SS.shared.game.nonhumans	#人外は除く
 			if @rule.safety=="full"
 				# 危ない
-				nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner"]
+				nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat"]
 			while ++i<100
 				jobss=Object.keys(jobs).filter (x)->!(x in nogoat) && joblist[x]>0
 				r=Math.floor Math.random()*jobss.length
