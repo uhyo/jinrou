@@ -129,10 +129,10 @@ exports.actions=
 				
 				user.realid = @session.user_id
 				# 同IP制限
-				###if room.players.some((x)->x.ip==su.ip)
+				if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
 					cb "重複参加はできません"
 					return
-				###
+				
 				if room.blind
 					unless opt?.name
 						cb "名前を入力して下さい"
