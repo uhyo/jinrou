@@ -1,8 +1,9 @@
 class Game
 	constructor:(room)->
-		@id=room.id
-		# GMがいる場合
-		@gm= if room.gm then room.owner.userid else null
+		if room?
+			@id=room.id
+			# GMがいる場合
+			@gm= if room.gm then room.owner.userid else null
 		
 		@logs=[]
 		@players=[]
@@ -50,7 +51,9 @@ class Game
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
-		game=new Game obj.id
+		game=new Game
+		game.id=obj.id
+		game.gm=obj.gm
 		game.logs=obj.logs
 		game.rule=obj.rule
 		game.players=obj.players.map (x)->Player.unserialize x
@@ -271,6 +274,9 @@ class Game
 			SS.publish.user x.realid,"getjob",makejobinfo this,x
 		# プレイヤー以外にも
 		SS.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
+		# GMにも
+		if @gm?
+			SS.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
 	#全員寝たかチェック 寝たなら処理してtrue
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
@@ -338,8 +344,12 @@ class Game
 					"恋人の後を追って自ら死を選びました"
 				when "infirm"
 					"老衰で死亡しました"
+				when "gmpunish"
+					"GMによって死亡しました"
+				when "gone"
+					"突然お亡くなりになられました"
 				else
-					"突然お亡くなりになられました"				
+					"死にました"
 			log=
 				mode:"system"
 				comment:"#{x.name}は#{situation}"
@@ -2454,7 +2464,18 @@ class GameMaster extends Player
 	type:"GameMaster"
 	jobname:"ゲームマスター"
 	team:""
-	isWinner:(game,team)->true
+	jobdone:->false
+	sleeping:->true
+	isWinner:(game,team)->null
+	# 例外的に昼でも発動する可能性がある
+	job:(game,playerid,query)->
+		pl=game.getPlayer playerid
+		unless pl?
+			return "その対象は不正です"
+		pl.die game,"gmpunish"
+		game.bury()
+		null
+
 
 			
 
@@ -2704,6 +2725,7 @@ exports.actions=
 			session.channel.subscribe "room#{roomid}_notcouple"
 			return
 		if player.isJobType "GameMaster"
+			console.log "GM channel!"
 			session.channel.subscribe "room#{roomid}_gamemaster"
 			return
 			
@@ -2932,6 +2954,8 @@ exports.actions=
 					return	#まだ死んでいないプレイヤーの場合は発言できないよ!
 			if game.day<=0 || game.finished	#準備中
 				log.mode="prepare"
+				if player?.isJobType "GameMaster"
+					log.mode="gm"
 			else
 				# ゲームしている
 				unless player?
@@ -2939,7 +2963,7 @@ exports.actions=
 					log.mode="audience"
 				else if player.isJobType "GameMaster"
 					# ゲームマスターのお言葉である
-					unless query.gmsayopt=="string"
+					unless typeof query.gmsayopt=="string"
 						return
 					if result=query.gmsayopt.match /^Player_(.+)$/
 						# 個別発言
@@ -3029,7 +3053,7 @@ exports.actions=
 		if to?.dead && (!(player.job_target & Player.JOB_T_DEAD) || !game.night) && (player.job_target & Player.JOB_T_ALIVE)
 			cb {error:"対象は既に死んでいます"}
 			return
-		if game.night
+		if game.night || player.isJobType "GameMaster"
 			# 夜
 			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
 				cb {error:"対象はまだ生きています"}
@@ -3054,7 +3078,8 @@ exports.actions=
 			
 			# 能力をすべて発動したかどうかチェック
 			cb {jobdone:player.jobdone(game)}
-			game.checkjobs()
+			if game.night
+				game.checkjobs()
 		else
 			# 投票
 			if player.voteto?
@@ -3125,7 +3150,7 @@ splashlog=(roomid,game,log)->
 		else
 			ch
 	flash=(ch,log)->
-		if game.dm?
+		if game.gm?
 			SS.publish.channel ["room#{roomid}_gamemaster"].concat(ch),"log",log
 		else
 			SS.publish.channel ch,"log",log
@@ -3218,7 +3243,7 @@ islogOK=(game,player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
-	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule.heavenview=="view") || player.isJobType("GameMaster")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
+	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule?.heavenview=="view") || player?.isJobType("GameMaster")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
 		player.makejobinfo game,result
@@ -3227,7 +3252,7 @@ makejobinfo = (game,player,result={})->
 		result.sleeping=if game.night then player.jobdone(game) else if player.voteto? then true else false
 		result.jobname=player.jobname
 		result.winner=player.winner
-		if game.rule.will=="die"
+		if game.rule?.will=="die"
 			result.will=player.will
 
 	result

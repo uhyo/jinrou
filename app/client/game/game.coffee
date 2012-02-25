@@ -619,7 +619,7 @@ exports.start=(roomid)->
 			unless $("#jobform").get(0).hidden= obj.dead || game.finished ||  obj.sleeping || !obj.type
 				# 代入しつつの　投票フォーム必要な場合
 				$("#jobform div.jobformarea").attr "hidden","hidden"
-				$("#form_day").get(0).hidden= game.night || obj.sleeping
+				$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
 				if game.night
 					obj.open?.forEach (x)->
 						# 開けるべきフォームが指定されている
@@ -659,6 +659,8 @@ exports.start=(roomid)->
 				select.appendChild optgroup2
 				
 				$("#gmsayopt").empty().append select
+				# GMフォーム
+				$("#form_GameMaster").get(0).hidden= game.day<=0
 	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()
