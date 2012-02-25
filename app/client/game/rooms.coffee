@@ -33,6 +33,13 @@ exports.start=(mode)->
 				img.width=img.height=16
 				img.alt="パスワード付き"
 				td.insertBefore img,td.firstChild
+			# GMあり村
+			if room.gm
+				img=document.createElement "img"
+				img.src="/images/gm.png"
+				img.width=img.height=16
+				img.alt="GMあり"
+				td.insertBefore img,td.firstChild
 			
 			#状態
 			td=tr.insertCell -1
