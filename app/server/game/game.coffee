@@ -2838,7 +2838,7 @@ exports.actions=
 					# スパイIIは2人いるとかわいそうなので入れない
 					if job=="Spy2"
 						possibility.splice r,1
-				if (joblist.Magician>0 || joblist.Cat>0) && query.heavenview=="view"
+				if (joblist.Magician>0 || joblist.Cat>0 || joblist.Witch>0) && query.heavenview=="view"
 					# 魔術師いるのに
 					query.heavenview=null
 					log=
