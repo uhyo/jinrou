@@ -83,6 +83,14 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/admin"
 			# 管理者ページ
 			page "templates-admin",null,SS.client.admin,null
+		when "/logout"
+			# ログアウト
+			SS.server.user.logout ->
+				my_userid=null
+				localStorage.removeItem "userid"
+				localStorage.removeItem "password"
+				$("#username").empty()
+				showUrl "/",nohistory
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム
@@ -108,10 +116,6 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 						location.href=url
 			else
 				page "templates-top",null,SS.client.top,null
-				SS.server.user.logout ->
-					my_userid=null
-					localStorage.removeItem "userid"
-					localStorage.removeItem "password"
 	unless nohistory
 		history.pushState null,null,url
 					
