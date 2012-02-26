@@ -20,7 +20,6 @@ exports.start=(user)->
 		je.preventDefault()
 		q=SS.client.util.formQuery je.target
 		q.userid=$("p.userid").get(0).textContent
-		console.log q
 		SS.client.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
 			if result
 				q.password=result
@@ -31,6 +30,19 @@ exports.start=(user)->
 						SS.client.util.message "エラー",result.error
 					else
 						SS.client.app.page "templates-user-profile",result,SS.client.user.profile
+	.get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
+		$("#changepassword").get(0).hidden=false
+		$("#changepassword").submit (je)->
+			je.preventDefault()
+			SS.server.user.changePassword SS.client.util.formQuery(je.target),(result)->
+				if result?.error?
+					SS.client.util.message "エラー",result.error
+				else
+					$("#changepassword").get(0).hidden=true
+					SS.client.app.page "templates-user-profile",result,SS.client.user.profile
+					
+	),false
+	
 	$("#morescore").submit (je)->
 		je.target.elements["submit"].disabled=true
 		je.preventDefault()
@@ -107,7 +119,6 @@ exports.start=(user)->
 					gs[team][type]=
 						win:results.filter((x)->x.type==type && x.winner==true).length
 						lose:results.filter((x)->x.type==type && x.winner==false).length
-			console.log gs,names
 			graph.setData gs,names
 			graph.openAnimate 0.2
 	# 称号

@@ -107,6 +107,22 @@ exports.actions =
 				@session.attributes.user=record
 				@session.save ->
 				cb record
+	changePassword:(query,cb)->
+		M.users.findOne {"userid":@session.user_id,"password":SS.server.user.crpassword(query.password)},(err,record)=>
+			if err?
+				cb {error:"DB err:#{err}"}
+				return
+			if !record?
+				cb {error:"ユーザー認証に失敗しました"}
+				return
+			if query.newpass!=query.newpass2
+				cb {error:"パスワードが一致しません"}
+				return
+			M.users.update {"userid":@session.user_id}, {$set:{password:SS.server.user.crpassword(query.newpass)}},{safe:true},(err,count)=>
+				if err?
+					cb {error:"プロフィール変更に失敗しました"}
+					return
+				cb null
 	usePrize: (query,cb)->
 		# 表示する称号を変える query.prize
 		M.users.findOne {"userid":@session.user_id,"password":SS.server.user.crpassword(query.password)},(err,record)=>

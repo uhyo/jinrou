@@ -11,6 +11,20 @@ section.profile
     
     p
       input(type="submit",value="変更")
+      input(type="button",name="changepasswordbutton",value="パスワードを変更")
+  form#changepassword(hidden)
+    h2 パスワード変更
+    p: label
+      | 新しいパスワード
+      input(name="newpass",type="password",size="20",required)
+    p: label
+      | 再入力
+      input(name="newpass2",type="password",size="20",required)
+    p: label
+      | 現在のパスワード
+      input(name="password",type="password",size="20",required)
+    p: input(type="submit",value="変更")
+    
   h1 ルーム
   table.roomstable
     thead
