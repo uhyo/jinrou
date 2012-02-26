@@ -90,7 +90,7 @@ class Game
 	getPlayer:(id)->
 		@players.filter((x)->x.id==id)[0]
 	getPlayerReal:(realid)->
-		@players.filter((x)->x.realid==realid)[0] || if @gm==realid then new GameMaster realid,realid,"ゲームマスター"
+		@players.filter((x)->x.realid==realid)[0] || if @gm && @gm==realid then new GameMaster realid,realid,"ゲームマスター"
 	# DBにセーブ
 	save:->
 		M.games.update {id:@id},@serialize()
