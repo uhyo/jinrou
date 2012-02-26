@@ -2982,6 +2982,12 @@ exports.actions=
 						# 霊界へ
 						log.mode="gmheaven"
 						log.name="GM→霊界"
+					else if query.gmsayopt="AllAudience"
+						log.mode="gmaudience"
+						log.name="GM→観客"
+					else if query.gmsayopt="GMMonologue"
+						log.mode="gmmonologue"
+						log.name="GMの独り言"
 					else
 						return
 						
@@ -3189,7 +3195,7 @@ splashlog=(roomid,game,log)->
 					SS.publish.channel "room#{roomid}_notcouple","log",log2
 			when "fox"
 				flash hv("room#{roomid}_fox"),log
-			when "audience"
+			when "audience","gmaudience"
 				# 観客
 				flash hv("room#{roomid}_audience"),log
 			when "heaven","gmheaven"
@@ -3202,6 +3208,8 @@ splashlog=(roomid,game,log)->
 				else
 					# それ以外は全員
 					flash "room#{roomid}",log
+			when "gmmonologue"
+				SS.publish.channel "room#{roomid}_gamemaster","log",log
 					
 	else
 		pl=game.getPlayer log.to
@@ -3218,7 +3226,7 @@ islogOK=(game,player,log)->
 	return true if game.finished	# 終了ならtrue
 	unless player?
 		# 観戦者
-		if log.mode in ["day","system","prepare","nextturn","audience","will","gm"]
+		if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience"]
 			!log.to?	# 観戦者にも公開
 		else if log.mode=="voteresult"
 			game.rule.voteresult!="hide"	# 投票結果公開なら公開
@@ -3226,6 +3234,9 @@ islogOK=(game,player,log)->
 			false	# その他は非公開
 	else if player.isJobType "GameMaster"
 		true	# GMには全てが見えるのであった
+	else if log.mode=="gmmonologue"
+		# GMの独り言はGMにしか見えない
+		false
 	else if player.dead && game.rule.heavenview=="view"
 		true
 	else if log.to? && log.to!=player.id

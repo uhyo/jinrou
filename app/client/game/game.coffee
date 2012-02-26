@@ -651,6 +651,14 @@ exports.start=(roomid)->
 				opt.value="AllDeads"
 				opt.textContent="霊界へ"
 				optgroup.appendChild opt
+				opt=document.createElement "option"
+				opt.value="AllAudience"
+				opt.textContent="観戦者へ"
+				optgroup.appendChild opt
+				opt=document.createElement "option"
+				opt.value="GMMonologue"
+				opt.textContent="独り言"
+				optgroup.appendChild opt
 				# 個別
 				optgroup2=document.createElement "optgroup"
 				optgroup2.label="個別"
