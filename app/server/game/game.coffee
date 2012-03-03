@@ -26,6 +26,7 @@ class Game
 		@slientexpires=0	# 静かにしてろ！（この時間まで）
 
 		@gamelogs=[]
+		@iconcollection={}	#(id):(url)
 		
 		###
 		さまざまな出来事
@@ -48,6 +49,7 @@ class Game
 			jobscount:@jobscount
 			gamelogs:@gamelogs
 			gm:@gm
+			iconcollection:@iconcollection
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -64,6 +66,7 @@ class Game
 		game.jobscount=obj.jobscount
 		game.gamelogss=obj.gamelogs ? {}
 		game.gm=obj.gm
+		game.iconcollection=obj.iconcollection ? {}
 		game.timer()
 		game
 	# 公開情報
@@ -73,6 +76,8 @@ class Game
 			finished:@finished
 			players:@players.map (x)=>
 				r=x.publicinfo()
+				r.icon= @iconcollection[x.id] ? null
+					
 				if obj?.openjob
 					r.jobname=x.jobname
 					r.option=x.optionString()
@@ -115,6 +120,7 @@ class Game
 		if @rule.scapegoat=="on"
 			plsl++
 		@players=[]
+		@iconcollection={}
 		for job,num of joblist
 			jnumber+=parseInt num
 			if parseInt(num)<0
@@ -180,6 +186,8 @@ class Game
 				}
 				@players.push newpl
 				players.splice r,1
+				if pl.icon
+					@iconcollection[newpl.id]=pl.icon
 				if pl.scapegoat
 					# 身代わりくん
 					newpl.scapegoat=true

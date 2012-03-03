@@ -794,6 +794,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 		img.alt=obj.name
 		figure.appendChild img
 		df.appendChild figure
+		df.classList.add "icon"
 	p=document.createElement "p"
 	p.classList.add "name"
 	
