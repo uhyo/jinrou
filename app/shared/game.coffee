@@ -4,7 +4,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
 # 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker"
+"Devil","ToughGuy","Cupid","Stalker","OccultMania",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -26,7 +26,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf"]
 
 # チームたち
 exports.teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -434,6 +434,9 @@ exports.jobinfo=
 		Oldman:
 			name:"老人"
 			color:"#ede4b9"
+		OccultMania:
+			name:"オカルトマニア"
+			color:"#edda8c"
 		
 		
 		

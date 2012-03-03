@@ -2500,6 +2500,61 @@ class Tanner extends Player
 			@flag="gone"
 		super
 	isWinner:(game,team)->@dead && @flag!="gone"
+class OccultMania extends Player
+	type:"OccultMania"
+	jobname:"オカルトマニア"
+	sleeping:(game)->@target? || game.day!=2
+	sunset:(game)->
+		@target=if game.day==2 then null else ""
+		if !@target? && @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			unless @job game,game.players[r].id,{}
+				@target=""
+	job:(game,playerid)->
+		if game.day!=2
+			# まだ発動できない
+			return "今は能力を発動できません"
+		@target=playerid
+		pl=game.getPlayer playerid
+		unless pl?
+			return "その対象は存在しません"
+		if pl.dead
+			return "対象は既に死亡しています"
+		
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}を指定しました。"
+		splashlog game.id,game,log
+		null
+	midnight:(game)->
+		p=game.getPlayer @target
+		return unless p?
+		# 変化先決定
+		type="Human"
+		if p.isJobType "Diviner"
+			type="Diviner"
+		else if p.isWerewolf()
+			type="Werewolf"
+		
+		newpl=Player.factory type
+		@transProfile newpl
+		@transferData newpl
+		newpl.originalType=@originalType
+		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
+		newpl.sunset game	# 初期化してあげる
+		@transform game,newpl
+
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{newpl.jobname}になりました。"
+		splashlog game.id,game,log
+
+		
+		SS.publish.user newpl.id,"refresh",{id:game.id}	
+		null
 
 	
 # 処理上便宜的に使用
@@ -2686,6 +2741,7 @@ jobs=
 	Witch:Witch
 	Oldman:Oldman
 	Tanner:Tanner
+	OccultMania:OccultMania
 	
 complexes=
 	Complex:Complex

@@ -279,6 +279,10 @@
           option(value="revive") 蘇生薬
           option(value="kill") 毒薬
         input(type="submit",value="薬を使う",data-job="Witch")
+    #form_OccultMania(hidden).jobformarea
+      p
+        | 対象を指定して下さい:
+        input(type="submit",value="指定する",data-job="OccultMania")
   form#speakform
     p
       input(size="50",name="comment",required)
