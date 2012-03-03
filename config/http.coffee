@@ -27,6 +27,46 @@ referrerstop=(request, response, next)->
 <!doctype html>
 <html><head><meta charset="UTF-8"><title>403 Forbidden</title></head>
 <body><h1>403 Forbidden</h1><p>Bad referrer</p><footer><p><small>&copy; 2011-2012 うひょ</small></p></footer></body></html>"""
+
+# JSON APIs
+jsonapi=(request, response, next)->
+  if request.url=="/json/rooms"
+    M.rooms.find({mode:{$ne:"end"}}).sort({made:-1}).limit(10).toArray (err,results)->
+      if err?
+        response.statusCode=500
+        response.end JSON.stringify {
+          error:true
+          code:500
+          message:err
+        }
+        return
+      response.writeHead 200,{'Content-Type':'application/json; charset=UTF-8'}
+      results.forEach (x)->delete x.password
+      response.end JSON.stringify results
+  else if r=request.url.match /\/json\/room\/(\d+)$/
+    M.rooms.findOne {id:parseInt r[1]}, (err,doc)->
+      if err?
+        response.statusCode=500
+        response.end JSON.stringify {
+          error:true
+          code:500
+          message:err
+        }
+        return
+      unless doc?
+        response.statusCode=404
+        response.end JSON.stringify {
+          error:true
+          code:404
+          message:"Not Found"
+        }
+        return
+      response.writeHead 200,{'Content-Type':'application/json; charset=UTF-8'}
+      delete doc.password
+      response.end JSON.stringify doc
+    
+  else
+    next()
   
    
 
@@ -41,6 +81,7 @@ exports.primary =
     #require('connect-i18n')()   # example of using 3rd-party middleware from https://github.com/senchalabs/connect/wiki
     #custom()                      # example of using your own custom middleware (using the example above)
     referrerstop
+    jsonapi
   ]
 
 # Stack for Secondary Server

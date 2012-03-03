@@ -132,7 +132,6 @@ exports.actions =
 			if !record?
 				cb {error:"ユーザー認証に失敗しました"}
 				return
-			console.log query.prize
 			if typeof query.prize?.every=="function"
 				if query.prize.every((x,i)->x.type==SS.shared.prize.prizes_composition[i])
 					# 合致する

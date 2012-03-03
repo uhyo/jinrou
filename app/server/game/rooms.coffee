@@ -81,7 +81,9 @@ exports.actions=
 			unless room.number
 				cb {error: "invalid players number"}
 				return
-			room.owner=@session.attributes.user
+			room.owner=
+				userid:@session.attributes.user.userid
+				name:@session.attributes.user.name
 			room.gm = query.ownerGM=="yes"
 			M.rooms.insert room
 			SS.server.game.game.newGame room
