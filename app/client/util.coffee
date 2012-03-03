@@ -35,9 +35,7 @@ exports.formQuery=(form)->
 						q[e.name]=e.value
 				else if e.type!="submit" && e.type!="reset" && e.type!="button"
 					q[e.name]=e.value
-			else if tag=="select"
-				q[e.name]=e.value
-			else if tag=="output"
+			else if tag in["select","output","textarea"]
 				q[e.name]=e.value
 	q
 #true,false

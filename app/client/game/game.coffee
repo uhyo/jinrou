@@ -187,6 +187,7 @@ exports.start=(roomid)->
 				else
 					$("#gamestartsec").attr "hidden","hidden"
 			je.preventDefault()
+		speakform=$("#speakform").get 0
 		$("#speakform").submit (je)->
 			form=je.target
 			SS.server.game.game.speak roomid,SS.client.util.formQuery(form),(result)->
@@ -194,10 +195,12 @@ exports.start=(roomid)->
 					SS.client.util.message "エラー",result
 			je.preventDefault()
 			form.elements["comment"].value=""
-		.get(0).elements["willbutton"].addEventListener "click", (e)->
+			if form.elements["multilinecheck"].checked
+				# 複数行は直す
+				form.elements["multilinecheck"].click()
+		speakform.elements["willbutton"].addEventListener "click", (e)->
 			# 遺言フォームオープン
 			wf=$("#willform").get 0
-			console.log wf
 			if wf.hidden
 				wf.hidden=false
 				e.target.value="遺言を隠す"
@@ -205,6 +208,25 @@ exports.start=(roomid)->
 				wf.hidden=true
 				e.target.value="遺言"
 		,false
+		speakform.elements["multilinecheck"].addEventListener "click",(e)->
+			# 複数行
+			t=e.target
+			textarea=null
+			comment=t.form.elements["comment"]
+			if t.checked
+				# これから複数行になる
+				textarea=document.createElement "textarea"
+				textarea.cols=50
+				textarea.rows=4
+			else
+				# 複数行をやめる
+				textarea=document.createElement "input"
+				textarea.size=50
+			textarea.name="comment"
+			textarea.value=comment.value
+			textarea.required=true
+			$(comment).replaceWith textarea
+		
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?
@@ -536,13 +558,13 @@ exports.start=(roomid)->
 			
 			wrdv=document.createElement "div"
 			wrdv.textContent=log.comment
-			if log.mode=="will"
-				# 遺言
-				spp=wrdv.firstChild	# Text
-				wr=0
-				while (wr=spp.nodeValue.indexOf("\n"))>=0
-					spp=spp.splitText wr+1
-					wrdv.insertBefore document.createElement("br"),spp
+			# 改行の処理
+			spp=wrdv.firstChild	# Text
+			wr=0
+			while (wr=spp.nodeValue.indexOf("\n"))>=0
+				spp=spp.splitText wr+1
+				wrdv.insertBefore document.createElement("br"),spp
+			
 			parselognode wrdv
 			span.appendChild wrdv
 			
