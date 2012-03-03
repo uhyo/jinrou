@@ -224,8 +224,20 @@ exports.start=(roomid)->
 				textarea.size=50
 			textarea.name="comment"
 			textarea.value=comment.value
+			if textarea.type=="textarea"
+				textarea.value+="\n"
 			textarea.required=true
 			$(comment).replaceWith textarea
+			textarea.focus()
+			textarea.setSelectionRange textarea.value.length,textarea.value.length
+		# 複数行ショートカット
+		$(speakform).keydown (je)->
+			if je.keyCode==13 && je.shiftKey && je.target.form.elements["multilinecheck"].checked==false
+				# 複数行にする
+				je.target.form.elements["multilinecheck"].click();
+				
+				je.preventDefault()
+				
 		
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
