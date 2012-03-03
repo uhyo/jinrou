@@ -1,5 +1,4 @@
 exports.start=->
-	console.log "!!"
 	$("#loginform").submit (je)->
 		je.preventDefault()
 		form=je.target

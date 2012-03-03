@@ -93,31 +93,31 @@ exports.actions=
 # 成功ならnull 失敗ならエラーメッセージ
 	join: (roomid,opt,cb)->
 		unless @session.user_id
-			cb "ログインして下さい"
+			cb {error:"ログインして下さい",require:"login"}	# ログインが必要
 			return
 		M.blacklist.findOne {$or:[{userid:@session.user_id},{ip:@session.attributes.user.ip}]},(err,doc)=>
 			if doc?
 				if !doc.expires || doc.expires.getTime()>=Date.now()
-					cb "参加は禁止されています"
+					cb error:"参加は禁止されています"
 					return
 			
 			SS.server.game.rooms.oneRoomS roomid,(room)=>
 		
 				if !room || room.error?
-					cb "その部屋はありません"
+					cb error:"その部屋はありません"
 					return
 				if @session.user_id in (room.players.map (x)->x.realid)
-					cb "すでに参加しています"
+					cb error:"すでに参加しています"
 					return
 				if room.players.length >= room.number
 					# 満員
-					cb "これ以上入れません"
+					cb error:"これ以上入れません"
 					return
 				unless room.mode=="waiting"
-					cb "既に参加は締めきられています"
+					cb error:"既に参加は締めきられています"
 					return
 				if room.gm && room.owner.userid==@session.user_id
-					cb "ゲームマスターは参加できません"
+					cb error:"ゲームマスターは参加できません"
 					return
 				#room.players.push @session.attributes.user
 				su=@session.attributes.user
@@ -132,12 +132,12 @@ exports.actions=
 				user.realid = @session.user_id
 				# 同IP制限
 				if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
-					cb "重複参加はできません"
+					cb error:"重複参加はできません"
 					return
 				
 				if room.blind
 					unless opt?.name
-						cb "名前を入力して下さい"
+						cb error:"名前を入力して下さい"
 						return
 					# 覆面
 					makeid=->	# ID生成
@@ -155,7 +155,7 @@ exports.actions=
 						
 				M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
 					if err?
-						cb "エラー:#{err}"
+						cb error:"エラー:#{err}"
 					else
 						cb null
 						# 入室通知

@@ -92,8 +92,11 @@ exports.start=(roomid)->
 					opt={}
 					into=->
 						SS.server.game.rooms.join roomid,opt,(result)->
-							if result?
-								SS.client.util.message "ルーム",result
+							if result?.require=="login"
+								# ログインが必要
+								SS.client.util.loginWindow()
+							else if result?.error?
+								SS.client.util.message "ルーム",result.error
 							else
 								SS.client.app.refresh()
 
