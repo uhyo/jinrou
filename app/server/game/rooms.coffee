@@ -126,6 +126,7 @@ exports.actions=
 					realid:@session.user_id
 					name:su.name
 					ip:su.ip
+					icon:su.icon
 					start:false
 					nowprize:su.nowprize
 				
@@ -152,6 +153,7 @@ exports.actions=
 						re
 					user.name=opt.name
 					user.userid=makeid()
+					user.icon=null
 						
 				M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
 					if err?

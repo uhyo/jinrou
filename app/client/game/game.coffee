@@ -784,7 +784,16 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 	#df=document.createDocumentFragment()
 	df=document.createElement tagname
 	
-	df.dataset.id=obj.userid
+	df.dataset.id=obj.id ? obj.userid
+	if obj.icon
+		figure=document.createElement "figure"
+		figure.classList.add "icon"
+		img=document.createElement "img"
+		img.src=obj.icon
+		img.width=img.height=48
+		img.alt=obj.name
+		figure.appendChild img
+		df.appendChild figure
 	p=document.createElement "p"
 	p.classList.add "name"
 	

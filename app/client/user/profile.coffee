@@ -3,8 +3,12 @@
 name_length_max=20
 
 exports.start=(user)->
+	if user?.icon?
+		$("#myicon").attr "src",user.icon
+	
 	$("section.profile p.edit").click (je)->
-		t=je.target
+		transforminput je.target
+	transforminput=(t)->
 		inp=document.createElement "input"
 		inp.value=t.textContent
 		inp.name=t.dataset.pname
@@ -23,13 +27,11 @@ exports.start=(user)->
 		SS.client.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
 			if result
 				q.password=result
-				console.log q
 				SS.server.user.changeProfile q,(result)->
-					console.log result
 					if result.error?
 						SS.client.util.message "エラー",result.error
 					else
-						SS.client.app.page "templates-user-profile",result,SS.client.user.profile
+						SS.client.app.page "templates-user-profile",result,SS.client.user.profile,result
 	.get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
 		$("#changepassword").get(0).hidden=false
 		$("#changepassword").submit (je)->
@@ -41,6 +43,12 @@ exports.start=(user)->
 					$("#changepassword").get(0).hidden=true
 					SS.client.app.page "templates-user-profile",result,SS.client.user.profile
 					
+	),false
+	$("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
+		SS.client.util.prompt "アイコン","twitterIDを入力して下さい",{},(id)->
+			return unless id
+			transforminput $(e.target.form).find("p[data-pname=\"icon\"]").get(0)
+			e.target.form.elements["icon"].value="http://api.twitter.com/1/users/profile_image/#{id}"
 	),false
 	
 	$("#morescore").submit (je)->

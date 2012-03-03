@@ -97,8 +97,10 @@ exports.actions =
 				record.name=query.name
 			if query.email?
 				record.email=query.email
-			if query.comment?
+			if query.comment? && query.comment.length<=200
 				record.comment=query.comment
+			if query.icon? && query.icon.length<=300
+				record.icon=query.icon
 			M.users.update {"userid":@session.user_id}, record, {safe:true},(err,count)=>
 				if err?
 					cb {error:"プロフィール変更に失敗しました"}
@@ -197,6 +199,7 @@ makeuserdata=(query)->
 		userid: query.userid
 		password: SS.server.user.crpassword(query.password)
 		name: query.userid
+		icon:""	# iconのURL
 		comment: ""
 		win:[]	# 勝ち試合
 		lose:[]	# 負け試合
