@@ -151,7 +151,12 @@ class Game
 				r=Math.floor Math.random()*jobss.length
 				continue unless joblist[jobss[r]]>0
 				# 役職はjobss[r]
-				newpl=Player.factory jobss[r],"身代わりくん","身代わりくん","身代わりくん"	#身代わりくん
+				newpl=Player.factory jobss[r]	#身代わりくん
+				newpl.setProfile {
+					id:"身代わりくん"
+					realid:"身代わりくん"
+					name:"身代わりくん"
+				}
 				newpl.scapegoat=true
 				@players.push newpl
 				joblist[jobss[r]]--
@@ -167,7 +172,12 @@ class Game
 			while i++<num
 				r=Math.floor Math.random()*players.length
 				pl=players[r]
-				newpl=Player.factory job, pl.realid,pl.userid,pl.name
+				newpl=Player.factory job
+				newpl.setProfile {
+					id:pl.userid
+					realid:pl.realid
+					name:pl.name
+				}
 				@players.push newpl
 				players.splice r,1
 				if pl.scapegoat
@@ -242,9 +252,11 @@ class Game
 				if alives.length>0
 					r=Math.floor Math.random()*alives.length
 					pl=alives[r]
-					sub=Player.factory "Light",pl.realid,pl.id,pl.name	# 副を作る
+					sub=Player.factory "Light"	# 副を作る
+					pl.transProfile sub
 					sub.sunset this
-					newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,sub,Complex
+					newpl=Player.factory null,pl,sub,Complex
+					pl.transProfile newpl
 					@players.forEach (x,i)=>	# 入れ替え
 						if x.id==newpl.id
 							@players[i]=newpl
@@ -738,8 +750,8 @@ rule:{
   }
 ###
 class Player
-	constructor:(@realid,@id,@name)->
-		# realid:本当のid id:仮のidかもしれない
+	constructor:->
+		# realid:本当のid id:仮のidかもしれない name:名前 icon:アイコンURL
 		@dead=false
 		@found=null	# 死体の発見状況
 		@winner=null	# 勝敗
@@ -754,7 +766,7 @@ class Player
 		@originalType=@type
 		@originalJobname=@jobname
 		
-	@factory:(type,realid,id,name,main=null,sub=null,cmpl=null)->
+	@factory:(type,main=null,sub=null,cmpl=null)->
 		p=null
 		if cmpl?
 			# 複合 mainとsubを使用
@@ -773,9 +785,9 @@ class Player
 			p.sub=sub
 			p.cmplFlag=null
 		else if !jobs[type]?
-			p=new Player realid,id,name
+			p=new Player
 		else
-			p=new jobs[type] realid,id,name
+			p=new jobs[type]
 		p
 	serialize:->
 		r=
@@ -806,10 +818,11 @@ class Player
 		p=if obj.type=="Complex"
 			# 複合
 			cmplobj=complexes[obj.Complex_type ? "Complex"]
-			Player.factory null,obj.realid,obj.id,obj.name, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub),cmplobj
+			Player.factory null, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub),cmplobj
 		else
 			# 普通
-			Player.factory obj.type,obj.realid,obj.id,obj.name
+			Player.factory obj.type
+		p.setProfile obj	#id,realid,name...
 		p.dead=obj.dead
 		p.scapegoat=obj.scapegoat
 		p.decider=obj.decider
@@ -985,7 +998,9 @@ class Player
 			# 親がいた
 			if pa.main==this
 				# 親書き換え
-				newparent=Player.factory null,newpl.realid,newpl.id,newpl.name,newpl,pa.sub,complexes[pa.cmplType]
+				newparent=Player.factory null,newpl,pa.sub,complexes[pa.cmplType]
+				newpl.transProfile newparent
+
 				pa.transform game,newparent	# たのしい再帰
 			else
 				# サブだった
@@ -1013,6 +1028,14 @@ class Player
 			event:event
 			flag:flag
 		}
+	# 個人情報的なことをセット
+	setProfile:(obj={})->
+		@id=obj.id
+		@realid=obj.realid
+		@name=obj.name
+	# 個人情報的なことを移動
+	transProfile:(newpl)->
+		newpl.setProfile this
 	# フラグ類を新しいPlayerオブジェクトへ移動
 	transferData:(newpl)->
 		return unless newpl?
@@ -1186,7 +1209,8 @@ class Guard extends Player
 			splashlog game.id,game,log
 			# 複合させる
 
-			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Guarded	# 守られた人
+			newpl=Player.factory null,pl,null,Guarded	# 守られた人
+			pl.transProfile newpl
 			newpl.cmplFlag=@id	# 護衛元cmplFlag
 			pl.transform game,newpl
 			null
@@ -1530,9 +1554,11 @@ class Merchant extends Player
 		if pl.id==@id
 			return "自分には発送できません"
 		# 複合させる
-		sub=Player.factory query.Merchant_kit,pl.realid,pl.id,pl.name	# 副を作る
+		sub=Player.factory query.Merchant_kit	# 副を作る
+		pl.transProfile sub
 		sub.sunset game
-		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,sub,Complex	# Complex
+		newpl=Player.factory null,pl,sub,Complex	# Complex
+		pl.transProfile newpl
 		pl.transform game,newpl
 
 		log=
@@ -1677,8 +1703,9 @@ class Copier extends Player
 			comment:"#{@name}が#{game.getPlayer(playerid).name}の能力をコピーしました。"
 		splashlog game.id,game,log
 		p=game.getPlayer playerid
-		newpl=Player.factory p.type,@realid,@id,@name
-		p.transferData newpl
+		newpl=Player.factory p.type
+		@transProfile newpl
+		@transferData newpl
 		newpl.originalType=@originalType
 		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 		newpl.sunset game	# 初期化してあげる
@@ -1829,7 +1856,8 @@ class Cupid extends Player
 			# 2人ぶん処理
 			pl.originalJobname="#{pl.originalJobname}→恋人（#{pl.jobname}）"
 		
-			newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,Friend	# 恋人だ！
+			newpl=Player.factory null,pl,null,Friend	# 恋人だ！
+			pl.transProfile newpl
 			pl.transform game,newpl	# 入れ替え
 			log=
 				mode:"skill"
@@ -1911,7 +1939,8 @@ class Cursed extends Player
 				comment:"#{@name}は呪われて人狼になりました。"
 			splashlog game.id,game,log
 			
-			newpl=Player.factory "Werewolf",@realid,@id,@name
+			newpl=Player.factory "Werewolf"
+			@transProfile newpl
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 			@transferData newpl
@@ -1928,7 +1957,8 @@ class ApprenticeSeer extends Player
 	beforebury:(game)->
 		# 占い師が誰か死んでいたら占い師に進化
 		if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
-			newpl=Player.factory "Diviner",@realid,@id,@name
+			newpl=Player.factory "Diviner"
+			@transProfile newpl
 			@transferData newpl
 			newpl.originalType=@originalType
 			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
@@ -1992,7 +2022,8 @@ class Spellcaster extends Player
 		
 		# 複合させる
 
-		newpl=Player.factory null,t.realid,t.id,t.name,t,null,Muted	# 黙る人
+		newpl=Player.factory null,t,null,Muted	# 黙る人
+		t.transProfile newpl
 		t.transform game,newpl
 class Lycan extends Player
 	type:"Lycan"
@@ -2027,7 +2058,8 @@ class Priest extends Player
 		# その場で変える
 		# 複合させる
 
-		newpl=Player.factory null,pl.realid,pl.id,pl.name,pl,null,HolyProtected	# 守られた人
+		newpl=Player.factory null,pl,null,HolyProtected	# 守られた人
+		pl.transProfile newpl
 		newpl.cmplFlag=@id	# 護衛元
 		pl.transform game,newpl
 
@@ -2177,16 +2209,19 @@ class Doppleganger extends Player
 		if founds.some((x)=>x.id==@flag)
 			p=game.getPlayer @flag	# その人
 
-			newplmain=Player.factory p.type,@realid,@id,@name
+			newplmain=Player.factory p.type
+			@transProfile newplmain
 			@transferData newplmain
 			newplmain.originalType=@originalType
 			
 			me=game.getPlayer @id
 			newplmain.originalJobname="#{me.originalJobname}→#{newplmain.jobname}"
 			# まだドッペルゲンガーできる
-			sub=Player.factory "Doppleganger",@realid,@id,@name
+			sub=Player.factory "Doppleganger"
+			@transProfile sub
 			
-			newpl=Player.factory null,@realid,@id,@name, newplmain,sub,Complex	# 合体
+			newpl=Player.factory null, newplmain,sub,Complex	# 合体
+			@transProfile newpl
 			
 			pa=@getParent game	# 親を得る
 			unless pa?
@@ -2240,7 +2275,8 @@ class CultLeader extends Player
 
 		# 信者
 		splashlog game.id,game,log
-		newpl=Player.factory null,t.realid,t.id,t.name, t,null,CultMember	# 合体
+		newpl=Player.factory null, t,null,CultMember	# 合体
+		t.transProfile newpl
 		t.transform game,newpl
 
 	makejobinfo:(game,result)->
