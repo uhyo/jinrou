@@ -47,10 +47,14 @@ exports.actions =
 		unless @session.attributes.administer
 			cb {error:"管理者ではありません"}
 			return
-		message=
-			title:query.title
-			message:query.message
-		SS.publish.broadcast 'grandalert',message
+		if query.system
+			message=
+				title:query.title
+				message:query.message
+			SS.publish.broadcast 'grandalert',message
+		if query.twitter
+			# twitterへ配信
+			SS.server.oauth.tweet "#{query.message} #月下人狼",SS.config.admin.password
 		cb null
 		
 
