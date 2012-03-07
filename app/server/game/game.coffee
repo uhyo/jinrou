@@ -2829,14 +2829,13 @@ exports.actions=
 		player=game.getPlayerReal session.user_id
 		unless player?
 			session.channel.subscribe "room#{roomid}_audience"
-			session.channel.subscribe "room#{roomid}_notwerewolf"
-			session.channel.subscribe "room#{roomid}_notcouple"
+#			session.channel.subscribe "room#{roomid}_notwerewolf"
+#			session.channel.subscribe "room#{roomid}_notcouple"
 			return
 		if player.isJobType "GameMaster"
-			console.log "GM channel!"
 			session.channel.subscribe "room#{roomid}_gamemaster"
 			return
-			
+		###
 		if player.dead
 			session.channel.subscribe "room#{roomid}_heaven"
 		if game.rule.heavenview!="view" || !player.dead
@@ -2851,7 +2850,7 @@ exports.actions=
 				session.channel.subscribe "room#{roomid}_notcouple"
 		if player.type=="Fox"
 			session.channel.subscribe "room#{roomid}_fox"
-			
+		###
 			
 		
 			
@@ -3253,6 +3252,7 @@ splashlog=(roomid,game,log)->
 	game.logs.push log
 	#DBに追加
 	M.games.update {id:roomid},{$push:{logs:log}}
+	###
 	hv=(ch)->
 		# チャンネルにheavenを加える
 		if game.rule.heavenview=="view"
@@ -3329,6 +3329,18 @@ splashlog=(roomid,game,log)->
 			flash "room#{roomid}_heaven",log
 		else
 			SS.publish.channel "room#{roomid}_gamemaster","log",log
+	###
+	# まず観戦者
+	if islogOK game,null,log
+		SS.publish.channel "room#{roomid}_audience","log",log
+	# GM
+	if game.gm
+		SS.publish.channel "room#{roomid}_gamemaster","log",log
+	# その他
+	game.players.forEach (pl)->
+		if islogOK game,pl,log
+			SS.publish.user pl.realid,"log",log
+	
 
 # プレイヤーにログを見せてもよいか			
 islogOK=(game,player,log)->
