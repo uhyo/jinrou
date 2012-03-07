@@ -1,10 +1,10 @@
 # 肩書きで、称号をつなげる接続語
 
-exports.conjunctions=["の","を","が","は","で","と","な","に","し","い","風","なる","たる","での","への","から","かつ","でも","する","した"<"オブ","にして","として","無き","的な","☆","★","♡","♥","・","×"]
+exports.conjunctions=["の","を","が","は","で","と","な","に","し","い","風","なる","たる","での","への","から","かつ","でも","する","した","オブ","にして","として","無き","的な","☆","★","♡","♥","・","×"]
 exports.prizes_composition=["prize","conjunction","prize"]
 
 # 称号の数で
-exports.gerProzesComposition=(number)->
+exports.getPrizesComposition=(number)->
 	result=[]
 	if number>=30
 		result.push "conjunction"	# 30個で最初に接続

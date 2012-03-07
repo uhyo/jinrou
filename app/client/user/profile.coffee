@@ -163,11 +163,30 @@ exports.start=(user)->
 		# 編集部分
 		ull=$("#prizeedit")
 		unless user.nowprize?	# 無い場合はデフォルト
-			for te in SS.shared.prize.prizes_composition
+			for te in SS.shared.prize.getPrizesComposition user.prizenames.length
 				li=document.createElement "li"
 				li.classList.add (if te=="prize" then "prizetip" else "conjtip")
 				ull.append li
 		else
+			coms=SS.shared.prize.getPrizesComposition user.prizenames.length
+			for type in coms
+				li=document.createElement "li"
+				if type=="prize"
+					li.classList.add "prizetip"
+				else
+					li.classList.add "conjtip"
+				
+				obj=user.nowprize[0]
+				if obj?.type==type
+					# 一致するので入れる
+					if type=="prize"
+						li.dataset.id=obj.value
+						li.textContent=prizedictionary[obj.value] ? ""
+					else
+						li.textContent=obj.value
+					user.nowprize.shift()
+				ull.append li
+			###
 			for obj in user.nowprize
 				li=document.createElement "li"
 				if obj.type=="prize"
@@ -178,6 +197,7 @@ exports.start=(user)->
 					li.classList.add "conjtip"
 					li.textContent=obj.value
 				ull.append li
+			###
 		$("#prizeedit li").each ->
 			@dropzone="copy"
 			
