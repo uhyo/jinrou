@@ -3,8 +3,11 @@
 name_length_max=20
 
 exports.start=(user)->
+	seticon=(url)->
+		$("#myicon").attr "src",url
+		$("#changeprofile").get(0).elements["icon"].value=url
 	if user?.icon?
-		$("#myicon").attr "src",user.icon
+		seticon user.icon
 	
 	$("section.profile p.edit").click (je)->
 		transforminput je.target
@@ -46,10 +49,8 @@ exports.start=(user)->
 					
 	),false
 	$("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
-		SS.client.util.prompt "アイコン","twitterIDを入力して下さい",{},(id)->
-			return unless id
-			transforminput $(e.target.form).find("p[data-pname=\"icon\"]").get(0)
-			e.target.form.elements["icon"].value="http://api.twitter.com/1/users/profile_image/#{id}"
+		SS.client.util.iconSelectWindow $("#myicon").attr("src"),(url)->
+			seticon url
 	),false
 	
 	$("#morescore").submit (je)->

@@ -129,6 +129,35 @@ exports.loginWindow=->
 				localStorage.setItem "password", form.elements["password"].value
 				closeWindow win
 
+exports.iconSelectWindow=(def,cb)->
+	win = showWindow "templates-util-iconselect"
+	form=$("#iconform").get 0
+	# アイコン決定
+	okicon=(url)->
+		$("#icondisp").attr "src",url
+		def=url	# 書き換え
+		
+	okicon def	# さいしょ
+	win.click (je)->
+		t=je.target
+		if t.name=="cancel"
+			closeWindow win
+			cb def	# 変わっていない
+		else if t.name=="urliconbutton"
+			SS.client.util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+				okicon url ? ""
+		else if t.name=="twittericonbutton"
+			SS.client.util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
+				if id
+					okicon "http://api.twitter.com/1/users/profile_image/#{id}"
+				else
+					okicon ""
+	$("#iconform").submit (je)->
+		je.preventDefault()
+		closeWindow win
+		cb def	#結果通知
+		
+
 # Dateをtime要素に
 exports.timeFromDate=(date)->
 	zero2=(num)->

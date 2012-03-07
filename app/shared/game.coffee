@@ -156,6 +156,7 @@ exports.jobrules=[
         rule:(number)->
           ret=normal1 number
           ret.Cat=1
+          ret.Werewolf++
           ret
       }
     ]
