@@ -549,26 +549,31 @@ class Game
 			log=
 				mode:"nextturn"
 				finished:true
-				comment:switch team
-					when "Human"
-						"村から人狼がいなくなりました。"
-					when "Werewolf"
-						"人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…"
-					when "Fox"
-						"村は妖狐のものとなりました。"
-					when "Devil"
-						"村は悪魔くんのものとなりました。"
-					when "Friend"
-						"#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。"
-					when "Cult"
-						"村はカルトに支配されました。"
-					when "Vampire"
-						"ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去って行った…"
-					when "LoneWolf"
-						"人狼は最後の村人を喰い殺すと次の獲物を求めて独り去って行くのだった…"
-					when "Draw"
-						"引き分けになりました。"
-						
+			resultstring=null#結果
+			teamstring=null	#陣営
+			[resultstring,teamstring]=switch team
+				when "Human"
+					if alives>0 && aliveps.every((x)->x.isJobType "Neet")
+						["村はニートの楽園になりました。","村人勝利"]
+					else
+						["村から人狼がいなくなりました。","村人勝利"]
+				when "Werewolf"
+					["人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…","人狼勝利"]
+				when "Fox"
+					["村は妖狐のものとなりました。","妖狐勝利"]
+				when "Devil"
+					["村は悪魔くんのものとなりました。","悪魔くん勝利"]
+				when "Friend"
+					["#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
+				when "Cult"
+					["村はカルトに支配されました。","カルトリーダー勝利"]
+				when "Vampire"
+					["ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去って行った…","ヴァンパイア陣営勝利"]
+				when "LoneWolf"
+					["人狼は最後の村人を喰い殺すと次の獲物を求めて独り去って行くのだった…","一匹狼勝利"]
+				when "Draw"
+					["引き分けになりました。",""]
+			log.comment="#{if teamstring then "【#{teamstring}】" else ""}#{resultstring}"
 			splashlog @id,this,log
 			
 			
@@ -578,6 +583,9 @@ class Game
 			@save()
 			@prize_check()
 			clearTimeout @timer
+			
+			# 告知ツイート
+			tweet @id,"#{log.comment} #月下人狼"
 			return true
 		else
 			return false
@@ -3057,6 +3065,7 @@ exports.actions=
 				log.mode="prepare"
 				if player?.isJobType "GameMaster"
 					log.mode="gm"
+					log.name="ゲームマスター"
 			else
 				# ゲームしている
 				unless player?
@@ -3078,14 +3087,14 @@ exports.actions=
 						# 全員へ
 						log.mode="gm"
 						log.name="ゲームマスター"
-					else if query.gmsayopt="AllDeads"
+					else if query.gmsayopt=="AllDeads"
 						# 霊界へ
 						log.mode="gmheaven"
 						log.name="GM→霊界"
-					else if query.gmsayopt="AllAudience"
+					else if query.gmsayopt=="AllAudience"
 						log.mode="gmaudience"
 						log.name="GM→観客"
-					else if query.gmsayopt="GMMonologue"
+					else if query.gmsayopt=="GMMonologue"
 						log.mode="gmmonologue"
 						log.name="GMの独り言"
 					else
@@ -3380,4 +3389,8 @@ shuffle= (arr)->
 	while arr.length
 		ret.push arr.splice(Math.floor(Math.random()*arr.length),1)[0]
 	ret
+	
+# ゲーム情報ツイート
+tweet=(roomid,message)->
+	SS.server.oauth.template roomid,message,SS.config.admin.password
 		
