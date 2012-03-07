@@ -9,6 +9,7 @@ exports.start=(user)->
 	$("section.profile p.edit").click (je)->
 		transforminput je.target
 	transforminput=(t)->
+		return unless t?
 		inp=document.createElement "input"
 		inp.value=t.textContent
 		inp.name=t.dataset.pname
