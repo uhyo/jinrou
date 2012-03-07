@@ -604,9 +604,9 @@ exports.start=(roomid)->
 	###
 	# 役職情報をもらった
 	getjobinfo=(obj)->
+		console.log obj,this_room_id
 		return unless obj.id==this_room_id
 		my_job=obj.type
-		console.log obj
 		$("#jobinfo").empty()
 		pp=(text)->
 			p=document.createElement "p"

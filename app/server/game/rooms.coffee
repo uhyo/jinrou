@@ -88,6 +88,7 @@ exports.actions=
 			M.rooms.insert room
 			SS.server.game.game.newGame room
 			cb {id: room.id}
+			SS.server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.blind then '・覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",SS.config.admin.password
 
 # 部屋に入る
 # 成功ならnull 失敗ならエラーメッセージ
