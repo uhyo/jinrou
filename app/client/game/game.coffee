@@ -252,7 +252,6 @@ exports.start=(roomid)->
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?
-			console.log this_rule
 			win=SS.client.util.blankWindow()
 			p=document.createElement "p"
 			Object.keys(this_rule.jobscount).forEach (x)->
@@ -437,10 +436,10 @@ exports.start=(roomid)->
 			li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
 			while sheet.cssRules.length>0
 				sheet.deleteRule 0
-			if li?
-				# 強調
-				sheet.insertRule "#logs p:not([data-name=\"#{li.dataset.name}\"]) {opacity: .5}",0
-			console.log sheet.cssRules.length
+			if $(li).parent("#players").length >0
+				if li?
+					# 強調
+					sheet.insertRule "#logs p:not([data-name=\"#{li.dataset.name}\"]) {opacity: .5}",0
 	# 役職入力フォームを作る
 	for job in SS.shared.game.jobs
 		# 探す
@@ -653,7 +652,6 @@ exports.start=(roomid)->
 		if obj.friends?.length>0
 			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
 		if obj.stalking?
-			console.log obj.stalking
 			$("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
 		if obj.cultmembers?
 			$("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
