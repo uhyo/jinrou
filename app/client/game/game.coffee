@@ -418,6 +418,19 @@ exports.start=(roomid)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				gettimer parseInt(msg.time),msg.mode
 	
+		# CSS操作
+		style=document.createElement "style"
+		document.head.appendChild style
+		sheet=style.sheet
+		$(document).click (je)->
+			# クリックで発言強調
+			li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
+			while sheet.cssRules.length>0
+				sheet.deleteRule 0
+			if li?
+				# 強調
+				sheet.insertRule "#logs p:not([data-name=\"#{li.dataset.name}\"]) {opacity: .5}",0
+			console.log sheet.cssRules.length
 	# 役職入力フォームを作る
 	for job in SS.shared.game.jobs
 		# 探す
@@ -561,6 +574,7 @@ exports.start=(roomid)->
 					else
 						"#{log.name}:"
 			p.appendChild div
+			p.dataset.name=log.name
 			
 			span=document.createElement "div"
 			span.classList.add "comment"
@@ -819,6 +833,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 	df=document.createElement tagname
 	
 	df.dataset.id=obj.id ? obj.userid
+	df.dataset.name=obj.name
 	if obj.icon
 		figure=document.createElement "figure"
 		figure.classList.add "icon"
