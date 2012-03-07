@@ -41,6 +41,14 @@ section.admin#admin
       p
         | 内容:
         input(name="message",size="50",placeholder="メッセージ",required)
+      p
+        label
+          input(type="checkbox",name="system",value="on",checked)
+          月下人狼内へ
+        label
+          input(type="checkbox",name="twitter",value="on")
+          twitterへ
+        
       p: input(type="submit",value="送信")
         
         
