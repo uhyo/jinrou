@@ -9,6 +9,9 @@ remain_time=null
 this_rule=null	# ルールオブジェクトがある
 enter_result=null #enter
 
+this_icons={}	#名前とアイコンの対応表
+
+
 exports.start=(roomid)->
 	this_rule=null
 	timerid=null
@@ -582,6 +585,14 @@ exports.start=(roomid)->
 						"#{log.name}の遺言:"
 					else
 						"#{log.name}:"
+				if this_icons[log.name]
+					# アイコンがある
+					img=document.createElement "img"
+					img.style.width="1em"
+					img.style.height="1em"
+					img.src=this_icons[log.name]
+					img.alt=""	# 飾り
+					$(div).prepend img
 			p.appendChild div
 			p.dataset.name=log.name
 			
@@ -740,6 +751,10 @@ exports.start=(roomid)->
 			# 上の一覧用
 			li=makeplayerbox x
 			$("#players").append li
+			
+			# アイコン
+			if x.icon
+				this_icons[x.name]=x.icon
 
 			# 投票フォーム用
 			li=document.createElement "li"
