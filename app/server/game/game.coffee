@@ -584,8 +584,11 @@ class Game
 			@prize_check()
 			clearTimeout @timer
 			
-			# 告知ツイート
-			tweet @id,"#{log.comment} #月下人狼"
+			# DBからとってきて告知ツイート
+			M.rooms.findOne {id:@id},(err,doc)->
+				return unless doc?
+				tweet doc.id,"「#{doc.name}」の結果: #{log.comment} #月下人狼"
+			
 			return true
 		else
 			return false
