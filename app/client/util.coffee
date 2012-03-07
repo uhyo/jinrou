@@ -134,7 +134,7 @@ exports.iconSelectWindow=(def,cb)->
 	form=$("#iconform").get 0
 	# アイコン決定
 	okicon=(url)->
-		$("#icondisp").attr "src",url
+		$("#selecticondisp").attr "src",url
 		def=url	# 書き換え
 		
 	okicon def	# さいしょ
@@ -156,6 +156,23 @@ exports.iconSelectWindow=(def,cb)->
 		je.preventDefault()
 		closeWindow win
 		cb def	#結果通知
+exports.blindName=(cb)->
+	win = showWindow "templates-util-blindname"
+	def=null
+	win.click (je)->
+		t=je.target
+		if t.name=="cancel"
+			closeWindow win
+			cb null	# 変わっていない
+		else if t.name=="iconselectbutton"
+			SS.client.util.iconSelectWindow null,(url)->
+				def=url ? null
+				$("#icondisp").attr "src",def
+	$("#nameform").submit (je)->
+		je.preventDefault()
+		closeWindow win
+		cb {name:je.target.elements["name"].value, icon:def}
+	
 		
 
 # Dateをtime要素に

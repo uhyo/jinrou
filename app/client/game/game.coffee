@@ -89,7 +89,9 @@ exports.start=(roomid)->
 				$("#playersinfo").append b
 				$(b).click (je)->
 					# 参加
-					opt={}
+					opt=
+						name:""
+						icon:null
 					into=->
 						SS.server.game.rooms.join roomid,opt,(result)->
 							if result?.require=="login"
@@ -103,9 +105,17 @@ exports.start=(roomid)->
 
 					if room.blind
 						# 参加者名
+						###
 						SS.client.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
 							if name
 								opt.name=name
+								into()
+						###
+						# ここ書いてないよ!
+						SS.client.util.blindName (obj)->
+							if obj?
+								opt.name=obj.name
+								opt.icon=obj.icon
 								into()
 					else
 						into()
@@ -224,7 +234,7 @@ exports.start=(roomid)->
 				textarea.size=50
 			textarea.name="comment"
 			textarea.value=comment.value
-			if textarea.type=="textarea"
+			if textarea.type=="textarea" && textarea.value
 				textarea.value+="\n"
 			textarea.required=true
 			$(comment).replaceWith textarea

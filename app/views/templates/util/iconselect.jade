@@ -3,7 +3,8 @@ section.window
     | アイコン選択
     input.closer(type="button",value="×",name="cancel")
   form(aciton="/")#iconform
-    figure(style="float:left"): img#icondisp(width="48",height="48",alt="アイコン")
+    p （URLが空の場合アイコン無しになります）
+    figure(style="float:left"): img#selecticondisp(width="48",height="48",alt="アイコン")
     p
       input(type="button",name="urliconbutton",value="URLを入力")
     p

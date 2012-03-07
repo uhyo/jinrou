@@ -1,0 +1,18 @@
+section.window
+  h1
+    ゲームに参加
+    input.closer(type="button",value="×",name="cancel")
+  form#nameform(action="/")
+    p 名前を入力して下さい
+    p
+      input.prompt.getfocus(name="name",size="30",required)
+    figure(style="float:left")
+      img#icondisp(width="48",height="48",alt="アイコン")
+    p
+      input(type="button",name="iconselectbutton",value="アイコン選択")
+    p
+      input(type="submit",name="ok",value="OK")
+      input(type="button",name="cancel",value="キャンセル")
+
+
+
