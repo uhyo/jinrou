@@ -560,6 +560,9 @@ exports.start=(roomid)->
 			# 表を出す
 			p=document.createElement "div"
 			div=document.createElement "div"
+			div.classList.add "icon"
+			p.appendChild div
+			div=document.createElement "div"
 			div.classList.add "name"
 			p.appendChild div
 			
@@ -577,6 +580,9 @@ exports.start=(roomid)->
 			p=document.createElement "p"
 			div=document.createElement "div"
 			div.classList.add "name"
+			icondiv=document.createElement "div"
+			icondiv.classList.add "icon"
+			
 			if log.name?
 				div.textContent=switch log.mode
 					when "monologue"
@@ -592,7 +598,8 @@ exports.start=(roomid)->
 					img.style.height="1em"
 					img.src=this_icons[log.name]
 					img.alt=""	# 飾り
-					$(div).prepend img
+					icondiv.appendChild img
+			p.appendChild icondiv
 			p.appendChild div
 			p.dataset.name=log.name
 			
