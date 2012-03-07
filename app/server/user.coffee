@@ -135,7 +135,9 @@ exports.actions =
 				cb {error:"ユーザー認証に失敗しました"}
 				return
 			if typeof query.prize?.every=="function"
-				if query.prize.every((x,i)->x.type==SS.shared.prize.prizes_composition[i])
+				# 称号構成を得る
+				comp=SS.shared.prize.getPrizesComposition record.prize.length
+				if query.prize.every((x,i)->x.type==comp[i])
 					# 合致する
 					if query.prize.every((x)->
 						if x.type=="prize"
@@ -146,6 +148,8 @@ exports.actions =
 						# 所持もOK
 						M.users.update {"userid":@session.user_id}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
 								@session.attributes.user.nowprize=query.prize
+							@session.save ->
+							
 							cb null
 					else
 						cb {error:"肩書きが不正です"}
