@@ -299,6 +299,10 @@
       span#time
       input(type="button",value="遺言",name="willbutton")
       input(type="button",value="ルール",name="rulebutton",disabled)
+      select#chooseviewselect
+        option(value="all",selected) 全部
+        option(value="today") 今日
+        optgroup#chooseviewday(label="一日ずつ")
   form#willform(hidden)
     p
       textarea(name="will",cols="50",rows="3",maxlength="1000")

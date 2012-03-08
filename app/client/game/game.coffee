@@ -10,7 +10,8 @@ this_rule=null	# ルールオブジェクトがある
 enter_result=null #enter
 
 this_icons={}	#名前とアイコンの対応表
-
+this_logdata={}	# ログデータをアレする
+this_style=null	#style要素（終わったら消したい）
 
 exports.start=(roomid)->
 	this_rule=null
@@ -18,7 +19,30 @@ exports.start=(roomid)->
 	remain_time=null
 	my_job=null
 	this_room_id=null
-	
+
+	# CSS操作
+	this_style=document.createElement "style"
+	document.head.appendChild this_style
+	sheet=this_style.sheet
+	#現在のルール
+	myrules=
+		player:null	# プレイヤー・ネーム
+		day:"all"	# 表示する日にち
+	setcss=->
+		while sheet.cssRules.length>0
+			sheet.deleteRule 0
+		if myrules.player?
+			sheet.insertRule "#logs > div:not([data-name=\"#{myrules.player}\"]) {opacity: .5}",0
+		day=null
+		if myrules.day=="today"
+			day=this_logdata.day	# 現在
+		else if myrules.day!="all"
+			day=parseInt myrules.day	# 表示したい日
+		
+		if day?
+			# 表示する
+			sheet.insertRule "#logs > div:not([data-day=\"#{day}\"]){display: none}",0
+
 	getenter=(result)->
 		if result.error?
 			# エラー
@@ -44,6 +68,8 @@ exports.start=(roomid)->
 			SS.client.app.showUrl "/rooms"
 			return
 		# 今までのログを送ってもらう
+		this_icons={}
+		this_logdata={}
 		sentlog=(result)->
 			if result.error?
 				SS.client.util.message "エラー",result.error
@@ -53,6 +79,7 @@ exports.start=(roomid)->
 					$("#playersinfo").empty()
 				getjobinfo result
 				$("#logs").empty()
+				$("#chooseviewday").empty()	# 何日目だけ表示
 				
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
@@ -69,21 +96,6 @@ exports.start=(roomid)->
 		if room.mode=="waiting"
 			# 開始前のユーザー一覧は roomから取得する
 			room.players.forEach (x)->
-				###
-				li=document.createElement "li"
-				li.title=x.userid
-				if room.blind
-					li.textContent=x.name
-				else
-					a=document.createElement "a"
-					a.href="/user/#{x.userid}"
-					a.textContent=x.name
-					li.appendChild a
-				if x.start	# 準備完了している
-					b=document.createElement "b"
-					b.textContent="[ready]"
-					li.appendChild b
-				###
 				li=makeplayerbox x,room.blind
 				$("#players").append li
 			unless enter_result?.joined
@@ -430,19 +442,23 @@ exports.start=(roomid)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				gettimer parseInt(msg.time),msg.mode
 	
-		# CSS操作
-		style=document.createElement "style"
-		document.head.appendChild style
-		sheet=style.sheet
 		$(document).click (je)->
 			# クリックで発言強調
 			li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
-			while sheet.cssRules.length>0
-				sheet.deleteRule 0
+			myrules.player=null
 			if $(li).parent("#players").length >0
 				if li?
 					# 強調
-					sheet.insertRule "#logs p:not([data-name=\"#{li.dataset.name}\"]) {opacity: .5}",0
+					myrules.player=li.dataset.name
+			setcss()
+		$("#chooseviewselect").change (je)->
+			# 表示部分を選択
+			v=je.target.value
+			myrules.day=v
+			setcss()
+		.click (je)->
+			je.stopPropagation()
+
 	# 役職入力フォームを作る
 	for job in SS.shared.game.jobs
 		# 探す
@@ -577,7 +593,7 @@ exports.start=(roomid)->
 				tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
 			p.appendChild tb
 		else
-			p=document.createElement "p"
+			p=document.createElement "div"
 			div=document.createElement "div"
 			div.classList.add "name"
 			icondiv=document.createElement "div"
@@ -626,6 +642,26 @@ exports.start=(roomid)->
 				time=SS.client.util.timeFromDate new Date log.time
 				time.classList.add "time"
 				p.appendChild time
+			if log.mode=="nextturn" && log.day
+				#IDづけ
+				p.id="turn_#{log.day}#{if log.night then '_night' else ''}"
+				this_logdata.day=log.day
+				this_logdata.night=log.night
+				
+				if log.night==false || log.day==1
+					# 朝の場合optgroupに追加
+					option=document.createElement "option"
+					option.value=log.day
+					option.textContent="#{log.day}日目"
+					$("#chooseviewday").append option
+					setcss()
+		# 日にちデータ
+		if this_logdata.day
+			p.dataset.day=this_logdata.day
+			if this_logdata.night
+				p.dataset.night="night"
+		else
+			p.dataset.day=0
 		
 		p.classList.add log.mode
 		
@@ -805,6 +841,8 @@ exports.end=->
 	clearInterval timerid if timerid?
 	alloff socket_ids...
 	document.body.classList.remove x for x in ["day","night","finished","heaven"]
+	if this_style?
+		$(this_style).remove()
 	
 #ソケットを全部off
 alloff= (ids...)->
