@@ -127,7 +127,7 @@ exports.start=(roomid)->
 								into()
 						###
 						# ここ書いてないよ!
-						SS.client.util.blindName (obj)->
+						SS.client.util.blindName null,(obj)->
 							if obj?
 								opt.name=obj.name
 								opt.icon=obj.icon
