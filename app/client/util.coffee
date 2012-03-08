@@ -145,6 +145,7 @@ exports.iconSelectWindow=(def,cb)->
 			cb def	# 変わっていない
 		else if t.name=="urliconbutton"
 			SS.client.util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+				console.log url
 				okicon url ? ""
 		else if t.name=="twittericonbutton"
 			SS.client.util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
