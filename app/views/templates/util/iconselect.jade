@@ -1,0 +1,15 @@
+section.window
+  h1
+    | アイコン選択
+    input.closer(type="button",value="×",name="cancel")
+  form(aciton="/")#iconform
+    p （URLが空の場合アイコン無しになります）
+    figure(style="float:left"): img#selecticondisp(width="48",height="48",alt="アイコン")
+    p
+      input(type="button",name="urliconbutton",value="URLを入力")
+    p
+      input(type="button",name="twittericonbutton",value="twitterから")
+    p: input(type="submit",value="OK")
+
+
+

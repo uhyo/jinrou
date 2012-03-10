@@ -89,7 +89,9 @@ exports.start=(roomid)->
 				$("#playersinfo").append b
 				$(b).click (je)->
 					# 参加
-					opt={}
+					opt=
+						name:""
+						icon:null
 					into=->
 						SS.server.game.rooms.join roomid,opt,(result)->
 							if result?.require=="login"
@@ -103,9 +105,17 @@ exports.start=(roomid)->
 
 					if room.blind
 						# 参加者名
+						###
 						SS.client.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
 							if name
 								opt.name=name
+								into()
+						###
+						# ここ書いてないよ!
+						SS.client.util.blindName (obj)->
+							if obj?
+								opt.name=obj.name
+								opt.icon=obj.icon
 								into()
 					else
 						into()
@@ -224,7 +234,7 @@ exports.start=(roomid)->
 				textarea.size=50
 			textarea.name="comment"
 			textarea.value=comment.value
-			if textarea.type=="textarea"
+			if textarea.type=="textarea" && textarea.value
 				textarea.value+="\n"
 			textarea.required=true
 			$(comment).replaceWith textarea
@@ -242,7 +252,6 @@ exports.start=(roomid)->
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?
-			console.log this_rule
 			win=SS.client.util.blankWindow()
 			p=document.createElement "p"
 			Object.keys(this_rule.jobscount).forEach (x)->
@@ -418,6 +427,19 @@ exports.start=(roomid)->
 			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
 				gettimer parseInt(msg.time),msg.mode
 	
+		# CSS操作
+		style=document.createElement "style"
+		document.head.appendChild style
+		sheet=style.sheet
+		$(document).click (je)->
+			# クリックで発言強調
+			li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
+			while sheet.cssRules.length>0
+				sheet.deleteRule 0
+			if $(li).parent("#players").length >0
+				if li?
+					# 強調
+					sheet.insertRule "#logs p:not([data-name=\"#{li.dataset.name}\"]) {opacity: .5}",0
 	# 役職入力フォームを作る
 	for job in SS.shared.game.jobs
 		# 探す
@@ -561,6 +583,7 @@ exports.start=(roomid)->
 					else
 						"#{log.name}:"
 			p.appendChild div
+			p.dataset.name=log.name
 			
 			span=document.createElement "div"
 			span.classList.add "comment"
@@ -629,7 +652,6 @@ exports.start=(roomid)->
 		if obj.friends?.length>0
 			$("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
 		if obj.stalking?
-			console.log obj.stalking
 			$("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
 		if obj.cultmembers?
 			$("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
@@ -819,6 +841,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 	df=document.createElement tagname
 	
 	df.dataset.id=obj.id ? obj.userid
+	df.dataset.name=obj.name
 	if obj.icon
 		figure=document.createElement "figure"
 		figure.classList.add "icon"

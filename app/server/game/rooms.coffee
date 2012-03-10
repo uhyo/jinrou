@@ -154,7 +154,7 @@ exports.actions=
 						re
 					user.name=opt.name
 					user.userid=makeid()
-					user.icon=null
+					user.icon= opt.icon ? null
 						
 				M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
 					if err?

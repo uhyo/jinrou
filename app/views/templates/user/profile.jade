@@ -9,11 +9,11 @@ section.profile
     h2 コメント
     p.edit(data-pname="comment",data-type="text",data-maxlength="100") {{= comment}}
     h2 アイコン
-    p (アイコンを表示する場合はアイコンのURLを入力して下さい)
-    p.edit(data-pname="icon",data-type="url",data-maxlength="300") {{= icon}}
+    p (変更後は下の変更ボタンで確定して下さい)
     p
+      input(type="hidden",name="icon",value="")
       img#myicon(width="48",height="48",alt="アイコン")
-      input(type="button",value="アイコンをtwitterIDから抽出",name="twittericonbutton")
+      input(type="button",value="アイコン選択",name="twittericonbutton")
     p
       input(type="submit",value="変更")
       input(type="button",name="changepasswordbutton",value="パスワードを変更")

@@ -1296,6 +1296,7 @@ class TinyFox extends Diviner
 			if @job game,game.players[r].id,{}
 				@sunset
 	makejobinfo:(game,result)->
+		super
 		# 子狐は妖狐が分かる
 		result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
 			x.publicinfo()
