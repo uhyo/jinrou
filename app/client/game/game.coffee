@@ -415,7 +415,8 @@ exports.start=(roomid)->
 			
 		# ログが流れてきた!!!
 		socket_ids.push SS.client.socket.on "log",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+			#if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+			if msg.roomid==roomid
 				# この部屋へのログ
 				getlog msg
 		# 職情報を教えてもらった!!!

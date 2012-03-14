@@ -1931,7 +1931,7 @@ class Stalker extends Player
 	isWinner:(game,team)->
 		pl=game.getPlayer @flag
 		return false unless pl?
-		return team==pl.team || pl.isWinner game,team
+		return team==pl.team || (pl.isJobType("Stalker")==false && pl.isWinner(game,team))
 	makejobinfo:(game,result)->
 		super
 		p=game.getPlayer @flag
@@ -3334,6 +3334,7 @@ splashlog=(roomid,game,log)->
 			SS.publish.channel "room#{roomid}_gamemaster","log",log
 	###
 	# まず観戦者
+	log.roomid=roomid
 	if islogOK game,null,log
 		SS.publish.channel "room#{roomid}_audience","log",log
 	# GM
