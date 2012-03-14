@@ -1498,10 +1498,10 @@ class WolfDiviner extends Werewolf
 				newjob=jobnames[Math.floor Math.random()*jobnames.length]
 				plobj=p.serialize()
 				plobj.type=newjob
-				plobj.originalJobname="#{p.originalJobname}→#{plobj.jobname}"
 				newpl=Player.unserialize plobj	# 新生狂人
+				newpl.originalJobname="#{p.originalJobname}→#{newpl.jobname}"
 				p.transferData newpl
-				@transform game,newpl
+				p.transform game,newpl
 
 		
 	
