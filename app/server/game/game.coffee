@@ -122,7 +122,9 @@ class Game
 		@players=[]
 		@iconcollection={}
 		for job,num of joblist
-			jnumber+=parseInt num
+			console.log "#{job}:#{num}"
+			unless isNaN num
+				jnumber+=parseInt num
 			if parseInt(num)<0
 				cb "プレイヤー数が不正です（#{job}:#{num})"
 				return
@@ -3347,17 +3349,43 @@ splashlog=(roomid,game,log)->
 		else
 			SS.publish.channel "room#{roomid}_gamemaster","log",log
 	###
-	# まず観戦者
-	log.roomid=roomid
-	if islogOK game,null,log
-		SS.publish.channel "room#{roomid}_audience","log",log
-	# GM
-	if game.gm
-		SS.publish.channel "room#{roomid}_gamemaster","log",log
-	# その他
-	game.players.forEach (pl)->
-		if islogOK game,pl,log
-			SS.publish.user pl.realid,"log",log
+	flash=(log,rev=false)->	#rev: 逆な感じで配信
+		# まず観戦者
+		log.roomid=roomid
+		au=islogOK game,null,log
+		if (au&&!rev) || (!au&&rev)
+			SS.publish.channel "room#{roomid}_audience","log",log
+		# GM
+		if game.gm&&!rev
+			SS.publish.channel "room#{roomid}_gamemaster","log",log
+		# その他
+		game.players.forEach (pl)->
+			p=islogOK game,pl,log
+			if (p&&!rev) || (!p&&rev)
+				SS.publish.user pl.realid,"log",log
+	flash log
+	
+	# 他の人へ送る
+	if log.mode=="werewolf" && game.rule.wolfsound=="aloud"
+		# 狼の遠吠えが聞こえる
+		otherslog=
+			mode:"werewolf"
+			comment:"アオォーーン・・・"
+			name:"狼の遠吠え"
+			time:log.time
+		flash otherslog,true
+	else if log.mode=="couple" && game.rule.couplesound=="aloud"
+		# 共有者の小声が聞こえる
+		otherslog=
+			mode:"couple"
+			comment:"ヒソヒソ・・・"
+			name:"共有者の小声"
+			time:log.time
+		flash otherslog,true
+	
+	
+			
+	
 	
 
 # プレイヤーにログを見せてもよいか			
