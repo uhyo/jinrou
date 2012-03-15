@@ -664,7 +664,7 @@ class Game
 					else
 						# 突然死
 						revoting=false
-						@players.forEach (x)->
+						@players.forEach (x)=>
 							return if x.dead || x.voted()
 							x.die this,"gone"
 							revoting=true
