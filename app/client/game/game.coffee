@@ -197,6 +197,9 @@ exports.start=(roomid)->
 			sum=0
 			jobs.forEach (x)->
 				sum+=parseInt form.elements[x].value
+			# カテゴリ別
+			for type of SS.shared.game.categoryNames
+				sum+= parseInt(form.elements["category_#{type}"].value ? 0)
 			form.elements["Human"].value=pl-sum
 			setjobsmonitor form
 		form.addEventListener "input",jobsforminput,false
@@ -471,11 +474,23 @@ exports.start=(roomid)->
 				dd=document.createElement "dd"
 				input=document.createElement "input"
 				input.type="number"
-				input.min=0; input.step=1; input.size=5; input.value=0
+				input.min=0; input.step=1; input.value=0
 				input.name=job
 				input.dataset.jobname=SS.shared.game.jobinfo[team][job].name
 				dd.appendChild input
 				$("#jobsfield").append(dt).append dd
+	# カテゴリ別のも用意しておく
+	for type,name of SS.shared.game.categoryNames
+		dt=document.createElement "dt"
+		dt.textContent=name
+		dd=document.createElement "dd"
+		input=document.createElement "input"
+		input.type="number"
+		input.min=0; input.step=1; input.value=0
+		input.name="category_#{type}"
+		input.dataset.categoryName=name
+		dd.appendChild input
+		$("#catesfield").append(dt).append dd
 	# 配役タイプ
 	setjobrule=(rulearr,names,parent)->
 		for obj in rulearr
@@ -524,18 +539,21 @@ exports.start=(roomid)->
 		jobrulename=form.elements["jobrule"].value
 		if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
 			$("#jobsfield").get(0).hidden=false
+			$("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
 			$("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
 			$("#yaminabe_opt_nums").get(0).hidden=true
 			setjobsmonitor form
 			return
 		else if jobrulename=="特殊ルール.闇鍋"
 			$("#jobsfield").get(0).hidden=true
+			$("#catesfield").get(0).hidden=true
 			$("#yaminabe_opt").get(0).hidden=false
 			$("#yaminabe_opt_nums").get(0).hidden=false
 			setjobsmonitor form
 			return
 		else
 			$("#jobsfield").get(0).hidden=true
+			$("#catesfield").get(0).hidden=true
 			$("#yaminabe_opt").get(0).hidden=true
 		if form.elements["scapegoat"].value=="on"
 			number++	# 身代わりくん
@@ -550,6 +568,9 @@ exports.start=(roomid)->
 		for job,num of jobs
 			form.elements[job]?.value=num
 			count+=num
+		# カテゴリ別
+		for type of SS.shared.game.categoryNames
+			count+= parseInt(form.elements["category_#{type}"].value ? 0)
 		form.elements["Human"].value=number-count	# 村人
 		setjobsmonitor form
 	# 配役をテキストで書いてあげる
@@ -559,6 +580,7 @@ exports.start=(roomid)->
 			# 闇鍋の場合
 			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
 			return
+		###
 		if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
 			text="闇鍋 / "
 
@@ -568,6 +590,7 @@ exports.start=(roomid)->
 			num=input.value
 			continue unless parseInt num
 			text+="#{input.dataset.jobname}#{num} "
+		###
 		$("#jobsmonitor").text SS.shared.game.getrulestr form.elements["jobrule"].value, SS.client.util.formQuery form
 		
 		
@@ -862,7 +885,6 @@ exports.parselognode=parselognode=(node)->
 					# 前の部分
 					node=node.splitText res[1].length
 					parselognode node.previousSibling
-				console.log res
 				url = res[2]+res[3]+(res[4] ? "")
 				a=document.createElement "a"
 				a.href=url

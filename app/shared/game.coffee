@@ -25,7 +25,7 @@ exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf",
 exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf"]
 
 # チームたち
-exports.teams=
+exports.teams=teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf"]
 	Fox:["Fox","TinyFox","Immoral"]
@@ -34,6 +34,23 @@ exports.teams=
 	Friend:["Cupid"]
 	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner"],
 	Neet:["Neet"]
+
+# カテゴリ分け
+exports.categories=
+	Human:teams.Human
+	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf"]
+	Fox:["Fox","TinyFox"]
+	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer"]
+	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
+	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner"]
+
+exports.categoryNames=
+	Human:"村人系"	
+	Werewolf:"人狼系"
+	Fox:"妖狐系"
+	Madman:"狂人系"
+	Switching:"役職変化系"
+	Others:"第三陣営系"
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
 normal1=(number)->
@@ -340,6 +357,11 @@ exports.getrulestr=(rule,jobs={})->
 		num=jobs[job]
 		continue unless parseInt num
 		text+="#{SS.shared.game.getjobname job}#{num} "
+	# さらにカテゴリ分も
+	for type,name of SS.shared.game.categoryNames
+		num=jobs["category_#{type}"]
+		if num>0
+			text+="#{name}#{num} "
 	return text
 # 職の名前
 exports.getjobname=(job)->

@@ -19,35 +19,8 @@
         dl.jobs#jobsfield(hidden)
           dt 村人
           dd: output(name="Human",data-jobname="村人")
-        //-
-          dt 占い師
-          dd: input(name="Diviner",min="0",step="1",type="number",size="5")
-          dt 霊能者
-          dd: input(name="Psychic",min="0",step="1",type="number",size="5")
-          dt 狂人
-          dd: input(name="Madman",min="0",step="1",type="number",size="5")
-          dt 狩人
-          dd: input(name="Guard",min="0",step="1",type="number",size="5")
-          dt 共有者
-          dd: input(name="Couple",min="0",step="1",type="number",size="5")
-          dt 埋毒者
-          dd: input(name="Poisoner",min="0",step="1",type="number",size="5")
-          dt 人狼
-          dd: input(name="Werewolf",min="0",step="1",type="number",size="5")
-          dt 妖狐
-          dd: input(name="Fox",min="0",step="1",type="number",size="5")
-          dt 大狼
-          dd: input(name="BigWolf",min="0",step="1",type="number",size="5")
-          dt 子狐
-          dd: input(name="TinyFox",min="0",step="1",type="number",size="5")
-          dt 狂信者
-          dd: input(name="Fanatic",min="0",step="1",type="number",size="5")
-          dt 背徳者
-          dd: input(name="Immoral",min="0",step="1",type="number",size="5")
-          dt 悪魔くん
-          dd: input(name="Devil",min="0",step="1",type="number",size="5")
-          dt タフガイ
-          dd: input(name="ToughGuy",min="0",step="1",type="number",size="5")
+        dl.jobs#catesfield(hidden)
+        //- dd(name="category_Foobar")
         fieldset#yaminabe_opt(hidden)
           legend 闇鍋オプション
           p#yaminabe_opt_nums

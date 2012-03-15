@@ -2893,6 +2893,9 @@ exports.actions=
 			if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]	# 自由のときはクエリを参考にする
 				for job in SS.shared.game.jobs
 					joblist[job]=parseInt query[job]	# 仕事の数
+				# カテゴリも
+				for type of SS.shared.game.categoryNames
+					joblist["category_#{type}"]=parseInt query["category_#{type}"]
 				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
 			if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
 				# 闇鍋のときはランダムに決める
@@ -2970,6 +2973,10 @@ exports.actions=
 						joblist[job]=0
 					else
 						sum+=joblist[job]
+				# カテゴリも
+				for type of SS.shared.game.categoryNames
+					if joblist["category_#{type}"]>0
+						sum-=parseInt joblist["category_#{type}"]
 				joblist.Human=frees-sum	# 残りは村人だ!
 				ruleinfo_str=SS.shared.game.getrulestr query.jobrule,joblist
 				
@@ -2977,6 +2984,13 @@ exports.actions=
 				mode:"system"
 				comment:"配役: #{ruleinfo_str}"
 			splashlog game.id,game,log
+			
+			#カテゴリ役職を変換
+			for type,arr of SS.shared.game.categories
+				while joblist["category_#{type}"]>0
+					r=Math.floor Math.random()*arr.length
+					joblist[arr[r]]++
+					joblist["category_#{type}"]--
 			
 			ruleobj={
 				number: room.players.length
