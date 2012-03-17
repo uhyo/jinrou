@@ -1,9 +1,9 @@
 section.window
   h1
-    ゲームに参加
+    {{= title}}
     input.closer(type="button",value="×",name="cancel")
   form#nameform(action="/")
-    p 名前を入力して下さい
+    p {{= message}}
     p
       input.prompt.getfocus(name="name",size="30",required)
     figure(style="float:left")

@@ -95,7 +95,7 @@ exports.message=(title,message,cb)->
 		if t.name=="ok"
 			cb? true
 			closeWindow t
-exports.loginWindow=->
+exports.loginWindow=(cb=->SS.client.app.refresh())->
 	win = showWindow "templates-util-login"
 	win.click (je)->
 		t=je.target
@@ -110,7 +110,7 @@ exports.loginWindow=->
 					# 記憶
 					localStorage.setItem "userid",form.elements["userid"].value
 					localStorage.setItem "password", form.elements["password"].value
-				SS.client.app.refresh()
+				cb()
 				closeWindow win
 			else
 				$("#loginerror").text "ユーザーIDまたはパスワードが違います。"
@@ -124,10 +124,23 @@ exports.loginWindow=->
 			if result
 				$("#newentryerror").text result
 			else
-				SS.client.app.showUrl "/my"
-				localStorage.setItem "userid",form.elements["userid"].value
-				localStorage.setItem "password", form.elements["password"].value
+				localStorage.setItem "userid",q.userid
+				localStorage.setItem "password", q.password
 				closeWindow win
+				# 初期情報を入力してもらう
+				SS.client.util.blindName {title:"情報入力",message:"初期設定を設定して下さい"},(obj)->
+					# 登録する感じの
+					SS.server.user.changeProfile {
+						password:q.password
+						name:obj.name
+						icon:obj.icon
+					},(obj)->
+						if obj?.error?
+							#エラー
+							SS.client.util.message "エラー",obj.error
+						else
+							SS.client.util.message "登録","登録が完了しました。「ゲームに参加する」ボタンを押して参加しましょう。"
+							cb()
 
 exports.iconSelectWindow=(def,cb)->
 	win = showWindow "templates-util-iconselect"
@@ -156,8 +169,8 @@ exports.iconSelectWindow=(def,cb)->
 		je.preventDefault()
 		closeWindow win
 		cb def	#結果通知
-exports.blindName=(cb)->
-	win = showWindow "templates-util-blindname"
+exports.blindName=(opt={},cb)->
+	win = showWindow "templates-util-blindname",{title:opt.title ? "ゲームに参加", message:opt.message ? "名前を入力して下さい"}
 	def=null
 	win.click (je)->
 		t=je.target
