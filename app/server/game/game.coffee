@@ -131,7 +131,7 @@ class Game
 
 		if jnumber!=plsl
 			# 数が合わない
-			cb "プレイヤー数が不正です(#{jnumber}/#{players.length})"
+			cb "プレイヤー数が不正です(#{jnumber}/#{plsl}/#{players.length})"
 			return
 
 		# 名前と数を出したやつ
