@@ -161,6 +161,10 @@
         | 殺す/占う人を一人選んで下さい（占いは必須ではありません）：
         input(type="submit",value="占う",name="divine",data-job="WolfDiviner")
         input(type="submit",value="殺す",name="wolf",data-job="WolfDiviner")
+    #form_LoneWolf(hidden).jobformarea
+      p
+        | 殺す人を一人選んで下さい（先着順）：
+        input(type="submit",value="殺す",data-job="Werewolf")
     #form_Diviner(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
