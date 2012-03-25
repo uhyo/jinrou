@@ -2639,7 +2639,6 @@ class Complex
 #superがつかえないので注意
 class Friend extends Complex	# 恋人
 	cmplType:"Friend"
-	team:"Friend"
 	isFriend:->true
 	team:"Friend"
 	beforebury:(game)->
@@ -2655,6 +2654,7 @@ class Friend extends Complex	# 恋人
 		# 恋人が分かる
 		result.friends=game.players.filter((x)->x.isFriend()).map (x)->
 			x.publicinfo()
+	isWinner:(game,team)->@team==team
 # 聖職者にまもられた人
 class HolyProtected extends Complex
 	# cmplFlag: 護衛元
