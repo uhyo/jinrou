@@ -2346,6 +2346,7 @@ class LoneWolf extends Werewolf
 	type:"LoneWolf"
 	jobname:"一匹狼"
 	team:"LoneWolf"
+	isWinner:(game,team)->team==@team && !@dead
 class Cat extends Poisoner
 	type:"Cat"
 	jobname:"猫又"
