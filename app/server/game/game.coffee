@@ -1913,7 +1913,7 @@ class Stalker extends Player
 				@job game,pl.id,{}
 		else
 			@target=""
-	sleeping:->@target?
+	sleeping:->@flag?
 	job:(game,playerid,query)->
 		if @target?
 			return "既に対象は決定しています"
@@ -2684,7 +2684,7 @@ class Guarded extends Complex
 			@main.die game,found
 		else
 			# 狼に噛まれた場合は耐える
-			game.getPlayer(@cmplFlag).addGamelog game,"GJ",null,@id
+			game.getPlayer(@cmplFlag)?.addGamelog game,"GJ",null,@id
 
 	sunrise:(game)->
 		# 一日しか守られない
