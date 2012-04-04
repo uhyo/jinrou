@@ -1822,6 +1822,7 @@ class ToughGuy extends Player
 		super
 		if @flag=="dying"
 			# 噛まれた次の夜
+			@flag=null
 			@dead=true
 			@found="werewolf"
 			#game.bury()
