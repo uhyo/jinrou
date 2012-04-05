@@ -2,7 +2,11 @@ socids=null
 exports.start=->
 	# ロビーに入る
 	getlog=(log)->
-		p=document.createElement "p"
+		p=document.createElement "div"
+		div=document.createElement "div"
+		div.classList.add "icon"
+		p.appendChild div
+
 		div=document.createElement "div"
 		div.classList.add "name"
 		if log.name?
