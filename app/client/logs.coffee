@@ -23,10 +23,10 @@ exports.start=->
 		form=je.target
 		je.preventDefault()
 		query={}
-		unless form.elements["min_number"].disabled
-			query.min_number=parseInt form.elements["min_number"].value
-		unless form.elements["max_number"].disabled
-			query.max_number=parseInt form.elements["max_number"].value
+		# 数値
+		for x in ["min_number","max_number","min_day","max_day"]
+			unless form.elements[x].disabled
+				query[x]=parseInt form.elements[x].value
 		unless form.elements["result_team"].disabled
 			query.result_team=form.elements["result_team"].value
 			

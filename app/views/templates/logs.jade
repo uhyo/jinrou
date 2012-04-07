@@ -3,14 +3,16 @@ section.lobby
   form#logsform
     fieldset
       legend 条件
-      p
-        input(name="min_number_on",type="checkbox")
-        input(name="min_number",type="number",value="3",disabled)
-        | 人以上
-      p
-        input(name="max_number_on",type="checkbox")
-        input(name="max_number",type="number",value="17",disabled)
-        | 人以下
+      fieldset
+        legend 人数
+        p
+          input(name="min_number_on",type="checkbox")
+          input(name="min_number",type="number",value="3",disabled)
+          | 人以上
+        p
+          input(name="max_number_on",type="checkbox")
+          input(name="max_number",type="number",value="17",disabled)
+          | 人以下
       p
         input(name="result_team_on",type="checkbox")
         | 勝利陣営
@@ -24,6 +26,17 @@ section.lobby
           option(value="Vampire") ヴァンパイア
           option(value="LoneWolf") 一匹狼
           option(value="Draw") 引き分け
+      fieldset
+        legend 終了までの日数
+        p
+          input(name="min_day_on",type="checkbox")
+          input(name="min_day",type="number",value="1",disabled)
+          | 日以上
+        p
+          input(name="max_day_on",type="checkbox")
+          input(name="max_day",type="number",value="10",disabled)
+          | 日以下
+       
     p: input(type="submit",value="検索")
       
   form#pager
