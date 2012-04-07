@@ -16,7 +16,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner",
 ]
 # ここには入らない役職
-# Light, Neet
+# Light, Neet, MinionSelector
 
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf"]
@@ -27,7 +27,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf"]
 # チームたち
 exports.teams=teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf"]
+	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
@@ -493,6 +493,9 @@ exports.jobinfo=
 		LoneWolf:
 			name:"一匹狼"
 			color:"#222222"
+		MinionSelector:
+			name:"子分選択者"
+			color:"#ffffff"
 		
 		
 	Fox:

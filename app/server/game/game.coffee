@@ -212,6 +212,17 @@ class Game
 			newpl=Player.factory null,pl,sub,Complex
 			pl.transProfile newpl
 			pl.transform @,newpl
+		if @rule.drunk
+			# 酔っ払いがいる場合
+			nonvillagers= @players.filter (x)->!x.isJobType "Human"
+			
+			r=Math.floor Math.random()*nonvillagers.length
+			pl=nonvillagers[r]
+			
+			newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
+			pl.transProfile newpl
+			pl.transform @,newpl
+			
 		# プレイヤーシャッフル
 		@players=shuffle @players
 		
@@ -2766,6 +2777,13 @@ class WolfMinion extends Complex
 	team:"Werewolf"
 	getJobname:->"狼の子分（#{@main.getJobname()}）"
 	getJobDisp:->"狼の子分（#{@main.getJobDisp()}）"
+# 酔っ払い
+class Drunk extends Complex
+	cmplType:"Drunk"
+	getJobname:->"酔っ払い（#{@main.getJobname()}）"
+	getJobDisp:->"村人"
+	sleeping:->true
+	jobdone:->true
 	
 games={}
 
@@ -2834,6 +2852,7 @@ complexes=
 	Guarded:Guarded
 	Muted:Muted
 	WolfMinion:WolfMinion
+	Drunk:Drunk
 
 
 exports.actions=
@@ -2994,7 +3013,7 @@ exports.actions=
 				
 				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
 				# 闇鍋のときは入れないのがある
-				exceptions=[]
+				exceptions=["MinionSelector"]
 				if query.safety!="free"
 					exceptions=exceptions.concat SS.shared.game.nonhumans	# 基本人外は選ばれない
 				if query.safety=="full"	# 安全
