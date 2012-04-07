@@ -216,12 +216,14 @@ class Game
 			# 酔っ払いがいる場合
 			nonvillagers= @players.filter (x)->!x.isJobType "Human"
 			
-			r=Math.floor Math.random()*nonvillagers.length
-			pl=nonvillagers[r]
+			if nonvillagers.length>0
 			
-			newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
-			pl.transProfile newpl
-			pl.transform @,newpl
+				r=Math.floor Math.random()*nonvillagers.length
+				pl=nonvillagers[r]
+			
+				newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
+				pl.transProfile newpl
+				pl.transform @,newpl
 			
 		# プレイヤーシャッフル
 		@players=shuffle @players
@@ -896,6 +898,19 @@ class Player
 			arr.push "権力者"
 		arr.join "・"
 		
+	# ログが見えるかどうか（通常のゲーム中、個人宛は除外）
+	isListener:(game,log)->
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply"]
+			# 全員に見える
+			true
+		else if log.mode in ["heaven","gmheaven"]
+			# 死んでたら見える
+			@dead
+		else if log.mode=="voteresult"
+			game.rule.voteresult!="hide"	# 隠すかどうか
+		else
+			false
+		
 	# 本人に見える役職名
 	getJobDisp:->@jobname
 	# 役職名を得る
@@ -916,6 +931,8 @@ class Player
 	isVampire:->false
 	# 黙っているかどうか
 	isMuted:->false
+	# 酔っ払いかどうか
+	isDrunk:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
 	# 投票先決定
@@ -995,6 +1012,9 @@ class Player
 	# Complexから抜ける
 	uncomplex:(game,flag=false)->
 		#flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
+		
+		befpl=game.getPlayer @id
+		
 		# parentobj[name]がPlayerであること calleeは呼び出し元のオブジェクト
 		chk=(parentobj,name,callee)->
 			return unless parentobj?[name]?
@@ -1017,6 +1037,11 @@ class Player
 		game.players.forEach (x,i)=>
 			if x.id==@id
 				chk game.players,i,this
+				
+		aftpl=game.getPlayer @id
+		#前と後で比較
+		if befpl.getJobname()!=aftpl.getJobname()
+			aftpl.originalJobname="#{befpl.originalJobname}→#{aftpl.getJobname()}"
 				
 	# 自分自身を変える
 	transform:(game,newpl)->
@@ -1131,6 +1156,11 @@ class Werewolf extends Player
 		null
 				
 	isWerewolf:->true
+	
+	isListener:(game,log)->
+		if log.mode in ["werewolf","wolfskill"]
+			true
+		else super
 		
 	willDieWerewolf:false
 	fortuneResult:"人狼"
@@ -1278,6 +1308,10 @@ class Couple extends Player
 		# 共有者は仲間が分かる
 		result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
 			x.publicinfo()
+	isListener:(game,log)->
+		if log.mode=="couple"
+			true
+		else super
 
 class Fox extends Player
 	type:"Fox"
@@ -1296,6 +1330,10 @@ class Fox extends Player
 		# 妖狐呪殺
 		@die game,"curse"
 		player.addGamelog game,"cursekill",null,@id	# 呪殺した
+	isListener:(game,log)->
+		if log.mode=="fox"
+			true
+		else super
 
 
 class Poisoner extends Player
@@ -2289,7 +2327,7 @@ class Doppleganger extends Player
 			@addGamelog game,"dopplemove",newpl.type,newpl.id
 
 		
-			SS.publish.user newpl.id,"refresh",{id:game.id}
+			SS.publish.user newpl.realid,"refresh",{id:game.id}
 class CultLeader extends Player
 	type:"CultLeader"
 	jobname:"カルトリーダー"
@@ -2427,7 +2465,7 @@ class Cat extends Poisoner
 			to:pl.id
 			comment:"#{pl.name}は蘇生しました。"
 		splashlog game.id,game,log
-		SS.publish.user pl.id,"refresh",{id:game.id}
+		SS.publish.user pl.realid,"refresh",{id:game.id}
 	deadnight:(game)->
 		@target=@id
 		@midnight game
@@ -2514,7 +2552,7 @@ class Witch extends Player
 				to:pl.id
 				comment:"#{pl.name}は蘇生しました。"
 			splashlog game.id,game,log
-			SS.publish.user pl.id,"refresh",{id:game.id}
+			SS.publish.user pl.realid,"refresh",{id:game.id}
 		else if @flag & 16
 			# 殺害
 			@flag ^= 16
@@ -2590,7 +2628,7 @@ class OccultMania extends Player
 		splashlog game.id,game,log
 
 		
-		SS.publish.user newpl.id,"refresh",{id:game.id}	
+		SS.publish.user newpl.realid,"refresh",{id:game.id}	
 		null
 
 # 子分選択者
@@ -2651,6 +2689,7 @@ class GameMaster extends Player
 		pl.die game,"gmpunish"
 		game.bury()
 		null
+	isListener:(game,log)->true	# 全て見える
 
 
 			
@@ -2784,6 +2823,24 @@ class Drunk extends Complex
 	getJobDisp:->"村人"
 	sleeping:->true
 	jobdone:->true
+	isListener:(game,log)->
+		Human.prototype.isListener.call @,game,log
+
+	sunset:(game)->
+		@main.sunrise game
+		@sub?.sunrise? game
+		if game.day>=3
+			# 3日目に目が覚める
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は目が覚めました。"
+			splashlog game.id,game,log
+			@uncomplex game
+			SS.publish.user @realid,"refresh",{id:game.id}	
+	makejobinfo:(game,obj)->
+		Human.prototype.makejobinfo.call @,game,obj
+	isDrunk:->true
 	
 games={}
 
@@ -3095,7 +3152,7 @@ exports.actions=
 			for x in ["jobrule",
 			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
 			"wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion"]
+			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk"]
 			
 				ruleobj[x]=query[x] ? null
 
@@ -3233,7 +3290,11 @@ exports.actions=
 						log.to=player.id
 				else
 					# 夜
-					if player.isWerewolf()
+					if player.isDrunk()
+						# 酔っ払い
+						log.mode="monologue"
+						log.to=player.id
+					else if player.isWerewolf()
 						# 狼
 						log.mode="werewolf"
 					else if player.type=="Couple"
@@ -3489,13 +3550,19 @@ islogOK=(game,player,log)->
 			game.rule.voteresult!="hide"	# 投票結果公開なら公開
 		else
 			false	# その他は非公開
-	else if player.isJobType "GameMaster"
-		true	# GMには全てが見えるのであった
+	else if log.to? && log.to!=player.id
+		# 個人宛
+		false
 	else if log.mode=="gmmonologue"
 		# GMの独り言はGMにしか見えない
 		false
 	else if player.dead && game.rule.heavenview=="view"
 		true
+	else
+		player.isListener game,log
+	###
+	else if player.isJobType "GameMaster"
+		true	# GMには全てが見えるのであった
 	else if log.to? && log.to!=player.id
 		# 個人宛
 		false
@@ -3514,6 +3581,7 @@ islogOK=(game,player,log)->
 			game.rule.voteresult!="hide"	# 隠すかどうか
 		else
 			false
+	###
 #job情報を
 makejobinfo = (game,player,result={})->
 	result.type= if player? then player.type else null
