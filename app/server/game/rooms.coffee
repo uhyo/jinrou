@@ -299,7 +299,42 @@ exports.actions=
 					cb "エラー:#{err}"
 				else
 					cb null
-					SS.server.game.game.deletedlog room	
+					SS.server.game.game.deletedlog room
+					
+	# 部屋探し
+	find:(query,page,cb)->
+		unless query?
+			cb {error:"クエリが不正です"}
+			return
+		q=
+			finished:true
+		if query.result_team
+			q.winner=query.result_team	# 勝利陣営
+		if query.min_number? && query.max_number
+			q["$where"]="#{query.min_number}<=(l=this.players.length) && l<=#{query.max_number}"
+		else if query.min_number?
+			q["$where"]="#{query.min_number}<=this.players.length"
+		else if query.max_number?
+			q["$where"]="this.players.length<=#{query.max_number}"
+		# 日付新しい
+		console.log q
+		M.games.find(q).sort({_id:-1}).limit(page_number).skip(page_number*page).toArray (err,results)->
+			if err?
+				throw err
+				return
+			# gameを得たのでroomsに
+			M.rooms.find({id:{$in: results.map((x)->x.id)}}).sort({_id:-1}).toArray (err,docs)->
+				docs.forEach (x)->
+					if x.password?
+						x.needpassword=true
+						delete x.password
+					if x.blind
+						delete x.owner
+						x.players.forEach (p)->
+							delete p.realid
+				cb docs
+			
+
 #cb: (err)->
 setRoom=(roomid,room,cb)->
 	M.rooms.update {id:roomid},room,cb

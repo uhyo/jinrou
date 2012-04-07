@@ -91,6 +91,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				localStorage.removeItem "password"
 				$("#username").empty()
 				showUrl "/",nohistory
+		when "/logs"
+			# ログ検索
+			page "templates-logs",null,SS.client.logs,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム

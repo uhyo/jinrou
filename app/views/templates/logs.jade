@@ -1,0 +1,43 @@
+section.lobby
+  h1 ログ検索
+  form#logsform
+    fieldset
+      legend 条件
+      p
+        input(name="min_number_on",type="checkbox")
+        input(name="min_number",type="number",value="3",disabled)
+        | 人以上
+      p
+        input(name="max_number_on",type="checkbox")
+        input(name="max_number",type="number",value="17",disabled)
+        | 人以下
+      p
+        input(name="result_team_on",type="checkbox")
+        | 勝利陣営
+        select(name="result_team",disabled)
+          option(value="Human") 村人
+          option(value="Werewolf") 人狼
+          option(value="Fox") 妖狐
+          option(value="Devil") 悪魔くん
+          option(value="Friend") 恋人
+          option(value="Cult") カルトリーダー
+          option(value="Vampire") ヴァンパイア
+          option(value="LoneWolf") 一匹狼
+          option(value="Draw") 引き分け
+    p: input(type="submit",value="検索")
+      
+  form#pager
+    p
+      input(type="button",name="prev",value="前のページ")
+      input(type="button",name="next",value="次のページ")
+  table.roomstable
+    thead
+      tr
+        th ルーム名
+        th 状態
+        th オーナー
+        th 最大人数
+        th 日時
+        th コメント
+    tbody#roomlist
+
