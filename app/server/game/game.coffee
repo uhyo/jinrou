@@ -79,7 +79,7 @@ class Game
 				r.icon= @iconcollection[x.id] ? null
 					
 				if obj?.openjob
-					r.jobname=x.jobname
+					r.jobname=x.getJobname()
 					r.option=x.optionString()
 					r.originalJobname=x.originalJobname
 					r.winner=x.winner
@@ -202,6 +202,16 @@ class Game
 		
 		if @rule.wolfminion
 			# 狼の子分がいる場合、子分決定者を作る
+			wolves=@players.filter((x)->x.isWerewolf())
+			r=Math.floor Math.random()*wolves.length
+			pl=wolves[r]
+			
+			sub=Player.factory "MinionSelector"	# 子分決定者
+			pl.transProfile sub
+			
+			newpl=Player.factory null,pl,sub,Complex
+			pl.transProfile newpl
+			pl.transform @,newpl
 		# プレイヤーシャッフル
 		@players=shuffle @players
 		
@@ -788,7 +798,7 @@ class Player
 		@will=null	# 遺言
 		# もとの役職
 		@originalType=@type
-		@originalJobname=@jobname
+		@originalJobname=@getJobname()
 		
 	@factory:(type,main=null,sub=null,cmpl=null)->
 		p=null
@@ -874,6 +884,11 @@ class Player
 		if @authority
 			arr.push "権力者"
 		arr.join "・"
+		
+	# 本人に見える役職名
+	getJobDisp:->@jobname
+	# 役職名を得る
+	getJobname:->@jobname
 	# 村人かどうか
 	isHuman:->!@isWerewolf()
 	# 人狼かどうか
@@ -995,6 +1010,10 @@ class Player
 	# 自分自身を変える
 	transform:(game,newpl)->
 		@addGamelog game,"transform",newpl.type
+		# 役職変化ログ
+		newpl.originalType=@originalType
+		if @getJobname()!=newpl.getJobname()
+			newpl.originalJobname="#{@originalJobname}→#{newpl.getJobname()}"
 		###
 		tr=(parent,name)=>
 			if parent[name]?.isComplex? && parent[name].id==@id	# Playerだよね
@@ -1504,7 +1523,6 @@ class WolfDiviner extends Werewolf
 				plobj=p.serialize()
 				plobj.type=newjob
 				newpl=Player.unserialize plobj	# 新生狂人
-				newpl.originalJobname="#{p.originalJobname}→#{newpl.jobname}"
 				p.transferData newpl
 				p.transform game,newpl
 
@@ -1731,8 +1749,6 @@ class Copier extends Player
 		newpl=Player.factory p.type
 		@transProfile newpl
 		@transferData newpl
-		newpl.originalType=@originalType
-		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 		newpl.sunset game	# 初期化してあげる
 		@transform game,newpl
 
@@ -1880,7 +1896,6 @@ class Cupid extends Player
 		
 		for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
 			# 2人ぶん処理
-			pl.originalJobname="#{pl.originalJobname}→恋人（#{pl.jobname}）"
 		
 			newpl=Player.factory null,pl,null,Friend	# 恋人だ！
 			pl.transProfile newpl
@@ -1967,8 +1982,6 @@ class Cursed extends Player
 			
 			newpl=Player.factory "Werewolf"
 			@transProfile newpl
-			newpl.originalType=@originalType
-			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 			@transferData newpl
 			@transform game,newpl
 			newpl.sunset game
@@ -1986,8 +1999,6 @@ class ApprenticeSeer extends Player
 			newpl=Player.factory "Diviner"
 			@transProfile newpl
 			@transferData newpl
-			newpl.originalType=@originalType
-			newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 			log=
 				mode:"skill"
 				to:@id
@@ -2238,10 +2249,8 @@ class Doppleganger extends Player
 			newplmain=Player.factory p.type
 			@transProfile newplmain
 			@transferData newplmain
-			newplmain.originalType=@originalType
 			
 			me=game.getPlayer @id
-			newplmain.originalJobname="#{me.originalJobname}→#{newplmain.jobname}"
 			# まだドッペルゲンガーできる
 			sub=Player.factory "Doppleganger"
 			@transProfile sub
@@ -2264,7 +2273,7 @@ class Doppleganger extends Player
 			log=
 				mode:"skill"
 				to:@id
-				comment:"#{@name}は#{newpl.jobname}になりました。"
+				comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
 			splashlog game.id,game,log
 			@addGamelog game,"dopplemove",newpl.type,newpl.id
 
@@ -2560,15 +2569,13 @@ class OccultMania extends Player
 		newpl=Player.factory type
 		@transProfile newpl
 		@transferData newpl
-		newpl.originalType=@originalType
-		newpl.originalJobname="#{@originalJobname}→#{newpl.jobname}"
 		newpl.sunset game	# 初期化してあげる
 		@transform game,newpl
 
 		log=
 			mode:"skill"
 			to:@id
-			comment:"#{@name}は#{newpl.jobname}になりました。"
+			comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
 		splashlog game.id,game,log
 
 		
@@ -2578,7 +2585,7 @@ class OccultMania extends Player
 # 子分選択者
 class MinionSelector extends Player
 	type:"MinionSelector"
-	type:"子分選択者"
+	jobname:"子分選択者"
 	team:"Werewolf"
 	sleeping:(game)->@target? || game.day>1	# 初日のみ
 	sunset:(game)->
@@ -2607,11 +2614,15 @@ class MinionSelector extends Player
 		log=
 			mode:"wolfskill"
 			comment:"#{@name}は#{pl.name}を狼の子分に指定しました。"
+		splashlog game.id,game,log
+
 		log=
 			mode:"skill"
 			to:pl.id
 			comment:"#{pl.name}は狼の子分になりました。"
+		splashlog game.id,game,log
 
+		null
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -2639,6 +2650,9 @@ class GameMaster extends Player
 class Complex
 	cmplType:"Complex"	# 複合親そのものの名前
 	isComplex:->true
+	getJobname:->@main.getJobname()
+	getJobDisp:->@main.getJobDisp()
+	
 	jobdone:(game)-> @main.jobdone(game) && (!@sub?.jobdone? || @sub.jobdone(game))	# ジョブの場合はサブも考慮
 	job:(game,playerid,query)->	# どちらの
 		if @main.isJobType(query.jobtype) && !@main.jobdone(game)
@@ -2683,6 +2697,9 @@ class Friend extends Complex	# 恋人
 	cmplType:"Friend"
 	isFriend:->true
 	team:"Friend"
+	getJobname:->"恋人（#{@main.getJobname()}）"
+	getJobDisp:->"恋人（#{@main.getJobDisp()}）"
+	
 	beforebury:(game)->
 		@main.beforebury game
 		@sub?.beforebury? game
@@ -2715,6 +2732,8 @@ class HolyProtected extends Complex
 class CultMember extends Complex
 	cmplType:"CultMember"
 	isCult:->true
+	getJobname:->"カルト信者（#{@main.getJobname()}）"
+	getJobDisp:->"カルト信者（#{@main.getJobDisp()}）"
 # 狩人に守られた人
 class Guarded extends Complex
 	# cmplFlag: 護衛元ID
@@ -2745,6 +2764,8 @@ class Muted extends Complex
 class WolfMinion extends Complex
 	cmplType:"WolfMinion"
 	team:"Werewolf"
+	getJobname:->"狼の子分（#{@main.getJobname()}）"
+	getJobDisp:->"狼の子分（#{@main.getJobDisp()}）"
 	
 games={}
 
@@ -3484,7 +3505,7 @@ makejobinfo = (game,player,result={})->
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
 		result.sleeping=if game.night then player.jobdone(game) else if player.voteto? then true else false
-		result.jobname=player.jobname
+		result.jobname=player.getJobDisp()
 		result.winner=player.winner
 		if game.rule?.will=="die"
 			result.will=player.will
