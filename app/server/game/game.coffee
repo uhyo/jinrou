@@ -199,6 +199,9 @@ class Game
 		if options.authority
 			r=Math.floor Math.random()*@players.length
 			@players[r].authority=true
+		
+		if @rule.wolfminion
+			# 狼の子分がいる場合、子分決定者を作る
 		# プレイヤーシャッフル
 		@players=shuffle @players
 		
@@ -2572,6 +2575,43 @@ class OccultMania extends Player
 		SS.publish.user newpl.id,"refresh",{id:game.id}	
 		null
 
+# 子分選択者
+class MinionSelector extends Player
+	type:"MinionSelector"
+	type:"子分選択者"
+	team:"Werewolf"
+	sleeping:(game)->@target? || game.day>1	# 初日のみ
+	sunset:(game)->
+		@target=if game.day==1 then null else ""
+		if !@target? && @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			unless @job game,game.players[r].id,{}
+				@target=""
+	
+	job:(game,playerid)->
+		if game.day!=1
+			# まだ発動できない
+			return "今は能力を発動できません"
+		@target=playerid
+		pl=game.getPlayer playerid
+		unless pl?
+			return "その対象は存在しません"
+		if pl.dead
+			return "対象は既に死亡しています"
+		
+		# 複合させる
+		newpl=Player.factory null,pl,null,WolfMinion	# WolfMinion
+		pl.transProfile newpl
+		pl.transform game,newpl
+		log=
+			mode:"wolfskill"
+			comment:"#{@name}は#{pl.name}を狼の子分に指定しました。"
+		log=
+			mode:"skill"
+			to:pl.id
+			comment:"#{pl.name}は狼の子分になりました。"
+
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -2701,6 +2741,11 @@ class Muted extends Complex
 		@main.sunrise game
 		@sub?.sunrise? game
 		@uncomplex game
+# 狼の子分
+class WolfMinion extends Complex
+	cmplType:"WolfMinion"
+	team:"Werewolf"
+	
 games={}
 
 # ゲームを得る
@@ -2758,6 +2803,7 @@ jobs=
 	Oldman:Oldman
 	Tanner:Tanner
 	OccultMania:OccultMania
+	MinionSelector:MinionSelector
 	
 complexes=
 	Complex:Complex
@@ -2766,6 +2812,7 @@ complexes=
 	CultMember:CultMember
 	Guarded:Guarded
 	Muted:Muted
+	WolfMinion:WolfMinion
 
 
 exports.actions=
@@ -3008,7 +3055,7 @@ exports.actions=
 			for x in ["jobrule",
 			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
 			"wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-			"safety","friendsjudge","noticebitten","voteresult","GMpsychic"]
+			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion"]
 			
 				ruleobj[x]=query[x] ? null
 
