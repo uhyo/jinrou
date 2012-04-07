@@ -2664,7 +2664,7 @@ class MinionSelector extends Player
 		pl.transform game,newpl
 		log=
 			mode:"wolfskill"
-			comment:"#{@name}は#{pl.name}を狼の子分に指定しました。"
+			comment:"#{@name}は#{pl.name}（#{pl.jobname}）を狼の子分に指定しました。"
 		splashlog game.id,game,log
 
 		log=
