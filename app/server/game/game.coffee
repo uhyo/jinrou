@@ -913,6 +913,8 @@ class Player
 		
 	# 本人に見える役職名
 	getJobDisp:->@jobname
+	# 本人に見える役職タイプ
+	getTypeDisp:->@type
 	# 役職名を得る
 	getJobname:->@jobname
 	# 村人かどうか
@@ -2820,6 +2822,7 @@ class WolfMinion extends Complex
 class Drunk extends Complex
 	cmplType:"Drunk"
 	getJobname:->"酔っ払い（#{@main.getJobname()}）"
+	getTypeDisp:->"Human"
 	getJobDisp:->"村人"
 	sleeping:->true
 	jobdone:->true
@@ -3584,7 +3587,7 @@ islogOK=(game,player,log)->
 	###
 #job情報を
 makejobinfo = (game,player,result={})->
-	result.type= if player? then player.type else null
+	result.type= if player? then player.getTypeDisp() else null
 	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule?.heavenview=="view") || player?.isJobType("GameMaster")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
 	if player
