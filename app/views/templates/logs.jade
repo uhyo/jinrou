@@ -36,6 +36,11 @@ section.lobby
           input(name="max_day_on",type="checkbox")
           input(name="max_day",type="number",value="10",disabled)
           | 日以下
+      fieldset
+        legend ルール
+        p
+          input(name="rule_on",type="checkbox")
+          select(name="rule",disabled)#rulebox
        
     p: input(type="submit",value="検索")
       

@@ -323,6 +323,8 @@ exports.actions=
 		if query.max_day
 			q.day ?= {}
 			q.day["$lte"]=query.max_day
+		if query.rule
+			q["rule.jobrule"]=query.rule
 		# 日付新しい
 		console.log q
 		M.games.find(q).sort({_id:-1}).limit(page_number).skip(page_number*page).toArray (err,results)->
