@@ -1,4 +1,5 @@
 # Server-side Code
+crypto=require('crypto');
 
 exports.actions =
 	# 現在のセッションを管理者として承認する
@@ -56,5 +57,26 @@ exports.actions =
 			# twitterへ配信
 			SS.server.oauth.tweet "#{query.message} #月下人狼",SS.config.admin.password
 		cb null
+	# -------------- dataexport関係
+	dataExport:(query,cb)->
+		# 僕だけだよ！ あの文字列を送ろう
+		sha256=crypto.createHash "sha256"
+		sha256.update query.pass
+		phrase=sha256.digest 'hex'
+		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
+			cb {error:"パスフレーズが違います"}
+			return
+		result={}	# リザルトを作る
+		count=0
+		arr=["users","rooms","games","lobby","blacklist","events"]
+		fnd=(name)->
+			M[name].find().toArray (err,docs)->
+				result[name]=docs
+				count++
+				if count>=arr.length
+					# 全部終わった
+					cb {cols:result}
+		fnd x for x in arr
+		
 		
 

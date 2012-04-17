@@ -23,6 +23,18 @@ tabs=
 					unless result?
 						# 成功
 						je.target.reset()
+	dataexport:
+		init:->
+			$("#dataexportform").submit (je)->
+				je.preventDefault()
+				query=SS.client.util.formQuery je.target
+				SS.server.admin.dataExport query,(result)->
+					if result.error?
+						SS.client.util.message "エラー",result.error
+						return
+					# data URLでアレをする
+					#result.cols
+					location.href="data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result.cols}"
 
 exports.start=->
 	SS.client.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->

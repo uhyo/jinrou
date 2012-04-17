@@ -4,6 +4,7 @@ section.admin#admin
   ul
     li(data-opener="blacklist") アク禁管理
     li(data-opener="grandalert") 全体告知
+    li(data-opener="dataexport") データエクスポート
   section#blacklist(hidden)
     h1 アク禁管理
     table
@@ -50,5 +51,11 @@ section.admin#admin
           | twitterへ
         
       p: input(type="submit",value="送信")
-        
+  section#dataexport(hidden)
+    h1 データエクスポート
+    form#dataexportform
+      p
+        | パスワード（公開鍵で複合されます）
+        input(name="pass",size="30",required)
+      p: input(type="submit",value="取得")
         
