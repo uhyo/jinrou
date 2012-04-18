@@ -347,6 +347,12 @@ exports.start=(roomid)->
 				"voteresult":
 					"_name":"投票結果"
 					"hide":"隠す"
+				"GMpsychic":
+					"_name":"GM霊能"
+					"on":"あり"
+				"losemode":
+					"_name":"敗北村"
+					"on":"あり"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?
