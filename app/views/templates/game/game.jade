@@ -137,6 +137,9 @@
           label(title="1以上にすると、朝になってからその時間の間は発言できません。")
             input(name="silentrule",type="number",min="0",step="1",value="0",size="4")
             | 秒ルール
+          label(title="負けることを目指す人狼です。")
+            input(name="losemode",type="checkbox",value="on")
+            | 敗北村
           
       p: input(type="submit",value="開始")
   .infobox

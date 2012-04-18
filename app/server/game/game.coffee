@@ -568,7 +568,19 @@ class Game
 			@winner=team
 			if team!="Draw"
 				@players.forEach (x)=>
-					x.setWinner x.isWinner this,team	#勝利か
+					iswin=x.isWinner this,team
+					if @rule.losemode
+						# 敗北村（負けたら勝ち）
+						if iswin==true
+							iswin=false
+						else if iswin==false
+							iswin=true
+							# ただし突然死したら負け
+							if @gamelogs.some((log)->
+								log.id==x.id && log.event=="found" && log.flag=="gone"
+							)
+								iswin=false
+					x.setWinner iswin	#勝利か
 					# ユーザー情報
 					if x.winner
 						M.users.update {userid:x.realid},{$push: {win:@id}}
@@ -3155,7 +3167,7 @@ exports.actions=
 			for x in ["jobrule",
 			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
 			"wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk"]
+			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode"]
 			
 				ruleobj[x]=query[x] ? null
 
