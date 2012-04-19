@@ -135,4 +135,5 @@ exports.login=login=(uid,ups,cb)->
 		else
 			cb? false
 exports.userid=->my_userid
+exports.setUserid=(id)->my_userid=id
 

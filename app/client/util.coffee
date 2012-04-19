@@ -128,7 +128,7 @@ exports.loginWindow=(cb=->SS.client.app.refresh())->
 				localStorage.setItem "password", q.password
 				closeWindow win
 				# 初期情報を入力してもらう
-				SS.client.util.blindName {title:"情報入力",message:"初期設定を設定して下さい"},(obj)->
+				SS.client.util.blindName {title:"情報入力",message:"ユーザー名を設定して下さい"},(obj)->
 					# 登録する感じの
 					SS.server.user.changeProfile {
 						password:q.password
@@ -139,7 +139,8 @@ exports.loginWindow=(cb=->SS.client.app.refresh())->
 							#エラー
 							SS.client.util.message "エラー",obj.error
 						else
-							SS.client.util.message "登録","登録が完了しました。「ゲームに参加する」ボタンを押して参加しましょう。"
+							SS.client.util.message "登録","登録が完了しました。"
+							SS.client.app.setUserid q.userid
 							cb()
 
 exports.iconSelectWindow=(def,cb)->
