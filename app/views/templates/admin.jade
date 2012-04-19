@@ -55,7 +55,13 @@ section.admin#admin
     h1 データエクスポート
     form#dataexportform
       p
-        | パスワード（公開鍵で複合されます）
+        | パスワード
         input(name="pass",size="30",required)
+      p
+        | コレクション名
+        input(name="collection",size="30",required)
+      p
+        | ページ
+        input(name="page",min="0",step="1",value="0",type="number")
       p: input(type="submit",value="取得")
         

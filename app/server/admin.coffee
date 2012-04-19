@@ -60,23 +60,22 @@ exports.actions =
 	# -------------- dataexport関係
 	dataExport:(query,cb)->
 		# 僕だけだよ！ あの文字列を送ろう
+		unless query?
+			cb {error:"クエリが不正です"}
+			return
 		sha256=crypto.createHash "sha256"
 		sha256.update query.pass
 		phrase=sha256.digest 'hex'
 		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
 			cb {error:"パスフレーズが違います"}
 			return
-		result={}	# リザルトを作る
-		count=0
-		arr=["users","rooms","games","lobby","blacklist","events"]
-		fnd=(name)->
-			M[name].find().toArray (err,docs)->
-				result[name]=docs
-				count++
-				if count>=arr.length
-					# 全部終わった
-					cb {cols:result}
-		fnd x for x in arr
+		unless M[query.collection]?
+			cb {error:"そのコレクションはありません。"}
+			return
+		pagelength=50
+		M[query.collection].find().limit(pagelength).skip(pagelength*parseInt(query.page)).toArray (err,docs)->
+			cb docs
+			return
 		
 		
 

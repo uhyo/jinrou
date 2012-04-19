@@ -33,8 +33,9 @@ tabs=
 						SS.client.util.message "エラー",result.error
 						return
 					# data URLでアレをする
-					#result.cols
-					location.href="data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result.cols}"
+					#resultは配列
+					#location.href="data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result}"
+					window.open "data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result}"
 
 exports.start=->
 	SS.client.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->
