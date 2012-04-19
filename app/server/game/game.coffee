@@ -3565,14 +3565,14 @@ islogOK=(game,player,log)->
 			game.rule.voteresult!="hide"	# 投票結果公開なら公開
 		else
 			false	# その他は非公開
-	else if log.to? && log.to!=player.id
-		# 個人宛
-		false
 	else if log.mode=="gmmonologue"
 		# GMの独り言はGMにしか見えない
 		false
 	else if player.dead && game.rule.heavenview=="view"
 		true
+	else if log.to? && log.to!=player.id
+		# 個人宛
+		false
 	else
 		player.isListener game,log
 	###
