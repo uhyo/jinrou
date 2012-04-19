@@ -2810,11 +2810,12 @@ class Guarded extends Complex
 			guard=game.getPlayer @cmplFlag
 			if guard?
 				guard.addGamelog game,"GJ",null,@id
-				log=
-					mode:"skill"
-					to:guard.id
-					comment:"#{guard.name}は#{@name}を人狼の襲撃から護衛しました。"
-				splashlog game.id,game,log
+				if game.rule.gjmessage
+					log=
+						mode:"skill"
+						to:guard.id
+						comment:"#{guard.name}は#{@name}を人狼の襲撃から護衛しました。"
+					splashlog game.id,game,log
 
 	sunrise:(game)->
 		# 一日しか守られない
