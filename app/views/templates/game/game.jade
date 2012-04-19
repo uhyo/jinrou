@@ -140,7 +140,9 @@
           label(title="負けることを目指す人狼です。")
             input(name="losemode",type="checkbox",value="on")
             | 敗北村
-          
+          label(title="ONにすると、狩人が護衛成功したときに狩人にメッセージが表示されます。")
+            input(name="gjmessage",type="checkbox",value="on")
+            | 護衛成功が分かる
       p: input(type="submit",value="開始")
   .infobox
     div

@@ -2807,7 +2807,14 @@ class Guarded extends Complex
 			@main.die game,found
 		else
 			# 狼に噛まれた場合は耐える
-			game.getPlayer(@cmplFlag)?.addGamelog game,"GJ",null,@id
+			guard=game.getPlayer @cmplFlag
+			if guard?
+				guard.addGamelog game,"GJ",null,@id
+				log=
+					mode:"skill"
+					to:guard.id
+					comment:"#{guard.name}は#{@name}を人狼の襲撃から護衛しました。"
+				splashlog game.id,game,log
 
 	sunrise:(game)->
 		# 一日しか守られない
@@ -3167,7 +3174,7 @@ exports.actions=
 			for x in ["jobrule",
 			"decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
 			"wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode"]
+			"safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage"]
 			
 				ruleobj[x]=query[x] ? null
 

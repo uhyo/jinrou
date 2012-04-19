@@ -355,6 +355,9 @@ exports.start=(roomid)->
 				"losemode":
 					"_name":"敗北村"
 					"on":"あり"
+				"gjmessage":
+					"_name":"狩人の護衛結果"
+					"on":"成功時分かる"
 			Object.keys(this_rule.rule).forEach (x)->
 				tru=rulestr[x]
 				return unless tru?
