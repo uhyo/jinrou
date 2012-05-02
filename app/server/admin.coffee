@@ -1,5 +1,7 @@
 # Server-side Code
-crypto=require('crypto');
+crypto=require('crypto')
+child_process=require('child_process')
+settings=require('./dbsettings').mongo
 
 exports.actions =
 	# 現在のセッションを管理者として承認する
@@ -69,13 +71,16 @@ exports.actions =
 		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
 			cb {error:"パスフレーズが違います"}
 			return
-		unless M[query.collection]?
-			cb {error:"そのコレクションはありません。"}
-			return
-		pagelength=50
-		M[query.collection].find().limit(pagelength).skip(pagelength*parseInt(query.page)).toArray (err,docs)->
-			cb docs
-			return
-		
-		
+		console.log settings
+		child = child_process.exec "mongodump -d #{settings.database} -u #{settings.user} -p #{settings.pass} -o ./public/dump", (error,stdout,stderr)->
+			if error?
+				cb {error:stderr}
+				return
+			# dumpに成功した
+			child_process.exec "zip -r ./public/dump/#{settings.database}.zip ./public/dump/#{settings.database}/",(error,stdout,stderr)->
+				if error?
+					cb {error:stdout || stderr}
+					return
+				console.log stdout
+				cb {file:"/dump/#{settings.database}.zip"}
 

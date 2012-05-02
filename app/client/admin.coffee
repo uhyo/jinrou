@@ -32,10 +32,7 @@ tabs=
 					if result.error?
 						SS.client.util.message "エラー",result.error
 						return
-					# data URLでアレをする
-					#resultは配列
-					#location.href="data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result}"
-					window.open "data:text/plain;charset=UTF-8,#{encodeURIComponent JSON.stringify result}"
+					window.open result.file
 
 exports.start=->
 	SS.client.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->
