@@ -496,6 +496,9 @@ exports.jobinfo=
 		MinionSelector:
 			name:"子分選択者"
 			color:"#ffffff"
+		WolfCub:
+			name:"狼の子"
+			color:"#662233"
 		
 		
 	Fox:
