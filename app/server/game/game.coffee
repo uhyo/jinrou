@@ -21,6 +21,7 @@ class Game
 		@revote_num=0	# 再投票を行った回数
 		
 		@werewolf_target=null	# 人狼の襲い先
+		@werewolf_target_remain=0	#襲撃先をあと何人設定できるか
 		@werewolf_flag=null	# 人狼襲撃に関するフラグ
 
 		@slientexpires=0	# 静かにしてろ！（この時間まで）
@@ -50,6 +51,7 @@ class Game
 			gamelogs:@gamelogs
 			gm:@gm
 			iconcollection:@iconcollection
+			werewolf_flag:@werewolf_flag
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -67,6 +69,7 @@ class Game
 		game.gamelogss=obj.gamelogs ? {}
 		game.gm=obj.gm
 		game.iconcollection=obj.iconcollection ? {}
+		game.werewolf_flag=obj.werewolf_flag ? null
 		game.timer()
 		game
 	# 公開情報
@@ -261,20 +264,31 @@ class Game
 		if @night
 			# jobデータを作る
 			# 人狼の襲い先
+			@werewolf_target=[]
 			unless @day==1 && @rule.scapegoat!="off"
-				@werewolf_target=null
+				@werewolf_target_remain=1
 			else if @rule.scapegoat=="on"
-				@werewolf_target="身代わりくん"	# みがわり
+				@werewolf_target.push "身代わりくん"	# みがわり
+				@werewolf_target_remain=0
 			else
-				@werewolf_target=""	# 誰も襲わない
+				# 誰も襲わない
+				@werewolf_target_remain=0
 			
 			if @werewolf_flag=="Diseased"
 				# 病人フラグが立っている（今日は襲撃できない
-				@werewolf_target=""
 				@werewolf_flag=null
+				@werewolf_target_remain=0
 				log=
 					mode:"wolfskill"
 					comment:"人狼たちは病気になりました。今日は襲撃できません。"
+				splashlog @id,this,log
+			else if @werewolf_flag=="WolfCub"
+				# 狼の子フラグが立っている（2回襲撃できる）
+				@werewolf_flag=null
+				@werewolf_target_remain=2
+				log=
+					mode:"wolfskill"
+					comment:"狼の子の力で、今日は2人襲撃できます。"
 				splashlog @id,this,log
 			
 			alives=@players.filter (x)->!x.dead
@@ -348,21 +362,23 @@ class Game
 				player.deadnight this
 			
 		# 狼の処理
-		t=@getPlayer @werewolf_target
-		return unless t?
-		# 噛まれた
-		t.addGamelog this,"bitten"
-		if @rule.noticebitten=="notice" || t.isJobType "Devil"
-			log=
-				mode:"skill"
-				comment:"#{t.name}は人狼に襲われました。"
-		if t.willDieWerewolf && !t.dead
-			# 死んだ
-			t.die this,"werewolf"
-		# 逃亡者を探す
-		runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@werewolf_target
-		runners.forEach (x)=>
-			x.die this,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
+		for target in @werewolf_target
+			t=@getPlayer target
+			continue unless t?
+			# 噛まれた
+			t.addGamelog this,"bitten"
+			if @rule.noticebitten=="notice" || t.isJobType "Devil"
+				log=
+					mode:"skill"
+					comment:"#{t.name}は人狼に襲われました。"
+				splashlog @id,this,log
+			if t.willDieWerewolf && !t.dead
+				# 死んだ
+				t.die this,"werewolf"
+			# 逃亡者を探す
+			runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@werewolf_target
+			runners.forEach (x)=>
+				x.die this,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 	# 死んだ人を処理する
 	bury:->
 		alives=@players.filter (x)->!x.dead
@@ -1154,15 +1170,16 @@ class Werewolf extends Player
 				if @job game,game.players[r].id,{}
 					@sunset
 
-	sleeping:(game)->game.werewolf_target?
+	sleeping:(game)->game.werewolf_target_remain<=0
 	job:(game,playerid)->
 		tp = game.getPlayer playerid
-		if game.werewolf_target?
+		if game.werewolf_target_remain<=0
 			return "既に対象は決定しています"
 		if game.rule.wolfattack!="ok" && tp?.isWerewolf()
 			# 人狼は人狼に攻撃できない
 			return "人狼は人狼を殺せません"
-		game.werewolf_target=playerid
+		game.werewolf_target.push playerid
+		game.werewolf_target_remain--
 		log=
 			mode:"wolfskill"
 			comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
@@ -1537,8 +1554,8 @@ class WolfDiviner extends Werewolf
 		@target=null
 		@flag=null	# 占い対象
 		@result=null	# 占い結果
-	sleeping:(game)->game.werewolf_target?	# 占いは必須ではない
-	jobdone:(game)->game.werewolf_target? && @flag?
+	sleeping:(game)->game.werewolf_target_remain<=0	# 占いは必須ではない
+	jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
 	job:(game,playerid,query)->
 		if query.commandname!="divine"
 			# 人狼の仕事
@@ -2645,6 +2662,17 @@ class OccultMania extends Player
 		SS.publish.user newpl.realid,"refresh",{id:game.id}	
 		null
 
+# 狼の子
+class WolfCub extends Werewolf
+	type:"WolfCub"
+	jobname:"狼の子"
+	die:(game,found)->
+		return if @dead
+		game.werewolf_flag="WolfCub"
+		super
+
+	
+
 # 子分選択者
 class MinionSelector extends Player
 	type:"MinionSelector"
@@ -2923,6 +2951,7 @@ jobs=
 	Tanner:Tanner
 	OccultMania:OccultMania
 	MinionSelector:MinionSelector
+	WolfCub:WolfCub
 	
 complexes=
 	Complex:Complex

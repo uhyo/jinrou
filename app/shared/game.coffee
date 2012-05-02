@@ -13,21 +13,21 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
-"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner",
+"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub",
 ]
 # ここには入らない役職
 # Light, Neet, MinionSelector
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub"]
 
 # 黒が出る人
-exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf"]
+exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub"]
 
 # チームたち
 exports.teams=teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector"]
+	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
@@ -38,7 +38,7 @@ exports.teams=teams=
 # カテゴリ分け
 exports.categories=
 	Human:teams.Human
-	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf"]
+	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub"]
 	Fox:["Fox","TinyFox"]
 	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer"]
 	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]

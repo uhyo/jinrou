@@ -38,22 +38,23 @@ tweet=(message,pass)->
 	
 	twit.post '/statuses/update.json',{status:message},(data)->
 		console.log data
+		rt_names=[]
 
 
-#tweet "test tweet",SS.config.admin.password
 # #人狼募集 RT bot
 rt_names = []	# RTした人（直近5人）
-
+###
 twit.stream 'statuses/filter',{track:'#人狼募集'}, (stream)->
 	stream.on 'data',(data)->
 		if data?
 			# ツイートが来たのでRTする
-			unless rt_names.every((x)->x==data.user.screen_name)
+			unless rt_names.length>0 && rt_names.every((x)->x==data.user.screen_name)
 				if data.user.screen_name!="jinroutter"	#hard coding
 					setTimeout (->
 						twit.post "/statuses/retweet/#{data.id_str}.json",{trim_user:true},(data2)->
 					),1000
-
+					rt_names=rt_names.concat(data.user.screen_name).slice -5
+###
 
 exports.actions=
 	tweet:tweet
