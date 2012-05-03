@@ -783,44 +783,21 @@ exports.start=(roomid)->
 				this_rule=
 					jobscount:game.jobscount
 					rule:game.rule
-			if obj.type=="GameMaster"
-				# ゲームマスター用ツール
-				# 発言先選択
-				select=document.createElement "select"
-				select.name="gmsayopt"	# GMの発言先
-				optgroup=document.createElement "optgroup"
-				optgroup.label="全体"
-				opt=document.createElement "option"
-				opt.value="All"	# 全体
-				opt.textContent="全体へ"
-				opt.selected=true
-				optgroup.appendChild opt
-				opt=document.createElement "option"
-				opt.value="AllDeads"
-				opt.textContent="霊界へ"
-				optgroup.appendChild opt
-				opt=document.createElement "option"
-				opt.value="AllAudience"
-				opt.textContent="観戦者へ"
-				optgroup.appendChild opt
-				opt=document.createElement "option"
-				opt.value="GMMonologue"
-				opt.textContent="独り言"
-				optgroup.appendChild opt
-				# 個別
-				optgroup2=document.createElement "optgroup"
-				optgroup2.label="個別"
-				for pl in game.players
-					opt=document.createElement "option"
-					opt.value="Player_#{pl.id}"
-					opt.textContent=pl.name
-					optgroup2.appendChild opt
-				select.appendChild optgroup
-				select.appendChild optgroup2
-				
-				$("#gmsayopt").empty().append select
-				# GMフォーム
-				$("#form_GameMaster").get(0).hidden= game.day<=0
+			select=$("#speakform").get(0).elements["mode"]
+			if obj.speak && obj.speak.length>0
+				# 発言方法の選択
+				$(select).empty()
+				select.disabled=false
+				for val in obj.speak
+					option=document.createElement "option"
+					option.value=val
+					option.text=speakValueToStr game,val
+					select.add option
+				select.value=obj.speak[0]
+			else
+				select.disabled=true
+
+
 	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()
@@ -990,4 +967,29 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 		p.textContent="[ready]"
 		df.appendChild p
 	df
-		
+
+speakValueToStr=(game,value)->
+	# 発言のモード名を文字列に
+	switch value
+		when "day"
+			"全員に発言"
+		when "monologue"
+			"独り言"
+		when "werewolf"
+			"人狼の会話"
+		when "couple"
+			"共有者の会話"
+		when "fox"
+			"妖狐の会話"
+		when "gm"
+			"全員へ"
+		when "gmheaven"
+			"霊界へ"
+		when "gmaudience"
+			"観戦者へ"
+		when "gmmonologue"
+			"独り言"
+		else
+			if result=value.match /^gmreply_(.+)$/
+				pl=game.players.filter((x)->x.id==result[1])[0]
+				"→#{pl.name}"

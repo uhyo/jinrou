@@ -20,7 +20,7 @@ class Game
 		@timer_remain=null	# 残り時間全体（秒）
 		@revote_num=0	# 再投票を行った回数
 		
-		@werewolf_target=null	# 人狼の襲い先
+		@werewolf_target=[]	# 人狼の襲い先
 		@werewolf_target_remain=0	#襲撃先をあと何人設定できるか
 		@werewolf_flag=null	# 人狼襲撃に関するフラグ
 
@@ -52,6 +52,8 @@ class Game
 			gm:@gm
 			iconcollection:@iconcollection
 			werewolf_flag:@werewolf_flag
+			werewolf_target:@werewolf_target
+			werewolf_target_remain:@werewolf_target_remain
 		}
 	#DB用をもとにコンストラクト
 	@unserialize:(obj)->
@@ -70,6 +72,8 @@ class Game
 		game.gm=obj.gm
 		game.iconcollection=obj.iconcollection ? {}
 		game.werewolf_flag=obj.werewolf_flag ? null
+		game.werewolf_target=obj.werewolf_target ? []
+		game.werewolf_target_remain=obj.werewolf_target_remain ? 0
 		game.timer()
 		game
 	# 公開情報
@@ -377,7 +381,7 @@ class Game
 				# 死んだ
 				t.die this,"werewolf"
 			# 逃亡者を探す
-			runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==@werewolf_target
+			runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target
 			runners.forEach (x)=>
 				x.die this,"werewolf"	# その家に逃げていたら逃亡者も死ぬ
 	# 死んだ人を処理する
@@ -960,8 +964,6 @@ class Player
 	isCult:->false
 	# ヴァンパイアかどうか
 	isVampire:->false
-	# 黙っているかどうか
-	isMuted:->false
 	# 酔っ払いかどうか
 	isDrunk:->false
 	# jobtypeが合っているかどうか（夜）
@@ -1032,6 +1034,8 @@ class Player
 		obj.open ?=[]
 		if !@jobdone(game)
 			obj.open.push @type
+
+
 		obj.job_target=@getjob_target()
 		# 女王観戦者が見える
 		if @team=="Human"
@@ -1039,7 +1043,12 @@ class Player
 				x.publicinfo()
 	# 仕事先情報を教える
 	getjob_target:->@job_target
-	
+	# 昼の発言の選択肢
+	getSpeakChoiceDay:(game)->
+		["day","monologue"]
+	# 夜の発言の選択肢を得る
+	getSpeakChoice:(game)->
+		["monologue"]
 	# Complexから抜ける
 	uncomplex:(game,flag=false)->
 		#flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
@@ -1206,6 +1215,8 @@ class Werewolf extends Player
 		# スパイ2も分かる
 		result.spy2s=game.players.filter((x)->x.type=="Spy2").map (x)->
 			x.publicinfo()
+	getSpeakChoice:(game)->
+		["werewolf"].concat super
 
 		
 		
@@ -1344,6 +1355,8 @@ class Couple extends Player
 		if log.mode=="couple"
 			true
 		else super
+	getSpeakChoice:(game)->
+		["couple"].concat super
 
 class Fox extends Player
 	type:"Fox"
@@ -1366,6 +1379,8 @@ class Fox extends Player
 		if log.mode=="fox"
 			true
 		else super
+	getSpeakChoice:(game)->
+		["fox"].concat super
 
 
 class Poisoner extends Player
@@ -2733,6 +2748,13 @@ class GameMaster extends Player
 		game.bury()
 		null
 	isListener:(game,log)->true	# 全て見える
+	getSpeakChoice:(game)->
+		pls=for pl in game.players
+			"gmreply_#{pl.id}"
+		["gm","gmheaven","gmaudience","gmmonologue"].concat pls
+	getSpeakChoiceDay:(game)->@getSpeakChoice game
+			
+
 
 
 			
@@ -2854,13 +2876,14 @@ class Guarded extends Complex
 # 黙らされた人
 class Muted extends Complex
 	cmplType:"Muted"
-	isMuted:->true
 
 	sunset:(game)->
 		# 一日しか効かない
 		@main.sunrise game
 		@sub?.sunrise? game
 		@uncomplex game
+	getSpeakChoiceDay:(game)->
+		["monologue"]	# 全員に喋ることができない
 # 狼の子分
 class WolfMinion extends Complex
 	cmplType:"WolfMinion"
@@ -2893,7 +2916,8 @@ class Drunk extends Complex
 	makejobinfo:(game,obj)->
 		Human.prototype.makejobinfo.call @,game,obj
 	isDrunk:->true
-	
+	getSpeakChoice:(game)->
+		Human.prototype.getSpeakChoice.call @,game
 games={}
 
 # ゲームを得る
@@ -3289,34 +3313,6 @@ exports.actions=
 				unless player?
 					# 観戦者
 					log.mode="audience"
-				else if player.isJobType "GameMaster"
-					# ゲームマスターのお言葉である
-					unless typeof query.gmsayopt=="string"
-						return
-					if result=query.gmsayopt.match /^Player_(.+)$/
-						# 個別発言
-						log.mode="gmreply"
-						pl=game.getPlayer result[1]
-						unless pl?
-							return
-						log.to=pl.id
-						log.name="GM→#{pl.name}"
-					else if query.gmsayopt=="All"
-						# 全員へ
-						log.mode="gm"
-						log.name="ゲームマスター"
-					else if query.gmsayopt=="AllDeads"
-						# 霊界へ
-						log.mode="gmheaven"
-						log.name="GM→霊界"
-					else if query.gmsayopt=="AllAudience"
-						log.mode="gmaudience"
-						log.name="GM→観客"
-					else if query.gmsayopt=="GMMonologue"
-						log.mode="gmmonologue"
-						log.name="GMの独り言"
-					else
-						return
 						
 				else if player.dead
 					# 天国
@@ -3326,41 +3322,40 @@ exports.actions=
 						log.to=player.id
 					else
 						log.mode="heaven"
-				else if query.size=="monologue"
-					# 独り言モードだ
-					log.mode="monologue"
-					log.to=player.id
-					
 				else if !game.night
 					# 昼
-					log.mode="day"
+					unless query.mode in player.getSpeakChoiceDay game
+						return
+					log.mode=query.mode
 					if game.silentexpires && game.silentexpires>=Date.now()
 						# まだ発言できない（15秒ルール）
 						return
-					if player.isMuted()
-						# 呪いをかけられている
-						log.mode="monologue"
-						log.to=player.id
+					
 				else
 					# 夜
-					if player.isDrunk()
-						# 酔っ払い
-						log.mode="monologue"
-						log.to=player.id
-					else if player.isWerewolf()
-						# 狼
-						log.mode="werewolf"
-					else if player.type=="Couple"
-						# 共有者
-						log.mode="couple"
-					else if player.type=="Fox"
-						# 洋子
-						log.mode="fox"
-					else
-						# 村人
-						log.mode="monologue"
-						log.to=player.id
-				
+					unless query.mode in player.getSpeakChoice game
+						query.mode="monologue"
+					log.mode=query.mode
+					switch log.mode
+						when "gm"
+							log.name="ゲームマスター"
+						when "gmheaven"
+							log.name="GM→霊界"
+						when "gmaudience"
+							log.name="GM→観客"
+						when "gmmonologue"
+							log.name="GMの独り言"
+						else
+							if result=query.mode.match /^gmreply_(.+)$/
+								log.mode="gmreply"
+								pl=game.getPlayer result[1]
+								unless pl?
+									return
+								log.to=pl.id
+								log.name="GM→#{pl.name}"
+
+			if log.mode=="monologue"
+				log.to=player.id
 			splashlog roomid,game,log
 			cb null
 		if player?
@@ -3640,6 +3635,7 @@ makejobinfo = (game,player,result={})->
 	result.type= if player? then player.getTypeDisp() else null
 	result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule?.heavenview=="view") || player?.isJobType("GameMaster")})	# 終了か霊界（ルール設定あり）の場合は職情報公開
 	result.id=game.id
+
 	if player
 		player.makejobinfo game,result
 		result.dead=player.dead
@@ -3647,6 +3643,10 @@ makejobinfo = (game,player,result={})->
 		result.sleeping=if game.night then player.jobdone(game) else if player.voteto? then true else false
 		result.jobname=player.getJobDisp()
 		result.winner=player.winner
+		if game.night
+			result.speak =player.getSpeakChoice game
+		else
+			result.speak =player.getSpeakChoiceDay game
 		if game.rule?.will=="die"
 			result.will=player.will
 
