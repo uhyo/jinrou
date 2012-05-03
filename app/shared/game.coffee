@@ -4,7 +4,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
 # 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker","OccultMania",
+"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -27,7 +27,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub"]
 # チームたち
 exports.teams=teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub"]
+	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
@@ -40,7 +40,7 @@ exports.categories=
 	Human:teams.Human
 	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub"]
 	Fox:["Fox","TinyFox"]
-	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer"]
+	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad"]
 	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
 	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner"]
 
@@ -174,6 +174,16 @@ exports.jobrules=[
           ret=normal1 number
           ret.Cat=1
           ret.Werewolf++
+          ret
+      }
+      {
+        name:"囁き狂人"
+        title:"狂人の代わりに囁き狂人が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          if ret.Madman>0
+            ret.WhisperingMad=1
+            ret.Madman--
           ret
       }
     ]
@@ -417,7 +427,7 @@ exports.jobinfo=
 			color:"#ffffff"
 		Light:
 			name:"デスノート"
-			color:"#2d158c"					
+			color:"#2d158c"
 		MadWolf:
 			name:"狂人狼"
 			color:"#847430"
@@ -499,6 +509,9 @@ exports.jobinfo=
 		WolfCub:
 			name:"狼の子"
 			color:"#662233"
+		WhisperingMad:
+			name:"囁き狂人"
+			color:"#ccab52"
 		
 		
 	Fox:

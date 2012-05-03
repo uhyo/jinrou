@@ -2,21 +2,23 @@
 Are you a werewolf?
 
 == version ==
-1.76
+1.77
 
 == requirements ==
 * SocketStream
 * mongodb
+* twitter
 
 == usage ==
 # git clone git://github.com/uhyo/jinrou.git
 # cd jinrou
 # npm install
 # (run mongodb)
-# (run redis)
 # socketstream start
 
 == jobs ==
+全49種
+
 === 基本 ===
 * 村人
 * 占い師

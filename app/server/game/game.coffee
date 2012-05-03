@@ -1032,7 +1032,7 @@ class Player
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
 		obj.open ?=[]
-		if !@jobdone(game)
+		if !@jobdone(game) && (game.night || @chooseJobDay(game))
 			obj.open.push @type
 
 
@@ -1041,6 +1041,8 @@ class Player
 		if @team=="Human"
 			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
 				x.publicinfo()
+	# 昼でも対象選択を行えるか
+	chooseJobDay:(game)->false
 	# 仕事先情報を教える
 	getjob_target:->@job_target
 	# 昼の発言の選択肢
@@ -1869,7 +1871,7 @@ class Light extends Player
 			to:@id
 			comment:"#{@name}が#{game.getPlayer(playerid).name}の名前を死神の手帳に書きました。"
 		splashlog game.id,game,log
-		null		
+		null
 	midnight:(game)->
 		t=game.getPlayer @target
 		return unless t?
@@ -2686,7 +2688,17 @@ class WolfCub extends Werewolf
 		return if @dead
 		game.werewolf_flag="WolfCub"
 		super
+# 囁き狂人
+class WhisperingMad extends Fanatic
+	type:"WhisperingMad"
+	jobname:"囁き狂人"
 
+	getSpeakChoice:(game)->
+		["werewolf"].concat super
+	isListener:(game,log)->
+		if log.mode=="werewolf"
+			true
+		else super
 	
 
 # 子分選択者
@@ -2753,6 +2765,7 @@ class GameMaster extends Player
 			"gmreply_#{pl.id}"
 		["gm","gmheaven","gmaudience","gmmonologue"].concat pls
 	getSpeakChoiceDay:(game)->@getSpeakChoice game
+	chooseJobDay:(game)->true	# 昼でも対象選択
 			
 
 
@@ -2977,6 +2990,7 @@ jobs=
 	OccultMania:OccultMania
 	MinionSelector:MinionSelector
 	WolfCub:WolfCub
+	WhisperingMad:WhisperingMad
 	
 complexes=
 	Complex:Complex
@@ -3336,26 +3350,27 @@ exports.actions=
 					unless query.mode in player.getSpeakChoice game
 						query.mode="monologue"
 					log.mode=query.mode
-					switch log.mode
-						when "gm"
-							log.name="ゲームマスター"
-						when "gmheaven"
-							log.name="GM→霊界"
-						when "gmaudience"
-							log.name="GM→観客"
-						when "gmmonologue"
-							log.name="GMの独り言"
-						else
-							if result=query.mode.match /^gmreply_(.+)$/
-								log.mode="gmreply"
-								pl=game.getPlayer result[1]
-								unless pl?
-									return
-								log.to=pl.id
-								log.name="GM→#{pl.name}"
 
-			if log.mode=="monologue"
-				log.to=player.id
+			switch log.mode
+				when "monologue"
+					log.to=player.id
+				when "gm"
+					log.name="ゲームマスター"
+				when "gmheaven"
+					log.name="GM→霊界"
+				when "gmaudience"
+					log.name="GM→観客"
+				when "gmmonologue"
+					log.name="GMの独り言"
+				else
+					if result=query.mode.match /^gmreply_(.+)$/
+						log.mode="gmreply"
+						pl=game.getPlayer result[1]
+						unless pl?
+							return
+						log.to=pl.id
+						log.name="GM→#{pl.name}"
+
 			splashlog roomid,game,log
 			cb null
 		if player?

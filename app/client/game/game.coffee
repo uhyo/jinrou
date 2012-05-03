@@ -772,10 +772,9 @@ exports.start=(roomid)->
 				# 代入しつつの　投票フォーム必要な場合
 				$("#jobform div.jobformarea").attr "hidden","hidden"
 				$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
-				if game.night
-					obj.open?.forEach (x)->
-						# 開けるべきフォームが指定されている
-						$("#form_#{x}").get(0).hidden=false
+				obj.open?.forEach (x)->
+					# 開けるべきフォームが指定されている
+					$("#form_#{x}").prop "hidden",false
 			if game.day>0 && game.players
 				formplayers game.players,if game.night then obj.job_target else 1
 				unless this_rule?
