@@ -28,11 +28,18 @@ tabs=
 			$("#dataexportform").submit (je)->
 				je.preventDefault()
 				query=SS.client.util.formQuery je.target
-				SS.server.admin.dataExport query,(result)->
-					if result.error?
-						SS.client.util.message "エラー",result.error
-						return
-					window.open result.file
+				if query.command
+					SS.server.admin.doCommand query,(result)->
+						if result.error?
+							SS.client.util.message "エラー",result.error
+							return
+						SS.client.util.message "出力",result.result
+				else
+					SS.server.admin.dataExport query,(result)->
+						if result.error?
+							SS.client.util.message "エラー",result.error
+							return
+						window.open result.file
 
 exports.start=->
 	SS.client.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->

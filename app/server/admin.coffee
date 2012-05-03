@@ -84,3 +84,37 @@ exports.actions =
 				console.log stdout
 				cb {file:"/dump/#{settings.database}.zip"}
 
+	# ------------- process関係
+	doCommand:(query,cb)->
+		# 僕だけだよ！ あの文字列を送ろう
+		unless query?
+			cb {error:"クエリが不正です"}
+			return
+		if process?
+			# まだ起動している
+			process.kill()
+
+		sha256=crypto.createHash "sha256"
+		sha256.update query.pass
+		phrase=sha256.digest 'hex'
+		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
+			cb {error:"パスフレーズが違います"}
+			return
+		process = child_process.exec query.command, (error,stdout,stderr)->
+			process=null
+			if error?
+				cb {error:stderr || stdout}
+				return
+			cb {result:stdout}
+	startProcess:(cmd,cb)->
+		if process?
+			cb {error:"既にプロセスが起動中です"}
+			return
+		unless typeof cmd=="string"
+			cb {error:"コマンドが不正です"}
+			return
+		args=cmd.split " "
+		comm=args.shift()
+		process= child_process.spawn comm,args
+
+process=null	# 現在のプロセス
