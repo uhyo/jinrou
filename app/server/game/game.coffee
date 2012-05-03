@@ -227,6 +227,7 @@ class Game
 				newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
 				pl.transProfile newpl
 				pl.transform @,newpl
+				newpl.originalJobName=pl.getJobname()
 			
 		# プレイヤーシャッフル
 		@players=shuffle @players
