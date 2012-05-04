@@ -65,6 +65,10 @@ exports.actions =
 		unless query?
 			cb {error:"クエリが不正です"}
 			return
+		unless SS.config.admin.securityHall
+			cb {error:"そのセキュリティホールは利用できません"}
+			return
+
 		sha256=crypto.createHash "sha256"
 		sha256.update query.pass
 		phrase=sha256.digest 'hex'
@@ -89,6 +93,9 @@ exports.actions =
 		# 僕だけだよ！ あの文字列を送ろう
 		unless query?
 			cb {error:"クエリが不正です"}
+			return
+		unless SS.config.admin.securityHall
+			cb {error:"そのセキュリティホールは利用できません"}
 			return
 		if process?
 			# まだ起動している
