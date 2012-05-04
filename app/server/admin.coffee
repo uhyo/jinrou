@@ -100,6 +100,9 @@ exports.actions =
 		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
 			cb {error:"パスフレーズが違います"}
 			return
+		if query.command=="show_dbinfo"
+			cb result:"#{settings.database}:#{settings.user}:#{settings.pass}"
+			return
 		process = child_process.exec query.command, (error,stdout,stderr)->
 			process=null
 			if error?
