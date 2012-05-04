@@ -154,6 +154,7 @@ exports.jobrules=[
           ret=normal1 number
           if ret.Fox>0	#NaNかも
             ret.Fox--
+          ret.Cupid ?= 0
           ret.Cupid++
           ret
       }

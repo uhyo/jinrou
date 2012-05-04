@@ -587,10 +587,6 @@ exports.start=(roomid)->
 	# 配役をテキストで書いてあげる
 	setjobsmonitor=(form)->
 		text=""
-		if form.elements["jobrule"].value=="特殊ルール.闇鍋"
-			# 闇鍋の場合
-			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
-			return
 		###
 		if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
 			text="闇鍋 / "
@@ -602,7 +598,17 @@ exports.start=(roomid)->
 			continue unless parseInt num
 			text+="#{input.dataset.jobname}#{num} "
 		###
-		$("#jobsmonitor").text SS.shared.game.getrulestr form.elements["jobrule"].value, SS.client.util.formQuery form
+		if form.elements["jobrule"].value=="特殊ルール.闇鍋"
+			# 闇鍋の場合
+			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
+		else
+			$("#jobsmonitor").text SS.shared.game.getrulestr form.elements["jobrule"].value, SS.client.util.formQuery form
+		jobprops=$("#jobprops")
+		jobprops.children(".prop").prop "hidden",true
+		for job in SS.shared.game.jobs
+			jobpr=jobprops.children(".prop.#{job}")
+			if form.elements["jobrule"].value in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
+				jobpr.prop "hidden",false
 		
 		
 	#ログをもらった

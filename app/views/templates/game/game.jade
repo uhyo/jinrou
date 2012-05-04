@@ -80,37 +80,12 @@
           label(title="遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。")
             | 遺言
             input(name="will",type="checkbox",value="die",checked)
-          label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")
-            | 人狼の遠吠え
-            input(name="wolfsound",type="checkbox",value="aloud",checked)
-          label(title="有効な場合、共有者の声が参加者全員に聞こえます。共有者以外は内容は分かりません。")
-            | 共有者の声
-            input(name="couplesound",type="checkbox",value="aloud")
           label(title="有効な場合、霊界で役職一覧が見られ、夜の発言や能力も全て把握できます。")
             | 死んだ後は役職一覧が見られる
             input(name="heavenview",type="checkbox",value="view",checked)
-          label(title="有効な場合、人狼の襲撃先として人狼を選択できます。その場合でも人狼が死ぬことはありません。")
-            | 人狼は人狼を殺しに行ける
-            input(name="wolfattack",type="checkbox",value="ok")
-          label(title="有効な場合、狩人は自分を護衛することができます。")
-            | 狩人は自分を守れる
-            input(name="guardmyself",type="checkbox",value="ok")
           label(title="有効な場合、昼の投票で自分に投票することができます。")
             | 昼は自分に投票できる
             input(name="votemyself",type="checkbox",value="ok")
-          label(title="有効な場合、妖狐が呪殺されたときのログが狼と異なるようになります。")
-            | 呪殺は狼と区別が付く
-            input(name="deadfox",type="checkbox",value="obvious")
-          label(title="夜に行った占いの結果が表示されるタイミングを調節できます。")
-            | 占い結果
-            select(name="divineresult")
-              option(value="immediate") すぐに分かる
-              option(value="sunrise",selected) 翌朝分かる
-          label(title="霊能結果が表示されるタイミングを調節できます。")
-            | 霊能結果
-            select(name="psychicresult")
-              option(value="sunset") 夜に分かる
-              option(value="sunrise",selected) 翌朝分かる
           label(title="有効な場合、夜は全員が能力を行使しても時間切れまでは進みません。")
             | 夜は時間切れまで待つ
             input(name="waitingnight",type="checkbox",value="wait",checked)
@@ -120,11 +95,6 @@
               option(value="full",selected) あり
               option(value="no") なし
               option(value="free") なんでもあり
-          label(title="恋人陣営の勝利条件を設定します。")
-            | 恋人陣営の勝利
-            select(name="friendsjudge")
-              option(value="alive",title="妖狐と同様です。",selected) 終了時に生存
-              option(value="ruin") 恋人だけ生存
           label(title="噛まれたときに噛まれた側に知らされます。")
             | 噛まれたら分かる
             input(name="noticebitten",type="checkbox",value="notice")
@@ -140,9 +110,52 @@
           label(title="負けることを目指す人狼です。")
             input(name="losemode",type="checkbox",value="on")
             | 敗北村
-          label(title="ONにすると、狩人が護衛成功したときに狩人にメッセージが表示されます。")
-            input(name="gjmessage",type="checkbox",value="on")
-            | 護衛成功が分かる
+        #jobprops
+          .prop.Werewolf.BigWolf.WolfDiviner.MadWolf.LoneWolf.WolfCub
+            label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")
+              | 人狼の遠吠え
+              input(name="wolfsound",type="checkbox",value="aloud",checked)
+            label(title="有効な場合、人狼の襲撃先として人狼を選択できます。その場合でも人狼が死ぬことはありません。")
+              | 人狼は人狼を殺しに行ける
+              input(name="wolfattack",type="checkbox",value="ok")
+
+          .prop.Diviner.TinyFox.Liar
+            label(title="夜に行った占いの結果が表示されるタイミングを調節できます。")
+              | 占い結果
+              select(name="divineresult")
+                option(value="immediate") すぐに分かる
+                option(value="sunrise",selected) 翌朝分かる
+          .prop.Psychic
+            label(title="霊能結果が表示されるタイミングを調節できます。")
+              | 霊能結果
+              select(name="psychicresult")
+                option(value="sunset") 夜に分かる
+                option(value="sunrise",selected) 翌朝分かる
+
+          .prop.Couple
+            label(title="有効な場合、共有者の声が参加者全員に聞こえます。共有者以外は内容は分かりません。")
+              | 共有者の声
+              input(name="couplesound",type="checkbox",value="aloud")
+          .prop.Guard
+            label(title="有効な場合、狩人は自分を護衛することができます。")
+              | 狩人は自分を守れる
+              input(name="guardmyself",type="checkbox",value="ok")
+            label(title="ONにすると、狩人が護衛成功したときに狩人にメッセージが表示されます。")
+              input(name="gjmessage",type="checkbox",value="on")
+              | 護衛成功が分かる
+          .prop.Fox
+            label(title="有効な場合、妖狐が呪殺されたときのログが狼と異なるようになります。")
+              | 呪殺は狼と区別が付く
+              input(name="deadfox",type="checkbox",value="obvious")
+          .prop.Cupid
+            label(title="恋人陣営の勝利条件を設定します。")
+              | 恋人陣営の勝利
+              select(name="friendsjudge")
+                option(value="alive",title="妖狐と同様です。",selected) 終了時に生存
+                option(value="ruin") 恋人だけ生存
+
+
+
       p: input(type="submit",value="開始")
   .infobox
     div
