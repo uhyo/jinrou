@@ -47,7 +47,7 @@ twit.stream 'statuses/filter',{track:'#人狼募集'}, (stream)->
 	stream.on 'data',(data)->
 		if data?
 			# ツイートが来たのでRTする
-			unless rt_names.length>0 && rt_names.every((x)->x==data.user.screen_name)
+			unless rt_names.length>=5 && rt_names.every((x)->x==data.user.screen_name)
 				if data.user.screen_name!="jinroutter"	#hard coding
 					setTimeout (->
 						twit.post "/statuses/retweet/#{data.id_str}.json",{trim_user:true},(data2)->
