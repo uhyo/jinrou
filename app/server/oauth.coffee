@@ -37,7 +37,6 @@ tweet=(message,pass)->
 	return unless pass==SS.config.admin.password
 	
 	twit.post '/statuses/update.json',{status:message},(data)->
-		console.log data
 		rt_names=[]
 
 

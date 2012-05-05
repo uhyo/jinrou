@@ -3363,7 +3363,7 @@ exports.actions=
 				when "gmmonologue"
 					log.name="GMの独り言"
 				else
-					if result=query.mode.match /^gmreply_(.+)$/
+					if result=query.mode?.match /^gmreply_(.+)$/
 						log.mode="gmreply"
 						pl=game.getPlayer result[1]
 						unless pl?
