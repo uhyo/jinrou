@@ -1,16 +1,27 @@
 # Server-side Code
-crypto=require('crypto');
+crypto=require('crypto')
 exports.actions =
 
 # ログイン
 # cb: 失敗なら真
 	login: (query,cb)->
-		auth=require('./auth.coffee');
+		auth=require('./auth.coffee')
 		#@session.authenticate './session_storage/internal.coffee', query, (response)=>
 		auth.authenticate query,(response)=>
 			if response.success
 				@session.setUserId response.userid
-				response.ip=SS.io.sockets.sockets[@request.socket_id]?.handshake.address.address
+				handshake= SS.io.sockets.sockets[@request.socket_id]?.handshake
+				ip=null
+				if handshake?
+					if handshake.headers["forwarded-for"]
+						ip=handshake.headers["forwarded-for"].split(/\s*,\s*/)[0]
+					else if handshake.headers["x-forwarded-for"]
+						ip=handshake.headers["x-forwarded-for"].split(/\s*,\s*/)[0]
+					else
+						ip=handshake.address.address
+					response.ip=ip
+				else
+					response.ip=null
 				@session.attributes.user=response
 				#@session.attributes.room=null	# 今入っている部屋
 				@session.channel.unsubscribeAll()
