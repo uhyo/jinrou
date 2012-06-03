@@ -147,7 +147,7 @@
             label(title="有効な場合、妖狐が呪殺されたときのログが狼と異なるようになります。")
               | 呪殺は狼と区別が付く
               input(name="deadfox",type="checkbox",value="obvious")
-          .prop.Cupid
+          .prop.Cupid.Lover
             label(title="恋人陣営の勝利条件を設定します。")
               | 恋人陣営の勝利
               select(name="friendsjudge")
@@ -241,6 +241,10 @@
       p
         | 恋人にする2人を1人ずつ選んで下さい:
         input(type="submit",value="恋の矢を放つ",data-job="Cupid")
+    #form_Lover(hidden).jobformarea
+      p
+        | 恋人にする人を選んで下さい:
+        input(type="submit",value="恋人にする",data-job="Lover")
     #form_Stalker(hidden).jobformarea
       p
         | ストーキングする人を一人選んで下さい:

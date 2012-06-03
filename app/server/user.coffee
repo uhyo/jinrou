@@ -39,10 +39,10 @@ exports.actions =
 # 新規登録
 # cb: エラーメッセージ（成功なら偽）
 	newentry: (query,cb)->
-		unless /^\w*$/.test(query.userid)
+		unless /^\w+$/.test(query.userid)
 			cb "ユーザーIDが不正です"
 			return
-		unless /^\w*$/.test(query.password)
+		unless /^\w+$/.test(query.password)
 			cb "パスワードが不正です"
 			return
 		M.users.find({"userid":query.userid}).count (err,count)->

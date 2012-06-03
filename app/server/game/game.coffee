@@ -2699,6 +2699,58 @@ class WhisperingMad extends Fanatic
 		if log.mode=="werewolf"
 			true
 		else super
+class Lover extends Player
+	type:"Lover"
+	jobname:"求愛者"
+	team:"Friend"
+	constructor:->
+		super
+		@target=null	# 相手
+	sunset:(game)->
+		if game.day>=2
+			# 2日目以降はもう遅い
+			@target=""
+		else
+			@target=null
+			if @scapegoat
+				# 身代わり君はかわいそうなのでやめる
+				@target=""
+	sleeping:->@target?
+	job:(game,playerid,query)->
+		if @target?
+			return "既に対象は決定しています"
+		if game.day>=2	#もう遅い
+			return "もう恋の矢を放てません"
+	
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		if playerid==@id
+			return "自分以外を選択して下さい"
+
+		@target=playerid
+		# 恋人二人が決定した
+		
+	
+		for x in [this,pl]
+			newpl=Player.factory null,x,null,Friend	# 恋人だ！
+			x.transProfile newpl
+			x.transform game,newpl	# 入れ替え
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}に求愛しました。"
+		splashlog game.id,game,log
+		log=
+			mode:"skill"
+			to:newpl.id
+			comment:"#{pl.name}は求愛されて恋人になりました。"
+		splashlog game.id,game,log
+		# 2人とも更新する
+		for pl in [this, pl]
+			SS.publish.user pl.id,"refresh",{id:game.id}	
+
+		null
 	
 
 # 子分選択者
@@ -2991,6 +3043,7 @@ jobs=
 	MinionSelector:MinionSelector
 	WolfCub:WolfCub
 	WhisperingMad:WhisperingMad
+	Lover:Lover
 	
 complexes=
 	Complex:Complex

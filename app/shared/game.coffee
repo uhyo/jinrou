@@ -4,7 +4,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
 # 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad",
+"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -31,7 +31,7 @@ exports.teams=teams=
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
-	Friend:["Cupid"]
+	Friend:["Cupid","Lover"]
 	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner"],
 	Neet:["Neet"]
 
@@ -42,7 +42,7 @@ exports.categories=
 	Fox:["Fox","TinyFox"]
 	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad"]
 	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
-	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner"]
+	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover"]
 
 exports.categoryNames=
 	Human:"村人系"	
@@ -547,6 +547,9 @@ exports.jobinfo=
 		Cupid:
 			name:"キューピッド"
 			color:"#ffb5e5"
+		Lover:
+			name:"求愛者"
+			color:"#ffcfee"
 	Others:
 		name:"その他"
 		color:"#cccccc"
