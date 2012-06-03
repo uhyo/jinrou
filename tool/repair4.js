@@ -27,7 +27,7 @@ function getdb2(users){
 			console.log("user - finished.");
 			return
 		}
-		query={$set:{ownprize:user.prize}}
+		query={$set:{ownprize:user.prize,win:[],lose:[],gone:[]}};
 		users.update({userid:user.userid},query);
 	});
 }
