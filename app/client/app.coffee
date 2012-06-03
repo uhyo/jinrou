@@ -116,7 +116,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 			else if result=url.match /^\/backdoor\/(\w+)$/
 				SS.server.app.backdoor result[1],(url)->
 					if url?
-						location.href=url
+						location.replace url
 			else
 				page "templates-top",null,SS.client.top,null
 	unless nohistory

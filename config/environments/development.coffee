@@ -5,10 +5,10 @@ exports.config=
     securityHall: false
   backdoor:
     # 外部のURL
-    home: "http://jinro.mamesoft.net/"
+    home: "http://81.la/"
   application:
     # アプリケーション情報
-    url: "http://jinro.mamesoft.net:8800/"
+    url: "http://jinrou.81.la/"
   twitter:
     # twitter提携用
     oauth:
