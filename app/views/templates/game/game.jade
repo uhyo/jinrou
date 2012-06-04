@@ -31,12 +31,19 @@
               | 妖狐の数
               input(name="yaminabe_Fox",value="0",type="number",min="0",step="1",size=5)
           p
-            label(title="チェックするとプレイ中は役職一覧が分かりません")
-              | 役職一覧も非公開
-              input(name="yaminabe_hidejobs",value="1",type="checkbox")
-            label(title="配役の時点で狼陣営の数が村人陣営を上回らないようにします")
-              | 初日PPを防ぐ
-              input(name="yaninabe_nopp",value="1",type="checkbox",checked)
+            //-
+              label(title="チェックするとプレイ中は役職一覧が分かりません")
+                | 役職一覧も非公開
+                input(name="yaminabe_hidejobs",value="1",type="checkbox")
+              label(title="配役の時点で狼陣営の数が村人陣営を上回らないようにします")
+                | 初日PPを防ぐ
+                input(name="yaninabe_nopp",value="1",type="checkbox",checked)
+            select(name="yaminabe_hidejobs")
+              //- value=""なのは歴史的経緯
+              option(value="",title="配役後、出現役職の一覧は公開されます。") 役職一覧を公開
+              option(value="team",title="出現役職の陣営数のみ公開されます。") 陣営ごとの数のみ公開
+              option(value="1",title="出現役職の一覧は分からなくなります。") 役職一覧も非公開
+
 
         p
           label

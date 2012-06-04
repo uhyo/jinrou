@@ -143,7 +143,7 @@ class Game
 
 		# 名前と数を出したやつ
 		@jobscount={}
-		unless options.yaminabe_hidejobs
+		if options.yaminabe_hidejobs==""	# 公開モード
 			for job,num of joblist
 				continue unless num>0
 				testpl=new jobs[job]
@@ -3251,6 +3251,29 @@ exports.actions=
 						mode:"system"
 						comment:"蘇生役職が存在するので、天国から役職が見られなくなりました。"
 					splashlog game.id,game,log
+				if query.yaminabe_hidejobs=="team"
+					# 陣営のみ公開
+					# 各陣営
+					teaminfos=[]
+					for team,obj of SS.shared.game.jobinfo
+						teamcount=0
+						for job,num of joblist
+							#出現役職チェック
+							continue if num==0
+							if obj[job]?
+								# この陣営だ
+								teamcount+=num
+						if teamcount>0
+							teaminfos.push "#{obj.name}#{teamcount}"	#陣営名
+
+					log=
+						mode:"system"
+						comment:teaminfos.join(" ")
+					splashlog game.id,game,log
+
+
+
+
 					
 			else if query.jobrule!="特殊ルール.自由配役"
 				# 配役に従ってアレする
