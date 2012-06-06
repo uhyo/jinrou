@@ -2,7 +2,7 @@
 Are you a werewolf?
 
 == version ==
-1.79
+1.80
 
 == requirements ==
 * SocketStream
