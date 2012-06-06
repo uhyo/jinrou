@@ -782,7 +782,8 @@ exports.start=(roomid)->
 					# 開けるべきフォームが指定されている
 					$("#form_#{x}").prop "hidden",false
 			if game.day>0 && game.players
-				formplayers game.players,if game.night then obj.job_target else 1
+				formplayers game.players
+				setJobSelection obj.job_selection
 				unless this_rule?
 					$("#speakform").get(0).elements["rulebutton"].disabled=false
 				this_rule=
@@ -803,7 +804,7 @@ exports.start=(roomid)->
 				select.disabled=true
 
 
-	formplayers=(players,jobflg)->	#jobflg: 1:生存の人 2:死人
+	formplayers=(players)->	#jobflg: 1:生存の人 2:死人
 		$("#form_players").empty()
 		$("#players").empty()
 		$("#playernumberinfo").text "生存者#{players.filter((x)->!x.dead).length}人 / 死亡者#{players.filter((x)->x.dead).length}人"
@@ -816,20 +817,28 @@ exports.start=(roomid)->
 			if x.icon
 				this_icons[x.name]=x.icon
 
+	setJobSelection=(selections)->
+		$("#form_players").empty()
+		valuemap={}	#重複を取り除く
+		for x in selections
+			continue if valuemap[x.value]	# 重複チェック
 			# 投票フォーム用
 			li=document.createElement "li"
-			if x.dead
-				li.classList.add "dead"
+			#if x.dead
+			#	li.classList.add "dead"
 			label=document.createElement "label"
 			label.textContent=x.name
 			input=document.createElement "input"
 			input.type="radio"
 			input.name="target"
-			input.value=x.id
-			input.disabled=!((x.dead && (jobflg&2))||(!x.dead && (jobflg&1)))
+			input.value=x.value
+			#input.disabled=!((x.dead && (jobflg&2))||(!x.dead && (jobflg&1)))
 			label.appendChild input
 			li.appendChild label
 			$("#form_players").append li
+			valuemap[x.value]=true
+
+
 	# タイマー情報をもらった
 	gettimer=(msg,mode)->
 		remain_time=parseInt msg

@@ -1028,6 +1028,33 @@ class Player
 	beforebury: (game)->
 	# 占われたとき（結果は別にとられる player:占い元）
 	divined:(game,player)->
+	# 選択肢を返す
+	makeJobSelection:(game)->
+		if game.night
+			# 夜の能力
+			jt=@job_target
+			if jt>0
+				# 参加者を選択する
+				result=[]
+				for pl in game.players
+					if (pl.dead && (jt&Player.JOB_T_DEAD))||(!pl.dead && (jt&Player.JOB_T_ALIVE))
+						result.push {
+							name:pl.name
+							value:pl.id
+						}
+			else
+				result=[]
+		else
+			# 昼の投票
+			result=[]
+			for pl in game.players
+				if !pl.dead
+					result.push {
+						name:pl.name
+						value:pl.id
+					}
+
+		result
 	# 役職情報を載せる
 	makejobinfo:(game,obj)->
 		# 開くべきフォームを配列で（生きている場合）
@@ -1035,8 +1062,12 @@ class Player
 		if !@jobdone(game) && (game.night || @chooseJobDay(game))
 			obj.open.push @type
 
-
 		obj.job_target=@getjob_target()
+		# 選択肢を教える {name:"名前",value:"値"}
+		obj.job_selection ?= []
+		obj.job_selection=obj.job_selection.concat @makeJobSelection game
+		# 重複を取り除くのはクライアント側にやってもらおうかな…
+
 		# 女王観戦者が見える
 		if @team=="Human"
 			obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
@@ -2715,7 +2746,7 @@ class Lover extends Player
 			if @scapegoat
 				# 身代わり君はかわいそうなのでやめる
 				@target=""
-	sleeping:->@target?
+	sleeping:(game)->game.day>=2 || @target?
 	job:(game,playerid,query)->
 		if @target?
 			return "既に対象は決定しています"
@@ -2871,6 +2902,9 @@ class Complex
 			@main.getjob_target() | @sub.getjob_target()	# ビットフラグ
 		else
 			@main.getjob_target()
+	die:(game,found)->
+		@main.die game,found
+		@sub?.die game,found
 
 #superがつかえないので注意
 class Friend extends Complex	# 恋人
@@ -3268,7 +3302,7 @@ exports.actions=
 
 					log=
 						mode:"system"
-						comment:teaminfos.join(" ")
+						comment:"出現陣営情報: "+teaminfos.join(" ")
 					splashlog game.id,game,log
 
 
@@ -3476,17 +3510,26 @@ exports.actions=
 		if player.dead
 			cb {error:"お前は既に死んでいる"}
 			return
-		if !(to=game.players.filter((x)->x.id==query.target)[0]) && player.job_target!=0
+		jt=player.getjob_target()
+		sl=player.makeJobSelection game
+		###
+		if !(to=game.players.filter((x)->x.id==query.target)[0]) && jt!=0
 			cb {error:"その対象は存在しません"}
 			return
-		if to?.dead && (!(player.job_target & Player.JOB_T_DEAD) || !game.night) && (player.job_target & Player.JOB_T_ALIVE)
+		if to?.dead && (!(jt & Player.JOB_T_DEAD) || !game.night) && (jt & Player.JOB_T_ALIVE)
 			cb {error:"対象は既に死んでいます"}
+			return
+		###
+		unless sl.length==0 || sl.some((x)->x.value==query.target)
+			cb {error:"対象選択が不正です"}
 			return
 		if game.night || player.isJobType "GameMaster"
 			# 夜
+			###
 			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
 				cb {error:"対象はまだ生きています"}
 				return
+			###
 			if player.jobdone(game)
 				cb {error:"既に能力を行使しています"}
 				return
@@ -3516,6 +3559,10 @@ exports.actions=
 				return
 			if query.target==player.id && game.rule.votemyself!="ok"
 				cb {error:"自分には投票できません"}
+				return
+			to=game.getPlayer query.target
+			unless to?
+				cb {error:"その人には投票できません"}
 				return
 			player.dovote query.target
 			log=
