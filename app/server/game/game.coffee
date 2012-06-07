@@ -3017,6 +3017,14 @@ class Drunk extends Complex
 	isDrunk:->true
 	getSpeakChoice:(game)->
 		Human.prototype.getSpeakChoice.call @,game
+# 決定者(unused)
+class Decider extends Complex
+	cmplType:"Decider"
+	getJobname:->"#{@main.getJobname()}（決定者）"
+# 権力者(unused)
+class Authority extends Complex
+	cmplType:"Authority"
+	getJobname:->"#{@main.getJobname()}（権力者）"
 games={}
 
 # ゲームを得る
