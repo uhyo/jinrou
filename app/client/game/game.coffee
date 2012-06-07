@@ -783,7 +783,7 @@ exports.start=(roomid)->
 					$("#form_#{x}").prop "hidden",false
 			if game.day>0 && game.players
 				formplayers game.players
-				setJobSelection obj.job_selection
+				setJobSelection obj.job_selection ? []
 				unless this_rule?
 					$("#speakform").get(0).elements["rulebutton"].disabled=false
 				this_rule=
