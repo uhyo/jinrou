@@ -29,6 +29,8 @@ class Game
 		@gamelogs=[]
 		@iconcollection={}	#(id):(url)
 		
+		# 投票箱を用意しておく
+		@votingbox=new VotingBox this
 		###
 		さまざまな出来事
 		id: 動作した人
@@ -318,6 +320,8 @@ class Game
 						else
 							x
 				
+			# 投票リセット処理
+			@votingbox.init()
 			@players.forEach (x)=>
 				return if x.dead
 				x.votestart this
@@ -829,6 +833,32 @@ rule:{
     scapegoat : "on"(身代わり君が死ぬ) "off"(参加者が死ぬ) "no"(誰も死なない)
   }
 ###
+# 投票箱
+class VotingBox
+	constructor:(@game)->
+		@init()
+	init:->
+		# 投票箱を空にする
+		@votes=[]	#{player:Player, to:Player}
+	isVoteFinished:(player)->@votes.some (x)->x.player==player
+	vote:(player,voteto)->
+		pl=@game.getPlayer voteto
+		unless pl?
+			return "そのプレイヤーは存在しません"
+		if pl.dead
+			return "その人は既に死んでいます"
+		if @isVoteFinished playerr
+			return "あなたは既に投票しています"
+		@votes.push {
+			player:player
+			to:pl
+		}
+		null
+	isVoteAllFinished:(player)->
+		alives=@game.players.filter (x)->!x.dead
+		alives.every (x)=>
+			@isVoteFinished x
+
 class Player
 	constructor:->
 		# realid:本当のid id:仮のidかもしれない name:名前 icon:アイコンURL
@@ -974,15 +1004,17 @@ class Player
 	sunrise:(game)->
 	# 昼の投票準備
 	votestart:(game)->
-		@voteto=null
+		#@voteto=null
 		if @scapegoat
 			# 身代わりくんは投票
 			alives=game.players.filter (x)->!x.dead
 			r=Math.floor Math.random()*alives.length	# 投票先
-			@voteto=alives[r].id
+			#@voteto=alives[r].id
 			if game.rule.votemyself!="ok" && @voteto==@id && alives.length>1
 				# 自分投票
 				@votestart game	# やり直し
+			else
+				game.votingbox.vote this,alives[r].id
 		
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
