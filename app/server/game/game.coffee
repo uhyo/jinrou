@@ -451,8 +451,10 @@ class Game
 		deads.length
 				
 	# 投票終わりチェック
+	# 返り値意味ないんじゃないの?
 	execute:->
-		return false unless @players.every((x)->x.dead || x.voted())
+		return false unless @votingbox.isVoteAllFinished()
+		###
 		tos={}
 		@players.forEach (x)->
 			return if x.dead || !x.voteto
@@ -495,10 +497,26 @@ class Game
 					revote=false
 					player=@getPlayer onedc.voteto
 					break
-		if revote
-			# 再投票
+		###
+		[mode,player,tos,table]=@votingbox.check()
+		if mode=="novote"
+			# 誰も投票していない・・・
+			@revote_num=Infinity
+			@judge()
+			return false
+		# 投票結果
+		log=
+			mode:"voteresult"
+			voteresult:table
+			tos:tos
+		splashlog @id,this,log
+
+		if mode=="revote"
+			# 再投票になった
 			@dorevote()
-		else if player
+			return false
+		else if mode=="punish"
+			# 投票
 			# 結果が出た 死んだ!
 			player.die this,"punish"
 			
@@ -524,6 +542,7 @@ class Game
 		if isFinite remains
 			log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
 		splashlog @id,this,log
+		@votingbox.init()
 		@players.forEach (player)=>
 			player.votestart this
 		SS.publish.channel "room#{@id}","voteform",true
@@ -710,7 +729,7 @@ class Game
 					# 突然死記録
 					M.users.update {userid:x.realid},{$push:{gone:@id}}
 				@bury()
-				@checkjobs true				
+				@checkjobs true
 		else if !@voting
 			# 昼
 			time=@rule.day
@@ -730,7 +749,7 @@ class Game
 						# 突然死
 						revoting=false
 						@players.forEach (x)=>
-							return if x.dead || x.voted()
+							return if x.dead || x.voted(this)
 							x.die this,"gone"
 							revoting=true
 						@bury()
@@ -748,8 +767,8 @@ class Game
 			func= =>
 				unless @execute()
 					revoting=false
-					@players.forEach (x)->
-						return if x.dead || x.voted()
+					@players.forEach (x)=>
+						return if x.dead || x.voted(this)
 						x.die this,"gone"
 						revoting=true
 					@bury()
@@ -847,17 +866,61 @@ class VotingBox
 			return "そのプレイヤーは存在しません"
 		if pl.dead
 			return "その人は既に死んでいます"
-		if @isVoteFinished playerr
+		if @isVoteFinished player
 			return "あなたは既に投票しています"
+		if pl.id==player.id && @game.rule.votemyself!="ok"
+			return "自分には投票できません"
 		@votes.push {
 			player:player
 			to:pl
 		}
+		log=
+			mode:"voteto"
+			to:player.id
+			comment:"#{player.name}は#{pl.name}に投票しました"
+		splashlog @game.id,@game,log
 		null
-	isVoteAllFinished:(player)->
+	isVoteAllFinished:->
 		alives=@game.players.filter (x)->!x.dead
 		alives.every (x)=>
 			@isVoteFinished x
+	check:->
+		# return [mode,result,tos,table]
+		# 投票が終わったのでアレする
+		# 投票表を作る
+		tos={}
+		table=[]
+		for obj in @votes
+			tos[obj.to.id] ?= 0
+			tos[obj.to.id]+=1
+			o=obj.player.publicinfo()
+			o.voteto=obj.to.id	# 投票先情報を付け加える
+			table.push o
+		max=0
+		for playerid,num of tos
+			if num>max then max=num	#最大値をみる
+		if max==0
+			# 誰も投票していない
+			###
+			@revote_num=Infinity
+			@judge()
+			return
+			###
+			return ["novote",null,tos,table]
+		player=null
+		revote=false	# 際投票
+		for playerid,num of tos
+			if num==max
+				if player?
+					# 斎藤票だ!
+					revote=true
+					break
+				player=@game.getPlayer playerid
+		if revote
+			# 再投票になった
+			return ["revote",null,tos,table]
+		# 結果を教える
+		return ["punish",player,tos,table]
 
 class Player
 	constructor:->
@@ -1007,14 +1070,10 @@ class Player
 		#@voteto=null
 		if @scapegoat
 			# 身代わりくんは投票
-			alives=game.players.filter (x)->!x.dead
+			alives=game.players.filter (x)=>!x.dead && x!=this
 			r=Math.floor Math.random()*alives.length	# 投票先
 			#@voteto=alives[r].id
-			if game.rule.votemyself!="ok" && @voteto==@id && alives.length>1
-				# 自分投票
-				@votestart game	# やり直し
-			else
-				game.votingbox.vote this,alives[r].id
+			game.votingbox.vote this,alives[r].id
 		
 	# 夜のはじまり（死体処理よりも前）
 	sunset:(game)->
@@ -1023,7 +1082,7 @@ class Player
 	# 夜に仕事を追えたか（基本sleepingと一致）
 	jobdone:(game)->@sleeping game
 	# 昼に投票を終えたか
-	voted:->@voteto?
+	voted:(game)->game.votingbox.isVoteFinished this
 	# 夜の仕事
 	job:(game,playerid,query)->
 		@target=playerid
@@ -1800,7 +1859,7 @@ class Neet extends Player
 	jobname:"ニート"
 	team:""
 	sleeping:->true
-	voted:->true
+	voted:(game)->true
 	isWinner:->true
 class Liar extends Player
 	type:"Liar"
@@ -2916,7 +2975,7 @@ class Complex
 		@sub?.sunrise? game
 	votestart:(game)->
 		@main.votestart game
-	voted:->@main.voted()
+	voted:(game)->@main.voted(game)
 	dovote:(target)->
 		@main.dovote target
 	
@@ -3594,7 +3653,8 @@ exports.actions=
 				game.checkjobs()
 		else
 			# 投票
-			if player.voteto?
+			###
+			if @votingbox.isVoteFinished player
 				cb {error:"既に投票しています"}
 				return
 			if query.target==player.id && game.rule.votemyself!="ok"
@@ -3604,12 +3664,12 @@ exports.actions=
 			unless to?
 				cb {error:"その人には投票できません"}
 				return
-			player.dovote query.target
-			log=
-				mode:"voteto"
-				to:player.id
-				comment:"#{player.name}は#{to.name}に投票しました"
-			splashlog game.id,game,log
+			###
+			err=game.votingbox.vote player,query.target
+			if err?
+				cb {error:err}
+				return
+			#player.dovote query.target
 			# 投票が終わったかチェック
 			game.addGamelog {
 				id:player.id
@@ -3818,7 +3878,7 @@ makejobinfo = (game,player,result={})->
 		player.makejobinfo game,result
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
-		result.sleeping=if game.night then player.jobdone(game) else if player.voteto? then true else false
+		result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
 		result.jobname=player.getJobDisp()
 		result.winner=player.winner
 		if game.night
