@@ -89,7 +89,8 @@ class Game
 					
 				if obj?.openjob
 					r.jobname=x.getJobname()
-					r.option=x.optionString()
+					#r.option=x.optionString()
+					r.option=""
 					r.originalJobname=x.originalJobname
 					r.winner=x.winner
 				unless @rule.blind=="complete" || (@rule.blind=="yes" && !@finished)
@@ -203,11 +204,21 @@ class Game
 					# 身代わりくん
 					newpl.scapegoat=true
 		if options.decider
+			# 決定者を作る
 			r=Math.floor Math.random()*@players.length
-			@players[r].decider=true
+			pl=@players[r]
+		
+			newpl=Player.factory null,pl,null,Decider	# 酔っ払い
+			pl.transProfile newpl
+			pl.transform @,newpl,true
 		if options.authority
+			# 権力者を作る
 			r=Math.floor Math.random()*@players.length
-			@players[r].authority=true
+			pl=@players[r]
+		
+			newpl=Player.factory null,pl,null,Authority	# 酔っ払い
+			pl.transProfile newpl
+			pl.transform @,newpl,true
 		
 		if @rule.wolfminion
 			# 狼の子分がいる場合、子分決定者を作る
@@ -232,8 +243,7 @@ class Game
 			
 				newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
 				pl.transProfile newpl
-				pl.transform @,newpl
-				newpl.originalJobName=pl.getJobname()
+				pl.transform @,newpl,true
 			
 		# プレイヤーシャッフル
 		@players=shuffle @players
@@ -859,8 +869,9 @@ class VotingBox
 	init:->
 		# 投票箱を空にする
 		@votes=[]	#{player:Player, to:Player}
-	isVoteFinished:(player)->@votes.some (x)->x.player==player
+	isVoteFinished:(player)->@votes.some (x)->x.player.id==player.id
 	vote:(player,voteto)->
+		# power: 票数
 		pl=@game.getPlayer voteto
 		unless pl?
 			return "そのプレイヤーは存在しません"
@@ -871,8 +882,10 @@ class VotingBox
 		if pl.id==player.id && @game.rule.votemyself!="ok"
 			return "自分には投票できません"
 		@votes.push {
-			player:player
+			player:@game.getPlayer player.id
 			to:pl
+			power:1
+			priority:0
 		}
 		log=
 			mode:"voteto"
@@ -880,6 +893,28 @@ class VotingBox
 			comment:"#{player.name}は#{pl.name}に投票しました"
 		splashlog @game.id,@game,log
 		null
+	# その人の投票オブジェクトを得る
+	getHisVote:(player)->
+		@votes.filter((x)->x.player.id==player.id)[0]
+	# 票のパワーを変更する
+	votePower:(player,value,absolute=false)->
+		v=@getHisVote player
+		if v?
+			if absolute
+				v.power=value
+			else
+				v.power+=value
+	# 優先度つける
+	votePriority:(player,value,absolute=false)->
+		v=@getHisVote player
+		if v?
+			if absolute
+				v.priority=value
+			else
+				v.priority+=value
+
+
+
 	isVoteAllFinished:->
 		alives=@game.players.filter (x)->!x.dead
 		alives.every (x)=>
@@ -892,7 +927,7 @@ class VotingBox
 		table=[]
 		for obj in @votes
 			tos[obj.to.id] ?= 0
-			tos[obj.to.id]+=1
+			tos[obj.to.id]+=obj.power
 			o=obj.player.publicinfo()
 			o.voteto=obj.to.id	# 投票先情報を付け加える
 			table.push o
@@ -901,21 +936,28 @@ class VotingBox
 			if num>max then max=num	#最大値をみる
 		if max==0
 			# 誰も投票していない
-			###
-			@revote_num=Infinity
-			@judge()
-			return
-			###
 			return ["novote",null,tos,table]
-		player=null
-		revote=false	# 際投票
+		# もっとも票が多い人を探す
+		tops=[]
 		for playerid,num of tos
 			if num==max
-				if player?
-					# 斎藤票だ!
-					revote=true
-					break
-				player=@game.getPlayer playerid
+				tops.push {id:playerid}
+		# 優先度で絞り込む
+		prior=-Infinity
+		player=null
+		revote=false	# 際投票
+		for obj in tops
+			# 票の中でもっとも優先度が高い
+			maxpr=Math.max.apply Math,@votes.filter((x)->x.to.id==obj.id).map((x)->x.priority)
+			if prior==maxpr && player?
+				# 同じだ
+				revote=true
+			else if maxpr>=prior
+				# 処刑候補だ
+				player=@game.getPlayer obj.id
+				prior=maxpr
+				revote=false
+
 		if revote
 			# 再投票になった
 			return ["revote",null,tos,table]
@@ -930,9 +972,6 @@ class Player
 		@winner=null	# 勝敗
 		@scapegoat=false	# 身代わりくんかどうか
 		@flag=null	# 役職ごとの自由なフラグ
-		
-		@decider=false	# 決定者
-		@authority=false# 権力者
 		
 		@will=null	# 遺言
 		# もとの役職
@@ -970,8 +1009,6 @@ class Player
 			name:@name
 			dead:@dead
 			scapegoat:@scapegoat
-			decider:@decider
-			authority:@authority
 			will:@will
 			flag:@flag
 			winner:@winner
@@ -998,8 +1035,6 @@ class Player
 		p.setProfile obj	#id,realid,name...
 		p.dead=obj.dead
 		p.scapegoat=obj.scapegoat
-		p.decider=obj.decider
-		p.authority=obj.authority
 		p.will=obj.will
 		p.flag=obj.flag
 		p.winner=obj.winner
@@ -1015,14 +1050,6 @@ class Player
 			name:@name
 			dead:@dead
 		}
-	optionString:->
-		# 付加能力を文字列化
-		arr=[]
-		if @decider
-			arr.push "決定者"
-		if @authority
-			arr.push "権力者"
-		arr.join "・"
 		
 	# ログが見えるかどうか（通常のゲーム中、個人宛は除外）
 	isListener:(game,log)->
@@ -1062,7 +1089,9 @@ class Player
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
 	# 投票先決定
-	dovote:(target)->@voteto=target
+	dovote:(game,target)->
+		# 戻り値にも意味があるよ！
+		game.votingbox.vote this,target,1
 	# 昼のはじまり（死体処理よりも前）
 	sunrise:(game)->
 	# 昼の投票準備
@@ -1072,6 +1101,7 @@ class Player
 			# 身代わりくんは投票
 			alives=game.players.filter (x)=>!x.dead && x!=this
 			r=Math.floor Math.random()*alives.length	# 投票先
+			return unless alives[r]?
 			#@voteto=alives[r].id
 			game.votingbox.vote this,alives[r].id
 		
@@ -1114,6 +1144,15 @@ class Player
 		return if @dead
 		@dead=true
 		@found=found
+	# 行きかえる
+	revive:(game)->
+		@dead=false
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は蘇生しました。"
+		splashlog game.id,game,log
+		SS.publish.user @id,"refresh",{id:game.id}
 
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
@@ -1208,12 +1247,17 @@ class Player
 			aftpl.originalJobname="#{befpl.originalJobname}→#{aftpl.getJobname()}"
 				
 	# 自分自身を変える
-	transform:(game,newpl)->
+	transform:(game,newpl,initial=false)->
 		@addGamelog game,"transform",newpl.type
 		# 役職変化ログ
 		newpl.originalType=@originalType
 		if @getJobname()!=newpl.getJobname()
-			newpl.originalJobname="#{@originalJobname}→#{newpl.getJobname()}"
+			unless initial
+				# ふつうの変化
+				newpl.originalJobname="#{@originalJobname}→#{newpl.getJobname()}"
+			else
+				# 最初の変化（ログに残さない）
+				newpl.originalJobname=newpl.getJobname()
 		###
 		tr=(parent,name)=>
 			if parent[name]?.isComplex? && parent[name].id==@id	# Playerだよね
@@ -1642,15 +1686,9 @@ class Magician extends Player
 			# 失敗
 			@addGamelog game,"raise",false,pl.id
 			return
-		pl.dead=false
 		# 蘇生 目を覚まさせる
 		@addGamelog game,"raise",true,pl.id
-		log=
-			mode:"skill"
-			to:pl.id
-			comment:"#{pl.name}は蘇生しました。"
-		splashlog game.id,game,log
-		SS.publish.user pl.id,"refresh",{id:game.id}
+		pl.revive game
 	job_target:Player.JOB_T_DEAD
 	makejobinfo:(game,result)->
 		super
@@ -2629,14 +2667,8 @@ class Cat extends Poisoner
 			@addGamelog game,"catraise",pl.id,@target
 		else
 			@addGamelog game,"catraise",true,@target
-		pl.dead=false
 		# 蘇生 目を覚まさせる
-		log=
-			mode:"skill"
-			to:pl.id
-			comment:"#{pl.name}は蘇生しました。"
-		splashlog game.id,game,log
-		SS.publish.user pl.realid,"refresh",{id:game.id}
+		pl.revive game
 	deadnight:(game)->
 		@target=@id
 		@midnight game
@@ -2715,15 +2747,9 @@ class Witch extends Player
 		if @flag & 8
 			# 蘇生
 			@flag^=8
-			pl.dead=false
 			# 蘇生 目を覚まさせる
 			@addGamelog game,"witchraise",null,pl.id
-			log=
-				mode:"skill"
-				to:pl.id
-				comment:"#{pl.name}は蘇生しました。"
-			splashlog game.id,game,log
-			SS.publish.user pl.realid,"refresh",{id:game.id}
+			pl.revive game
 		else if @flag & 16
 			# 殺害
 			@flag ^= 16
@@ -2976,8 +3002,8 @@ class Complex
 	votestart:(game)->
 		@main.votestart game
 	voted:(game)->@main.voted(game)
-	dovote:(target)->
-		@main.dovote target
+	dovote:(game,target)->
+		@main.dovote game,target
 	
 	makejobinfo:(game,result)->
 		@sub?.makejobinfo? game,result
@@ -2996,6 +3022,9 @@ class Complex
 	die:(game,found)->
 		@main.die game,found
 		@sub?.die game,found
+	revive:(game)->
+		@main.revive game
+		@sub?.revive game
 
 #superがつかえないので注意
 class Friend extends Complex	# 恋人
@@ -3108,14 +3137,24 @@ class Drunk extends Complex
 	isDrunk:->true
 	getSpeakChoice:(game)->
 		Human.prototype.getSpeakChoice.call @,game
-# 決定者(unused)
+# 決定者
 class Decider extends Complex
 	cmplType:"Decider"
 	getJobname:->"#{@main.getJobname()}（決定者）"
-# 権力者(unused)
+	dovote:(game,target)->
+		result=@main.dovote game,target
+		return result if result?
+		game.votingbox.votePriority this,1	#優先度を1上げる
+		null
+# 権力者
 class Authority extends Complex
 	cmplType:"Authority"
 	getJobname:->"#{@main.getJobname()}（権力者）"
+	dovote:(game,target)->
+		result=@main.dovote game,target
+		return result if result?
+		game.votingbox.votePower this,1	#票をひとつ増やす
+		null
 games={}
 
 # ゲームを得る
@@ -3187,6 +3226,8 @@ complexes=
 	Muted:Muted
 	WolfMinion:WolfMinion
 	Drunk:Drunk
+	Decider:Decider
+	Authority:Authority
 
 
 exports.actions=
@@ -3665,7 +3706,7 @@ exports.actions=
 				cb {error:"その人には投票できません"}
 				return
 			###
-			err=game.votingbox.vote player,query.target
+			err=player.dovote game,query.target
 			if err?
 				cb {error:err}
 				return
