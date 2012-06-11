@@ -13,7 +13,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
-"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub",
+"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub","Thief",
 ]
 # ここには入らない役職
 # Light, Neet, MinionSelector
@@ -32,7 +32,7 @@ exports.teams=teams=
 	Bat:["Bat"]
 	Devil:["Devil"]
 	Friend:["Cupid","Lover"]
-	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner"],
+	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief"],
 	Neet:["Neet"]
 
 # カテゴリ分け
@@ -568,6 +568,9 @@ exports.jobinfo=
 		Tanner:
 			name:"皮なめし職人"
 			color:"#ede4b9"
+		Thief:
+			name:"盗人"
+			color:"#a4a4a4"
 		
 	Neet:
 		name:"ニート"

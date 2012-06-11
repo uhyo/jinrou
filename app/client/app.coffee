@@ -29,7 +29,7 @@ exports.init = ->
 		login localStorage.userid, localStorage.password,(result)->
 			if result
 				p = location.pathname
-				if p=="/" then p="/my"		
+				if p=="/" then p="/my"
 			else
 				#p="/"
 				# 無効

@@ -154,6 +154,37 @@ class Game
 					name:testpl.jobname
 					number:num
 
+		# 盗賊の処理
+		thief_jobs=[]
+		if joblist.Thief>0
+			# 盗人一人につき2回抜く
+			for i in [0...(joblist.Thief*2)]
+				# 1つ抜く
+				keys=[]
+				# 数に比例した役職一覧を作る
+				for job,num of joblist
+					unless job in SS.shared.game.nonhumans
+						for j in [0...num]
+							keys.push job
+				keys=shuffle keys
+
+				until keys.length==0 || joblist[keys[0]]>0
+					# 抜けない
+					keys.splice 0,1
+				# これは抜ける
+				if keys.length==0
+					# もう無い
+					cb "盗人の処理に失敗しました"
+					return
+				thief_jobs.push keys[0]
+				joblist[keys[0]]--
+				# 代わりに村人1つ入れる
+				joblist.Human ?= 0
+				joblist.Human++
+
+
+
+
 		# まず身代わりくんを決めてあげる
 		if @rule.scapegoat=="on"
 			# 人狼、妖狼にはならない
@@ -203,6 +234,13 @@ class Game
 				if pl.scapegoat
 					# 身代わりくん
 					newpl.scapegoat=true
+		if joblist.Thief>0
+			# 盗人がいる場合
+			thieves=@players.filter (x)->x.isJobType "Thief"
+			for pl in thieves
+				pl.flag=JSON.stringify thief_jobs.splice 0,2
+
+		# サブ系
 		if options.decider
 			# 決定者を作る
 			r=Math.floor Math.random()*@players.length
@@ -244,6 +282,7 @@ class Game
 				newpl=Player.factory null,pl,null,Drunk	# 酔っ払い
 				pl.transProfile newpl
 				pl.transform @,newpl,true
+
 			
 		# プレイヤーシャッフル
 		@players=shuffle @players
@@ -1146,13 +1185,17 @@ class Player
 		@found=found
 	# 行きかえる
 	revive:(game)->
+		# logging: ログを表示するか
 		@dead=false
-		log=
-			mode:"skill"
-			to:@id
-			comment:"#{@name}は蘇生しました。"
-		splashlog game.id,game,log
-		SS.publish.user @id,"refresh",{id:game.id}
+		p=@getParent game
+		unless p?.sub==this
+			# サブのときはいいや・・・
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は蘇生しました。"
+			splashlog game.id,game,log
+			SS.publish.user @id,"refresh",{id:game.id}
 
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
@@ -2942,6 +2985,59 @@ class MinionSelector extends Player
 		splashlog game.id,game,log
 
 		null
+# 盗人
+class Thief extends Player
+	type:"Thief"
+	jobname:"盗人"
+	team:""
+	sleeping:(game)->@target? || game.day>1
+	sunset:(game)->
+		@target=if game.day==1 then null else ""
+		# @flag:JSONの役職候補配列
+		if !target?
+			arr=JSON.parse(@flag ? '["Human"]')
+			jobnames=arr.map (x)->
+				testpl=new jobs[x]
+				testpl.getJobDisp()
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}が選択可能な役職は#{jobnames.join(",")}です"
+			splashlog game.id,game,log
+			if @scapegoat
+				# 身代わり君
+				arr=JSON.parse @flag
+				r=Math.floor Math.random()*arr.length
+				@job game,arr[r]
+	job:(game,target)->
+		@target=target
+		unless jobs[target]?
+			return "その役職にはなれません"
+
+		newpl=Player.factory target
+		@transProfile newpl
+		@transferData newpl
+		newpl.sunset game
+		@transform game,newpl
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
+		splashlog game.id,game,log
+		
+		SS.publish.user newpl.id,"refresh",{id:game.id}
+		null
+	makeJobSelection:(game)->
+		if game.night
+			# 役職から選択
+			arr=JSON.parse @flag
+			arr.map (x)->
+				testpl=new jobs[x]
+				{
+					name:testpl.getJobDisp()
+					value:x
+				}
+		else super
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -3216,6 +3312,7 @@ jobs=
 	WolfCub:WolfCub
 	WhisperingMad:WhisperingMad
 	Lover:Lover
+	Thief:Thief
 	
 complexes=
 	Complex:Complex
@@ -3388,7 +3485,7 @@ exports.actions=
 				
 				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
 				# 闇鍋のときは入れないのがある
-				exceptions=["MinionSelector"]
+				exceptions=["MinionSelector","Thief"]
 				if query.safety!="free"
 					exceptions=exceptions.concat SS.shared.game.nonhumans	# 基本人外は選ばれない
 				if query.safety=="full"	# 安全
