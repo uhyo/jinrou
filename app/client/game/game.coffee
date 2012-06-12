@@ -731,7 +731,18 @@ exports.start=(roomid)->
 			p.textContent=text
 			p
 		if obj.type
-			$("#jobinfo").append $ "<p>あなたは<b>#{obj.jobname}</b>です（<a href='/manual/job/#{obj.type}'>詳細</a>)</p>"
+			infop=$ "<p>あなたは<b>#{obj.jobname}</b>です（</p>"
+			if obj.desc
+				# 役職説明
+				for o,i in obj.desc
+					if i>0
+						infop.append "・"
+					a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '詳細' else "#{o.name}の詳細"}</a>"
+					infop.append a
+				infop.append "）"
+					
+
+			$("#jobinfo").append infop
 		if obj.wolves?
 			$("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
 		if obj.peers?

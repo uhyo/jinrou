@@ -1234,6 +1234,12 @@ class Player
 		obj.open ?=[]
 		if !@jobdone(game) && (game.night || @chooseJobDay(game))
 			obj.open.push @type
+		# 役職解説のアレ
+		obj.desc ?= []
+		obj.desc.push {
+			name:@getJobDisp()
+			type:@getTypeDisp()
+		}
 
 		obj.job_target=@getjob_target()
 		# 選択肢を教える {name:"名前",value:"値"}
@@ -1651,7 +1657,7 @@ class TinyFox extends Diviner
 			mode:"skill"
 			to:@id
 			comment:"#{@name}の占いの結果、#{r.player.name}は#{r.result}かな？"
-		splashlog game.id,game,log			
+		splashlog game.id,game,log
 	
 	
 class Bat extends Player
@@ -2645,7 +2651,7 @@ class Vampire extends Player
 			to:@id
 			comment:"#{@name}が#{game.getPlayer(playerid).name}を襲撃しました。"
 		splashlog game.id,game,log
-		null		
+		null
 	midnight:(game)->
 		t=game.getPlayer @target
 		return unless t?
@@ -3141,6 +3147,10 @@ class Friend extends Complex	# 恋人
 		@sub?.makejobinfo? game,result
 		@main.makejobinfo game,result
 		# 恋人が分かる
+		result.desc?.push {
+			name:"恋人"
+			type:"Friend"
+		}
 		result.friends=game.players.filter((x)->x.isFriend()).map (x)->
 			x.publicinfo()
 	isWinner:(game,team)->@team==team
@@ -3164,6 +3174,13 @@ class CultMember extends Complex
 	isCult:->true
 	getJobname:->"カルト信者（#{@main.getJobname()}）"
 	getJobDisp:->"カルト信者（#{@main.getJobDisp()}）"
+	makejobinfo:(game,result)->
+		super
+		# 信者の説明
+		result.desc?.push {
+			name:"カルト信者"
+			type:"CultMember"
+		}
 # 狩人に守られた人
 class Guarded extends Complex
 	# cmplFlag: 護衛元ID
@@ -3205,6 +3222,12 @@ class WolfMinion extends Complex
 	team:"Werewolf"
 	getJobname:->"狼の子分（#{@main.getJobname()}）"
 	getJobDisp:->"狼の子分（#{@main.getJobDisp()}）"
+	makejobinfo:(game,result)->
+		super
+		result.desc?.push {
+			name:"狼の子分"
+			value:"WolfMinion"
+		}
 # 酔っ払い
 class Drunk extends Complex
 	cmplType:"Drunk"
@@ -3227,7 +3250,7 @@ class Drunk extends Complex
 				comment:"#{@name}は目が覚めました。"
 			splashlog game.id,game,log
 			@uncomplex game
-			SS.publish.user @realid,"refresh",{id:game.id}	
+			SS.publish.user @realid,"refresh",{id:game.id}
 	makejobinfo:(game,obj)->
 		Human.prototype.makejobinfo.call @,game,obj
 	isDrunk:->true
