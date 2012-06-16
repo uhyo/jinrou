@@ -9,6 +9,9 @@
 
 # Hook-in your own custom HTTP middleware to modify or respond to requests before they're passed to the SocketStream HTTP stack
 
+fs=require 'fs'
+jade=require 'jade'
+
 custom = ->
 
   (request, response, next) ->
@@ -21,7 +24,7 @@ custom = ->
 referrerstop=(request, response, next)->
   unless /^http:\/\/masao\.kuronowish\.com/.test request.headers.referer
     next()
-    return  
+    return
   response.statusCode=403
   response.end """
 <!doctype html>
@@ -67,8 +70,27 @@ jsonapi=(request, response, next)->
     
   else
     next()
-  
-   
+# manual serving
+manualxhr=(request, response, next)->
+  if r=request.url.match /^\/rawmanual\/(\w*)$/
+    # マニュアルを送る
+    fs.readFile "./manual/#{r[1]}.jade","utf-8",(err,data)->
+      if err?
+        # ?
+        response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
+        response.end err.toString()
+        return
+      fn=jade.compile data,{}
+      unless fn?
+        response.writeHead 500,{'Content-Type':'text/plain'}
+        response.end "500"
+        return
+      response.writeHead 200,{'Content-Type':'text/plain; charset=UTF-8'}
+      response.end fn {}
+  else
+    next()
+
+
 
 # CONNECT MIDDLEWARE
 
@@ -80,8 +102,9 @@ exports.primary =
     #connect.logger()            # example of calling in-built connect middleware. be sure to install connect in THIS project and uncomment out the line above
     #require('connect-i18n')()   # example of using 3rd-party middleware from https://github.com/senchalabs/connect/wiki
     #custom()                      # example of using your own custom middleware (using the example above)
-    referrerstop
+	#referrerstop
     jsonapi
+    manualxhr
   ]
 
 # Stack for Secondary Server

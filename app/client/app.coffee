@@ -52,6 +52,35 @@ exports.page=page=(templatename,params=null,pageobj,startparam)->
 	if pageobj
 		pageobj.start(startparam)
 		jQuery.data cdom, "end", pageobj.end
+# マニュアルを表示
+manualpage=(pagename)->
+	resp=(tmp)->
+		cdom=$("#content").get(0)
+		jQuery.data(cdom,"end")?()
+		jQuery.removeData cdom,"end"
+		$("#content").empty()
+		
+		$.tmpl(tmp).appendTo("#content")
+		pageobj=SS.client.manual
+		if pageobj
+			pageobj.start()
+			jQuery.data cdom, "end", pageobj.end
+
+	if sessionStorage["manual_#{pagename}"]
+		# すでに取得済み
+		resp sessionStorage["manual_#{pagename}"]
+		return
+	xhr=new XMLHttpRequest()
+	xhr.open "GET","/rawmanual/#{pagename}"
+	xhr.responseType="text"
+	xhr.onload=(e)->
+		#if e.status==200
+		sessionStorage["manual_#{pagename}"]=xhr.response
+		resp xhr.response
+
+	xhr.send()
+
+
 
 exports.showUrl=showUrl=(url,nohistory=false)->
 	if result=url.match /(https?:\/\/.+?)(\/.+)$/
@@ -79,7 +108,8 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 			page "templates-lobby",null,SS.client.lobby,null
 		when "/manual"
 			# マニュアルトップ
-			page "templates-manual-top",null,SS.client.manual,null
+			#page "templates-manual-top",null,SS.client.manual,null
+			manualpage "top"
 		when "/admin"
 			# 管理者ページ
 			page "templates-admin",null,SS.client.admin,null
@@ -110,7 +140,8 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				# キャスティング情報
 				page "templates-pages-casting",null,SS.client.pages.casting,result[1]
 			else if result=url.match /^\/manual\/(\w+)$/
-				page "templates-manual-#{result[1]}",null,SS.client.manual,null
+				#page "templates-manual-#{result[1]}",null,SS.client.manual,null
+				manualpage result[1]
 			else if result=url.match /^\/events\/(\w+)$/
 				page "templates-manual-events-#{result[1]}",null,SS.client.manual,null
 			else if result=url.match /^\/backdoor\/(\w+)$/
