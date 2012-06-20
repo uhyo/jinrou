@@ -1,3 +1,6 @@
+Shared=
+	game:require './../client/code/shared/game.coffee'
+	prize:require './../client/code/shared/prize.coffee'
 
 makePrize=->
 	prizes={}
@@ -257,7 +260,7 @@ getTypeAtTime=(game,userid,day)->
 	return ls[0]?.type ? pl.type
 # チームを調べる
 getTeamByType=(type)->
-	for name,arr of SS.shared.game.teams
+	for name,arr of Shared.game.teams
 		if type in arr
 			return name
 	return ""
@@ -281,7 +284,7 @@ counterprize=
 			3:"千里眼"
 			10:"心眼"
 		func:(game,id)->
-			game.gamelogs.filter((x)->x.id==id && x.event=="divine" && x.flag in SS.shared.game.blacks).length
+			game.gamelogs.filter((x)->x.id==id && x.event=="divine" && x.flag in Shared.game.blacks).length
 		
 	# GJ判定
 	GJ:
@@ -436,7 +439,7 @@ ownprizesprize=
 prizes=makePrize()	# 賞の一覧 {"prize1":"賞1","prize2","賞2"} というようにIDと名前の辞書
 
 # 内部用
-exports.actions=
+module.exports=
 	checkPrize:(userid,cb)->
 		#console.log "checking: #{userid}"
 		# あるuseridのユーザーの賞をチェックする
@@ -448,7 +451,7 @@ exports.actions=
 			mes=docs.map((x)->x.players.filter((pl)->pl.realid==userid)[0])
 			wins=mes.filter((x)->x.winner)
 			loses=mes.filter((x)->x.winner==false)
-			for team,jobs of SS.shared.game.teams
+			for team,jobs of Shared.game.teams
 				for job in jobs
 					count=wins.filter((x)->x.originalType==job).length
 					if count>0 && wincountprize[job]?

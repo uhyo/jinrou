@@ -18,9 +18,24 @@ room: {
 PlayerObject.start=Boolean
 ###
 page_number=10
+Server=
+	game:
+		game:require './game.coffee'
+		rooms:module.exports
+	oauth:require '../../oauth.coffee'
 
-exports.actions=
-	getRooms:(mode,page,cb)->
+module.exports=
+	# サーバー用 部屋1つ取得
+	oneRoomS:(roomid,cb)->
+		M.rooms.findOne {id:roomid},(err,result)=>
+			if err?
+				res {error:err}
+				return
+			cb result
+
+exports.actions=(req,res,ss)->
+	req.use 'session'
+	getRooms:(mode,page)->
 		if mode=="log"
 			query=
 				mode:"end"
@@ -30,7 +45,7 @@ exports.actions=
 					$ne:"end"
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
-				cb {error:err}
+				reres {error:err}
 				return
 			results.forEach (x)->
 				if x.password?
@@ -40,29 +55,23 @@ exports.actions=
 					delete x.owner
 					x.players.forEach (p)->
 						delete p.realid
-			cb results
-	oneRoom:(roomid,cb)->
+			res results
+	oneRoom:(roomid)->
 		M.rooms.findOne {id:roomid},(err,result)=>
 			if err?
-				cb {error:err}
+				res {error:err}
 				return
 			# クライアントからの問い合わせの場合
 			result.players.forEach (p)->
 				delete p.realid
 				delete p.ip
-			cb result
-	oneRoomS:(roomid,cb)->
-		M.rooms.findOne {id:roomid},(err,result)=>
-			if err?
-				cb {error:err}
-				return
-			cb result
+			res result
 
 # 成功: {id: roomid}
 # 失敗: {error: ""}
-	newRoom: (query,cb)->
-		unless @session.user_id
-			cb {error: "ログインしていません"}
+	newRoom: (query)->
+		unless req.session.user_id
+			res {error: "ログインしていません"}
 			return
 		M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
 			id=if doc? then doc.id+1 else 1
@@ -77,69 +86,69 @@ exports.actions=
 			room.blind=query.blind
 			room.comment=query.comment ? ""
 			#unless room.blind
-			#	room.players.push @session.attributes.user
+			#	room.players.push req.session.attributes.user
 			unless room.number
-				cb {error: "invalid players number"}
+				res {error: "invalid players number"}
 				return
 			room.owner=
-				userid:@session.attributes.user.userid
-				name:@session.attributes.user.name
+				userid:req.session.attributes.user.userid
+				name:req.session.attributes.user.name
 			room.gm = query.ownerGM=="yes"
 			M.rooms.insert room
-			SS.server.game.game.newGame room
-			cb {id: room.id}
-			SS.server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.blind then '・覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",SS.config.admin.password
+			Server.game.game.newGame room
+			res {id: room.id}
+			Server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.blind then '・覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",Config.admin.password
 
 # 部屋に入る
 # 成功ならnull 失敗ならエラーメッセージ
-	join: (roomid,opt,cb)->
-		unless @session.user_id
-			cb {error:"ログインして下さい",require:"login"}	# ログインが必要
+	join: (roomid,opt)->
+		unless req.session.user_id
+			res {error:"ログインして下さい",require:"login"}	# ログインが必要
 			return
-		M.blacklist.findOne {$or:[{userid:@session.user_id},{ip:@session.attributes.user.ip}]},(err,doc)=>
+		M.blacklist.findOne {$or:[{userid:req.session.user_id},{ip:req.session.attributes.user.ip}]},(err,doc)=>
 			if doc?
 				if !doc.expires || doc.expires.getTime()>=Date.now()
-					cb error:"参加は禁止されています"
+					res error:"参加は禁止されています"
 					return
 			
-			SS.server.game.rooms.oneRoomS roomid,(room)=>
+			Server.game.rooms.oneRoomS roomid,(room)=>
 		
 				if !room || room.error?
-					cb error:"その部屋はありません"
+					res error:"その部屋はありません"
 					return
-				if @session.user_id in (room.players.map (x)->x.realid)
-					cb error:"すでに参加しています"
+				if req.session.user_id in (room.players.map (x)->x.realid)
+					res error:"すでに参加しています"
 					return
 				if room.players.length >= room.number
 					# 満員
-					cb error:"これ以上入れません"
+					res error:"これ以上入れません"
 					return
 				unless room.mode=="waiting"
-					cb error:"既に参加は締めきられています"
+					res error:"既に参加は締めきられています"
 					return
-				if room.gm && room.owner.userid==@session.user_id
-					cb error:"ゲームマスターは参加できません"
+				if room.gm && room.owner.userid==req.session.user_id
+					res error:"ゲームマスターは参加できません"
 					return
-				#room.players.push @session.attributes.user
-				su=@session.attributes.user
+				#room.players.push req.session.attributes.user
+				su=req.session.attributes.user
 				user=
-					userid:@session.user_id
-					realid:@session.user_id
+					userid:req.session.user_id
+					realid:req.session.user_id
 					name:su.name
 					ip:su.ip
 					icon:su.icon
 					start:false
 					nowprize:su.nowprize
 				
-				user.realid = @session.user_id
+				user.realid = req.session.user_id
 				# 同IP制限
 				if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
-					cb error:"重複参加はできません"
+					res error:"重複参加はできません"
 					return
 				
 				if room.blind
 					unless opt?.name
-						cb error:"名前を入力して下さい"
+						res error:"名前を入力して下さい"
 						return
 					# 覆面
 					makeid=->	# ID生成
@@ -158,153 +167,153 @@ exports.actions=
 						
 				M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
 					if err?
-						cb error:"エラー:#{err}"
+						res error:"エラー:#{err}"
 					else
-						cb null
+						res null
 						# 入室通知
 						delete user.ip
-						SS.server.game.game.inlog room,user
-						SS.publish.channel "room#{roomid}", "join", user
+						Server.game.game.inlog room,user
+						ss.publish.channel "room#{roomid}", "join", user
 # 部屋から出る
-	unjoin: (roomid,cb)->
-		unless @session.user_id
-			cb "ログインして下さい"
+	unjoin: (roomid)->
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		Server.game.rooms.oneRoomS roomid,(room)=>
 			if !room || room.error?
-				cb "その部屋はありません"
+				res "その部屋はありません"
 				return
-			unless @session.user_id in (room.players.map (x)->x.realid)
-				cb "まだ参加していません"
+			unless req.session.user_id in (room.players.map (x)->x.realid)
+				res "まだ参加していません"
 				return
 			unless room.mode=="waiting"
-				cb "もう始まっています"
+				res "もう始まっています"
 				return
-			#room.players=room.players.filter (x)=>x!=@session.user_id
-			M.rooms.update {id:roomid},{$pull: {players:{realid:@session.user_id}}},(err)=>
+			#room.players=room.players.filter (x)=>x!=req.session.user_id
+			M.rooms.update {id:roomid},{$pull: {players:{realid:req.session.user_id}}},(err)=>
 				if err?
-					cb "エラー:#{err}"
+					res "エラー:#{err}"
 				else
-					cb null
+					res null
 					# 退室通知
-					user=room.players.filter((x)=>x.realid==@session.user_id)[0]
-					SS.server.game.game.outlog room,user ? @session.attributes.user
-					SS.publish.channel "room#{roomid}", "unjoin", user?.userid
-	ready:(roomid,cb)->
+					user=room.players.filter((x)=>x.realid==req.session.user_id)[0]
+					Server.game.game.outlog room,user ? req.session.attributes.user
+					ss.publish.channel "room#{roomid}", "unjoin", user?.userid
+	ready:(roomid)->
 		# 準備ができたか？
-		unless @session.user_id
-			cb "ログインして下さい"
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		Server.game.rooms.oneRoomS roomid,(room)=>
 			if !room || room.error?
-				cb "その部屋はありません"
+				res "その部屋はありません"
 				return
-			unless @session.user_id in (room.players.map (x)->x.realid)
-				cb "まだ参加していません"
+			unless req.session.user_id in (room.players.map (x)->x.realid)
+				res "まだ参加していません"
 				return
 			unless room.mode=="waiting"
-				cb "もう始まっています"
+				res "もう始まっています"
 				return
 			room.players.forEach (x,i)=>
-				if x.realid==@session.user_id
+				if x.realid==req.session.user_id
 					query={$set:{}}
 					query.$set["players.#{i}.start"]=!x.start
 					M.rooms.update {id:roomid},query, (err)=>
 						if err?
-							cb "エラー:#{err}"
+							res "エラー:#{err}"
 						else
-							cb null
+							res null
 							# ready? 知らせる
-							SS.publish.channel "room#{roomid}", "ready", {userid:x.userid,start:!x.start}
+							ss.publish.channel "room#{roomid}", "ready", {userid:x.userid,start:!x.start}
 
 	# 部屋から追い出す
-	kick:(roomid,id,cb)->
-		unless @session.user_id
-			cb "ログインして下さい"
+	kick:(roomid,id)->
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		Server.game.rooms.oneRoomS roomid,(room)=>
 			if !room || room.error?
-				cb "その部屋はありません"
+				res "その部屋はありません"
 				return
-			if room.owner.userid != @session.user_id
-				cb "オーナーしかkickできません"
+			if room.owner.userid != req.session.user_id
+				res "オーナーしかkickできません"
 				return
 			unless room.mode=="waiting"
-				cb "もう始まっています"
+				res "もう始まっています"
 				return
 			unless room.players.some((x)->x.userid==id)
-				cb "そのユーザーは参加していません"
+				res "そのユーザーは参加していません"
 				return
 			M.rooms.update {id:roomid},{$pull: {players:{userid:id}}},(err)=>
 				if err?
-					cb "エラー:#{err}"
+					res "エラー:#{err}"
 				else
-					cb null
+					res null
 					# 退室通知
 					user=room.players.filter((x)=>x.userid==id)[0]
 					if user?
-						SS.server.game.game.kicklog room,user
-						SS.publish.channel "room#{roomid}", "unjoin",id
-						SS.publish.user id,"refresh",{id:roomid}
+						Server.game.game.kicklog room,user
+						ss.publish.channel "room#{roomid}", "unjoin",id
+						ss.publish.user id,"refresh",{id:roomid}
 	
 	
 	# 成功ならjoined 失敗ならエラーメッセージ
 	# 部屋ルームに入る
-	enter: (roomid,password,cb)->
-		#unless @session.user_id
-		#	cb {error:"ログインして下さい"}
+	enter: (roomid,password)->
+		#unless req.session.user_id
+		#	res {error:"ログインして下さい"}
 		#	return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		Server.game.rooms.oneRoomS roomid,(room)=>
 			if !room?
-				cb {error:"その部屋はありません"}
+				res {error:"その部屋はありません"}
 				return
 			if room.error?
-				cb {error:room.error}
+				res {error:room.error}
 				return
-			if room.password? && room.password!=password && room.password!=SS.config.admin.password
-				cb {require:"password"}
+			if room.password? && room.password!=password && room.password!=Config.admin.password
+				res {require:"password"}
 				return
-			@session.channel.unsubscribeAll()
+			req.session.channel.unsubscribeAll()
 
-			@session.channel.subscribe "room#{roomid}"
-			SS.server.game.game.playerchannel roomid,@session
-			cb {joined:room.players.some((x)=>x.realid==@session.user_id)}
+			req.session.channel.subscribe "room#{roomid}"
+			Server.game.game.playerchannel roomid,req.session
+			res {joined:room.players.some((x)=>x.realid==req.session.user_id)}
 	
 	# 成功ならnull 失敗ならエラーメッセージ
 	# 部屋ルームから出る
-	exit: (roomid,cb)->
-		#unless @session.user_id
-		#	cb "ログインして下さい"
+	exit: (roomid)->
+		#unless req.session.user_id
+		#	res "ログインして下さい"
 		#	return
-#		@session.channel.unsubscribe "room#{roomid}"
-		@session.channel.unsubscribeAll()
-		cb null
+#		req.session.channel.unsubscribe "room#{roomid}"
+		req.session.channel.unsubscribeAll()
+		res null
 	# 部屋を削除
-	del: (roomid,cb)->
-		unless @session.user_id
-			cb "ログインして下さい"
+	del: (roomid)->
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)=>
+		Server.game.rooms.oneRoomS roomid,(room)=>
 			if !room || room.error?
-				cb "その部屋はありません"
+				res "その部屋はありません"
 				return
-			if room.owner.userid != @session.user_id
-				cb "オーナーしか削除できません"
+			if room.owner.userid != req.session.user_id
+				res "オーナーしか削除できません"
 				return
 			unless room.mode=="waiting"
-				cb "もう始まっています"
+				res "もう始まっています"
 				return
 			M.rooms.update {id:roomid},{$set: {mode:"end"}},(err)=>
 				if err?
-					cb "エラー:#{err}"
+					res "エラー:#{err}"
 				else
-					cb null
-					SS.server.game.game.deletedlog room
+					res null
+					Server.game.game.deletedlog room
 					
 	# 部屋探し
-	find:(query,page,cb)->
+	find:(query,page)->
 		unless query?
-			cb {error:"クエリが不正です"}
+			res {error:"クエリが不正です"}
 			return
 		q=
 			finished:true
@@ -341,9 +350,9 @@ exports.actions=
 						delete x.owner
 						x.players.forEach (p)->
 							delete p.realid
-				cb docs
+				res docs
 			
 
-#cb: (err)->
-setRoom=(roomid,room,cb)->
-	M.rooms.update {id:roomid},room,cb
+#res: (err)->
+setRoom=(roomid,room)->
+	M.rooms.update {id:roomid},room,res

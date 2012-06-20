@@ -1,5 +1,16 @@
+# シェアするやつ
+Shared=
+	game:require '../../../client/code/shared/game.coffee'
+	prize:require '../../../client/code/shared/prize.coffee'
+Server=
+	game:
+		game:module.exports
+		rooms:require './rooms.coffee'
+	prize:require '../../prize.coffee'
+	oauth:require '../../oauth.coffee'
 class Game
-	constructor:(room)->
+	constructor:(@ss,room)->
+		# @ss: ss
 		if room?
 			@id=room.id
 			# GMがいる場合
@@ -58,8 +69,8 @@ class Game
 			werewolf_target_remain:@werewolf_target_remain
 		}
 	#DB用をもとにコンストラクト
-	@unserialize:(obj)->
-		game=new Game
+	@unserialize:(obj,ss)->
+		game=new Game ss
 		game.id=obj.id
 		game.gm=obj.gm
 		game.logs=obj.logs
@@ -123,7 +134,7 @@ class Game
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
-	setplayers:(joblist,options,players,cb)->
+	setplayers:(joblist,options,players)->
 		jnumber=0
 		players=players.concat []
 		plsl=players.length	#実際の参加人数（身代わり含む）
@@ -136,12 +147,12 @@ class Game
 			unless isNaN num
 				jnumber+=parseInt num
 			if parseInt(num)<0
-				cb "プレイヤー数が不正です（#{job}:#{num})"
+				res "プレイヤー数が不正です（#{job}:#{num})"
 				return
 
 		if jnumber!=plsl
 			# 数が合わない
-			cb "プレイヤー数が不正です(#{jnumber}/#{plsl}/#{players.length})"
+			res "プレイヤー数が不正です(#{jnumber}/#{plsl}/#{players.length})"
 			return
 
 		# 名前と数を出したやつ
@@ -163,7 +174,7 @@ class Game
 				keys=[]
 				# 数に比例した役職一覧を作る
 				for job,num of joblist
-					unless job in SS.shared.game.nonhumans
+					unless job in Shared.game.nonhumans
 						for j in [0...num]
 							keys.push job
 				keys=shuffle keys
@@ -174,7 +185,7 @@ class Game
 				# これは抜ける
 				if keys.length==0
 					# もう無い
-					cb "盗人の処理に失敗しました"
+					res "盗人の処理に失敗しました"
 					return
 				thief_jobs.push keys[0]
 				joblist[keys[0]]--
@@ -191,7 +202,7 @@ class Game
 			i=0	# 無限ループ防止
 			nogoat=[]	#身代わりがならない役職
 			if @rule.safety!="free"
-				nogoat=nogoat.concat SS.shared.game.nonhumans	#人外は除く
+				nogoat=nogoat.concat Shared.game.nonhumans	#人外は除く
 			if @rule.safety=="full"
 				# 危ない
 				nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat"]
@@ -212,7 +223,7 @@ class Game
 				break
 			if @players.length==0
 				# 決まっていない
-				cb "配役に失敗しました"
+				res "配役に失敗しました"
 				return
 			
 		# ひとり決める
@@ -288,7 +299,7 @@ class Game
 		@players=shuffle @players
 		
 		
-		cb null
+		res null
 #======== ゲーム進行の処理
 	#次のターンに進む
 	nextturn:->
@@ -391,12 +402,12 @@ class Game
 	#全員に状況更新
 	splashjobinfo:->
 		@players.forEach (x)=>
-			SS.publish.user x.realid,"getjob",makejobinfo this,x
+			@ss.publish.user x.realid,"getjob",makejobinfo this,x
 		# プレイヤー以外にも
-		SS.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
+		@ss.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
 		# GMにも
 		if @gm?
-			SS.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
+			@ss.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
 	#全員寝たかチェック 寝たなら処理してtrue
 	#timeoutがtrueならば時間切れなので時間でも待たない
 	checkjobs:(timeout)->
@@ -489,7 +500,7 @@ class Game
 				flag:x.found
 			}
 			x.found=""	# 発見されました
-			SS.publish.user x.realid,"refresh",{id:@id}
+			@ss.publish.user x.realid,"refresh",{id:@id}
 			if @rule.will=="die" && x.will
 				# 死んだら遺言発表
 				log=
@@ -594,7 +605,7 @@ class Game
 		@votingbox.init()
 		@players.forEach (player)=>
 			player.votestart this
-		SS.publish.channel "room#{@id}","voteform",true
+		@ss.publish.channel "room#{@id}","voteform",true
 		@splashjobinfo()
 		if @voting
 			# 投票猶予の場合初期化
@@ -712,7 +723,7 @@ class Game
 			
 			# ルームを終了状態にする
 			M.rooms.update {id:@id},{$set:{mode:"end"}}
-			SS.publish.channel "room#{@id}","refresh",{id:@id}
+			@ss.publish.channel "room#{@id}","refresh",{id:@id}
 			@save()
 			@prize_check()
 			clearTimeout @timer
@@ -734,7 +745,7 @@ class Game
 			# 残り時間を知らせるぞ!
 			@timer_start=parseInt Date.now()/1000
 			@timer_remain=time
-			SS.publish.channel "room#{@id}","time",{time:time, mode:mode}
+			@ss.publish.channel "room#{@id}","time",{time:time, mode:mode}
 			if time>60
 				@timerid=setTimeout timeout,60000
 				time-=60
@@ -862,7 +873,7 @@ class Game
 			oldprize=doc.prize	# 賞の一覧
 			
 			# 賞を算出しなおしてもらう
-			SS.server.prize.checkPrize doc.userid,(prize)=>
+			Server.prize.checkPrize doc.userid,(prize)=>
 				prize=prize.concat doc.ownprize if doc.ownprize?
 				# 新規に獲得した賞を探す
 				newprizes= prize.filter (x)->!(x in oldprize)
@@ -872,7 +883,7 @@ class Game
 					newprizes.forEach (x)=>
 						log=
 							mode:"system"
-							comment:"#{pl.name}は#{SS.server.prize.prizeQuote SS.server.prize.prizeName x}を獲得しました。"
+							comment:"#{pl.name}は#{Server.prize.prizeQuote Server.prize.prizeName x}を獲得しました。"
 						splashlog @id,this,log
 						@addGamelog {
 							id: pl.id
@@ -1195,7 +1206,7 @@ class Player
 				to:@id
 				comment:"#{@name}は蘇生しました。"
 			splashlog game.id,game,log
-			SS.publish.user @id,"refresh",{id:game.id}
+			game.ss.publish.user @id,"refresh",{id:game.id}
 
 	# 埋葬するまえに全員呼ばれる（foundが見られる状況で）
 	beforebury: (game)->
@@ -1922,7 +1933,7 @@ class Merchant extends Player
 			to:newpl.id
 			comment:"#{newpl.name}へ#{kit_names[query.Merchant_kit]}が到着しました。"
 		splashlog game.id,game,log
-		SS.publish.user newpl.id,"refresh",{id:game.id}	
+		game.ss.publish.user newpl.id,"refresh",{id:game.id}
 		@flag=query.Merchant_kit	# 発送済み
 		@addGamelog game,"sendkit",@flag,newpl.id
 		null
@@ -2060,7 +2071,7 @@ class Copier extends Player
 		@transform game,newpl
 
 		
-		SS.publish.user newpl.id,"refresh",{id:game.id}	
+		game.ss.publish.user newpl.id,"refresh",{id:game.id}
 		null
 	isWinner:(game,team)->null
 class Light extends Player
@@ -2219,7 +2230,7 @@ class Cupid extends Player
 			splashlog game.id,game,log
 		# 2人とも更新する
 		for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
-			SS.publish.user pl.id,"refresh",{id:game.id}	
+			game.ss.publish.user pl.id,"refresh",{id:game.id}
 
 		null
 # ストーカー
@@ -2294,9 +2305,9 @@ class Cursed extends Player
 			newpl.sunset game
 					
 			# 人狼側に知らせる
-			SS.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
+			game.ss.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
 			# 自分も知らせる
-			SS.publish.user newpl.realid,"refresh",{id:game.id}	
+			game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 class ApprenticeSeer extends Player
 	type:"ApprenticeSeer"
 	jobname:"見習い占い師"
@@ -2315,7 +2326,7 @@ class ApprenticeSeer extends Player
 			@transform game,newpl
 			
 			# 更新
-			SS.publish.user newpl.realid,"refresh",{id:game.id}
+			game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 class Diseased extends Player
 	type:"Diseased"
 	jobname:"病人"
@@ -2585,7 +2596,7 @@ class Doppleganger extends Player
 			@addGamelog game,"dopplemove",newpl.type,newpl.id
 
 		
-			SS.publish.user newpl.realid,"refresh",{id:game.id}
+			game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 class CultLeader extends Player
 	type:"CultLeader"
 	jobname:"カルトリーダー"
@@ -2874,7 +2885,7 @@ class OccultMania extends Player
 		splashlog game.id,game,log
 
 		
-		SS.publish.user newpl.realid,"refresh",{id:game.id}	
+		game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 		null
 
 # 狼の子
@@ -2945,7 +2956,7 @@ class Lover extends Player
 		splashlog game.id,game,log
 		# 2人とも更新する
 		for pl in [this, pl]
-			SS.publish.user pl.id,"refresh",{id:game.id}	
+			game.ss.publish.user pl.id,"refresh",{id:game.id}
 
 		null
 	
@@ -3031,7 +3042,7 @@ class Thief extends Player
 			comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
 		splashlog game.id,game,log
 		
-		SS.publish.user newpl.id,"refresh",{id:game.id}
+		game.ss.publish.user newpl.id,"refresh",{id:game.id}
 		null
 	makeJobSelection:(game)->
 		if game.night
@@ -3250,7 +3261,7 @@ class Drunk extends Complex
 				comment:"#{@name}は目が覚めました。"
 			splashlog game.id,game,log
 			@uncomplex game
-			SS.publish.user @realid,"refresh",{id:game.id}
+			game.ss.publish.user @realid,"refresh",{id:game.id}
 	makejobinfo:(game,obj)->
 		Human.prototype.makejobinfo.call @,game,obj
 	isDrunk:->true
@@ -3350,20 +3361,26 @@ complexes=
 	Authority:Authority
 
 
-exports.actions=
 #内部用
-	newGame: (room,rule)->
-		game=new Game room,rule
+module.exports=
+	newGame: (room)->
+		game=new Game room
 		games[room.id]=game
 		M.games.insert game.serialize()
-	loadDB:->
-		# まだ使うもの
+	# ゲームオブジェクトを読み込んで使用可能にする
+	###
+	loadDB:(roomid,ss,cb)->
+		if games[roomid]
+			# 既に読み込んでいる
+			cb games[roomid]
+			return
 		M.games.find({finished:false}).each (err,doc)->
 			return unless doc?
 			if err?
 				console.log err
 				throw err
-			games[doc.id]=Game.unserialize doc
+			games[doc.id]=Game.unserialize doc,ss
+	###
 	inlog:(room,player)->
 		name="#{player.name}"
 		pr=""
@@ -3371,14 +3388,14 @@ exports.actions=
 			# 覆面のときは称号OFF
 			player.nowprize?.forEach? (x)->
 				if x.type=="prize"
-					prname=SS.server.prize.prizeName x.value
+					prname=Server.prize.prizeName x.value
 					if prname?
 						pr+=prname
 				else
 					# 接続
 					pr+=x.value
 			if pr
-				name="#{SS.server.prize.prizeQuote pr}#{name}"
+				name="#{Server.prize.prizeQuote pr}#{name}"
 		log=
 			comment:"#{name}さんが訪れました。"
 			userid:-1
@@ -3440,27 +3457,26 @@ exports.actions=
 		if player.type=="Fox"
 			session.channel.subscribe "room#{roomid}_fox"
 		###
-			
-		
-			
+exports.actions=(req,res,ss)->
+	req.use 'session'
 
 #ゲーム開始処理
 #成功：null
-	gameStart:(roomid,query,cb)->
+	gameStart:(roomid,query)->
 		game=games[roomid]
 		unless game?
-			cb "そのゲームは存在しません"
+			res "そのゲームは存在しません"
 			return
-		SS.server.game.rooms.oneRoomS roomid,(room)->
-			if room.error? 
-				cb room.error
+		Server.game.rooms.oneRoomS roomid,(room)->
+			if room.error?
+				res room.error
 				return
 			unless room.mode=="waiting"
 				# すでに開始している
-				cb "そのゲームは既に開始しています"
+				res "そのゲームは既に開始しています"
 				return
 			if room.players.some((x)->!x.start)
-				cb "まだ全員の準備ができていません"
+				res "まだ全員の準備ができていません"
 				return
 			
 			options={}	# オプションズ
@@ -3477,12 +3493,12 @@ exports.actions=
 			ruleinfo_str=""	# 開始告知
 
 			if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]	# 自由のときはクエリを参考にする
-				for job in SS.shared.game.jobs
+				for job in Shared.game.jobs
 					joblist[job]=parseInt query[job]	# 仕事の数
 				# カテゴリも
-				for type of SS.shared.game.categoryNames
+				for type of Shared.game.categoryNames
 					joblist["category_#{type}"]=parseInt query["category_#{type}"]
-				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
+				ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
 			if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
 				# 闇鍋のときはランダムに決める
 				pls=frees	# プレイヤーの数をとっておく
@@ -3506,11 +3522,11 @@ exports.actions=
 					frees=joblist.Human ? 0
 					joblist.Human=0
 				
-				ruleinfo_str = SS.shared.game.getrulestr query.jobrule,joblist
+				ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
 				# 闇鍋のときは入れないのがある
 				exceptions=["MinionSelector","Thief"]
 				if query.safety!="free"
-					exceptions=exceptions.concat SS.shared.game.nonhumans	# 基本人外は選ばれない
+					exceptions=exceptions.concat Shared.game.nonhumans	# 基本人外は選ばれない
 				if query.safety=="full"	# 安全
 					if joblist.Fox==0
 						exceptions.push "Immoral"	# 狐がいないのに背徳は出ない
@@ -3520,7 +3536,7 @@ exports.actions=
 				possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
 				
 				wolf_teams=joblist.Werewolf	# 人狼陣営の数(PP防止)
-				wts=Object.keys SS.shared.game.jobinfo.Werewolf	# 人狼陣営一覧（nameとcolorが余計だけど）
+				wts=Object.keys Shared.game.jobinfo.Werewolf	# 人狼陣営一覧（nameとcolorが余計だけど）
 			
 				while frees>0
 					r=Math.floor Math.random()*possibility.length
@@ -3549,7 +3565,7 @@ exports.actions=
 					# 陣営のみ公開
 					# 各陣営
 					teaminfos=[]
-					for team,obj of SS.shared.game.jobinfo
+					for team,obj of Shared.game.jobinfo
 						teamcount=0
 						for job,num of joblist
 							#出現役職チェック
@@ -3571,9 +3587,9 @@ exports.actions=
 					
 			else if query.jobrule!="特殊ルール.自由配役"
 				# 配役に従ってアレする
-				func=SS.shared.game.getrulefunc query.jobrule
+				func=Shared.game.getrulefunc query.jobrule
 				unless func
-					cb "不明な配役です"
+					res "不明な配役です"
 					return
 				joblist=func frees
 				sum=0	# 穴を埋めつつ合計数える
@@ -3583,11 +3599,11 @@ exports.actions=
 					else
 						sum+=joblist[job]
 				# カテゴリも
-				for type of SS.shared.game.categoryNames
+				for type of Shared.game.categoryNames
 					if joblist["category_#{type}"]>0
 						sum-=parseInt joblist["category_#{type}"]
 				joblist.Human=frees-sum	# 残りは村人だ!
-				ruleinfo_str=SS.shared.game.getrulestr query.jobrule,joblist
+				ruleinfo_str=Shared.game.getrulestr query.jobrule,joblist
 				
 			log=
 				mode:"system"
@@ -3595,7 +3611,7 @@ exports.actions=
 			splashlog game.id,game,log
 			
 			#カテゴリ役職を変換
-			for type,arr of SS.shared.game.categories
+			for type,arr of Shared.game.categories
 				while joblist["category_#{type}"]>0
 					r=Math.floor Math.random()*arr.length
 					joblist[arr[r]]++
@@ -3624,17 +3640,17 @@ exports.actions=
 					# プレイヤー初期化に成功
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}
 					game.nextturn()
-					cb null
-					SS.publish.channel "room#{roomid}","refresh",{id:roomid}
+					res null
+					ss.publish.channel "room#{roomid}","refresh",{id:roomid}
 				else
-					cb result
+					res result
 	# 情報を開示
-	getlog:(roomid,cb)->
+	getlog:(roomid)->
 		game=games[roomid]
 		ne= =>
 			# ゲーム後の行動
-			player=game.getPlayerReal @session.user_id
-			result= 
+			player=game.getPlayerReal req.session.user_id
+			result=
 				#logs:game.logs.filter (x)-> islogOK game,player,x
 				logs:game.makelogs player
 			result=makejobinfo game,player,result
@@ -3642,7 +3658,7 @@ exports.actions=
 				game.timer_remain-(Date.now()/1000-game.timer_start)	# 全体 - 経過時間
 			else
 				null
-			cb result
+			res result
 		if game?
 			ne()
 		else
@@ -3652,32 +3668,32 @@ exports.actions=
 					console.log err
 					throw err
 				unless doc?
-					cb {error:"そのゲームは存在しません"}
+					res {error:"そのゲームは存在しません"}
 					return
-				games[roomid]=game=Game.unserialize doc
+				games[roomid]=game=Game.unserialize doc,ss
 				ne()
 			return
 		
-	speak: (roomid,query,cb)->
+	speak: (roomid,query)->
 		game=games[roomid]
 		unless game?
-			cb "そのゲームは存在しません"
+			res "そのゲームは存在しません"
 			return
-		unless @session.user_id
-			cb "ログインして下さい"
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
 		unless query?
-			cb "不正な操作です"
+			res "不正な操作です"
 			return
 		comment=query.comment
 		unless comment
-			cb "コメントがありません"
+			res "コメントがありません"
 			return
-		player=game.getPlayerReal @session.user_id
+		player=game.getPlayerReal req.session.user_id
 		log =
 			comment:comment
-			userid:@session.user_id
-			name:@session.attributes.user.name
+			userid:req.session.user_id
+			name:req.session.attributes.user.name
 			to:null
 		if query.size in ["big","small"]
 			log.size=query.size
@@ -3742,63 +3758,63 @@ exports.actions=
 						log.name="GM→#{pl.name}"
 
 			splashlog roomid,game,log
-			cb null
+			res null
 		if player?
 			log.name=player.name
 			log.userid=player.id
 			dosp()
 		else
 			# ルーム情報から探す
-			SS.server.game.rooms.oneRoomS roomid,(room)=>
-				pl=room.players.filter((x)=>x.realid==@session.user_id)[0]
+			Server.game.rooms.oneRoomS roomid,(room)=>
+				pl=room.players.filter((x)=>x.realid==req.session.user_id)[0]
 				if pl?
 					log.name=pl.name
 				dosp()
 	# 夜の仕事・投票
-	job:(roomid,query,cb)->
+	job:(roomid,query)->
 		game=games[roomid]
 		unless game?
-			cb {error:"そのゲームは存在しません"}
+			res {error:"そのゲームは存在しません"}
 			return
-		unless @session.user_id
-			cb {error:"ログインして下さい"}
+		unless req.session.user_id
+			res {error:"ログインして下さい"}
 			return
-		player=game.getPlayerReal @session.user_id
+		player=game.getPlayerReal req.session.user_id
 		unless player?
-			cb {error:"参加していません"}
+			res {error:"参加していません"}
 			return
 		if player.dead
-			cb {error:"お前は既に死んでいる"}
+			res {error:"お前は既に死んでいる"}
 			return
 		jt=player.getjob_target()
 		sl=player.makeJobSelection game
 		###
 		if !(to=game.players.filter((x)->x.id==query.target)[0]) && jt!=0
-			cb {error:"その対象は存在しません"}
+			res {error:"その対象は存在しません"}
 			return
 		if to?.dead && (!(jt & Player.JOB_T_DEAD) || !game.night) && (jt & Player.JOB_T_ALIVE)
-			cb {error:"対象は既に死んでいます"}
+			res {error:"対象は既に死んでいます"}
 			return
 		###
 		unless sl.length==0 || sl.some((x)->x.value==query.target)
-			cb {error:"対象選択が不正です"}
+			res {error:"対象選択が不正です"}
 			return
 		if game.night || player.isJobType "GameMaster"
 			# 夜
 			###
 			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
-				cb {error:"対象はまだ生きています"}
+				res {error:"対象はまだ生きています"}
 				return
 			###
 			if player.jobdone(game)
-				cb {error:"既に能力を行使しています"}
+				res {error:"既に能力を行使しています"}
 				return
 			unless player.isJobType query.jobtype
-				cb {error:"役職が違います"}
+				res {error:"役職が違います"}
 				return
 			# エラーメッセージ
 			if ret=player.job game,query.target,query
-				cb {error:ret}
+				res {error:ret}
 				return
 			# 能力発動を記録
 			game.addGamelog {
@@ -3809,26 +3825,26 @@ exports.actions=
 			}
 			
 			# 能力をすべて発動したかどうかチェック
-			cb {jobdone:player.jobdone(game)}
+			res {jobdone:player.jobdone(game)}
 			if game.night
 				game.checkjobs()
 		else
 			# 投票
 			###
 			if @votingbox.isVoteFinished player
-				cb {error:"既に投票しています"}
+				res {error:"既に投票しています"}
 				return
 			if query.target==player.id && game.rule.votemyself!="ok"
-				cb {error:"自分には投票できません"}
+				res {error:"自分には投票できません"}
 				return
 			to=game.getPlayer query.target
 			unless to?
-				cb {error:"その人には投票できません"}
+				res {error:"その人には投票できません"}
 				return
 			###
 			err=player.dovote game,query.target
 			if err?
-				cb {error:err}
+				res {error:err}
 				return
 			#player.dovote query.target
 			# 投票が終わったかチェック
@@ -3838,29 +3854,29 @@ exports.actions=
 				target:query.target
 				event:"vote"
 			}
-			cb {jobdone:true}
+			res {jobdone:true}
 			game.execute()
 	#遺言
-	will:(roomid,will,cb)->
+	will:(roomid,will)->
 		game=games[roomid]
 		unless game?
-			cb "そのゲームは存在しません"
+			res "そのゲームは存在しません"
 			return
-		unless @session.user_id
-			cb "ログインして下さい"
+		unless req.session.user_id
+			res "ログインして下さい"
 			return
 		unless !game.rule || game.rule.will
-			cb "遺言は使えません"
+			res "遺言は使えません"
 			return
-		player=game.getPlayerReal @session.user_id
+		player=game.getPlayerReal req.session.user_id
 		unless player?
-			cb "参加していません"
+			res "参加していません"
 			return
 		if player.dead
-			cb "お前は既に死んでいる"
+			res "お前は既に死んでいる"
 			return
 		player.will=will
-		cb null
+		res null
 		
 
 splashlog=(roomid,game,log)->
@@ -3889,14 +3905,14 @@ splashlog=(roomid,game,log)->
 			ch
 	flash=(ch,log)->
 		if game.gm?
-			SS.publish.channel ["room#{roomid}_gamemaster"].concat(ch),"log",log
+			game.ss.publish.channel ["room#{roomid}_gamemaster"].concat(ch),"log",log
 		else
-			SS.publish.channel ch,"log",log
+			game.ss.publish.channel ch,"log",log
 	unless log.to?
 		switch log.mode
 			when "prepare","system","nextturn","day","will","gm"
 				# 全員に送ってよい
-				SS.publish.channel "room#{roomid}","log",log
+				game.ss.publish.channel "room#{roomid}","log",log
 			when "werewolf","wolfskill"
 				# 狼
 				flash hv("room#{roomid}_werewolf"), log
@@ -3907,7 +3923,7 @@ splashlog=(roomid,game,log)->
 						comment:"アオォーーン・・・"
 						name:"狼の遠吠え"
 						time:log.time
-					SS.publish.channel "room#{roomid}_notwerewolf","log",log2
+					game.ss.publish.channel "room#{roomid}_notwerewolf","log",log2
 					
 			when "couple"
 				flash hv("room#{roomid}_couple"),log
@@ -3918,7 +3934,7 @@ splashlog=(roomid,game,log)->
 						comment:"ヒソヒソ・・・"
 						name:"共有者の小声"
 						time:log.time
-					SS.publish.channel "room#{roomid}_notcouple","log",log2
+					game.ss.publish.channel "room#{roomid}_notcouple","log",log2
 			when "fox"
 				flash hv("room#{roomid}_fox"),log
 			when "audience","gmaudience"
@@ -3935,31 +3951,31 @@ splashlog=(roomid,game,log)->
 					# それ以外は全員
 					flash "room#{roomid}",log
 			when "gmmonologue"
-				SS.publish.channel "room#{roomid}_gamemaster","log",log
+				game.ss.publish.channel "room#{roomid}_gamemaster","log",log
 					
 	else
 		pl=game.getPlayer log.to
 		if pl
-			SS.publish.user pl.realid, "log", log
+			game.ss.publish.user pl.realid, "log", log
 		if game.rule.heavenview=="view"
 			flash "room#{roomid}_heaven",log
 		else
-			SS.publish.channel "room#{roomid}_gamemaster","log",log
+			game.ss.publish.channel "room#{roomid}_gamemaster","log",log
 	###
 	flash=(log,rev=false)->	#rev: 逆な感じで配信
 		# まず観戦者
 		log.roomid=roomid
 		au=islogOK game,null,log
 		if (au&&!rev) || (!au&&rev)
-			SS.publish.channel "room#{roomid}_audience","log",log
+			game.ss.publish.channel "room#{roomid}_audience","log",log
 		# GM
 		if game.gm&&!rev
-			SS.publish.channel "room#{roomid}_gamemaster","log",log
+			game.ss.publish.channel "room#{roomid}_gamemaster","log",log
 		# その他
 		game.players.forEach (pl)->
 			p=islogOK game,pl,log
 			if (p&&!rev) || (!p&&rev)
-				SS.publish.user pl.realid,"log",log
+				game.ss.publish.user pl.realid,"log",log
 	flash log
 	
 	# 他の人へ送る
@@ -4060,5 +4076,5 @@ shuffle= (arr)->
 	
 # ゲーム情報ツイート
 tweet=(roomid,message)->
-	SS.server.oauth.template roomid,message,SS.config.admin.password
+	Server.oauth.template roomid,message,Config.admin.password
 		

@@ -1,3 +1,5 @@
+Shared=
+	game:module
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
@@ -45,7 +47,7 @@ exports.categories=
 	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover"]
 
 exports.categoryNames=
-	Human:"村人系"	
+	Human:"村人系"
 	Werewolf:"人狼系"
 	Fox:"妖狐系"
 	Madman:"狂人系"
@@ -343,7 +345,7 @@ exports.jobrules=[
 # ルール関数を得る
 exports.getrulefunc=(name)->
 	names= name.split "."
-	obj=SS.shared.game.jobrules
+	obj=Shared.game.jobrules
 	for branch in names	#.区切りでオブジェクト名
 		obj=obj.filter((x)->x.name==branch)[0]?.rule
 		unless obj	# そんな配役は見つからない
@@ -363,20 +365,20 @@ exports.getrulestr=(rule,jobs={})->
 	else
 		text="#{rule.split('.').pop()} / "
 
-	for job in SS.shared.game.jobs
+	for job in Shared.game.jobs
 		continue if job=="Human" && rule=="特殊ルール.一部闇鍋"	#一部闇鍋は村人部分だけ闇鍋
 		num=jobs[job]
 		continue unless parseInt num
-		text+="#{SS.shared.game.getjobname job}#{num} "
+		text+="#{Shared.game.getjobname job}#{num} "
 	# さらにカテゴリ分も
-	for type,name of SS.shared.game.categoryNames
+	for type,name of Shared.game.categoryNames
 		num=jobs["category_#{type}"]
 		if num>0
 			text+="#{name}#{num} "
 	return text
 # 職の名前
 exports.getjobname=(job)->
-	for name,team of SS.shared.game.jobinfo
+	for name,team of Shared.game.jobinfo
 		if team[job]?
 			return team[job].name
 	return null

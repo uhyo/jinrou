@@ -1,6 +1,7 @@
 # Server-side Code
 crypto=require('crypto')
-exports.actions =
+exports.actions =(req,res,ss)->
+	req.use 'session'
 
 # ログイン
 # cb: 失敗なら真
@@ -201,7 +202,7 @@ exports.actions =
 
 #パスワードハッシュ化
 #	crpassword: (raw)-> raw && hashlib.sha256(raw+hashlib.md5(raw))
-	crpassword: (raw)->
+exports.crpassword= (raw)->
 		return "" unless raw
 		sha256=crypto.createHash "sha256"
 		md5=crypto.createHash "md5"

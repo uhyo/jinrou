@@ -1,32 +1,35 @@
 # Server-side Code
 crypto=require('crypto')
 child_process=require('child_process')
-settings=require('./dbsettings').mongo
+settings=Config.mongo
 
-exports.actions =
+# twitter系
+oauth=require './../oauth.coffee'
+exports.actions =(req,res,ss)->
+	req.use 'session'
 	# 現在のセッションを管理者として承認する
-	regist:(query,cb)->
-		if query.password==SS.config.admin.password
-			@session.attributes.administer=true
-			@session.save ->cb null
+	regist:(query)->
+		if query.password==Config.admin.password
+			req.session.attributes.administer=true
+			req.session.save ->res null
 		else
-			cb "パスワードが違います。"
+			res "パスワードが違います。"
 
 	# ------------- blacklist関係
 	# blacklist一覧を得る
-	getBlacklist:(query,cb)->
-		unless @session.attributes.administer
-			cb {error:"管理者ではありません"}
+	getBlacklist:(query)->
+		unless req.session.attributes.administer
+			res {error:"管理者ではありません"}
 			return
 		M.blacklist.find().limit(100).skip(100*(query.page ? 0)).toArray (err,docs)->
-			cb {docs:docs}
-	addBlacklist:(query,cb)->
-		unless @session.attributes.administer
-			cb {error:"管理者ではありません"}
+			res {docs:docs}
+	addBlacklist:(query)->
+		unless req.session.attributes.administer
+			res {error:"管理者ではありません"}
 			return
 		M.users.findOne {userid:query.userid},(err,doc)->
 			unless doc?
-				cb {error:"そのユーザーは見つかりません"}
+				res {error:"そのユーザーは見つかりません"}
 				return
 			addquery=
 				userid:doc.userid
@@ -37,65 +40,64 @@ exports.actions =
 				d.setDate d.getDate()+parseInt query.day
 				addquery.expires=d
 			M.blacklist.insert addquery,{safe:true},(err,doc)->
-				cb null
-	removeBlacklist:(query,cb)->
-		unless @session.attributes.administer
-			cb {error:"管理者ではありません"}
+				res null
+	removeBlacklist:(query)->
+		unless req.session.attributes.administer
+			res {error:"管理者ではありません"}
 			return
 		M.blacklist.remove {userid:query.userid},(err)->
-			cb null
+			res null
 	
 	# -------------- grandalert関係
-	spreadGrandalert:(query,cb)->
-		unless @session.attributes.administer
-			cb {error:"管理者ではありません"}
+	spreadGrandalert:(query)->
+		unless req.session.attributes.administer
+			res {error:"管理者ではありません"}
 			return
 		if query.system
 			message=
 				title:query.title
 				message:query.message
-			SS.publish.broadcast 'grandalert',message
+			ss.publish.all 'grandalert',message
 		if query.twitter
 			# twitterへ配信
-			SS.server.oauth.tweet "#{query.message} #月下人狼",SS.config.admin.password
-		cb null
+			oauth.tweet "#{query.message} ##{Config.name}",Config.admin.password
+		res null
 	# -------------- dataexport関係
-	dataExport:(query,cb)->
+	dataExport:(query)->
 		# 僕だけだよ！ あの文字列を送ろう
 		unless query?
-			cb {error:"クエリが不正です"}
+			res {error:"クエリが不正です"}
 			return
-		unless SS.config.admin.securityHall
-			cb {error:"そのセキュリティホールは利用できません"}
+		unless Config.admin.securityHole
+			res {error:"そのセキュリティホールは利用できません"}
 			return
 
 		sha256=crypto.createHash "sha256"
 		sha256.update query.pass
 		phrase=sha256.digest 'hex'
 		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
-			cb {error:"パスフレーズが違います"}
+			res {error:"パスフレーズが違います"}
 			return
-		console.log settings
 		child = child_process.exec "mongodump -d #{settings.database} -u #{settings.user} -p #{settings.pass} -o ./public/dump", (error,stdout,stderr)->
 			if error?
-				cb {error:stderr}
+				res {error:stderr}
 				return
 			# dumpに成功した
 			child_process.exec "zip -r ./public/dump/#{settings.database}.zip ./public/dump/#{settings.database}/",(error,stdout,stderr)->
 				if error?
-					cb {error:stdout || stderr}
+					res {error:stdout || stderr}
 					return
 				console.log stdout
-				cb {file:"/dump/#{settings.database}.zip"}
+				res {file:"/dump/#{settings.database}.zip"}
 
 	# ------------- process関係
-	doCommand:(query,cb)->
+	doCommand:(query)->
 		# 僕だけだよ！ あの文字列を送ろう
 		unless query?
-			cb {error:"クエリが不正です"}
+			res {error:"クエリが不正です"}
 			return
-		unless SS.config.admin.securityHall
-			cb {error:"そのセキュリティホールは利用できません"}
+		unless Config.admin.securityHole
+			res {error:"そのセキュリティホールは利用できません"}
 			return
 		if process?
 			# まだ起動している
@@ -105,23 +107,23 @@ exports.actions =
 		sha256.update query.pass
 		phrase=sha256.digest 'hex'
 		unless phrase=='b6a29594b34e7cebd8816c2b2c2b3adbc01548b1fcb1170516d03bfe9f866c5d'
-			cb {error:"パスフレーズが違います"}
+			res {error:"パスフレーズが違います"}
 			return
 		if query.command=="show_dbinfo"
-			cb result:"#{settings.database}:#{settings.user}:#{settings.pass}"
+			res result:"#{settings.database}:#{settings.user}:#{settings.pass}"
 			return
 		process = child_process.exec query.command, (error,stdout,stderr)->
 			process=null
 			if error?
-				cb {error:stderr || stdout}
+				res {error:stderr || stdout}
 				return
-			cb {result:stdout}
-	startProcess:(cmd,cb)->
+			res {result:stdout}
+	startProcess:(cmd)->
 		if process?
-			cb {error:"既にプロセスが起動中です"}
+			res {error:"既にプロセスが起動中です"}
 			return
 		unless typeof cmd=="string"
-			cb {error:"コマンドが不正です"}
+			res {error:"コマンドが不正です"}
 			return
 		args=cmd.split " "
 		comm=args.shift()
