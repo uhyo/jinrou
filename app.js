@@ -3,7 +3,7 @@ var http=require('http'), ss=require('socketstream');
 ss.client.define('main',{
 	view:'app.jade',
 	css:['libs','app.styl'],
-	code:['libs','pages','shared'],
+	code:['app','libs','pages','shared'],
 	tmpl:'*',
 });
 

@@ -1,14 +1,16 @@
 # Client-side Code
 
 # Bind to socket events
-SS.socket.on 'disconnect', ->
-	SS.client.util.message "サーバー","接続が切断されました。"
-SS.socket.on 'reconnect', ->
-	SS.client.util.message "サーバー","接続が回復しました。ページの更新を行って下さい。"
+app=require '/app'
+util=require '/util'
+ss.server.on 'disconnect', ->
+	util.message "サーバー","接続が切断されました。"
+ss.server.on 'reconnect', ->
+	util.message "サーバー","接続が回復しました。ページの更新を行って下さい。"
 	
 # 全体告知
-SS.events.on 'grandalert', (msg)->
-	SS.client.util.message msg.title,msg.message
+ss.server.on 'grandalert', (msg)->
+	util.message msg.title,msg.message
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
@@ -22,7 +24,7 @@ exports.init = ->
 		return if t.target=="_blank"
 		je.preventDefault()
 
-		SS.client.app.showUrl t.href
+		app.showUrl t.href
 		return
 		
 	if localStorage.userid && localStorage.password
@@ -93,7 +95,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/my"
 			# プロフィールとか
 			SS.server.user.myProfile (user)->
-				page "templates-user-profile",user,SS.client.user.profile,user
+				page "templates-user-profile",user,user.profile,user
 		when "/rooms"
 			# 部屋一覧
 			page "templates-game-rooms",null,SS.client.game.rooms, null
@@ -133,7 +135,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				page "templates-user-view",null,SS.client.user.view,result[1]
 			else if result=url.match /^\/manual\/job\/(\w+)$/
 				# ジョブ情報
-				win=SS.client.util.blankWindow()
+				win=util.blankWindow()
 				$("#templates-jobs-#{result[1]}").tmpl().appendTo win
 				return
 			else if result=url.match /^\/manual\/casting\/(.+)$/

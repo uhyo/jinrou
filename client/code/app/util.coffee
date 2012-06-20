@@ -1,3 +1,5 @@
+app=require '/app'
+util=require '/util'
 exports.showWindow=showWindow=(templatename,tmpl)->
 	x=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientWidth/2)
 	y=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientHeight/2)
@@ -95,7 +97,7 @@ exports.message=(title,message,cb)->
 		if t.name=="ok"
 			cb? true
 			closeWindow t
-exports.loginWindow=(cb=->SS.client.app.refresh())->
+exports.loginWindow=(cb=->app.refresh())->
 	win = showWindow "templates-util-login"
 	win.click (je)->
 		t=je.target
@@ -104,7 +106,7 @@ exports.loginWindow=(cb=->SS.client.app.refresh())->
 	$("#loginform").submit (je)->
 		je.preventDefault()
 		form=je.target
-		SS.client.app.login form.elements["userid"].value, form.elements["password"].value,(result)->
+		app.login form.elements["userid"].value, form.elements["password"].value,(result)->
 			if result
 				if form.elements["remember_me"].checked
 					# 記憶
@@ -128,7 +130,7 @@ exports.loginWindow=(cb=->SS.client.app.refresh())->
 				localStorage.setItem "password", q.password
 				closeWindow win
 				# 初期情報を入力してもらう
-				SS.client.util.blindName {title:"情報入力",message:"ユーザー名を設定して下さい"},(obj)->
+				util.blindName {title:"情報入力",message:"ユーザー名を設定して下さい"},(obj)->
 					# 登録する感じの
 					SS.server.user.changeProfile {
 						password:q.password
@@ -137,10 +139,10 @@ exports.loginWindow=(cb=->SS.client.app.refresh())->
 					},(obj)->
 						if obj?.error?
 							#エラー
-							SS.client.util.message "エラー",obj.error
+							util.message "エラー",obj.error
 						else
-							SS.client.util.message "登録","登録が完了しました。"
-							SS.client.app.setUserid q.userid
+							util.message "登録","登録が完了しました。"
+							app.setUserid q.userid
 							cb()
 
 exports.iconSelectWindow=(def,cb)->
@@ -158,10 +160,10 @@ exports.iconSelectWindow=(def,cb)->
 			closeWindow win
 			cb def	# 変わっていない
 		else if t.name=="urliconbutton"
-			SS.client.util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+			util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
 				okicon url ? ""
 		else if t.name=="twittericonbutton"
-			SS.client.util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
+			util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
 				if id
 					okicon "http://api.twitter.com/1/users/profile_image/#{id}"
 				else
@@ -179,7 +181,7 @@ exports.blindName=(opt={},cb)->
 			closeWindow win
 			cb null	# 変わっていない
 		else if t.name=="iconselectbutton"
-			SS.client.util.iconSelectWindow null,(url)->
+			util.iconSelectWindow null,(url)->
 				def=url ? null
 				$("#icondisp").attr "src",def
 	$("#nameform").submit (je)->
