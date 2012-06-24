@@ -157,7 +157,7 @@ class Game
 
 		# 名前と数を出したやつ
 		@jobscount={}
-		if options.yaminabe_hidejobs==""	# 公開モード
+		unless options.yaminabe_hidejobs	# 公開モード
 			for job,num of joblist
 				continue unless num>0
 				testpl=new jobs[job]
@@ -604,6 +604,7 @@ class Game
 		splashlog @id,this,log
 		@votingbox.init()
 		@players.forEach (player)=>
+			return if player.dead
 			player.votestart this
 		@ss.publish.channel "room#{@id}","voteform",true
 		@splashjobinfo()
@@ -1147,6 +1148,7 @@ class Player
 	# 昼の投票準備
 	votestart:(game)->
 		#@voteto=null
+		return if @dead
 		if @scapegoat
 			# 身代わりくんは投票
 			alives=game.players.filter (x)=>!x.dead && x!=this
