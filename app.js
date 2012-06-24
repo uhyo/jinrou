@@ -18,6 +18,9 @@ ss.client.formatters.add(require('ss-stylus'));
 ss.client.templateEngine.use(require('ss-clientjade'));
 
 ss.client.set({liveReload: false});
+ss.session.store.use('redis');
+ss.publish.transport.use('redis');
+
 if(ss.env=='production')ss.client.packAssets();
 
 global.Config=require('./config/app.coffee');

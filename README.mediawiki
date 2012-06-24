@@ -14,8 +14,9 @@ and others...
 # git clone git://github.com/uhyo/jinrou.git
 # cd jinrou
 # npm install
-# (run mongodb)
-# socketstream start
+# run mongodb
+# run redis
+# SS_ENV=production node app.js
 
 == jobs ==
 全50種くらい?
