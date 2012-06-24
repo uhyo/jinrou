@@ -34,16 +34,16 @@ exports.actions =(req,res,ss)->
 	req.use 'session'
 
 	enter:->
-		if req.session.user_id
-			unless players.some((x)=>x.userid==req.session.user_id)
+		if req.session.userId
+			unless players.some((x)=>x.userid==req.session.userId)
 				plobj=
-					userid:req.session.user_id
-					name:req.session.attributes.user.name
+					userid:req.session.userId
+					name:req.session.user.name
 					heartbeat:Date.now()	# 最終heartbeatタイム
 				players.push plobj
 
 				ss.publish.channel "lobby","enter",plobj
-			heartbeat req.session.user_id
+			heartbeat req.session.userId,ss
 
 		req.session.channel.subscribe 'lobby'
 		M.lobby.find().sort({time:-1}).limit(100).toArray (err,docs)->
@@ -52,26 +52,26 @@ exports.actions =(req,res,ss)->
 				throw err
 			res {logs:docs,players:players}
 	say:(comment)->
-		unless req.session.user_id?
+		unless req.session.userId?
 			return
 		unless comment
 			return
 		log=
-			name:req.session.attributes.user.name
+			name:req.session.user.name
 			comment:comment
 			time:Date.now()
 		M.lobby.insert log
 		ss.publish.channel "lobby","log",log
 	bye:->
 		req.session.channel.unsubscribe 'lobby'
-		if req.session.user_id
-			deleteuser req.session.user_id
+		if req.session.userId
+			deleteuser req.session.userId,ss
 		res null
 	heartbeat:->
-		if req.session.user_id
-			pl=players.filter((x)=>x.userid==req.session.user_id)[0]
+		if req.session.userId
+			pl=players.filter((x)=>x.userid==req.session.userId)[0]
 			if pl?
 				pl.heartbeat=Date.now()
-				console.log "heartbeat [#{req.session.user_id}]: #{new Date()}"
+				console.log "heartbeat [#{req.session.userId}]: #{new Date()}"
 		res null
 				

@@ -1,9 +1,9 @@
 section.window
   h1
-    {{= title}}
+    = title
     input.closer(type="button",value="×",name="cancel")
   form#nameform(action="/")
-    p {{= message}}
+    p= message
     p
       input.prompt.getfocus(name="name",size="30",required)
     figure(style="float:left")

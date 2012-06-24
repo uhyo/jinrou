@@ -1,4 +1,6 @@
 #page module?
+app=require '/app'
+util=require '/util'
 
 name_length_max=20
 
@@ -26,46 +28,46 @@ exports.start=(user)->
 		
 	$("#changeprofile").submit (je)->
 		je.preventDefault()
-		q=SS.client.util.formQuery je.target
+		q=Index.util.formQuery je.target
 		q.userid=$("p.userid").get(0).textContent
-		SS.client.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+		Index.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
 			if result
 				q.password=result
-				SS.server.user.changeProfile q,(result)->
+				ss.rpc "user.changeProfile", q,(result)->
 					if result.error?
-						SS.client.util.message "エラー",result.error
+						Index.util.message "エラー",result.error
 					else
-						SS.client.app.page "templates-user-profile",result,SS.client.user.profile,result
+						app.page "user-profile",result,Index.user.profile,result
 	.get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
 		$("#changepassword").get(0).hidden=false
 		$("#changepassword").submit (je)->
 			je.preventDefault()
-			SS.server.user.changePassword SS.client.util.formQuery(je.target),(result)->
+			ss.rpc "user.changePassword", Index.util.formQuery(je.target),(result)->
 				if result?.error?
-					SS.client.util.message "エラー",result.error
+					Index.util.message "エラー",result.error
 				else
 					$("#changepassword").get(0).hidden=true
-					SS.client.app.page "templates-user-profile",result,SS.client.user.profile
+					app.page "user-profile",result,Index.user.profile
 					
 	),false
 	$("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
-		SS.client.util.iconSelectWindow $("#myicon").attr("src"),(url)->
+		Index.util.iconSelectWindow $("#myicon").attr("src"),(url)->
 			seticon url
 	),false
 	
 	$("#morescore").submit (je)->
 		je.target.elements["submit"].disabled=true
 		je.preventDefault()
-		SS.server.user.analyzeScore (obj)->
+		ss.rpc "user.analyzeScore", (obj)->
 			if obj.error?
-				SS.client.util.message "エラー",obj.error
+				Index.util.message "エラー",obj.error
 			results=obj.results
 			# 陣営色
-			teamcolors=merge SS.shared.game.jobinfo,{}
+			teamcolors=merge Shared.game.jobinfo,{}
 
 			results.forEach (x)->	# 陣営チェック
-				for team of SS.shared.game.teams
-					if x.type in SS.shared.game.teams[team]
+				for team of Shared.game.teams
+					if x.type in Shared.game.teams[team]
 						x.team=team
 						break
 
@@ -75,7 +77,7 @@ exports.start=(user)->
 				h2=document.createElement "h2"
 				h2.textContent=title
 				$("#grapharea").append h2
-				graph=SS.client.user.graph.circleGraph size
+				graph=Index.user.graph.circleGraph size
 				p=document.createElement "p"
 				p.appendChild graph.canvas
 				$("#grapharea").append p
@@ -88,7 +90,7 @@ exports.start=(user)->
 			gs=
 				win:{}
 				lose:{}
-			for x of SS.shared.game.teams
+			for x of Shared.game.teams
 				gs.win[x]={}
 				gs.lose[x]={}
 			results.forEach (x)->
@@ -147,7 +149,7 @@ exports.start=(user)->
 			ull.append li
 			prizedictionary[obj.id]=obj.name
 		ull=$("#conjunctions")
-		for te in SS.shared.prize.conjunctions
+		for te in Shared.prize.conjunctions
 			li=document.createElement "li"
 			li.textContent=te
 			li.classList.add "conjtip"
@@ -163,12 +165,12 @@ exports.start=(user)->
 		# 編集部分
 		ull=$("#prizeedit")
 		unless user.nowprize?	# 無い場合はデフォルト
-			for te in SS.shared.prize.getPrizesComposition user.prizenames.length
+			for te in Shared.prize.getPrizesComposition user.prizenames.length
 				li=document.createElement "li"
 				li.classList.add (if te=="prize" then "prizetip" else "conjtip")
 				ull.append li
 		else
-			coms=SS.shared.prize.getPrizesComposition user.prizenames.length
+			coms=Shared.prize.getPrizesComposition user.prizenames.length
 			for type in coms
 				li=document.createElement "li"
 				if type=="prize"
@@ -230,8 +232,8 @@ exports.start=(user)->
 			
 		$("#prizearea").submit (je)->
 			je.preventDefault()
-			que=SS.client.util.formQuery je.target
-			SS.client.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+			que=util.formQuery je.target
+			util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
 				if result
 					query=
 						password:result
@@ -251,11 +253,11 @@ exports.start=(user)->
 						null
 					query.prize=prize
 					
-					SS.server.user.usePrize query,(result)->
+					ss.rpc "user.usePrize", query,(result)->
 						if result?.error?
-							SS.client.util.message "エラー",result.error
+							util.message "エラー",result.error
 	
-	SS.client.game.rooms.start()	# ルーム一覧を表示してもらう	
+	Index.game.rooms.start()	# ルーム一覧を表示してもらう	
 exports.end=->
 
 #Object2つをマージ（obj1ベース）

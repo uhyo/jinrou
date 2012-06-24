@@ -46,33 +46,33 @@ exports.start=(roomid)->
 	getenter=(result)->
 		if result.error?
 			# エラー
-			SS.client.util.message "ルーム",result.error
+			Index.util.message "ルーム",result.error
 			return
 		else if result.require?
 			if result.require=="password"
 				#パスワード入力
-				SS.client.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
+				Index.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
 					unless pass?
-						SS.client.app.showUrl "/rooms"
+						Index.app.showUrl "/rooms"
 						return
-					SS.server.game.rooms.enter roomid,pass,getenter
+					ss.rpc "game.rooms.enter", roomid,pass,getenter
 					sessionStorage.roompassword = pass
 			return
 		enter_result=result
 		this_room_id=roomid
-		SS.server.game.rooms.oneRoom roomid,initroom
-	SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,getenter
+		ss.rpc "game.rooms.oneRoom", roomid,initroom
+	ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
 	initroom=(room)->
 		unless room?
-			SS.client.util.message "ルーム","そのルームは存在しません。"
-			SS.client.app.showUrl "/rooms"
+			Index.util.message "ルーム","そのルームは存在しません。"
+			Index.app.showUrl "/rooms"
 			return
 		# 今までのログを送ってもらう
 		this_icons={}
 		this_logdata={}
 		sentlog=(result)->
 			if result.error?
-				SS.client.util.message "エラー",result.error
+				Index.util.message "エラー",result.error
 			else
 				if result.game?.day>=1
 					# ゲームが始まったら消す
@@ -84,7 +84,7 @@ exports.start=(roomid)->
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
 
-		SS.server.game.game.getlog roomid,sentlog
+		ss.rpc "game.game.getlog", roomid,sentlog
 		# 新しいゲーム
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
@@ -108,28 +108,28 @@ exports.start=(roomid)->
 						name:""
 						icon:null
 					into=->
-						SS.server.game.rooms.join roomid,opt,(result)->
+						ss.rpc "game.rooms.join", roomid,opt,(result)->
 							if result?.require=="login"
 								# ログインが必要
-								SS.client.util.loginWindow ->
-									if SS.client.app.userid()
+								Index.util.loginWindow ->
+									if Index.app.userid()
 										into()
 							else if result?.error?
-								SS.client.util.message "ルーム",result.error
+								Index.util.message "ルーム",result.error
 							else
-								SS.client.app.refresh()
+								Index.app.refresh()
 
 
 					if room.blind
 						# 参加者名
 						###
-						SS.client.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
+						Index.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
 							if name
 								opt.name=name
 								into()
 						###
 						# ここ書いてないよ!
-						SS.client.util.blindName null,(obj)->
+						Index.util.blindName null,(obj)->
 							if obj?
 								opt.name=obj.name
 								opt.icon=obj.icon
@@ -141,22 +141,22 @@ exports.start=(roomid)->
 				$("#playersinfo").append b
 				$(b).click (je)->
 					# 脱退
-					SS.server.game.rooms.unjoin roomid,(result)->
+					ss.rpc "game.rooms.unjoin", roomid,(result)->
 						if result?
-							SS.client.util.message "ルーム",result
+							Index.util.message "ルーム",result
 						else
-							SS.client.app.refresh()
+							Index.app.refresh()
 				if room.mode=="waiting"
 					# 開始前
 					b=makebutton "準備完了/準備中"
 					$("#playersinfo").append b
 					$(b).click (je)->
-						SS.server.game.rooms.ready roomid,(result)->
+						ss.rpc "game.rooms.ready", roomid,(result)->
 							if result?
-								SS.client.util.message "ルーム",result
-		userid=SS.client.app.userid()
+								Index.util.message "ルーム",result
+		userid=Index.app.userid()
 		if room.mode=="waiting"
-			if room.owner.userid==SS.client.app.userid()
+			if room.owner.userid==Index.app.userid()
 				# 自分
 				b=makebutton "ゲームを開始"
 				$("#playersinfo").append b
@@ -164,19 +164,19 @@ exports.start=(roomid)->
 				b=makebutton "参加者を追い出す"
 				$("#playersinfo").append b
 				$(b).click (je)->
-					SS.client.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
-#					SS.client.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
-						SS.server.game.rooms.kick roomid,id,(result)->
+					Index.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+#					Index.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
+						ss.rpc "game.rooms.kick", roomid,id,(result)->
 							if result?
-								SS.client.util.message "エラー",result
+								Index.util.message "エラー",result
 				b=makebutton "部屋を削除"
 				$("#playersinfo").append b
 				$(b).click (je)->
-					SS.client.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
+					Index.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
 						if cb
-							SS.server.game.rooms.del roomid,(result)->
+							ss.rpc "game.rooms.del", roomid,(result)->
 								if result?
-									SS.client.util.message "エラー",result
+									Index.util.message "エラー",result
 										
 
 
@@ -184,7 +184,7 @@ exports.start=(roomid)->
 
 
 		form=$("#gamestart").get 0
-		jobs=SS.shared.game.jobs.filter (x)->x!="Human"	# 村人は自動で決定する
+		jobs=Shared.game.jobs.filter (x)->x!="Human"	# 村人は自動で決定する
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
@@ -200,7 +200,7 @@ exports.start=(roomid)->
 			jobs.forEach (x)->
 				sum+=parseInt form.elements[x].value
 			# カテゴリ別
-			for type of SS.shared.game.categoryNames
+			for type of Shared.game.categoryNames
 				sum+= parseInt(form.elements["category_#{type}"].value ? 0)
 			form.elements["Human"].value=pl-sum
 			setjobsmonitor form
@@ -210,19 +210,19 @@ exports.start=(roomid)->
 				
 		$("#gamestart").submit (je)->
 			# いよいよゲーム開始だ！
-			query=SS.client.util.formQuery je.target
-			SS.server.game.game.gameStart roomid,query,(result)->
+			query=Index.util.formQuery je.target
+			ss.rpc "game.game.gameStart", roomid,query,(result)->
 				if result?
-					SS.client.util.message "ルーム",result
+					Index.util.message "ルーム",result
 				else
 					$("#gamestartsec").attr "hidden","hidden"
 			je.preventDefault()
 		speakform=$("#speakform").get 0
 		$("#speakform").submit (je)->
 			form=je.target
-			SS.server.game.game.speak roomid,SS.client.util.formQuery(form),(result)->
+			ss.rpc "game.game.speak", roomid,Index.util.formQuery(form),(result)->
 				if result?
-					SS.client.util.message "エラー",result
+					Index.util.message "エラー",result
 			je.preventDefault()
 			form.elements["comment"].value=""
 			if form.elements["multilinecheck"].checked
@@ -272,7 +272,7 @@ exports.start=(roomid)->
 		# ルール表示
 		$("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
 			return unless this_rule?
-			win=SS.client.util.blankWindow()
+			win=Index.util.blankWindow()
 			p=document.createElement "p"
 			Object.keys(this_rule.jobscount).forEach (x)->
 				a=document.createElement "a"
@@ -371,9 +371,9 @@ exports.start=(roomid)->
 		$("#willform").submit (je)->
 			form=je.target
 			je.preventDefault()
-			SS.server.game.game.will roomid,form.elements["will"].value,(result)->
+			ss.rpc "game.game.will", roomid,form.elements["will"].value,(result)->
 				if result?
-					SS.client.util.message "エラー",result
+					Index.util.message "エラー",result
 				else
 					$("#willform").get(0).hidden=true
 					$("#speakform").get(0).elements["willbutton"].value="遺言"
@@ -383,9 +383,9 @@ exports.start=(roomid)->
 			form=je.target
 			je.preventDefault()
 			$("#jobform").attr "hidden","hidden"
-			SS.server.game.game.job roomid,SS.client.util.formQuery(form), (result)->
+			ss.rpc "game.game.job", roomid,Index.util.formQuery(form), (result)->
 				if result?.error?
-					SS.client.util.message "エラー",result.error
+					Index.util.message "エラー",result.error
 					$("#jobform").removeAttr "hidden"
 				else if !result?.jobdone
 					# まだ仕事がある
@@ -399,7 +399,7 @@ exports.start=(roomid)->
 		#========================================
 			
 		# 誰かが参加した!!!!
-		socket_ids.push SS.client.socket.on "join","room#{roomid}",(msg,channel)->
+		socket_ids.push Index.socket.on "join","room#{roomid}",(msg,channel)->
 			room.players.push msg
 			###
 			li=document.createElement "li"
@@ -415,12 +415,12 @@ exports.start=(roomid)->
 			li=makeplayerbox msg,room.blind
 			$("#players").append li
 		# 誰かが出て行った!!!
-		socket_ids.push SS.client.socket.on "unjoin","room#{roomid}",(msg,channel)->
+		socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x.userid!=msg
 			
 			$("#players li").filter((idx)-> this.dataset.id==msg).remove()
 		# 準備
-		socket_ids.push SS.client.socket.on "ready","room#{roomid}",(msg,channel)->
+		socket_ids.push Index.socket.on "ready","room#{roomid}",(msg,channel)->
 			for pl in room.players
 				if pl.userid==msg.userid
 					pl.start=msg.start
@@ -428,33 +428,33 @@ exports.start=(roomid)->
 					li.replaceWith makeplayerbox pl,room.blind
 			
 		# ログが流れてきた!!!
-		socket_ids.push SS.client.socket.on "log",null,(msg,channel)->
-			#if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+		socket_ids.push Index.socket.on "log",null,(msg,channel)->
+			#if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==Index.app.userid()
 			if msg.roomid==roomid
 				# この部屋へのログ
 				getlog msg
 		# 職情報を教えてもらった!!!
-		socket_ids.push SS.client.socket.on "getjob",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+		socket_ids.push Index.socket.on "getjob",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==Index.app.userid()
 				getjobinfo msg
 		# 更新したほうがいい
-		socket_ids.push SS.client.socket.on "refresh",null,(msg,channel)->
+		socket_ids.push Index.socket.on "refresh",null,(msg,channel)->
 			if msg.id==roomid
-				#SS.client.app.refresh()
-				SS.server.game.rooms.enter roomid,sessionStorage.roompassword ? null,(result)->
-					#SS.server.game.rooms.oneRoom roomid,initroom
-					SS.server.game.game.getlog roomid,sentlog
-				SS.server.game.rooms.oneRoom roomid,(r)->room=r
+				#Index.app.refresh()
+				ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,(result)->
+					#ss.rpc "game.rooms.oneRoom", roomid,initroom
+					ss.rpc "game.game.getlog", roomid,sentlog
+				ss.rpc "game.rooms.oneRoom", roomid,(r)->room=r
 		# 投票フォームオープン
-		socket_ids.push SS.client.socket.on "voteform",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+		socket_ids.push Index.socket.on "voteform",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==Index.app.userid()
 				if msg
 					$("#jobform").removeAttr "hidden"
 				else
 					$("#jobform").attr "hidden","hidden"
 		# 残り時間
-		socket_ids.push SS.client.socket.on "time",null,(msg,channel)->
-			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==SS.client.app.userid()
+		socket_ids.push Index.socket.on "time",null,(msg,channel)->
+			if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==Index.app.userid()
 				gettimer parseInt(msg.time),msg.mode
 	
 		$(document).click (je)->
@@ -475,23 +475,23 @@ exports.start=(roomid)->
 			je.stopPropagation()
 
 	# 役職入力フォームを作る
-	for job in SS.shared.game.jobs
+	for job in Shared.game.jobs
 		# 探す
 		continue if job=="Human"	# 村人だけは既に置いてある（あまり）
-		for team,members of SS.shared.game.teams
+		for team,members of Shared.game.teams
 			if job in members
 				dt=document.createElement "dt"
-				dt.textContent=SS.shared.game.jobinfo[team][job].name
+				dt.textContent=Shared.game.jobinfo[team][job].name
 				dd=document.createElement "dd"
 				input=document.createElement "input"
 				input.type="number"
 				input.min=0; input.step=1; input.value=0
 				input.name=job
-				input.dataset.jobname=SS.shared.game.jobinfo[team][job].name
+				input.dataset.jobname=Shared.game.jobinfo[team][job].name
 				dd.appendChild input
 				$("#jobsfield").append(dt).append dd
 	# カテゴリ別のも用意しておく
-	for type,name of SS.shared.game.categoryNames
+	for type,name of Shared.game.categoryNames
 		dt=document.createElement "dt"
 		dt.textContent=name
 		dd=document.createElement "dd"
@@ -520,7 +520,7 @@ exports.start=(roomid)->
 				option.title=obj.title
 				parent.appendChild option
 				
-	setjobrule SS.shared.game.jobrules.concat([
+	setjobrule Shared.game.jobrules.concat([
 		name:"特殊ルール"
 		rule:[
 			{
@@ -568,11 +568,11 @@ exports.start=(roomid)->
 			$("#yaminabe_opt").get(0).hidden=true
 		if form.elements["scapegoat"].value=="on"
 			number++	# 身代わりくん
-		obj= SS.shared.game.getrulefunc jobrulename
+		obj= Shared.game.getrulefunc jobrulename
 		return unless obj?
 
 		form.elements["number"]=number
-		for x in SS.shared.game.jobs
+		for x in Shared.game.jobs
 			form.elements[x].value=0
 		jobs=obj number
 		count=0	#村人以外
@@ -580,7 +580,7 @@ exports.start=(roomid)->
 			form.elements[job]?.value=num
 			count+=num
 		# カテゴリ別
-		for type of SS.shared.game.categoryNames
+		for type of Shared.game.categoryNames
 			count+= parseInt(form.elements["category_#{type}"].value ? 0)
 		form.elements["Human"].value=number-count	# 村人
 		setjobsmonitor form
@@ -591,7 +591,7 @@ exports.start=(roomid)->
 		if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
 			text="闇鍋 / "
 
-		for job in SS.shared.game.jobs
+		for job in Shared.game.jobs
 			continue if job=="Human" && form.elements["jobrule"].value=="特殊ルール.一部闇鍋"	#一部闇鍋は村人部分だけ闇鍋
 			input=form.elements[job]
 			num=input.value
@@ -602,10 +602,10 @@ exports.start=(roomid)->
 			# 闇鍋の場合
 			$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
 		else
-			$("#jobsmonitor").text SS.shared.game.getrulestr form.elements["jobrule"].value, SS.client.util.formQuery form
+			$("#jobsmonitor").text Shared.game.getrulestr form.elements["jobrule"].value, Index.util.formQuery form
 		jobprops=$("#jobprops")
 		jobprops.children(".prop").prop "hidden",true
-		for job in SS.shared.game.jobs
+		for job in Shared.game.jobs
 			jobpr=jobprops.children(".prop.#{job}")
 			if form.elements["jobrule"].value in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
 				jobpr.prop "hidden",false
@@ -680,7 +680,7 @@ exports.start=(roomid)->
 			
 			p.appendChild span
 			if log.time?
-				time=SS.client.util.timeFromDate new Date log.time
+				time=Index.util.timeFromDate new Date log.time
 				time.classList.add "time"
 				p.appendChild time
 			if log.mode=="nextturn" && log.day
@@ -871,9 +871,9 @@ exports.start=(roomid)->
 		
 			
 exports.end=->
-	SS.server.game.rooms.exit this_room_id,(result)->
+	ss.rpc "game.rooms.exit", this_room_id,(result)->
 		if result?
-			SS.client.util.message "ルーム",result
+			Index.util.message "ルーム",result
 			return
 	clearInterval timerid if timerid?
 	alloff socket_ids...
@@ -884,7 +884,7 @@ exports.end=->
 #ソケットを全部off
 alloff= (ids...)->
 	ids.forEach (x)->
-		SS.client.socket.off x
+		Index.socket.off x
 		
 # ノードのコメントなどをパースする
 exports.parselognode=parselognode=(node)->

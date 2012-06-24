@@ -21,6 +21,11 @@ ss.client.set({liveReload: false});
 if(ss.env=='production')ss.client.packAssets();
 
 global.Config=require('./config/app.coffee');
+//---- Middleware
+var middleware=require('./server/middleware.coffee');
+ss.http.middleware.prepend(middleware.jsonapi);
+ss.http.middleware.prepend(middleware.manualxhr);
+
 
 //----
 var server=http.Server(ss.http.middleware);

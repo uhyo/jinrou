@@ -1,8 +1,8 @@
 exports.start=->
 	page=0
 	query=null
-	getroom=SS.client.game.rooms.getroom
-	#SS.server.game.rooms.getRooms mode,page,getroom
+	getroom=Index.game.rooms.getroom
+	#ss.rpc "game.rooms.getRooms", mode,page,getroom
 
 	# ルールの設定
 	setjobrule=(rulearr,names,parent)->
@@ -21,7 +21,7 @@ exports.start=->
 				option.value=names.concat([obj.name]).join "."
 				option.title=obj.title
 				parent.appendChild option
-	setjobrule SS.shared.game.jobrules.concat([
+	setjobrule Shared.game.jobrules.concat([
 		name:"特殊ルール"
 		rule:[
 			{
@@ -47,10 +47,10 @@ exports.start=->
 		if t.name=="prev"
 			page--
 			if page<0 then page=0
-			SS.server.game.rooms.find query,page,getroom
+			ss.rpc "game.rooms.find", query,page,getroom
 		else if t.name=="next"
 			page++
-			SS.server.game.rooms.find query,page,getroom
+			ss.rpc "game.rooms.find", query,page,getroom
 		
 	$("#logsform").change (je)->
 		# disable/able
@@ -70,7 +70,7 @@ exports.start=->
 				query[x]=form.elements[x].value
 			
 		
-		SS.server.game.rooms.find query,page,(rooms)->
+		ss.rpc "game.rooms.find", query,page,(rooms)->
 			getroom rooms
 		
 			

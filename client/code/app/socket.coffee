@@ -11,7 +11,7 @@ exports.on=(mesname,channel=null,func)->
 		id:idn++
 	unless mesname of ons
 		ons[mesname]=true
-		SS.events.on mesname,(msg,channel_name)->
+		ss.event.on mesname,(msg,channel_name)->
 			evs.filter (x)->
 				x.mesname==mesname && (!x.channel || x.channel==channel_name)
 			.forEach (x)->

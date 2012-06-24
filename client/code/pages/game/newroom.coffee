@@ -3,12 +3,12 @@ exports.start=->
 		je.preventDefault()
 		form=je.target
 		# 作成
-		query=SS.client.util.formQuery form
-		SS.server.game.rooms.newRoom query,(result)->
+		query=Index.util.formQuery form
+		ss.rpc "game.rooms.newRoom", query,(result)->
 			if result?.error?
-				SS.client.util.message "エラー",result.error
+				Index.util.message "エラー",result.error
 				return
-			SS.client.app.showUrl "/room/#{result.id}"
+			Index.app.showUrl "/room/#{result.id}"
 
 	.change (je)->
 		ch=je.target

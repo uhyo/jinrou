@@ -1,5 +1,5 @@
 Shared=
-	game:module
+	game:exports
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",

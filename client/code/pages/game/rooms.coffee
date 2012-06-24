@@ -1,21 +1,21 @@
 exports.start=(mode)->
 	page=0
-	getroom=SS.client.game.rooms.getroom
-	SS.server.game.rooms.getRooms mode,page,getroom
+	getroom=Index.game.rooms.getroom
+	ss.rpc "game.rooms.getRooms", mode,page,getroom
 	$("#pager").click (je)->
 		t=je.target
 		if t.name=="prev"
 			page--
 			if page<0 then page=0
-			SS.server.game.rooms.getRooms mode,page,getroom
+			ss.rpc "game.rooms.getRooms", mode,page,getroom
 		else if t.name=="next"
 			page++
-			SS.server.game.rooms.getRooms mode,page,getroom
+			ss.rpc "game.rooms.getRooms", mode,page,getroom
 
 exports.getroom=(rooms)->
 	tb=$("#roomlist").get(0)
 	if rooms.error?
-		SS.client.util.message "エラー","ルーム一覧を取得できませんでした。"
+		Index.util.message "エラー","ルーム一覧を取得できませんでした。"
 		return
 	while tb.rows.length>0
 		tb.deleteRow 0
@@ -82,7 +82,7 @@ exports.getroom=(rooms)->
 		#日時
 		td=tr.insertCell -1
 		if room.made?
-			td.appendChild SS.client.util.timeFromDate new Date room.made
+			td.appendChild Index.util.timeFromDate new Date room.made
 		
 		#コメント
 		td=tr.insertCell -1

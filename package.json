@@ -13,6 +13,7 @@
 	"ss-coffee":"0.1.x",
 	"ss-stylus":"0.1.x",
 	"ss-jade":"0.1.x",
-	"ss-clientjade":"0.x"
+	"ss-clientjade":"0.x",
+	"jade":">=0.26.1"
   }
 }

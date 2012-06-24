@@ -17,12 +17,12 @@ exports.start=->
 		span.classList.add "comment"
 		wrdv=document.createElement "div"
 		wrdv.textContent=log.comment
-		SS.client.game.game.parselognode wrdv
+		Index.game.game.parselognode wrdv
 		span.appendChild wrdv
 		
 		p.appendChild span
 		if log.time?
-			time=SS.client.util.timeFromDate new Date log.time
+			time=Index.util.timeFromDate new Date log.time
 			time.classList.add "time"
 			p.appendChild time
 
@@ -42,26 +42,26 @@ exports.start=->
 				$(@).remove()
 				false
 	heartbeat=->
-		SS.server.lobby.heartbeat ->
+		ss.rpc "lobby.heartbeat", ->
 	
 
-	SS.server.lobby.enter (obj)->
+	ss.rpc "lobby.enter", (obj)->
 		users=$("#users")
 		obj.players.forEach appenduser
 
 		obj.logs.reverse().forEach getlog
 	$("#lobbyform").submit (je)->
 		je.preventDefault()
-		SS.server.lobby.say je.target.elements["comment"].value,(result)->
+		ss.rpc "lobby.say", je.target.elements["comment"].value,(result)->
 			if result?
-				SS.server.util.message "エラー",result
+				ss.rpc "util.message", "エラー",result
 		je.target.reset()
 	socids=[
-		SS.client.socket.on "log",null,getlog
-		SS.client.socket.on "enter",null,appenduser
-		SS.client.socket.on "bye",null,deleteuser
-		SS.client.socket.on "lobby_heartbeat",null,heartbeat
+		Index.socket.on "log",null,getlog
+		Index.socket.on "enter",null,appenduser
+		Index.socket.on "bye",null,deleteuser
+		Index.socket.on "lobby_heartbeat",null,heartbeat
 	]
 exports.end=->
-	SS.server.lobby.bye ->
-	SS.client.socket.off socid for socid in socids
+	ss.rpc "lobby.bye", ->
+	Index.socket.off socid for socid in socids

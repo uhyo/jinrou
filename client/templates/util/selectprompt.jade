@@ -1,9 +1,9 @@
 section.window
   h1
-    {{= title}}
+    = title
     input.closer(type="button",value="×",name="cancel")
   form(name="askform",action="/")
-    p {{= message}}
+    p= message
     p
       select.prompt.getfocus
     p

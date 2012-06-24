@@ -134,7 +134,7 @@ class Game
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
-	setplayers:(joblist,options,players)->
+	setplayers:(joblist,options,players,res)->
 		jnumber=0
 		players=players.concat []
 		plsl=players.length	#実際の参加人数（身代わり含む）
@@ -3363,8 +3363,8 @@ complexes=
 
 #内部用
 module.exports=
-	newGame: (room)->
-		game=new Game room
+	newGame: (room,ss)->
+		game=new Game ss,room
 		games[room.id]=game
 		M.games.insert game.serialize()
 	# ゲームオブジェクトを読み込んで使用可能にする
@@ -3432,7 +3432,7 @@ module.exports=
 		game=games[roomid]
 		unless game?
 			return
-		player=game.getPlayerReal session.user_id
+		player=game.getPlayerReal session.userId
 		unless player?
 			session.channel.subscribe "room#{roomid}_audience"
 #			session.channel.subscribe "room#{roomid}_notwerewolf"
@@ -3457,7 +3457,7 @@ module.exports=
 		if player.type=="Fox"
 			session.channel.subscribe "room#{roomid}_fox"
 		###
-exports.actions=(req,res,ss)->
+module.exports.actions=(req,res,ss)->
 	req.use 'session'
 
 #ゲーム開始処理
@@ -3649,7 +3649,7 @@ exports.actions=(req,res,ss)->
 		game=games[roomid]
 		ne= =>
 			# ゲーム後の行動
-			player=game.getPlayerReal req.session.user_id
+			player=game.getPlayerReal req.session.userId
 			result=
 				#logs:game.logs.filter (x)-> islogOK game,player,x
 				logs:game.makelogs player
@@ -3679,7 +3679,7 @@ exports.actions=(req,res,ss)->
 		unless game?
 			res "そのゲームは存在しません"
 			return
-		unless req.session.user_id
+		unless req.session.userId
 			res "ログインして下さい"
 			return
 		unless query?
@@ -3689,11 +3689,11 @@ exports.actions=(req,res,ss)->
 		unless comment
 			res "コメントがありません"
 			return
-		player=game.getPlayerReal req.session.user_id
+		player=game.getPlayerReal req.session.userId
 		log =
 			comment:comment
-			userid:req.session.user_id
-			name:req.session.attributes.user.name
+			userid:req.session.userId
+			name:req.session.user.name
 			to:null
 		if query.size in ["big","small"]
 			log.size=query.size
@@ -3766,7 +3766,7 @@ exports.actions=(req,res,ss)->
 		else
 			# ルーム情報から探す
 			Server.game.rooms.oneRoomS roomid,(room)=>
-				pl=room.players.filter((x)=>x.realid==req.session.user_id)[0]
+				pl=room.players.filter((x)=>x.realid==req.session.userId)[0]
 				if pl?
 					log.name=pl.name
 				dosp()
@@ -3776,10 +3776,10 @@ exports.actions=(req,res,ss)->
 		unless game?
 			res {error:"そのゲームは存在しません"}
 			return
-		unless req.session.user_id
+		unless req.session.userId
 			res {error:"ログインして下さい"}
 			return
-		player=game.getPlayerReal req.session.user_id
+		player=game.getPlayerReal req.session.userId
 		unless player?
 			res {error:"参加していません"}
 			return
@@ -3862,13 +3862,13 @@ exports.actions=(req,res,ss)->
 		unless game?
 			res "そのゲームは存在しません"
 			return
-		unless req.session.user_id
+		unless req.session.userId
 			res "ログインして下さい"
 			return
 		unless !game.rule || game.rule.will
 			res "遺言は使えません"
 			return
-		player=game.getPlayerReal req.session.user_id
+		player=game.getPlayerReal req.session.userId
 		unless player?
 			res "参加していません"
 			return

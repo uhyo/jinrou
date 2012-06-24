@@ -50,7 +50,7 @@ exports.page=page=(templatename,params=null,pageobj,startparam)->
 	jQuery.data(cdom,"end")?()
 	jQuery.removeData cdom,"end"
 	$("#content").empty()
-	$("##{templatename}").tmpl(params).appendTo("#content")
+	$(JT["#{templatename}"](params)).appendTo("#content")
 	if pageobj
 		pageobj.start(startparam)
 		jQuery.data cdom, "end", pageobj.end
@@ -62,8 +62,8 @@ manualpage=(pagename)->
 		jQuery.removeData cdom,"end"
 		$("#content").empty()
 		
-		$.tmpl(tmp).appendTo("#content")
-		pageobj=SS.client.manual
+		$(tmp).appendTo("#content")
+		pageobj=Index.manual
 		if pageobj
 			pageobj.start()
 			jQuery.data cdom, "end", pageobj.end
@@ -94,30 +94,30 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 	switch url
 		when "/my"
 			# プロフィールとか
-			SS.server.user.myProfile (user)->
-				page "templates-user-profile",user,user.profile,user
+			ss.rpc "user.myProfile", (user)->
+				page "user-profile",user,Index.user.profile,user
 		when "/rooms"
 			# 部屋一覧
-			page "templates-game-rooms",null,SS.client.game.rooms, null
+			page "game-rooms",null,Index.game.rooms, null
 		when "/rooms/log"
 			# 終わった部屋
-			page "templates-game-rooms",null,SS.client.game.rooms,"log"
+			page "game-rooms",null,Index.game.rooms,"log"
 		when "/newroom"
 			# 新しい部屋
-			page "templates-game-newroom",null,SS.client.game.newroom,null
+			page "game-newroom",null,Index.game.newroom,null
 		when "/lobby"
 			# ロビー
-			page "templates-lobby",null,SS.client.lobby,null
+			page "lobby",null,Index.lobby,null
 		when "/manual"
 			# マニュアルトップ
-			#page "templates-manual-top",null,SS.client.manual,null
+			#page "manual-top",null,Index.manual,null
 			manualpage "top"
 		when "/admin"
 			# 管理者ページ
-			page "templates-admin",null,SS.client.admin,null
+			page "admin",null,Index.admin,null
 		when "/logout"
 			# ログアウト
-			SS.server.user.logout ->
+			ss.rpc "user.logout", ->
 				my_userid=null
 				localStorage.removeItem "userid"
 				localStorage.removeItem "password"
@@ -125,33 +125,31 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				showUrl "/",nohistory
 		when "/logs"
 			# ログ検索
-			page "templates-logs",null,SS.client.logs,null
+			page "logs",null,Index.logs,null
 		else
 			if result=url.match /^\/room\/(\d+)$/
 				# ルーム
-				page "templates-game-game",null,SS.client.game.game,parseInt result[1]
+				page "game-game",null,Index.game.game,parseInt result[1]
 			else if result=url.match /^\/user\/(\w+)$/
 				# ユーザー
-				page "templates-user-view",null,SS.client.user.view,result[1]
+				page "user-view",null,Index.user.view,result[1]
 			else if result=url.match /^\/manual\/job\/(\w+)$/
 				# ジョブ情報
 				win=util.blankWindow()
-				$("#templates-jobs-#{result[1]}").tmpl().appendTo win
+				$(JT["jobs-#{result[1]}"]()).appendTo win
 				return
 			else if result=url.match /^\/manual\/casting\/(.+)$/
 				# キャスティング情報
-				page "templates-pages-casting",null,SS.client.pages.casting,result[1]
+				page "pages-casting",null,Index.pages.casting,result[1]
 			else if result=url.match /^\/manual\/(\w+)$/
-				#page "templates-manual-#{result[1]}",null,SS.client.manual,null
+				#page "manual-#{result[1]}",null,Index.manual,null
 				manualpage result[1]
-			else if result=url.match /^\/events\/(\w+)$/
-				page "templates-manual-events-#{result[1]}",null,SS.client.manual,null
 			else if result=url.match /^\/backdoor\/(\w+)$/
-				SS.server.app.backdoor result[1],(url)->
+				ss.rpc "app.backdoor", result[1],(url)->
 					if url?
 						location.replace url
 			else
-				page "templates-top",null,SS.client.top,null
+				page "top",null,Index.top,null
 	unless nohistory
 		history.pushState null,null,url
 					
@@ -159,7 +157,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 exports.refresh=->showUrl location.pathname,true
 
 exports.login=login=(uid,ups,cb)->
-	SS.server.user.login {userid:uid,password:ups},(result)->
+	ss.rpc "user.login", {userid:uid,password:ups},(result)->
 		if !result
 			# OK
 			my_userid=uid
@@ -169,4 +167,6 @@ exports.login=login=(uid,ups,cb)->
 			cb? false
 exports.userid=->my_userid
 exports.setUserid=(id)->my_userid=id
+
+
 

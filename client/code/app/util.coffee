@@ -4,12 +4,12 @@ exports.showWindow=showWindow=(templatename,tmpl)->
 	x=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientWidth/2)
 	y=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientHeight/2)
 
-	win=$("##{templatename}").tmpl(tmpl).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn().draggable()
+	win=$(JT["#{templatename}"](tmpl)).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn().draggable()
 	$(".getfocus",win.get(0)).focus()
 	win
 #編集域を返す
 exports.blankWindow=->
-	win=showWindow "templates-util-blank"
+	win=showWindow "util-blank"
 	div=document.createElement "div"
 	$("form[name='okform']",win).before div
 	win.submit (je)-> je.preventDefault()
@@ -42,7 +42,7 @@ exports.formQuery=(form)->
 	q
 #true,false
 exports.ask=(title,message,cb)->
-	win = showWindow "templates-util-ask",{title:title,message:message}
+	win = showWindow "util-ask",{title:title,message:message}
 	win.submit (je)-> je.preventDefault()
 	win.click (je)->
 		t=je.target
@@ -54,7 +54,7 @@ exports.ask=(title,message,cb)->
 			closeWindow t
 #String / null
 exports.prompt=(title,message,opt,cb)->
-	win = showWindow "templates-util-prompt",{title:title,message:message}
+	win = showWindow "util-prompt",{title:title,message:message}
 	inp=win.find("input.prompt").get(0)
 	for opv of opt
 		inp[opv]=opt[opv]
@@ -70,7 +70,7 @@ exports.prompt=(title,message,opt,cb)->
 
 #arr: [{name:"aaa",value:"foo"}, ...]
 exports.selectprompt=(title,message,arr,cb)->
-	win = showWindow "templates-util-selectprompt",{title:title,message:message}
+	win = showWindow "util-selectprompt",{title:title,message:message}
 	sel=win.find("select.prompt").get(0)
 	for obj in arr
 		opt=document.createElement "option"
@@ -90,7 +90,7 @@ exports.selectprompt=(title,message,arr,cb)->
 
 
 exports.message=(title,message,cb)->
-	win = showWindow "templates-util-wmessage",{title:title,message:message}
+	win = showWindow "util-wmessage",{title:title,message:message}
 	win.submit (je)-> je.preventDefault()
 	win.click (je)->
 		t=je.target
@@ -98,7 +98,7 @@ exports.message=(title,message,cb)->
 			cb? true
 			closeWindow t
 exports.loginWindow=(cb=->app.refresh())->
-	win = showWindow "templates-util-login"
+	win = showWindow "util-login"
 	win.click (je)->
 		t=je.target
 		if t.name=="cancel"
@@ -146,7 +146,7 @@ exports.loginWindow=(cb=->app.refresh())->
 							cb()
 
 exports.iconSelectWindow=(def,cb)->
-	win = showWindow "templates-util-iconselect"
+	win = showWindow "util-iconselect"
 	form=$("#iconform").get 0
 	# アイコン決定
 	okicon=(url)->
@@ -173,7 +173,7 @@ exports.iconSelectWindow=(def,cb)->
 		closeWindow win
 		cb def	#結果通知
 exports.blindName=(opt={},cb)->
-	win = showWindow "templates-util-blindname",{title:opt.title ? "ゲームに参加", message:opt.message ? "名前を入力して下さい"}
+	win = showWindow "util-blindname",{title:opt.title ? "ゲームに参加", message:opt.message ? "名前を入力して下さい"}
 	def=null
 	win.click (je)->
 		t=je.target
