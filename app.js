@@ -32,7 +32,7 @@ ss.http.middleware.prepend(middleware.manualxhr);
 
 //----
 var server=http.Server(ss.http.middleware);
-server.listen(8800);
+server.listen(Config.http.port);
 
 ss.start(server);
 
