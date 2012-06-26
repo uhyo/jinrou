@@ -95,6 +95,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/my"
 			# プロフィールとか
 			ss.rpc "user.myProfile", (user)->
+				user[x]?="" for x in ["userid","name","comment"]
 				page "user-profile",user,Index.user.profile,user
 		when "/rooms"
 			# 部屋一覧
