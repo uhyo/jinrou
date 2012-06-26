@@ -58,6 +58,5 @@ dbinit= ->
           M.events=col
           cols_count()
 
-#dbinit()
 exports.dbinit=dbinit
 
