@@ -4,22 +4,22 @@ tabs=
 			inittable()
 			$("#newbanform").submit (je)->
 				je.preventDefault()
-				query=SS.client.util.formQuery je.target
-				SS.server.admin.addBlacklist query,->
+				query=Index.util.formQuery je.target
+				ss.rpc "admin.addBlacklist", query,->
 					inittable()
 			$("#blacklisttable").click (je)->
 				target=je.target
 				if target.dataset.userid
 					query=
 						userid:target.dataset.userid
-					SS.server.admin.removeBlacklist query,->
+					ss.rpc "admin.removeBlacklist", query,->
 						inittable()
 	grandalert:
 		init:->
 			$("#alertform").submit (je)->
 				je.preventDefault()
-				query=SS.client.util.formQuery je.target
-				SS.server.admin.spreadGrandalert query,(result)->
+				query=Index.util.formQuery je.target
+				ss.rpc "admin.spreadGrandalert", query,(result)->
 					unless result?
 						# 成功
 						je.target.reset()
@@ -27,25 +27,25 @@ tabs=
 		init:->
 			$("#dataexportform").submit (je)->
 				je.preventDefault()
-				query=SS.client.util.formQuery je.target
+				query=Index.util.formQuery je.target
 				if query.command
-					SS.server.admin.doCommand query,(result)->
+					ss.rpc "admin.doCommand", query,(result)->
 						if result.error?
-							SS.client.util.message "エラー",result.error
+							Index.util.message "エラー",result.error
 							return
-						SS.client.util.message "出力",result.result
+						Index.util.message "出力",result.result
 				else
-					SS.server.admin.dataExport query,(result)->
+					ss.rpc "admin.dataExport", query,(result)->
 						if result.error?
-							SS.client.util.message "エラー",result.error
+							Index.util.message "エラー",result.error
 							return
 						window.open result.file
 
 exports.start=->
-	SS.client.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->
-		SS.server.admin.regist {password:pass},(err)->
+	Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->
+		ss.rpc "admin.regist", {password:pass},(err)->
 			if err?
-				SS.client.util.message "管理ページ",err
+				Index.util.message "管理ページ",err
 	$("#admin").click (je)->
 		t=je.target
 		if t.dataset.opener && to=tabs[t.dataset.opener]
@@ -61,9 +61,9 @@ exports.end=->
 
 inittable=->
 	table=$("#blacklisttable").get 0
-	SS.server.admin.getBlacklist {},(result)->
+	ss.rpc "admin.getBlacklist", {},(result)->
 		if result.error?
-			SS.client.util.message "管理ページ",result.error
+			Index.util.message "管理ページ",result.error
 			return
 		$(table).empty()
 		result.docs.forEach (doc)->

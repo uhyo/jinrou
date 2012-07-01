@@ -10,7 +10,7 @@ exports.actions =(req,res,ss)->
 	# 現在のセッションを管理者として承認する
 	regist:(query)->
 		if query.password==Config.admin.password
-			req.session.attributes.administer=true
+			req.session.administer=true
 			req.session.save ->res null
 		else
 			res "パスワードが違います。"
@@ -18,13 +18,13 @@ exports.actions =(req,res,ss)->
 	# ------------- blacklist関係
 	# blacklist一覧を得る
 	getBlacklist:(query)->
-		unless req.session.attributes.administer
+		unless req.session.administer
 			res {error:"管理者ではありません"}
 			return
 		M.blacklist.find().limit(100).skip(100*(query.page ? 0)).toArray (err,docs)->
 			res {docs:docs}
 	addBlacklist:(query)->
-		unless req.session.attributes.administer
+		unless req.session.administer
 			res {error:"管理者ではありません"}
 			return
 		M.users.findOne {userid:query.userid},(err,doc)->
@@ -42,7 +42,7 @@ exports.actions =(req,res,ss)->
 			M.blacklist.insert addquery,{safe:true},(err,doc)->
 				res null
 	removeBlacklist:(query)->
-		unless req.session.attributes.administer
+		unless req.session.administer
 			res {error:"管理者ではありません"}
 			return
 		M.blacklist.remove {userid:query.userid},(err)->
@@ -50,7 +50,7 @@ exports.actions =(req,res,ss)->
 	
 	# -------------- grandalert関係
 	spreadGrandalert:(query)->
-		unless req.session.attributes.administer
+		unless req.session.administer
 			res {error:"管理者ではありません"}
 			return
 		if query.system
