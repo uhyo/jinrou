@@ -45,7 +45,7 @@ function move(collname,cb){
 			var latest=doc.id;
 			console.log("the latest "+collname+" id is "+latest);
 			to_db.collection(collname,function(err,colt){
-				colt.findAndModify({},{id:-1},{$inc:latest},{},function(err){
+				colt.findAndModify({},{id:-1},{$inc:{id:latest}},{},function(err){
 					if(err)throw err;
 					console.log(collname+" done.");
 					cb();
