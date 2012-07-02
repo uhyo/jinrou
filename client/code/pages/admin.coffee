@@ -42,7 +42,7 @@ tabs=
 						window.open result.file
 
 exports.start=->
-	Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{},(pass)->
+	Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{type:"password"},(pass)->
 		ss.rpc "admin.regist", {password:pass},(err)->
 			if err?
 				Index.util.message "管理ページ",err

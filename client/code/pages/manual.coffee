@@ -6,7 +6,7 @@ exports.start=->
 	j=$("#joblist_main")
 	if j.get 0
 		for job in Shared.game.jobs
-			j.append $("#jobs-#{job}").tmpl()
+			j.append $ JT["jobs-#{job}"]()
 				
 		
 
