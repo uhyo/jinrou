@@ -1,6 +1,6 @@
 exports.start=(rolename)->
 	# 配役表 例)普通配役-普通1
-	func=SS.shared.game.getrulefunc rolename.replace "-","."
+	func=Shared.game.getrulefunc rolename.replace "-","."
 	rolename.replace "-","."
 	unless func?
 		p=document.createElement "p"
@@ -67,8 +67,8 @@ exports.start=(rolename)->
 exports.end=->
 
 getjobname=(type)->
-	for teamname,arr of SS.shared.game.teams
+	for teamname,arr of Shared.game.teams
 		if type in arr
-			return SS.shared.game.jobinfo[teamname][type].name
+			return Shared.game.jobinfo[teamname][type].name
 	return null
 
