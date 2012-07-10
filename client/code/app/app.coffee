@@ -103,6 +103,9 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 		when "/rooms/log"
 			# 終わった部屋
 			page "game-rooms",null,Index.game.rooms,"log"
+		when "/rooms/my"
+			# ぼくの部屋
+			page "game-rooms",null,Index.game.rooms,"my"
 		when "/newroom"
 			# 新しい部屋
 			page "game-newroom",null,Index.game.newroom,null

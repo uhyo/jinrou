@@ -41,6 +41,10 @@ module.exports.actions=(req,res,ss)->
 		if mode=="log"
 			query=
 				mode:"end"
+		else if mode=="my"
+			query=
+				mode:"end"
+				"players.realid":req.session.userId
 		else
 			query=
 				mode:
