@@ -39,6 +39,8 @@ class Game
 
 		@gamelogs=[]
 		@iconcollection={}	#(id):(url)
+		# 決定配役（DBに入らないかも・・・）
+		@joblist=null
 		
 		# 投票箱を用意しておく
 		@votingbox=new VotingBox this
@@ -134,8 +136,9 @@ class Game
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
-	setplayers:(joblist,options,players,res)->
+	setplayers:(options,players,res)->
 		jnumber=0
+		joblist=@joblist
 		players=players.concat []
 		plsl=players.length	#実際の参加人数（身代わり含む）
 		if @rule.scapegoat=="on"
@@ -3636,8 +3639,10 @@ module.exports.actions=(req,res,ss)->
 				ruleobj[x]=query[x] ? null
 
 			game.setrule ruleobj
+			# 配役リストをセット
+			@joblist=joblist
 			
-			game.setplayers joblist,options,room.players,(result)->
+			game.setplayers options,room.players,(result)->
 				unless result?
 					# プレイヤー初期化に成功
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}

@@ -1,5 +1,7 @@
 exports.start=(rolename)->
 	# 配役表 例)普通配役-普通1
+	try
+		rolename=decodeURIComponent rolename
 	func=Shared.game.getrulefunc rolename.replace "-","."
 	rolename.replace "-","."
 	unless func?

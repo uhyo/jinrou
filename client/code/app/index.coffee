@@ -14,6 +14,7 @@ module.exports=
 	logs:require '/logs'
 	pages:
 		casting:require '/pages/casting'
+		castlist:require '/pages/castlist'
 	top:require '/top'
 	# ちょっと違うけど
 	app:require '/app'

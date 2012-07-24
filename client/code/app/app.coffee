@@ -142,9 +142,13 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 				win=util.blankWindow()
 				$(JT["jobs-#{result[1]}"]()).appendTo win
 				return
-			else if result=url.match /^\/manual\/casting\/(.+)$/
+			else if result=url.match /^\/manual\/casting\/(.*)$/
 				# キャスティング情報
-				page "pages-casting",null,Index.pages.casting,result[1]
+				if result[1]=="index" || result[1]==""
+					# 一覧
+					page "pages-castlist",null,Index.pages.castlist
+				else
+					page "pages-casting",null,Index.pages.casting,result[1]
 			else if result=url.match /^\/manual\/(\w+)$/
 				#page "manual-#{result[1]}",null,Index.manual,null
 				manualpage result[1]
