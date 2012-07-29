@@ -3494,6 +3494,10 @@ module.exports.actions=(req,res,ss)->
 			frees=room.players.length	# 参加者の数
 			if query.scapegoat=="on"	# 身代わりくん
 				frees++
+			# 人数の確認
+			if frees<4
+				res "人数が少なすぎるので開始できません"
+				return
 				
 			ruleinfo_str=""	# 開始告知
 
