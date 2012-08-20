@@ -67,6 +67,9 @@ exports.start=(roomid)->
 			Index.util.message "ルーム","そのルームは存在しません。"
 			Index.app.showUrl "/rooms"
 			return
+		# フォームを修正する
+		forminfo=->
+			setplayersnumber $("#gamestart").get(0), room.players.filter((x)->x.mode=="player").length
 		# 今までのログを送ってもらう
 		this_icons={}
 		this_logdata={}
@@ -88,8 +91,8 @@ exports.start=(roomid)->
 		# 新しいゲーム
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
-			form.elements["number"].value=room.players.length
-			setplayersnumber form,room.players.length
+			#setplayersnumber form,room.players.length
+			forminfo()
 
 			$("#gamestartsec").removeAttr "hidden"
 		$("#roomname").text room.name
@@ -154,6 +157,15 @@ exports.start=(roomid)->
 						ss.rpc "game.rooms.ready", roomid,(result)->
 							if result?
 								Index.util.message "ルーム",result
+				b=makebutton "ヘルパー"
+				# ヘルパーになる/やめるボタン
+				$(b).click (je)->
+					Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+						ss.rpc "game.rooms.helper",roomid, id,(result)->
+							if result?
+								Index.util.message "エラー",result
+				$("#playersinfo").append b
+
 		userid=Index.app.userid()
 		if room.mode=="waiting"
 			if room.owner.userid==Index.app.userid()
@@ -414,11 +426,15 @@ exports.start=(roomid)->
 			###
 			li=makeplayerbox msg,room.blind
 			$("#players").append li
+			#setplayersnumber $("#gamestart").get(0),room.players.length
+			forminfo()
 		# 誰かが出て行った!!!
 		socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x.userid!=msg
 			
 			$("#players li").filter((idx)-> this.dataset.id==msg).remove()
+			#setplayersnumber $("#gamestart").get(0),room.players.length
+			forminfo()
 		# 準備
 		socket_ids.push Index.socket.on "ready","room#{roomid}",(msg,channel)->
 			for pl in room.players
@@ -426,6 +442,13 @@ exports.start=(roomid)->
 					pl.start=msg.start
 					li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
 					li.replaceWith makeplayerbox pl,room.blind
+		socket_ids.push Index.socket.on "mode","room#{roomid}",(msg,channel)->
+			for pl in room.players
+				if pl.userid==msg.userid
+					pl.mode=msg.mode
+					li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
+					li.replaceWith makeplayerbox pl,room.blind
+					forminfo()
 			
 		# ログが流れてきた!!!
 		socket_ids.push Index.socket.on "log",null,(msg,channel)->
@@ -544,6 +567,7 @@ exports.start=(roomid)->
 		
 	setplayersnumber=(form,number)->
 		
+		form.elements["number"].value=number
 		setplayersbyjobrule form,number
 	# 配役一覧をアレする
 	setplayersbyjobrule=(form,number)->
@@ -763,6 +787,8 @@ exports.start=(roomid)->
 			$("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
 		if obj.vampires?
 			$("#jobinfo").append pp "ヴァンパイアは#{obj.vampires.map((x)->x.name).join(',')}"
+		if obj.supporting?
+			$("#jobinfo").append pp "#{obj.supporting.name}をサポートしています"
 		
 		if obj.winner?
 			# 勝敗
@@ -985,6 +1011,21 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 			df.appendChild p
 	if obj.dead
 		df.classList.add "dead"
+	if obj.mode=="gm"
+		# GM
+		p=document.createElement "p"
+		p.classList.add "job"
+		p.classList.add "gm"
+		p.textContent="[GM]"
+		df.appendChild p
+	else if /^helper_/.test obj.mode
+		# ヘルパー
+		p=document.createElement "p"
+		p.classList.add "job"
+		p.classList.add "helper"
+		p.textContent="[helper]"
+		df.appendChild p
+
 	if obj.start
 		# 準備完了
 		p=document.createElement "p"
@@ -1018,3 +1059,5 @@ speakValueToStr=(game,value)->
 			if result=value.match /^gmreply_(.+)$/
 				pl=game.players.filter((x)->x.id==result[1])[0]
 				"→#{pl.name}"
+			else if result=value.match /^helperwhisper_(.+)$/
+				"助言"

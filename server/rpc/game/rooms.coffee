@@ -16,6 +16,7 @@ room: {
   gm: Booelan(trueならオーナーGM)
 }
 PlayerObject.start=Boolean
+PlayerObject.mode="player" / "gm" / "helper"
 ###
 page_number=10
 
@@ -100,6 +101,19 @@ module.exports.actions=(req,res,ss)->
 				userid:req.session.user.userid
 				name:req.session.user.name
 			room.gm = query.ownerGM=="yes"
+			if query.ownerGM=="yes"
+				# GMがいる
+				su=req.session.user
+				room.players.push {
+					userid: req.session.user.userid
+					realid: req.session.user.userid
+					name:su.name
+					ip:su.ip
+					icon:su.icon
+					start:true
+					mode:"gm"
+					nowprize:null
+				}
 			M.rooms.insert room
 			Server.game.game.newGame room,ss
 			res {id: room.id}
@@ -144,9 +158,9 @@ module.exports.actions=(req,res,ss)->
 					ip:su.ip
 					icon:su.icon
 					start:false
+					mode:"player"
 					nowprize:su.nowprize
 				
-				user.realid = req.session.userId
 				# 同IP制限
 				if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
 					res error:"重複参加はできません"
@@ -189,8 +203,12 @@ module.exports.actions=(req,res,ss)->
 			if !room || room.error?
 				res "その部屋はありません"
 				return
-			unless req.session.userId in (room.players.map (x)->x.realid)
+			pl = room.players.filter((x)->x.realid==req.session.userId)[0]
+			unless pl
 				res "まだ参加していません"
+				return
+			if pl.mode=="gm"
+				res "GMは退室できません"
 				return
 			unless room.mode=="waiting"
 				res "もう始まっています"
@@ -248,8 +266,12 @@ module.exports.actions=(req,res,ss)->
 			unless room.mode=="waiting"
 				res "もう始まっています"
 				return
-			unless room.players.some((x)->x.userid==id)
+			pl=room.players.filter((x)->x.userid==id)[0]
+			unless pl
 				res "そのユーザーは参加していません"
+				return
+			if pl.mode=="gm"
+				res "GMはkickできません"
 				return
 			M.rooms.update {id:roomid},{$pull: {players:{userid:id}}},(err)=>
 				if err?
@@ -262,6 +284,38 @@ module.exports.actions=(req,res,ss)->
 						Server.game.game.kicklog room,user
 						ss.publish.channel "room#{roomid}", "unjoin",id
 						ss.publish.user id,"refresh",{id:roomid}
+	# ヘルパーになる
+	helper:(roomid,id)->
+		unless req.session.userId
+			res "ログインして下さい"
+			return
+		Server.game.rooms.oneRoomS roomid,(room)=>
+			if !room || room.error?
+				res "その部屋はありません"
+				return
+			pl = room.players.filter((x)->x.realid==req.session.userId)[0]
+			topl=room.players.filter((x)->x.userid==id)[0]
+			if pl?.mode=="gm"
+				res "GMはヘルパーになれません"
+				return
+			if req.session.userId==id
+				res "自分のヘルパーにはなれません"
+				return
+			unless room.mode=="waiting"
+				res "もう始まっています"
+				return
+			mode= if topl? then "helper_#{id}" else "player"
+			room.players.forEach (x,i)=>
+				if x.realid==req.session.userId
+					query={$set:{}}
+					query.$set["players.#{i}.mode"]=mode
+					M.rooms.update {id:roomid},query, (err)=>
+						if err?
+							res "エラー:#{err}"
+						else
+							res null
+							# ヘルパーの様子を 知らせる
+							ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
 	
 	
 	# 成功ならjoined 失敗ならエラーメッセージ

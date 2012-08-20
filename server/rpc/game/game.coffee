@@ -17,7 +17,8 @@ class Game
 			@gm= if room.gm then room.owner.userid else null
 		
 		@logs=[]
-		@players=[]
+		@players=[]			# 村人たち
+		@participants=[]	# 参加者全て(@playersと同じ内容含む）
 		@rule=null
 		@finished=false	#終了したかどうか
 		@day=0	#何日目か(0=準備中)
@@ -58,6 +59,8 @@ class Game
 			logs:@logs
 			rule:@rule
 			players:@players.map (x)->x.serialize()
+			# 差分
+			additionalParticipants: @participants?.filter((x)=>@players.indexOf(x)<0).map (x)->x.serialize()
 			finished:@finished
 			day:@day
 			night:@night
@@ -78,6 +81,12 @@ class Game
 		game.logs=obj.logs
 		game.rule=obj.rule
 		game.players=obj.players.map (x)->Player.unserialize x
+		# 追加する
+		if obj.additionalParticipants
+			game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x
+		else
+			game.participants=game.players.concat []
+
 		game.finished=obj.finished
 		game.day=obj.day
 		game.night=obj.night
@@ -118,7 +127,8 @@ class Game
 	getPlayer:(id)->
 		@players.filter((x)->x.id==id)[0]
 	getPlayerReal:(realid)->
-		@players.filter((x)->x.realid==realid)[0] || if @gm && @gm==realid then new GameMaster realid,realid,"ゲームマスター"
+		#@players.filter((x)->x.realid==realid)[0] || if @gm && @gm==realid then new GameMaster realid,realid,"ゲームマスター"
+		@participants.filter((x)->x.realid==realid)[0]
 	# DBにセーブ
 	save:->
 		M.games.update {id:@id},@serialize()
@@ -136,17 +146,18 @@ class Game
 		
 	setrule:(rule)->@rule=rule
 	#成功:null
-	setplayers:(options,players,res)->
+	#players: 参加者 supporters: その他
+	setplayers:(options,players,supporters,res)->
 		jnumber=0
 		joblist=@joblist
-		players=players.concat []
+		players=players.concat []	#コピー
 		plsl=players.length	#実際の参加人数（身代わり含む）
 		if @rule.scapegoat=="on"
 			plsl++
 		@players=[]
 		@iconcollection={}
 		for job,num of joblist
-			console.log "#{job}:#{num}"
+			#console.log "#{job}:#{num}"
 			unless isNaN num
 				jnumber+=parseInt num
 			if parseInt(num)<0
@@ -300,7 +311,33 @@ class Game
 			
 		# プレイヤーシャッフル
 		@players=shuffle @players
-		
+		@participants=@players.concat []	# コピー
+		# ここでプレイヤー以外の処理をする
+		for pl in supporters
+			if pl.mode=="gm"
+				# ゲームマスターだ
+				gm=Player.factory "GameMaster"
+				gm.setProfile {
+					id:pl.userid
+					realid:pl.realid
+					name:pl.name
+				}
+				@participants.push gm
+			else if result=pl.mode.match /^helper_(.+)$/
+				# ヘルパーだ
+				ppl=@players.filter((x)->x.id==result[1])[0]
+				unless ppl?
+					res "#{pl.name}さんのヘルパー対象が存在しませんでした"
+					return
+				helper=Player.factory "Helper"
+				helper.setProfile {
+					id:pl.realid
+					realid:pl.realid
+					name:pl.name
+				}
+				helper.flag=ppl.id	# ヘルプ先
+				@participants.push helper
+			#@participants.push new GameMaster pl.userid,pl.realid,pl.name
 		
 		res null
 #======== ゲーム進行の処理
@@ -404,7 +441,7 @@ class Game
 		@timer()
 	#全員に状況更新
 	splashjobinfo:->
-		@players.forEach (x)=>
+		@participants.forEach (x)=>
 			@ss.publish.user x.realid,"getjob",makejobinfo this,x
 		# プレイヤー以外にも
 		@ss.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
@@ -1107,7 +1144,7 @@ class Player
 		
 	# ログが見えるかどうか（通常のゲーム中、個人宛は除外）
 	isListener:(game,log)->
-		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply"]
+		if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply","helperwhisper"]
 			# 全員に見える
 			true
 		else if log.mode in ["heaven","gmheaven"]
@@ -3084,7 +3121,31 @@ class GameMaster extends Player
 		["gm","gmheaven","gmaudience","gmmonologue"].concat pls
 	getSpeakChoiceDay:(game)->@getSpeakChoice game
 	chooseJobDay:(game)->true	# 昼でも対象選択
-			
+
+# ヘルパー
+class Helper extends Player
+	type:"Helper"
+	jobname:"ヘルパー"
+	team:""
+	jobdone:->true
+	sleeping:->true
+	isWinner:(game,team)->
+		pl=game.getPlayer @flag
+		return pl?.isWinner game,team
+	# @flag: リッスン対象のid
+	# 同じものが見える
+	isListener:(game,log)->
+		pl=game.getPlayer @flag
+		return false unless pl?
+		return pl.isListener game,log
+	getSpeakChoice:(game)->
+		return ["helperwhisper_#{@flag}"]
+	getSpeakChoiceDay:(game)->@getSpeakChoice game
+	makejobinfo:(game,result)->
+		super
+		# ヘルプ先が分かる
+		result.supporting=game.getPlayer(@flag)?.publicinfo()
+
 
 
 
@@ -3352,6 +3413,9 @@ jobs=
 	WhisperingMad:WhisperingMad
 	Lover:Lover
 	Thief:Thief
+	# 特殊
+	GameMaster:GameMaster
+	Helper:Helper
 	
 complexes=
 	Complex:Complex
@@ -3491,7 +3555,16 @@ module.exports.actions=(req,res,ss)->
 			joblist={}
 			for job of jobs
 				joblist[job]=0	# 一旦初期化
-			frees=room.players.length	# 参加者の数
+			#frees=room.players.length	# 参加者の数
+			# プレイヤーとその他に分類
+			players=[]
+			supporters=[]
+			for pl in room.players
+				if pl.mode=="player"
+					players.push pl
+				else
+					supporters.push pl
+			frees=players.length
 			if query.scapegoat=="on"	# 身代わりくん
 				frees++
 			# 人数の確認
@@ -3533,7 +3606,7 @@ module.exports.actions=(req,res,ss)->
 				
 				ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
 				# 闇鍋のときは入れないのがある
-				exceptions=["MinionSelector","Thief"]
+				exceptions=["MinionSelector","Thief","GameMaster","Helper"]
 				if query.safety!="free"
 					exceptions=exceptions.concat Shared.game.nonhumans	# 基本人外は選ばれない
 				if query.safety=="full"	# 安全
@@ -3644,9 +3717,10 @@ module.exports.actions=(req,res,ss)->
 
 			game.setrule ruleobj
 			# 配役リストをセット
-			@joblist=joblist
+			game.joblist=joblist
+			console.log "joblist!",joblist
 			
-			game.setplayers options,room.players,(result)->
+			game.setplayers options,players,supporters,(result)->
 				unless result?
 					# プレイヤー初期化に成功
 					M.rooms.update {id:roomid},{$set:{mode:"playing"}}
@@ -3701,10 +3775,11 @@ module.exports.actions=(req,res,ss)->
 			res "コメントがありません"
 			return
 		player=game.getPlayerReal req.session.userId
+		#console.log query,player
 		log =
 			comment:comment
 			userid:req.session.userId
-			name:req.session.user.name
+			name:player?.name ? req.session.user.name
 			to:null
 		if query.size in ["big","small"]
 			log.size=query.size
@@ -3718,7 +3793,7 @@ module.exports.actions=(req,res,ss)->
 				log.mode="prepare"
 				if player?.isJobType "GameMaster"
 					log.mode="gm"
-					log.name="ゲームマスター"
+					#log.name="ゲームマスター"
 			else
 				# ゲームしている
 				unless player?
@@ -3759,6 +3834,8 @@ module.exports.actions=(req,res,ss)->
 					log.name="GM→観客"
 				when "gmmonologue"
 					log.name="GMの独り言"
+				when "prepare"
+					# ごちゃごちゃ言わない
 				else
 					if result=query.mode?.match /^gmreply_(.+)$/
 						log.mode="gmreply"
@@ -3767,6 +3844,9 @@ module.exports.actions=(req,res,ss)->
 							return
 						log.to=pl.id
 						log.name="GM→#{pl.name}"
+					else if result=query.mode?.match /^helperwhisper_(.+)$/
+						log.mode="helperwhisper"
+						log.to=result[1]
 
 			splashlog roomid,game,log
 			res null
@@ -3787,11 +3867,15 @@ module.exports.actions=(req,res,ss)->
 		unless game?
 			res {error:"そのゲームは存在しません"}
 			return
+		#console.log "session!",req.session
 		unless req.session.userId
 			res {error:"ログインして下さい"}
 			return
 		player=game.getPlayerReal req.session.userId
 		unless player?
+			res {error:"参加していません"}
+			return
+		unless player in game.participants
 			res {error:"参加していません"}
 			return
 		if player.dead
@@ -3980,10 +4064,10 @@ splashlog=(roomid,game,log)->
 		if (au&&!rev) || (!au&&rev)
 			game.ss.publish.channel "room#{roomid}_audience","log",log
 		# GM
-		if game.gm&&!rev
-			game.ss.publish.channel "room#{roomid}_gamemaster","log",log
+		#if game.gm&&!rev
+		#	game.ss.publish.channel "room#{roomid}_gamemaster","log",log
 		# その他
-		game.players.forEach (pl)->
+		game.participants.forEach (pl)->
 			p=islogOK game,pl,log
 			if (p&&!rev) || (!p&&rev)
 				game.ss.publish.user pl.realid,"log",log
@@ -4031,7 +4115,10 @@ islogOK=(game,player,log)->
 		true
 	else if log.to? && log.to!=player.id
 		# 個人宛
-		false
+		if player.isJobType "Helper"
+			log.to==player.flag	# ヘルプ先のも見える
+		else
+			false
 	else
 		player.isListener game,log
 	###
@@ -4067,6 +4154,8 @@ makejobinfo = (game,player,result={})->
 		result.dead=player.dead
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
 		result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
+		if player.isJobType "Helper"
+			result.sleeping=true	# 投票しない
 		result.jobname=player.getJobDisp()
 		result.winner=player.winner
 		if game.night
