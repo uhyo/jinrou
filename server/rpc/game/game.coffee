@@ -2,6 +2,103 @@
 Shared=
 	game:require '../../../client/code/shared/game.coffee'
 	prize:require '../../../client/code/shared/prize.coffee'
+
+#内部用
+module.exports=
+	newGame: (room,ss)->
+		game=new Game ss,room
+		games[room.id]=game
+		M.games.insert game.serialize()
+	# ゲームオブジェクトを読み込んで使用可能にする
+	###
+	loadDB:(roomid,ss,cb)->
+		if games[roomid]
+			# 既に読み込んでいる
+			cb games[roomid]
+			return
+		M.games.find({finished:false}).each (err,doc)->
+			return unless doc?
+			if err?
+				console.log err
+				throw err
+			games[doc.id]=Game.unserialize doc,ss
+	###
+	inlog:(room,player)->
+		name="#{player.name}"
+		pr=""
+		unless room.blind in ["complete","yes"]
+			# 覆面のときは称号OFF
+			player.nowprize?.forEach? (x)->
+				if x.type=="prize"
+					prname=Server.prize.prizeName x.value
+					if prname?
+						pr+=prname
+				else
+					# 接続
+					pr+=x.value
+			if pr
+				name="#{Server.prize.prizeQuote pr}#{name}"
+		log=
+			comment:"#{name}さんが訪れました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
+	outlog:(room,player)->
+		log=
+			comment:"#{player.name}さんが去りました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
+	kicklog:(room,player)->
+		log=
+			comment:"#{player.name}さんが追い出されました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
+	deletedlog:(room)->
+		log=
+			comment:"この部屋は廃村になりました。"
+			userid:-1
+			name:null
+			mode:"system"
+		if games[room.id]
+			splashlog room.id,games[room.id], log
+	# 状況に応じたチャンネルを割り当てる
+	playerchannel:(roomid,session)->
+		game=games[roomid]
+		unless game?
+			return
+		player=game.getPlayerReal session.userId
+		unless player?
+			session.channel.subscribe "room#{roomid}_audience"
+#			session.channel.subscribe "room#{roomid}_notwerewolf"
+#			session.channel.subscribe "room#{roomid}_notcouple"
+			return
+		if player.isJobType "GameMaster"
+			session.channel.subscribe "room#{roomid}_gamemaster"
+			return
+		###
+		if player.dead
+			session.channel.subscribe "room#{roomid}_heaven"
+		if game.rule.heavenview!="view" || !player.dead
+			if player.isWerewolf()
+				session.channel.subscribe "room#{roomid}_werewolf"
+			else
+				session.channel.subscribe "room#{roomid}_notwerewolf"
+		if game.rule.heavenview!="view" || !player.dead
+			if player.type=="Couple"
+				session.channel.subscribe "room#{roomid}_couple"
+			else
+				session.channel.subscribe "room#{roomid}_notcouple"
+		if player.type=="Fox"
+			session.channel.subscribe "room#{roomid}_fox"
+		###
 Server=
 	game:
 		game:module.exports
@@ -3430,102 +3527,6 @@ complexes=
 	Authority:Authority
 
 
-#内部用
-module.exports=
-	newGame: (room,ss)->
-		game=new Game ss,room
-		games[room.id]=game
-		M.games.insert game.serialize()
-	# ゲームオブジェクトを読み込んで使用可能にする
-	###
-	loadDB:(roomid,ss,cb)->
-		if games[roomid]
-			# 既に読み込んでいる
-			cb games[roomid]
-			return
-		M.games.find({finished:false}).each (err,doc)->
-			return unless doc?
-			if err?
-				console.log err
-				throw err
-			games[doc.id]=Game.unserialize doc,ss
-	###
-	inlog:(room,player)->
-		name="#{player.name}"
-		pr=""
-		unless room.blind in ["complete","yes"]
-			# 覆面のときは称号OFF
-			player.nowprize?.forEach? (x)->
-				if x.type=="prize"
-					prname=Server.prize.prizeName x.value
-					if prname?
-						pr+=prname
-				else
-					# 接続
-					pr+=x.value
-			if pr
-				name="#{Server.prize.prizeQuote pr}#{name}"
-		log=
-			comment:"#{name}さんが訪れました。"
-			userid:-1
-			name:null
-			mode:"system"
-		if games[room.id]
-			splashlog room.id,games[room.id], log
-	outlog:(room,player)->
-		log=
-			comment:"#{player.name}さんが去りました。"
-			userid:-1
-			name:null
-			mode:"system"
-		if games[room.id]
-			splashlog room.id,games[room.id], log
-	kicklog:(room,player)->
-		log=
-			comment:"#{player.name}さんが追い出されました。"
-			userid:-1
-			name:null
-			mode:"system"
-		if games[room.id]
-			splashlog room.id,games[room.id], log
-	deletedlog:(room)->
-		log=
-			comment:"この部屋は廃村になりました。"
-			userid:-1
-			name:null
-			mode:"system"
-		if games[room.id]
-			splashlog room.id,games[room.id], log
-	# 状況に応じたチャンネルを割り当てる
-	playerchannel:(roomid,session)->
-		game=games[roomid]
-		unless game?
-			return
-		player=game.getPlayerReal session.userId
-		unless player?
-			session.channel.subscribe "room#{roomid}_audience"
-#			session.channel.subscribe "room#{roomid}_notwerewolf"
-#			session.channel.subscribe "room#{roomid}_notcouple"
-			return
-		if player.isJobType "GameMaster"
-			session.channel.subscribe "room#{roomid}_gamemaster"
-			return
-		###
-		if player.dead
-			session.channel.subscribe "room#{roomid}_heaven"
-		if game.rule.heavenview!="view" || !player.dead
-			if player.isWerewolf()
-				session.channel.subscribe "room#{roomid}_werewolf"
-			else
-				session.channel.subscribe "room#{roomid}_notwerewolf"
-		if game.rule.heavenview!="view" || !player.dead
-			if player.type=="Couple"
-				session.channel.subscribe "room#{roomid}_couple"
-			else
-				session.channel.subscribe "room#{roomid}_notcouple"
-		if player.type=="Fox"
-			session.channel.subscribe "room#{roomid}_fox"
-		###
 module.exports.actions=(req,res,ss)->
 	req.use 'session'
 
