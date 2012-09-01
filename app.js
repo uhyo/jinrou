@@ -29,6 +29,12 @@ var middleware=require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);
 ss.http.middleware.prepend(middleware.manualxhr);
 
+//リッスン先設定
+ss.ws.transport.use("socketio",{
+	client:{
+		url:Config.ws.connect,
+	}
+});
 
 //----
 var server=http.Server(ss.http.middleware);

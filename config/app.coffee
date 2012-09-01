@@ -4,6 +4,8 @@ module.exports =
   # HTTP server
   http:
     port: 8800
+  ws:
+    connect: null	# io.connectに渡すアドレス（nullならサーバーと同じ）
   # db setting
   mongo:
     database: "werewolf"
