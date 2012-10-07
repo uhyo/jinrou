@@ -1011,6 +1011,7 @@ class Game
 			oldprize=doc.prize	# 賞の一覧
 			
 			# 賞を算出しなおしてもらう
+			###
 			Server.prize.checkPrize doc.userid,(prize)=>
 				prize=prize.concat doc.ownprize if doc.ownprize?
 				# 新規に獲得した賞を探す
@@ -1030,6 +1031,7 @@ class Game
 							flag:x
 							target:null
 						}
+			###
 	###
 logs:[{
 	mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
