@@ -6,7 +6,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
 # 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover",
+"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover","Dog",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 桃栗基本特殊役職
@@ -24,11 +24,11 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub"]
 
 # 黒が出る人
-exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub"]
+exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog"]
 
 # チームたち
 exports.teams=teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania"]
+	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog"]
 	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
@@ -473,7 +473,9 @@ exports.jobinfo=
 		OccultMania:
 			name:"オカルトマニア"
 			color:"#edda8c"
-		
+		Dog:
+			name:"犬"
+			color:"#d4a152"
 		
 		
 	Werewolf:

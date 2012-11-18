@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.81.la/ 月下人狼サーバー]稼働中!
 == version ==
-1.84
+1.85
 
 == requirements ==
 * SocketStream

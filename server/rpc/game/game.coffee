@@ -595,7 +595,7 @@ class Game
 		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","poison","hinamizawa","vampire","witch"
+				when "werewolf","poison","hinamizawa","vampire","witch","dog"
 					"無惨な姿で発見されました"
 				when "curse"	# 呪殺
 					if @rule.deadfox=="obvious"
@@ -1641,7 +1641,7 @@ class Diviner extends Player
 			mode:"skill"
 			to:@id
 			comment:"#{@name}が#{r.player.name}を占ったところ、#{r.result}でした。"
-		splashlog game.id,game,log		
+		splashlog game.id,game,log
 class Psychic extends Player
 	type:"Psychic"
 	jobname:"霊能者"
@@ -3196,6 +3196,77 @@ class Thief extends Player
 					value:x
 				}
 		else super
+class Dog extends Player
+	type:"Dog"
+	jobname:"犬"
+	fortuneResult:"人狼"
+	psychicResult:"人狼"
+	sunset:(game)->
+		super
+		@target=null	# 1日目:飼い主選択 選択後:かみ殺す人選択
+		if !@flag	# 飼い主を決めていない
+			if @scapegoat
+				alives=game.players.filter (x)->!x.dead
+				r=Math.floor Math.random()*alives.length
+				pl=alives[r]
+				@job game,pl.id,{}
+		else
+			# 飼い主を護衛する
+			pl=game.getPlayer @flag
+			if pl?
+				newpl=Player.factory null,pl,null,Guarded	# 守られた人
+				pl.transProfile newpl
+				newpl.cmplFlag=@id	# 護衛元cmplFlag
+				pl.transform game,newpl
+
+	sleeping:->@flag?
+	jobdone:->@target?
+	job:(game,playerid,query)->
+		if @target?
+			return "既に対象は決定しています"
+	
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		@target=playerid
+		unless @flag?
+			# 飼い主を選択した
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{pl.name}を飼い主に選びました。"
+			splashlog game.id,game,log
+			@flag=playerid	# 飼い主
+			@target=""	# 襲撃対象はなし
+		else
+			# 襲う
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}が#{game.getPlayer(playerid).name}を襲撃しました。"
+			splashlog game.id,game,log
+	midnight:(game)->
+		return unless @target?
+		pl=game.getPlayer @target
+		return unless pl?
+
+		# 殺害
+		@addGamelog game,"dogkill",null,pl.id
+		pl.die game,"dog"
+		null
+	makejobinfo:(game,result)->
+		super
+		if !@jobdone() && game.night
+			if @flag?
+				# 飼い主いる
+				pl=game.getPlayer @flag
+				if pl?
+					if !pl.read
+						result.open.push "Dog1"
+					result.dogOwner=pl.publicinfo()
+
+			else
+				result.open.push "Dog2"
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -3512,6 +3583,7 @@ jobs=
 	WhisperingMad:WhisperingMad
 	Lover:Lover
 	Thief:Thief
+	Dog:Dog
 	# 特殊
 	GameMaster:GameMaster
 	Helper:Helper

@@ -298,6 +298,15 @@
       p
         | 対象を指定して下さい:
         input(type="submit",value="指定する",data-job="OccultMania")
+    #form_Dog(hidden).jobformarea
+    #form_Dog1(hidden).jobformarea
+      p
+        | 飼い主を殺す場合に押して下さい（非強制）:
+        input(type="submit",value="飼い主を襲う",data-job="Dog")
+    #form_Dog2(hidden).jobformarea
+      p
+        | 飼い主を選択して下さい:
+        input(type="submit",value="飼い主にする",data-job="Dog")
     #form_MinionSelector(hidden).jobformarea
       p
         | 狼の子分にする人を指定して下さい:
