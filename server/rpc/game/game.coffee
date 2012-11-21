@@ -3267,6 +3267,31 @@ class Dog extends Player
 
 			else
 				result.open.push "Dog2"
+class Dictator extends Player
+	type:"Dictator"
+	jobname:"独裁者"
+	sleeping:->true
+	jobdone:(game)->@flag? || game.night
+	chooseJobDay:(game)->true
+	job:(game,playerid,query)->
+		if @flag?
+			return "もう能力を発動できません"
+		if game.night
+			return "夜には発動できません"
+		pl=game.getPlayer playerid
+		unless pl?
+			return "対象が不正です"
+		@target=playerid	# 処刑する人
+		log=
+			mode:"system"
+			comment:"独裁者の#{@name}により、#{pl.name}の処刑が宣言されました。"
+		splashlog game.id,game,log
+		@flag=true	# 使用済
+		# その場で殺す!!!
+		pl.die game,"punish"
+		# 強制的に次のターンへ
+		game.nextturn()
+
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -3584,6 +3609,7 @@ jobs=
 	Lover:Lover
 	Thief:Thief
 	Dog:Dog
+	Dictator:Dictator
 	# 特殊
 	GameMaster:GameMaster
 	Helper:Helper
@@ -3969,7 +3995,7 @@ module.exports.actions=(req,res,ss)->
 		unless sl.length==0 || sl.some((x)->x.value==query.target)
 			res {error:"対象選択が不正です"}
 			return
-		if game.night || player.isJobType "GameMaster"
+		if game.night || query.jobtype!="_day"	# 昼の投票
 			# 夜
 			###
 			if !to?.dead && !(player.job_target & Player.JOB_T_ALIVE) && (player.job_target & Player.JOB_T_DEAD)
@@ -4024,7 +4050,7 @@ module.exports.actions=(req,res,ss)->
 				target:query.target
 				event:"vote"
 			}
-			res {jobdone:true}
+			res makejobinfo game,player
 			game.execute()
 	#遺言
 	will:(roomid,will)->
@@ -4227,8 +4253,22 @@ makejobinfo = (game,player,result={})->
 	if player
 		player.makejobinfo game,result
 		result.dead=player.dead
+		result.voteopen=false
 		# 投票が終了したかどうか（フォーム表示するかどうか判断）
-		result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
+		if game.night
+			result.sleeping=player.jobdone game
+		else
+			# 昼
+			result.sleeping=true
+			unless game.votingbox.isVoteFinished player
+				# 投票ボックスオープン!!!
+				result.voteopen=true
+				result.sleeping=false
+			if player.chooseJobDay game
+				# 昼でも能力発動できる人
+				result.sleeping &&= player.jobdone game
+
+		#result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
 		if player.isJobType "Helper"
 			result.sleeping=true	# 投票しない
 		result.jobname=player.getJobDisp()

@@ -396,12 +396,15 @@ exports.start=(roomid)->
 			je.preventDefault()
 			$("#jobform").attr "hidden","hidden"
 			ss.rpc "game.game.job", roomid,Index.util.formQuery(form), (result)->
+				console.log result
 				if result?.error?
 					Index.util.message "エラー",result.error
 					$("#jobform").removeAttr "hidden"
-				else if !result?.jobdone
+					#else if !result?.jobdone
 					# まだ仕事がある
-					$("#jobform").removeAttr "hidden"
+					#$("#jobform").removeAttr "hidden"
+				else
+					getjobinfo result
 		.click (je)->
 			bt=je.target
 			if bt.type=="submit"
@@ -816,7 +819,8 @@ exports.start=(roomid)->
 			unless $("#jobform").get(0).hidden= obj.dead || game.finished ||  obj.sleeping || !obj.type
 				# 代入しつつの　投票フォーム必要な場合
 				$("#jobform div.jobformarea").attr "hidden","hidden"
-				$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
+				#$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
+				$("#form_day").get(0).hidden= !obj.voteopen
 				obj.open?.forEach (x)->
 					# 開けるべきフォームが指定されている
 					$("#form_#{x}").prop "hidden",false
