@@ -1549,7 +1549,7 @@ class Werewolf extends Player
 				if @job game,game.players[r].id,{}
 					@sunset
 
-	sleeping:(game)->game.werewolf_target_remain<=0
+	sleeping:(game)->game.werewolf_target_remain<=0 || !game.night
 	job:(game,playerid)->
 		tp = game.getPlayer playerid
 		if game.werewolf_target_remain<=0
@@ -3291,6 +3291,25 @@ class Dictator extends Player
 		pl.die game,"punish"
 		# 強制的に次のターンへ
 		game.nextturn()
+class SeersMama extends Player
+	type:"SeersMama"
+	jobname:"予言者のママ"
+	sleeping:->true
+	sunset:(game)->
+		unless @flag
+			# まだ能力を実行していない
+			# 占い師を探す
+			divs = game.players.filter (pl)->pl.isJobType "Diviner"
+			divsstr=if divs.length>0
+				"#{divs.map((x)->x.name).join ','}です"
+			else
+				"いません"
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は占い師のママです。占い師は#{divsstr}。"
+			splashlog game.id,game,log
+			@flag=true	#使用済
 
 	
 # 処理上便宜的に使用
@@ -3610,6 +3629,7 @@ jobs=
 	Thief:Thief
 	Dog:Dog
 	Dictator:Dictator
+	SeersMama:SeersMama
 	# 特殊
 	GameMaster:GameMaster
 	Helper:Helper
