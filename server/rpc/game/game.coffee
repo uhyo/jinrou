@@ -595,7 +595,7 @@ class Game
 		deads.forEach (x)=>
 			situation=switch x.found
 				#死因
-				when "werewolf","poison","hinamizawa","vampire","witch","dog"
+				when "werewolf","poison","hinamizawa","vampire","witch","dog","trap"
 					"無惨な姿で発見されました"
 				when "curse"	# 呪殺
 					if @rule.deadfox=="obvious"
@@ -1278,6 +1278,8 @@ class Player
 	isDrunk:->false
 	# jobtypeが合っているかどうか（夜）
 	isJobType:(type)->type==@type
+	# complexのJobTypeを調べる
+	isCmplType:(type)->false
 	# 投票先決定
 	dovote:(game,target)->
 		# 戻り値にも意味があるよ！
@@ -3310,6 +3312,42 @@ class SeersMama extends Player
 				comment:"#{@name}は占い師のママです。占い師は#{divsstr}。"
 			splashlog game.id,game,log
 			@flag=true	#使用済
+class Trapper extends Player
+	type:"Trapper"
+	jobname:"罠師"
+	sleeping:->@target?
+	sunset:(game)->
+		@target=null
+		if game.day==1
+			# 一日目は護衛しない
+			@target=""	# 誰も守らない
+		else if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			if @job game,game.players[r].id,{}
+				@sunset
+	job:(game,playerid)->
+		unless playerid==@id && game.rule.guardmyself!="ok"
+			if playerid==@flag
+				# 前も護衛した
+				return "2日連続で同じ人は護衛できません"
+			@target=playerid
+			@flag=playerid
+			pl=game.getPlayer(playerid)
+			log=
+				mode:"skill"
+				to:@id
+				comment:"#{@name}は#{pl.name}を罠で護衛しました。"
+			splashlog game.id,game,log
+			# 複合させる
+
+			newpl=Player.factory null,pl,null,TrapGuarded	# 守られた人
+			pl.transProfile newpl
+			newpl.cmplFlag=@id	# 護衛元cmplFlag
+			pl.transform game,newpl
+			null
+		else
+			"自分を護衛することはできません"
 
 	
 # 処理上便宜的に使用
@@ -3547,6 +3585,74 @@ class Drunk extends Complex
 	isDrunk:->true
 	getSpeakChoice:(game)->
 		Human.prototype.getSpeakChoice.call @,game
+# 罠師守られた人
+class TrapGuarded extends Complex
+	# cmplFlag: 護衛元ID
+	cmplType:"TrapGuarded"
+	midnight:(game)->
+		# 狩人とかぶったら狩人が死んでしまう!!!!!
+		# midnight: 狼の襲撃よりも前に行われることが保証されている処理
+		wholepl=game.getPlayer @id	# 一番表から見る
+		result=@checkGuard game,wholepl
+		if result
+			# 狩人がいた!（罠も無効）
+			@uncomplex game
+	# midnight処理用
+	checkGuard:(game,pl)->
+		return false unless pl.isComplex()
+		# Complexの場合:mainとsubを確かめる
+		unless pl.cmplType=="Guarded"
+			# 見つからない
+			result=false
+			result ||= @checkGuard game,pl.main
+			if pl.sub?
+				# 枝を切る
+				result ||=@checkGuard game,pl.sub
+			return result
+		else
+			# あった!
+			# cmplFlag: 護衛元の狩人
+			gu=game.getPlayer pl.cmplFlag
+			if gu?
+				tr = game.getPlayer @cmplFlag	# 罠し
+				if tr?
+					tr.addGamelog game,"trappedGuard",null,@id
+				gu.die game,"trap"
+
+			pl.uncomplex game	# 消滅
+			# 子の調査を継続
+			@checkGuard game,pl.main
+			return true
+
+	die:(game,found)->
+		unless found=="werewolf"
+			# 狼以外だとしぬ
+			@main.die game,found
+		else
+			# 狼に噛まれた場合は耐える
+			guard=game.getPlayer @cmplFlag
+			if guard?
+				guard.addGamelog game,"trapGJ",null,@id
+				if game.rule.gjmessage
+					log=
+						mode:"skill"
+						to:guard.id
+						comment:"#{guard.name}の罠により#{@name}が人狼の襲撃から守られました。"
+					splashlog game.id,game,log
+			# 反撃する
+			canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
+		return if canbedead.length==0
+		r=Math.floor Math.random()*canbedead.length
+		pl=canbedead[r]	# 被害者
+		pl.die game,"trap"
+		@addGamelog game,"trapkill",null,pl.id
+
+
+	sunrise:(game)->
+		# 一日しか守られない
+		@main.sunrise game
+		@sub?.sunrise? game
+		@uncomplex game
 # 決定者
 class Decider extends Complex
 	cmplType:"Decider"
@@ -3630,6 +3736,7 @@ jobs=
 	Dog:Dog
 	Dictator:Dictator
 	SeersMama:SeersMama
+	Trapper:Trapper
 	# 特殊
 	GameMaster:GameMaster
 	Helper:Helper
@@ -3645,6 +3752,7 @@ complexes=
 	Drunk:Drunk
 	Decider:Decider
 	Authority:Authority
+	TrapGuarded:TrapGuarded
 
 
 module.exports.actions=(req,res,ss)->

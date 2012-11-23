@@ -179,7 +179,7 @@
       p
         | 死亡させる人を選んで下さい:
         input(type="submit",value="死亡させる",data-job="GameMaster")
-    #form_Werewolf(hidden).jobformarem
+    #form_Werewolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい（先着順）：
         input(type="submit",value="殺す",data-job="Werewolf")
@@ -311,6 +311,10 @@
       p
         | 議論を中止させる場合は処刑対象を選択して下さい（1回のみ）:
         input(type="submit",value="処刑する",data-job="Dictator")
+    #form_Trapper(hidden).jobformarea
+      p
+        | 護衛する対象を選択して下さい:
+        input(type="submit",value="護衛する",data-job="Trapper")
     #form_MinionSelector(hidden).jobformarea
       p
         | 狼の子分にする人を指定して下さい:
