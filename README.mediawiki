@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.81.la/ 月下人狼サーバー]稼働中!
 == version ==
-1.85
+1.86
 
 == requirements ==
 * SocketStream
@@ -50,6 +50,11 @@ and others...
 * 嘘つき
 * スパイⅡ
 * コピー
+=== うそつき人狼 ===
+* 独裁者
+* 予言者のママ
+* 罠師
+* 狼少年
 === 究極の人狼 ===
 いろいろ
 
