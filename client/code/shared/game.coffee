@@ -17,7 +17,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
 "Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub","Thief",
 # うそつき人狼の役職
-"Dictator","SeersMama","Trapper",
+"Dictator","SeersMama","Trapper","WolfBoy",
 ]
 # ここには入らない役職
 # Light, Neet, MinionSelector
@@ -31,7 +31,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 # チームたち
 exports.teams=teams=
 	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad"]
+	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy"]
 	Fox:["Fox","TinyFox","Immoral"]
 	Bat:["Bat"]
 	Devil:["Devil"]
@@ -44,7 +44,7 @@ exports.categories=
 	Human:teams.Human
 	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub"]
 	Fox:["Fox","TinyFox"]
-	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad"]
+	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
 	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
 	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover"]
 
@@ -527,6 +527,9 @@ exports.jobinfo=
 		WhisperingMad:
 			name:"囁き狂人"
 			color:"#ccab52"
+		WolfBoy:
+			name:"狼少年"
+			color:"5b2266"
 		
 		
 	Fox:

@@ -3348,7 +3348,33 @@ class Trapper extends Player
 			null
 		else
 			"自分を護衛することはできません"
+class WolfBoy extends Madman
+	type:"WolfBoy"
+	jobname:"狼少年"
+	sleeping:->true
+	jobdone:->@target?
+	sunset:(game)->
+		@target=null
+		if @scapegoat
+			# 身代わり君の自動占い
+			r=Math.floor Math.random()*game.players.length
+			if @job game,game.players[r].id,{}
+				@sunset
+	job:(game,playerid)->
+		@target=playerid
+		pl=game.getPlayer playerid
+		log=
+			mode:"skill"
+			to:@id
+			comment:"#{@name}は#{pl.name}を人狼に仕立てました。"
+		splashlog game.id,game,log
+		# 複合させる
 
+		newpl=Player.factory null,pl,null,Lycanized
+		pl.transProfile newpl
+		newpl.cmplFlag=@id	# 護衛元cmplFlag
+		pl.transform game,newpl
+		null
 	
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -3540,8 +3566,8 @@ class Muted extends Complex
 
 	sunset:(game)->
 		# 一日しか効かない
-		@main.sunrise game
-		@sub?.sunrise? game
+		@main.sunset game
+		@sub?.sunset? game
 		@uncomplex game
 	getSpeakChoiceDay:(game)->
 		["monologue"]	# 全員に喋ることができない
@@ -3653,6 +3679,15 @@ class TrapGuarded extends Complex
 		@main.sunrise game
 		@sub?.sunrise? game
 		@uncomplex game
+# 黙らされた人
+class Lycanized extends Complex
+	cmplType:"Lycanized"
+	fortuneResult:"人狼"
+	sunset:(game)->
+		# 一日しか効かない
+		@main.sunset game
+		@sub?.sunset? game
+		@uncomplex game
 # 決定者
 class Decider extends Complex
 	cmplType:"Decider"
@@ -3737,6 +3772,7 @@ jobs=
 	Dictator:Dictator
 	SeersMama:SeersMama
 	Trapper:Trapper
+	WolfBoy:WolfBoy
 	# 特殊
 	GameMaster:GameMaster
 	Helper:Helper
@@ -3753,6 +3789,7 @@ complexes=
 	Decider:Decider
 	Authority:Authority
 	TrapGuarded:TrapGuarded
+	Lycanized:Lycanized
 
 
 module.exports.actions=(req,res,ss)->
