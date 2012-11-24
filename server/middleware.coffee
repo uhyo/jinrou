@@ -61,3 +61,16 @@ exports.manualxhr=(request, response, next)->
   else
     next()
 
+# public image serving
+exports.images=(request, response, next)->
+  if r=request.url.match /^\/images\/(.+)$/
+    fs.readFile "./public/images/#{r[1]}",(err,data)->
+      if err?
+        response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
+        response.end err.toString()
+        return
+      response.writeHead 200,{'Content-Type':'image/png'}	# all png!! really?
+      response.end data
+  else
+    next()
+

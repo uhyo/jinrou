@@ -28,6 +28,7 @@ global.Config=require('./config/app.coffee');
 var middleware=require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);
 ss.http.middleware.prepend(middleware.manualxhr);
+ss.http.middleware.prepend(middleware.images);
 
 //リッスン先設定
 ss.ws.transport.use("socketio",{
