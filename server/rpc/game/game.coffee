@@ -1484,6 +1484,9 @@ class Player
 			game.players.forEach (x,i)=>
 				if x.id==@id
 					game.players[i]=newpl
+			game.participants.forEach (x,i)=>
+				if x.id==@id
+					game.participants[i]=newpl
 		else
 			# 親がいた
 			if pa.main==this
@@ -2216,7 +2219,7 @@ class Copier extends Player
 		
 		game.ss.publish.user newpl.id,"refresh",{id:game.id}
 		null
-	isWinner:(game,team)->null
+	isWinner:(game,team)->false	# コピーしないと負け
 class Light extends Player
 	type:"Light"
 	jobname:"デスノート"
