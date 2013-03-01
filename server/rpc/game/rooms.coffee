@@ -52,11 +52,13 @@ module.exports.actions=(req,res,ss)->
 					$ne:"end"
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
-				reres {error:err}
+				res {error:err}
 				return
 			results.forEach (x)->
 				if x.password?
-					x.needpassword=true
+					if x.mode!="end"
+						# 終了したら見えてもいいんじゃ・・・
+						x.needpassword=true
 					delete x.password
 				if x.blind
 					delete x.owner
