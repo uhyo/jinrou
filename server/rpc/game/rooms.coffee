@@ -56,9 +56,7 @@ module.exports.actions=(req,res,ss)->
 				return
 			results.forEach (x)->
 				if x.password?
-					if x.mode!="end"
-						# 終了したら見えてもいいんじゃ・・・
-						x.needpassword=true
+					x.needpassword=true
 					delete x.password
 				if x.blind
 					delete x.owner
@@ -333,7 +331,7 @@ module.exports.actions=(req,res,ss)->
 			if room.error?
 				res {error:room.error}
 				return
-			if room.password? && room.password!=password && room.password!=Config.admin.password
+			if room.password? && room.mode!="end" && room.password!=password && room.password!=Config.admin.password
 				res {require:"password"}
 				return
 			req.session.channel.reset()
