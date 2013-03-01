@@ -3970,7 +3970,9 @@ module.exports.actions=(req,res,ss)->
 			
 			ruleobj={
 				number: room.players.length
+				maxnumber:room.number
 				blind:room.blind
+				gm:room.gm
 				day: parseInt(query.day_minute)*60+parseInt(query.day_second)
 				night: parseInt(query.night_minute)*60+parseInt(query.night_second)
 				remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
@@ -3987,7 +3989,6 @@ module.exports.actions=(req,res,ss)->
 			game.setrule ruleobj
 			# 配役リストをセット
 			game.joblist=joblist
-			console.log "joblist!",joblist
 			
 			game.setplayers options,players,supporters,(result)->
 				unless result?

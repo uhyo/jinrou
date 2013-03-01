@@ -83,6 +83,16 @@ exports.start=(roomid)->
 				getjobinfo result
 				$("#logs").empty()
 				$("#chooseviewday").empty()	# 何日目だけ表示
+				if result.game?.finished
+					# 終了した・・・次のゲームボタン
+					b=makebutton "同じ設定で次の部屋を建てる","建てたあとも設定の変更は可能です。"
+					$("#playersinfo").append b
+					$(b).click (je)->
+						# ルールを保存
+						sessionStorage.savedRule=JSON.stringify result.game.rule
+						sessionStorage.savedJobs=JSON.stringify result.game.jobscount
+						Index.app.showUrl "/newroom"
+
 				
 				result.logs.forEach getlog
 				gettimer parseInt(result.timer),null if result.timer?
@@ -92,6 +102,37 @@ exports.start=(roomid)->
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
 			#setplayersnumber form,room.players.length
+			# ルール設定保存を参照する
+			if sessionStorage.savedRule
+				rule=JSON.parse sessionStorage.savedRule
+				jobs=JSON.parse sessionStorage.savedJobs
+				# 時間設定
+				daysec=rule.day-0
+				nightsec=rule.night-0
+				remainsec=rule.remain-0
+				form.elements["day_minute"].value=parseInt daysec/60
+				form.elements["day_second"].value=daysec%60
+				form.elements["night_minute"].value=parseInt nightsec/60
+				form.elements["night_second"].value=nightsec%60
+				form.elements["remain_minute"].value=parseInt remainsec/60
+				form.elements["remain_second"].value=remainsec%60
+				# その他
+				for key of rule
+					e=form.elements[key]
+					if e?
+						if e.type=="checkbox"
+							e.checked = e.value==rule[key]
+						else
+							e.value=rule[key]
+				# 配役も再現
+				for job in Shared.game.jobs
+					e=form.elements[job]	# 役職
+					if e?
+						e.value=jobs[job]?.number ? 0
+				# 役目終了
+				delete sessionStorage.savedRule
+				delete sessionStorage.savedJobs
+
 			forminfo()
 
 			$("#gamestartsec").removeAttr "hidden"
@@ -151,13 +192,13 @@ exports.start=(roomid)->
 							Index.app.refresh()
 				if room.mode=="waiting"
 					# 開始前
-					b=makebutton "準備完了/準備中"
+					b=makebutton "準備完了/準備中","全員が準備完了になるとゲームを開始できます。"
 					$("#playersinfo").append b
 					$(b).click (je)->
 						ss.rpc "game.rooms.ready", roomid,(result)->
 							if result?
 								Index.util.message "ルーム",result
-				b=makebutton "ヘルパー"
+				b=makebutton "ヘルパー","ヘルパーになると、ゲームに参加せずに助言役になります。"
 				# ヘルパーになる/やめるボタン
 				$(b).click (je)->
 					Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
@@ -170,9 +211,12 @@ exports.start=(roomid)->
 		if room.mode=="waiting"
 			if room.owner.userid==Index.app.userid()
 				# 自分
-				b=makebutton "ゲームを開始"
+				b=makebutton "ゲーム開始画面を開く"
 				$("#playersinfo").append b
 				$(b).click newgamebutton
+				if sessionStorage.savedRule?
+					# セーブされているなら勝手に開いてあげる
+					newgamebutton()
 				b=makebutton "参加者を追い出す"
 				$("#playersinfo").append b
 				$(b).click (je)->
@@ -181,7 +225,7 @@ exports.start=(roomid)->
 						ss.rpc "game.rooms.kick", roomid,id,(result)->
 							if result?
 								Index.util.message "エラー",result
-				b=makebutton "部屋を削除"
+				b=makebutton "この部屋を廃村にする"
 				$("#playersinfo").append b
 				$(b).click (je)->
 					Index.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
@@ -894,10 +938,11 @@ exports.start=(roomid)->
 			$("#time").text "#{mode || ''} #{min}:#{sec}"
 		,1000
 			
-	makebutton=(text)->
+	makebutton=(text,title="")->
 		b=document.createElement "button"
 		b.type="button"
 		b.textContent=text
+		b.title=title
 		b
 		
 		
