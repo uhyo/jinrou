@@ -4370,6 +4370,7 @@ splashlog=(roomid,game,log)->
 islogOK=(game,player,log)->
 	# player: Player / null
 	return true if game.finished	# 終了ならtrue
+	return true if player.isJobType "GameMaster"
 	unless player?
 		# 観戦者
 		if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience"]

@@ -69,7 +69,7 @@ exports.start=(roomid)->
 			return
 		# フォームを修正する
 		forminfo=->
-			setplayersnumber $("#gamestart").get(0), room.players.filter((x)->x.mode=="player").length
+			setplayersnumber room,$("#gamestart").get(0), room.players.filter((x)->x.mode=="player").length
 		# 今までのログを送ってもらう
 		this_icons={}
 		this_logdata={}
@@ -101,7 +101,6 @@ exports.start=(roomid)->
 		# 新しいゲーム
 		newgamebutton = (je)->
 			form=$("#gamestart").get 0
-			#setplayersnumber form,room.players.length
 			# ルール設定保存を参照する
 			if sessionStorage.savedRule
 				rule=JSON.parse sessionStorage.savedRule
@@ -244,10 +243,10 @@ exports.start=(roomid)->
 		jobsforminput=(e)->
 			t=e.target
 			form=t.form
-			pl=room.players.length
+			pl=room.players.filter((x)->x.mode=="player").length
 			if t.name=="jobrule"
 				# ルール変更があった
-				setplayersbyjobrule form,pl
+				setplayersbyjobrule room,form,pl
 				return
 			if form.elements["scapegoat"].value=="on"
 				# 身代わりくん
@@ -473,14 +472,12 @@ exports.start=(roomid)->
 			###
 			li=makeplayerbox msg,room.blind
 			$("#players").append li
-			#setplayersnumber $("#gamestart").get(0),room.players.length
 			forminfo()
 		# 誰かが出て行った!!!
 		socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
 			room.players=room.players.filter (x)->x.userid!=msg
 			
 			$("#players li").filter((idx)-> this.dataset.id==msg).remove()
-			#setplayersnumber $("#gamestart").get(0),room.players.length
 			forminfo()
 		# 準備
 		socket_ids.push Index.socket.on "ready","room#{roomid}",(msg,channel)->
@@ -612,12 +609,12 @@ exports.start=(roomid)->
 	]),[],$("#jobruleselect").get 0
 	
 		
-	setplayersnumber=(form,number)->
+	setplayersnumber=(room,form,number)->
 		
 		form.elements["number"].value=number
-		setplayersbyjobrule form,number
+		setplayersbyjobrule room,form,number
 	# 配役一覧をアレする
-	setplayersbyjobrule=(form,number)->
+	setplayersbyjobrule=(room,form,number)->
 		jobrulename=form.elements["jobrule"].value
 		if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
 			$("#jobsfield").get(0).hidden=false
@@ -1028,7 +1025,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 	p=document.createElement "p"
 	p.classList.add "name"
 	
-	unless blindflg
+	if !blindflg || !obj.realid
 		a=document.createElement "a"
 		a.href="/user/#{obj.realid ? obj.userid}"
 		a.textContent=obj.name
