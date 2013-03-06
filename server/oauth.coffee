@@ -1,7 +1,7 @@
 # OAuth twitter client
 
-twitter = require('twitter')
-twit = new twitter({
+ntwitter = require('ntwitter')
+twit = new ntwitter({
 	consumer_key:Config.twitter.oauth.consumerKey,
 	consumer_secret:Config.twitter.oauth.consumerSecret,
 	access_token_key:Config.twitter.oauth.accessToken,
@@ -11,7 +11,7 @@ twit = new twitter({
 tweet=(message,pass)->
 	return unless pass==Config.admin.password
 	
-	twit.post '/statuses/update.json',{status:message},(data)->
+	twit.updateStatus message,(err,data)->
 		console.log data
 		rt_names=[]
 
