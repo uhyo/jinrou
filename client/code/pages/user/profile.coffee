@@ -55,6 +55,7 @@ exports.start=(user)->
 			seticon url
 	),false
 	
+	###
 	$("#morescore").submit (je)->
 		je.target.elements["submit"].disabled=true
 		je.preventDefault()
@@ -133,6 +134,7 @@ exports.start=(user)->
 						lose:results.filter((x)->x.type==type && x.winner==false).length
 			graph.setData gs,names
 			graph.openAnimate 0.2
+	###
 	# 称号
 	unless user.prizenames?.length>0
 		# 称号がない

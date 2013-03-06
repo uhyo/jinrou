@@ -45,7 +45,7 @@ section.profile
   p 勝ち #{ typeof(win)!=="undefined" ? win.length : 0}回　負け #{typeof(lose)!=="undefined" ? lose.length : 0}回　突然死 #{typeof(gone)!=="undefined" ? gone.length : 0}回
   p 勝率: #{typeof(wp)!=="undefined" ? wp : ""}
   p: a(href="/rooms/my") 自分が参加した部屋
-  form#morescore: p: input(type="submit",name="submit",value="詳細情報を見る")
+  form#morescore: p: input(type="submit",name="submit",value="詳細情報を見る",disabled)
   #grapharea
   section
     h1 称号
