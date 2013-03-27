@@ -31,7 +31,7 @@ ss.http.middleware.prepend(middleware.manualxhr);
 ss.http.middleware.prepend(middleware.images);
 
 //リッスン先設定
-ss.ws.transport.use("socketio",{
+ss.ws.transport.use("engineio",{
 	client:{
 		url:Config.ws.connect,
 	}
