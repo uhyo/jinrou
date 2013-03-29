@@ -43,7 +43,7 @@ exports.jsonapi=(request, response, next)->
 
 # manual serving
 exports.manualxhr=(request, response, next)->
-  if r=request.url.match /^\/rawmanual\/(\w*)$/
+  if r=request.url.match /^\/rawmanual\/([\w-]*)$/
     # マニュアルを送る
     fs.readFile "./manual/#{r[1]}.jade","utf-8",(err,data)->
       if err?
