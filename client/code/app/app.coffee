@@ -149,7 +149,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
 					page "pages-castlist",null,Index.pages.castlist
 				else
 					page "pages-casting",null,Index.pages.casting,result[1]
-			else if result=url.match /^\/manual\/(\w+)$/
+			else if result=url.match /^\/manual\/([-\w]+)$/
 				#page "manual-#{result[1]}",null,Index.manual,null
 				manualpage result[1]
 			else if result=url.match /^\/backdoor\/(\w+)$/

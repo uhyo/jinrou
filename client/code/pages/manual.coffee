@@ -7,6 +7,8 @@ exports.start=->
 	if j.get 0
 		for job in Shared.game.jobs
 			j.append $ JT["jobs-#{job}"]()
+	# 一番上にスクロール
+	window.scrollTo 0,0
 				
 		
 
