@@ -93,9 +93,11 @@
           label(title="有効な場合、昼の投票で自分に投票することができます。")
             | 昼は自分に投票できる
             input(name="votemyself",type="checkbox",value="ok")
-          label(title="有効な場合、夜は全員が能力を行使しても時間切れまでは進みません。")
-            | 夜は時間切れまで待つ
-            input(name="waitingnight",type="checkbox",value="wait",checked)
+          //-
+            label(title="有効な場合、夜は全員が能力を行使しても時間切れまでは進みません。")
+              | 夜は時間切れまで待つ
+              input(name="waitingnight",type="checkbox",value="wait",checked)
+          input(name="waitingnight",type="hidden",value="wait"
           label(title="チェックを外すとゲームが成立しないような組み合わせになる可能性もあります")
             | 身代わりセーフティ
             select(name="safety",title="役職決定時に身代わり君の役職に気をつけます")
