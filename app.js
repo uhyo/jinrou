@@ -32,9 +32,8 @@ ss.http.middleware.prepend(middleware.images);
 
 //リッスン先設定
 ss.ws.transport.use("engineio",{
-	client:{
-		url:Config.ws.connect,
-	}
+	client:Config.ws.connect,
+
 });
 
 //----
