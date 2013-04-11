@@ -117,7 +117,7 @@ module.exports.actions=(req,res,ss)->
 			M.rooms.insert room
 			Server.game.game.newGame room,ss
 			res {id: room.id}
-			Server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.blind then '・覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",Config.admin.password
+			Server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.password then '・パスワードあり' else ''}#{if room.blind then '・覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",Config.admin.password
 
 	# 部屋に入る
 	# 成功ならnull 失敗ならエラーメッセージ
@@ -331,7 +331,7 @@ module.exports.actions=(req,res,ss)->
 			if room.error?
 				res {error:room.error}
 				return
-			if room.password? && room.mode!="end" && room.password!=password && room.password!=Config.admin.password
+			if room.password? && room.password!=password && room.password!=Config.admin.password
 				res {require:"password"}
 				return
 			req.session.channel.reset()
