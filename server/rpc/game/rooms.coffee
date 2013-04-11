@@ -27,6 +27,8 @@ module.exports=
 			if err?
 				res {error:err}
 				return
+			if result.made < Date.now()-Config.rooms.fresh*3600000
+				result.old=true
 			cb result
 
 Server=
@@ -46,10 +48,20 @@ module.exports.actions=(req,res,ss)->
 			query=
 				mode:"end"
 				"players.realid":req.session.userId
-		else
+		else if mode=="old"
+			# 古い部屋
 			query=
 				mode:
 					$ne:"end"
+				made:
+					$lte:Date.now()-Config.rooms.fresh*3600000
+		else
+			# 新しい部屋
+			query=
+				mode:
+					$ne:"end"
+					$gt:Date.now()-Config.rooms.fresh*3600000
+
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
 			if err?
 				res {error:err}
@@ -72,6 +84,9 @@ module.exports.actions=(req,res,ss)->
 			result.players.forEach (p)->
 				delete p.realid
 				delete p.ip
+			# ふるいかどうか
+			if result.made < Date.now()-Config.rooms.fresh*3600000
+				result.old=true
 			res result
 
 	# 成功: {id: roomid}
@@ -331,7 +346,9 @@ module.exports.actions=(req,res,ss)->
 			if room.error?
 				res {error:room.error}
 				return
-			if room.password? && room.password!=password && room.password!=Config.admin.password
+			# 古い部屋ならパスワードいらない
+			od=Date.now()-Config.rooms.fresh*3600000
+			if room.password? && (room.mode=="end" || room.made>od) && room.password!=password && room.password!=Config.admin.password
 				res {require:"password"}
 				return
 			req.session.channel.reset()
@@ -358,7 +375,7 @@ module.exports.actions=(req,res,ss)->
 			if !room || room.error?
 				res "その部屋はありません"
 				return
-			if room.owner.userid != req.session.userId
+			if !room.old && room.owner.userid != req.session.userId
 				res "オーナーしか削除できません"
 				return
 			unless room.mode=="waiting"

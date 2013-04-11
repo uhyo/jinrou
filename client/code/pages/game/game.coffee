@@ -224,6 +224,7 @@ exports.start=(roomid)->
 						ss.rpc "game.rooms.kick", roomid,id,(result)->
 							if result?
 								Index.util.message "エラー",result
+			if room.owner.userid==Index.app.userid() || room.old
 				b=makebutton "この部屋を廃村にする"
 				$("#playersinfo").append b
 				$(b).click (je)->

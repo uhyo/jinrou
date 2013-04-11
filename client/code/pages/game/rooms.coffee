@@ -1,18 +1,20 @@
 exports.start=(mode)->
 	page=0
 	getroom=Index.game.rooms.getroom
-	ss.rpc "game.rooms.getRooms", mode,page,getroom
+	gr=(rooms)->
+		getroom mode,rooms
+	ss.rpc "game.rooms.getRooms", mode,page,gr
 	$("#pager").click (je)->
 		t=je.target
 		if t.name=="prev"
 			page--
 			if page<0 then page=0
-			ss.rpc "game.rooms.getRooms", mode,page,getroom
+			ss.rpc "game.rooms.getRooms", mode,page,gr
 		else if t.name=="next"
 			page++
-			ss.rpc "game.rooms.getRooms", mode,page,getroom
+			ss.rpc "game.rooms.getRooms", mode,page,gr
 
-exports.getroom=(rooms)->
+exports.getroom=(mode,rooms)->
 	tb=$("#roomlist").get(0)
 	if rooms.error?
 		Index.util.message "エラー","ルーム一覧を取得できませんでした。"
@@ -41,7 +43,7 @@ exports.getroom=(rooms)->
 		# ロックフラグ
 		if room.needpassword
 			img=document.createElement "img"
-			img.src="/images/lock.png"
+			img.src=if mode=="old" then "/images/unlock.png" else "/images/lock.png"
 			img.width=img.height=16
 			img.alt="パスワード付き"
 			td.insertBefore img,td.firstChild

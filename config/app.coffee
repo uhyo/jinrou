@@ -40,3 +40,8 @@ module.exports =
       accessToken:"******"
       accessTokenSecret:"******"
   
+  # ルーム管理について
+  rooms:
+    # 古い部屋に入るまでの時間(hours)
+    fresh:24*3
+	
