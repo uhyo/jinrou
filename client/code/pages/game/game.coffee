@@ -885,6 +885,7 @@ exports.start=(roomid)->
 					option.text=speakValueToStr game,val
 					select.add option
 				select.value=obj.speak[0]
+				select.options[0]?.selected=true
 			else
 				select.disabled=true
 
