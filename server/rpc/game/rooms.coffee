@@ -348,7 +348,7 @@ module.exports.actions=(req,res,ss)->
 				return
 			# 古い部屋ならパスワードいらない
 			od=Date.now()-Config.rooms.fresh*3600000
-			if room.password? && (room.mode=="end" || room.made>od) && room.password!=password && room.password!=Config.admin.password
+			if room.password? && room.mode!="end" && room.made>od && room.password!=password && room.password!=Config.admin.password
 				res {require:"password"}
 				return
 			req.session.channel.reset()
