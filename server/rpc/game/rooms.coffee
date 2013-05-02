@@ -60,6 +60,7 @@ module.exports.actions=(req,res,ss)->
 			query=
 				mode:
 					$ne:"end"
+				made:
 					$gt:Date.now()-Config.rooms.fresh*3600000
 
 		M.rooms.find(query).sort({made:-1}).skip(page*page_number).limit(page_number).toArray (err,results)->
