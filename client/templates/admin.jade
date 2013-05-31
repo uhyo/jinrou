@@ -5,6 +5,7 @@ section.admin#admin
     li(data-opener="blacklist") アク禁管理
     li(data-opener="grandalert") 全体告知
     li(data-opener="dataexport") データエクスポート
+    li(data-opener="update") 更新
   section#blacklist(hidden)
     h1 アク禁管理
     table
@@ -61,4 +62,9 @@ section.admin#admin
         | コマンド?
         input(name="command",size="100")
       p: input(type="submit",value="取得")
-        
+  section#update(hidden)
+    h1 更新
+    form#pullform
+      p: input(type="submit",value="git pull")
+    pre
+      samp#pullresult
