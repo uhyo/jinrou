@@ -441,10 +441,6 @@ class Game
 	#次のターンに進む
 	nextturn:->
 		clearTimeout @timerid
-		#死体処理
-		@bury()
-		return if @judge()
-
 		if @day<=0
 			# はじまる前
 			@day=1
@@ -454,7 +450,7 @@ class Game
 			@night=false
 		else
 			@night=true
-	
+
 		log=
 			mode:"nextturn"
 			day:@day
@@ -464,6 +460,11 @@ class Game
 			comment:"#{@day}日目の#{if @night then '夜' else '昼'}になりました。"
 		splashlog @id,this,log
 
+		#死体処理
+		@bury()
+		return if @judge()
+
+	
 		@voting=false
 		if @night
 			# jobデータを作る
