@@ -23,7 +23,15 @@ ss.publish.transport.use('redis');
 
 if(ss.env=='production')ss.client.packAssets();
 
-global.Config=require('./config/app.coffee');
+//pull時にはコンフィグファイルないので・・・
+try{
+	global.Config=require('./config/app.coffee');
+}catch(e){
+	console.error("Failed to load config file.");
+	console.error("Copy config.default/app.coffee to config/app.coffee, edit app.coffee, and retry.");
+	process.exit(0);
+}
+
 //---- Middleware
 var middleware=require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);

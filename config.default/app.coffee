@@ -23,7 +23,15 @@ module.exports =
   admin:
     # 管理者権限を行使する際のパスワード
     password: "test"
+    # trueにしてはいけない
     securityHole: false
+  maintenance:
+    # 人狼の更新などを行う際のパスワード
+    password: "test"
+    # 人狼の更新スクリプト
+    script:[
+      "git pull"
+    ]
   backdoor:
     # 外部のURL
     home: "http://81.la/"

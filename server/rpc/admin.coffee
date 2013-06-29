@@ -8,12 +8,21 @@ oauth=require './../oauth.coffee'
 exports.actions =(req,res,ss)->
     req.use 'session'
     # 現在のセッションを管理者として承認する
-    regist:(query)->
+    register:(query)->
+        flag=false
+        req.session.administer=false
+        req.session.maintenance=false
         if query.password==Config.admin.password
             req.session.administer=true
-            req.session.save ->res null
-        else
+            flag=true
+        if query.password==Config.maintenance.password
+            req.session.maintenance=true
+            flag=true
+
+        unless flag
             res "パスワードが違います。"
+        else
+            req.session.save ->res null
 
     # ------------- blacklist関係
     # blacklist一覧を得る
@@ -128,18 +137,31 @@ exports.actions =(req,res,ss)->
         comm=args.shift()
         pro= child_process.spawn comm,args
     #-- 更新
-    pull:->
-        unless req.session.administer
+    update:->
+        unless req.session.maintenance
             res {error:"管理者ではありません"}
             return
-        child = child_process.exec "git pull", (error,stdout,stderr)->
-            if error?
-                res {error:stderr}
+        script=Config.maintenance.script ? []
+        result=""
+        error=false
+        one=(index)->
+            unless script[index]?
+                # もうない
+                res {result:result}
                 return
-            # dumpに成功した
-            res {result:stdout}
+            result+="> #{script[index]}\n"
+            child = child_process.exec script[index], (error,stdout,stderr)->
+                console.log stdout
+                if error?
+                    result+=stderr+"\n"
+                    res {error:result}
+                    return
+                # 成功した
+                result+=stdout+"\n"
+                one index+1
+        one 0
     end:->
-        unless req.session.administer
+        unless req.session.maintenance
             res {error:"管理者ではありません"}
             return
         process.exit()

@@ -44,7 +44,7 @@ tabs=
         init:->
             $("#pullform").submit (je)->
                 je.preventDefault()
-                ss.rpc "admin.pull",(result)->
+                ss.rpc "admin.update",(result)->
                     if result.error
                         $("#pullresult").get(0).style.color="red"
                         $("#pullresult").text result.error
@@ -57,7 +57,7 @@ tabs=
 
 exports.start=->
     Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{type:"password"},(pass)->
-        ss.rpc "admin.regist", {password:pass},(err)->
+        ss.rpc "admin.register", {password:pass},(err)->
             if err?
                 Index.util.message "管理ページ",err
     $("#admin").click (je)->
