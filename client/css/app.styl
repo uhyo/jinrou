@@ -12,6 +12,7 @@ body
   font normal 1em sans-serif
   //vertical-gradient #eee, #fff
   margin-left 20px
+  margin-right 0
 
 a
   color #000a68
@@ -79,6 +80,12 @@ body > header
     a
       color #ffffff !important
       text-decoration none
+//おしらせ
+body > .notice
+  margin-left -20px
+  background-color #ffff88
+  font-size smaller
+  padding 3px 0 3px 10px
 
 .error
   color #dd0000
@@ -125,6 +132,9 @@ section.profile
   table
     td,th
       border none
+  table.newstable
+    td,th
+      border 1px solid currentColor
 table.roomstable
   td,th
     border 1px solid currentColor !important

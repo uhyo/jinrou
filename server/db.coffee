@@ -26,37 +26,46 @@ dbinit= ->
             console.log err
             throw err
           M.users=col
-          cols_count()
+          col.ensureIndex "userid",(err,idxname)->
+            cols_count()
         DB.collection "rooms", (err,col)->
           if err?
             console.log err
             throw err
           M.rooms=col
-          cols_count()
+          col.ensureIndex "id",(err,idxname)->
+            col.ensureIndex "mode",(err,idxname)->
+              cols_count()
         DB.collection "games", (err,col)->
           if err?
             console.log err
             throw err
           M.games=col
-          cols_count()
+          col.ensureIndex "id",(err,idxname)->
+            cols_count()
         DB.collection "lobby",(err,col)->	# ロビーのログ
           if err?
             console.log err
             throw err
           M.lobby=col
-          cols_count()
+          col.ensureIndex "time",(err,idxname)->
+            cols_count()
         DB.collection "blacklist",(err,col)->
           if err?
             console.log err
             throw err
           M.blacklist=col
-          cols_count()
-        DB.collection "events",(err,col)->
+          col.ensureIndex "userid",(err,idxname)->
+            col.ensureIndex "ip",(err,idxname)->
+              col.ensureIndex "expires",(err,idxname)->
+                cols_count()
+        DB.collection "news",(err,col)->
           if err?
             console.log err
             throw err
-          M.events=col
-          cols_count()
+          M.news=col
+          col.ensureIndex "time",(err,idxname)->
+            cols_count()
 
 exports.dbinit=dbinit
 

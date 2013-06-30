@@ -167,5 +167,22 @@ exports.actions =(req,res,ss)->
         process.exit()
         res {}
 
+    # ------------- news関係
+    # news一覧を得る
+    getNews:(query)->
+        unless req.session.maintenance
+            res {error:"管理者ではありません"}
+            return
+        M.news.find().limit(query.num).toArray (err,docs)->
+            res {docs:docs}
+    addNews:(query)->
+        unless req.session.maintenance
+            res {error:"管理者ではありません"}
+            return
+        addquery=
+            time:new Date()
+            message:query.message
+        M.news.insert addquery,{safe:true},(err,doc)->
+            res null
 
 pro=null    # 現在のプロセス

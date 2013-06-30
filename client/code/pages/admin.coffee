@@ -1,7 +1,7 @@
 tabs=
     blacklist:
         init:->
-            inittable()
+            initblisttable()
             $("#newbanform").submit (je)->
                 je.preventDefault()
                 query=Index.util.formQuery je.target
@@ -53,6 +53,14 @@ tabs=
                     Index.util.ask "管理ページ","人狼を終了しますか?",(result)->
                         if result
                             ss.rpc "admin.end",(result)->
+    news:
+        init:->
+            initnewstable()
+            $("#newnewsform").submit (je)->
+                je.preventDefault()
+                query=Index.util.formQuery je.target
+                ss.rpc "admin.addNews", query,->
+                    initnewstable()
 
 
 exports.start=->
@@ -73,7 +81,7 @@ exports.start=->
     
 exports.end=->
 
-inittable=->
+initblisttable=->
     table=$("#blacklisttable").get 0
     ss.rpc "admin.getBlacklist", {},(result)->
         if result.error?
@@ -100,4 +108,22 @@ inittable=->
             input.dataset.userid=doc.userid
             input.value="解除"
             cell.appendChild input
+    
+initnewstable=->
+    table=$("#newstable").get 0
+    ss.rpc "admin.getNews", {num:10},(result)->
+        if result.error?
+            Index.util.message "管理ページ",result.error
+            return
+        $(table).empty()
+        result.docs.forEach (doc)->
+            row=table.insertRow -1
+            cell=row.insertCell 0
+            cell.textContent=doc._id
+
+            cell=row.insertCell 1
+            cell.textContent=doc.time.toLocaleString()
+            
+            cell=row.insertCell 2
+            cell.textContent=doc.message
     

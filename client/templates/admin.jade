@@ -6,6 +6,7 @@ section.admin#admin
     li(data-opener="grandalert") 全体告知
     li(data-opener="dataexport") データエクスポート
     li(data-opener="update") 更新
+    li(data-opener="news") お知らせ管理
   section#blacklist(hidden)
     h1 アク禁管理
     table
@@ -68,3 +69,19 @@ section.admin#admin
       p: input(type="submit",value="更新する")
     pre
       samp#pullresult
+  section#news(hidden)
+    h1 お知らせ管理
+    table
+      thead
+        tr
+          th _id
+          th 時間
+          th 内容
+      tbody#newstable
+    h2 新規お知らせ
+    form#newnewsform
+      p
+        | 内容
+        input(name="message",size="100",required)
+      p
+        input(type="submit",value="OK")
