@@ -22,7 +22,6 @@ login= (query,req,cb,ss)->
             req.session.save (err)->
                 # お知らせ情報をとってきてあげる
                 M.news.find().sort({time:-1}).nextObject (err,doc)->
-                    console.log "login",doc
                     cb {
                         login:true
                         lastNews:doc?.time

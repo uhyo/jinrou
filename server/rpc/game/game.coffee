@@ -1932,6 +1932,11 @@ class Spy extends Player
         # スパイは人狼が分かる
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
+    makeJobSelection:(game)->
+        # 夜は投票しない
+        if game.night
+            []
+        else super
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     jobname:"人狼占い"
@@ -3220,10 +3225,14 @@ class Dog extends Player
             # 飼い主を護衛する
             pl=game.getPlayer @flag
             if pl?
-                newpl=Player.factory null,pl,null,Guarded   # 守られた人
-                pl.transProfile newpl
-                newpl.cmplFlag=@id  # 護衛元cmplFlag
-                pl.transform game,newpl
+                if pl.dead
+                    # もう死んでるじゃん
+                    @target=""  # 洗濯済み
+                else
+                    newpl=Player.factory null,pl,null,Guarded   # 守られた人
+                    pl.transProfile newpl
+                    newpl.cmplFlag=@id  # 護衛元cmplFlag
+                    pl.transform game,newpl
 
     sleeping:->@flag?
     jobdone:->@target?
@@ -3231,11 +3240,10 @@ class Dog extends Player
         if @target?
             return "既に対象は決定しています"
     
-        pl=game.getPlayer playerid
-        unless pl?
-            return "対象が不正です"
-        @target=playerid
         unless @flag?
+            pl=game.getPlayer playerid
+            unless pl?
+                return "対象が不正です"
             # 飼い主を選択した
             log=
                 mode:"skill"
@@ -3246,18 +3254,21 @@ class Dog extends Player
             @target=""  # 襲撃対象はなし
         else
             # 襲う
+            pl=game.getPlayer @flag
+            @target=@flag
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が#{game.getPlayer(playerid).name}を襲撃しました。"
+                comment:"#{@name}が#{pl.name}を襲撃しました。"
             splashlog game.id,game,log
+        null
     midnight:(game)->
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
 
         # 殺害
-        @addGamelog game,"dogkill",null,pl.id
+        @addGamelog game,"dogkill",pl.type,pl.id
         pl.die game,"dog"
         null
     makejobinfo:(game,result)->
@@ -3273,6 +3284,11 @@ class Dog extends Player
 
             else
                 result.open.push "Dog2"
+    makeJobSelection:(game)->
+        # 噛むときは対象選択なし
+        if game.night && @flag?
+            []
+        else super
 class Dictator extends Player
     type:"Dictator"
     jobname:"独裁者"

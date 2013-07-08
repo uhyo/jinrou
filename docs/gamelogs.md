@@ -143,3 +143,9 @@ GJした
 死んだので移動した
 *target: 移動先ID
 * flag:その役職
+
+## 犬
+### dogkill
+飼い主を噛んだ
+*target: 飼い主ID
+* flag:その役職
