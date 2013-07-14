@@ -440,13 +440,12 @@ exports.start=(roomid)->
             je.preventDefault()
             $("#jobform").attr "hidden","hidden"
             ss.rpc "game.game.job", roomid,Index.util.formQuery(form), (result)->
-                console.log result
                 if result?.error?
                     Index.util.message "エラー",result.error
                     $("#jobform").removeAttr "hidden"
-                    #else if !result?.jobdone
+                else if !result?.sleeping
                     # まだ仕事がある
-                    #$("#jobform").removeAttr "hidden"
+                    $("#jobform").removeAttr "hidden"
                 else
                     getjobinfo result
         .click (je)->

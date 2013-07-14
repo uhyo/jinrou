@@ -4210,7 +4210,7 @@ module.exports.actions=(req,res,ss)->
             }
             
             # 能力をすべて発動したかどうかチェック
-            res {jobdone:player.jobdone(game)}
+            res {sleeping:player.jobdone(game)}
             if game.night
                 game.checkjobs()
         else
