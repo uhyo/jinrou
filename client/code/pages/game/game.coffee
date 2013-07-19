@@ -20,6 +20,9 @@ exports.start=(roomid)->
     my_job=null
     this_room_id=null
 
+    # 役職名一覧
+    cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
+
     # CSS操作
     this_style=document.createElement "style"
     document.head.appendChild this_style
@@ -116,6 +119,8 @@ exports.start=(roomid)->
                 form.elements["remain_minute"].value=parseInt remainsec/60
                 form.elements["remain_second"].value=remainsec%60
                 # その他
+                delete rule.number  # 人数は違うかも
+                console.log rule
                 for key of rule
                     e=form.elements[key]
                     if e?
@@ -234,7 +239,6 @@ exports.start=(roomid)->
 
 
         form=$("#gamestart").get 0
-        jobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
         jobsforminput=(e)->
             t=e.target
             form=t.form
@@ -243,17 +247,7 @@ exports.start=(roomid)->
                 # ルール変更があった
                 setplayersbyjobrule room,form,pl
                 return
-            if form.elements["scapegoat"].value=="on"
-                # 身代わりくん
-                pl++
-            sum=0
-            jobs.forEach (x)->
-                sum+=parseInt form.elements[x].value
-            # カテゴリ別
-            for type of Shared.game.categoryNames
-                sum+= parseInt(form.elements["category_#{type}"].value ? 0)
-            form.elements["Human"].value=pl-sum
-            setjobsmonitor form
+            jobsformvalidate room,form
         form.addEventListener "input",jobsforminput,false
         form.addEventListener "change",jobsforminput,false
                 
@@ -607,6 +601,7 @@ exports.start=(roomid)->
         
         form.elements["number"].value=number
         setplayersbyjobrule room,form,number
+        jobsformvalidate room,form
     # 配役一覧をアレする
     setplayersbyjobrule=(room,form,number)->
         jobrulename=form.elements["jobrule"].value
@@ -645,6 +640,20 @@ exports.start=(roomid)->
         for type of Shared.game.categoryNames
             count+= parseInt(form.elements["category_#{type}"].value ? 0)
         form.elements["Human"].value=number-count   # 村人
+        setjobsmonitor form
+    jobsformvalidate=(room,form)->
+        # 村人の人数を調節する
+        pl=room.players.filter((x)->x.mode=="player").length
+        if form.elements["scapegoat"].value=="on"
+            # 身代わりくん
+            pl++
+        sum=0
+        cjobs.forEach (x)->
+            sum+=parseInt form.elements[x].value
+        # カテゴリ別
+        for type of Shared.game.categoryNames
+            sum+= parseInt(form.elements["category_#{type}"].value ? 0)
+        form.elements["Human"].value=pl-sum
         setjobsmonitor form
     # 配役をテキストで書いてあげる
     setjobsmonitor=(form)->
