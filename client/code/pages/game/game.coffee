@@ -128,9 +128,6 @@ exports.start=(roomid)->
                     e=form.elements[job]    # 役職
                     if e?
                         e.value=jobs[job]?.number ? 0
-                # 役目終了
-                delete sessionStorage.savedRule
-                delete sessionStorage.savedJobs
 
             forminfo()
 
@@ -213,9 +210,6 @@ exports.start=(roomid)->
                 b=makebutton "ゲーム開始画面を開く"
                 $("#playersinfo").append b
                 $(b).click newgamebutton
-                if sessionStorage.savedRule?
-                    # セーブされているなら勝手に開いてあげる
-                    newgamebutton()
                 b=makebutton "参加者を追い出す"
                 $("#playersinfo").append b
                 $(b).click (je)->
