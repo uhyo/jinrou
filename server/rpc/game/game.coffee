@@ -865,7 +865,7 @@ class Game
             @ss.publish.channel "room#{@id}","refresh",{id:@id}
             @save()
             @prize_check()
-            clearTimeout @timer
+            clearTimeout @timerid
             
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)->
