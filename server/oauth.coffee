@@ -35,4 +35,13 @@ exports.tweet=tweet
 exports.template=(roomid,message,pass)->
 		tweet "#{message} \u2013 #{Config.application.url}room/#{roomid}",pass
 		
-
+exports.getTwitterIcon=(id,cb)->
+    # twitterid調べる
+    twit.get '/users/show.json',{
+        screen_name:id,
+        include_entities:false,
+    },(err,result)->
+        if err?
+            cb null
+            return
+        cb result?.profile_image_url

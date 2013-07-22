@@ -109,6 +109,10 @@ exports.actions =(req,res,ss)->
                 res {error:err}
                 return
             res results
+# twitterアイコンを調べてあげる
+    getTwitterIcon:(id)->
+        Server.oauth.getTwitterIcon id,(url)->
+            res url
         
                 
 # プロフィール変更 返り値=変更後 {"error":"message"}
