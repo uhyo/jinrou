@@ -112,6 +112,7 @@ exports.actions =(req,res,ss)->
 # twitterアイコンを調べてあげる
     getTwitterIcon:(id)->
         Server.oauth.getTwitterIcon id,(url)->
+            console.log "res!",url
             res url
         
                 

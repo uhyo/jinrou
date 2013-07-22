@@ -167,7 +167,7 @@ exports.iconSelectWindow=(def,cb)->
                 if id
                     # It's 1.0!
                     # okicon "http://api.twitter.com/1/users/profile_image/#{id}"
-                    ss.rpc "user.getTwitterIcon",(url)->
+                    ss.rpc "user.getTwitterIcon",id,(url)->
                         # アイコンを取得
                         unless url
                             util.message "エラー","アイコンを取得できませんでした。しばらく時間をあけてからお試しください。"
