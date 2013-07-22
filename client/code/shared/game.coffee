@@ -16,6 +16,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 究極の人狼の役職
 "Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
 "Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub","Thief",
+"Hoodlum",
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy",
 ]
@@ -36,7 +37,7 @@ exports.teams=teams=
 	Bat:["Bat"]
 	Devil:["Devil"]
 	Friend:["Cupid","Lover"]
-	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief"],
+	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief","Hoodlum"],
 	Neet:["Neet"]
 
 # カテゴリ分け
@@ -46,7 +47,7 @@ exports.categories=
 	Fox:["Fox","TinyFox"]
 	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
 	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
-	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover"]
+	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum"]
 
 exports.categoryNames=
 	Human:"村人系"
@@ -588,6 +589,9 @@ exports.jobinfo=
 		Thief:
 			name:"盗人"
 			color:"#a4a4a4"
+		Hoodlum:
+			name:"ならず者"
+			color:"#88002d"
 		
 	Neet:
 		name:"ニート"

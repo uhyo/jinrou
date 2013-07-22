@@ -3395,6 +3395,63 @@ class WolfBoy extends Madman
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl
         null
+class Hoodlum extends Player
+    type:"Hoodlum"
+    jobname:"ならず者"
+    team:""
+    constructor:->
+        super
+        @flag="[]"  # 殺したい対象IDを入れておく
+        @target=null
+    sunset:(game)->
+        if game.day>=2
+            # もう何もない
+            @target=""
+        else
+            # 2人選んでもらう
+            @target=null
+            if @scapegoat
+                # 身代わり
+                alives=game.players.filter (x)=>!x.dead && x!=this
+                i=0
+                while i++<2 && alives.length>0
+                    r=Math.floor Math.random()*alives.length
+                    @job game,alives[r].id,{}
+                    alives.splice r,1
+    sleeping:->@target?
+    job:(game,playerid,query)->
+        if @target?
+            return "既に対象は決定しています"
+        if game.day>=2
+            return "もう対象を選択できません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        plids=JSON.parse(@flag)
+        if pl.id in plids
+            # 既にいる
+            return "#{pl.name}は既に対象に選択しています"
+        plids.push pl.id
+        @flag=JSON.stringify plids
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}を恨んでいます。"
+        splashlog game.id,game,log
+        if plids.length>=2
+            @target=""
+        else
+            # 2人目を選んでほしい
+            @target=null
+        null
+
+    isWinner:(game,team)->
+        if @dead
+            # 死んでたらだめ
+            return false
+        pls=JSON.parse(@flag).map (id)->game.getPlayer id
+        return pls.every (pl)->pl?.dead==true
+
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -3793,6 +3850,7 @@ jobs=
     SeersMama:SeersMama
     Trapper:Trapper
     WolfBoy:WolfBoy
+    Hoodlum:Hoodlum
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

@@ -41,7 +41,6 @@ exports.getTwitterIcon=(id,cb)->
         screen_name:id,
         include_entities:false,
     },(err,result)->
-        console.log err,result
         if err?
             cb null
             return
