@@ -122,6 +122,7 @@ class Game
         @night=false # false:昼 true:夜
         
         @winner=null    # 勝ったチーム名
+        @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
         # DBには現れない
         @timerid=null
         @voting=false   # 投票猶予時間
@@ -169,6 +170,7 @@ class Game
             werewolf_flag:@werewolf_flag
             werewolf_target:@werewolf_target
             werewolf_target_remain:@werewolf_target_remain
+            quantum_patterns:@quantum_patterns
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
@@ -195,6 +197,7 @@ class Game
         game.werewolf_flag=obj.werewolf_flag ? null
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
+        game.quantum_patterns=obj.quantum_patterns ? []
         game.timer()
         game
     # 公開情報
@@ -436,6 +439,88 @@ class Game
                 @participants.push helper
             #@participants.push new GameMaster pl.userid,pl.realid,pl.name
         
+        # 量子人狼の場合はここで可能性リストを作る
+        if @rule.jobrule=="特殊ルール.量子人狼"
+            # パターンを初期化（最初は全パターン）
+            quats=[]    # のとみquantum_patterns
+            pattern_no=0    # とばす
+            # 役職を列挙した配列をつくる
+            jobname_list=[]
+            for job of jobs
+                i=@rule.quantum_joblist[job]
+                if i>0
+                    jobname_list.push {
+                        type:job,
+                        number:i
+                    }
+            # 人狼用
+            i=1
+            while @rule.quantum_joblist["Werewolf#{i}"]>0
+                jobname_list.push {
+                    type:"Werewolf#{i}"
+                    number:@rule.quantum_joblist["Werewolf#{i}"]
+                }
+                i++
+            # プレイヤーIDを列挙した配列もつくる
+            playerid_list=@players.map (pl)->pl.id
+            # 0,1,...,(n-1)の中からkコ選んだ組み合わせを返す関数
+            combi=(n,k)->
+                `var i;`
+                if k<=0
+                    return [[]]
+                if n<=k #n<kのときはないけど・・・
+                    return [[0...n]] # 0からn-1まで
+                resulty=[]
+                for i in [0..(n-k)] # 0 <= i <= n-k
+                    for x in combi n-i-1,k-1
+                        resulty.push [i].concat x.map (y)->y+i+1
+                resulty
+
+            # 職をひとつ処理
+            makeonejob=(joblist,plids)->
+                cont=joblist[0]
+                unless cont?
+                    return [[]]
+                # 決めて抜く
+                coms=combi plids.length,cont.number
+                # その番号のを
+                resulty2=[]
+                for pat in coms #pat: 1つのパターン
+                    bas=[]
+                    pll=plids.concat []
+                    i=0
+                    for num in pat
+                        bas.push {
+                            id:pll[num-i]
+                            job:cont.type
+                        }
+                        pll.splice num-i,1  # 抜く
+                        i+=1
+                    resulty2=resulty2.concat makeonejob(joblist.slice(1),pll).map (arr)->
+                        bas.concat arr
+                resulty2
+
+            jobsobj=makeonejob jobname_list,playerid_list
+            # パターンを作る
+            for arr in jobsobj
+                obj={}
+                for o in arr
+                    result=o.job.match /^Werewolf(\d+)$/
+                    if result
+                        obj[o.id]={
+                            jobtype:"Werewolf"
+                            rank:+result[1] # 狼の序列
+                            dead:false
+                        }
+                    else
+                        obj[o.id]={
+                            jobtype:o.job
+                            dead:false
+                        }
+                quats.push obj
+            # できた
+            @quantum_patterns=quats
+
         res null
 #======== ゲーム進行の処理
     #次のターンに進む
@@ -525,9 +610,51 @@ class Game
                 x.votestart this
                 x.sunrise this
             @revote_num=0   # 再投票の回数は0にリセット
+
+        if @rule.jobrule=="特殊ルール.量子人狼"
+            # 量子人狼
+            # 全員の確率を出してあげるよーーーーー
+            # 確率テーブルを
+            probability_table={
+            }
+            for key,value of obj
+                if value.jobtype=="Werewolf"
+                    total_werewolf++
+            for x in @players
+                count=
+                    Human:0
+                    Diviner:0
+                    Werewolf:0
+                    dead:0
+                for obj in @quantum_patterns
+                    count[obj[x.id].jobtype]++
+                    if obj[x.id].dead==true
+                        count.dead++
+                sum=count.Human+count.Diviner+count.Werewolf
+                x.flag=JSON.stringify {
+                    Human:count.Human/sum
+                    Diviner:count.Diviner/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                # ログ用
+                probability_table[x.id]={
+                    name:x.name
+                    Human:(count.Human+count.Diviner)/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                if count.dead==sum
+                    # 死んだ!!!!!!!!!!!!!!!!!
+                    x.die this,"werewolf"
+            # ログを出す
+            log=
+                mode:"probability_table"
+                probability_table:probability_table
+            splashlog @id,this,log
         #死体処理
         @bury()
-        @judge()
+        return if @judge()
         @splashjobinfo()
         if @night
             @checkjobs()
@@ -759,47 +886,85 @@ class Game
         humans=@players.filter((x)->!x.dead && x.isHuman()).length
         wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
         vampires=@players.filter((x)->!x.dead && x.isVampire()).length
-        
+
         team=null
-        if alives==0
-            # 全滅
-            team="Draw"
-        else if wolves==0 && vampires==0
-            # 村人勝利
-            team="Human"
-        else if humans<=wolves && vampires==0
-            # 人狼勝利
-            team="Werewolf"
-        else if humans<=vampires && wolves==0
-            # ヴァンパイア勝利
-            team="Vampire"
-            
-        if team=="Werewolf" && wolves==1
-            # 一匹狼判定
-            lw=aliveps.filter((x)->x.isWerewolf())[0]
-            if lw?.isJobType "LoneWolf"
-                team="LoneWolf"
-            
-        if team?
-            # 妖狐判定
-            if @players.some((x)->!x.dead && x.isFox())
-                team="Fox"
-            # 恋人判定
-            if @rule.friendsjudge=="alive" && @players.some((x)->x.isFriend())
-                # 終了時に恋人生存
-                friends=@players.filter (x)->x.isFriend()
-                if friends.every((x)->!x.dead)
-                    team="Friend"
-        # カルト判定
-        if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
-            # 全員信者
-            team="Cult"
-        # 悪魔くん判定
-        if @players.some((x)->x.type=="Devil" && x.flag=="winner")
-            team="Devil"
-        if alives>0 && aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
-            # 恋人のみ生存
-            team="Friend"
+
+        # 量子人狼のときは特殊ルーチン
+        if @rule.jobrule=="特殊ルール.量子人狼"
+            assured_wolf=
+                alive:0
+                dead:0
+            total_wolf=0
+            obj=@quantum_patterns[0]
+            if obj?
+                for key,value of obj
+                    if value.jobtype=="Werewolf"
+                        total_wolf++
+                for x in @players
+                    unless x.flag
+                        # まだだった・・・
+                        break
+                    flag=JSON.parse x.flag
+                    if flag.Werewolf==1
+                        # うわあああ絶対人狼だ!!!!!!!!!!
+                        if flag.dead==1
+                            assured_wolf.dead++
+                        else if flag.dead==0
+                            assured_wolf.alive++
+                if alives<=assured_wolf.alive*2
+                    # あーーーーーーー
+                    team="Werewolf"
+                else if assured_wolf.dead==total_wolf
+                    # 全滅した
+                    team="Human"
+            else
+                # もうひとつもないんだ・・・
+                log=
+                    mode:"system"
+                    comment:"世界が崩壊し、確率が定義できなくなりました。"
+                sphashlog @id,this,log
+                team="Draw"
+        else
+        
+            if alives==0
+                # 全滅
+                team="Draw"
+            else if wolves==0 && vampires==0
+                # 村人勝利
+                team="Human"
+            else if humans<=wolves && vampires==0
+                # 人狼勝利
+                team="Werewolf"
+            else if humans<=vampires && wolves==0
+                # ヴァンパイア勝利
+                team="Vampire"
+                
+            if team=="Werewolf" && wolves==1
+                # 一匹狼判定
+                lw=aliveps.filter((x)->x.isWerewolf())[0]
+                if lw?.isJobType "LoneWolf"
+                    team="LoneWolf"
+                
+            if team?
+                # 妖狐判定
+                if @players.some((x)->!x.dead && x.isFox())
+                    team="Fox"
+                # 恋人判定
+                if @rule.friendsjudge=="alive" && @players.some((x)->x.isFriend())
+                    # 終了時に恋人生存
+                    friends=@players.filter (x)->x.isFriend()
+                    if friends.every((x)->!x.dead)
+                        team="Friend"
+            # カルト判定
+            if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
+                # 全員信者
+                team="Cult"
+            # 悪魔くん判定
+            if @players.some((x)->x.type=="Devil" && x.flag=="winner")
+                team="Devil"
+            if alives>0 && aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
+                # 恋人のみ生存
+                team="Friend"
 
         if @revote_num>=4
             # 再投票多すぎ
@@ -1244,7 +1409,7 @@ class Player
         
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
-        if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply","helperwhisper"]
+        if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table"]
             # 全員に見える
             true
         else if log.mode in ["heaven","gmheaven"]
@@ -3451,6 +3616,172 @@ class Hoodlum extends Player
             return false
         pls=JSON.parse(@flag).map (id)->game.getPlayer id
         return pls.every (pl)->pl?.dead==true
+class QuantumPlayer extends Player
+    type:"QuantumPlayer"
+    jobname:"量子人間"
+    sleeping:->
+        tarobj=JSON.parse(@target || "{}")
+        tarobj.Diviner? && tarobj.Werewolf?   # 両方指定してあるか
+    sunset:(game)->
+        #  @flagに{Human:(確率),Diviner:(確率),Werewolf:(確率),dead:(確率)}的なのが入っているぞ!
+        obj=JSON.parse(@flag || "{}")
+        tarobj=
+            Diviner:null
+            Werewolf:null
+        if obj.Diviner==0
+            tarobj.Diviner=""   # なし
+        if obj.Werewolf==0
+            tarobj.Werewolf=""
+
+        @target=JSON.stringify tarobj
+        if @scapegoat
+            # 身代わり君の自動占い
+            unless tarobj.Diviner?
+                r=Math.floor Math.random()*game.players.length
+                @job game,game.players[r].id,{
+                    jobtype:"_Quantum_Diviner"
+                }
+            unless tarobj.Werewolf?
+                nonme =game.players.filter (pl)=> pl!=this
+                r=Math.floor Math.random()*nonme.length
+                @job game,nonme[r].id,{
+                    jobtype:"_Quantum_Werewolf"
+                }
+    isJobType:(type)->
+        # 便宜的
+        if type=="_Quantum_Diviner" || type=="_Quantum_Werewolf"
+            return true
+        super
+    job:(game,playerid,query)->
+        tarobj=JSON.parse(@target||"{}")
+        pl=game.getPlayer playerid
+        console.log query.jobtype,playerid,tarobj
+        unless pl?
+            return "その対象は存在しません"
+        if query.jobtype=="_Quantum_Diviner" && !tarobj.Diviner?
+            tarobj.Diviner=playerid
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}が#{pl.name}を占いました。"
+            splashlog game.id,game,log
+        else if query.jobtype=="_Quantum_Werewolf" && !tarobj.Werewolf?
+            if @id==playerid
+                return "自分を襲うことはできません。"
+            tarobj.Werewolf=playerid
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は#{pl.name}に狙いを定めました。"
+            splashlog game.id,game,log
+        else
+            return "対象選択が不正です"
+        @target=JSON.stringify tarobj
+
+        null
+    midnight:(game)->
+        # ここで処理
+        tarobj=JSON.parse(@target||"{}")
+        if tarobj.Diviner
+            pl=game.getPlayer tarobj.Diviner
+            if pl?
+                # 一旦自分が占い師のやつ以外排除
+                pats=game.quantum_patterns.filter (obj)=>
+                    obj[@id].jobtype=="Diviner" && obj[@id].dead==false
+                # 1つ選んで占い結果を決定
+                if pats.length>0
+                    index=Math.floor Math.random()*pats.length
+                    j=pats[index][tarobj.Diviner].jobtype
+                    if j == "Werewolf"
+                        log=
+                            mode:"skill"
+                            to:@id
+                            comment:"#{@name}が#{pl.name}を占ったところ、人狼でした。"
+                        splashlog game.id,game,log
+                        # 人狼のやつ以外排除
+                        game.quantum_patterns=game.quantum_patterns.filter (obj)=>
+                            if obj[@id].jobtype=="Diviner" && obj[@id].dead==false
+                                obj[pl.id].jobtype == "Werewolf"
+                            else
+                                true
+                    else
+                        log=
+                            mode:"skill"
+                            to:@id
+                            comment:"#{@name}が#{pl.name}を占ったところ、村人でした。"
+                        splashlog game.id,game,log
+                        # 村人のやつ以外排除
+                        game.quantum_patterns=game.quantum_patterns.filter (obj)=>
+                            if obj[@id].jobtype=="Diviner" && obj[@id].dead==false
+                                obj[pl.id].jobtype!="Werewolf"
+                            else
+                                true
+        if tarobj.Werewolf
+            pl=game.getPlayer tarobj.Werewolf
+            if pl?
+                game.quantum_patterns=game.quantum_patterns.filter (obj)=>
+                    # 何番が筆頭かを求める
+                    min=Infinity
+                    for key,value of obj
+                        if value.jobtype=="Werewolf" && value.dead==false && value.rank<min
+                            min=value.rank
+                    if obj[@id].jobtype=="Werewolf" && obj[@id].rank==min && obj[@id].dead==false
+                        # 自分が筆頭人狼
+                        if obj[pl.id].jobtype == "Werewolf" || obj[pl.id].dead==true
+                            # 襲えない
+                            false
+                        else
+                            # さらに対応するやつを死亡させる
+                            obj[pl.id].dead=true
+                            true
+                    else
+                        true
+
+    isWinner:(game,team)->
+        flag=JSON.parse @flag
+        unless flag?
+            return false
+
+        if flag.Werewolf==1 && team=="Werewolf"
+            # 人狼がかったぞ!!!!!
+            true
+        else if flag.Werewolf==0 && team=="Human"
+            # 人間がかったぞ!!!!!
+            true
+        else
+            # よくわからないぞ!
+            false
+    makejobinfo:(game,result)->
+        super
+        tarobj=JSON.parse(@target||"{}")
+        unless tarobj.Diviner?
+            result.open.push "_Quantum_Diviner"
+        unless tarobj.Werewolf?
+            result.open.push "_Quantum_Werewolf"
+    die:(game,found)->
+        super
+        # 可能性を排除する
+        pats=[]
+        if found=="punish"
+            # 処刑されたときは既に死んでいた可能性を排除
+            pats=game.quantum_patterns.filter (obj)=>
+                obj[@id].dead==false
+        else
+            pats=game.quantum_patterns
+        if pats.length
+            # 1つ選んで役職を決定
+            index=Math.floor Math.random()*pats.length
+            tjt=pats[index][@id].jobtype
+            trk=pats[index][@id].rank
+            pats=pats.filter (obj)=>
+                obj[@id].jobtype==tjt && obj[@id].rank==trk
+            # ワタシハシンダ
+            pats.forEach (obj)=>
+                obj[@id].dead=true
+        game.quantum_patterns=pats
+
+
+
 
     
 # 処理上便宜的に使用
@@ -3851,6 +4182,7 @@ jobs=
     Trapper:Trapper
     WolfBoy:WolfBoy
     Hoodlum:Hoodlum
+    QuantumPlayer:QuantumPlayer
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -3891,6 +4223,18 @@ module.exports.actions=(req,res,ss)->
             if room.players.some((x)->!x.start)
                 res "まだ全員の準備ができていません"
                 return
+            # ルールオブジェクト用意
+            ruleobj={
+                number: room.players.length
+                maxnumber:room.number
+                blind:room.blind
+                gm:room.gm
+                day: parseInt(query.day_minute)*60+parseInt(query.day_second)
+                night: parseInt(query.night_minute)*60+parseInt(query.night_second)
+                remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
+                # (n=15)秒ルール
+                silentrule: parseInt(query.silentrule) ? 0
+            }
             
             options={}  # オプションズ
             for opt in ["decider","authority"]
@@ -3950,7 +4294,7 @@ module.exports.actions=(req,res,ss)->
                 
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
                 # 闇鍋のときは入れないのがある
-                exceptions=["MinionSelector","Thief","GameMaster","Helper"]
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer"]
                 if query.safety!="free"
                     exceptions=exceptions.concat Shared.game.nonhumans  # 基本人外は選ばれない
                 if query.safety=="full" # 安全
@@ -4009,8 +4353,34 @@ module.exports.actions=(req,res,ss)->
 
 
 
+            else if query.jobrule=="特殊ルール.量子人狼"
+                # 量子人狼のときは全員量子人間だけど役職はある
+                func=Shared.game.getrulefunc "内部利用.量子人狼"
+                joblist=func frees
+                sum=0
+                for job of jobs
+                    if joblist[job]
+                        sum+=joblist[job]
+                joblist.Human=frees-sum # 残りは村人だ!
+                list_for_rule = JSON.parse JSON.stringify joblist
+                ruleobj.quantum_joblist=joblist
+                # 人狼の順位を決めていく
+                i=1
+                while joblist.Werewolf>0
+                    joblist["Werewolf#{i}"]=1
+                    joblist.Werewolf-=1
+                    i+=1
+                delete joblist.Werewolf
+                # 量子人狼用
+                joblist={
+                    QuantumPlayer:frees
+                }
+                for job of jobs
+                    unless joblist[job]?
+                        joblist[job]=0
+                ruleinfo_str=Shared.game.getrulestr query.jobrule,list_for_rule
+                
 
-                    
             else if query.jobrule!="特殊ルール.自由配役"
                 # 配役に従ってアレする
                 func=Shared.game.getrulefunc query.jobrule
@@ -4043,17 +4413,6 @@ module.exports.actions=(req,res,ss)->
                     joblist[arr[r]]++
                     joblist["category_#{type}"]--
             
-            ruleobj={
-                number: room.players.length
-                maxnumber:room.number
-                blind:room.blind
-                gm:room.gm
-                day: parseInt(query.day_minute)*60+parseInt(query.day_second)
-                night: parseInt(query.night_minute)*60+parseInt(query.night_second)
-                remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
-                # (n=15)秒ルール
-                silentrule: parseInt(query.silentrule) ? 0
-            }
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
@@ -4268,7 +4627,8 @@ module.exports.actions=(req,res,ss)->
             }
             
             # 能力をすべて発動したかどうかチェック
-            res {sleeping:player.jobdone(game)}
+            #res {sleeping:player.jobdone(game)}
+            res makejobinfo game,player
             if game.night
                 game.checkjobs()
         else
@@ -4451,7 +4811,7 @@ islogOK=(game,player,log)->
     return true if player?.isJobType "GameMaster"
     unless player?
         # 観戦者
-        if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience"]
+        if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]
             !log.to?    # 観戦者にも公開
         else if log.mode=="voteresult"
             game.rule.voteresult!="hide"    # 投票結果公開なら公開

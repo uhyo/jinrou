@@ -1,5 +1,5 @@
 Shared=
-	game:exports
+    game:exports
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
@@ -21,7 +21,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Dictator","SeersMama","Trapper","WolfBoy",
 ]
 # ここには入らない役職
-# Light, Neet, MinionSelector
+# Light, Neet, MinionSelector,QuantumPlayer
 
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub"]
@@ -31,31 +31,31 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-	Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper"]
-	Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy"]
-	Fox:["Fox","TinyFox","Immoral"]
-	Bat:["Bat"]
-	Devil:["Devil"]
-	Friend:["Cupid","Lover"]
-	Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief","Hoodlum"],
-	Neet:["Neet"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy"]
+    Fox:["Fox","TinyFox","Immoral"]
+    Bat:["Bat"]
+    Devil:["Devil"]
+    Friend:["Cupid","Lover"]
+    Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief","Hoodlum","QuantumPlayer"],
+    Neet:["Neet"]
 
-# カテゴリ分け
+# カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
-	Human:teams.Human
-	Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub"]
-	Fox:["Fox","TinyFox"]
-	Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
-	Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
-	Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum"]
+    Human:teams.Human
+    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub"]
+    Fox:["Fox","TinyFox"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
+    Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum"]
 
 exports.categoryNames=
-	Human:"村人系"
-	Werewolf:"人狼系"
-	Fox:"妖狐系"
-	Madman:"狂人系"
-	Switching:"役職変化系"
-	Others:"第三陣営系"
+    Human:"村人系"
+    Werewolf:"人狼系"
+    Fox:"妖狐系"
+    Madman:"狂人系"
+    Switching:"役職変化系"
+    Others:"第三陣営系"
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
 normal1=(number)->
@@ -72,7 +72,7 @@ normal1=(number)->
           ret.Werewolf++
           if number>=27
             ret.Werewolf++
-  ret.Diviner=1	#占い
+  ret.Diviner=1 #占い
   if number>4
     ret.Psychic=1 #霊能
   if number>=6
@@ -105,21 +105,21 @@ normal2=(number)->
          ret.Werewolf++
          if number>=29
            ret.Werewolf++
-  ret.Diviner=1	#占い師
+  ret.Diviner=1 #占い師
   if number>4
-    ret.Psychic=1	#霊能者
+    ret.Psychic=1   #霊能者
   if number>=10
-    ret.Madman=1	#狂人
+    ret.Madman=1    #狂人
     if number>=28
       ret.Madman++
   if number>=11
-    ret.Guard=1	#狩人
+    ret.Guard=1 #狩人
   if number>=13
-    ret.Couple=2	#共有者
+    ret.Couple=2    #共有者
     if number>=28
       ret.Couple++
   if number>=15
-    ret.Fox=1	#狐
+    ret.Fox=1   #狐
   ret
 
 exports.jobrules=[
@@ -157,7 +157,7 @@ exports.jobrules=[
         title:"恋人が出る配役。"
         rule:(number)->
           ret=normal1 number
-          if ret.Fox>0	#NaNかも
+          if ret.Fox>0  #NaNかも
             ret.Fox--
           ret.Cupid ?= 0
           ret.Cupid++
@@ -290,7 +290,7 @@ exports.jobrules=[
           if number>=12
             ret.Fox++
             count++
-          ret.Madman=number-count	#残り全部狂人
+          ret.Madman=number-count   #残り全部狂人
           ret
       }
       {
@@ -347,255 +347,274 @@ exports.jobrules=[
 ]
 # ルール関数を得る
 exports.getrulefunc=(name)->
-	names= name.split "."
-	obj=Shared.game.jobrules
-	for branch in names	#.区切りでオブジェクト名
-		obj=obj.filter((x)->x.name==branch)[0]?.rule
-		unless obj	# そんな配役は見つからない
-			return
-	unless typeof obj =="function"
-		#配列でない
-		return
-	obj
+    if name=="内部利用.量子人狼"
+        # 量子人狼のときは
+        return (number)->
+            ret={}
+            #狼
+            ret.Werewolf=1
+            if number>=8
+                ret.Werewolf++
+                if number>=13
+                    ret.Werewolf++
+                    if number>=18
+                        ret.Werewolf++
+                        if number>=22
+                            ret.Werewolf++
+                            if number>=27
+                                ret.Werewolf++
+            ret.Diviner=1   #占い
+            if number>=20
+                ret.Diviner=2
+            ret
+
+    # ほかはオブジェクトから探す
+    names= name.split "."
+    obj=Shared.game.jobrules
+    for branch in names #.区切りでオブジェクト名
+        obj=obj.filter((x)->x.name==branch)[0]?.rule
+        unless obj  # そんな配役は見つからない
+            return
+    unless typeof obj =="function"
+        #配列でない
+        return
+    obj
 # ルールの名前を書く
 exports.getrulestr=(rule,jobs={})->
-	text=""
-	if rule=="特殊ルール.闇鍋"
-		# 闇鍋の場合
-		return "闇鍋 / 人狼#{jobs.Werewolf} 妖狐#{jobs.Fox}"
-	if rule=="特殊ルール.一部闇鍋"
-		text="一部闇鍋 / "
-	else
-		text="#{rule.split('.').pop()} / "
+    text=""
+    if rule=="特殊ルール.闇鍋"
+        # 闇鍋の場合
+        return "闇鍋 / 人狼#{jobs.Werewolf} 妖狐#{jobs.Fox}"
+    text="#{rule.split('.').pop()} / "
 
-	for job in Shared.game.jobs
-		continue if job=="Human" && rule=="特殊ルール.一部闇鍋"	#一部闇鍋は村人部分だけ闇鍋
-		num=jobs[job]
-		continue unless parseInt num
-		text+="#{Shared.game.getjobname job}#{num} "
-	# さらにカテゴリ分も
-	for type,name of Shared.game.categoryNames
-		num=jobs["category_#{type}"]
-		if num>0
-			text+="#{name}#{num} "
-	return text
+    for job in Shared.game.jobs
+        continue if job=="Human" && rule=="特殊ルール.一部闇鍋" #一部闇鍋は村人部分だけ闇鍋
+        num=jobs[job]
+        continue unless parseInt num
+        text+="#{Shared.game.getjobname job}#{num} "
+    # さらにカテゴリ分も
+    for type,name of Shared.game.categoryNames
+        num=jobs["category_#{type}"]
+        if num>0
+            text+="#{name}#{num} "
+    return text
 # 職の名前
 exports.getjobname=(job)->
-	for name,team of Shared.game.jobinfo
-		if team[job]?
-			return team[job].name
-	return null
+    for name,team of Shared.game.jobinfo
+        if team[job]?
+            return team[job].name
+    return null
 exports.jobinfo=
-	Human:
-		name:"村人陣営"
-		color:"#00CC00"
-		Human:
-			name:"村人"
-			color:"#dddddd"
-		Diviner:
-			name:"占い師"
-			color:"#00b3ff"
-		Psychic:
-			name:"霊能者"
-			color:"#bb00ff"
-		Guard:
-			name:"狩人"
-			color:"#969ad4"
-		Couple:
-			name:"共有者"
-			color:"#ffffab"
-		Poisoner:
-			name:"埋毒者"
-			color:"#853c24"
-		Noble:
-			name:"貴族"
-			color:"#ffff00"
-		Slave:
-			name:"奴隷"
-			color:"#1417d9"
-		Magician:
-			name:"魔術師"
-			color:"#f03eba"
-		Fugitive:
-			name:"逃亡者"
-			color:"#e8b279"
-		Merchant:
-			name:"商人"
-			color:"#e06781"
-		QueenSpectator:
-			name:"女王観戦者"
-			color:"#faeebe"
-		Liar:
-			name:"嘘つき"
-			color:"#a3e4e6"
-		Copier:
-			name:"コピー"
-			color:"#ffffff"
-		Light:
-			name:"デスノート"
-			color:"#2d158c"
-		MadWolf:
-			name:"狂人狼"
-			color:"#847430"
-		ToughGuy:
-			name:"タフガイ"
-			color:"#ff5900"
-		Cursed:
-			name:"呪われた者"
-			color:"#bda3bf"
-		ApprenticeSeer:
-			name:"見習い占い師"
-			color:"#bfecff"
-		Diseased:
-			name:"病人"
-			color:"#b35b98"
-		Spellcaster:
-			name:"呪いをかける者"
-			color:"#4b4f7d"
-		Lycan:
-			name:"狼憑き"
-			color:"#7d5f5f"
-		Priest:
-			name:"聖職者"
-			color:"#fff94a"
-		Prince:
-			name:"プリンス"
-			color:"#e5ff00"
-		PI:
-			name:"超常現象研究者"
-			color:"#573670"
-		Cat:
-			name:"猫又"
-			color:"#9200C7"
-		Witch:
-			name:"魔女"
-			color:"#9200C7"
-		Oldman:
-			name:"老人"
-			color:"#ede4b9"
-		OccultMania:
-			name:"オカルトマニア"
-			color:"#edda8c"
-		Dog:
-			name:"犬"
-			color:"#d4a152"
-		Dictator:
-			name:"独裁者"
-			color:"#ff0000"
-		SeersMama:
-			name:"予言者のママ"
-			color:"#ff9500"
-		Trapper:
-			name:"罠師"
-			color:"#b58500"
-		
-	Werewolf:
-		name:"人狼陣営"
-		color:"#DD0000"
-		Werewolf:
-			name:"人狼"
-			color:"#220000"
-		Madman:
-			name:"狂人"
-			color:"#ffbb00"
-		BigWolf:
-			name:"大狼"
-			color:"#660000"
-		Spy:
-			name:"スパイ"
-			color:"#ad5d28"
-		WolfDiviner:
-			name:"人狼占い"
-			color:"#5b0080"
-		Spy2:
-			name:"スパイⅡ"
-			color:"#d3b959"
-		Fanatic:
-			name:"狂信者"
-			color:"#94782b"
-		Sorcerer:
-			name:"妖術師"
-			color:"#b91be0"
-		LoneWolf:
-			name:"一匹狼"
-			color:"#222222"
-		MinionSelector:
-			name:"子分選択者"
-			color:"#ffffff"
-		WolfCub:
-			name:"狼の子"
-			color:"#662233"
-		WhisperingMad:
-			name:"囁き狂人"
-			color:"#ccab52"
-		WolfBoy:
-			name:"狼少年"
-			color:"5b2266"
-		
-		
-	Fox:
-		name:"妖狐陣営"
-		color:"#934293"
-		Fox:
-			name:"妖狐"
-			color:"#934293"
-		TinyFox:
-			name:"子狐"
-			color:"#dd81f0"
-		Immoral:
-			name:"背徳者"
-			color:"#5c2f5c"
-			
-		
-	Bat:
-		name:"こうもり"
-		color:"#000066"
-		Bat:
-			name:"こうもり"
-			color:"#000066"
-	Devil:
-		name:"悪魔くん"
-		color:"#735f9e"
-		Devil:
-			name:"悪魔くん"
-			color:"#735f9e"
-	Friend:
-		name:"恋人陣営"
-		color:"#ffb5e5"
-		Cupid:
-			name:"キューピッド"
-			color:"#ffb5e5"
-		Lover:
-			name:"求愛者"
-			color:"#ffcfee"
-	Others:
-		name:"その他"
-		color:"#cccccc"
-		Stalker:
-			name:"ストーカー"
-			color:"#ad6628"
-		Doppleganger:
-			name:"ドッペルゲンガー"
-			color:"#bbbbbb"
-		CultLeader:
-			name:"カルトリーダー"
-			color:"#b09d87"
-		Vampire:
-			name:"ヴァンパイア"
-			color:"#8f00bf"
-		Tanner:
-			name:"皮なめし職人"
-			color:"#ede4b9"
-		Thief:
-			name:"盗人"
-			color:"#a4a4a4"
-		Hoodlum:
-			name:"ならず者"
-			color:"#88002d"
-		
-	Neet:
-		name:"ニート"
-		color:"#aaaaaa"
-		Neet:
-			name:"ニート"
-			color:"#aaaaaa"
+    Human:
+        name:"村人陣営"
+        color:"#00CC00"
+        Human:
+            name:"村人"
+            color:"#dddddd"
+        Diviner:
+            name:"占い師"
+            color:"#00b3ff"
+        Psychic:
+            name:"霊能者"
+            color:"#bb00ff"
+        Guard:
+            name:"狩人"
+            color:"#969ad4"
+        Couple:
+            name:"共有者"
+            color:"#ffffab"
+        Poisoner:
+            name:"埋毒者"
+            color:"#853c24"
+        Noble:
+            name:"貴族"
+            color:"#ffff00"
+        Slave:
+            name:"奴隷"
+            color:"#1417d9"
+        Magician:
+            name:"魔術師"
+            color:"#f03eba"
+        Fugitive:
+            name:"逃亡者"
+            color:"#e8b279"
+        Merchant:
+            name:"商人"
+            color:"#e06781"
+        QueenSpectator:
+            name:"女王観戦者"
+            color:"#faeebe"
+        Liar:
+            name:"嘘つき"
+            color:"#a3e4e6"
+        Copier:
+            name:"コピー"
+            color:"#ffffff"
+        Light:
+            name:"デスノート"
+            color:"#2d158c"
+        MadWolf:
+            name:"狂人狼"
+            color:"#847430"
+        ToughGuy:
+            name:"タフガイ"
+            color:"#ff5900"
+        Cursed:
+            name:"呪われた者"
+            color:"#bda3bf"
+        ApprenticeSeer:
+            name:"見習い占い師"
+            color:"#bfecff"
+        Diseased:
+            name:"病人"
+            color:"#b35b98"
+        Spellcaster:
+            name:"呪いをかける者"
+            color:"#4b4f7d"
+        Lycan:
+            name:"狼憑き"
+            color:"#7d5f5f"
+        Priest:
+            name:"聖職者"
+            color:"#fff94a"
+        Prince:
+            name:"プリンス"
+            color:"#e5ff00"
+        PI:
+            name:"超常現象研究者"
+            color:"#573670"
+        Cat:
+            name:"猫又"
+            color:"#9200C7"
+        Witch:
+            name:"魔女"
+            color:"#9200C7"
+        Oldman:
+            name:"老人"
+            color:"#ede4b9"
+        OccultMania:
+            name:"オカルトマニア"
+            color:"#edda8c"
+        Dog:
+            name:"犬"
+            color:"#d4a152"
+        Dictator:
+            name:"独裁者"
+            color:"#ff0000"
+        SeersMama:
+            name:"予言者のママ"
+            color:"#ff9500"
+        Trapper:
+            name:"罠師"
+            color:"#b58500"
+        
+    Werewolf:
+        name:"人狼陣営"
+        color:"#DD0000"
+        Werewolf:
+            name:"人狼"
+            color:"#220000"
+        Madman:
+            name:"狂人"
+            color:"#ffbb00"
+        BigWolf:
+            name:"大狼"
+            color:"#660000"
+        Spy:
+            name:"スパイ"
+            color:"#ad5d28"
+        WolfDiviner:
+            name:"人狼占い"
+            color:"#5b0080"
+        Spy2:
+            name:"スパイⅡ"
+            color:"#d3b959"
+        Fanatic:
+            name:"狂信者"
+            color:"#94782b"
+        Sorcerer:
+            name:"妖術師"
+            color:"#b91be0"
+        LoneWolf:
+            name:"一匹狼"
+            color:"#222222"
+        MinionSelector:
+            name:"子分選択者"
+            color:"#ffffff"
+        WolfCub:
+            name:"狼の子"
+            color:"#662233"
+        WhisperingMad:
+            name:"囁き狂人"
+            color:"#ccab52"
+        WolfBoy:
+            name:"狼少年"
+            color:"5b2266"
+        
+        
+    Fox:
+        name:"妖狐陣営"
+        color:"#934293"
+        Fox:
+            name:"妖狐"
+            color:"#934293"
+        TinyFox:
+            name:"子狐"
+            color:"#dd81f0"
+        Immoral:
+            name:"背徳者"
+            color:"#5c2f5c"
+            
+        
+    Bat:
+        name:"こうもり"
+        color:"#000066"
+        Bat:
+            name:"こうもり"
+            color:"#000066"
+    Devil:
+        name:"悪魔くん"
+        color:"#735f9e"
+        Devil:
+            name:"悪魔くん"
+            color:"#735f9e"
+    Friend:
+        name:"恋人陣営"
+        color:"#ffb5e5"
+        Cupid:
+            name:"キューピッド"
+            color:"#ffb5e5"
+        Lover:
+            name:"求愛者"
+            color:"#ffcfee"
+    Others:
+        name:"その他"
+        color:"#cccccc"
+        Stalker:
+            name:"ストーカー"
+            color:"#ad6628"
+        Doppleganger:
+            name:"ドッペルゲンガー"
+            color:"#bbbbbb"
+        CultLeader:
+            name:"カルトリーダー"
+            color:"#b09d87"
+        Vampire:
+            name:"ヴァンパイア"
+            color:"#8f00bf"
+        Tanner:
+            name:"皮なめし職人"
+            color:"#ede4b9"
+        Thief:
+            name:"盗人"
+            color:"#a4a4a4"
+        Hoodlum:
+            name:"ならず者"
+            color:"#88002d"
+        
+    Neet:
+        name:"ニート"
+        color:"#aaaaaa"
+        Neet:
+            name:"ニート"
+            color:"#aaaaaa"

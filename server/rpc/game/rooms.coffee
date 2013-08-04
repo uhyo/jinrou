@@ -27,6 +27,9 @@ module.exports=
             if err?
                 res {error:err}
                 return
+            unless result?
+                cb result
+                return
             if result.made < Date.now()-Config.rooms.fresh*3600000
                 result.old=true
             cb result

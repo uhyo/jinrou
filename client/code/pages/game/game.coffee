@@ -434,6 +434,7 @@ exports.start=(roomid)->
                 else if !result?.sleeping
                     # まだ仕事がある
                     $("#jobform").removeAttr "hidden"
+                    getjobinfo result
                 else
                     getjobinfo result
         .click (je)->
@@ -593,7 +594,13 @@ exports.start=(roomid)->
                 title:"一部の配役を固定して残りをランダムにします。"
                 rule:null
             }
+            {
+                name:"量子人狼"
+                title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
+                rule:null
+            }
         ]
+        
     ]),[],$("#jobruleselect").get 0
     
         
@@ -625,6 +632,8 @@ exports.start=(roomid)->
             $("#yaminabe_opt").get(0).hidden=true
         if form.elements["scapegoat"].value=="on"
             number++    # 身代わりくん
+        if jobrulename=="特殊ルール.量子人狼"
+            jobrulename="内部利用.量子人狼"
         obj= Shared.game.getrulefunc jobrulename
         return unless obj?
 
@@ -684,7 +693,7 @@ exports.start=(roomid)->
         
     #ログをもらった
     getlog=(log)->
-        if log.mode == "voteresult"
+        if log.mode in ["voteresult","probability_table"]
             # 表を出す
             p=document.createElement "div"
             div=document.createElement "div"
@@ -695,14 +704,38 @@ exports.start=(roomid)->
             p.appendChild div
             
             tb=document.createElement "table"
-            tb.createCaption().textContent="投票結果"
-            vr=log.voteresult
-            tos=log.tos
-            vr.forEach (player)->
-                tr=tb.insertRow(-1)
-                tr.insertCell(-1).textContent=player.name
-                tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
-                tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
+            if log.mode=="voteresult"
+                tb.createCaption().textContent="投票結果"
+                vr=log.voteresult
+                tos=log.tos
+                vr.forEach (player)->
+                    tr=tb.insertRow(-1)
+                    tr.insertCell(-1).textContent=player.name
+                    tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
+                    tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
+            else
+                tb.createCaption().textContent="確率表"
+                pt=log.probability_table
+                # 見出し
+                tr=tb.insertRow -1
+                th=document.createElement "th"
+                th.textContent="名前"
+                tr.appendChild th
+                th=document.createElement "th"
+                th.textContent="人間"
+                tr.appendChild th
+                th=document.createElement "th"
+                th.textContent="人狼"
+                tr.appendChild th
+                th=document.createElement "th"
+                th.textContent="死亡"
+                tr.appendChild th
+                for id,obj of pt
+                    tr=tb.insertRow -1
+                    tr.insertCell(-1).textContent=obj.name
+                    tr.insertCell(-1).textContent=(obj.Human*100).toFixed(2)+"%"
+                    tr.insertCell(-1).textContent=(obj.Werewolf*100).toFixed(2)+"%"
+                    tr.insertCell(-1).textContent=(obj.dead*100).toFixed(2)+"%"
             p.appendChild tb
         else
             p=document.createElement "div"

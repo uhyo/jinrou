@@ -333,6 +333,14 @@
       p
         | 恨む人を1人ずつ選択して下さい:
         input(type="submit",value="選択する",data-job="Hoodlum")
+    #form__Quantum_Diviner(hidden).jobformarea
+      p
+        | 占う人を一人選んで下さい：
+        input(type="submit",value="占う",data-job="_Quantum_Diviner")
+    #form__Quantum_Werewolf(hidden).jobformarea
+      p
+        | 殺す人を一人選んで下さい：
+        input(type="submit",value="殺す",data-job="_Quantum_Werewolf")
   form#speakform
     p
       input(size="50",name="comment",required)
