@@ -549,6 +549,47 @@ class Game
         @bury()
         return if @judge()
 
+        if @rule.jobrule=="特殊ルール.量子人狼"
+            # 量子人狼
+            # 全員の確率を出してあげるよーーーーー
+            # 確率テーブルを
+            probability_table={
+            }
+            for key,value of obj
+                if value.jobtype=="Werewolf"
+                    total_werewolf++
+            for x in @players
+                count=
+                    Human:0
+                    Diviner:0
+                    Werewolf:0
+                    dead:0
+                for obj in @quantum_patterns
+                    count[obj[x.id].jobtype]++
+                    if obj[x.id].dead==true
+                        count.dead++
+                sum=count.Human+count.Diviner+count.Werewolf
+                x.flag=JSON.stringify {
+                    Human:count.Human/sum
+                    Diviner:count.Diviner/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                # ログ用
+                probability_table[x.id]={
+                    name:x.name
+                    Human:(count.Human+count.Diviner)/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                if count.dead==sum
+                    # 死んだ!!!!!!!!!!!!!!!!!
+                    x.die this,"werewolf"
+            # ログを出す
+            log=
+                mode:"probability_table"
+                probability_table:probability_table
+            splashlog @id,this,log
     
         @voting=false
         if @night
@@ -611,47 +652,6 @@ class Game
                 x.sunrise this
             @revote_num=0   # 再投票の回数は0にリセット
 
-        if @rule.jobrule=="特殊ルール.量子人狼"
-            # 量子人狼
-            # 全員の確率を出してあげるよーーーーー
-            # 確率テーブルを
-            probability_table={
-            }
-            for key,value of obj
-                if value.jobtype=="Werewolf"
-                    total_werewolf++
-            for x in @players
-                count=
-                    Human:0
-                    Diviner:0
-                    Werewolf:0
-                    dead:0
-                for obj in @quantum_patterns
-                    count[obj[x.id].jobtype]++
-                    if obj[x.id].dead==true
-                        count.dead++
-                sum=count.Human+count.Diviner+count.Werewolf
-                x.flag=JSON.stringify {
-                    Human:count.Human/sum
-                    Diviner:count.Diviner/sum
-                    Werewolf:count.Werewolf/sum
-                    dead:count.dead/sum
-                }
-                # ログ用
-                probability_table[x.id]={
-                    name:x.name
-                    Human:(count.Human+count.Diviner)/sum
-                    Werewolf:count.Werewolf/sum
-                    dead:count.dead/sum
-                }
-                if count.dead==sum
-                    # 死んだ!!!!!!!!!!!!!!!!!
-                    x.die this,"werewolf"
-            # ログを出す
-            log=
-                mode:"probability_table"
-                probability_table:probability_table
-            splashlog @id,this,log
         #死体処理
         @bury()
         return if @judge()
@@ -3619,6 +3619,24 @@ class Hoodlum extends Player
 class QuantumPlayer extends Player
     type:"QuantumPlayer"
     jobname:"量子人間"
+    getJobname:->
+        flag=JSON.parse(@flag||"{}")
+        jobname=null
+        if flag.Human==1
+            jobname="村人"
+        else if flag.Diviner==1
+            jobname="占い師"
+        else if flag.Werewolf==1
+            jobname="人狼"
+
+        ret=if jobname?
+            "量子人間（#{jobname}）"
+        else
+            "量子人間"
+        if @originalJobname != ret
+            # 収束したぞ!
+            @originalJobname=ret
+        return ret
     sleeping:->
         tarobj=JSON.parse(@target || "{}")
         tarobj.Diviner? && tarobj.Werewolf?   # 両方指定してあるか
