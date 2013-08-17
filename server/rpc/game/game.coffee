@@ -555,9 +555,6 @@ class Game
             # 確率テーブルを
             probability_table={
             }
-            for key,value of obj
-                if value.jobtype=="Werewolf"
-                    total_werewolf++
             for x in @players
                 count=
                     Human:0
@@ -569,22 +566,38 @@ class Game
                     if obj[x.id].dead==true
                         count.dead++
                 sum=count.Human+count.Diviner+count.Werewolf
-                x.flag=JSON.stringify {
-                    Human:count.Human/sum
-                    Diviner:count.Diviner/sum
-                    Werewolf:count.Werewolf/sum
-                    dead:count.dead/sum
-                }
-                # ログ用
-                probability_table[x.id]={
-                    name:x.name
-                    Human:(count.Human+count.Diviner)/sum
-                    Werewolf:count.Werewolf/sum
-                    dead:count.dead/sum
-                }
-                if count.dead==sum
-                    # 死んだ!!!!!!!!!!!!!!!!!
-                    x.die this,"werewolf"
+                if sum==0
+                    # 世界が崩壊した
+                    x.flag=JSON.stringify {
+                        Human:0
+                        Diviner:0
+                        Werewolf:0
+                        dead:0
+                    }
+                    # ログ用
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:0
+                        Werewolf:0
+                        dead:0
+                    }
+                else
+                    x.flag=JSON.stringify {
+                        Human:count.Human/sum
+                        Diviner:count.Diviner/sum
+                        Werewolf:count.Werewolf/sum
+                        dead:count.dead/sum
+                    }
+                    # ログ用
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:(count.Human+count.Diviner)/sum
+                        Werewolf:count.Werewolf/sum
+                        dead:count.dead/sum
+                    }
+                    if count.dead==sum
+                        # 死んだ!!!!!!!!!!!!!!!!!
+                        x.die this,"werewolf"
             # ログを出す
             log=
                 mode:"probability_table"
@@ -3718,7 +3731,7 @@ class QuantumPlayer extends Player
                         splashlog game.id,game,log
                         # 人狼のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
-                            if obj[@id].jobtype=="Diviner" && obj[@id].dead==false
+                            if obj[@id].jobtype=="Diviner"# && obj[@id].dead==false
                                 obj[pl.id].jobtype == "Werewolf"
                             else
                                 true
@@ -3730,10 +3743,17 @@ class QuantumPlayer extends Player
                         splashlog game.id,game,log
                         # 村人のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
-                            if obj[@id].jobtype=="Diviner" && obj[@id].dead==false
+                            if obj[@id].jobtype=="Diviner"# && obj[@id].dead==false
                                 obj[pl.id].jobtype!="Werewolf"
                             else
                                 true
+                else
+                    # 占えない
+                    log=
+                        mode:"skill"
+                        to:@id
+                        comment:"#{@name}が占い師である可能性が無くなったので、占えませんでした。"
+                    splashlog game.id,game,log
         if tarobj.Werewolf
             pl=game.getPlayer tarobj.Werewolf
             if pl?
@@ -3745,7 +3765,7 @@ class QuantumPlayer extends Player
                             min=value.rank
                     if obj[@id].jobtype=="Werewolf" && obj[@id].rank==min && obj[@id].dead==false
                         # 自分が筆頭人狼
-                        if obj[pl.id].jobtype == "Werewolf" || obj[pl.id].dead==true
+                        if obj[pl.id].jobtype == "Werewolf"# || obj[pl.id].dead==true
                             # 襲えない
                             false
                         else
