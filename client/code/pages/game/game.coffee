@@ -906,14 +906,14 @@ exports.start=(roomid)->
                     $("#form_players").prop "hidden",true
                 else
                     $("#form_players").prop "hidden",false
-            if game.day>0 && game.players
+            if game.players
                 formplayers game.players
-                setJobSelection obj.job_selection ? []
                 unless this_rule?
                     $("#speakform").get(0).elements["rulebutton"].disabled=false
                 this_rule=
                     jobscount:game.jobscount
                     rule:game.rule
+            setJobSelection obj.job_selection ? []
             select=$("#speakform").get(0).elements["mode"]
             if obj.speak && obj.speak.length>0
                 # 発言方法の選択
@@ -1127,7 +1127,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
 speakValueToStr=(game,value)->
     # 発言のモード名を文字列に
     switch value
-        when "day"
+        when "day","prepare"
             "全員に発言"
         when "monologue"
             "独り言"

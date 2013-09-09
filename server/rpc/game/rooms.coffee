@@ -151,7 +151,6 @@ module.exports.actions=(req,res,ss)->
                     return
             
             Server.game.rooms.oneRoomS roomid,(room)=>
-        
                 if !room || room.error?
                     res error:"その部屋はありません"
                     return

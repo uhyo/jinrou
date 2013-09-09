@@ -117,8 +117,11 @@
             input(name="silentrule",type="number",min="0",step="1",value="0",size="4")
             | 秒ルール
           label(title="負けることを目指す人狼です。")
-            input(name="losemode",type="checkbox",value="on")
             | 敗北村
+            input(name="losemode",type="checkbox",value="on")
+          label(title="各参加者はなりたい役職を選択できます。")
+            | 希望役職制
+            input(name="rolerequest",type="checkbox",value="on")
         #jobprops
           .prop.Werewolf.BigWolf.WolfDiviner.MadWolf.LoneWolf.WolfCub
             label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")
@@ -177,6 +180,10 @@
       p
         | 処刑する人に投票して下さい：
         input(type="submit",value="投票する",data-job="_day")
+    #form_Waiting(hidden).jobformarea
+      p
+        | 希望する役職を選択して下さい:
+        input(type="submit",value="選択",data-job="Waiting")
     #form_GameMaster(hidden).jobformarea
       p
         | 死亡させる人を選んで下さい:

@@ -23,6 +23,7 @@ module.exports=
                 throw err
             games[doc.id]=Game.unserialize doc,ss
     ###
+    # プレイヤーが入室したぞ!
     inlog:(room,player)->
         name="#{player.name}"
         pr=""
@@ -45,6 +46,16 @@ module.exports=
             mode:"system"
         if games[room.id]
             splashlog room.id,games[room.id], log
+            # プレイヤーを追加
+            newpl=Player.factory "Waiting"
+            newpl.setProfile {
+                id:player.userid
+                realid:player.realid
+                name:player.name
+            }
+            newpl.target=null
+            games[room.id].players.push newpl
+            games[room.id].participants.push newpl
     outlog:(room,player)->
         log=
             comment:"#{player.name}さんが去りました。"
@@ -53,6 +64,8 @@ module.exports=
             mode:"system"
         if games[room.id]
             splashlog room.id,games[room.id], log
+            games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
+            games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
     kicklog:(room,player)->
         log=
             comment:"#{player.name}さんが追い出されました。"
@@ -61,6 +74,8 @@ module.exports=
             mode:"system"
         if games[room.id]
             splashlog room.id,games[room.id], log
+            games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
+            games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
     deletedlog:(room)->
         log=
             comment:"この部屋は廃村になりました。"
@@ -140,6 +155,14 @@ class Game
         @iconcollection={}  #(id):(url)
         # 決定配役（DBに入らないかも・・・）
         @joblist=null
+        # ゲームスタートに必要な情報
+        @startoptions=null
+        @startplayers=null
+        @startsupporters=null
+
+        # 希望役職制のときに開始前に役職選択するフェーズ
+        @rolerequestingphase=false
+        @rolerequesttable={}    # 一覧{(id):(jobtype)}
         
         # 投票箱を用意しておく
         @votingbox=new VotingBox this
@@ -215,7 +238,7 @@ class Game
                     r.option=""
                     r.originalJobname=x.originalJobname
                     r.winner=x.winner
-                unless @rule.blind=="complete" || (@rule.blind=="yes" && !@finished)
+                unless @rule?.blind=="complete" || (@rule?.blind=="yes" && !@finished)
                     # 公開してもよい
                     r.realid=x.realid
                 r
@@ -247,7 +270,10 @@ class Game
     setrule:(rule)->@rule=rule
     #成功:null
     #players: 参加者 supporters: その他
-    setplayers:(options,players,supporters,res)->
+    setplayers:(res)->
+        options=@startoptions
+        players=@startplayers
+        supporters=@startsupporters
         jnumber=0
         joblist=@joblist
         players=players.concat []   #コピー
@@ -340,6 +366,37 @@ class Game
                 res "配役に失敗しました"
                 return
             
+        if @rule.rolerequest=="on"
+            # 希望役職制ありの場合はまず希望を優先してあげる
+            for job,num of joblist
+                while num>0
+                    # 候補を集める
+                    conpls=players.filter (x)=>
+                        @rolerequesttable[x.userid]==job
+                    if conpls.length==0
+                        # もうない
+                        break
+                    # 候補がいたので決めてあげる
+                    r=Math.floor Math.random()*conpls.length
+                    pl=conpls[r]
+                    players=players.filter (x)->x!=pl
+                    newpl=Player.factory job
+                    newpl.setProfile {
+                        id:pl.userid
+                        realid:pl.realid
+                        name:pl.name
+                    }
+                    @players.push newpl
+                    if pl.icon
+                        @iconcollection[newpl.id]=pl.icon
+                    if pl.scapegoat
+                        # 身代わりくん
+                        newpl.scapegoat=true
+                    num--
+                # 残った分は戻す
+                joblist[job]=num
+
+
         # ひとり決める
         for job,num of joblist
             i=0
@@ -689,7 +746,23 @@ class Game
     #全員寝たかチェック 寝たなら処理してtrue
     #timeoutがtrueならば時間切れなので時間でも待たない
     checkjobs:(timeout)->
-        if @players.every( (x)=>x.dead || x.sleeping(@))
+        if @day==0
+            # 開始前（希望役職制）
+            console.log @rolerequesttable
+            console.log @players
+            if timeout || @players.every((x)=>@rolerequesttable[x.id]?)
+                console.log "checked!"
+                # 全員できたぞ
+                @setplayers (result)=>
+                    console.log "res",result
+                    unless result?
+                        @nextturn()
+                        @ss.publish.channel "room#{@id}","refresh",{id:@id}
+                true
+            else
+                false
+
+        else if @players.every( (x)=>x.dead || x.sleeping(@))
             if @voting || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
                 @midnight()
                 @nextturn()
@@ -3870,8 +3943,52 @@ class Helper extends Player
         # ヘルプ先が分かる
         result.supporting=game.getPlayer(@flag)?.publicinfo()
 
-
-
+# 開始前のやつだ!!!!!!!!
+class Waiting extends Player
+    type:"Waiting"
+    jobname:"待機中"
+    team:""
+    sleeping:(game)->!game.rolerequestingphase || game.rolerequesttable[@id]?
+    isListener:(game,log)->
+       if log.mode=="audience"
+           true
+       else super
+    getSpeakChoice:(game)->
+        return ["prepare"]
+    makejobinfo:(game,result)->
+        super
+        # 自分で追加する
+        result.open.push "Waiting"
+    makeJobSelection:(game)->
+        if game.day==0 && game.rolerequestingphase
+            # 開始前
+            result=[{
+                name:"おまかせ"
+                value:""
+            }]
+            for job,num of game.joblist
+                if num
+                    result.push {
+                        name:Shared.game.getjobname job
+                        value:job
+                    }
+            return result
+        else super
+    job:(game,target)->
+        # 希望役職
+        game.rolerequesttable[@id]=target
+        if target
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は#{Shared.game.getjobname target}を希望しました。"
+        else
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は希望役職をおまかせにしました。"
+        splashlog game.id,game,log
+        null
 
             
 
@@ -4224,6 +4341,8 @@ jobs=
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
+    # 開始前
+    Waiting:Waiting
     
 complexes=
     Complex:Complex
@@ -4332,7 +4451,7 @@ module.exports.actions=(req,res,ss)->
                 
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
                 # 闇鍋のときは入れないのがある
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer"]
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
                 if query.safety!="free"
                     exceptions=exceptions.concat Shared.game.nonhumans  # 基本人外は選ばれない
                 if query.safety=="full" # 安全
@@ -4454,23 +4573,37 @@ module.exports.actions=(req,res,ss)->
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage"]
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest"]
             
                 ruleobj[x]=query[x] ? null
 
             game.setrule ruleobj
             # 配役リストをセット
             game.joblist=joblist
+            game.startoptions=options
+            game.startplayers=players
+            game.startsupporters=supporters
             
-            game.setplayers options,players,supporters,(result)->
-                unless result?
-                    # プレイヤー初期化に成功
-                    M.rooms.update {id:roomid},{$set:{mode:"playing"}}
-                    game.nextturn()
-                    res null
-                    ss.publish.channel "room#{roomid}","refresh",{id:roomid}
-                else
-                    res result
+            if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼"])
+                # 希望役職制あり
+                # とりあえず入れなくする
+                M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                # 役職選択中
+                game.rolerequestingphase=true
+                # ここ書いてないよ!
+                game.rolerequesttable={}
+                res null
+                ss.publish.channel "room#{roomid}","refresh",{id:roomid}
+            else
+                game.setplayers (result)->
+                    unless result?
+                        # プレイヤー初期化に成功
+                        M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                        game.nextturn()
+                        res null
+                        ss.publish.channel "room#{roomid}","refresh",{id:roomid}
+                    else
+                        res result
     # 情報を開示
     getlog:(roomid)->
         game=games[roomid]
@@ -4485,6 +4618,9 @@ module.exports.actions=(req,res,ss)->
                 game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
             else
                 null
+            if game.day==0
+                # 開始前はプレイヤー情報配信しない
+                delete result.game.players
             res result
         if game?
             ne()
@@ -4612,7 +4748,7 @@ module.exports.actions=(req,res,ss)->
         unless game?
             res {error:"そのゲームは存在しません"}
             return
-        #console.log "session!",req.session
+        console.log "session!",req.session
         unless req.session.userId
             res {error:"ログインして下さい"}
             return
@@ -4654,6 +4790,7 @@ module.exports.actions=(req,res,ss)->
                 return
             # エラーメッセージ
             if ret=player.job game,query.target,query
+                console.log "err!",ret
                 res {error:ret}
                 return
             # 能力発動を記録
@@ -4667,7 +4804,8 @@ module.exports.actions=(req,res,ss)->
             # 能力をすべて発動したかどうかチェック
             #res {sleeping:player.jobdone(game)}
             res makejobinfo game,player
-            if game.night
+            if game.night || game.day==0
+                console.log "checking!"
                 game.checkjobs()
         else
             # 投票
@@ -4725,84 +4863,6 @@ splashlog=(roomid,game,log)->
     game.logs.push log
     #DBに追加
     M.games.update {id:roomid},{$push:{logs:log}}
-    ###
-    hv=(ch)->
-        # チャンネルにheavenを加える
-        if game.rule.heavenview=="view"
-            if ch instanceof Array
-                ch.concat ["room#{roomid}_heaven"]
-            else
-                [ch,"room#{roomid}_heaven"]
-        else
-            ch
-    hvn=(ch)->
-        # チャンネルにheavenを加える viewでないとき
-        if game.rule.heavenview!="view"
-            if ch.concat?
-                ch.concat ["room#{roomid}_heaven"]
-            else
-                [ch,"room#{roomid}_heaven"]
-        else
-            ch
-    flash=(ch,log)->
-        if game.gm?
-            game.ss.publish.channel ["room#{roomid}_gamemaster"].concat(ch),"log",log
-        else
-            game.ss.publish.channel ch,"log",log
-    unless log.to?
-        switch log.mode
-            when "prepare","system","nextturn","day","will","gm"
-                # 全員に送ってよい
-                game.ss.publish.channel "room#{roomid}","log",log
-            when "werewolf","wolfskill"
-                # 狼
-                flash hv("room#{roomid}_werewolf"), log
-                if log.mode=="werewolf" && game.rule.wolfsound=="aloud"
-                    # 狼の遠吠えが聞こえる
-                    log2=
-                        mode:"werewolf"
-                        comment:"アオォーーン・・・"
-                        name:"狼の遠吠え"
-                        time:log.time
-                    game.ss.publish.channel "room#{roomid}_notwerewolf","log",log2
-                    
-            when "couple"
-                flash hv("room#{roomid}_couple"),log
-                if game.rule.couplesound=="aloud"
-                    # 共有者の小声が聞こえる
-                    log2=
-                        mode:"couple"
-                        comment:"ヒソヒソ・・・"
-                        name:"共有者の小声"
-                        time:log.time
-                    game.ss.publish.channel "room#{roomid}_notcouple","log",log2
-            when "fox"
-                flash hv("room#{roomid}_fox"),log
-            when "audience","gmaudience"
-                # 観客
-                flash hv("room#{roomid}_audience"),log
-            when "heaven","gmheaven"
-                # 天国
-                flash "room#{roomid}_heaven",log
-            when "voteresult"
-                if game.rule.voteresult=="hide"
-                    # 公開しないときは天国のみ
-                    flash "room#{roomid}_heaven",log
-                else
-                    # それ以外は全員
-                    flash "room#{roomid}",log
-            when "gmmonologue"
-                game.ss.publish.channel "room#{roomid}_gamemaster","log",log
-                    
-    else
-        pl=game.getPlayer log.to
-        if pl
-            game.ss.publish.user pl.realid, "log", log
-        if game.rule.heavenview=="view"
-            flash "room#{roomid}_heaven",log
-        else
-            game.ss.publish.channel "room#{roomid}_gamemaster","log",log
-    ###
     flash=(log,rev=false)-> #rev: 逆な感じで配信
         # まず観戦者
         log.roomid=roomid
@@ -4868,28 +4928,6 @@ islogOK=(game,player,log)->
             false
     else
         player.isListener game,log
-    ###
-    else if player.isJobType "GameMaster"
-        true    # GMには全てが見えるのであった
-    else if log.to? && log.to!=player.id
-        # 個人宛
-        false
-    else
-        if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply"]
-            true
-        else if log.mode in ["werewolf","wolfskill"]
-            player.isWerewolf()
-        else if log.mode=="couple"
-            player.type=="Couple"
-        else if log.mode=="fox"
-            player.type=="Fox"
-        else if log.mode in ["heaven","gmheaven"]
-            player.dead
-        else if log.mode=="voteresult"
-            game.rule.voteresult!="hide"    # 隠すかどうか
-        else
-            false
-    ###
 #job情報を
 makejobinfo = (game,player,result={})->
     result.type= if player? then player.getTypeDisp() else null
@@ -4901,7 +4939,7 @@ makejobinfo = (game,player,result={})->
         result.dead=player.dead
         result.voteopen=false
         # 投票が終了したかどうか（フォーム表示するかどうか判断）
-        if game.night
+        if game.night || game.day==0
             result.sleeping=player.jobdone game
         else
             # 昼
@@ -4919,7 +4957,7 @@ makejobinfo = (game,player,result={})->
             result.sleeping=true    # 投票しない
         result.jobname=player.getJobDisp()
         result.winner=player.winner
-        if game.night
+        if game.night || game.day==0
             result.speak =player.getSpeakChoice game
         else
             result.speak =player.getSpeakChoiceDay game
