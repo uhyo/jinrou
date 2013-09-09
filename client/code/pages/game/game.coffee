@@ -98,7 +98,7 @@ exports.start=(roomid)->
 
                 
                 result.logs.forEach getlog
-                gettimer parseInt(result.timer),null if result.timer?
+                gettimer parseInt(result.timer),result.timer_mode if result.timer?
 
         ss.rpc "game.game.getlog", roomid,sentlog
         # 新しいゲーム

@@ -143,6 +143,7 @@ class Game
         @voting=false   # 投票猶予時間
         @timer_start=null   # 残り時間のカウント開始時間（秒）
         @timer_remain=null  # 残り時間全体（秒）
+        @timer_mode=null    # タイマーの名前
         @revote_num=0   # 再投票を行った回数
         
         @werewolf_target=[] # 人狼の襲い先
@@ -751,11 +752,10 @@ class Game
             console.log @rolerequesttable
             console.log @players
             if timeout || @players.every((x)=>@rolerequesttable[x.id]?)
-                console.log "checked!"
                 # 全員できたぞ
                 @setplayers (result)=>
-                    console.log "res",result
                     unless result?
+                        @rolerequestingphase=false
                         @nextturn()
                         @ss.publish.channel "room#{@id}","refresh",{id:@id}
                 true
@@ -1127,7 +1127,7 @@ class Game
         else
             return false
     timer:->
-        return if @day<=0 || @finished
+        return if @finished
         func=null
         time=null
         mode=null   # なんのカウントか
@@ -1135,6 +1135,7 @@ class Game
             # 残り時間を知らせるぞ!
             @timer_start=parseInt Date.now()/1000
             @timer_remain=time
+            @timer_mode=mode
             @ss.publish.channel "room#{@id}","time",{time:time, mode:mode}
             if time>60
                 @timerid=setTimeout timeout,60000
@@ -1145,7 +1146,14 @@ class Game
             else
                 # 時間切れ
                 func()
-        if @night && !@voting
+        if @rolerequestingphase
+            # 希望役職制
+            time=60
+            mode="希望選択"
+            func= =>
+                # 強制開始
+                @checkjobs true
+        else if @night && !@voting
             # 夜
             time=@rule.night
             mode="夜"
@@ -4593,6 +4601,11 @@ module.exports.actions=(req,res,ss)->
                 # ここ書いてないよ!
                 game.rolerequesttable={}
                 res null
+                log=
+                    mode:"system"
+                    comment:"このゲームは希望役職制です。希望の役職を選択して下さい。"
+                splashlog game.id,game,log
+                game.timer()
                 ss.publish.channel "room#{roomid}","refresh",{id:roomid}
             else
                 game.setplayers (result)->
@@ -4618,6 +4631,7 @@ module.exports.actions=(req,res,ss)->
                 game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
             else
                 null
+            result.timer_mode=game.timer_mode
             if game.day==0
                 # 開始前はプレイヤー情報配信しない
                 delete result.game.players
