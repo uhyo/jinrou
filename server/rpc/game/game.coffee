@@ -1375,7 +1375,11 @@ class VotingBox
         # 投票表を作る
         tos={}
         table=[]
-        for obj in @votes
+        #for obj in @votes
+        for pl in @game.players
+            obj=@getHisVote pl
+            continue unless obj?
+
             tos[obj.to.id] ?= 0
             tos[obj.to.id]+=obj.power
             o=obj.player.publicinfo()
