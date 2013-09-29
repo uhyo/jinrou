@@ -194,7 +194,7 @@ class Game
             werewolf_flag:@werewolf_flag
             werewolf_target:@werewolf_target
             werewolf_target_remain:@werewolf_target_remain
-            quantum_patterns:@quantum_patterns
+            #quantum_patterns:@quantum_patterns
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
