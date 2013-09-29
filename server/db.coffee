@@ -1,26 +1,19 @@
 dbinit= ->
     c=Config.mongo
     mongodb=require 'mongodb'
-    global.DB= new mongodb.Db(c.database,new mongodb.Server(c.host,c.port))
-    global.M={}	# collections
-    
-    cols_count= (->
-      count=0
-      return (cb)->
-        if ++count>=6
-          console.log "Mongodb Connected"
-          # ゲームデータ読み込みをしてもらう
-		  #SS.server.game.game.loadDB()
-    )()
+    mongodb.MongoClient.connect "mongodb://#{c.user}:#{c.pass}@#{c.host}:#{c.port}/#{c.database}?w=0",(err,db)->
+        global.DB=db
+        global.M={}	# collections
+        
+        cols_count= (->
+          count=0
+          return (cb)->
+            if ++count>=6
+              console.log "Mongodb Connected"
+              # ゲームデータ読み込みをしてもらう
+              #SS.server.game.game.loadDB()
+        )()
 
-    DB.open (err, client)->
-      if err?
-        console.log err
-        throw err
-      DB.authenticate c.user, c.pass, (err)->
-        if err?
-          console.log err
-          throw err
         DB.collection "users", (err,col)->
           if err?
             console.log err
