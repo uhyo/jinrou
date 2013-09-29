@@ -222,7 +222,8 @@ class Game
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
         game.quantum_patterns=obj.quantum_patterns ? []
-        game.timer()
+        if game.rule
+            game.timer()
         game
     # 公開情報
     publicinfo:(obj)->  #obj:オプション
