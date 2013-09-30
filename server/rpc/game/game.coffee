@@ -579,6 +579,12 @@ class Game
                 quats.push obj
             # できた
             @quantum_patterns=quats
+            if @rule.quantumwerewolf_table=="anonymous"
+                # 確率表は数字で表示するので番号をつけてあげる
+                for pl,i in shuffle @players.concat []
+                    pl.flag=JSON.stringify {
+                        number:i+1
+                    }
 
         res null
 #======== ゲーム進行の処理
@@ -612,8 +618,8 @@ class Game
             # 量子人狼
             # 全員の確率を出してあげるよーーーーー
             # 確率テーブルを
-            probability_table={
-            }
+            probability_table={}
+            numberref_table={}
             for x in @players
                 count=
                     Human:0
@@ -625,9 +631,11 @@ class Game
                     if obj[x.id].dead==true
                         count.dead++
                 sum=count.Human+count.Diviner+count.Werewolf
+                pflag=JSON.parse x.flag
                 if sum==0
                     # 世界が崩壊した
                     x.flag=JSON.stringify {
+                        number:pflag?.number
                         Human:0
                         Diviner:0
                         Werewolf:0
@@ -640,23 +648,51 @@ class Game
                         Werewolf:0
                         dead:0
                     }
+                    if @rule.quantumwerewolf_diviner=="on"
+                        # 占い師の確率も
+                        probability_table[x.id].Diviner=0
                 else
                     x.flag=JSON.stringify {
+                        number:pflag?.number
                         Human:count.Human/sum
                         Diviner:count.Diviner/sum
                         Werewolf:count.Werewolf/sum
                         dead:count.dead/sum
                     }
                     # ログ用
-                    probability_table[x.id]={
-                        name:x.name
-                        Human:(count.Human+count.Diviner)/sum
-                        Werewolf:count.Werewolf/sum
-                        dead:count.dead/sum
-                    }
+                    if @rule.quantumwerewolf_diviner=="on"
+                        probability_table[x.id]={
+                            name:x.name
+                            Human:count.Human/sum
+                            Diviner:count.Diviner/sum
+                            Werewolf:count.Werewolf/sum
+                            dead:count.dead/sum
+                        }
+                    else
+                        probability_table[x.id]={
+                            name:x.name
+                            Human:(count.Human+count.Diviner)/sum
+                            Werewolf:count.Werewolf/sum
+                            dead:count.dead/sum
+                        }
                     if count.dead==sum
                         # 死んだ!!!!!!!!!!!!!!!!!
                         x.die this,"werewolf"
+                if @rule.quantumwerewolf_table=="anonymous"
+                    # 番号を表示
+                    numberref_table[pflag.number]=x
+                    probability_table[x.id].name="プレイヤー#{pflag.number}"
+            if @rule.quantumwerewolf_table=="anonymous"
+                # ソートしなおしてあげて痕跡を消す
+                probability_table=((probability_table,numberref_table)->
+                    result={}
+                    i=1
+                    x=null
+                    while x=numberref_table[i]
+                        result["_$_player#{i}"]=probability_table[x.id]
+                        i++
+                    result
+                )(probability_table,numberref_table)
             # ログを出す
             log=
                 mode:"probability_table"
@@ -3728,10 +3764,13 @@ class QuantumPlayer extends Player
         else if flag.Werewolf==1
             jobname="人狼"
 
+        numstr=""
+        if flag.number?
+            numstr="##{flag.number}"
         ret=if jobname?
-            "量子人間（#{jobname}）"
+            "量子人間#{numstr}（#{jobname}）"
         else
-            "量子人間"
+            "量子人間#{numstr}"
         if @originalJobname != ret
             # 収束したぞ!
             @originalJobname=ret
@@ -3882,6 +3921,10 @@ class QuantumPlayer extends Player
             result.open.push "_Quantum_Diviner"
         unless tarobj.Werewolf?
             result.open.push "_Quantum_Werewolf"
+        if game.rule.quantumwerewolf_table=="anonymous"
+            # 番号がある
+            flag=JSON.parse @flag
+            result.quantumwerewolf_number=flag.number
     die:(game,found)->
         super
         # 可能性を排除する
@@ -3897,8 +3940,13 @@ class QuantumPlayer extends Player
             index=Math.floor Math.random()*pats.length
             tjt=pats[index][@id].jobtype
             trk=pats[index][@id].rank
-            pats=pats.filter (obj)=>
-                obj[@id].jobtype==tjt && obj[@id].rank==trk
+            if trk?
+                pats=pats.filter (obj)=>
+                    obj[@id].jobtype==tjt && obj[@id].rank==trk
+            else
+                pats=pats.filter (obj)=>
+                    obj[@id].jobtype==tjt
+
             # ワタシハシンダ
             pats.forEach (obj)=>
                 obj[@id].dead=true
@@ -4586,7 +4634,8 @@ module.exports.actions=(req,res,ss)->
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest"]
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest",
+            "quantumwerewolf_table","quantumwerewolf_diviner"]
             
                 ruleobj[x]=query[x] ? null
 

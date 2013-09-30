@@ -64,11 +64,11 @@
       fieldset
         legend ルール
         p
-          | 一日目夜
-          select(name="scapegoat")
-            option(value="on") 身代わり君が死ぬ
-            option(value="off") 参加者が死ぬ
-            option(value="no") 誰も死なない
+          | 身代わりくん
+          select(name="scapegoat",title="身代わりくんは1日目の夜に殺されるためのNPCです。")
+            option(value="on") あり
+            option(value="off") なし（参加者が死ぬ）
+            option(value="no") なし（誰も死なない）
         p
           | 昼
           input(name="day_minute",min="0",step="1",type="number",size="5",value="5")
@@ -98,9 +98,9 @@
               | 夜は時間切れまで待つ
               input(name="waitingnight",type="checkbox",value="wait",checked)
           input(name="waitingnight",type="hidden",value="wait")
-          label(title="チェックを外すとゲームが成立しないような組み合わせになる可能性もあります")
+          label(title="「なし」や「なんでもあり」にすると身代わりくんが人狼になったりして危険です。")
             | 身代わりセーフティ
-            select(name="safety",title="役職決定時に身代わり君の役職に気をつけます")
+            select(name="safety",)
               option(value="full",selected) あり
               option(value="no") なし
               option(value="free") なんでもあり
@@ -128,7 +128,7 @@
               | 人狼の遠吠えが聞こえる
               input(name="wolfsound",type="checkbox",value="aloud",checked)
             label(title="有効な場合、人狼の襲撃先として人狼を選択できます。その場合でも人狼が死ぬことはありません。")
-              | 人狼は人狼を殺しに行ける
+              | 人狼は人狼を襲撃対象に選択できる
               input(name="wolfattack",type="checkbox",value="ok")
 
           .prop.Diviner.TinyFox.Liar
@@ -161,10 +161,20 @@
               input(name="deadfox",type="checkbox",value="obvious")
           .prop.Cupid.Lover
             label(title="恋人陣営の勝利条件を設定します。")
-              | 恋人陣営の勝利
+              | 恋人陣営の勝利条件
               select(name="friendsjudge")
                 option(value="alive",title="妖狐と同様です。",selected) 終了時に生存
                 option(value="ruin") 恋人だけ生存
+        #ruleprops
+          .prop.rule-quantum
+            label(title="確率表にプレイヤー名を表示するかどうか指定します。")
+              | 確率表
+              select(name="quantumwerewolf_table")
+                option(value="open",title="確率表にプレイヤー名が表示されます。",selected) プレイヤー名を表示
+                option(value="anonymous",title="自分以外のプレイヤー番号はわかりません。") プレイヤー番号を表示
+            label(title="確率表に占い師の確率を表示します。")
+              | 占い師の確率も表示する
+              input(name="quantumwerewolf_diviner",type="checkbox",value="on")
 
 
 

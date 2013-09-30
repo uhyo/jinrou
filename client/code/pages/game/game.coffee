@@ -678,17 +678,27 @@ exports.start=(roomid)->
             continue unless parseInt num
             text+="#{input.dataset.jobname}#{num} "
         ###
-        if form.elements["jobrule"].value=="特殊ルール.闇鍋"
+        jobrule=form.elements["jobrule"].value
+        if jobrule=="特殊ルール.闇鍋"
             # 闇鍋の場合
             $("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
         else
-            $("#jobsmonitor").text Shared.game.getrulestr form.elements["jobrule"].value, Index.util.formQuery form
+            $("#jobsmonitor").text Shared.game.getrulestr jobrule, Index.util.formQuery form
         jobprops=$("#jobprops")
         jobprops.children(".prop").prop "hidden",true
         for job in Shared.game.jobs
             jobpr=jobprops.children(".prop.#{job}")
-            if form.elements["jobrule"].value in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
+            if jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
                 jobpr.prop "hidden",false
+        # ルールによる設定
+        ruleprops=$("#ruleprops")
+        ruleprops.children(".prop").prop "hidden",true
+        switch jobrule
+            when "特殊ルール.量子人狼"
+                ruleprops.children(".prop.rule-quantum").prop "hidden",false
+                # あと身代わりくんはOFFにしたい
+                form.elements["scapegoat"].value="off"
+
         
         
     #ログをもらった
@@ -714,6 +724,13 @@ exports.start=(roomid)->
                     tr.insertCell(-1).textContent="#{tos[player.id] ? '0'}票"
                     tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
             else
+                # %表示整形
+                pbu=(num)->
+                    if num==1
+                        "100%"
+                    else
+                        (num*100).toFixed(2)+"%"
+
                 tb.createCaption().textContent="確率表"
                 pt=log.probability_table
                 # 見出し
@@ -722,8 +739,16 @@ exports.start=(roomid)->
                 th.textContent="名前"
                 tr.appendChild th
                 th=document.createElement "th"
-                th.textContent="人間"
+                if this_rule?.rule.quantumwerewolf_diviner=="on"
+                    th.textContent="村人"
+                else
+                    th.textContent="人間"
                 tr.appendChild th
+                if this_rule?.rule.quantumwerewolf_diviner=="on"
+                    # 占い師の確率も表示:
+                    th=document.createElement "th"
+                    th.textContent="占い師"
+                    tr.appendChild th
                 th=document.createElement "th"
                 th.textContent="人狼"
                 tr.appendChild th
@@ -733,9 +758,13 @@ exports.start=(roomid)->
                 for id,obj of pt
                     tr=tb.insertRow -1
                     tr.insertCell(-1).textContent=obj.name
-                    tr.insertCell(-1).textContent=(obj.Human*100).toFixed(2)+"%"
-                    tr.insertCell(-1).textContent=(obj.Werewolf*100).toFixed(2)+"%"
-                    tr.insertCell(-1).textContent=(obj.dead*100).toFixed(2)+"%"
+                    tr.insertCell(-1).textContent=pbu obj.Human
+                    if obj.Diviner?
+                        tr.insertCell(-1).textContent=pbu obj.Diviner
+                    tr.insertCell(-1).textContent=pbu obj.Werewolf
+                    tr.insertCell(-1).textContent=pbu obj.dead
+                    if obj.dead==1
+                        tr.classList.add "deadoff-line"
             p.appendChild tb
         else
             p=document.createElement "div"
@@ -871,6 +900,8 @@ exports.start=(roomid)->
             $("#jobinfo").append pp "#{obj.supporting.name}をサポートしています"
         if obj.dogOwner?
             $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
+        if obj.quantumwerewolf_number?
+            $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
         
         if obj.winner?
             # 勝敗
