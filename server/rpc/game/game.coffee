@@ -612,7 +612,6 @@ class Game
 
         #死体処理
         @bury()
-        return if @judge()
 
         if @rule.jobrule=="特殊ルール.量子人狼"
             # 量子人狼
@@ -699,6 +698,8 @@ class Game
                 probability_table:probability_table
             splashlog @id,this,log
     
+        return if @judge()
+
         @voting=false
         if @night
             # jobデータを作る
@@ -1045,7 +1046,7 @@ class Game
                 log=
                     mode:"system"
                     comment:"世界が崩壊し、確率が定義できなくなりました。"
-                sphashlog @id,this,log
+                splashlog @id,this,log
                 team="Draw"
         else
         
@@ -1364,6 +1365,9 @@ class VotingBox
             return "そのプレイヤーは存在しません"
         if pl.dead
             return "その人は既に死んでいます"
+        me=@game.getPlayer player.id
+        unless me?
+            return "あなたは参加していません"
         if @isVoteFinished player
             return "あなたは既に投票しています"
         if pl.id==player.id && @game.rule.votemyself!="ok"
