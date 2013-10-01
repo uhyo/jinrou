@@ -4481,6 +4481,10 @@ module.exports.actions=(req,res,ss)->
             if frees<4
                 res "人数が少なすぎるので開始できません"
                 return
+            if query.jobrule=="特殊ルール.量子人狼" && frees>=20
+                # 多すぎてたえられない
+                res "人数が多過ぎます。量子人狼では人数を19人以下にして下さい。"
+                return
                 
             ruleinfo_str="" # 開始告知
 

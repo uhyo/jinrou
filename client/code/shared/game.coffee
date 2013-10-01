@@ -66,25 +66,27 @@ normal1=(number)->
     ret.Werewolf++
     if number>=13
       ret.Werewolf++
-      if number>=18
+      if number>=20
         ret.Werewolf++
-        if number>=22
+        if number>=25
           ret.Werewolf++
-          if number>=27
+          if number>=30
             ret.Werewolf++
   ret.Diviner=1 #占い
+  if number>=22
+    ret.Diviner++
   if number>4
     ret.Psychic=1 #霊能
   if number>=6
     ret.Madman=1 #狂人
     ret.Guard=1 #狩人
-    if number>=18
+    if 18 <= number <= 19 || number <= 23
       ret.Madman++
-    if number>=19
+    if number>=20
       ret.Guard++
   if number>=13
     ret.Couple=2 #共有
-    if number>=20
+    if number>=18
       ret.Couple++
   if number>=11
     ret.Fox=1 #狐
@@ -357,15 +359,13 @@ exports.getrulefunc=(name)->
                 ret.Werewolf++
                 if number>=13
                     ret.Werewolf++
-                    if number>=18
+                    if number>=20
                         ret.Werewolf++
-                        if number>=22
+                        if number>=25
                             ret.Werewolf++
-                            if number>=27
+                            if number>=30
                                 ret.Werewolf++
             ret.Diviner=1   #占い
-            if number>=20
-                ret.Diviner=2
             ret
 
     # ほかはオブジェクトから探す
