@@ -80,7 +80,7 @@ normal1=(number)->
   if number>=6
     ret.Madman=1 #狂人
     ret.Guard=1 #狩人
-    if 18 <= number <= 19 || number <= 23
+    if 18 <= number <= 19 || number >= 23
       ret.Madman++
     if number>=20
       ret.Guard++
