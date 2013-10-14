@@ -868,8 +868,10 @@ class Game
                     "老衰で死亡しました"
                 when "gmpunish"
                     "GMによって死亡しました"
-                when "gone"
-                    "突然お亡くなりになられました"
+                when "gone-day"
+                    "投票しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
+                when "gone-night"
+                    "夜に能力を発動しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
                 else
                     "死にました"
             log=
@@ -1109,7 +1111,7 @@ class Game
                             iswin=true
                             # ただし突然死したら負け
                             if @gamelogs.some((log)->
-                                log.id==x.id && log.event=="found" && log.flag=="gone"
+                                log.id==x.id && log.event=="found" && log.flag in ["gone-day","gone-night"]
                             )
                                 iswin=false
                     x.setWinner iswin   #勝利か
@@ -1175,9 +1177,9 @@ class Game
             @timer_remain=time
             @timer_mode=mode
             @ss.publish.channel "room#{@id}","time",{time:time, mode:mode}
-            if time>60
-                @timerid=setTimeout timeout,60000
-                time-=60
+            if time>30
+                @timerid=setTimeout timeout,30000
+                time-=30
             else if time>0
                 @timerid=setTimeout timeout,time*1000
                 time=0
@@ -1206,7 +1208,7 @@ class Game
                     else
                         @players.forEach (x)=>
                             return if x.dead || x.sleeping(@)
-                            x.die this,"gone" # 突然死
+                            x.die this,"gone-night" # 突然死
                             # 突然死記録
                             M.users.update {userid:x.realid},{$push:{gone:@id}}
                         @bury()
@@ -1221,7 +1223,7 @@ class Game
                 # ね な い こ だ れ だ
                 @players.forEach (x)=>
                     return if x.dead || x.sleeping(@)
-                    x.die this,"gone" # 突然死
+                    x.die this,"gone-night" # 突然死
                     # 突然死記録
                     M.users.update {userid:x.realid},{$push:{gone:@id}}
                 @bury()
@@ -1246,7 +1248,7 @@ class Game
                         revoting=false
                         @players.forEach (x)=>
                             return if x.dead || x.voted(this)
-                            x.die this,"gone"
+                            x.die this,"gone-day"
                             revoting=true
                         @bury()
                         @judge()
@@ -1265,7 +1267,7 @@ class Game
                     revoting=false
                     @players.forEach (x)=>
                         return if x.dead || x.voted(this)
-                        x.die this,"gone"
+                        x.die this,"gone-day"
                         revoting=true
                     @bury()
                     @judge()
@@ -3285,7 +3287,7 @@ class Tanner extends Player
     jobname:"皮なめし職人"
     team:""
     die:(game,found)->
-        if found=="gone"
+        if found in ["gone-day","gone-night"]
             # 突然死はダメ
             @flag="gone"
         super
@@ -4881,7 +4883,6 @@ module.exports.actions=(req,res,ss)->
             #res {sleeping:player.jobdone(game)}
             res makejobinfo game,player
             if game.night || game.day==0
-                console.log "checking!"
                 game.checkjobs()
         else
             # 投票

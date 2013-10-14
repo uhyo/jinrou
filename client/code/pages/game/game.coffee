@@ -1048,12 +1048,16 @@ exports.parselognode=parselognode=(node)->
                 url = res[2]+res[3]+(res[4] ? "")
                 a=document.createElement "a"
                 a.href=url
-                if res[4] in ["","/"] && res[3].length<10
+                console.log res,res[3]==location.host
+                if res[3]==location.host && (res2=res[4].match /^\/room\/(\d+)$/)
+                    console.log res2[1]
+                    a.textContent="##{res2[1]}"
+                else if res[4] in ["","/"] && res[3].length<20
                     a.textContent=res[3]
-                else if res[0].length<10
+                else if res[0].length<30
                     a.textContent=res[0]
                 else
-                    a.textContent="#{res[3].slice(0,10)}..."
+                    a.textContent="#{res[3].slice(0,30)}..."
                 a.target="_blank"
                 node=node.splitText url.length
                 node.parentNode.replaceChild a,node.previousSibling
