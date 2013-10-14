@@ -76,6 +76,23 @@ module.exports=
             splashlog room.id,games[room.id], log
             games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
             games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
+    helperlog:(room,player,topl)->
+        log=null
+        if topl?
+            log=
+                comment:"#{player.name}さんが#{topl.name}さんのヘルパーになりました。"
+                userid:-1
+                name:null
+                mode:"system"
+        else
+            log=
+                comment:"#{player.name}さんがヘルパーをやめました。"
+                userid:-1
+                name:null
+                mode:"system"
+
+        if games[room.id]
+            splashlog room.id,games[room.id], log
     deletedlog:(room)->
         log=
             comment:"この部屋は廃村になりました。"
@@ -4008,7 +4025,9 @@ class Helper extends Player
     makejobinfo:(game,result)->
         super
         # ヘルプ先が分かる
-        result.supporting=game.getPlayer(@flag)?.publicinfo()
+        pl=game.getPlayer @flag
+        result.supporting=pl?.publicinfo()
+        result.supportingJob=pl?.getJobDisp()
 
 # 開始前のやつだ!!!!!!!!
 class Waiting extends Player
@@ -5008,7 +5027,17 @@ islogOK=(game,player,log)->
 #job情報を
 makejobinfo = (game,player,result={})->
     result.type= if player? then player.getTypeDisp() else null
-    result.game=game.publicinfo({openjob:game.finished || (player?.dead && game.rule?.heavenview=="view") || player?.isJobType("GameMaster")})  # 終了か霊界（ルール設定あり）の場合は職情報公開
+    # job情報表示するか
+    actpl=player
+    if player?
+        if player instanceof Helper
+            actpl=game.getPlayer player.flag
+            unless actpl?
+                #あれっ
+                actpl=player
+    openjob_flag=game.finished || (actpl?.dead && game.rule?.heavenview=="view") || actpl?.isJobType("GameMaster")
+
+    result.game=game.publicinfo({openjob:openjob_flag})  # 終了か霊界（ルール設定あり）の場合は職情報公開
     result.id=game.id
 
     if player

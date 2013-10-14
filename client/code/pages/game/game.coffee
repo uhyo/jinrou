@@ -911,7 +911,7 @@ exports.start=(roomid)->
         if obj.vampires?
             $("#jobinfo").append pp "ヴァンパイアは#{obj.vampires.map((x)->x.name).join(',')}"
         if obj.supporting?
-            $("#jobinfo").append pp "#{obj.supporting.name}をサポートしています"
+            $("#jobinfo").append pp "#{obj.supporting.name}（#{obj.supportingJob}）をサポートしています"
         if obj.dogOwner?
             $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
         if obj.quantumwerewolf_number?

@@ -333,6 +333,7 @@ module.exports.actions=(req,res,ss)->
                         else
                             res null
                             # ヘルパーの様子を 知らせる
+                            Server.game.game.helperlog room,pl,topl
                             ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
     # 全員ready解除する
     unreadyall:(roomid,id)->
