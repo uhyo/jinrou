@@ -223,6 +223,14 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.kick", roomid,id,(result)->
                             if result?
                                 Index.util.message "エラー",result
+                b=makebutton "[ready]を初期化する"
+                $("#playersinfo").append b
+                $(b).click (je)->
+                    Index.util.ask "[ready]初期化","全員の[ready]を解除しますか?",(cb)->
+                        if cb
+                            ss.rpc "game.rooms.unreadyall",roomid,(result)->
+                                if result?
+                                    Index.util.message "エラー",result
             if room.owner.userid==Index.app.userid() || room.old
                 b=makebutton "この部屋を廃村にする"
                 $("#playersinfo").append b
@@ -474,6 +482,12 @@ exports.start=(roomid)->
                 if pl.userid==msg.userid
                     pl.start=msg.start
                     li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
+                    li.replaceWith makeplayerbox pl,room.blind
+        socket_ids.push Index.socket.on "unreadyall","room#{roomid}",(msg,channel)->
+            for pl in room.players
+                if pl.start
+                    pl.start=false
+                    li=$("#players li").filter((idx)-> this.dataset.id==pl.userid)
                     li.replaceWith makeplayerbox pl,room.blind
         socket_ids.push Index.socket.on "mode","room#{roomid}",(msg,channel)->
             for pl in room.players

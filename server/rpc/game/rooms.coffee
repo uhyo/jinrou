@@ -334,6 +334,33 @@ module.exports.actions=(req,res,ss)->
                             res null
                             # ヘルパーの様子を 知らせる
                             ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
+    # 全員ready解除する
+    unreadyall:(roomid,id)->
+        unless req.session.userId
+            res "ログインして下さい"
+            return
+        Server.game.rooms.oneRoomS roomid,(room)=>
+            if !room || room.error?
+                res "その部屋はありません"
+                return
+            if room.owner.userid != req.session.userId
+                res "オーナーしかkickできません"
+                console.log room.owner,req.session.userId
+                return
+            unless room.mode=="waiting"
+                res "もう始まっています"
+                return
+            query={$set:{}}
+            for x,i in room.players
+                if x.start
+                    query.$set["players.#{i}.start"]=false
+            M.rooms.update {id:roomid},query,(err)=>
+                if err?
+                    res "エラー:#{err}"
+                else
+                    res null
+                    # readyを初期化する系
+                    ss.publish.channel "room#{roomid}", "unreadyall",id
     
     
     # 成功ならjoined 失敗ならエラーメッセージ
