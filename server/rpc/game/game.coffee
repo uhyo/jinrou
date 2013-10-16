@@ -714,6 +714,8 @@ class Game
                 mode:"probability_table"
                 probability_table:probability_table
             splashlog @id,this,log
+            # もう一回死体処理
+            @bury()
     
         return if @judge()
 
@@ -3295,7 +3297,7 @@ class Oldman extends Player
     jobname:"老人"
     midnight:(game)->
         # 夜の終わり
-        wolves=game.players.filter (x)->x.isWerewolf()
+        wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
         if wolves.length*2<=game.day
             # 寿命
             @die game,"infirm"
