@@ -739,11 +739,15 @@ exports.start=(roomid)->
                     tr.insertCell(-1).textContent="→#{vr.filter((x)->x.id==player.voteto)[0]?.name ? ''}"
             else
                 # %表示整形
-                pbu=(num)->
-                    if num==1
+                pbu=(node,num)->
+                    node.textContent=(if num==1
                         "100%"
                     else
                         (num*100).toFixed(2)+"%"
+                    )
+                    if num==1
+                        node.style.fontWeight="bold"
+                    return
 
                 tb.createCaption().textContent="確率表"
                 pt=log.probability_table
@@ -772,11 +776,11 @@ exports.start=(roomid)->
                 for id,obj of pt
                     tr=tb.insertRow -1
                     tr.insertCell(-1).textContent=obj.name
-                    tr.insertCell(-1).textContent=pbu obj.Human
+                    pbu tr.insertCell(-1),obj.Human
                     if obj.Diviner?
-                        tr.insertCell(-1).textContent=pbu obj.Diviner
-                    tr.insertCell(-1).textContent=pbu obj.Werewolf
-                    tr.insertCell(-1).textContent=pbu obj.dead
+                        pbu tr.insertCell(-1),obj.Diviner
+                    pbu tr.insertCell(-1),obj.Werewolf
+                    pbu tr.insertCell(-1),obj.dead
                     if obj.dead==1
                         tr.classList.add "deadoff-line"
             p.appendChild tb

@@ -637,6 +637,14 @@ class Game
             probability_table={}
             numberref_table={}
             for x in @players
+                dead=0
+                for obj in @quantum_patterns
+                    if obj[x.id].dead==true
+                        dead++
+                if dead==@quantum_patterns.length
+                    # 死んだ!!!!!!!!!!!!!!!!!
+                    x.die this,"werewolf"
+            for x in @players
                 count=
                     Human:0
                     Diviner:0
@@ -691,9 +699,6 @@ class Game
                             Werewolf:count.Werewolf/sum
                             dead:count.dead/sum
                         }
-                    if count.dead==sum
-                        # 死んだ!!!!!!!!!!!!!!!!!
-                        x.die this,"werewolf"
                 if @rule.quantumwerewolf_table=="anonymous"
                     # 番号を表示
                     numberref_table[pflag.number]=x
