@@ -65,7 +65,7 @@ module.exports=
         if games[room.id]
             splashlog room.id,games[room.id], log
             games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
-            games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
+            games[room.id].participants=games[room.id].participants.filter (pl)->pl.realid!=player.realid
     kicklog:(room,player)->
         log=
             comment:"#{player.name}さんが追い出されました。"
@@ -4987,6 +4987,7 @@ splashlog=(roomid,game,log)->
         #   game.ss.publish.channel "room#{roomid}_gamemaster","log",log
         # その他
         game.participants.forEach (pl)->
+            console.log "pl:#{pl.id}"
             p=islogOK game,pl,log
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log
