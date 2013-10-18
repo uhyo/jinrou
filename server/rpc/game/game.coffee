@@ -4585,7 +4585,17 @@ module.exports.actions=(req,res,ss)->
                         mode:"system"
                         comment:"蘇生役職が存在するので、天国から役職が見られなくなりました。"
                     splashlog game.id,game,log
-                if query.yaminabe_hidejobs=="team"
+                if query.yaminabe_hidejobs==""
+                    # 役職は公開される
+                    jobinfos=[]
+                    for job,num of joblist
+                        continue if num==0
+                        jobinfos.push "#{Shared.game.getjobname job}#{num}"
+                    log=
+                        mode:"system"
+                        comment:"出現役職: "+jobinfos.join(" ")
+                    splashlog game.id,game,log
+                else if query.yaminabe_hidejobs=="team"
                     # 陣営のみ公開
                     # 各陣営
                     teaminfos=[]
