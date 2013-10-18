@@ -323,12 +323,12 @@ class Game
             unless isNaN num
                 jnumber+=parseInt num
             if parseInt(num)<0
-                res "プレイヤー数が不正です（#{job}:#{num})"
+                res "プレイヤー数が不正です（#{job}:#{num})。このエラーは数回やり直せば直る場合があります。"
                 return
 
         if jnumber!=plsl
             # 数が合わない
-            res "プレイヤー数が不正です(#{jnumber}/#{plsl}/#{players.length})"
+            res "プレイヤー数が不正です(#{jnumber}/#{plsl}/#{players.length})。このエラーは数回やり直せば直る場合があります。"
             return
 
         # 名前と数を出したやつ
@@ -382,8 +382,14 @@ class Game
             if @rule.safety=="full"
                 # 危ない
                 nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat"]
+            jobss=[]
+            for job in Object.keys jobs
+                continue if !joblist[job] || (job in nogoat)
+                j=0
+                while j<joblist[job]
+                    jobss.push job
+                    j++
             while ++i<100
-                jobss=Object.keys(jobs).filter (x)->!(x in nogoat) && joblist[x]>0
                 r=Math.floor Math.random()*jobss.length
                 continue unless joblist[jobss[r]]>0
                 # 役職はjobss[r]
