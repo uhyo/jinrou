@@ -238,6 +238,23 @@ class Game
         game.werewolf_flag=obj.werewolf_flag ? null
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
+        # 開始前なら準備中を用意してあげないと！
+        if game.day==0
+            Server.game.rooms.oneRoomS game.id,(room)->
+                if room.error?
+                    return
+                game.players=[]
+                for plobj in room.players
+                    newpl=Player.factory "Waiting"
+                    newpl.setProfile {
+                        id:plobj.userid
+                        realid:plobj.realid
+                        name:plobj.name
+                    }
+                    newpl.target=null
+                    game.players.push newpl
+                game.participants=game.players.concat []
+
         game.quantum_patterns=obj.quantum_patterns ? []
         if game.rule
             game.timer()
