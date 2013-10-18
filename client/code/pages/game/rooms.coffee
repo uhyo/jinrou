@@ -14,6 +14,7 @@ exports.start=(mode)->
 			page++
 			ss.rpc "game.rooms.getRooms", mode,page,gr
 
+#mode: "old","log"など
 exports.getroom=(mode,rooms)->
 	tb=$("#roomlist").get(0)
 	if rooms.error?
