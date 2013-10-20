@@ -13,7 +13,7 @@ makePrize=->
             prizes["losecount_#{job}_#{num}"]=name
     for team,prs of winteamcountprize
         for num,name of prs
-            prizes["winteam_#{team}_#{num}"]=name
+            prizes["winteamcount_#{team}_#{num}"]=name
     # 次に何かをカウントして合計する賞を作る
     for type,obj of counterprize
         for num,name of obj.names
