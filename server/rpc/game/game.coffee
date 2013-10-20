@@ -1,4 +1,4 @@
-# シェアするやつ
+#,type シェアするやつ
 Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
@@ -1350,15 +1350,33 @@ class Game
                     null
         .filter (x)->x?
     prize_check:->
-        pls=@players.filter (x)->x.realid!="身代わりくん"
-        # 各々に対して処理
-        query={userid:{$in:pls.map (x)->x.realid}}
+        Server.prize.checkPrize @,(obj)=>
+            # obj: {(userid):[prize]}
+            # 賞を算出した
+            pls=@players.filter (x)->x.realid!="身代わりくん"
+            # 各々に対して処理
+            query={userid:{$in:pls.map (x)->x.realid}}
+            M.users.find(query).each (err,doc)=>
+                return unless doc?
+                oldprize=doc.prize  # いままでの賞の一覧
+                # 差分をとる
+                newprizes= obj[doc.userid].filter (x)->!(x in oldprize)
+                if newprizes.length>0
+                    M.users.update {userid:doc.userid},{$set:{prize:obj[doc.userid]}}
+                    pl=@getPlayerReal doc.userid
+                    pnames=newprizes.map (plzid)->
+                        Server.prize.prizeQuote Server.prize.prizeName plzid
+                    log=
+                        mode:"system"
+                        comment:"#{pl.name}は称号#{pnames.join ''}を獲得しました。"
+                    splashlog @id,this,log
+
+        ###
         M.users.find(query).each (err,doc)=>
             return unless doc?
             oldprize=doc.prize  # 賞の一覧
             
             # 賞を算出しなおしてもらう
-            ###
             Server.prize.checkPrize doc.userid,(prize)=>
                 prize=prize.concat doc.ownprize if doc.ownprize?
                 # 新規に獲得した賞を探す
@@ -1378,8 +1396,8 @@ class Game
                             flag:x
                             target:null
                         }
-            ###
-    ###
+        ###
+###
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
     comment: String
@@ -4885,7 +4903,6 @@ module.exports.actions=(req,res,ss)->
         unless game?
             res {error:"そのゲームは存在しません"}
             return
-        console.log "session!",req.session
         unless req.session.userId
             res {error:"ログインして下さい"}
             return
@@ -5010,7 +5027,6 @@ splashlog=(roomid,game,log)->
         #   game.ss.publish.channel "room#{roomid}_gamemaster","log",log
         # その他
         game.participants.forEach (pl)->
-            console.log "pl:#{pl.id}"
             p=islogOK game,pl,log
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log

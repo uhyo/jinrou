@@ -1,0 +1,21 @@
+* gamelogs
+{
+  userid:(userid)
+  wincount:{
+    all:(number);
+    (job):(number);
+  }
+  losecount:{
+    all:(number);
+    (job):(number);
+  }
+  winteamcount:{
+    (team):(number);
+  }
+  loseteamcount:{
+    (team):(number);
+  }
+  counter:{
+    (prizename):(number);
+  }
+}
