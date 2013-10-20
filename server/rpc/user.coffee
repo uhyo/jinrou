@@ -182,10 +182,9 @@ exports.actions =(req,res,ss)->
                     )
                         # 所持もOK
                         M.users.update {"userid":req.session.userId}, {$set:{nowprize:query.prize}},{safe:true},(err)=>
-                                req.session.user.nowprize=query.prize
+                            req.session.user.nowprize=query.prize
                             req.session.save ->
-                            
-                            res null
+                                res null
                     else
                         res {error:"肩書きが不正です"}
                 else

@@ -444,6 +444,7 @@ module.exports=
                 if inc>0
                     query.$inc["counter.#{prizename}"]=inc
 
+            console.log "query",pl.realid,query
             M.userlogs.findAndModify {userid:pl.realid},{},query,{
                 new:true,
                 upsert:true,
@@ -451,7 +452,8 @@ module.exports=
                 if err?
                     throw err
                 # ユーザーのいままでの戦績が得られたので称号を算出していく
-                prizes=[]
+                console.log "qresult",doc
+                gotprizes=[]
                 wincount=doc.wincount ? {}
                 losecount=doc.losecount ? {}
                 winteamcount=doc.winteamcount ? {}
@@ -460,27 +462,28 @@ module.exports=
                     for numstr of prs
                         num=+numstr
                         if wincount[job]>=num
-                            prizes.push "wincount_#{job}_#{numstr}"
+                            gotprizes.push "wincount_#{job}_#{numstr}"
                 for job,prs of losecountprize
                     for numstr of prs
                         num=+numstr
                         if losecount[job]>=num
-                            prizes.push "losecount_#{job}_#{numstr}"
+                            gotprizes.push "losecount_#{job}_#{numstr}"
                 for team,prs of winteamcountprize
                     for numstr of prs
                         num=+numstr
                         if winteamcount[team]>=num
-                            prizes.push "winteamcount_#{team}_#{numstr}"
+                            gotprizes.push "winteamcount_#{team}_#{numstr}"
                 for type,obj of counterprize
                     for numstr of obj.names
                         num=+numstr
                         if counter[type]>=num
-                            prizes.push "#{type}_#{num}"
+                            gotprizes.push "#{type}_#{num}"
                 for type,obj of ownprizesprize
                     if obj.func prizes
-                        prizes.push type
-                result[doc.userid]=prizes
+                        gotprizes.push type
+                result[doc.userid]=gotprizes
                 onecall()
+
         onecall()
         # げーむ
         ###

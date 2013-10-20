@@ -19,7 +19,7 @@ dbinit= ->
             console.log err
             throw err
           M.users=col
-          col.ensureIndex "userid",(err,idxname)->
+          col.ensureIndex {"userid":1},(err,idxname)->
             cols_count()
         DB.collection "rooms", (err,col)->
           if err?
@@ -34,14 +34,14 @@ dbinit= ->
             console.log err
             throw err
           M.games=col
-          col.ensureIndex "id",(err,idxname)->
+          col.ensureIndex {"id":1},(err,idxname)->
             cols_count()
         DB.collection "lobby",(err,col)->	# ロビーのログ
           if err?
             console.log err
             throw err
           M.lobby=col
-          col.ensureIndex "time",(err,idxname)->
+          col.ensureIndex {"time":1},(err,idxname)->
             cols_count()
         DB.collection "blacklist",(err,col)->
           if err?
@@ -64,7 +64,7 @@ dbinit= ->
               console.log err
               throw err
           M.userlogs=col
-          col.ensureIndex "userid",(err,idxname)->
+          col.ensureIndex {"userid":1},(err,idxname)->
             cols_count()
 
 exports.dbinit=dbinit

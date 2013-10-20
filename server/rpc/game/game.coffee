@@ -1350,7 +1350,9 @@ class Game
                     null
         .filter (x)->x?
     prize_check:->
+        console.log "checking"
         Server.prize.checkPrize @,(obj)=>
+            console.log "checked",obj
             # obj: {(userid):[prize]}
             # 賞を算出した
             pls=@players.filter (x)->x.realid!="身代わりくん"
@@ -1360,12 +1362,13 @@ class Game
                 return unless doc?
                 oldprize=doc.prize  # いままでの賞の一覧
                 # 差分をとる
-                newprizes= obj[doc.userid].filter (x)->!(x in oldprize)
-                if newprizes.length>0
+                newprize=obj[doc.userid].filter (x)->!(x in oldprize)
+                if newprize.length>0
                     M.users.update {userid:doc.userid},{$set:{prize:obj[doc.userid]}}
                     pl=@getPlayerReal doc.userid
-                    pnames=newprizes.map (plzid)->
+                    pnames=newprize.map (plzid)->
                         Server.prize.prizeQuote Server.prize.prizeName plzid
+                    console.log "got!",oldprize,newprize,pnames
                     log=
                         mode:"system"
                         comment:"#{pl.name}は称号#{pnames.join ''}を獲得しました。"
