@@ -13,7 +13,7 @@ makePrize=->
             prizes["losecount_#{job}_#{num}"]=name
     for team,prs of winteamcountprize
         for num,name of prs
-            prizes["winteamcount_#{team}_#{num}"]=name
+            prizes["winteam_#{team}_#{num}"]=name
     # 次に何かをカウントして合計する賞を作る
     for type,obj of counterprize
         for num,name of obj.names
@@ -27,6 +27,22 @@ makePrize=->
 
 # 勝利回数による賞
 wincountprize=
+    all:
+        5:"かけだし"
+        10:"ポイントゲッター"
+        20:"期待の新星"
+        30:"到達の証"
+        50:"撃墜王"
+        75:"勝利の絆"
+        100:"武王"
+        150:"スペシャリスト"
+        200:"未来を紡ぎし者"
+        300:"マスター"
+        400:"絶対王者"
+        500:"天下無双"
+        750:"天衣無縫"
+        1000:"全知全能"
+        1500:"月の頭脳"
     Human:
         5:"凡人"
         10:"凡骨の意地"
@@ -191,6 +207,8 @@ wincountprize=
     
 # 敗北回数による賞
 losecountprize=
+    all:
+        150: "カモネギ"
     Human:
         20: "堕落者"
     Diviner:
@@ -444,7 +462,6 @@ module.exports=
                 if inc>0
                     query.$inc["counter.#{prizename}"]=inc
 
-            console.log "query",pl.realid,query
             M.userlogs.findAndModify {userid:pl.realid},{},query,{
                 new:true,
                 upsert:true,
@@ -452,7 +469,6 @@ module.exports=
                 if err?
                     throw err
                 # ユーザーのいままでの戦績が得られたので称号を算出していく
-                console.log "qresult",doc
                 gotprizes=[]
                 wincount=doc.wincount ? {}
                 losecount=doc.losecount ? {}
