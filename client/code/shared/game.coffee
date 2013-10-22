@@ -5,10 +5,10 @@ Shared=
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
-# 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover","Dog",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
+# 特殊役職2
+"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover","Dog",
 # 桃栗基本特殊役職
 "Bat","Noble","Slave","Magician","Spy","WolfDiviner",
 # 桃栗期間限定役職
@@ -19,6 +19,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Hoodlum",
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy",
+# その他
+"RedHood",
 ]
 # ここには入らない役職
 # Light, Neet, MinionSelector,QuantumPlayer
@@ -31,7 +33,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy"]
     Fox:["Fox","TinyFox","Immoral"]
     Bat:["Bat"]
@@ -507,6 +509,9 @@ exports.jobinfo=
         Trapper:
             name:"罠師"
             color:"#b58500"
+        RedHood:
+            name:"赤ずきん"
+            color:"#ff2200"
         
     Werewolf:
         name:"人狼陣営"

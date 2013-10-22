@@ -755,7 +755,15 @@ class Game
             unless @day==1 && @rule.scapegoat!="off"
                 @werewolf_target_remain=1
             else if @rule.scapegoat=="on"
-                @werewolf_target.push "身代わりくん"    # みがわり
+                # 誰が襲ったかはランダム
+                onewolf=@players.filter (x)->x.isWerewolf()
+                if onewolf.length>0
+                    r=Math.floor Math.random()*onewolf.length
+                    @werewolf_target.push {
+                        from:onewolf[r].id
+                        to:"身代わりくん"    # みがわり
+                    }
+                    console.log "aoo!",onewolf[r].id
                 @werewolf_target_remain=0
             else
                 # 誰も襲わない
@@ -778,9 +786,11 @@ class Game
                     comment:"狼の子の力で、今日は2人襲撃できます。"
                 splashlog @id,this,log
             
-            alives=@players.filter (x)->!x.dead
-            alives.forEach (x)=>
-                x.sunset this
+            for pl in @players
+                if pl.dead
+                    pl.deadsunset this
+                else
+                    pl.sunset this
         else
             # 処理
             if @rule.deathnote
@@ -802,10 +812,14 @@ class Game
                 
             # 投票リセット処理
             @votingbox.init()
-            @players.forEach (x)=>
-                return if x.dead
-                x.votestart this
-                x.sunrise this
+            for pl in @players
+                if pl.dead
+                    pl.deadsunrise this
+                else
+                    pl.sunrise this
+            for pl in @players
+                if !pl.dead
+                    pl.votestart this
             @revote_num=0   # 再投票の回数は0にリセット
 
         #死体処理
@@ -834,8 +848,6 @@ class Game
     checkjobs:(timeout)->
         if @day==0
             # 開始前（希望役職制）
-            console.log @rolerequesttable
-            console.log @players
             if timeout || @players.every((x)=>@rolerequesttable[x.id]?)
                 # 全員できたぞ
                 @setplayers (result)=>
@@ -859,7 +871,7 @@ class Game
 
     #夜の能力を処理する
     midnight:->
-        players=shuffle @players.filter (x)->!x.dead
+        players=shuffle @players.concat []
         players.forEach (player)=>
             unless player.dead
                 player.midnight this
@@ -868,7 +880,7 @@ class Game
             
         # 狼の処理
         for target in @werewolf_target
-            t=@getPlayer target
+            t=@getPlayer target.to
             continue unless t?
             # 噛まれた
             t.addGamelog this,"bitten"
@@ -879,11 +891,11 @@ class Game
                 splashlog @id,this,log
             if t.willDieWerewolf && !t.dead
                 # 死んだ
-                t.die this,"werewolf"
+                t.die this,"werewolf",target.from
             # 逃亡者を探す
-            runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target
+            runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target.to
             runners.forEach (x)=>
-                x.die this,"werewolf"   # その家に逃げていたら逃亡者も死ぬ
+                x.die this,"werewolf",target.from   # その家に逃げていたら逃亡者も死ぬ
     # 死んだ人を処理する
     bury:->
         alives=@players.filter (x)->!x.dead
@@ -1350,9 +1362,7 @@ class Game
                     null
         .filter (x)->x?
     prize_check:->
-        console.log "checking"
         Server.prize.checkPrize @,(obj)=>
-            console.log "checked",obj
             # obj: {(userid):[prize]}
             # 賞を算出した
             pls=@players.filter (x)->x.realid!="身代わりくん"
@@ -1661,6 +1671,7 @@ class Player
         game.votingbox.vote this,target,1
     # 昼のはじまり（死体処理よりも前）
     sunrise:(game)->
+    deadsunrise:(game)->
     # 昼の投票準備
     votestart:(game)->
         #@voteto=null
@@ -1675,6 +1686,7 @@ class Player
         
     # 夜のはじまり（死体処理よりも前）
     sunset:(game)->
+    deadsunset:(game)->
     # 夜にもう寝たか
     sleeping:(game)->true
     # 夜に仕事を追えたか（基本sleepingと一致）
@@ -1720,9 +1732,8 @@ class Player
         unless p?.sub==this
             # サブのときはいいや・・・
             log=
-                mode:"skill"
-                to:@id
-                comment:"#{@name}は蘇生しました。"
+                mode:"system"
+                comment:"#{@name}は蘇生しました"
             splashlog game.id,game,log
             game.ss.publish.user @id,"refresh",{id:game.id}
 
@@ -1937,7 +1948,10 @@ class Werewolf extends Player
         if game.rule.wolfattack!="ok" && tp?.isWerewolf()
             # 人狼は人狼に攻撃できない
             return "人狼は人狼を殺せません"
-        game.werewolf_target.push playerid
+        game.werewolf_target.push {
+            from:@id
+            to:playerid
+        }
         game.werewolf_target_remain--
         log=
             mode:"wolfskill"
@@ -4026,9 +4040,29 @@ class QuantumPlayer extends Player
                 obj[@id].dead=true
         game.quantum_patterns=pats
 
-
-
-
+class RedHood extends Player
+    type:"RedHood"
+    jobname:"赤ずきん"
+    sleeping:->true
+    die:(game,found,from)->
+        super
+        if found=="werewolf"
+            # 狼に襲われた
+            # 誰に襲われたか覚えておく
+            @flag=from
+        else
+            @flag=null
+    deadsunset:(game)->
+        console.log "night!",@id,@flag
+        if @flag
+            w=game.getPlayer @flag
+            console.log w?.dead
+            if w?.dead
+                # 殺した狼が死んだ!復活する
+                @revive game
+    deadsunrise:(game)->
+        # 同じ
+        @deadsunset game
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4240,7 +4274,7 @@ class CultMember extends Complex
 class Guarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"Guarded"
-    die:(game,found)->
+    die:(game,found,from)->
         unless found=="werewolf"
             @main.die game,found
         else
@@ -4475,6 +4509,7 @@ jobs=
     WolfBoy:WolfBoy
     Hoodlum:Hoodlum
     QuantumPlayer:QuantumPlayer
+    RedHood:RedHood
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -4622,7 +4657,7 @@ module.exports.actions=(req,res,ss)->
                     # スパイIIは2人いるとかわいそうなので入れない
                     if job=="Spy2"
                         possibility.splice r,1
-                if (joblist.Magician>0 || joblist.Cat>0 || joblist.Witch>0) && query.heavenview=="view"
+                if (joblist.Magician>0 || joblist.Cat>0 || joblist.Witch>0 || joblist.RedHood>0) && query.heavenview=="view"
                     # 魔術師いるのに
                     query.heavenview=null
                     log=
