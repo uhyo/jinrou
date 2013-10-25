@@ -1306,7 +1306,7 @@ class Game
                         # 突然死
                         revoting=false
                         @players.forEach (x)=>
-                            return if x.dead || x.voted(this)
+                            return if x.dead || x.voted(this,@votingbox)
                             x.die this,"gone-day"
                             revoting=true
                         @bury()
@@ -1325,7 +1325,7 @@ class Game
                 unless @execute()
                     revoting=false
                     @players.forEach (x)=>
-                        return if x.dead || x.voted(this)
+                        return if x.dead || x.voted(this,@votingbox)
                         x.die this,"gone-day"
                         revoting=true
                     @bury()
@@ -1489,7 +1489,7 @@ class VotingBox
     isVoteAllFinished:->
         alives=@game.players.filter (x)->!x.dead
         alives.every (x)=>
-            @isVoteFinished x
+            x.voted @game,@
     check:->
         # return [mode,result,tos,table]
         # 投票が終わったのでアレする
@@ -1692,7 +1692,7 @@ class Player
     # 夜に仕事を追えたか（基本sleepingと一致）
     jobdone:(game)->@sleeping game
     # 昼に投票を終えたか
-    voted:(game)->game.votingbox.isVoteFinished this
+    voted:(game,votingbox)->game.votingbox.isVoteFinished this
     # 夜の仕事
     job:(game,playerid,query)->
         @target=playerid
@@ -2497,7 +2497,7 @@ class Neet extends Player
     jobname:"ニート"
     team:""
     sleeping:->true
-    voted:(game)->true
+    voted:(game,votingbox)->true
     isWinner:->true
 class Liar extends Player
     type:"Liar"
@@ -2904,7 +2904,7 @@ class Spellcaster extends Player
         splashlog game.id,game,log
         arr.push playerid
         @flag=JSON.stringify arr
-        null        
+        null
     midnight:(game)->
         t=game.getPlayer @target
         return unless t?
@@ -4192,7 +4192,7 @@ class Complex
         @sub?.sunrise? game
     votestart:(game)->
         @main.votestart game
-    voted:(game)->@main.voted(game)
+    voted:(game,votingbox)->@main.voted game,votingbox
     dovote:(game,target)->
         @main.dovote game,target
     
@@ -4303,6 +4303,7 @@ class Muted extends Complex
         @main.sunset game
         @sub?.sunset? game
         @uncomplex game
+        game.ss.publish.user @id,"refresh",{id:game.id}
     getSpeakChoiceDay:(game)->
         ["monologue"]   # 全員に喋ることができない
 # 狼の子分
