@@ -16,7 +16,6 @@ module.exports=exports=
         onecall= =>
             if pls.length==0
                 # もうおわり
-                # 引数きめてね!
                 cb result
                 return
             # 最初のやつ
@@ -25,8 +24,8 @@ module.exports=exports=
                 $setOnInsert:{userid:pl.realid},
                 $inc:{}
             }
-            type=getOriginalType game,pl.id
-            team=getTeamByType type
+            type=prizedata.getOriginalType game,pl.id
+            team=prizedata.getTeamByType type
             if pl.winner==true
                 query.$inc["wincount.#{type}"]=1
                 query.$inc["wincount.all"]=1
@@ -37,7 +36,7 @@ module.exports=exports=
                 query.$inc["losecount.all"]=1
                 if team
                     query.$inc["loseteamcount.#{team}"]=1
-            for prizename,obj of counterprize
+            for prizename,obj of prize.counterprize
                 inc=obj.func game,pl
                 if inc>0
                     query.$inc["counter.#{prizename}"]=inc
@@ -161,7 +160,7 @@ module.exports=exports=
         ###
 
     
-    prizeName:(prizeid)->prizes[prizeid]    # IDを名前に
+    prizeName:(prizeid)->prize.names[prizeid]    # IDを名前に
     prizeQuote:(prizename)->"≪#{prizename}≫"
             
 ###

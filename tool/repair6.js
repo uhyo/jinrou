@@ -10,8 +10,6 @@ var mongo=require('mongodb');
 var prizedata=require('../server/prizedata.js');
 
 prizedata.makePrize(function(data){
-	console.log(data);
-	process.exit(0);
 	mongo.MongoClient.connect('mongodb://'+user+':'+password+'@localhost:27017/werewolf?w=1',function(err,db){
 		db.collection("games",function(err,games){
 			if(err)console.log(err);
@@ -21,7 +19,7 @@ prizedata.makePrize(function(data){
 					if(err)console.log(err);
 					userlogs.ensureIndex({"userid":1},function(err,idxname){
 						if(err)console.log(err);
-						getdb(db,games,users,userlogs);
+						getdb(data,db,games,users,userlogs);
 					});
 				});
 			});
@@ -29,13 +27,13 @@ prizedata.makePrize(function(data){
 	});
 });
 
-function getdb(db,games,users,userlogs){
+function getdb(prize,db,games,users,userlogs){
 	console.log("start.");
 	users.find().count(function(err,number){
 		console.log("user number:"+number);
 		queries={};	//(userid):query
 		var gamecount=0,gameare=10;
-		var cp=prize.counterprize,getOriginalType=prize.getOriginalType,getTeamByType=prize.getTeamByType;
+		var cp=prize.counterprize,getOriginalType=prizedata.getOriginalType,getTeamByType=prizedata.getTeamByType;
 		games.find({finished:true}).each(function(err,game){
 			if(err){
 				throw err;

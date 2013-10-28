@@ -1732,8 +1732,9 @@ class Player
             # サブのときはいいや・・・
             log=
                 mode:"system"
-                comment:"#{@name}は蘇生しました"
+                comment:"#{@name}は蘇生しました。"
             splashlog game.id,game,log
+            @addGamelog game,"revive",null,null
             game.ss.publish.user @id,"refresh",{id:game.id}
 
     # 埋葬するまえに全員呼ばれる（foundが見られる状況で）
@@ -3155,6 +3156,7 @@ class CultLeader extends Player
             to:@id
             comment:"#{@name}が#{game.getPlayer(playerid).name}を信者にしました。"
         splashlog game.id,game,log
+        @addGamelog game,"brainwash",null,playerid
         null
     midnight:(game)->
         t=game.getPlayer @target

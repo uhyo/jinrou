@@ -1,6 +1,8 @@
 csv=require 'csv'
 path=require 'path'
 
+Shared=
+    game:require '../client/code/shared/game.js'
 
 # コールバック:{
 #   names:{}
@@ -243,6 +245,14 @@ makeOtherPrize=(result)->
                 30:"不死鳥"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="revive").length
+        # 信者になる
+        brainwashed:
+            names:
+                1:"教"
+                5:"信"
+                10:"徒"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.target==pl.id && x.event=="brainwash").length
     result.ownprizesprize=
         prizecount:
             names:
@@ -288,3 +298,7 @@ getTeamByType=(type)->
         if type in arr
             return name
     return ""
+
+# repair6で使う用エクスポート
+exports.getOriginalType=getOriginalType
+exports.getTeamByType=getTeamByType
