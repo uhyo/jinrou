@@ -3,20 +3,26 @@ JINROU data fixer
 Counts all userlogs.
 
 */
-var prize=require('./repair6-prize');
 var user="test", password="test";	//自分でパスワードを入れてね
 
 var mongo=require('mongodb');
-mongo.MongoClient.connect('mongodb://'+user+':'+password+'@localhost:27017/werewolf?w=1',function(err,db){
-	db.collection("games",function(err,games){
-		if(err)console.log(err);
-		db.collection("users",function(err,users){
+
+var prizedata=require('../server/prizedata.js');
+
+prizedata.makePrize(function(data){
+	console.log(data);
+	process.exit(0);
+	mongo.MongoClient.connect('mongodb://'+user+':'+password+'@localhost:27017/werewolf?w=1',function(err,db){
+		db.collection("games",function(err,games){
 			if(err)console.log(err);
-			db.collection("userlogs",function(err,userlogs){
+			db.collection("users",function(err,users){
 				if(err)console.log(err);
-				userlogs.ensureIndex({"userid":1},function(err,idxname){
+				db.collection("userlogs",function(err,userlogs){
 					if(err)console.log(err);
-					getdb(db,games,users,userlogs);
+					userlogs.ensureIndex({"userid":1},function(err,idxname){
+						if(err)console.log(err);
+						getdb(db,games,users,userlogs);
+					});
 				});
 			});
 		});

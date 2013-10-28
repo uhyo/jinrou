@@ -1378,7 +1378,6 @@ class Game
                     pl=@getPlayerReal doc.userid
                     pnames=newprize.map (plzid)->
                         Server.prize.prizeQuote Server.prize.prizeName plzid
-                    console.log "got!",oldprize,newprize,pnames
                     log=
                         mode:"system"
                         comment:"#{pl.name}は称号#{pnames.join ''}を獲得しました。"

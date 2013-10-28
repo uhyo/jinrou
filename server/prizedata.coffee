@@ -1,0 +1,290 @@
+csv=require 'csv'
+path=require 'path'
+
+
+# コールバック:{
+#   names:{}
+# }
+makePrize=(cb)->
+    # 勝利と敗北を読み込む
+    result={}
+    dir=path.normalize __dirname+"/../prizedata"
+    csv().from.path("#{dir}/win.csv").to.array (arr)->
+        result.wincountprize = loadTable arr
+        csv().from.path("#{dir}/lose.csv").to.array (arr)->
+            result.losecountprize = loadTable arr
+            # 残り
+            makeOtherPrize result
+            # 称号IDと名前の対応表を作る
+            result.names=makeNames result
+            cb result
+exports.makePrize=makePrize
+
+# win.csv,lose.csvを読み込む
+loadTable=(arr)->
+    result={}
+    # 1行目は番号
+    nums=arr.shift()
+    # 1列目は見出しなのでいらない
+    nums.shift()
+    normals=[]  #通常役職
+    specials=[] #特殊役職
+    normaljobs=["all","Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox"]
+    # 数をパースする
+    for num in nums
+        res=num.match /^(\d+)(?:\(\d+\))?$/
+        if res
+            normals.push parseInt res[1]
+            if res[2]?
+                specials.push parseInt res[2]
+            else
+                specials.push parseInt res[1]
+    # 残りをパースする
+    for row in arr
+        # 最初は役職名
+        jobname=row.shift()
+        normalflag = jobname in normaljobs
+        result[jobname]=obj={}
+        for name,i in row
+            if name
+               ns=name.split "\n"
+               obj[if normalflag then normals[i] else specials[i]]=(if ns.length>1 then ns else name)
+    result
+
+# 名前つける
+makeNames=(result)->
+    names={}
+    for job,obj of result.wincountprize
+        for num,name of obj
+            if Array.isArray name
+                for n,i in name
+                    if i==0
+                        names["wincount_#{job}_#{num}"]=n
+                    else
+                        names["wincount_#{job}_#{num}:#{i}"]=n
+            else
+                names["wincount_#{job}_#{num}"]=name
+    for job,obj of result.losecountprize
+        for num,name of obj
+            if Array.isArray name
+                for n,i in name
+                    if i==0
+                        names["losecount_#{job}_#{num}"]=n
+                    else
+                        names["losecount_#{job}_#{num}:#{i}"]=n
+            else
+                names["losecount_#{job}_#{num}"]=name
+    for job,obj of result.winteamcountprize
+        for num,name of obj
+            if Array.isArray name
+                for n,i in name
+                    if i==0
+                        names["winteamcount_#{job}_#{num}"]=n
+                    else
+                        names["winteamcount_#{job}_#{num}:#{i}"]=n
+            else
+                names["winteamcount_#{job}_#{num}"]=name
+    for kind,obj of result.counterprize
+        for num,name of obj.names
+            names["#{kind}_#{num}"]=name
+    for kind,obj of result.ownprizesprize
+        for num,name of obj.names
+            names["#{kind}_#{num}"]=name
+    names
+# 他のprize
+makeOtherPrize=(result)->
+    result.winteamcountprize=
+        Human:
+            10:"白"
+            50:"光"
+        Werewlf:
+            5:"偽り"
+            10:"黒"
+            50:"闇"
+    result.loseteamcountprize={}
+    result.counterprize=
+        # 呪殺
+        cursekill:
+            names:
+                1:"呪殺"
+                5:"スナイパー"
+                10:"天敵"
+                15:"FOXHOUND"
+                30:"ハンター"
+                50:"奇跡"
+            func:(game,pl)->
+                # 呪殺を数える
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="cursekill").length
+        # 初日黒
+        divineblack2:
+            names:
+                5:"千里眼"
+                10:"心眼"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="divine" && x.flag in Shared.game.blacks).length
+            
+        # GJ判定
+        GJ:
+            names:
+                1:"GJ"
+                5:"護衛"
+                10:"鉄壁"
+                15:"救世主"
+                30:"ガーディアン"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="GJ").length
+        # 恋人の勝利回数
+        lovers_wincount:
+            names:
+                1:"両想い"
+                5:"いちゃいちゃ"
+                10:"ラブラブ"
+                15:"結婚"
+                30:"比翼連理"
+            func:(game,pl)->
+                if pl.winner && chkCmplType pl,"Friend"
+                    1
+                else
+                    0
+        # 恋人の敗北回数
+        lovers_losecount:
+            names:
+                1:"倦怠期"
+                5:"浮気"
+                10:"失恋"
+                15:"離婚"
+                30:"愛憎劇"
+            func:(game,pl)->
+                if !pl.winner && chkCmplType pl,"Friend"
+                    1
+                else
+                    0
+        # 商品を受け取った回数
+        getkits_merchant:
+            names:
+                1:"受け取り"
+                5:"取引先"
+                10:"お得意様"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.target==pl.id && x.event=="sendkit").length
+        # 商品を人狼側に送った回数
+        sendkits_to_wolves:
+            names:
+                1:"誤送"
+                10:"発注ミス"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="sendkit" && getTeamByType(getTypeAtTime(game,x.target,x.day))=="Werewolf").length
+        # コピーせずに終了
+        nocopy:
+            names:
+                1:"優柔不断"
+                5:"null"
+                10:"Undefined"
+            func:(game,pl)->
+                if pl.type=="Copier"
+                    1
+                else
+                    0
+        # 2日目昼に吊られた
+        day2hanged:
+            names:
+                1:"初日"
+                5:"寡黙"
+                10:"おはステ"
+                15:"怪しい人"
+                30:"壁"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->
+                    x.id==pl.id && x.event=="found" && x.flag=="punish" && x.day==2
+                ).length
+            
+        # 総試合数
+        allgamecount:
+            names:
+                1:"はじめて"
+                5:"ビギナー"
+                10:"ルーキー"
+                15:"先輩"
+                30:"経験者"
+                50:"エリート"
+                75:"エース"
+                100:"キャプテン"
+                150:"ベテラン"
+                200:"インペリアル"
+                300:"絶対"
+                400:"カリスマ"
+                500:"アルティメット"
+                600:"進撃"
+                750:"巨人"
+                1000:"神話"
+                1250:"永遠の旅人"
+                1500:"冥王"
+                2000:"レジェンド"
+                10000:"もうやめよう"
+            func:(game,pl)->1
+        # 最終日に生存
+        aliveatlast:
+            names:
+                1:"生存"
+                5:"生き残り"
+                30:"最終兵器"
+            func:(game,pl)->
+                if pl.dead
+                    0
+                else
+                    1
+        # 蘇生
+        revive:
+            names:
+                1:"蘇生"
+                5:"黄泉がえり"
+                10:"不死王"
+                15:"アンデッド"
+                30:"不死鳥"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="revive").length
+    result.ownprizesprize=
+        prizecount:
+            names:
+                100:"天上天下"
+                200:"神の子"
+                300:"至高"
+                400:"究極"
+                500:"超越者"
+            func:(prizes)->prizes.length
+# 解析用ファンクション
+# gameからプレイヤーオブジェクトを拾う
+getpl=(game,userid)->
+    game.players.filter((x)->x.id==userid)[0]
+getplreal=(game,userid)->
+    game.players.filter((x)->x.realid==userid)[0]
+
+# Complexのtype一致を確かめる
+chkCmplType=(obj,cmpltype)->
+    # plがPlayerかただのobjか
+    if obj.isCmplType?
+        return obj.isCmplType cmpltype
+    if obj.type=="Complex"
+        obj.Complex_type==cmpltype || chkCmplType obj.Complex_main,cmpltype
+    else
+        false
+# プレイヤーの役職を調べる
+getType=(pl)->
+    if pl.type=="Complex"
+        getType pl.Complex_main
+    else
+        pl.type
+# もともとの役職を調べる
+getOriginalType=(game,userid)->
+    getTypeAtTime game,userid,0
+# あるプレイヤーのある時点での役職を調べる
+getTypeAtTime=(game,userid,day)->
+    id=(pl=getpl(game,userid)).id
+    ls=game.gamelogs.filter (x)->x.event=="transform" && x.id==id && x.day>day  # 変化履歴を調べる
+    return ls[0]?.type ? getType pl
+# チームを調べる
+getTeamByType=(type)->
+    for name,arr of Shared.game.teams
+        if type in arr
+            return name
+    return ""
