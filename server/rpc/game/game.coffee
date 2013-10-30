@@ -485,15 +485,16 @@ class Game
         if @rule.wolfminion
             # 狼の子分がいる場合、子分決定者を作る
             wolves=@players.filter((x)->x.isWerewolf())
-            r=Math.floor Math.random()*wolves.length
-            pl=wolves[r]
-            
-            sub=Player.factory "MinionSelector" # 子分決定者
-            pl.transProfile sub
-            
-            newpl=Player.factory null,pl,sub,Complex
-            pl.transProfile newpl
-            pl.transform @,newpl
+            if wolves.length>0
+                r=Math.floor Math.random()*wolves.length
+                pl=wolves[r]
+                
+                sub=Player.factory "MinionSelector" # 子分決定者
+                pl.transProfile sub
+                
+                newpl=Player.factory null,pl,sub,Complex
+                pl.transProfile newpl
+                pl.transform @,newpl
         if @rule.drunk
             # 酔っ払いがいる場合
             nonvillagers= @players.filter (x)->!x.isJobType "Human"
