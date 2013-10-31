@@ -2348,18 +2348,21 @@ class WolfDiviner extends Werewolf
             to:@id
             comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
         splashlog game.id,game,log
-        @addGamelog game,"wolfdivine",null,@target  # 占った
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game
         null
     sunrise:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @dodivine game
+            @showdivineresult game
     midnight:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @showdivineresult game
+            @dodivine game
     dodivine:(game)->
         return unless @result?
+        @addGamelog game,"wolfdivine",null,@target  # 占った
         log=
             mode:"skill"
             to:@id
