@@ -5,7 +5,7 @@ exports.prizes_composition=["prize","conjunction","prize"]
 
 # 称号の数で
 exports.getPrizesComposition=(number)->
-	result=[]
+    result=[]
     if number<25
         return ["prize","conjunction","prize"]
     else if number<40
@@ -20,5 +20,5 @@ exports.getPrizesComposition=(number)->
         return ["conjunction","prize","conjunction","prize","conjunction","conjunction","prize","conjunction","prize","conjunction"]
     else
         return ["prize","conjunction","prize","conjunction","prize","conjunction","conjunction","prize","conjunction","prize","conjunction"]
-	
-	result
+    
+    result
