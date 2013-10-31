@@ -77,7 +77,7 @@ normal1=(number)->
   ret.Diviner=1 #占い
   if number>=22
     ret.Diviner++
-  if number>4
+  if number>=8
     ret.Psychic=1 #霊能
   if number>=6
     ret.Madman=1 #狂人
@@ -110,7 +110,7 @@ normal2=(number)->
          if number>=29
            ret.Werewolf++
   ret.Diviner=1 #占い師
-  if number>4
+  if number>=8
     ret.Psychic=1   #霊能者
   if number>=10
     ret.Madman=1    #狂人
