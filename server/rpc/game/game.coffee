@@ -2812,9 +2812,22 @@ class Stalker extends Player
         @flag=playerid  # ストーキング対象プレイヤー
         null
     isWinner:(game,team)->
+        @isWinnerStalk game,team,[]
+    # ストーカー連鎖対応版
+    isWinnerStalk:(game,team,ids)->
+        if @id in ids
+            # ループしてるので負け
+            return false
         pl=game.getPlayer @flag
         return false unless pl?
-        return team==pl.team || (pl.isJobType("Stalker")==false && pl.isWinner(game,team))
+        if team==pl.team
+            return true
+        if pl.isJobType "Stalker"
+            # ストーカーを追跡
+            return pl.isWinnerStalk game,team,ids.concat @id
+        else
+            return pl.isWinner game,team
+
     makejobinfo:(game,result)->
         super
         p=game.getPlayer @flag
