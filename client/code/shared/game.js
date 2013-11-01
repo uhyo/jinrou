@@ -64,7 +64,7 @@
     if (number >= 22) {
       ret.Diviner++;
     }
-    if (number > 4) {
+    if (number >= 8) {
       ret.Psychic = 1;
     }
     if (number >= 6) {
@@ -112,7 +112,7 @@
       }
     }
     ret.Diviner = 1;
-    if (number > 4) {
+    if (number >= 8) {
       ret.Psychic = 1;
     }
     if (number >= 10) {
@@ -762,6 +762,10 @@
       Hoodlum: {
         name: "ならず者",
         color: "#88002d"
+      },
+      QuantumPlayer: {
+        name: "量子人間",
+        color: "#eeeeee"
       }
     },
     Neet: {

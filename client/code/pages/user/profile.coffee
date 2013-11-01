@@ -55,23 +55,17 @@ exports.start=(user)->
             seticon url
     ),false
     
-    ###
     $("#morescore").submit (je)->
         je.target.elements["submit"].disabled=true
         je.preventDefault()
-        ss.rpc "user.analyzeScore", (obj)->
-            if obj.error?
-                Index.util.message "エラー",obj.error
-            results=obj.results
+        ss.rpc "user.getMyuserlog", (obj)->
+            unless obj?
+                Index.util.message "戦績表示","戦績が存在しないので表示できません。"
+                return
+            wincount=obj.wincount ? {}
+            losecount=obj.losecount ? {}
             # 陣営色
             teamcolors=merge Shared.game.jobinfo,{}
-
-            results.forEach (x)->   # 陣営チェック
-                for team of Shared.game.teams
-                    if x.type in Shared.game.teams[team]
-                        x.team=team
-                        break
-
                 
             grp=(title,size=200)->
                 # 新しいグラフ作成して追加まで
@@ -91,17 +85,14 @@ exports.start=(user)->
             gs=
                 win:{}
                 lose:{}
-            for x of Shared.game.teams
+            for x,arr of Shared.game.teams
                 gs.win[x]={}
                 gs.lose[x]={}
-            results.forEach (x)->
-                console.log x.winner,x.team,gs
-                if x.winner==true
-                    gs.win[x.team][x.type] ?= 0
-                    gs.win[x.team][x.type]++
-                else if x.winner==false
-                    gs.lose[x.team][x.type] ?= 0
-                    gs.lose[x.team][x.type]++
+                for job in arr
+                    if wincount[job]?
+                        gs.win[x][job]=wincount[job]
+                    if losecount[job]?
+                        gs.lose[x][job]=losecount[job]
             graph.setData gs,{
                 win:merge {
                     name:"勝ち"
@@ -130,11 +121,11 @@ exports.start=(user)->
                         name:"負け"
                         color:"#0000FF"
                     gs[team][type]=
-                        win:results.filter((x)->x.type==type && x.winner==true).length
-                        lose:results.filter((x)->x.type==type && x.winner==false).length
+                        win:wincount[type] ? 0
+                        lose:losecount[type] ? 0
             graph.setData gs,names
             graph.openAnimate 0.2
-    ###
+
     # 称号
     unless user.prizenames?.length>0
         # 称号がない
@@ -173,7 +164,6 @@ exports.start=(user)->
                 ull.append li
         else
             coms=Shared.prize.getPrizesComposition user.prizenames.length
-            console.log JSON.stringify user.nowprize
             for type in coms
                 li=document.createElement "li"
                 if type=="prize"

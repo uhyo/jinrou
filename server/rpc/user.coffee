@@ -196,29 +196,21 @@ exports.actions =(req,res,ss)->
                 res {error:"肩書きが不正です"}
         
 # 成績をくわしく見る
-    analyzeScore:->
+    getMyuserlog:->
         unless req.session.userId
             res {error:"ログインして下さい"}
             return
         myid=req.session.userId
         # DBから自分のやつを引っ張ってくる
         results=[]
-        cursor=M.games.find {finished:true,players:{$elemMatch:{realid:myid}}}
-        cursor.each (err,game)->
-            unless game?
-                # 終了
-                res {results:results}
+        M.userlogs.findOne {userid:myid},(err,doc)->
+            if err?
+                console.error err
+            unless doc?
+                # 戦績データがない
+                res null
                 return
-            player=game.players.filter((x)->x.realid==myid)[0] # me
-            return unless player?
-            plinfo=(pl)->
-                unless pl.type=="Complex"
-                    {type:pl.type, winner:pl.winner}
-                else
-                    plinfo pl.Complex_main
-            pobj=plinfo player
-            pobj.id=game.id
-            results.push pobj
+            res doc
     
     ######
             

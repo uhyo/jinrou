@@ -616,7 +616,9 @@ exports.jobinfo=
         Hoodlum:
             name:"ならず者"
             color:"#88002d"
-        
+        QuantumPlayer:
+            name:"量子人間"
+            color:"#eeeeee"
     Neet:
         name:"ニート"
         color:"#aaaaaa"
