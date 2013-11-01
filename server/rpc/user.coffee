@@ -186,10 +186,13 @@ exports.actions =(req,res,ss)->
                             req.session.save ->
                                 res null
                     else
+                        console.log "invalid1 ",query.prize,record.prize
                         res {error:"肩書きが不正です"}
                 else
+                    console.log "invalid2",query.prize,comp
                     res {error:"肩書きが不正です"}
             else
+                console.log "invalid3",query.prize
                 res {error:"肩書きが不正です"}
         
 # 成績をくわしく見る
