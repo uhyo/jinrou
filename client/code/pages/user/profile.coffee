@@ -173,6 +173,7 @@ exports.start=(user)->
                 ull.append li
         else
             coms=Shared.prize.getPrizesComposition user.prizenames.length
+            console.log JSON.stringify user.nowprize
             for type in coms
                 li=document.createElement "li"
                 if type=="prize"
@@ -184,24 +185,13 @@ exports.start=(user)->
                 if obj?.type==type
                     # 一致するので入れる
                     if type=="prize"
-                        li.dataset.id=obj.value
+                        if obj.value?
+                            li.dataset.id=obj.value
                         li.textContent=prizedictionary[obj.value] ? ""
                     else
                         li.textContent=obj.value
                     user.nowprize.shift()
                 ull.append li
-            ###
-            for obj in user.nowprize
-                li=document.createElement "li"
-                if obj.type=="prize"
-                    li.classList.add "prizetip"
-                    li.dataset.id=obj.value
-                    li.textContent=prizedictionary[obj.value] ? ""
-                else
-                    li.classList.add "conjtip"
-                    li.textContent=obj.value
-                ull.append li
-            ###
         $("#prizeedit li").each ->
             @dropzone="copy"
             
