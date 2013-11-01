@@ -131,6 +131,7 @@ exports.start=(user)->
         # 称号がない
         $("#prizearea").html "<p>獲得称号はありません。</p>"
     else
+        $("#prizenumber").text user.prizenames.length
         ull=$("#prizes")
         prizedictionary={}  # 称号のidと名前対応
         user.prizenames.forEach (obj)->
