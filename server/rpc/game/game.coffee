@@ -4340,6 +4340,61 @@ class ToughWolf extends Werewolf
             comment:"#{@name}は捨て身の覚悟で#{tp.name}を狙っています。"
         splashlog game.id,game,log
         null
+class ThreateningWolf extends Werewolf
+    type:"ThreateningWolf"
+    jobname:"威嚇する狼"
+    jobdone:(game)->
+        if game.night
+            super
+        else
+            @flag?
+    chooseJobDay:(game)->true
+    sunrise:(game)->
+        super
+        @target=null
+    job:(game,playerid,query)->
+        if query.jobtype!="ThreateningWolf"
+            # 人狼の仕事
+            return super
+        if @flag
+            return "既に能力を使用しています"
+        if game.night
+            return "夜には発動できません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        @target=playerid
+        @flag=true
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.id}を威嚇しました。"
+        splashlog game.id,game,log
+        null
+    sunset:(game)->
+        t=game.getPlayer @target
+        return unless t?
+        return if t.dead
+            
+        # 威嚇して能力無しにする
+        @addGamelog game,"threaten",t.type,@target
+        # 複合させる
+
+        log=
+            mode:"skill"
+            to:t.id
+            comment:"#{t.name}は威嚇されました。今夜は能力が無効化されます。"
+        splashlog game.id,game,log
+
+        newpl=Player.factory null,t,null,Threatened  # カウンセリングされた
+        t.transProfile newpl
+        t.transform game,newpl
+    makejobinfo:(game,result)->
+        super
+        if game.night
+            # 夜は威嚇しない
+            result.open = result.open?.filter (x)=>x!="ThreateningWolf"
+
 
             
     
@@ -4730,6 +4785,31 @@ class MikoProtected extends Complex
         @main.sunset game
         @sub?.sunset? game
         @uncomplex game
+# 威嚇する人狼に威嚇された
+class Threatened extends Complex
+    cmplType:"Threatened"
+    sleeping:->true
+    jobdone:->true
+    isListener:(game,log)->
+        Human.prototype.isListener.call @,game,log
+
+    sunrise:(game)->
+        # この昼からは戻る
+        @uncomplex game
+        pl=game.getPlayer @id
+        if pl?
+            pl.sunset game
+    sunset:(game)->
+    midnight:(game)->
+    job:(game,playerid,query)->
+        null
+    die:(game,found,from)->
+        Human.prototype.die.call @,game,found,from
+    divined:(game,player)->
+    makejobinfo:(game,obj)->
+        Human.prototype.makejobinfo.call @,game,obj
+    getSpeakChoice:(game)->
+        Human.prototype.getSpeakChoice.call @,game
         
 # 決定者
 class Decider extends Complex
@@ -4825,6 +4905,7 @@ jobs=
     FascinatingWolf:FascinatingWolf
     SolitudeWolf:SolitudeWolf
     ToughWolf:ToughWolf
+    ThreateningWolf:ThreateningWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -4846,6 +4927,7 @@ complexes=
     Lycanized:Lycanized
     Counseled:Counseled
     MikoProtected:MikoProtected
+    Threatened:Threatened
 
 
 module.exports.actions=(req,res,ss)->

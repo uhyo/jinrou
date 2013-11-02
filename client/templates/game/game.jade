@@ -364,6 +364,10 @@
       p
         | 能力を使用する場合はこちらを選択して下さい:
         input(type="submit",value="覚悟を決めて殺す",data-job="ToughWolf")
+    #form_ThreateningWolf(hidden).jobformarea
+      p
+        | 威嚇する人を選んで下さい（非強制）:
+        input(type="submit",value="威嚇する",data-job="ThreateningWolf")
   form#speakform
     p
       input(size="50",name="comment",required)

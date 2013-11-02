@@ -20,7 +20,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy",
 # Twitter人狼の役職
-"Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf",
+"Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
 # その他
 "RedHood",
 ]
@@ -28,15 +28,15 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # Light, Neet, MinionSelector,QuantumPlayer
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
 
 # 黒が出る人
-exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf"]
+exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
 
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox","Immoral"]
     Bat:["Bat"]
     Devil:["Devil"]
@@ -47,7 +47,7 @@ exports.teams=teams=
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
     Human:teams.Human
-    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","ToughWolf"]
+    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
@@ -575,6 +575,9 @@ exports.jobinfo=
         ToughWolf:
             name:"一途な狼"
             color:"#c47f35"
+        ThreateningWolf:
+            name:"威嚇する狼"
+            color:"#9e6f00"
         
         
     Fox:
