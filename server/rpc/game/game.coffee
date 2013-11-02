@@ -1985,6 +1985,11 @@ class Werewolf extends Player
         if log.mode in ["werewolf","wolfskill"]
             true
         else super
+    isJobType:(type)->
+        # 便宜的
+        if type=="_Werewolf"
+            return true
+        super
         
     willDieWerewolf:false
     fortuneResult:"人狼"
@@ -1992,6 +1997,9 @@ class Werewolf extends Player
     team: "Werewolf"
     makejobinfo:(game,result)->
         super
+        if game.werewolf_target_remain>0
+            # まだ襲える
+            result.open.push "_Werewolf"
         # 人狼は仲間が分かる
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
@@ -2355,7 +2363,7 @@ class WolfDiviner extends Werewolf
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
     job:(game,playerid,query)->
-        if query.commandname!="divine"
+        if query.jobname!="WolfDiviner"
             # 人狼の仕事
             return super
         # 占い
@@ -4180,13 +4188,8 @@ class GreedyWolf extends Werewolf
     jobname:"欲張りな狼"
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && (@flag && game.day>=2)
-    isJobType:(type)->
-        # 便宜的
-        if type=="_GreedyWolf_greed"
-            return true
-        super
     job:(game,playerid,query)->
-        if query.jobtype!="_GreedyWolf_greed"
+        if query.jobtype!="GreedyWolf"
             # 人狼の仕事
             return super
         if @flag
@@ -4208,9 +4211,9 @@ class GreedyWolf extends Werewolf
         if game.night
             if @sleeping game
                 # 襲撃は必要ない
-                result.open = result.open?.filter (x)=>x!="GreedyWolf"
+                result.open = result.open?.filter (x)=>x!="_Werewolf"
             if !@flag && game.day>=2
-                result.open?.push "_GreedyWolf_greed"
+                result.open?.push "GreedyWolf"
     makeJobSelection:(game)->
         if game.night && @sleeping(game) && !@jobdone(game)
             # 欲張る選択肢のみある
@@ -4218,10 +4221,63 @@ class GreedyWolf extends Werewolf
         else
             return super
     checkJobValidity:(game,query)->
-        if query.jobtype=="_GreedyWolf_greed"
+        if query.jobtype=="GreedyWolf"
             # なしでOK!
             return true
         return super
+class FascinatingWolf extends Werewolf
+    type:"FascinatingWolf"
+    jobname:"誘惑する女狼"
+    sleeping:(game)->super && (game.day>=2 || @flag?)
+    job:(game,playerid,query)->
+        if query.jobtype!="FascinatingWolf"
+            # 人狼の仕事
+            return super
+        if @flag
+            return "既に能力を使用しています"
+        if game.day>=2
+            return "もう能力を使用できません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象のプレイヤーは存在しません"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}を誘惑しようとしています。"
+        @flag=playerid
+        splashlog game.id,game,log
+        null
+    die:(game,found)->
+        # 死んだぞーーーーーーーーーーーーーー
+        super
+        # LWなら変えない
+        if game.players.filter((x)->x.isWerewolf() && !x.dead).length==0
+            return
+        pl=game.getPlayer @flag
+        unless pl?
+            # あれれーーー
+            return
+        if pl.dead
+            # 既に死んでいた
+            return
+        unless pl.isHuman() && pl.team!="Werewolf"
+            # 誘惑できない
+            return
+
+        newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
+        pl.transProfile newpl
+        pl.transform game,newpl
+        log=
+            mode:"skill"
+            to:pl.id
+            comment:"#{pl.name}は狼に誘惑されました。"
+        splashlog game.id,game,log
+    makejobinfo:(game,result)->
+        super
+        if game.night
+            if game.day>=2 || @flag
+                # もう誘惑は必要ない
+                result.open = result.open?.filter (x)=>x!="FascinatingWolf"
             
     
 # 処理上便宜的に使用
@@ -4703,6 +4759,7 @@ jobs=
     Counselor:Counselor
     Miko:Miko
     GreedyWolf:GreedyWolf
+    FascinatingWolf:FascinatingWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

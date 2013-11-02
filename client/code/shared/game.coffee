@@ -20,7 +20,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy",
 # Twitter人狼の役職
-"Counselor","Miko","GreedyWolf",
+"Counselor","Miko","GreedyWolf","FascinatingWolf",
 # その他
 "RedHood",
 ]
@@ -28,15 +28,15 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # Light, Neet, MinionSelector,QuantumPlayer
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf"]
 
 # 黒が出る人
-exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf"]
+exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf"]
 
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf"]
     Fox:["Fox","TinyFox","Immoral"]
     Bat:["Bat"]
     Devil:["Devil"]
@@ -47,7 +47,7 @@ exports.teams=teams=
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
     Human:teams.Human
-    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf"]
+    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf"]
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
@@ -566,6 +566,9 @@ exports.jobinfo=
         GreedyWolf:
             name:"欲張りな狼"
             color:"#910052"
+        FascinatingWolf:
+            name:"誘惑する女狼"
+            color:"#f200c2"
         
         
     Fox:

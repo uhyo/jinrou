@@ -198,35 +198,18 @@
       p
         | 死亡させる人を選んで下さい:
         input(type="submit",value="死亡させる",data-job="GameMaster")
-    #form_Werewolf(hidden).jobformarea
+    #form__Werewolf(hidden).jobformarea
       p
-        | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す",data-job="Werewolf")
-    #form_BigWolf(hidden).jobformarea
-      p
-        | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す",data-job="BigWolf")
+        | 殺す人を一人選んで下さい：
+        input(type="submit",value="殺す",data-job="_Werewolf")
     #form_WolfDiviner(hidden).jobformarea
       p
-        | 殺す/占う人を一人選んで下さい（占いは必須ではありません）：
-        input(type="submit",value="占う",name="divine",data-job="WolfDiviner")
-        input(type="submit",value="殺す",name="wolf",data-job="WolfDiviner")
-    #form_LoneWolf(hidden).jobformarea
-      p
-        | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す",data-job="LoneWolf")
-    #form_WolfCub(hidden).jobformarea
-      p
-        | 殺す人を一人選んで下さい（先着順）：
-        input(type="submit",value="殺す",data-job="WolfCub")
+        | 占う人を一人選んで下さい（占いは必須ではありません）：
+        input(type="submit",value="占う",data-job="WolfDiviner")
     #form_GreedyWolf(hidden).jobformarea
       p
-        | 殺す人を一人選んで下さい:
-        input(type="submit",value="殺す",name="wolf",data-job="GreedyWolf")
-    #form__GreedyWolf_greed(hidden).jobformarea
-      p
         | 欲張る場合は選択して下さい（非強制）:
-        input(type="submit",value="欲張る",name="wolf",data-job="_GreedyWolf_greed")
+        input(type="submit",value="欲張る",data-job="GreedyWolf")
     #form_Diviner(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
@@ -373,6 +356,10 @@
     #form_Miko(hidden).jobformarea
       p
         input(type="submit",value="自分を守る（非強制）",data-job="Miko")
+    #form_FascinatingWolf(hidden).jobformarea
+      p
+        | 誘惑する人を選んで下さい:
+        input(type="submit",value="誘惑する",data-job="FascinatingWolf")
   form#speakform
     p
       input(size="50",name="comment",required)
