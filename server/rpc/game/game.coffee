@@ -912,6 +912,16 @@ class Game
                         gw.addGamelog this,"greedyKilled",t.type,t.id
                         # 以降は襲撃できない
                         break
+                res = @werewolf_flag?.match? /^ToughWolf_(.+)$/
+                if res?
+                    # 一途な狼がすごい
+                    t.dead=true
+                    t.found="werewolf"
+                    tw = @getPlayer res[1]
+                    if tw?
+                        tw.die this,"werewolf"
+                        tw.addGamelog this,"toughwolfKilled",t.type,t.id
+
     # 死んだ人を処理する
     bury:->
         alives=@players.filter (x)->!x.dead
@@ -4199,7 +4209,6 @@ class GreedyWolf extends Werewolf
             return "今夜は襲撃できません"
         log=
             mode:"wolfskill"
-            to:@id
             comment:"#{@name}は欲張りました。人狼たちはもう1人襲撃できます。"
         splashlog game.id,game,log
         game.werewolf_target_remain++
@@ -4309,6 +4318,28 @@ class SolitudeWolf extends Werewolf
         super
         delete result.wolves
         delete result.spy2s
+class ToughWolf extends Werewolf
+    type:"ToughWolf"
+    jobname:"一途な狼"
+    job:(game,playerid,query)->
+        if query.jobtype!="ToughWolf"
+            # 人狼の仕事
+            return super
+        if @flag
+            return "既に能力を使用しています"
+        res=super
+        if res?
+            return res
+        @flag=true
+        game.werewolf_flag="ToughWolf_#{@id}"
+        tp=game.getPlayer playerid
+        unless tp?
+            return "その対象は存在しません"
+        log=
+            mode:"wolfskill"
+            comment:"#{@name}は捨て身の覚悟で#{tp.name}を狙っています。"
+        splashlog game.id,game,log
+        null
 
             
     
@@ -4793,6 +4824,7 @@ jobs=
     GreedyWolf:GreedyWolf
     FascinatingWolf:FascinatingWolf
     SolitudeWolf:SolitudeWolf
+    ToughWolf:ToughWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
