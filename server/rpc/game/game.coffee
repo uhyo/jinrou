@@ -4278,6 +4278,38 @@ class FascinatingWolf extends Werewolf
             if game.day>=2 || @flag
                 # もう誘惑は必要ない
                 result.open = result.open?.filter (x)=>x!="FascinatingWolf"
+class SolitudeWolf extends Werewolf
+    type:"SolitudeWolf"
+    jobname:"孤独な狼"
+    sleeping:(game)-> !@flag || super
+    isListener:(game,log)->
+        if log.mode in ["werewolf","wolfskill"]
+            # 狼の声は聞こえない
+            false
+        else super
+    job:(game,playerid,query)->
+        if !@flag
+            return "まだ襲えません"
+        super
+    sunset:(game)->
+        wolves=game.players.filter (x)->x.isWerewolf()
+        if wolves.every((x)->x.dead || x.isJobType("SolitudeWolf") && !x.flag)
+            # 襲えるやつ誰もいない
+            @flag=true
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は襲撃できるようになりました。"
+            splashlog game.id,game,log
+        super
+    getSpeakChoice:(game)->
+        res=super
+        return res.filter (x)->x!="werewolf"
+    makejobinfo:(game,result)->
+        super
+        delete result.wolves
+        delete result.spy2s
+
             
     
 # 処理上便宜的に使用
@@ -4760,6 +4792,7 @@ jobs=
     Miko:Miko
     GreedyWolf:GreedyWolf
     FascinatingWolf:FascinatingWolf
+    SolitudeWolf:SolitudeWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
