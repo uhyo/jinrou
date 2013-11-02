@@ -4396,8 +4396,9 @@ class ThreateningWolf extends Werewolf
         if game.night
             # 夜は威嚇しない
             result.open = result.open?.filter (x)=>x!="ThreateningWolf"
-
-
+class HolyMarked extends Human
+    type:"HolyMarked"
+    name:"聖痕者"
             
     
 # 処理上便宜的に使用
@@ -4915,6 +4916,7 @@ jobs=
     SolitudeWolf:SolitudeWolf
     ToughWolf:ToughWolf
     ThreateningWolf:ThreateningWolf
+    HolyMarked:HolyMarked
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
