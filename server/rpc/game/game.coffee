@@ -835,15 +835,18 @@ class Game
                 @silentexpires=Date.now()+@rule.silentrule*1000 # これまでは黙っていよう！
         @save()
         @timer()
-    #全員に状況更新
-    splashjobinfo:->
-        @participants.forEach (x)=>
+    #全員に状況更新 pls:状況更新したい人を指定する場合の配列
+    splashjobinfo:(pls)->
+        unless pls?
+            # プレイヤー以外にも
+            @ss.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
+            # GMにも
+            if @gm?
+                @ss.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
+            pls=@participants
+
+        pls.forEach (x)=>
             @ss.publish.user x.realid,"getjob",makejobinfo this,x
-        # プレイヤー以外にも
-        @ss.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
-        # GMにも
-        if @gm?
-            @ss.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
     #全員寝たかチェック 寝たなら処理してtrue
     #timeoutがtrueならば時間切れなので時間でも待たない
     checkjobs:(timeout)->
@@ -897,6 +900,18 @@ class Game
             runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target.to
             runners.forEach (x)=>
                 x.die this,"werewolf",target.from   # その家に逃げていたら逃亡者も死ぬ
+
+            if !t.dead
+                # 死んでない
+                res = @werewolf_flag?.match? /^GreedyWolf_(.+)$/
+                if res?
+                    # 欲張り狼がやられた!
+                    gw = @getPlayer res[1]
+                    if gw?
+                        gw.die this,"werewolf"
+                        gw.addGamelog this,"greedyKilled",t.type,t.id
+                        # 以降は襲撃できない
+                        break
     # 死んだ人を処理する
     bury:->
         alives=@players.filter (x)->!x.dead
@@ -1769,6 +1784,9 @@ class Player
                     }
 
         result
+    checkJobValidity:(game,query)->
+        sl=@makeJobSelection game
+        return sl.length==0 || sl.some((x)->x.value==query.target)
     # 役職情報を載せる
     makejobinfo:(game,obj)->
         # 開くべきフォームを配列で（生きている場合）
@@ -1958,6 +1976,7 @@ class Werewolf extends Player
             mode:"wolfskill"
             comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
         splashlog game.id,game,log
+        game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
                 
     isWerewolf:->true
@@ -4156,6 +4175,54 @@ class Miko extends Player
         if game.night
             []
         else super
+class GreedyWolf extends Werewolf
+    type:"GreedyWolf"
+    jobname:"欲張りな狼"
+    sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
+    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag && game.day>=2)
+    isJobType:(type)->
+        # 便宜的
+        if type=="_GreedyWolf_greed"
+            return true
+        super
+    job:(game,playerid,query)->
+        if query.jobtype!="_GreedyWolf_greed"
+            # 人狼の仕事
+            return super
+        if @flag
+            return "既に能力を使用しています"
+        @flag=true
+        if game.werewolf_target_remain+game.werewolf_target.length ==0
+            return "今夜は襲撃できません"
+        log=
+            mode:"wolfskill"
+            to:@id
+            comment:"#{@name}は欲張りました。人狼たちはもう1人襲撃できます。"
+        splashlog game.id,game,log
+        game.werewolf_target_remain++
+        game.werewolf_flag="GreedyWolf_#{@id}"
+        game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
+        null
+    makejobinfo:(game,result)->
+        super
+        if game.night
+            if @sleeping game
+                # 襲撃は必要ない
+                result.open = result.open?.filter (x)=>x!="GreedyWolf"
+            if !@flag && game.day>=2
+                result.open?.push "_GreedyWolf_greed"
+    makeJobSelection:(game)->
+        if game.night && @sleeping(game) && !@jobdone(game)
+            # 欲張る選択肢のみある
+            return []
+        else
+            return super
+    checkJobValidity:(game,query)->
+        if query.jobtype=="_GreedyWolf_greed"
+            # なしでOK!
+            return true
+        return super
+            
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4635,6 +4702,7 @@ jobs=
     RedHood:RedHood
     Counselor:Counselor
     Miko:Miko
+    GreedyWolf:GreedyWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5091,7 +5159,7 @@ module.exports.actions=(req,res,ss)->
             res {error:"対象は既に死んでいます"}
             return
         ###
-        unless sl.length==0 || sl.some((x)->x.value==query.target)
+        unless player.checkJobValidity game,query
             res {error:"対象選択が不正です"}
             return
         if game.night || query.jobtype!="_day"  # 昼の投票

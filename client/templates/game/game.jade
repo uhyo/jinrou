@@ -219,6 +219,14 @@
       p
         | 殺す人を一人選んで下さい（先着順）：
         input(type="submit",value="殺す",data-job="WolfCub")
+    #form_GreedyWolf(hidden).jobformarea
+      p
+        | 殺す人を一人選んで下さい:
+        input(type="submit",value="殺す",name="wolf",data-job="GreedyWolf")
+    #form__GreedyWolf_greed(hidden).jobformarea
+      p
+        | 欲張る場合は選択して下さい（非強制）:
+        input(type="submit",value="欲張る",name="wolf",data-job="_GreedyWolf_greed")
     #form_Diviner(hidden).jobformarea
       p
         | 占う人を一人選んで下さい：
