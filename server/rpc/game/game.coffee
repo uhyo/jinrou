@@ -891,6 +891,7 @@ class Game
             if @rule.noticebitten=="notice" || t.isJobType "Devil"
                 log=
                     mode:"skill"
+                    to:t.id
                     comment:"#{t.name}は人狼に襲われました。"
                 splashlog @id,this,log
             if t.willDieWerewolf && !t.dead
@@ -2652,7 +2653,8 @@ class Copier extends Player
         @transform game,newpl
 
         
-        game.ss.publish.user newpl.id,"refresh",{id:game.id}
+        #game.ss.publish.user newpl.id,"refresh",{id:game.id}
+        game.splashjobinfo [game.getPlayer @id]
         null
     isWinner:(game,team)->false # コピーしないと負け
 class Light extends Player
@@ -4550,6 +4552,13 @@ class Complex
     revive:(game)->
         @main.revive game
         @sub?.revive game
+    makeJobSelection:(game)->
+        result=@main.makeJobSelection game
+        if @sub?
+            for obj in @sub.makeJobSelection game
+                unless result.some((x)->x.value==obj.value)
+                    result.push obj
+        result
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
