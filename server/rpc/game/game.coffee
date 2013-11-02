@@ -4081,6 +4081,47 @@ class RedHood extends Player
     deadsunrise:(game)->
         # 同じ
         @deadsunset game
+
+class Counselor extends Player
+    type:"Counselor"
+    jobname:"カウンセラー"
+    sleeping:->true
+    jobdone:->@target?
+    sunset:(game)->
+        @target=null
+    job:(game,playerid,query)->
+        if @target?
+            return "既に対象を選択しています"
+        @target=playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{game.getPlayer(playerid).name}をカウンセリングしました。"
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        t=game.getPlayer @target
+        return unless t?
+        return if t.dead
+        if t.isWerewolf()
+            # 人狼とかヴァンパイアを襲ったら殺される
+            @die game,"werewolf"
+            return
+        if t.isVampire()
+            @die game,"vampire"
+            return
+        if t.team!="Human"
+            log=
+                mode:"skill"
+                to:t.id
+                comment:"#{t.name}はカウンセリングされて更生しました。"
+            splashlog game.id,game,log
+            
+            # 複合させる
+
+            newpl=Player.factory null,t,null,Counseled  # カウンセリングされた
+            t.transProfile newpl
+            t.transform game,newpl
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4331,11 +4372,13 @@ class WolfMinion extends Complex
     getJobname:->"狼の子分（#{@main.getJobname()}）"
     getJobDisp:->"狼の子分（#{@main.getJobDisp()}）"
     makejobinfo:(game,result)->
-        super
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game,result
         result.desc?.push {
             name:"狼の子分"
             value:"WolfMinion"
         }
+    isWinner:(game,team)->@team==team
 # 酔っ払い
 class Drunk extends Complex
     cmplType:"Drunk"
@@ -4441,6 +4484,21 @@ class Lycanized extends Complex
         @main.sunset game
         @sub?.sunset? game
         @uncomplex game
+# カウンセラーによって更生させられた人
+class Counseled extends Complex
+    cmplType:"Counseled"
+    team:"Human"
+    getJobname:->"更生者（#{@main.getJobname()}）"
+    getJobDisp:->"更生者（#{@main.getJobname()}）"
+
+    isWinner:(game,team)->@team==team
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game,result
+        result.desc?.push {
+            name:"更生者"
+            type:"Counseled"
+        }
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -4529,6 +4587,7 @@ jobs=
     Hoodlum:Hoodlum
     QuantumPlayer:QuantumPlayer
     RedHood:RedHood
+    Counselor:Counselor
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -4548,6 +4607,7 @@ complexes=
     Authority:Authority
     TrapGuarded:TrapGuarded
     Lycanized:Lycanized
+    Counseled:Counseled
 
 
 module.exports.actions=(req,res,ss)->

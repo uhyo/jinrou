@@ -549,6 +549,7 @@ exports.start=(roomid)->
         # 探す
         continue if job=="Human"    # 村人だけは既に置いてある（あまり）
         for team,members of Shared.game.teams
+            console.log job,team,members
             if job in members
                 dt=document.createElement "dt"
                 dt.textContent=Shared.game.jobinfo[team][job].name

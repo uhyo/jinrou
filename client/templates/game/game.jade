@@ -358,6 +358,10 @@
       p
         | 殺す人を一人選んで下さい：
         input(type="submit",value="殺す",data-job="_Quantum_Werewolf")
+    #form_Counselor(hidden).jobformarea
+      p
+        | カウンセリングする人を選んで下さい（非強制）:
+        input(type="submit",value="選択する",data-job="Counselor")
   form#speakform
     p
       input(size="50",name="comment",required)
