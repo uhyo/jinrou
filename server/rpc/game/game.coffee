@@ -4106,9 +4106,11 @@ class Counselor extends Player
         if t.isWerewolf()
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf"
+            @addGamelog game,"counselKilled",t.type,@target
             return
         if t.isVampire()
             @die game,"vampire"
+            @addGamelog game,"counselKilled",t.type,@target
             return
         if t.team!="Human"
             log=
@@ -4117,11 +4119,43 @@ class Counselor extends Player
                 comment:"#{t.name}はカウンセリングされて更生しました。"
             splashlog game.id,game,log
             
+            @addGamelog game,"counselSuccess",t.type,@target
             # 複合させる
 
             newpl=Player.factory null,t,null,Counseled  # カウンセリングされた
             t.transProfile newpl
             t.transform game,newpl
+        else
+            @addGamelog game,"counselFailure",t.type,@target
+# 巫女
+class Miko extends Player
+    type:"Miko"
+    jobname:"巫女"
+    sleeping:->true
+    jobdone:->!!@flag
+    job:(game,playerid,query)->
+        if @flag
+            return "既に能力を使用しています"
+        @target=playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が聖なる力で自身を守りました。"
+        splashlog game.id,game,log
+        @flag=true
+        # その場で変える
+        # 複合させる
+        pl = game.getPlayer @id
+
+        newpl=Player.factory null,pl,null,MikoProtected # 守られた人
+        pl.transProfile newpl
+        pl.transform game,newpl
+        null
+    makeJobSelection:(game)->
+        # 夜は投票しない
+        if game.night
+            []
+        else super
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4499,6 +4533,18 @@ class Counseled extends Complex
             name:"更生者"
             type:"Counseled"
         }
+# 巫女のガードがある状態
+class MikoProtected extends Complex
+    cmplType:"MikoProtected"
+    die:(game,found)->
+        # 耐える
+        game.getPlayer(@id).addGamelog game,"mikoGJ",found
+    sunset:(game)->
+        # 一日しか効かない
+        @main.sunset game
+        @sub?.sunset? game
+        @uncomplex game
+        
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -4588,6 +4634,7 @@ jobs=
     QuantumPlayer:QuantumPlayer
     RedHood:RedHood
     Counselor:Counselor
+    Miko:Miko
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -4608,6 +4655,7 @@ complexes=
     TrapGuarded:TrapGuarded
     Lycanized:Lycanized
     Counseled:Counseled
+    MikoProtected:MikoProtected
 
 
 module.exports.actions=(req,res,ss)->

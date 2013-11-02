@@ -2,7 +2,7 @@ csv=require 'csv'
 path=require 'path'
 
 Shared=
-    game:require '../client/code/shared/game.js'
+    game:require '../client/code/shared/game'
 
 # コールバック:{
 #   names:{}

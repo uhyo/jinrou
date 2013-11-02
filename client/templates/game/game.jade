@@ -362,6 +362,9 @@
       p
         | カウンセリングする人を選んで下さい（非強制）:
         input(type="submit",value="選択する",data-job="Counselor")
+    #form_Miko(hidden).jobformarea
+      p
+        input(type="submit",value="自分を守る（非強制）",data-job="Miko")
   form#speakform
     p
       input(size="50",name="comment",required)

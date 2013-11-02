@@ -20,7 +20,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy",
 # Twitter人狼の役職
-"Counselor",
+"Counselor","Miko",
 # その他
 "RedHood",
 ]
@@ -35,7 +35,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy"]
     Fox:["Fox","TinyFox","Immoral"]
     Bat:["Bat"]
@@ -517,6 +517,9 @@ exports.jobinfo=
         Counselor:
             name:"カウンセラー"
             color:"#ff94d9"
+        Miko:
+            name:"巫女"
+            color:"#f5b8ca"
         
     Werewolf:
         name:"人狼陣営"
