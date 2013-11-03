@@ -549,7 +549,6 @@ exports.start=(roomid)->
         # 探す
         continue if job=="Human"    # 村人だけは既に置いてある（あまり）
         for team,members of Shared.game.teams
-            console.log job,team,members
             if job in members
                 dt=document.createElement "dt"
                 dt.textContent=Shared.game.jobinfo[team][job].name
@@ -631,14 +630,14 @@ exports.start=(roomid)->
             $("#jobsfield").get(0).hidden=false
             $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             $("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
-            $("#yaminabe_opt_nums").get(0).hidden=true
+            #$("#yaminabe_opt_nums").get(0).hidden=true
             setjobsmonitor form
             return
         else if jobrulename=="特殊ルール.闇鍋"
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
             $("#yaminabe_opt").get(0).hidden=false
-            $("#yaminabe_opt_nums").get(0).hidden=false
+            #$("#yaminabe_opt_nums").get(0).hidden=false
             setjobsmonitor form
             return
         else
@@ -652,7 +651,7 @@ exports.start=(roomid)->
         obj= Shared.game.getrulefunc jobrulename
         return unless obj?
 
-        form.elements["number"]=number
+        form.elements["number"].value=number
         for x in Shared.game.jobs
             form.elements[x].value=0
         jobs=obj number
@@ -696,7 +695,8 @@ exports.start=(roomid)->
         jobrule=form.elements["jobrule"].value
         if jobrule=="特殊ルール.闇鍋"
             # 闇鍋の場合
-            $("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
+            #$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
+            $("#jobsmonitor").text "闇鍋"
         else
             $("#jobsmonitor").text Shared.game.getrulestr jobrule, Index.util.formQuery form
         jobprops=$("#jobprops")

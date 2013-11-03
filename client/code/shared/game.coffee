@@ -47,7 +47,7 @@ exports.teams=teams=
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
     Human:teams.Human
-    Werewolf:["Werewolf","BigWilf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","ToughWolf","ThreateningWolf"]
+    Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
@@ -388,7 +388,7 @@ exports.getrulestr=(rule,jobs={})->
     text=""
     if rule=="特殊ルール.闇鍋"
         # 闇鍋の場合
-        return "闇鍋 / 人狼#{jobs.Werewolf} 妖狐#{jobs.Fox}"
+        return "闇鍋"
     text="#{rule.split('.').pop()} / "
 
     for job in Shared.game.jobs

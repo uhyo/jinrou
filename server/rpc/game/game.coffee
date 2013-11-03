@@ -4199,7 +4199,7 @@ class GreedyWolf extends Werewolf
     type:"GreedyWolf"
     jobname:"欲張りな狼"
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
-    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag && game.day>=2)
+    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag || game.day>=2)
     job:(game,playerid,query)->
         if query.jobtype!="GreedyWolf"
             # 人狼の仕事
@@ -4398,8 +4398,7 @@ class ThreateningWolf extends Werewolf
             result.open = result.open?.filter (x)=>x!="ThreateningWolf"
 class HolyMarked extends Human
     type:"HolyMarked"
-    name:"聖痕者"
-            
+    jobname:"聖痕者"
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4994,6 +4993,7 @@ module.exports.actions=(req,res,ss)->
             frees=players.length
             if query.scapegoat=="on"    # 身代わりくん
                 frees++
+            playersnumber=frees
             # 人数の確認
             if frees<4
                 res "人数が少なすぎるので開始できません"
@@ -5013,60 +5013,272 @@ module.exports.actions=(req,res,ss)->
                     joblist["category_#{type}"]=parseInt query["category_#{type}"]
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+                # カテゴリ内の人数の合計がわかる関数
+                countCategory=(categoryname)->
+                    Shared.game.categories[categoryname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["category_#{categoryname}"]
+
                 # 闇鍋のときはランダムに決める
                 pls=frees   # プレイヤーの数をとっておく
                 plsh=Math.floor pls/2   # 過半数
         
+                safety={
+                    jingais:false   # 人外の数を調整
+                    teams:false     # 陣営の数を調整
+                    jobs:false      # 職どうしの数を調整
+                }
+                switch query.yaminabe_safety
+                    when "low"
+                        # 低い
+                        safety.jingais=true
+                    when "middle"
+                        safety.jingais=true
+                        safety.teams=true
+                    when "high"
+                        safety.jingais=true
+                        safety.teams=true
+                        safety.jobs=true
+
+                # 闇鍋のときは入れないのがある
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
                 options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
-                if query.jobrule=="特殊ルール.闇鍋"
-                    #でも人外はもう決まってる
-                    # 人狼
-                    joblist.Werewolf=parseInt query.yaminabe_Werewolf
-                    if isNaN joblist.Werewolf
-                        joblist.Werewolf=1
-                    frees-=joblist.Werewolf
-                    # 狐
-                    joblist.Fox=parseInt query.yaminabe_Fox
-                    if isNaN joblist.Fox
-                        joblist.Fox=0
-                    frees-=joblist.Fox
-                else
+                if query.jobrule=="特殊ルール.一部闇鍋"
                     # 一部闇鍋のときは村人のみ闇鍋
                     frees=joblist.Human ? 0
                     joblist.Human=0
+                unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
+                    #人外の数
+                    if safety.jingais
+                        # いい感じに決めてあげる
+                        wolf_number=1
+                        fox_number=0
+                        vampire_number=0
+                        devil_number=0
+                        if frees>=9
+                            wolf_number++
+                            if frees>=12
+                                if Math.random()<0.7
+                                    fox_number++
+                                else if Math.random()<0.7
+                                    devil_number++
+                                if frees>=14
+                                    wolf_number++
+                                    if frees>=16
+                                        if Math.random()<0.5
+                                            fox_number++
+                                        else if Math.random()<0.3
+                                            vampire_number++
+                                        else
+                                            devil_number++
+                                        if frees>=18
+                                            wolf_number++
+                                            if frees>=22
+                                                if Math.random()<0.2
+                                                    fox_number++
+                                                else if Math.random()<0.6
+                                                    vampire_number++
+                                                else if Math.random()<0.9
+                                                    devil_number++
+                                            if frees>=24
+                                                wolf_number++
+                                                if frees>=30
+                                                    wolf_number++
+                        # ランダム調整
+                        if wolf_number>1 && Math.random()<0.3
+                            wolf_number--
+                            if wolf_number>1 && Math.random()<0.2
+                                wolf_number--
+                        else if frees>0 && playersnumber>=10 && Math.random()<0.4
+                            wolf_number++
+                        if fox_number>1 && Math.random()<0.2
+                            fox_number--
+                        else if frees>=8 && Math.random()<0.3
+                            fox_number++
+                        if frees>=11 && Math.random()<0.2
+                            vampire_number++
+                        if frees>=11 && Math.random()<0.2
+                            devil_number++
+                        # セットする
+                        joblist.category_Werewolf=wolf_number
+                        joblist.Fox=fox_number
+                        if fox_number>1 && Math.random()<0.4
+                            # 子狐
+                            joblist.TinyFox=1
+                            joblist.Fox--
+                        joblist.Vampire=vampire_number
+                        joblist.Devil=devil_number
+                        frees-= wolf_number+fox_number+vampire_number+devil_number
+                        # 人外は選んだのでもう選ばれなくする
+                        exceptions=exceptions.concat Shared.game.nonhumans
+                    else
+                        # 調整しない
+                        joblist.category_Werewolf=1
+                        frees--
                 
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
-                # 闇鍋のときは入れないのがある
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
-                if query.safety!="free"
-                    exceptions=exceptions.concat Shared.game.nonhumans  # 基本人外は選ばれない
-                if query.safety=="full" # 安全
+                if safety.jingais
                     if joblist.Fox==0
                         exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
                     
 
+                if safety.teams
+                    # 陣営調整もする
+                    # 恋人陣営
+                    if frees>0
+                        if playersnumber>=8
+                            if Math.random()<0.3
+                                joblist.Cupid++
+                                frees--
+                            else if Math.random()<0.2
+                                joblist.Lover++
+                                frees--
+                        else if playersnumber>=8
+                            if Math.random()<0.15
+                                joblist.Lover++
+                                frees--
+                            else if Math.random()<0.1
+                                joblist.Cupid++
+                                frees--
+                    exceptions.push "Cupid","Lover"
+                    # 妖狐陣営
+                    if frees>0 && joblist.Fox>0
+                        if joblist.Fox==1
+                            if playersnumber>=14
+                                # 1人くらいは…
+                                if Math.random()<0.3
+                                    joblist.Immoral++
+                                    frees--
+                            else
+                                # サプライズ的に…
+                                if Math.random()<0.1
+                                    joblist.Immoral++
+                                    frees--
+                            exceptions.push "Immoral"
+                    # 人狼陣営
+                    if frees>0
+                        wolf_number = countCategory "Werewolf"
+                        if wolf_number<=playersnumber/8
+                            # 確定狂人サービス
+                            joblist.category_Madman ?= 0
+                            joblist.category_Madman++
+                            frees--
+                    # 村人陣営
+                    if frees>0
+                        # 占い師いてほしい
+                        if Math.random()<0.5
+                            joblist.Diviner++
+                            frees--
+                        else if Math.random()<0.4
+                            joblist.ApprenticeSeer++
+                            frees--
+                        # できれば狩人も
+                        if frees>0 && Math.random()<0.2
+                            joblist.Guard++
+                            frees--
+                        if frees>0 && wolf_number>=3 && Math.random()<0.1
+                            # めずらしい
+                            joblist.MadWolf++
+                            frees--
                 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
                 
-                wolf_teams=joblist.Werewolf # 人狼陣営の数(PP防止)
-                wts=Object.keys Shared.game.jobinfo.Werewolf    # 人狼陣営一覧（nameとcolorが余計だけど）
+                wolf_teams=countCategory "Werewolf"
             
-                while frees>0
-                    r=Math.floor Math.random()*possibility.length
-                    if query.yaminabe_nopp
-                        if possibility[r] in wts
-                            wolf_teams++    # 人狼陣営が増えた
-                        if wolf_teams>=plsh
-                            # 人狼が過半数を越えた（PP）
-                            wolf_teams--    # やめた
-                            continue
-                    job=possibility[r]
+                # 強制的に入れる関数
+                init=(jobname,categoryname)->
+                    unless jobname in possibility
+                        return false
+                    if joblist["category_#{categoryname}"]>0
+                        # あった
+                        joblist[jobname]++
+                        joblist["category_#{categoryname}"]--
+                        return true
+                    if frees>0
+                        # あった
+                        joblist[jobname]++
+                        frees--
+                        return true
+                    return false
+
+                while true
+                    category=null
+                    job=null
+                    #カテゴリ役職がまだあるか探す
+                    for type,arr of Shared.game.categories
+                        if joblist["category_#{type}"]>0
+                            r=Math.floor Math.random()*arr.length
+                            job=arr[r]
+                            category="category_#{type}"
+                            break
+                    unless job?
+                        # もうカテゴリがない
+                        if frees==0
+                            # もう空きがない
+                            break
+                        r=Math.floor Math.random()*possibility.length
+                        job=possibility[r]
+                    if safety.teams && !category?
+                        if job in Shared.game.teams.Werewolf
+                            if wolf_teams+1>=plsh
+                                # 人狼が過半数を越えた（PP）
+                                continue
+                    if safety.jobs
+                        # 職どうしの兼ね合いを考慮
+                        switch job
+                            when "Psychic","RedHood"
+                                # 1人のとき霊能は意味ない
+                                if countCategory("Werewolf")==1
+                                    # 狼1人だと霊能が意味ない
+                                    continue
+                            when "Couple"
+                                # 共有者はひとりだと寂しい
+                                if joblist.Couple==0
+                                    unless init "Couple","Human"
+                                        #共有者が入る隙間はない
+                                        continue
+                            when "Noble"
+                                # 貴族は奴隷がほしい
+                                if joblist.Slave==0
+                                    unless init "Slave","Human"
+                                        continue
+                            when "Slave"
+                                if joblist.Noble==0
+                                    unless init "Slave","Human"
+                                        continue
+                            when "OccultMania"
+                                if joblist.Diviner==0 && Math.randoom()<0.5
+                                    # 占い師いないと出現確率低い
+                                    continue
+                            when "QueenSpectator"
+                                # 女王観戦者はガードがないと不安
+                                if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
+                                    unless Math.random()<0.4 && init "Guard","Human"
+                                        unless Math.random()<0.5 && init "Priest","Human"
+                                            unless init "Trapper","Human"
+                                                # 護衛がいない
+                                                continue
+                            when "Spy2"
+                                # スパイIIは2人いるとかわいそうなので入れない
+                                if joblist.Spy2>0
+                                    continue
+                            when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy"
+                                # 占い系がいないと入れない
+                                if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
+                                    continue
+                            when "LoneWolf","FascinatingWolf","ToughWolf"
+                                # 誘惑する女狼はほかに人狼がいないと効果発揮しない
+                                # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
+                                if countCategory("Werewolf")==0
+                                    continue
+
                     joblist[job]++
-                    frees-- # ひとつ追加
-                    
-                    # スパイIIは2人いるとかわいそうなので入れない
-                    if job=="Spy2"
-                        possibility.splice r,1
+                    # ひとつ追加
+                    if category?
+                        joblist[category]--
+                    else
+                        frees--
+
+                    if safety.teams && (job in Shared.game.teams.Werewolf)
+                        wolf_teams++    # 人狼陣営が増えた
                 if (joblist.Magician>0 || joblist.Cat>0 || joblist.Witch>0 || joblist.RedHood>0) && query.heavenview=="view"
                     # 魔術師いるのに
                     query.heavenview=null
@@ -5159,18 +5371,12 @@ module.exports.actions=(req,res,ss)->
                 comment:"配役: #{ruleinfo_str}"
             splashlog game.id,game,log
             
-            #カテゴリ役職を変換
-            for type,arr of Shared.game.categories
-                while joblist["category_#{type}"]>0
-                    r=Math.floor Math.random()*arr.length
-                    joblist[arr[r]]++
-                    joblist["category_#{type}"]--
             
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest",
-            "quantumwerewolf_table","quantumwerewolf_diviner"]
+            "quantumwerewolf_table","quantumwerewolf_diviner","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
 

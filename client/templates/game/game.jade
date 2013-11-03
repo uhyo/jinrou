@@ -23,13 +23,22 @@
         //- dd(name="category_Foobar")
         fieldset#yaminabe_opt(hidden)
           legend 闇鍋オプション
-          p#yaminabe_opt_nums
-            label
-              | 人狼の数
-              input(name="yaminabe_Werewolf",value="1",type="number",min="0",step="1",size=5)
-            label
-              | 妖狐の数
-              input(name="yaminabe_Fox",value="0",type="number",min="0",step="1",size=5)
+          //-
+            p#yaminabe_opt_nums
+              label
+                | 人狼の数
+                input(name="yaminabe_Werewolf",value="1",type="number",min="0",step="1",size=5)
+              label
+                | 妖狐の数
+                input(name="yaminabe_Fox",value="0",type="number",min="0",step="1",size=5)
+          p
+            label(title="闇鍋のときに配役にどれくらい気をつけるか指定します。")
+              | 闇鍋セーフティ
+              select(name="yaminabe_safety")
+                option(value="high",title="出現役職どうしの兼ね合いも考慮します。") 高
+                option(value="middle",title="各陣営の割合を調整します。") 中
+                option(value="low",title="人狼・妖狐の数をちょうどいい数に調整します（一部闇鍋は除く）。",selected) 低
+                option(value="none",title="まったく気をつけません。人狼系1が保証される以外は全てランダムです。") なし
           p
             //-
               label(title="チェックするとプレイ中は役職一覧が分かりません")
