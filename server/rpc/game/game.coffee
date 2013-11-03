@@ -916,9 +916,10 @@ class Game
                 res = @werewolf_flag?.match? /^ToughWolf_(.+)$/
                 if res?
                     # 一途な狼がすごい
+                    tw = @getPlayer res[1]
                     t.dead=true
                     t.found="werewolf"
-                    tw = @getPlayer res[1]
+                    t.dying this,"werewolf",tw.id
                     if tw?
                         tw.die this,"werewolf"
                         tw.addGamelog this,"toughwolfKilled",t.type,t.id
@@ -1745,11 +1746,14 @@ class Player
         team==@team # 自分の陣営かどうか
     # 勝敗設定
     setWinner:(winner)->@winner=winner
-    # 死んだとき(found:死因))
-    die:(game,found)->
+    # 殺されたとき(found:死因))
+    die:(game,found,from)->
         return if @dead
         @dead=true
         @found=found
+        @dying game,found,from
+    # 死んだとき
+    dying:(game,found)->
     # 行きかえる
     revive:(game)->
         # logging: ログを表示するか
@@ -2188,7 +2192,7 @@ class Fox extends Player
 class Poisoner extends Player
     type:"Poisoner"
     jobname:"埋毒者"
-    die:(game,found)->
+    dying:(game,found)->
         super
         # 埋毒者の逆襲
         canbedead = game.players.filter (x)->!x.dead    # 生きている人たち
@@ -2523,7 +2527,7 @@ class Merchant extends Player
 class QueenSpectator extends Player
     type:"QueenSpectator"
     jobname:"女王観戦者"
-    die:(game,found)->
+    dying:(game,found)->
         super
         # 感染
         humans = game.players.filter (x)->!x.dead && x.isHuman()    # 生きている人たち
@@ -2603,7 +2607,7 @@ class Spy2 extends Player
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
     
-    die:(game,found)->
+    dying:(game,found)->
         super
         @publishdocument game
             
@@ -2927,12 +2931,11 @@ class ApprenticeSeer extends Player
 class Diseased extends Player
     type:"Diseased"
     jobname:"病人"
-    die:(game,found)->
-        return if @dead
+    dying:(game,found)->
+        super
         if found=="werewolf"
             # 噛まれた場合次の日人狼襲撃できない！
             game.werewolf_flag="Diseased"   # 病人フラグを立てる
-        super
 class Spellcaster extends Player
     type:"Spellcaster"
     jobname:"呪いをかける者"
@@ -3490,10 +3493,9 @@ class OccultMania extends Player
 class WolfCub extends Werewolf
     type:"WolfCub"
     jobname:"狼の子"
-    die:(game,found)->
-        return if @dead
-        game.werewolf_flag="WolfCub"
+    dying:(game,found)->
         super
+        game.werewolf_flag="WolfCub"
 # 囁き狂人
 class WhisperingMad extends Fanatic
     type:"WhisperingMad"
@@ -4102,7 +4104,7 @@ class RedHood extends Player
     type:"RedHood"
     jobname:"赤ずきん"
     sleeping:->true
-    die:(game,found,from)->
+    dying:(game,found,from)->
         super
         if found=="werewolf"
             # 狼に襲われた
@@ -4111,7 +4113,6 @@ class RedHood extends Player
         else
             @flag=null
     deadsunset:(game)->
-        console.log "night!",@id,@flag
         if @flag
             w=game.getPlayer @flag
             console.log w?.dead
@@ -4259,7 +4260,7 @@ class FascinatingWolf extends Werewolf
         @flag=playerid
         splashlog game.id,game,log
         null
-    die:(game,found)->
+    dying:(game,found)->
         # 死んだぞーーーーーーーーーーーーーー
         super
         # LWなら変えない
@@ -4547,9 +4548,12 @@ class Complex
             @main.getjob_target() | @sub.getjob_target()    # ビットフラグ
         else
             @main.getjob_target()
-    die:(game,found)->
-        @main.die game,found
-        @sub?.die game,found
+    die:(game,found,from)->
+        @main.die game,found,from
+        @sub?.die game,found,from
+    dying:(game,found,from)->
+        @main.dying game,found,from
+        @sub?.dying game,found,from
     revive:(game)->
         @main.revive game
         @sub?.revive game
@@ -4620,7 +4624,7 @@ class Guarded extends Complex
     cmplType:"Guarded"
     die:(game,found,from)->
         unless found=="werewolf"
-            @main.die game,found
+            @main.die game,found,from
         else
             # 狼に噛まれた場合は耐える
             guard=game.getPlayer @cmplFlag
@@ -4815,6 +4819,8 @@ class Threatened extends Complex
         null
     die:(game,found,from)->
         Human.prototype.die.call @,game,found,from
+    dying:(game,found,from)->
+        Human.prototype.dying.call @,game,found,from
     divined:(game,player)->
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
