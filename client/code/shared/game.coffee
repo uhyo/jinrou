@@ -47,7 +47,7 @@ exports.teams=teams=
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
     Human:teams.Human
-    Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","ToughWolf","ThreateningWolf"]
+    Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
@@ -135,16 +135,19 @@ exports.jobrules=[
       {
         name:"普通1"
         title:"少人数でも楽しめる配役。"
+        minNumber:4
         rule:normal1
       }
       {
         name:"普通2"
         title:"一般的な配役。"
+        minNumber:4
         rule:normal2
       }
       {
         name:"普通3"
         title:"少人数でも狐が出る配役。"
+        minNumber:4
         rule:(number)->
           ret=normal1 number
           ret.Fox ?= 0
@@ -177,6 +180,15 @@ exports.jobrules=[
           if ret.Fox>0
             ret.Immoral?=0
             ret.Immoral+=1
+          ret
+      }
+      {
+        name:"埋毒者あり"
+        title:"埋毒者が出る配役。"
+        rule:(number)->
+          ret=normal1 number
+          ret.Poisoner=1
+          ret.Werewolf++
           ret
       }
       {
@@ -273,6 +285,176 @@ exports.jobrules=[
     ]
   }
   {
+      name:"テーマ配役"
+      rule:[
+        {
+          name:"変化村"
+          title:"役職が変化する。"
+          minNumber:6
+          rule:(number)->
+            ret={}
+            ret.Werewolf=1
+            ret.Diviner=1
+            ret.Guard=1
+            ret.Madman=1
+            ret.Copier=1
+            if number>=8
+              ret.OccultMania=1
+            if number>=9
+              ret.Werewolf++
+            if number>=10
+              ret.Psychic=1
+            if number>=11
+              ret.Doppleganger=1
+            if number>=13
+              ret.Counselor=1
+              ret.FascinatingWolf=1
+            if number>=15
+              ret.ApprenticeSeer=1
+            if number>=16
+              ret.Cursed=1
+            if number>=17
+              ret.Cupid=1
+            if number>=18
+              ret.Sorcerer=1
+            if number>=19
+              ret.ThreateningWolf=1
+            if number>=20
+              ret.Copier++
+            if number>=21
+              ret.Fanatic=1
+            if number>=22
+              ret.Werewolf--
+              ret.WolfDiviner=1
+              ret.Copier++
+            if number>=24
+              ret.Diviner++
+            if number>=26
+              ret.BigWolf=1
+            if number>=28
+              ret.Fox=1
+              ret.Immoral=1
+
+            ret
+        }
+        {
+          name:"黒い村"
+          title:"黒い。"
+          minNumber:6
+          rule:(number)->
+            ret={}
+            # 狼憑き
+            ret.Lycan=1
+            if number>=10
+              ret.Lycan++
+              if number>=14
+                ret.Lycan++
+                if number==20
+                  ret.Lycan--
+                if number>=22
+                  ret.Lycan++
+            if number>=16
+              ret.Cursed=1
+              if number>=28
+                ret.Cursed++
+            ret.Diviner=1
+            if number>=20
+              ret.Diviner++
+            if number>=12
+              ret.ApprenticeSeer=1
+            if number>=16
+              ret.SeersMama=1
+            if number>=9
+              ret.Psychic=1
+              if number>=18
+                ret.Psychic++
+            ret.Guard=1
+            if number>=14
+              ret.Couple=2
+              if number>=24
+                ret.Couple++
+            if number>=13
+              ret.Fugitive=1
+            if number>=26
+              ret.Merchant=1
+            if number>=27
+              ret.Dog=1
+            ret.Werewolf=1
+            if number>=13
+              ret.Werewolf++
+            if number>=9
+              ret.WolfDiviner=1
+              if number>=23
+                ret.WolfDiviner++
+            if number>=19
+              ret.SolitudeWolf=1
+            ret.Madman=1
+            if number>=7
+              ret.Madman--
+              ret.WolfBoy=1
+              if number>=17
+                ret.WolfBoy++
+                if number>=29
+                  ret.WolfBoy++
+            if number>=20
+              ret.Stalker=1
+              if number>=30
+                ret.Stalker++
+            if number>=25
+              ret.Copier=1
+            ret
+        }
+        {
+          name:"女王村"
+          title:"女王観戦者のいる村。推奨人数:15〜16人"
+          minNumber:10
+          suggestedOption:
+            scapegoat:"no"
+          rule:(number)->
+            ret={}
+            ret.Diviner=1
+            if number>=25
+              ret.Diviner++
+            if number>=11
+              ret.ApprenticeSeer=1
+            ret.Psychic=1
+            ret.Guard=1
+            ret.Trapper=1
+            ret.Priest=1
+            if number>=12
+              ret.Merchant=1
+              if number>=18
+                ret.Merchant++
+            ret.QueenSpectator=1
+            if number>=14
+              ret.Prince=1
+              if number>=21
+                ret.Prince++
+            if number>=15
+              ret.Dictator=1
+              if number>=17
+                ret.Dictator++
+            if number>=26
+              ret.Couple=2
+              ret.Werewolf=1
+            ret.BigWolf=1
+            ret.WolfDiviner=1
+            if number>=19
+              ret.WolfDiviner++
+            if number>=13
+              ret.WolfCub=1
+            if number>=16
+              ret.ToughWolf=1
+            ret.WhisperingMad=1
+            if number>=23
+              ret.Sorcerer=1
+            if number>=28
+              ret.Tanner=1
+            ret
+        }
+      ]
+  }
+  {
     name:"その他"
     rule:[
       {
@@ -351,6 +533,20 @@ exports.jobrules=[
     ]
   }
 ]
+# ルールオブジェクトを得る
+exports.getruleobj=(name)->
+    # オブジェクトから探す
+    names= name.split "."
+    obj=Shared.game.jobrules
+    for branch in names #.区切りでオブジェクト名
+        ruleobj=obj.filter((x)->x.name==branch)[0]
+        unless ruleobj  # そんな配役は見つからない
+            return
+        if "function"==typeof ruleobj.rule
+            # 目当てのものを見つけた
+            return ruleobj
+        obj=ruleobj.rule
+    null
 # ルール関数を得る
 exports.getrulefunc=(name)->
     if name=="内部利用.量子人狼"
@@ -373,16 +569,8 @@ exports.getrulefunc=(name)->
             ret
 
     # ほかはオブジェクトから探す
-    names= name.split "."
-    obj=Shared.game.jobrules
-    for branch in names #.区切りでオブジェクト名
-        obj=obj.filter((x)->x.name==branch)[0]?.rule
-        unless obj  # そんな配役は見つからない
-            return
-    unless typeof obj =="function"
-        #配列でない
-        return
-    obj
+    ruleobj=exports.getruleobj name
+    return ruleobj?.rule
 # ルールの名前を書く
 exports.getrulestr=(rule,jobs={})->
     text=""

@@ -74,7 +74,7 @@
         legend ルール
         p
           | 身代わりくん
-          select(name="scapegoat",title="身代わりくんは1日目の夜に殺されるためのNPCです。")
+          select(name="scapegoat",data-name="身代わりくん",title="身代わりくんは1日目の夜に殺されるためのNPCです。")
             option(value="on") あり
             option(value="off") なし（参加者が死ぬ）
             option(value="no") なし（誰も死なない）
@@ -132,7 +132,7 @@
             | 希望役職制
             input(name="rolerequest",type="checkbox",value="on")
         #jobprops
-          .prop.Werewolf.BigWolf.WolfDiviner.MadWolf.LoneWolf.WolfCub
+          .prop.Werewolf.BigWolf.WolfDiviner.MadWolf.LoneWolf.WolfCub.GreedyWolf.FascinatingWolf.SolitudeWolf.ToughWolf.ThreateningWolf
             label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")
               | 人狼の遠吠えが聞こえる
               input(name="wolfsound",type="checkbox",value="aloud",checked)

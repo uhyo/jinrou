@@ -18,10 +18,8 @@ exports.on=(mesname,channel=null,func)->
             .forEach (x)->
                 x.func msg,channel_name
     evs.push ev
-    console.log "on!",evs
     ev.id
         
 
 exports.off=(id)->
     evs=evs.filter (x)->x.id!=id
-    console.log "off!",evs

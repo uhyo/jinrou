@@ -2374,7 +2374,8 @@ class WolfDiviner extends Werewolf
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
     job:(game,playerid,query)->
-        if query.jobname!="WolfDiviner"
+        console.log query
+        if query.jobtype!="WolfDiviner"
             # 人狼の仕事
             return super
         # 占い
@@ -5242,7 +5243,7 @@ module.exports.actions=(req,res,ss)->
                                         continue
                             when "Slave"
                                 if joblist.Noble==0
-                                    unless init "Slave","Human"
+                                    unless init "Noble","Human"
                                         continue
                             when "OccultMania"
                                 if joblist.Diviner==0 && Math.randoom()<0.5

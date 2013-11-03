@@ -262,13 +262,43 @@ exports.start=(roomid)->
                 
         $("#gamestart").submit (je)->
             # いよいよゲーム開始だ！
+            je.preventDefault()
             query=Index.util.formQuery je.target
+            jobrule=query.jobrule
+            ruleobj=Shared.game.getruleobj jobrule
+            # 相違がないか探す
+            diff=null
+            for key,value of (ruleobj?.suggestedOption ? {})
+                if query[key]!=value
+                    diff=
+                        key:key
+                        value:value
+                    break
+            if diff?
+                control=je.target.elements[diff.key]
+                if control?
+                    sugval=null
+                    if control.type=="select-one"
+                        for opt in control.options
+                            if opt.value==diff.value
+                                sugval=opt.text
+                                break
+                        if sugval?
+                            Index.util.ask "オプション","この配役ではオプション「#{control.dataset.name}」を「#{sugval}」にすることが推奨されています。このまま開始してもいいですか？",(res)->
+                                if res
+                                    # OKだってよ...
+                                    ss.rpc "game.game.gameStart", roomid,query,(result)->
+                                        if result?
+                                            Index.util.message "ルーム",result
+                                        else
+                                            $("#gamestartsec").attr "hidden","hidden"
+                            return
+            # とくに何もない
             ss.rpc "game.game.gameStart", roomid,query,(result)->
                 if result?
                     Index.util.message "ルーム",result
                 else
                     $("#gamestartsec").attr "hidden","hidden"
-            je.preventDefault()
         speakform=$("#speakform").get 0
         $("#speakform").submit (je)->
             form=je.target
@@ -626,26 +656,26 @@ exports.start=(roomid)->
     # 配役一覧をアレする
     setplayersbyjobrule=(room,form,number)->
         jobrulename=form.elements["jobrule"].value
+        if form.elements["scapegoat"].value=="on"
+            number++    # 身代わりくん
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
             $("#jobsfield").get(0).hidden=false
             $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             $("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             #$("#yaminabe_opt_nums").get(0).hidden=true
-            setjobsmonitor form
+            setjobsmonitor form,number
             return
         else if jobrulename=="特殊ルール.闇鍋"
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
             $("#yaminabe_opt").get(0).hidden=false
             #$("#yaminabe_opt_nums").get(0).hidden=false
-            setjobsmonitor form
+            setjobsmonitor form,number
             return
         else
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
             $("#yaminabe_opt").get(0).hidden=true
-        if form.elements["scapegoat"].value=="on"
-            number++    # 身代わりくん
         if jobrulename=="特殊ルール.量子人狼"
             jobrulename="内部利用.量子人狼"
         obj= Shared.game.getrulefunc jobrulename
@@ -663,7 +693,7 @@ exports.start=(roomid)->
         for type of Shared.game.categoryNames
             count+= parseInt(form.elements["category_#{type}"].value ? 0)
         form.elements["Human"].value=number-count   # 村人
-        setjobsmonitor form
+        setjobsmonitor form,number
     jobsformvalidate=(room,form)->
         # 村人の人数を調節する
         pl=room.players.filter((x)->x.mode=="player").length
@@ -677,9 +707,10 @@ exports.start=(roomid)->
         for type of Shared.game.categoryNames
             sum+= parseInt(form.elements["category_#{type}"].value ? 0)
         form.elements["Human"].value=pl-sum
-        setjobsmonitor form
+        form.elements["number"].value=pl
+        setjobsmonitor form,pl
     # 配役をテキストで書いてあげる
-    setjobsmonitor=(form)->
+    setjobsmonitor=(form,number)->
         text=""
         ###
         if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
@@ -698,7 +729,11 @@ exports.start=(roomid)->
             #$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
             $("#jobsmonitor").text "闇鍋"
         else
-            $("#jobsmonitor").text Shared.game.getrulestr jobrule, Index.util.formQuery form
+            ruleobj=Shared.game.getruleobj jobrule
+            if ruleobj?.minNumber>number
+                $("#jobsmonitor").text "（この配役は最低#{ruleobj.minNumber}人必要です）"
+            else
+                $("#jobsmonitor").text Shared.game.getrulestr jobrule, Index.util.formQuery form
         jobprops=$("#jobprops")
         jobprops.children(".prop").prop "hidden",true
         for job in Shared.game.jobs
