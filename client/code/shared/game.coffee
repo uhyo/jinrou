@@ -406,7 +406,7 @@ exports.jobrules=[
         }
         {
           name:"女王村"
-          title:"女王観戦者のいる村。推奨人数:15〜16人"
+          title:"女王観戦者のいる村。推奨人数:15〜16人。"
           minNumber:10
           suggestedOption:
             scapegoat:"no"
