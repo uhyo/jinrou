@@ -4817,8 +4817,6 @@ class Threatened extends Complex
     midnight:(game)->
     job:(game,playerid,query)->
         null
-    die:(game,found,from)->
-        Human.prototype.die.call @,game,found,from
     dying:(game,found,from)->
         Human.prototype.dying.call @,game,found,from
     divined:(game,player)->
@@ -5206,6 +5204,7 @@ module.exports.actions=(req,res,ss)->
                         return true
                     return false
 
+                console.log "yaminabe",joblist
                 while true
                     category=null
                     job=null
@@ -5218,7 +5217,7 @@ module.exports.actions=(req,res,ss)->
                             break
                     unless job?
                         # もうカテゴリがない
-                        if frees==0
+                        if frees<=0
                             # もう空きがない
                             break
                         r=Math.floor Math.random()*possibility.length
@@ -5274,7 +5273,14 @@ module.exports.actions=(req,res,ss)->
                             when "LoneWolf","FascinatingWolf","ToughWolf"
                                 # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                 # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
-                                if countCategory("Werewolf")==0
+                                if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    continue
+                            when "BigWolf"
+                                # 強いので狼2以上
+                                if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    continue
+                                # 霊能を出す
+                                unless Math.random()<0.15 ||  init "Psychic","Human"
                                     continue
 
                     joblist[job]++
