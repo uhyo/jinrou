@@ -5251,7 +5251,7 @@ module.exports.actions=(req,res,ss)->
                                     unless init "Noble","Human"
                                         continue
                             when "OccultMania"
-                                if joblist.Diviner==0 && Math.randoom()<0.5
+                                if joblist.Diviner==0 && Math.random()<0.5
                                     # 占い師いないと出現確率低い
                                     continue
                             when "QueenSpectator"
