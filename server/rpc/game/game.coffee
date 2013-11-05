@@ -2392,8 +2392,8 @@ class WolfDiviner extends Werewolf
             comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
-            @dodivine game
             @showdivineresult game
+            @dodivine game
         null
     sunrise:(game)->
         super
@@ -5092,11 +5092,11 @@ module.exports.actions=(req,res,ss)->
                             wolf_number--
                             if wolf_number>1 && Math.random()<0.2
                                 wolf_number--
-                        else if frees>0 && playersnumber>=10 && Math.random()<0.4
+                        else if frees>0 && playersnumber>=10 && Math.random()<0.2
                             wolf_number++
-                        if fox_number>1 && Math.random()<0.2
+                        if fox_number>1 && Math.random()<0.15
                             fox_number--
-                        else if frees>=8 && Math.random()<0.3
+                        else if frees>=8 && Math.random()<0.25
                             fox_number++
                         if frees>=11 && Math.random()<0.2
                             vampire_number++
