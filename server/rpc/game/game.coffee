@@ -660,14 +660,20 @@ class Game
             # 確率テーブルを
             probability_table={}
             numberref_table={}
-            for x in @players
-                dead=0
-                for obj in @quantum_patterns
-                    if obj[x.id].dead==true
-                        dead++
-                if dead==@quantum_patterns.length
-                    # 死んだ!!!!!!!!!!!!!!!!!
-                    x.die this,"werewolf"
+            dead_flg=true
+            while dead_flg
+                dead_flg=false
+                for x in @players
+                    if x.dead
+                        continue
+                    dead=0
+                    for obj in @quantum_patterns
+                        if obj[x.id].dead==true
+                            dead++
+                    if dead==@quantum_patterns.length
+                        # 死んだ!!!!!!!!!!!!!!!!!
+                        x.die this,"werewolf"
+                        dead_flg=true
             for x in @players
                 count=
                     Human:0
