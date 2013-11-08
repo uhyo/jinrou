@@ -39,6 +39,38 @@ Server=
         game:require './game.coffee'
         rooms:module.exports
     oauth:require '../../oauth.coffee'
+# ヘルパーセット処理
+sethelper=(ss,roomid,userid,id,res)->
+    Server.game.rooms.oneRoomS roomid,(room)->
+        if !room || room.error?
+            res "その部屋はありません"
+            return
+        pl = room.players.filter((x)->x.realid==userid)[0]
+        topl=room.players.filter((x)->x.userid==id)[0]
+        if pl?.mode=="gm"
+            res "GMはヘルパーになれません"
+            return
+        if userid==id
+            res "自分のヘルパーにはなれません"
+            return
+        unless room.mode=="waiting"
+            res "もう始まっています"
+            return
+        mode= if topl? then "helper_#{id}" else "player"
+        room.players.forEach (x,i)=>
+            if x.realid==userid
+                query={$set:{}}
+                query.$set["players.#{i}.mode"]=mode
+                M.rooms.update {id:roomid},query, (err)=>
+                    if err?
+                        res "エラー:#{err}"
+                    else
+                        res null
+                        # ヘルパーの様子を 知らせる
+                        if pl.mode!=mode
+                            # 新しくなった
+                            Server.game.game.helperlog room,pl,topl
+                            ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
@@ -243,6 +275,11 @@ module.exports.actions=(req,res,ss)->
                     user=room.players.filter((x)=>x.realid==req.session.userId)[0]
                     Server.game.game.outlog room,user ? req.session.user
                     ss.publish.channel "room#{roomid}", "unjoin", user?.userid
+                    # ヘルパーさがす
+                    for pl in room.players
+                        if pl.mode=="helper_#{user.userid}"
+                            sethelper ss,roomid,pl.realid,null,->
+
     ready:(roomid)->
         # 準備ができたか？
         unless req.session.userId
@@ -304,41 +341,16 @@ module.exports.actions=(req,res,ss)->
                         Server.game.game.kicklog room,user
                         ss.publish.channel "room#{roomid}", "unjoin",id
                         ss.publish.user id,"refresh",{id:roomid}
+                        # ヘルパーさがす
+                        for pl in room.players
+                            if pl.mode=="helper_#{user.userid}"
+                                sethelper ss,roomid,pl.realid,null,->
     # ヘルパーになる
     helper:(roomid,id)->
         unless req.session.userId
             res "ログインして下さい"
             return
-        Server.game.rooms.oneRoomS roomid,(room)=>
-            if !room || room.error?
-                res "その部屋はありません"
-                return
-            pl = room.players.filter((x)->x.realid==req.session.userId)[0]
-            topl=room.players.filter((x)->x.userid==id)[0]
-            if pl?.mode=="gm"
-                res "GMはヘルパーになれません"
-                return
-            if req.session.userId==id
-                res "自分のヘルパーにはなれません"
-                return
-            unless room.mode=="waiting"
-                res "もう始まっています"
-                return
-            mode= if topl? then "helper_#{id}" else "player"
-            room.players.forEach (x,i)=>
-                if x.realid==req.session.userId
-                    query={$set:{}}
-                    query.$set["players.#{i}.mode"]=mode
-                    M.rooms.update {id:roomid},query, (err)=>
-                        if err?
-                            res "エラー:#{err}"
-                        else
-                            res null
-                            # ヘルパーの様子を 知らせる
-                            if pl.mode!=mode
-                                # 新しくなった
-                                Server.game.game.helperlog room,pl,topl
-                            ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
+        sethelper ss,roomid,req.session.userId,id,res
     # 全員ready解除する
     unreadyall:(roomid,id)->
         unless req.session.userId

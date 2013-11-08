@@ -34,10 +34,10 @@ module.exports =
     ]
   backdoor:
     # 外部のURL
-    home: "http://81.la/"
+    home: "http://uhyohyo.net/"
   application:
     # アプリケーション情報
-    url: "http://jinrou.81.la/"
+    url: "http://jinrou.uhyohyo.net/"
   twitter:
     # twitter提携用
     oauth:
