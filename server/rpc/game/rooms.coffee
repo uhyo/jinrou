@@ -276,9 +276,18 @@ module.exports.actions=(req,res,ss)->
                     Server.game.game.outlog room,user ? req.session.user
                     ss.publish.channel "room#{roomid}", "unjoin", user?.userid
                     # ヘルパーさがす
-                    for pl in room.players
+                    query={$set:{}}
+                    for pl,i in room.players
                         if pl.mode=="helper_#{user.userid}"
-                            sethelper ss,roomid,pl.realid,null,->
+                            sethelper ss,roomid,pl.realid,null,(->)
+
+                            if pl.start
+                                # unreadyクエリも投げてあげる
+                                query.$set["players.#{i}.start"]=false
+                                ss.publish.channel "room#{roomid}", "ready", {userid:pl.userid,start:false}
+                    if Object.keys(query.$set).length>0
+                        M.rooms.update {id:roomid},query
+
 
     ready:(roomid)->
         # 準備ができたか？
@@ -342,9 +351,16 @@ module.exports.actions=(req,res,ss)->
                         ss.publish.channel "room#{roomid}", "unjoin",id
                         ss.publish.user id,"refresh",{id:roomid}
                         # ヘルパーさがす
-                        for pl in room.players
+                        query={$set:{}}
+                        for pl,i in room.players
                             if pl.mode=="helper_#{user.userid}"
                                 sethelper ss,roomid,pl.realid,null,->
+                                if pl.start
+                                    # unreadyクエリも投げてあげる
+                                    query.$set["players.#{i}.start"]=false
+                                    ss.publish.channel "room#{roomid}", "ready", {userid:pl.userid,start:false}
+                        if Object.keys(query.$set).length>0
+                            M.rooms.update {id:roomid},query
     # ヘルパーになる
     helper:(roomid,id)->
         unless req.session.userId
