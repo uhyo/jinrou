@@ -406,7 +406,7 @@ exports.jobrules=[
         }
         {
           name:"女王村"
-          title:"女王観戦者のいる村。推奨人数:15〜16人。"
+          title:"女王観戦者のいる村。推奨人数:14〜16人。"
           minNumber:10
           suggestedOption:
             scapegoat:"no"
@@ -437,7 +437,8 @@ exports.jobrules=[
             if number>=26
               ret.Couple=2
               ret.Werewolf=1
-            ret.BigWolf=1
+            ret.Werewolf?=0
+            ret.Werewolf++
             ret.WolfDiviner=1
             if number>=19
               ret.WolfDiviner++
