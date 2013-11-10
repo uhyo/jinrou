@@ -1231,7 +1231,11 @@ class Game
                 when "Devil"
                     ["村は悪魔くんのものとなりました。","悪魔くん勝利"]
                 when "Friend"
-                    ["#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
+                    friends=@players.filter (x)->x.isFriend()
+                    if friends.length==2 && friends.some((x)->x.isJobType "Noble") && friends.some((x)->x.isJobType "Slave")
+                        ["2人の禁断の愛の力には何者も敵わないのでした。","恋人勝利"]
+                    else
+                        ["#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
                 when "Cult"
                     ["村はカルトに支配されました。","カルトリーダー勝利"]
                 when "Vampire"
@@ -2404,11 +2408,11 @@ class WolfDiviner extends Werewolf
     sunrise:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @showdivineresult game
+            @dodivine game
     midnight:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @dodivine game
+            @showdivineresult game
     dodivine:(game)->
         return unless @result?
         @addGamelog game,"wolfdivine",null,@target  # 占った
@@ -2436,6 +2440,12 @@ class WolfDiviner extends Werewolf
                 newpl=Player.unserialize plobj  # 新生狂人
                 p.transferData newpl
                 p.transform game,newpl
+    makejobinfo:(game,result)->
+        super
+        if game.night
+            if @flag?
+                # もう占いは終わった
+                result.open = result.open?.filter (x)=>x!="WolfDiviner"
 
         
     
@@ -4378,7 +4388,7 @@ class ThreateningWolf extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.id}を威嚇しました。"
+            comment:"#{@name}は#{pl.name}を威嚇しました。"
         splashlog game.id,game,log
         null
     sunset:(game)->
