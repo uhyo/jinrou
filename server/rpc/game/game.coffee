@@ -2228,12 +2228,6 @@ class TinyFox extends Diviner
     team:"Fox"
     isHuman:->false
     isFox:->true
-    sunset:(game)->
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
-                @sunset
     makejobinfo:(game,result)->
         super
         # 子狐は妖狐が分かる
@@ -3639,7 +3633,6 @@ class Thief extends Player
             splashlog game.id,game,log
             if @scapegoat
                 # 身代わり君
-                arr=JSON.parse @flag
                 r=Math.floor Math.random()*arr.length
                 @job game,arr[r]
     job:(game,target)->
