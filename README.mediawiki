@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.81.la/ 月下人狼サーバー]稼働中!
 == version ==
-1.87
+1.8.8
 
 == requirements ==
 * SocketStream
@@ -17,10 +17,10 @@ and others...
 # npm install
 # run mongodb
 # run redis
-# SS_ENV=production node app.js
+# SS_ENV=production SS_PACK=1 node app.js
 
 == jobs ==
-全50種くらい?
+全65種くらい?
 
 === 基本 ===
 * 村人
@@ -66,6 +66,7 @@ and others...
 * 死神の手帳
 * 闇鍋
 * 一部闇鍋
+* 量子人狼
 
 
 
