@@ -906,7 +906,7 @@ class Game
             # 逃亡者を探す
             runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target.to
             runners.forEach (x)=>
-                x.die this,"werewolf",target.from   # その家に逃げていたら逃亡者も死ぬ
+                x.die this,"werewolf2",target.from   # その家に逃げていたら逃亡者も死ぬ
 
             if !t.dead
                 # 死んでない
@@ -915,7 +915,7 @@ class Game
                     # 欲張り狼がやられた!
                     gw = @getPlayer res[1]
                     if gw?
-                        gw.die this,"werewolf"
+                        gw.die this,"werewolf2"
                         gw.addGamelog this,"greedyKilled",t.type,t.id
                         # 以降は襲撃できない
                         break
@@ -924,10 +924,10 @@ class Game
                     # 一途な狼がすごい
                     tw = @getPlayer res[1]
                     t.dead=true
-                    t.found="werewolf"
-                    t.dying this,"werewolf",tw.id
+                    t.found="werewolf2"
+                    t.dying this,"werewolf2",tw.id
                     if tw?
-                        tw.die this,"werewolf"
+                        tw.die this,"werewolf2"
                         tw.addGamelog this,"toughwolfKilled",t.type,t.id
 
     # 死んだ人を処理する
@@ -940,7 +940,7 @@ class Game
         deads.forEach (x)=>
             situation=switch x.found
                 #死因
-                when "werewolf","poison","hinamizawa","vampire","witch","dog","trap"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap"
                     "無惨な姿で発見されました"
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -2476,13 +2476,21 @@ class Fugitive extends Player
         splashlog game.id,game,log
         @addGamelog game,"runto",null,pl.id
         null
+    die:(game,found)->
+        # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬は回避
+        if found in ["werewolf","vampire","witch"]
+            return
+        else
+            super
         
     midnight:(game)->
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
         if !pl.dead && pl.isWerewolf()
-            @die game,"werewolf"
+            @die game,"werewolf2"
+        else if !pl.dead && pl.isVampire()
+            @die game,"vampire2"
         
     isWinner:(game,team)->
         team==@team && !@dead   # 村人勝利で生存
@@ -4155,7 +4163,7 @@ class Counselor extends Player
         return if t.dead
         if t.isWerewolf()
             # 人狼とかヴァンパイアを襲ったら殺される
-            @die game,"werewolf"
+            @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
         if t.isVampire()
