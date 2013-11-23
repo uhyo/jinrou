@@ -38,10 +38,10 @@ exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox","Immoral"]
-    Bat:["Bat"]
     Devil:["Devil"]
     Friend:["Cupid","Lover"]
-    Others:["Stalker","Doppleganger","CultLeader","Vampire","Tanner","Thief","Hoodlum","QuantumPlayer"],
+    Vampire:["Vampire"]
+    Others:["Bat","Stalker","Doppleganger","CultLeader","Tanner","Thief","Hoodlum","QuantumPlayer"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -786,12 +786,6 @@ exports.jobinfo=
             color:"#5c2f5c"
             
         
-    Bat:
-        name:"こうもり"
-        color:"#000066"
-        Bat:
-            name:"こうもり"
-            color:"#000066"
     Devil:
         name:"悪魔くん"
         color:"#735f9e"
@@ -807,9 +801,18 @@ exports.jobinfo=
         Lover:
             name:"求愛者"
             color:"#ffcfee"
+    Vampire:
+        name:"ヴァンパイア陣営"
+        color:"#8f00bf"
+        Vampire:
+            name:"ヴァンパイア"
+            color:"#8f00bf"
     Others:
         name:"その他"
         color:"#cccccc"
+        Bat:
+            name:"こうもり"
+            color:"#000066"
         Stalker:
             name:"ストーカー"
             color:"#ad6628"
@@ -819,9 +822,6 @@ exports.jobinfo=
         CultLeader:
             name:"カルトリーダー"
             color:"#b09d87"
-        Vampire:
-            name:"ヴァンパイア"
-            color:"#8f00bf"
         Tanner:
             name:"皮なめし職人"
             color:"#ede4b9"
