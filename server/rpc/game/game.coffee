@@ -2462,10 +2462,8 @@ class Fugitive extends Player
     willDieWerewolf:false   # 人狼に直接噛まれても死なない
     sunset:(game)->
         @target=null
-        @willDieWerewolf=false
         if game.day<=1 && game.rule.scapegoat!="off"    # 一日目は逃げない
             @target=""
-            @willDieWerewolf=true   # 一日目だけは死ぬ
         else if @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
@@ -2695,7 +2693,7 @@ class Light extends Player
     type:"Light"
     jobname:"デスノート"
     sleeping:->true
-    jobdone:->@target?
+    jobdone:(game)->@target? || game.day==1
     sunset:(game)->
         @target=null
     job:(game,playerid,query)->
@@ -3273,7 +3271,7 @@ class Vampire extends Player
     team:"Vampire"
     willDieWerewolf:false
     fortuneResult:"ヴァンパイア"
-    sleeping:->@target?
+    sleeping:(game)->@target? || game.day==1
     isHuman:->false
     isVampire:->true
     sunset:(game)->
@@ -3286,6 +3284,8 @@ class Vampire extends Player
         # 襲う先
         if @target?
             return "既に対象を選択しています"
+        if game.day==1
+            return "今日は襲えません"
         @target=playerid
         log=
             mode:"skill"
@@ -4229,7 +4229,7 @@ class GreedyWolf extends Werewolf
     type:"GreedyWolf"
     jobname:"欲張りな狼"
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
-    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag || game.day>=2)
+    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag || game.day==1)
     job:(game,playerid,query)->
         if query.jobtype!="GreedyWolf"
             # 人狼の仕事
