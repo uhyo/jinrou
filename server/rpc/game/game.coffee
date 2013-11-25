@@ -3390,6 +3390,8 @@ class Witch extends Player
 
         if query.Witch_drug=="kill"
             # 毒薬
+            if game.day==1
+                return "今日は使用できません"
             if (@flag&3)==3
                 # 蘇生薬は使い切った
                 return "もう薬は使えません"
