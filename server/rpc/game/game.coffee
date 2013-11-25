@@ -1537,13 +1537,13 @@ class VotingBox
         table=[]
         #for obj in @votes
         for pl in @game.players
+            continue if pl.dead
             obj=@getHisVote pl
-            continue unless obj?
-
-            tos[obj.to.id] ?= 0
-            tos[obj.to.id]+=obj.power
-            o=obj.player.publicinfo()
-            o.voteto=obj.to.id  # 投票先情報を付け加える
+            o=pl.publicinfo()
+            if obj?
+                tos[obj.to.id] ?= 0
+                tos[obj.to.id]+=obj.power
+                o.voteto=obj.to.id  # 投票先情報を付け加える
             table.push o
         max=0
         for playerid,num of tos
