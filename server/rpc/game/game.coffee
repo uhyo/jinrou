@@ -2500,9 +2500,9 @@ class Fugitive extends Player
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
-        if !pl.dead && pl.isWerewolf()
+        if !pl.dead && pl.isWerewolf() && pl.team=="Werewolf"
             @die game,"werewolf2"
-        else if !pl.dead && pl.isVampire()
+        else if !pl.dead && pl.isVampire() && pl.team=="Vampire"
             @die game,"vampire2"
         
     isWinner:(game,team)->
@@ -4178,12 +4178,12 @@ class Counselor extends Player
         t=game.getPlayer @target
         return unless t?
         return if t.dead
-        if t.isWerewolf()
+        if t.isWerewolf() && t.team=="Werewolf"
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if t.isVampire()
+        if t.isVampire() && t.team=="Vampire"
             @die game,"vampire"
             @addGamelog game,"counselKilled",t.type,@target
             return
