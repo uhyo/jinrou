@@ -2212,13 +2212,15 @@ class Fox extends Player
 class Poisoner extends Player
     type:"Poisoner"
     jobname:"埋毒者"
-    dying:(game,found)->
+    dying:(game,found,from)->
         super
         # 埋毒者の逆襲
         canbedead = game.players.filter (x)->!x.dead    # 生きている人たち
         if found=="werewolf"
             # 噛まれた場合は狼のみ
             canbedead=canbedead.filter (x)->x.isWerewolf()
+        else if found=="vampire"
+            canbedead=canbedead.filter (x)->x.id==from
         return if canbedead.length==0
         r=Math.floor Math.random()*canbedead.length
         pl=canbedead[r] # 被害者
@@ -3299,7 +3301,7 @@ class Vampire extends Player
         t=game.getPlayer @target
         return unless t?
         return if t.dead
-        t.die game,"vampire"
+        t.die game,"vampire",@id
     makejobinfo:(game,result)->
         super
         # ヴァンパイアが分かる
@@ -4655,7 +4657,7 @@ class Guarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"Guarded"
     die:(game,found,from)->
-        unless found=="werewolf"
+        unless found in ["werewolf","vampire"]
             @main.die game,found,from
         else
             # 狼に噛まれた場合は耐える
@@ -4666,7 +4668,7 @@ class Guarded extends Complex
                     log=
                         mode:"skill"
                         to:guard.id
-                        comment:"#{guard.name}は#{@name}を人狼の襲撃から護衛しました。"
+                        comment:"#{guard.name}は#{@name}を襲撃から護衛しました。"
                     splashlog game.id,game,log
 
     sunrise:(game)->
@@ -4768,8 +4770,8 @@ class TrapGuarded extends Complex
             @checkGuard game,pl.main
             return true
 
-    die:(game,found)->
-        unless found=="werewolf"
+    die:(game,found,from)->
+        unless found in ["werewolf","vampire"]
             # 狼以外だとしぬ
             @main.die game,found
         else
@@ -4781,10 +4783,15 @@ class TrapGuarded extends Complex
                     log=
                         mode:"skill"
                         to:guard.id
-                        comment:"#{guard.name}の罠により#{@name}が人狼の襲撃から守られました。"
+                        comment:"#{guard.name}の罠により#{@name}が襲撃から守られました。"
                     splashlog game.id,game,log
             # 反撃する
-            canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
+            canbedead=[]
+            ft=game.getPlayer from
+            if ft.isWerewolf()
+                canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
+            else if ft.isVampire()
+                canbedead=game.players.filter (x)->!x.dead && x.id==from
         return if canbedead.length==0
         r=Math.floor Math.random()*canbedead.length
         pl=canbedead[r] # 被害者
