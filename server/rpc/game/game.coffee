@@ -5158,7 +5158,7 @@ module.exports.actions=(req,res,ss)->
                     # 陣営調整もする
                     # 恋人陣営
                     if frees>0
-                        if playersnumber>=8
+                        if playersnumber>=12
                             if Math.random()<0.3
                                 joblist.Cupid++
                                 frees--
@@ -5198,20 +5198,30 @@ module.exports.actions=(req,res,ss)->
                     # 村人陣営
                     if frees>0
                         # 占い師いてほしい
-                        if Math.random()<0.5
+                        if Math.random()<0.8
                             joblist.Diviner++
                             frees--
-                        else if Math.random()<0.4
+                        else if Math.random()<0.3
                             joblist.ApprenticeSeer++
                             frees--
                         # できれば狩人も
-                        if frees>0 && Math.random()<0.2
-                            joblist.Guard++
-                            frees--
+                        if frees>0
+                            if joblist.Diviner>0
+                                if Math.random()<0.5
+                                    joblist.Guard++
+                                    frees--
+                            else if Math.random()<0.2
+                                joblist.Guard++
+                                frees--
                         if frees>0 && wolf_number>=3 && Math.random()<0.1
                             # めずらしい
                             joblist.MadWolf++
                             frees--
+                            # 確定狂人サービス
+                            if frees>0
+                                joblist.category_Madman ?= 0
+                                joblist.category_Madman++
+                                frees--
                 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
                 
@@ -5233,7 +5243,6 @@ module.exports.actions=(req,res,ss)->
                         return true
                     return false
 
-                console.log "yaminabe",joblist
                 while true
                     category=null
                     job=null
@@ -5284,6 +5293,9 @@ module.exports.actions=(req,res,ss)->
                                     # 占い師いないと出現確率低い
                                     continue
                             when "QueenSpectator"
+                                # 2人いたらだめ
+                                if joblist.QueenSpectator>0
+                                    continue
                                 # 女王観戦者はガードがないと不安
                                 if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
                                     unless Math.random()<0.4 && init "Guard","Human"

@@ -35,13 +35,13 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Copier","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox","Immoral"]
     Devil:["Devil"]
     Friend:["Cupid","Lover"]
     Vampire:["Vampire"]
-    Others:["Bat","Stalker","Doppleganger","CultLeader","Tanner","Thief","Hoodlum","QuantumPlayer"],
+    Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -640,9 +640,6 @@ exports.jobinfo=
         Liar:
             name:"嘘つき"
             color:"#a3e4e6"
-        Copier:
-            name:"コピー"
-            color:"#ffffff"
         Light:
             name:"デスノート"
             color:"#2d158c"
@@ -822,6 +819,9 @@ exports.jobinfo=
         CultLeader:
             name:"カルトリーダー"
             color:"#b09d87"
+        Copier:
+            name:"コピー"
+            color:"#ffffff"
         Tanner:
             name:"皮なめし職人"
             color:"#ede4b9"
