@@ -2071,6 +2071,10 @@ class Diviner extends Player
         super
         unless game.rule.divineresult=="immediate"
             @dodivine game
+        # 占った影響
+        p=game.getPlayer @target
+        if p?
+            p.divined game,this
     #占い実行
     dodivine:(game)->
         p=game.getPlayer @target
@@ -2079,7 +2083,6 @@ class Diviner extends Player
                 player: p.publicinfo()
                 result: p.fortuneResult
             }
-            p.divined game,this
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
         r=@results[@results.length-1]
@@ -2407,6 +2410,10 @@ class WolfDiviner extends Werewolf
         super
         unless game.rule.divineresult=="immediate"
             @showdivineresult game
+        # 占った影響
+        p=game.getPlayer @flag
+        if p?
+            p.divined game,this
     dodivine:(game)->
         return unless @result?
         @addGamelog game,"wolfdivine",null,@target  # 占った
@@ -2421,7 +2428,6 @@ class WolfDiviner extends Werewolf
             @result=
                 player: p.publicinfo()
                 result: p.jobname
-            p.divined game,this
             if p.type=="Diviner"
                 # 逆呪殺
                 @die game,"curse"
