@@ -1873,6 +1873,11 @@ class Player
         game.players.forEach (x,i)=>
             if x.id==@id
                 chk game.players,i,this
+                # participantsも
+                for pl,j in game.participants
+                    if pl.id==@id
+                        game.participants[j]=game.players[i]
+                        break
                 
         aftpl=game.getPlayer @id
         #前と後で比較
@@ -4673,6 +4678,7 @@ class Muted extends Complex
         # 一日しか効かない
         @main.sunset game
         @sub?.sunset? game
+        console.log @serialize()
         @uncomplex game
         game.ss.publish.user @id,"refresh",{id:game.id}
     getSpeakChoiceDay:(game)->
