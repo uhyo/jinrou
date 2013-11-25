@@ -923,12 +923,14 @@ class Game
                 if res?
                     # 一途な狼がすごい
                     tw = @getPlayer res[1]
-                    t.dead=true
-                    t.found="werewolf2"
-                    t.dying this,"werewolf2",tw.id
-                    if tw?
-                        tw.die this,"werewolf2"
-                        tw.addGamelog this,"toughwolfKilled",t.type,t.id
+                    t=@getPlayer target.to
+                    if t?
+                        t.dead=true
+                        t.found="werewolf2"
+                        t.dying this,"werewolf2",tw.id
+                        if tw?
+                            tw.die this,"werewolf2"
+                            tw.addGamelog this,"toughwolfKilled",t.type,t.id
 
     # 死んだ人を処理する
     bury:->
