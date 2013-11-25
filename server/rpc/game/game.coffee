@@ -2401,7 +2401,7 @@ class WolfDiviner extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+            comment:"#{@name}が#{game.getPlayer(playerid).name}を人狼占いで占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @showdivineresult game
