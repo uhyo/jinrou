@@ -2794,7 +2794,7 @@ class Cupid extends Player
         @flag=null  # 恋人1
         @target=null    # 恋人2
     sunset:(game)->
-        if game.day>=2
+        if game.day>=2 && @flag?
             # 2日目以降はもう遅い
             @flag=""
             @target=""
@@ -2813,8 +2813,6 @@ class Cupid extends Player
     job:(game,playerid,query)->
         if @flag? && @target?
             return "既に対象は決定しています"
-        if game.day>=2  #もう遅い
-            return "もう恋の矢を放てません"
     
         pl=game.getPlayer playerid
         unless pl?
@@ -2873,10 +2871,8 @@ class Stalker extends Player
             @target=""
     sleeping:->@flag?
     job:(game,playerid,query)->
-        if @target?
+        if @target? || @flag?
             return "既に対象は決定しています"
-        if game.day>=2  #もう遅い
-            return "もうストーキングできません"
     
         pl=game.getPlayer playerid
         unless pl?
@@ -3476,7 +3472,7 @@ class Tanner extends Player
 class OccultMania extends Player
     type:"OccultMania"
     jobname:"オカルトマニア"
-    sleeping:(game)->@target? || game.day!=2
+    sleeping:(game)->@target? || game.day<2
     sunset:(game)->
         @target=if game.day==2 then null else ""
         if !@target? && @scapegoat
@@ -3485,7 +3481,7 @@ class OccultMania extends Player
             unless @job game,game.players[r].id,{}
                 @target=""
     job:(game,playerid)->
-        if game.day!=2
+        if game.day<2
             # まだ発動できない
             return "今は能力を発動できません"
         @target=playerid
@@ -3889,10 +3885,7 @@ class Hoodlum extends Player
         @flag="[]"  # 殺したい対象IDを入れておく
         @target=null
     sunset:(game)->
-        if game.day>=2
-            # もう何もない
-            @target=""
-        else
+        unless @target?
             # 2人選んでもらう
             @target=null
             if @scapegoat
@@ -3907,8 +3900,6 @@ class Hoodlum extends Player
     job:(game,playerid,query)->
         if @target?
             return "既に対象は決定しています"
-        if game.day>=2
-            return "もう対象を選択できません"
         pl=game.getPlayer playerid
         unless pl?
             return "対象が不正です"
@@ -4278,15 +4269,13 @@ class GreedyWolf extends Werewolf
 class FascinatingWolf extends Werewolf
     type:"FascinatingWolf"
     jobname:"誘惑する女狼"
-    sleeping:(game)->super && (game.day>=2 || @flag?)
+    sleeping:(game)->super && @flag?
     job:(game,playerid,query)->
         if query.jobtype!="FascinatingWolf"
             # 人狼の仕事
             return super
         if @flag
             return "既に能力を使用しています"
-        if game.day>=2
-            return "もう能力を使用できません"
         pl=game.getPlayer playerid
         unless pl?
             return "対象のプレイヤーは存在しません"
@@ -4325,7 +4314,7 @@ class FascinatingWolf extends Werewolf
     makejobinfo:(game,result)->
         super
         if game.night
-            if game.day>=2 || @flag
+            if @flag
                 # もう誘惑は必要ない
                 result.open = result.open?.filter (x)=>x!="FascinatingWolf"
 class SolitudeWolf extends Werewolf
