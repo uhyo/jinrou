@@ -806,9 +806,10 @@ exports.start=(roomid)->
                 th=document.createElement "th"
                 th.textContent="人狼"
                 tr.appendChild th
-                th=document.createElement "th"
-                th.textContent="死亡"
-                tr.appendChild th
+                if this_rule?.rule.quantumwerewolf_dead!="no"
+                    th=document.createElement "th"
+                    th.textContent="死亡"
+                    tr.appendChild th
                 for id,obj of pt
                     tr=tb.insertRow -1
                     tr.insertCell(-1).textContent=obj.name
@@ -816,7 +817,8 @@ exports.start=(roomid)->
                     if obj.Diviner?
                         pbu tr.insertCell(-1),obj.Diviner
                     pbu tr.insertCell(-1),obj.Werewolf
-                    pbu tr.insertCell(-1),obj.dead
+                    if this_rule?.rule.quantumwerewolf_dead!="no"
+                        pbu tr.insertCell(-1),obj.dead
                     if obj.dead==1
                         tr.classList.add "deadoff-line"
             p.appendChild tb

@@ -700,8 +700,10 @@ class Game
                         name:x.name
                         Human:0
                         Werewolf:0
-                        dead:0
                     }
+                    if @rule.quantumwerewolf_dead=="on"
+                        #死亡確率も
+                        probability_table[x.id].dead=0
                     if @rule.quantumwerewolf_diviner=="on"
                         # 占い師の確率も
                         probability_table[x.id].Diviner=0
@@ -720,15 +722,16 @@ class Game
                             Human:count.Human/sum
                             Diviner:count.Diviner/sum
                             Werewolf:count.Werewolf/sum
-                            dead:count.dead/sum
                         }
                     else
                         probability_table[x.id]={
                             name:x.name
                             Human:(count.Human+count.Diviner)/sum
                             Werewolf:count.Werewolf/sum
-                            dead:count.dead/sum
                         }
+                    if @rule.quantumwerewolf_dead!="no" || count.dead==sum
+                        # 死亡率も
+                        probability_table[x.id].dead=count.dead/sum
                 if @rule.quantumwerewolf_table=="anonymous"
                     # 番号を表示
                     numberref_table[pflag.number]=x
@@ -4059,7 +4062,7 @@ class QuantumPlayer extends Player
                     log=
                         mode:"skill"
                         to:@id
-                        comment:"#{@name}が占い師である可能性が無くなったので、占えませんでした。"
+                        comment:"#{@name}が生存中の占い師である可能性が無くなったので、占えませんでした。"
                     splashlog game.id,game,log
         if tarobj.Werewolf
             pl=game.getPlayer tarobj.Werewolf
@@ -5441,7 +5444,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest",
-            "quantumwerewolf_table","quantumwerewolf_diviner","yaminabe_safety"]
+            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
 

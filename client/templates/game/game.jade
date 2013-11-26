@@ -181,7 +181,10 @@
               select(name="quantumwerewolf_table")
                 option(value="open",title="確率表にプレイヤー名が表示されます。",selected) プレイヤー名を表示
                 option(value="anonymous",title="自分以外のプレイヤー番号はわかりません。") プレイヤー番号を表示
-            label(title="確率表に占い師の確率を表示します。")
+            label(title="確率表に死亡率を表示しないルールです。表示するのが普通です。")
+              | 死亡率を表示しない
+              input(name="quantumwerewolf_dead",type="checkbox",value="no")
+            label(title="確率表に占い師の確率を表示します。表示しないのが普通のルールです。")
               | 占い師の確率も表示する
               input(name="quantumwerewolf_diviner",type="checkbox",value="on")
 
