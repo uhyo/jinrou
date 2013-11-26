@@ -3301,6 +3301,10 @@ class Vampire extends Player
         return unless t?
         return if t.dead
         t.die game,"vampire",@id
+        # 逃亡者を探す
+        runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==t.id
+        runners.forEach (x)=>
+            x.die this,"vampire2",@id   # その家に逃げていたら逃亡者も死ぬ
     makejobinfo:(game,result)->
         super
         # ヴァンパイアが分かる
