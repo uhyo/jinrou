@@ -272,6 +272,7 @@ module.exports.actions=(req,res,ss)->
                 else
                     res null
                     # 退室通知
+                    room.players=room.players.filter (x)->x.realid!=req.session.userId
                     user=room.players.filter((x)=>x.realid==req.session.userId)[0]
                     Server.game.game.outlog room,user ? req.session.user
                     ss.publish.channel "room#{roomid}", "unjoin", user?.userid
