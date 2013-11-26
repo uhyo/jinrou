@@ -56,8 +56,16 @@ exports.start=(user)->
     ),false
     
     $("#morescore").submit (je)->
-        je.target.elements["submit"].disabled=true
         je.preventDefault()
+        op=je.target.elements["open"].value
+        if op=="true"
+            # 隠す
+            je.target.elements["submit"].value="詳細情報を開く"
+            je.target.elements["open"].value="false"
+            $("#grapharea").empty()
+            return
+        je.target.elements["open"].value="true"
+        je.target.elements["submit"].value="詳細情報を隠す"
         ss.rpc "user.getMyuserlog", (obj)->
             unless obj?
                 Index.util.message "戦績表示","戦績が存在しないので表示できません。"
@@ -79,7 +87,7 @@ exports.start=(user)->
                 graph
             
             # 勝率グラフ
-            graph=grp "勝敗ごとの陣営"
+            graph=grp "勝敗ごとの役職"
             graph.hide()
             # 勝敗を陣営ごとに
             gs=
