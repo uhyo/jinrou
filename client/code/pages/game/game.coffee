@@ -265,10 +265,32 @@ exports.start=(roomid)->
             je.preventDefault()
             query=Index.util.formQuery je.target
             jobrule=query.jobrule
-            ruleobj=Shared.game.getruleobj jobrule
+            ruleobj=Shared.game.getruleobj(jobrule) ? {}
+            # ステップ2: 時間チェック
+            step2=->
+                # 夜時間をチェック
+                minNight = ruleobj.suggestedNight?.min ? -Infinity
+                maxNight = ruleobj.suggestedNight?.max ? Infinity
+                night = parseInt(query.night_minute)*60+parseInt(query.night_second)
+                #console.log ruleobj,night,minNight,maxNight
+                if night<minNight || maxNight<night
+                    # 範囲オーバー
+                    Index.util.ask "オプション","この配役では夜の時間は#{if isFinite(minNight) then minNight+'秒以上' else ''}#{if isFinite(maxNight) then maxNight+'秒以下' else ''}が推奨されています。このまま開始してもいいですか？",(res)->
+                        if res
+                            #OKだってよ...
+                            starting()
+                else
+                    starting()
+            # じっさいに開始
+            starting=->
+                ss.rpc "game.game.gameStart", roomid,query,(result)->
+                    if result?
+                        Index.util.message "ルーム",result
+                    else
+                        $("#gamestartsec").attr "hidden","hidden"
             # 相違がないか探す
             diff=null
-            for key,value of (ruleobj?.suggestedOption ? {})
+            for key,value of (ruleobj.suggestedOption ? {})
                 if query[key]!=value
                     diff=
                         key:key
@@ -287,18 +309,10 @@ exports.start=(roomid)->
                             Index.util.ask "オプション","この配役ではオプション「#{control.dataset.name}」を「#{sugval}」にすることが推奨されています。このまま開始してもいいですか？",(res)->
                                 if res
                                     # OKだってよ...
-                                    ss.rpc "game.game.gameStart", roomid,query,(result)->
-                                        if result?
-                                            Index.util.message "ルーム",result
-                                        else
-                                            $("#gamestartsec").attr "hidden","hidden"
+                                    step2()
                             return
             # とくに何もない
-            ss.rpc "game.game.gameStart", roomid,query,(result)->
-                if result?
-                    Index.util.message "ルーム",result
-                else
-                    $("#gamestartsec").attr "hidden","hidden"
+            step2()
         speakform=$("#speakform").get 0
         $("#speakform").submit (je)->
             form=je.target
@@ -642,6 +656,9 @@ exports.start=(roomid)->
                 name:"量子人狼"
                 title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
                 rule:null
+                suggestedNight:{
+                    max:60
+                }
             }
         ]
         

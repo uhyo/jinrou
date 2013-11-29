@@ -537,6 +537,16 @@ exports.jobrules=[
 # ルールオブジェクトを得る
 exports.getruleobj=(name)->
     # オブジェクトから探す
+    if name=="特殊ルール.量子人狼"
+        # 特殊だ!
+        return {
+            name:"量子人狼"
+            title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
+            rule:null
+            suggestedNight:{
+                max:60
+            }
+        }
     names= name.split "."
     obj=Shared.game.jobrules
     for branch in names #.区切りでオブジェクト名
