@@ -71,6 +71,15 @@ exports.images=(request, response, next)->
         return
       response.writeHead 200,{'Content-Type':'image/png'}	# all png!! really?
       response.end data
+  else if request.url=="/noIE.html"
+    # なぜかページも
+    fs.readFile "./public/noIE.html",(err,data)->
+      if err?
+        response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
+        response.end err.toString()
+        return
+      response.writeHead 200,{'Content-Type':'text/html'}
+      response.end data
   else
     next()
 

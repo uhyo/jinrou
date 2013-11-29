@@ -31,13 +31,9 @@ html
             a(href="/backdoor/home") ホームに戻る
           li
             a(href="/manual/about") 月下人狼について
-    //if lt IE 10
-      p 注意:お使いのブラウザは<b>Internet Exolorer</b>です。人狼を正常にプレイできない恐れがありますので、他のブラウザに乗り換えることをお勧めします。
-      p 新しい他のブラウザで、快適で自由な人狼と、人狼以外でも快適なWebブラウジングをお楽しみ下さい。
-      h2 お勧めブラウザ
-        ul
-          li: a(href="http://www.google.co.jp/chrome",target="_blank") Google Chrome
-          li: a(href="http://jp.opera.com/",target="_blank") Opera
-          li: a(href="http://mozilla.jp/firefox/",target="_blank") Firefox
-        
+    script(type="text/javascript")
+      if(("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)){
+        //要件を満たさない
+        location.replace("/noIE.html");
+      }
     #content
