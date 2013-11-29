@@ -652,7 +652,7 @@ class Game
         splashlog @id,this,log
 
         #死体処理
-        @bury()
+        @bury(if @night then "night" else "day")
 
         if @rule.jobrule=="特殊ルール.量子人狼"
             # 量子人狼
@@ -753,7 +753,7 @@ class Game
                 probability_table:probability_table
             splashlog @id,this,log
             # もう一回死体処理
-            @bury()
+            @bury(if @night then "night" else "day")
     
         return if @judge()
 
@@ -833,7 +833,7 @@ class Game
             @revote_num=0   # 再投票の回数は0にリセット
 
         #死体処理
-        @bury()
+        @bury("other")
         return if @judge()
         @splashjobinfo()
         if @night
@@ -938,11 +938,11 @@ class Game
             # こいつらは1夜限り
             @werewolf_flag=null
 
-    # 死んだ人を処理する
-    bury:->
+    # 死んだ人を処理する type: タイミング
+    bury:(type)->
         alives=@players.filter (x)->!x.dead
         alives.forEach (x)=>
-            x.beforebury this
+            x.beforebury this,type
         deads=@players.filter (x)->x.dead && x.found
         deads=shuffle deads # 順番バラバラ
         deads.forEach (x)=>
@@ -1316,7 +1316,7 @@ class Game
                             x.die this,"gone-night" # 突然死
                             # 突然死記録
                             M.users.update {userid:x.realid},{$push:{gone:@id}}
-                        @bury()
+                        @bury("other")
                         @checkjobs true
                 else
                     return
@@ -1331,7 +1331,7 @@ class Game
                     x.die this,"gone-night" # 突然死
                     # 突然死記録
                     M.users.update {userid:x.realid},{$push:{gone:@id}}
-                @bury()
+                @bury("other")
                 @checkjobs true
         else if !@voting
             # 昼
@@ -1355,7 +1355,7 @@ class Game
                             return if x.dead || x.voted(this,@votingbox)
                             x.die this,"gone-day"
                             revoting=true
-                        @bury()
+                        @bury("other")
                         @judge()
                         if revoting
                             @dorevote()
@@ -1374,7 +1374,7 @@ class Game
                         return if x.dead || x.voted(this,@votingbox)
                         x.die this,"gone-day"
                         revoting=true
-                    @bury()
+                    @bury("other")
                     @judge()
                     if revoting
                         @dorevote()
@@ -1787,7 +1787,7 @@ class Player
             game.ss.publish.user @id,"refresh",{id:game.id}
 
     # 埋葬するまえに全員呼ばれる（foundが見られる状況で）
-    beforebury: (game)->
+    beforebury: (game,type)->
     # 占われたとき（結果は別にとられる player:占い元）
     divined:(game,player)->
     # 選択肢を返す
@@ -2132,7 +2132,7 @@ class Psychic extends Player
         @flag=""
     
     # 処刑で死んだ人を調べる
-    beforebury:(game)->
+    beforebury:(game,type)->
         game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
             @flag += "#{@name}の霊能の結果、前日処刑された#{x.name}は#{x.psychicResult}でした。\n"
 
@@ -2156,7 +2156,8 @@ class Guard extends Player
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
             if @job game,game.players[r].id,{}
-                @sunset
+                # 失敗した
+                @target=""
     job:(game,playerid)->
         unless playerid==@id && game.rule.guardmyself!="ok"
             super
@@ -2761,7 +2762,7 @@ class Immoral extends Player
     type:"Immoral"
     jobname:"背徳者"
     team:"Fox"
-    beforebury:(game)->
+    beforebury:(game,type)->
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game,"foxsuicide"
@@ -2811,7 +2812,6 @@ class ToughGuy extends Player
             @flag=null
             @dead=true
             @found="werewolf"
-            #game.bury()
 class Cupid extends Player
     type:"Cupid"
     jobname:"キューピッド"
@@ -2969,7 +2969,7 @@ class Cursed extends Player
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     jobname:"見習い占い師"
-    beforebury:(game)->
+    beforebury:(game,type)->
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner"
@@ -3215,7 +3215,7 @@ class Doppleganger extends Player
         splashlog game.id,game,log
         @flag=playerid  # ドッペルゲンガー先
         null
-    beforebury:(game)->
+    beforebury:(game,type)->
         founds=game.players.filter (x)->x.dead && x.found
         # 対象が死んだら移る
         if founds.some((x)=>x.id==@flag)
@@ -4458,6 +4458,71 @@ class ThreateningWolf extends Werewolf
 class HolyMarked extends Human
     type:"HolyMarked"
     jobname:"聖痕者"
+class WanderingGuard extends Player
+    type:"WanderingGuard"
+    jobname:"風来狩人"
+    sleeping:->@target?
+    sunset:(game)->
+        @target=null
+        if game.day==1
+            # 狩人は一日目護衛しない
+            @target=""  # 誰も守らない
+        else
+            fl=JSON.parse(@flag ? "[]")
+            alives=game.players.filter (x)->!x.dead
+            if alives.every((pl)=>(pl.id in fl) || (game.rule.guardmyself!="ok" && pl.id==@id))
+                # もう護衛対象がいない
+                @target=""
+            else if @scapegoat
+                # 身代わり君の自動占い
+                r=Math.floor Math.random()*game.players.length
+                if @job game,game.players[r].id,{}
+                    @sunset game
+    job:(game,playerid)->
+        fl=JSON.parse(@flag ? "[]")
+        if playerid==@id && game.rule.guardmyself!="ok"
+            return "自分を護衛することはできません"
+        
+        fl=JSON.parse(@flag ? "[]")
+        if playerid in fl
+            return "その人はもう護衛できません"
+        @target=playerid
+        # OK!
+        pl=game.getPlayer(playerid)
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}を護衛しました。"
+        splashlog game.id,game,log
+        # 複合させる
+
+        newpl=Player.factory null,pl,null,Guarded   # 守られた人
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 護衛元cmplFlag
+        pl.transform game,newpl
+        null
+    beforebury:(game,type)->
+        if type=="day"
+            # 昼になったとき
+            if game.players.filter((x)->x.dead && x.found).length==0
+                # 誰も死ななかった!護衛できない
+                pl=game.getPlayer @target
+                if pl?
+                    log=
+                        mode:"skill"
+                        to:@id
+                        comment:"#{@name}は#{pl.name}をもう護衛できません。"
+                    splashlog game.id,game,log
+                    fl=JSON.parse(@flag ? "[]")
+                    fl.push pl.id
+                    @flag=JSON.stringify fl
+    makeJobSelection:(game)->
+        if game.night
+            fl=JSON.parse(@flag ? "[]")
+            a=super
+            return a.filter (obj)->!(obj.value in fl)
+        else
+            return super
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4473,7 +4538,7 @@ class GameMaster extends Player
         unless pl?
             return "その対象は不正です"
         pl.die game,"gmpunish"
-        game.bury()
+        game.bury("other")
         null
     isListener:(game,log)->true # 全て見える
     getSpeakChoice:(game)->
@@ -4594,9 +4659,9 @@ class Complex
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @main.makejobinfo game,result
-    beforebury:(game)->
-        @main.beforebury game
-        @sub?.beforebury? game
+    beforebury:(game,type)->
+        @main.beforebury game,type
+        @sub?.beforebury? game,type
     setWinner:(winner)->
         @winner=winner
         @main.setWinner winner
@@ -4630,9 +4695,9 @@ class Friend extends Complex    # 恋人
     getJobname:->"恋人（#{@main.getJobname()}）"
     getJobDisp:->"恋人（#{@main.getJobDisp()}）"
     
-    beforebury:(game)->
-        @main.beforebury game
-        @sub?.beforebury? game
+    beforebury:(game,type)->
+        @main.beforebury game,type
+        @sub?.beforebury? game,type
         friends=game.players.filter (x)->x.isFriend()   #恋人たち
         # 恋人が誰か死んだら自殺
         if friends.length>1 && friends.some((x)->x.dead)
@@ -4984,6 +5049,7 @@ jobs=
     ToughWolf:ToughWolf
     ThreateningWolf:ThreateningWolf
     HolyMarked:HolyMarked
+    WanderingGuard:WanderingGuard
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
