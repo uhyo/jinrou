@@ -934,6 +934,9 @@ class Game
                         if tw?
                             tw.die this,"werewolf2"
                             tw.addGamelog this,"toughwolfKilled",t.type,t.id
+        if /^(?:GreedyWolf|ToughWolf)_/.test @werewolf_flag
+            # こいつらは1夜限り
+            @werewolf_flag=null
 
     # 死んだ人を処理する
     bury:->
@@ -2249,6 +2252,30 @@ class TinyFox extends Diviner
         result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
             x.publicinfo()
 
+    job:(game,playerid)->
+        super
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+        splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game
+        null
+    sunrise:(game)->
+        super
+        unless game.rule.divineresult=="immediate"
+            @showdivineresult game
+                
+    midnight:(game)->
+        super
+        unless game.rule.divineresult=="immediate"
+            @dodivine game
+        # 占った影響
+        p=game.getPlayer @target
+        if p?
+            p.divined game,this
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
@@ -3302,9 +3329,9 @@ class Vampire extends Player
         return if t.dead
         t.die game,"vampire",@id
         # 逃亡者を探す
-        runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==t.id
+        runners=game.players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==t.id
         runners.forEach (x)=>
-            x.die this,"vampire2",@id   # その家に逃げていたら逃亡者も死ぬ
+            x.die game,"vampire2",@id   # その家に逃げていたら逃亡者も死ぬ
     makejobinfo:(game,result)->
         super
         # ヴァンパイアが分かる
