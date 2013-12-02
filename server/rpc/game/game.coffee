@@ -940,10 +940,17 @@ class Game
 
     # 死んだ人を処理する type: タイミング
     bury:(type)->
-        alives=@players.filter (x)->!x.dead
-        alives.forEach (x)=>
-            x.beforebury this,type
-        deads=@players.filter (x)->x.dead && x.found
+        deads=[]
+        loop
+            deads=@players.filter (x)->x.dead && x.found
+            deadsl=deads.length
+            alives=@players.filter (x)->!x.dead
+            alives.forEach (x)=>
+                x.beforebury this,type
+            deads=@players.filter (x)->x.dead && x.found
+            if deadsl>=deads.length
+                # もう新しく死んだ人はいない
+                break
         deads=shuffle deads # 順番バラバラ
         deads.forEach (x)=>
             situation=switch x.found
