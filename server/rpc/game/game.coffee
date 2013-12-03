@@ -5224,15 +5224,15 @@ module.exports.actions=(req,res,ss)->
                                                 if frees>=30
                                                     wolf_number++
                         # ランダム調整
-                        if wolf_number>1 && Math.random()<0.3
+                        if wolf_number>1 && Math.random()<0.1
                             wolf_number--
-                            if wolf_number>1 && Math.random()<0.2
-                                wolf_number--
                         else if frees>0 && playersnumber>=10 && Math.random()<0.2
                             wolf_number++
                         if fox_number>1 && Math.random()<0.15
                             fox_number--
-                        else if frees>=8 && Math.random()<0.25
+                        else if frees>=11 && Math.random()<0.25
+                            fox_number++
+                        else if frees>=8 && Math.random()<0.1
                             fox_number++
                         if frees>=11 && Math.random()<0.2
                             vampire_number++
