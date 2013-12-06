@@ -1012,50 +1012,6 @@ class Game
     # 返り値意味ないんじゃないの?
     execute:->
         return false unless @votingbox.isVoteAllFinished()
-        ###
-        tos={}
-        @players.forEach (x)->
-            return if x.dead || !x.voteto
-            if tos[x.voteto]?
-                tos[x.voteto]+=if x.authority then 2 else 1
-            else
-                tos[x.voteto]=if x.authority then 2 else 1
-        max=0
-        for playerid,num of tos
-            if num>max then max=num #最大値をみる
-        if max==0
-            # 誰も投票していない
-            @revote_num=Infinity
-            @judge()
-            return
-        player=null
-        revote=false    # 際投票
-        for playerid,num of tos
-            if num==max
-                if player?
-                    # 斎藤票だ!
-                    revote=true
-                    break
-                player=@getPlayer playerid
-        # 投票結果
-        log=
-            mode:"voteresult"
-            voteresult:@players.filter((x)->!x.dead).map (x)->
-                r=x.publicinfo()
-                r.voteto=x.voteto
-                r
-            tos:tos
-        splashlog @id,this,log
-        if revote
-            # 同率!
-            dcs=@players.filter (x)->!x.dead && x.decider   # 決定者たち
-            for onedc in dcs
-                if tos[onedc.voteto]==max
-                    # こいつだ！
-                    revote=false
-                    player=@getPlayer onedc.voteto
-                    break
-        ###
         [mode,player,tos,table]=@votingbox.check()
         if mode=="novote"
             # 誰も投票していない・・・
@@ -1085,6 +1041,27 @@ class Game
                     comment:"処刑された#{player.name}の霊能結果は#{player.psychicResult}でした。"
                 splashlog @id,this,log
                 
+            @votingbox.remains--
+            if @votingbox.remains>0
+                # もっと殺したい!!!!!!!!!
+                @bury "day"
+                log=
+                    mode:"system"
+                    comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
+                splashlog @id,this,log
+
+                # 再び投票する処理(下と同じ… なんとかならないか?)
+                @votingbox.start()
+                @players.forEach (player)=>
+                    return if player.dead
+                    player.votestart this
+                    @ss.publish.channel "room#{@id}","voteform",true
+                    @splashjobinfo()
+                if @voting
+                    # 投票猶予の場合初期化
+                    clearTimeout @timerid
+                    @timer()
+                return false
             @nextturn()
         return true
     # 再投票
@@ -1100,7 +1077,7 @@ class Game
         if isFinite remains
             log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
         splashlog @id,this,log
-        @votingbox.init()
+        @votingbox.start()
         @players.forEach (player)=>
             return if player.dead
             player.votestart this
@@ -1487,6 +1464,9 @@ class VotingBox
         @init()
     init:->
         # 投票箱を空にする
+        @remains=1  # 残り処刑人数
+        @start()
+    start:->
         @votes=[]   #{player:Player, to:Player}
     isVoteFinished:(player)->@votes.some (x)->x.player.id==player.id
     vote:(player,voteto)->
@@ -1534,8 +1514,9 @@ class VotingBox
                 v.priority=value
             else
                 v.priority+=value
-
-
+    # 処刑人数を増やす
+    addPunishedNumber:(num)->
+        @remains+=num
 
     isVoteAllFinished:->
         alives=@game.players.filter (x)->!x.dead
@@ -4601,7 +4582,34 @@ class ObstructiveMad extends Madman
         newpl.cmplFlag=@id  # 邪魔元cmplFlag
         pl.transform game,newpl
         null
-    
+class TroubleMaker extends Player
+    type:"TroubleMaker"
+    jobname:"トラブルメーカー"
+    sleeping:->true
+    jobdone:->!!@flag
+    makeJobSelection:(game)->
+        # 夜は投票しない
+        if game.night
+            []
+        else super
+    job:(game,playerid)->
+        return "既に能力を使用しています" if @flag
+        @setFlag "using"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は村でトラブルを起こしました。"
+        splashlog game.id,game,log
+        null
+    sunrise:(game)->
+        if @flag=="using"
+            # トラブルがおきた
+            log=
+                mode:"system"
+                comment:"トラブルメーカーにより村が混乱しています。今日は2人処刑されます。"
+            splashlog game.id,game,log
+            @setFlag "done"
+            game.votingbox.addPunishedNumber 1
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
@@ -5154,6 +5162,7 @@ jobs=
     HolyMarked:HolyMarked
     WanderingGuard:WanderingGuard
     ObstructiveMad:ObstructiveMad
+    TroubleMaker:TroubleMaker
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
