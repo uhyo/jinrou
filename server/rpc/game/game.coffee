@@ -1045,6 +1045,8 @@ class Game
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
                 @bury "day"
+                return false if @judge()
+
                 log=
                     mode:"system"
                     comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
@@ -2176,7 +2178,7 @@ class Couple extends Player
     makejobinfo:(game,result)->
         super
         # 共有者は仲間が分かる
-        result.peers=game.players.filter((x)->x.type=="Couple").map (x)->
+        result.peers=game.players.filter((x)->x.isJobType "Couple").map (x)->
             x.publicinfo()
     isListener:(game,log)->
         if log.mode=="couple"
@@ -4610,6 +4612,43 @@ class TroubleMaker extends Player
             splashlog game.id,game,log
             @setFlag "done"
             game.votingbox.addPunishedNumber 1
+
+class FrankensteinsMonster extends Player
+    type:"FrankensteinsMonster"
+    jobname:"フランケンシュタインの怪物"
+    die:(game,found)->
+        super
+        if found=="punish"
+            # 処刑で死んだらもうひとり処刑できる
+            game.votingbox.addPunishedNumber 1
+    beforebury:(game)->
+        # 新しく死んだひとたちで村人陣営ひとたち
+        founds=game.players.filter (x)->x.dead && x.found && x.team=="Human"
+        # 吸収する
+        thispl=this
+        for pl in founds
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は#{pl.name}の死体から#{pl.getJobname()}の能力を吸収しました。"
+            splashlog game.id,game,log
+
+            # 同じ能力を
+            subpl = Player.factory pl.type
+            thispl.transProfile subpl
+
+            newpl=Player.factory null, thispl,subpl,Complex    # 合成する
+            thispl.transProfile newpl
+
+            # 置き換える
+            thispl.transform game,newpl
+            thispl=newpl
+
+            thispl.addGamelog game,"frankeneat",pl.type,pl.id
+
+        if founds.length>0
+            game.splashjobinfo [thispl]
+
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
@@ -4717,72 +4756,97 @@ class Complex
     isComplex:->true
     getJobname:->@main.getJobname()
     getJobDisp:->@main.getJobDisp()
+
+    #@mainのやつを呼ぶ
+    mcall:(game,method,args...)->
+        if @main.isComplex()
+            # そのまま
+            return method.apply @main,args
+        # 他は親が必要
+        top=game.participants.filter((x)=>x.id==@id)[0]
+        if top?
+            return method.apply top,args
+        return null
+
     
-    jobdone:(game)-> @main.jobdone.call(@,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
+    jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     job:(game,playerid,query)-> # どちらの
-        if @main.isJobType.call(@,query.jobtype) && !@main.jobdone.call(@,game)
-            @main.job.call @,game,playerid,query
+        if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
+            @mcall game,@main.job,game,playerid,query
         else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
             @sub.job? game,playerid,query
         
     isJobType:(type)->
-        @main.isJobType.call(@,type) || @sub?.isJobType?(type)
+        @main.isJobType(type) || @sub?.isJobType?(type)
     sunset:(game)->
-        @main.sunset.call @,game
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
     midnight:(game)->
-        @main.midnight.call @,game
+        @mcall game,@main.midnight,game
         @sub?.midnight? game
     sunrise:(game)->
-        @main.sunrise.call @,game
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
     votestart:(game)->
-        @main.votestart.call @,game
-    voted:(game,votingbox)->@main.voted.call @,game,votingbox
+        @mcall game,@main.votestart,game
+    voted:(game,votingbox)->@mcall game,@main.voted,game,votingbox
     dovote:(game,target)->
-        @main.dovote.call @,game,target
+        @mcall game,@main.dovote,game,target
     
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @main.makejobinfo.call @,game,result
+        @mcall game,@main.makejobinfo,game,result
     beforebury:(game,type)->
-        @main.beforebury.call @,game,type
+        @mcall game,@main.beforebury,game,type
         @sub?.beforebury? game,type
-    setWinner:(winner)->
-        @main.setWinner.call @,winner
-        @sub?.setWinner winner
     getjob_target:->
         if @sub?
-            @main.getjob_target.call(@) | @sub.getjob_target()    # ビットフラグ
+            @main.getjob_target() | @sub.getjob_target()    # ビットフラグ
         else
-            @main.getjob_target.call(@)
+            @main.getjob_target()
     die:(game,found,from)->
-        @main.die.call @,game,found,from
+        @mcall game,@main.die,game,found,from
         @sub?.die game,found,from
     dying:(game,found,from)->
-        @main.dying.call @,game,found,from
+        @mcall game,@main.dying,game,found,from
         @sub?.dying game,found,from
     revive:(game)->
-        @main.revive.call @,game
+        @mcall game,@main.revive,game
         @sub?.revive game
     makeJobSelection:(game)->
-        result=@main.makeJobSelection.call @,game
+        result=@mcall game,@main.makeJobSelection,game
         if @sub?
             for obj in @sub.makeJobSelection game
                 unless result.some((x)->x.value==obj.value)
                     result.push obj
         result
+    getSpeakChoiceDay:(game)->
+        result=@mcall game,@main.getSpeakChoiceDay,game
+        if @sub?
+            for obj in @sub.getSpeakChoiceDay game
+                unless result.some((x)->x==obj)
+                    result.push obj
+        result
+    getSpeakChoice:(game)->
+        result=@mcall game,@main.getSpeakChoice,game
+        if @sub?
+            for obj in @sub.getSpeakChoice game
+                unless result.some((x)->x==obj)
+                    result.push obj
+        result
+    isListener:(game,log)->
+        @mcall(game,@main.isListener,game,log) || @sub.isListener(game,log)
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
     cmplType:"Friend"
     isFriend:->true
     team:"Friend"
-    getJobname:->"恋人（#{@main.getJobname.call(@)}）"
+    getJobname:->"恋人（#{@main.getJobname()}）"
     getJobDisp:->"恋人（#{@main.getJobDisp()}）"
     
     beforebury:(game,type)->
-        @main.beforebury.call @,game,type
+        @mcall game,@main.beforebury,game,type
         @sub?.beforebury? game,type
         friends=game.players.filter (x)->x.isFriend()   #恋人たち
         # 恋人が誰か死んだら自殺
@@ -4790,7 +4854,7 @@ class Friend extends Complex    # 恋人
             @die game,"friendsuicide"
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @main.makejobinfo.call @,game,result
+        @mcall game,@main.makejobinfo,game,result
         # 恋人が分かる
         result.desc?.push {
             name:"恋人"
@@ -4817,8 +4881,8 @@ class HolyProtected extends Complex
 class CultMember extends Complex
     cmplType:"CultMember"
     isCult:->true
-    getJobname:->"カルト信者（#{@main.getJobname.call(@)}）"
-    getJobDisp:->"カルト信者（#{@main.getJobDisp.call(@)}）"
+    getJobname:->"カルト信者（#{@main.getJobname()}）"
+    getJobDisp:->"カルト信者（#{@main.getJobDisp()}）"
     makejobinfo:(game,result)->
         super
         # 信者の説明
@@ -4832,7 +4896,7 @@ class Guarded extends Complex
     cmplType:"Guarded"
     die:(game,found,from)->
         unless found in ["werewolf","vampire"]
-            @main.die.call @,game,found,from
+            @mcall game,@main.die,game,found,from
         else
             # 狼に噛まれた場合は耐える
             guard=game.getPlayer @cmplFlag
@@ -4847,7 +4911,7 @@ class Guarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
-        @main.sunrise.call @,game
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
 # 黙らされた人
@@ -4856,7 +4920,7 @@ class Muted extends Complex
 
     sunset:(game)->
         # 一日しか効かない
-        @main.sunset.call @,game
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
         game.ss.publish.user @id,"refresh",{id:game.id}
@@ -4866,11 +4930,11 @@ class Muted extends Complex
 class WolfMinion extends Complex
     cmplType:"WolfMinion"
     team:"Werewolf"
-    getJobname:->"狼の子分（#{@main.getJobname.call(@)}）"
-    getJobDisp:->"狼の子分（#{@main.getJobDisp.call(@)}）"
+    getJobname:->"狼の子分（#{@main.getJobname()}）"
+    getJobDisp:->"狼の子分（#{@main.getJobDisp()}）"
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @main.makejobinfo.call @,game,result
+        @mcall game,@main.makejobinfo,game,result
         result.desc?.push {
             name:"狼の子分"
             value:"WolfMinion"
@@ -4879,7 +4943,7 @@ class WolfMinion extends Complex
 # 酔っ払い
 class Drunk extends Complex
     cmplType:"Drunk"
-    getJobname:->"酔っ払い（#{@main.getJobname.call(@)}）"
+    getJobname:->"酔っ払い（#{@main.getJobname()}）"
     getTypeDisp:->"Human"
     getJobDisp:->"村人"
     sleeping:->true
@@ -4888,7 +4952,7 @@ class Drunk extends Complex
         Human.prototype.isListener.call @,game,log
 
     sunset:(game)->
-        @main.sunrise.call @,game
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         if game.day>=3
             # 3日目に目が覚める
@@ -4909,7 +4973,7 @@ class TrapGuarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"TrapGuarded"
     midnight:(game)->
-        @main.midnight.call @,game
+        @mcall game,@main.midnight,game
         @sub?.midnight? game
         # 狩人とかぶったら狩人が死んでしまう!!!!!
         # midnight: 狼の襲撃よりも前に行われることが保証されている処理
@@ -4948,7 +5012,7 @@ class TrapGuarded extends Complex
     die:(game,found,from)->
         unless found in ["werewolf","vampire"]
             # 狼以外だとしぬ
-            @main.die.call @,game,found
+            @mcall game,@main.die,game,found
         else
             # 狼に噛まれた場合は耐える
             guard=game.getPlayer @cmplFlag
@@ -4976,7 +5040,7 @@ class TrapGuarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
-        @main.sunrise.call @,game
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
 # 黙らされた人
@@ -4985,20 +5049,20 @@ class Lycanized extends Complex
     fortuneResult:"人狼"
     sunset:(game)->
         # 一日しか効かない
-        @main.sunset.call @,game
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
 # カウンセラーによって更生させられた人
 class Counseled extends Complex
     cmplType:"Counseled"
     team:"Human"
-    getJobname:->"更生者（#{@main.getJobname.call(@)}）"
-    getJobDisp:->"更生者（#{@main.getJobDisp.call(@)}）"
+    getJobname:->"更生者（#{@main.getJobname()}）"
+    getJobDisp:->"更生者（#{@main.getJobDisp()}）"
 
     isWinner:(game,team)->@team==team
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @main.makejobinfo.call @,game,result
+        @mcall game,@main.makejobinfo,game,result
         result.desc?.push {
             name:"更生者"
             type:"Counseled"
@@ -5011,7 +5075,7 @@ class MikoProtected extends Complex
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
     sunset:(game)->
         # 一日しか効かない
-        @main.sunset.call @,game
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
 # 威嚇する人狼に威嚇された
@@ -5045,7 +5109,7 @@ class DivineObstructed extends Complex
     cmplType:"DivineObstructed"
     sunrise:(game)->
         # 一日しか守られない
-        @main.sunrise.call @,game
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
     # 占いの影響なし
@@ -5067,18 +5131,18 @@ class DivineObstructed extends Complex
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
-    getJobname:->"#{@main.getJobname.call(@)}（決定者）"
+    getJobname:->"#{@main.getJobname()}（決定者）"
     dovote:(game,target)->
-        result=@main.dovote.call @,game,target
+        result=@mcall game,@main.dovote,game,target
         return result if result?
         game.votingbox.votePriority this,1  #優先度を1上げる
         null
 # 権力者
 class Authority extends Complex
     cmplType:"Authority"
-    getJobname:->"#{@main.getJobname.call(@)}（権力者）"
+    getJobname:->"#{@main.getJobname()}（権力者）"
     dovote:(game,target)->
-        result=@main.dovote.call @,game,target
+        result=@mcall game,@main.dovote,game,target
         return result if result?
         game.votingbox.votePower this,1 #票をひとつ増やす
         null
@@ -5163,6 +5227,7 @@ jobs=
     WanderingGuard:WanderingGuard
     ObstructiveMad:ObstructiveMad
     TroubleMaker:TroubleMaker
+    FrankensteinsMonster:FrankensteinsMonster
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
