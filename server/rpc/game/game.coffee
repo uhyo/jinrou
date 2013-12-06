@@ -2107,7 +2107,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: p.fortuneResult
+                result: "#{@name}が#{p.name}を占ったところ、#{p.fortuneResult}でした。"
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
@@ -2116,7 +2116,7 @@ class Diviner extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{r.player.name}を占ったところ、#{r.result}でした。"
+            comment:r.result
         splashlog game.id,game,log
 class Psychic extends Player
     type:"Psychic"
@@ -2294,9 +2294,10 @@ class TinyFox extends Diviner
         p=game.getPlayer @target
         if p?
             success= Math.random()<0.5  # 成功したかどうか
+            re=if success then "#{p.fortuneResult}ぽい人" else "なんだかとても怪しい人"
             @results.push {
                 player: p.publicinfo()
-                result: if success then "#{p.fortuneResult}ぽい人" else "なんだかとても怪しい人"
+                result: "#{@name}の占いの結果、#{p.name}は#{re}かな？"
             }
             @addGamelog game,"foxdivine",success,p.id
     showdivineresult:(game)->
@@ -2305,7 +2306,7 @@ class TinyFox extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}の占いの結果、#{r.player.name}は#{r.result}かな？"
+            comment:r.result
         splashlog game.id,game,log
     
     
@@ -2431,6 +2432,10 @@ class Spy extends Player
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     jobname:"人狼占い"
+    constructor:->
+        super
+        @results=[]
+            # {player:Player, result:String}
     sunset:(game)->
         @setTarget null
         @setFlag null  # 占い対象
@@ -2469,19 +2474,21 @@ class WolfDiviner extends Werewolf
         if p?
             p.divined game,this
     showdivineresult:(game)->
-        return unless @result?
-        @addGamelog game,"wolfdivine",null,@target  # 占った
+        r=@results[@results.length-1]
+        return unless r?
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{@result.player.name}を占ったところ、#{@result.result}でした。"
+            comment:r.result
         splashlog game.id,game,log
     dodivine:(game)->
         p=game.getPlayer @flag
         if p?
-            @result=
+            @result.push {
                 player: p.publicinfo()
-                result: p.jobname
+                result: "#{@name}が#{p.name}を人狼占いで占ったところ、#{p.jobname}でした。"
+            }
+            @addGamelog game,"wolfdivine",null,@flag  # 占った
             if p.isJobType "Diviner"
                 # 逆呪殺
                 @die game,"curse"
@@ -3150,23 +3157,24 @@ class PI extends Diviner
             rs.forEach (x,i)->
                 if rs.indexOf(x,i+1)<0
                     nrs.push x
+            tpl=game.getPlayer @target
+            resultstring=if nrs.length>0
+                @addGamelog game,"PIdivine",true,tpl.id
+                "#{r.result.join ","}が発見されました"
+            else
+                @addGamelog game,"PIdivine",false,tpl.id
+                "全員村人でした"
             @results.push {
-                player: game.getPlayer(@target).publicinfo()
-                result: nrs
+                player:game.getPlayer(@target).publicinfo()
+                result:"#{@name}が#{tpl.name}とその両隣を調査したところ、#{resultstring}。"
             }
     showdivineresult:(game)->
         r=@results[@results.length-1]
         return unless r?
-        resultstring=if r.result.length>0
-            @addGamelog game,"PIdivine",true,r.player.id
-            "#{r.result.join ","}が発見されました"
-        else
-            @addGamelog game,"PIdivine",false,r.player.id
-            "全員村人でした"
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{r.player.name}とその両隣を調査したところ、#{resultstring}。"
+            comment:r.result
         splashlog game.id,game,log
 class Sorcerer extends Diviner
     type:"Sorcerer"
@@ -3195,21 +3203,21 @@ class Sorcerer extends Diviner
     dodivine:(game)->
         pl=game.getPlayer @target
         if pl?
+            resultstring=if pl.isJobType "Diviner"
+                "占い師でした"
+            else
+                "占い師ではありませんでした"
             @results.push {
                 player: game.getPlayer(@target).publicinfo()
-                result: pl.isJobType "Diviner"
+                result: "#{@name}や#{pl.name}を調べたところ、#{resultstring}。"
             }
     showdivineresult:(game)->
         r=@results[@results.length-1]
         return unless r?
-        resultstring=if r.result
-            "占い師でした"
-        else
-            "占い師ではありませんでした"
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{r.player.name}を調べたところ、#{resultstring}。"
+            comment:r.result
         splashlog game.id,game,log
 class Doppleganger extends Player
     type:"Doppleganger"
@@ -5010,7 +5018,22 @@ class DivineObstructed extends Complex
         @main.sunrise.call @,game
         @sub?.sunrise? game
         @uncomplex game
-        
+    # 占いの影響なし
+    divineeffect:(game)->
+    showdivineresult:(game)->
+        # 結果がでなかった
+        pl=game.getPlayer @target
+        if pl?
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}が#{pl.name}を占いましたが、何者かに邪魔されました。"
+            splashlog game.id,game,log
+    dodivine:(game)->
+        # 占おうとした。邪魔成功
+        obstmad=game.getPlayer @cmplFlag
+        if obstmad?
+            obstmad.addGamelog game,"divineObstruct",null,@id
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -5108,6 +5131,7 @@ jobs=
     ThreateningWolf:ThreateningWolf
     HolyMarked:HolyMarked
     WanderingGuard:WanderingGuard
+    ObstructiveMad:ObstructiveMad
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5130,6 +5154,7 @@ complexes=
     Counseled:Counseled
     MikoProtected:MikoProtected
     Threatened:Threatened
+    DivineObstructed:DivineObstructed
 
 
 module.exports.actions=(req,res,ss)->
@@ -5498,6 +5523,13 @@ module.exports.actions=(req,res,ss)->
                         mode:"system"
                         comment:"蘇生役職が存在するので、天国から役職が見られなくなりました。"
                     splashlog game.id,game,log
+                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0) && query.divineresult=="immediate"
+                    query.divineresult="sunrise"
+                    log=
+                        mode:"system"
+                        comment:"占い結果に影響する役職が存在するので。占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。"
+                    splashlog game.id,game,log
+
                 if query.yaminabe_hidejobs==""
                     # 役職は公開される
                     jobinfos=[]

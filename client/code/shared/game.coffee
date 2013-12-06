@@ -21,6 +21,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Dictator","SeersMama","Trapper","WolfBoy",
 # Twitter人狼の役職
 "Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
+# 人狼天国の役職
+"ObstructiveMad",
 # 錠前天国の役職
 "WanderingGuard",
 # その他
@@ -38,7 +40,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad"]
     Fox:["Fox","TinyFox","Immoral"]
     Devil:["Devil"]
     Friend:["Cupid","Lover"]
@@ -51,7 +53,7 @@ exports.categories=
     Human:teams.Human
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf"]
     Fox:["Fox","TinyFox"]
-    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum"]
 
@@ -782,6 +784,9 @@ exports.jobinfo=
         ThreateningWolf:
             name:"威嚇する狼"
             color:"#9e6f00"
+        ObstructiveMad:
+            name:"邪魔狂人"
+            color:"#d95e38"
         
         
     Fox:
