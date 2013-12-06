@@ -4831,6 +4831,8 @@ class TrapGuarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"TrapGuarded"
     midnight:(game)->
+        @main.midnight game
+        @sub?.midnight? game
         # 狩人とかぶったら狩人が死んでしまう!!!!!
         # midnight: 狼の襲撃よりも前に行われることが保証されている処理
         wholepl=game.getPlayer @id  # 一番表から見る
