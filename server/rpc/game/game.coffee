@@ -2969,27 +2969,49 @@ class Cursed extends Player
             unless @flag
                 # まだ噛まれていない
                 @setFlag "bitten"
+        else if found=="vampire"
+            # ヴァンパイアにもなる!!!
+            unless @flag
+                # まだ噛まれていない
+                @setFlag "vampire"
         else
             super
     sunset:(game)->
-        if @flag=="bitten"
-            # この夜から人狼になる
-            log=
-                mode:"skill"
-                to:@id
-                comment:"#{@name}は呪われて人狼になりました。"
-            splashlog game.id,game,log
+        if @flag in ["bitten","vampire"]
+            # この夜から変化する
+            log=null
+            newpl=null
+            if @flag=="bitten"
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:"#{@name}は呪われて人狼になりました。"
             
-            newpl=Player.factory "Werewolf"
+                newpl=Player.factory "Werewolf"
+            else
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:"#{@name}は呪われてヴァンパイアになりました。"
+            
+                newpl=Player.factory "Vampire"
+
             @transProfile newpl
             @transferData newpl
             @transform game,newpl
             newpl.sunset game
                     
-            # 人狼側に知らせる
-            game.ss.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
+            splashlog game.id,game,log
+            if @flag=="bitten"
+                # 人狼側に知らせる
+                #game.ss.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
+                game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
+            else
+                # ヴァンパイアに知らせる
+                game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isVampire()
             # 自分も知らせる
-            game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+            #game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+            game.splashjobinfo [this]
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     jobname:"見習い占い師"
