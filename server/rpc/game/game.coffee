@@ -2091,7 +2091,9 @@ class Diviner extends Player
         super
         unless game.rule.divineresult=="immediate"
             @dodivine game
-        # 占った影響
+        @divineeffect game
+    #占った影響を与える
+    divineeffect:(game)->
         p=game.getPlayer @target
         if p?
             p.divined game,this
@@ -2432,7 +2434,6 @@ class WolfDiviner extends Werewolf
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
     job:(game,playerid,query)->
-        console.log query
         if query.jobtype!="WolfDiviner"
             # 人狼の仕事
             return super
@@ -2446,22 +2447,24 @@ class WolfDiviner extends Werewolf
             comment:"#{@name}が#{game.getPlayer(playerid).name}を人狼占いで占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
-            @showdivineresult game
             @dodivine game
+            @showdivineresult game
         null
     sunrise:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @dodivine game
+            @showdivineresult game
     midnight:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @showdivineresult game
-        # 占った影響
-        p=game.getPlayer @flag
+            @dodivine game
+        @divineeffect game
+    #占った影響を与える
+    divineeffect:(game)->
+        p=game.getPlayer @target
         if p?
             p.divined game,this
-    dodivine:(game)->
+    showdivineresult:(game)->
         return unless @result?
         @addGamelog game,"wolfdivine",null,@target  # 占った
         log=
@@ -2469,16 +2472,16 @@ class WolfDiviner extends Werewolf
             to:@id
             comment:"#{@name}が#{@result.player.name}を占ったところ、#{@result.result}でした。"
         splashlog game.id,game,log
-    showdivineresult:(game)->
+    dodivine:(game)->
         p=game.getPlayer @flag
         if p?
             @result=
                 player: p.publicinfo()
                 result: p.jobname
-            if p.type=="Diviner"
+            if p.isJobType "Diviner"
                 # 逆呪殺
                 @die game,"curse"
-            if p.type=="Madman"
+            if p.team=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
                 newjob=jobnames[Math.floor Math.random()*jobnames.length]
@@ -2487,6 +2490,10 @@ class WolfDiviner extends Werewolf
                 newpl=Player.unserialize plobj  # 新生狂人
                 p.transferData newpl
                 p.transform game,newpl
+                log=
+                    mode:"skill"
+                    to:p.id
+                    comment:"#{p.name}は#{newpl.getJobDisp()}になりました。"
     makejobinfo:(game,result)->
         super
         if game.night
@@ -4530,6 +4537,37 @@ class WanderingGuard extends Player
             return a.filter (obj)->!(obj.value in fl)
         else
             return super
+class ObstructiveMad extends Madman
+    type:"ObstructiveMad"
+    jobname:"邪魔狂人"
+    sleeping:->@target?
+    sunset:(game)->
+        super
+        @target=null
+        if @scapegoat
+            alives=game.players.filter (x)->!x.dead
+            if alives.length>0
+                r=Math.floor Math.random()*alives.length
+                @job game,alives[r].id,{}
+            else
+                @target=""
+    job:(game,playerid)->
+        @target=playerid
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{pl.name}を邪魔しました。"
+        splashlog game.id,game,log
+        # 複合させる
+
+        newpl=Player.factory null,pl,null,DivineObstructed
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 邪魔元cmplFlag
+        pl.transform game,newpl
+        null
     
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4961,6 +4999,15 @@ class Threatened extends Complex
         Human.prototype.makejobinfo.call @,game,obj
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
+# 邪魔狂人に邪魔された(未完成)
+class DivineObstructed extends Complex
+    # cmplFlag: 邪魔元ID
+    cmplType:"DivineObstructed"
+    sunrise:(game)->
+        # 一日しか守られない
+        @main.sunrise game
+        @sub?.sunrise? game
+        @uncomplex game
         
 # 決定者
 class Decider extends Complex
