@@ -954,7 +954,7 @@ class Game
         deads.forEach (x)=>
             situation=switch x.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse"
                     "無惨な姿で発見されました"
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1733,6 +1733,8 @@ class Player
     sleeping:(game)->true
     # 夜に仕事を追えたか（基本sleepingと一致）
     jobdone:(game)->@sleeping game
+    # 死んだ後でも仕事があるとfalse
+    deadJobdone:(game)->true
     # 昼に投票を終えたか
     voted:(game,votingbox)->game.votingbox.isVoteFinished this
     # 夜の仕事
@@ -1762,8 +1764,9 @@ class Player
     # 殺されたとき(found:死因))
     die:(game,found,from)->
         return if @dead
-        @setDead true,found
-        @dying game,found,from
+        pl=game.getPlayer @id
+        pl.setDead true,found
+        pl.dying game,found,from
     # 死んだとき
     dying:(game,found)->
     # 行きかえる
@@ -4648,6 +4651,87 @@ class FrankensteinsMonster extends Player
 
         if founds.length>0
             game.splashjobinfo [thispl]
+class BloodyMary extends Player
+    type:"BloodyMary"
+    jobname:"血まみれのメアリー"
+    getJobname:->if @flag then @jobname else "メアリー"
+    getJobDisp:->@getJobname()
+    getTypeDisp:->if @flag then @type else "Mary"
+    sleeping:->true
+    deadJobdone:(game)->
+        if @target?
+            true
+        else if @flag=="punish"
+            !(game.players.some (x)->!x.dead && x.team=="Human")
+        else if @flag=="werewolf"
+            if game.players.filter((x)->!x.dead && x.isWerewolf()).length>1
+                !(game.players.some (x)->!x.dead && x.team=="Werewolf")
+            else
+                # 狼が残り1匹だと何もない
+                true
+        else
+            true
+
+    dying:(game,found,from)->
+        if found in ["punish","werewolf"]
+            # 能力が…
+            orig_jobname=@getJobname()
+            @setFlag found
+            if orig_jobname != @getJobname()
+                # 変わった!
+                @setOriginalJobname @originalJobname.replace("血まみれのメアリー","メアリー").replace("メアリー","血まみれのメアリー")
+        super
+    sunset:(game)->
+        @setTarget null
+    deadsunset:(game)->
+        @sunset game
+    job:(game,playerid)->
+        unless @flag in ["punish","werewolf"]
+            return "能力は使用できません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象は存在しません"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}を呪っています。"
+        splashlog game.id,game,log
+        @setTarget playerid
+        null
+    # 呪い殺す!!!!!!!!!
+    deadnight:(game)->
+        pl=game.getPlayer @target
+        unless pl?
+            return
+        pl.die game,"marycurse",@id
+    # 蘇生できない
+    revive:->
+    isWinner:(game,team)->
+        if @flag=="punish"
+            team=="Werewolf"
+        else
+            team==@team
+    makeJobSelection:(game)->
+        if game.night
+            pls=[]
+            if @flag=="punish"
+                # 村人を……
+                pls=game.players.filter (x)->!x.dead && x.team=="Human"
+            else if @flag=="werewolf"
+                # 人狼を……
+                pls=game.players.filter (x)->!x.dead && x.team=="Werewolf"
+            return (for pl in pls
+                {
+                    name:pl.name
+                    value:pl.id
+                }
+            )
+        else super
+    makejobinfo:(game,obj)->
+        super
+        if @flag && !("BloodyMary" in obj.open)
+            obj.open.push "BloodyMary"
+
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -4768,6 +4852,16 @@ class Complex
             return method.apply top,args
         return null
 
+    setDead:(@dead,@found)->
+        @main.setDead @dead,@found
+        @sub?.setDead @dead,@found
+    setWinner:(@winner)->@main.setWinner @winner
+    setTarget:(@target)->@main.setTarget @target
+    setFlag:(@flag)->@main.setFlag @flag
+    setWill:(@will)->@main.setWill @will
+    setOriginalType:(@originalType)->@main.setOriginalType @originalType
+    setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
+
     
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     job:(game,playerid,query)-> # どちらの
@@ -4835,7 +4929,7 @@ class Complex
                     result.push obj
         result
     isListener:(game,log)->
-        @mcall(game,@main.isListener,game,log) || @sub.isListener(game,log)
+        @mcall(game,@main.isListener,game,log) || @sub?.isListener(game,log)
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
@@ -5228,6 +5322,7 @@ jobs=
     ObstructiveMad:ObstructiveMad
     TroubleMaker:TroubleMaker
     FrankensteinsMonster:FrankensteinsMonster
+    BloodyMary:BloodyMary
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5354,6 +5449,8 @@ module.exports.actions=(req,res,ss)->
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
                 options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
+                if query.yaminabe_hidejobs==""
+                    exceptions.push "BloodyMary"
                 if query.jobrule=="特殊ルール.一部闇鍋"
                     # 一部闇鍋のときは村人のみ闇鍋
                     frees=joblist.Human ? 0
@@ -5623,37 +5720,7 @@ module.exports.actions=(req,res,ss)->
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
-                        comment:"占い結果に影響する役職が存在するので。占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。"
-                    splashlog game.id,game,log
-
-                if query.yaminabe_hidejobs==""
-                    # 役職は公開される
-                    jobinfos=[]
-                    for job,num of joblist
-                        continue if num==0
-                        jobinfos.push "#{Shared.game.getjobname job}#{num}"
-                    log=
-                        mode:"system"
-                        comment:"出現役職: "+jobinfos.join(" ")
-                    splashlog game.id,game,log
-                else if query.yaminabe_hidejobs=="team"
-                    # 陣営のみ公開
-                    # 各陣営
-                    teaminfos=[]
-                    for team,obj of Shared.game.jobinfo
-                        teamcount=0
-                        for job,num of joblist
-                            #出現役職チェック
-                            continue if num==0
-                            if obj[job]?
-                                # この陣営だ
-                                teamcount+=num
-                        if teamcount>0
-                            teaminfos.push "#{obj.name}#{teamcount}"    #陣営名
-
-                    log=
-                        mode:"system"
-                        comment:"出現陣営情報: "+teaminfos.join(" ")
+                        comment:"占い結果に影響する役職が存在するので、占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。"
                     splashlog game.id,game,log
 
 
@@ -5711,6 +5778,37 @@ module.exports.actions=(req,res,ss)->
                 comment:"配役: #{ruleinfo_str}"
             splashlog game.id,game,log
             
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+                if query.yaminabe_hidejobs==""
+                    # 役職は公開される
+                    jobinfos=[]
+                    for job,num of joblist
+                        continue if num==0
+                        jobinfos.push "#{Shared.game.getjobname job}#{num}"
+                    log=
+                        mode:"system"
+                        comment:"出現役職: "+jobinfos.join(" ")
+                    splashlog game.id,game,log
+                else if query.yaminabe_hidejobs=="team"
+                    # 陣営のみ公開
+                    # 各陣営
+                    teaminfos=[]
+                    for team,obj of Shared.game.jobinfo
+                        teamcount=0
+                        for job,num of joblist
+                            #出現役職チェック
+                            continue if num==0
+                            if obj[job]?
+                                # この陣営だ
+                                teamcount+=num
+                        if teamcount>0
+                            teaminfos.push "#{obj.name}#{teamcount}"    #陣営名
+
+                    log=
+                        mode:"system"
+                        comment:"出現陣営情報: "+teaminfos.join(" ")
+                    splashlog game.id,game,log
+
             
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
@@ -5907,9 +6005,11 @@ module.exports.actions=(req,res,ss)->
         unless player in game.participants
             res {error:"参加していません"}
             return
-        if player.dead
+        ###
+        if player.dead && player.deadJobdone game
             res {error:"お前は既に死んでいる"}
             return
+        ###
         jt=player.getjob_target()
         sl=player.makeJobSelection game
         ###
@@ -5930,7 +6030,7 @@ module.exports.actions=(req,res,ss)->
                 res {error:"対象はまだ生きています"}
                 return
             ###
-            if player.jobdone(game)
+            if (player.dead && player.deadJobdone(game)) || (!player.dead && player.jobdone(game))
                 res {error:"既に能力を行使しています"}
                 return
             unless player.isJobType query.jobtype
@@ -6097,11 +6197,14 @@ makejobinfo = (game,player,result={})->
         result.voteopen=false
         # 投票が終了したかどうか（フォーム表示するかどうか判断）
         if game.night || game.day==0
-            result.sleeping=player.jobdone game
+            if player.dead
+                result.sleeping=player.deadJobdone game
+            else
+                result.sleeping=player.jobdone game
         else
             # 昼
             result.sleeping=true
-            unless game.votingbox.isVoteFinished player
+            unless player.dead || game.votingbox.isVoteFinished player
                 # 投票ボックスオープン!!!
                 result.voteopen=true
                 result.sleeping=false
