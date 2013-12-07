@@ -3818,7 +3818,7 @@ class Dog extends Player
         null
     makejobinfo:(game,result)->
         super
-        if !@jobdone() && game.night
+        if !@jobdone(game) && game.night
             if @flag?
                 # 飼い主いる
                 pl=game.getPlayer @flag
