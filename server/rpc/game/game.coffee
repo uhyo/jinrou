@@ -2470,7 +2470,7 @@ class WolfDiviner extends Werewolf
     dodivine:(game)->
         p=game.getPlayer @flag
         if p?
-            @result.push {
+            @results.push {
                 player: p.publicinfo()
                 result: "#{@name}が#{p.name}を人狼占いで占ったところ、#{p.jobname}でした。"
             }
@@ -5687,7 +5687,7 @@ module.exports.actions=(req,res,ss)->
                                 # 占い系がいないと入れない
                                 if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                     continue
-                            when "LoneWolf","FascinatingWolf","ToughWolf"
+                            when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary"
                                 # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                 # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
                                 if countCategory("Werewolf")-(if category? then 1 else 0)==0

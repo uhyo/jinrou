@@ -997,7 +997,7 @@ exports.start=(roomid)->
             else
                 document.body.classList.add (if game.night then "night" else "day")
                 document.body.classList.remove (if game.night then "day" else "night")
-            unless $("#jobform").get(0).hidden= obj.dead || game.finished ||  obj.sleeping || !obj.type
+            unless $("#jobform").get(0).hidden= game.finished ||  obj.sleeping || !obj.type
                 # 代入しつつの　投票フォーム必要な場合
                 $("#jobform div.jobformarea").attr "hidden","hidden"
                 #$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
@@ -1188,10 +1188,13 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         p=document.createElement "p"
         p.classList.add "job"
         if obj.originalJobname?
+            ###
             if obj.originalJobname==obj.jobname || obj.originalJobname.indexOf("→")>=0
                 p.textContent=obj.originalJobname
             else
                 p.textContent="#{obj.originalJobname}→#{obj.jobname}"
+            ###
+            p.textContent=obj.originalJobname
         else
             p.textContent=obj.jobname
         if obj.option
