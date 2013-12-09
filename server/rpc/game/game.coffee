@@ -3168,7 +3168,7 @@ class PI extends Diviner
             tpl=game.getPlayer @target
             resultstring=if nrs.length>0
                 @addGamelog game,"PIdivine",true,tpl.id
-                "#{r.result.join ","}が発見されました"
+                "#{nrs.join ","}が発見されました"
             else
                 @addGamelog game,"PIdivine",false,tpl.id
                 "全員村人でした"
