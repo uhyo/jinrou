@@ -2491,6 +2491,8 @@ class WolfDiviner extends Werewolf
                     mode:"skill"
                     to:p.id
                     comment:"#{p.name}は#{newpl.getJobDisp()}になりました。"
+                splashlog game.id,game,log
+                game.splashjobinfo [game.getPlayer newpl.id]
     makejobinfo:(game,result)->
         super
         if game.night
@@ -4900,7 +4902,6 @@ class Complex
             @main.getjob_target()
     die:(game,found,from)->
         @mcall game,@main.die,game,found,from
-        @sub?.die game,found,from
     dying:(game,found,from)->
         @mcall game,@main.dying,game,found,from
         @sub?.dying game,found,from
@@ -5185,7 +5186,8 @@ class Threatened extends Complex
         @uncomplex game
         pl=game.getPlayer @id
         if pl?
-            pl.sunset game
+            #pl.sunset game
+            pl.sunrise game
     sunset:(game)->
     midnight:(game)->
     job:(game,playerid,query)->
@@ -5687,7 +5689,7 @@ module.exports.actions=(req,res,ss)->
                                 # 占い系がいないと入れない
                                 if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                     continue
-                            when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary"
+                            when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary","WolfCub"
                                 # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                 # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
                                 if countCategory("Werewolf")-(if category? then 1 else 0)==0
