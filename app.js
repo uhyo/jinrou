@@ -11,7 +11,7 @@ ss.http.router.on('/',function(req,res){
 	res.serveClient('main');
 });
 
-ss.client.formatters.add(require('ss-coffee'));
+ss.client.formatters.add(require('ss-latest-coffee'));
 ss.client.formatters.add(require('ss-jade'));
 ss.client.formatters.add(require('ss-stylus'));
 
@@ -29,6 +29,7 @@ try{
 }catch(e){
 	console.error("Failed to load config file.");
 	console.error("Copy config.default/app.coffee to config/app.coffee, edit app.coffee, and retry.");
+	console.error(e.trace || e);
 	process.exit(0);
 }
 

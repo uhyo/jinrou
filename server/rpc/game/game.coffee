@@ -1855,29 +1855,45 @@ class Player
         #flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
         
         befpl=game.getPlayer @id
-        
-        # parentobj[name]がPlayerであること calleeは呼び出し元のオブジェクト
-        chk=(parentobj,name,callee)->
-            return unless parentobj?[name]?
-            if parentobj[name].isComplex()
+
+        # Complexを再構築する(chain:Complexの列（上から）)
+        reconstruct=(chain,base)->
+            console.log chain
+            for cmpl,i in chain by -1
+                console.log cmpl
+                console.log i
+                newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
+                for ok in Object.keys cmpl
+                    # 自分のプロパティのみ
+                    unless ok=="main" || ok=="sub"
+                        newpl[ok]=cmpl[ok]
+                base=newpl
+            base
+        # objがPlayerであること calleeは呼び出し元のオブジェクト chainは継承連鎖
+        # index: game.playersの番号
+        chk=(obj,index,callee,chain)->
+            return unless obj?
+            chc=chain.concat obj
+            if obj.isComplex()
                 if flag
                     # mainまたはsubである
-                    if parentobj[name].main==callee || parentobj[name].sub==callee
-                        parentobj[name]=parentobj[name].main
+                    if obj.main==callee || obj.sub==callee
+                        # 自分は消える
+                        game.players[index]=reconstruct chain,obj.main
                     else
-                        chk parentobj[name],"main",callee
-                        chk parentobj[name],"sub",callee
+                        chk obj.main,index,callee,chc
+                        chk obj.sub,index,callee,chc
                 else
                     # 自分がComplexである
-                    if parentobj[name]==callee
-                        parentobj[name]=parentobj[name].main    # Complexを解消
+                    if obj==callee
+                        game.players[index]=reconstruct chain,obj.main
                     else
-                        chk parentobj[name],"main",callee
-                        chk parentobj[name],"sub",callee
+                        chk obj.main,index,callee,chc
+                        chk obj.sub,index,callee,chc
         
         game.players.forEach (x,i)=>
             if x.id==@id
-                chk game.players,i,this
+                chk x,i,this,[]
                 # participantsも
                 for pl,j in game.participants
                     if pl.id==@id

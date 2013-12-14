@@ -5,12 +5,12 @@ module.exports =
   http:
     port: 8800
   ws:
-    connect: null	# WebSocket接続先アドレス（nullならサーバーと同じ）
     ###
     connect:
       host:"some-server.org"
       port:8080
     ###
+    connect: null	# WebSocket接続先アドレス（nullならサーバーと同じ）
 
   # db setting
   mongo:
