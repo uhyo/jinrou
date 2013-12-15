@@ -131,6 +131,12 @@
           label(title="各参加者はなりたい役職を選択できます。")
             | 希望役職制
             input(name="rolerequest",type="checkbox",value="on")
+          label(title="ありの場合、上位候補で再投票を行います。")
+            | 決選投票
+            select(name="runoff")
+              option(value="no",selected) なし
+              option(value="revote") 再投票時
+              option(value="yes") 常に行う
         #jobprops
           .prop.Werewolf.BigWolf.WolfDiviner.MadWolf.LoneWolf.WolfCub.GreedyWolf.FascinatingWolf.SolitudeWolf.ToughWolf.ThreateningWolf
             label(title="有効な場合、人狼の遠吠えが参加者全員に聞こえます。人狼以外は内容は分かりません。")

@@ -256,8 +256,13 @@ class Game
                 game.participants=game.players.concat []
 
         game.quantum_patterns=obj.quantum_patterns ? []
-        if game.rule
-            game.timer()
+        unless game.finished
+            if game.rule
+                game.timer()
+            if game.day>0
+                if !game.night
+                    # 昼の場合投票箱をつくる
+                    game.votingbox.setCandidates game.players.filter (x)->!x.dead
         game
     # 公開情報
     publicinfo:(obj)->  #obj:オプション
@@ -822,6 +827,7 @@ class Game
                 
             # 投票リセット処理
             @votingbox.init()
+            @votingbox.setCandidates @players.filter (x)->!x.dead
             for pl in @players
                 if pl.dead
                     pl.deadsunrise this
@@ -1025,9 +1031,13 @@ class Game
             tos:tos
         splashlog @id,this,log
 
-        if mode=="revote"
+        if mode=="runoff"
             # 再投票になった
-            @dorevote()
+            @dorevote "runoff"
+            return false
+        else if mode=="revote"
+            # 再投票になった
+            @dorevote "revote"
             return false
         else if mode=="punish"
             # 投票
@@ -1067,17 +1077,24 @@ class Game
             @nextturn()
         return true
     # 再投票
-    dorevote:->
-        @revote_num++
+    dorevote:(mode)->
+        # mode: "runoff" - 決選投票による再投票 "revote" - 同数による再投票 "gone" - 突然死による再投票
+        if mode!="runoff"
+            @revote_num++
         if @revote_num>=4   # 4回再投票
             @judge()
             return
         remains=4-@revote_num
-        log=
-            mode:"system"
-            comment:"再投票になりました。"
-        if isFinite remains
-            log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
+        if mode=="runoff"
+            log=
+                mode:"system"
+                comment:"決選投票になりました。"
+        else
+            log=
+                mode:"system"
+                comment:"再投票になりました。"
+            if isFinite remains
+                log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
         splashlog @id,this,log
         @votingbox.start()
         @players.forEach (player)=>
@@ -1343,7 +1360,7 @@ class Game
                         @bury("other")
                         @judge()
                         if revoting
-                            @dorevote()
+                            @dorevote "gone"
                         else
                             @execute()
                 else
@@ -1362,7 +1379,7 @@ class Game
                     @bury("other")
                     @judge()
                     if revoting
-                        @dorevote()
+                        @dorevote "gone"
                     else
                         @execute()
                 else
@@ -1467,9 +1484,13 @@ class VotingBox
     init:->
         # 投票箱を空にする
         @remains=1  # 残り処刑人数
+        @runoffmode=false   # 再投票中か
+        @candidates=[]
         @start()
     start:->
         @votes=[]   #{player:Player, to:Player}
+    setCandidates:(@candidates)->
+        # 候補者をセットする[Player]
     isVoteFinished:(player)->@votes.some (x)->x.player.id==player.id
     vote:(player,voteto)->
         # power: 票数
@@ -1524,54 +1545,96 @@ class VotingBox
         alives=@game.players.filter (x)->!x.dead
         alives.every (x)=>
             x.voted @game,@
+    compareGots:(a,b)->
+        # aとbをsort用に(gots)
+        # aのほうが小さい: -1 <
+        # bのほうが小さい: 1  >
+        if a.votes>b.votes
+            return 1
+        else if a.votes<b.votes
+            return -1
+        else if a.priority>b.priority
+            return 1
+        else if a.priority<b.priority
+            return -1
+        else
+            return 0
     check:->
         # return [mode,result,tos,table]
         # 投票が終わったのでアレする
         # 投票表を作る
         tos={}
         table=[]
+        gots={}
         #for obj in @votes
         for pl in @game.players
             continue if pl.dead
             obj=@getHisVote pl
             o=pl.publicinfo()
             if obj?
-                tos[obj.to.id] ?= 0
-                tos[obj.to.id]+=obj.power
+                gots[obj.to.id] ?= {
+                    votes:0
+                    priority:-Infinity
+                }
+                go=gots[obj.to.id]
+                go.votes+=obj.power
+                if go.priority<obj.priority
+                    go.priority=obj.priority
+                tos[obj.to.id]=go.votes
                 o.voteto=obj.to.id  # 投票先情報を付け加える
             table.push o
-        max=0
-        for playerid,num of tos
-            if num>max then max=num #最大値をみる
-        if max==0
+        # 獲得票数が少ない順に並べる
+        cands=Object.keys(gots).sort (a,b)=>
+            @compareGots gots[a],gots[b]
+        
+        # 獲得票数多い一覧
+        back=null
+        tops=[]
+        for id in cands by -1
+            if !back? || @compareGots(gots[back],gots[id])==0
+                tops.push id
+                back=id
+            else
+                break
+        if tops.length==0
             # 誰も投票していない
             return ["novote",null,tos,table]
-        # もっとも票が多い人を探す
-        tops=[]
-        for playerid,num of tos
-            if num==max
-                tops.push {id:playerid}
-        # 優先度で絞り込む
-        prior=-Infinity
-        player=null
-        revote=false    # 際投票
-        for obj in tops
-            # 票の中でもっとも優先度が高い
-            maxpr=Math.max.apply Math,@votes.filter((x)->x.to.id==obj.id).map((x)->x.priority)
-            if prior==maxpr && player?
-                # 同じだ
-                revote=true
-            else if maxpr>=prior
-                # 処刑候補だ
-                player=@game.getPlayer obj.id
-                prior=maxpr
-                revote=false
-
-        if revote
-            # 再投票になった
-            return ["revote",null,tos,table]
+        if tops.length>1
+            # 決まらない! 再投票になった
+            if @game.rule.runoff!="no" && !@runoffmode
+                @setCandidates @game.players.filter (x)->x.id in tops
+                @runoffmode=true
+                return ["runoff",null,tos,table]
+            else
+                return ["revote",null,tos,table]
+        if @game.rule.runoff=="yes" && !@runoffmode
+            # 候補は1人だけど決選投票をしないといけない
+            if tops.length<=1
+                # 候補がたりない
+                back=null
+                flag=false
+                tops=[]
+                for id in cands by -1
+                    ok=false
+                    if !back?
+                        ok=true
+                    else if @compareGots(gots[back],gots[id])==0
+                        ok=true
+                    else if flag==false
+                        # 決選投票なので1回だけOK!
+                        flag=true
+                        ok=true
+                    else
+                        break
+                    if ok
+                        tops.push id
+                        back=id
+                if tops.length>1
+                    @setCandidates @game.players.filter (x)->x.id in tops
+                    @runoffmode=true
+                    return ["runoff",null,tos,table]
         # 結果を教える
-        return ["punish",player,tos,table]
+        return ["punish",@game.getPlayer(tops[0]),tos,table]
 
 class Player
     constructor:->
@@ -1806,8 +1869,8 @@ class Player
         else
             # 昼の投票
             result=[]
-            for pl in game.players
-                if !pl.dead
+            if game?.votingbox
+                for pl in game.votingbox.candidates
                     result.push {
                         name:pl.name
                         value:pl.id
@@ -5831,7 +5894,7 @@ module.exports.actions=(req,res,ss)->
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest",
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null

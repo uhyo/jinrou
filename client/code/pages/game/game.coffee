@@ -454,6 +454,11 @@ exports.start=(roomid)->
                 "gjmessage":
                     "_name":"狩人の護衛結果"
                     "on":"成功時分かる"
+                "runoff":
+                    "_name":"決選投票"
+                    "no":"なし"
+                    "revote":"再投票時"
+                    "yes":"常に行う"
             Object.keys(this_rule.rule).forEach (x)->
                 tru=rulestr[x]
                 return unless tru?

@@ -292,6 +292,7 @@ module.exports.actions=(req,res,ss)->
 
     ready:(roomid)->
         # 準備ができたか？
+        console.log req.session.userId
         unless req.session.userId
             res "ログインして下さい"
             return
