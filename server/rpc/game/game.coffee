@@ -168,6 +168,7 @@ class Game
         @werewolf_flag=null # 人狼襲撃に関するフラグ
 
         @slientexpires=0    # 静かにしてろ！（この時間まで）
+        @heavenview=false   # 霊界表示がどうなっているか
 
         @gamelogs=[]
         @iconcollection={}  #(id):(url)
@@ -956,6 +957,14 @@ class Game
             if deadsl>=deads.length
                 # もう新しく死んだ人はいない
                 break
+        # 霊界で役職表示してよいかどうか更新
+        switch @rule.heavenview
+            when "view"
+                @heavenview=true
+            when "norevive"
+                @heavenview=!@players.some((x)->x.isReviver())
+            else
+                @heavenview=false
         deads=shuffle deads # 順番バラバラ
         deads.forEach (x)=>
             situation=switch x.found
@@ -1766,6 +1775,8 @@ class Player
     isVampire:->false
     # 酔っ払いかどうか
     isDrunk:->false
+    # 蘇生可能性を秘めているか
+    isReviver:->false
     # jobtypeが合っているかどうか（夜）
     isJobType:(type)->type==@type
     # complexのJobTypeを調べる
@@ -2417,6 +2428,7 @@ class Slave extends Player
 class Magician extends Player
     type:"Magician"
     jobname:"魔術師"
+    isReviver:->!@dead
     sunset:(game)->
         @setTarget (if game.day<3 then "" else null)
         if game.players.every((x)->!x.dead)
@@ -3459,6 +3471,7 @@ class LoneWolf extends Werewolf
 class Cat extends Poisoner
     type:"Cat"
     jobname:"猫又"
+    isReviver:->true
     sunset:(game)->
         @setTarget (if game.day<2 then "" else null)
         if game.players.every((x)->!x.dead)
@@ -3517,6 +3530,7 @@ class Cat extends Poisoner
 class Witch extends Player
     type:"Witch"
     jobname:"魔女"
+    isReviver:->!@dead
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     sleeping:->true
     jobdone:->@target? || (@flag in [3,5,6])
@@ -4277,6 +4291,7 @@ class RedHood extends Player
     type:"RedHood"
     jobname:"赤ずきん"
     sleeping:->true
+    isReviver:->!@dead || @flag?
     dying:(game,found,from)->
         super
         if found=="werewolf"
@@ -5798,13 +5813,6 @@ module.exports.actions=(req,res,ss)->
 
                     if safety.teams && (job in Shared.game.teams.Werewolf)
                         wolf_teams++    # 人狼陣営が増えた
-                if (joblist.Magician>0 || joblist.Cat>0 || joblist.Witch>0 || joblist.RedHood>0) && query.heavenview=="view"
-                    # 魔術師いるのに
-                    query.heavenview=null
-                    log=
-                        mode:"system"
-                        comment:"蘇生役職が存在するので、天国から役職が見られなくなりました。"
-                    splashlog game.id,game,log
                 if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0) && query.divineresult=="immediate"
                     query.divineresult="sunrise"
                     log=
@@ -6254,7 +6262,7 @@ islogOK=(game,player,log)->
     else if log.mode=="gmmonologue"
         # GMの独り言はGMにしか見えない
         false
-    else if player.dead && game.rule.heavenview=="view"
+    else if player.dead && game.heavenview
         true
     else if log.to? && log.to!=player.id
         # 個人宛
@@ -6275,7 +6283,8 @@ makejobinfo = (game,player,result={})->
             unless actpl?
                 #あれっ
                 actpl=player
-    openjob_flag=game.finished || (actpl?.dead && game.rule?.heavenview=="view") || actpl?.isJobType("GameMaster")
+    openjob_flag=game.finished || (actpl?.dead && game.heavenview) || actpl?.isJobType("GameMaster")
+    result.openjob_flag = openjob_flag
 
     result.game=game.publicinfo({openjob:openjob_flag})  # 終了か霊界（ルール設定あり）の場合は職情報公開
     result.id=game.id

@@ -13,6 +13,7 @@ this_icons={}   #名前とアイコンの対応表
 this_logdata={} # ログデータをアレする
 this_style=null #style要素（終わったら消したい）
 
+
 exports.start=(roomid)->
     this_rule=null
     timerid=null
@@ -76,6 +77,119 @@ exports.start=(roomid)->
         # 今までのログを送ってもらう
         this_icons={}
         this_logdata={}
+        this_openjob_flag=false
+        # 役職情報をもらった
+        getjobinfo=(obj)->
+            console.log obj,this_room_id
+            return unless obj.id==this_room_id
+            my_job=obj.type
+            $("#jobinfo").empty()
+            pp=(text)->
+                p=document.createElement "p"
+                p.textContent=text
+                p
+            if obj.type
+                infop=$ "<p>あなたは<b>#{obj.jobname}</b>です（</p>"
+                if obj.desc
+                    # 役職説明
+                    for o,i in obj.desc
+                        if i>0
+                            infop.append "・"
+                        a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '詳細' else "#{o.name}の詳細"}</a>"
+                        infop.append a
+                    infop.append "）"
+                        
+
+                $("#jobinfo").append infop
+            if obj.wolves?
+                $("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
+            if obj.peers?
+                $("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+            if obj.foxes?
+                $("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
+            if obj.nobles?
+                $("#jobinfo").append pp "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
+            if obj.queens?.length>0
+                $("#jobinfo").append pp "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
+            if obj.spy2s?.length>0
+                $("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
+            if obj.friends?.length>0
+                $("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
+            if obj.stalking?
+                $("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
+            if obj.cultmembers?
+                $("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
+            if obj.vampires?
+                $("#jobinfo").append pp "ヴァンパイアは#{obj.vampires.map((x)->x.name).join(',')}"
+            if obj.supporting?
+                $("#jobinfo").append pp "#{obj.supporting.name}（#{obj.supportingJob}）をサポートしています"
+            if obj.dogOwner?
+                $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
+            if obj.quantumwerewolf_number?
+                $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
+            
+            if obj.winner?
+                # 勝敗
+                $("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
+            if obj.dead
+                # 自分は既に死んでいる
+                document.body.classList.add "heaven"
+            if obj.will
+                $("#willform").get(0).elements["will"].value=obj.will
+                
+            if game=obj.game
+                if game.finished
+                    # 終了
+                    document.body.classList.add "finished"
+                    document.body.classList.remove x for x in ["day","night"]
+                    $("#jobform").attr "hidden","hidden"
+                    if timerid
+                        clearInterval timerid
+                        timerid=null
+                else
+                    document.body.classList.add (if game.night then "night" else "day")
+                    document.body.classList.remove (if game.night then "day" else "night")
+                unless $("#jobform").get(0).hidden= game.finished ||  obj.sleeping || !obj.type
+                    # 代入しつつの　投票フォーム必要な場合
+                    $("#jobform div.jobformarea").attr "hidden","hidden"
+                    #$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
+                    $("#form_day").get(0).hidden= !obj.voteopen
+                    obj.open?.forEach (x)->
+                        # 開けるべきフォームが指定されている
+                        $("#form_#{x}").prop "hidden",false
+                    if (obj.job_selection ? []).length==0
+                        # 対象選択がない・・・表示しない
+                        $("#form_players").prop "hidden",true
+                    else
+                        $("#form_players").prop "hidden",false
+                if game.players
+                    formplayers game.players
+                    unless this_rule?
+                        $("#speakform").get(0).elements["rulebutton"].disabled=false
+                    this_rule=
+                        jobscount:game.jobscount
+                        rule:game.rule
+                setJobSelection obj.job_selection ? []
+                select=$("#speakform").get(0).elements["mode"]
+                if obj.speak && obj.speak.length>0
+                    # 発言方法の選択
+                    $(select).empty()
+                    select.disabled=false
+                    for val in obj.speak
+                        option=document.createElement "option"
+                        option.value=val
+                        option.text=speakValueToStr game,val
+                        select.add option
+                    select.value=obj.speak[0]
+                    select.options[0]?.selected=true
+                else
+                    select.disabled=true
+            if obj.openjob_flag==true && this_openjob_flag==false
+                # 状況がかわったのでリフレッシュすべき
+                this_openjob_flag=true
+                unless obj.logs?
+                    # ログをもらってない場合はもらいたい
+                    ss.rpc "game.game.getlog",roomid,sentlog
         sentlog=(result)->
             if result.error?
                 Index.util.message "エラー",result.error
@@ -403,9 +517,11 @@ exports.start=(roomid)->
                     "_default":"聞こえない"
                     "aloud":"聞こえる"
                 "heavenview":
-                    "_name":"死んだ後"
-                    "_default":"役職は分からない"
-                    "view":"役職や全員の発言が見える"
+                    "_name":"霊界表示"
+                    "_default":"なし"
+                    "":"なし"
+                    "norevive":"あり"
+                    "view":"常にあり"
                 "wolfattack":
                     "_name":"人狼が人狼を襲う"
                     "_default":"不可"
@@ -931,112 +1047,6 @@ exports.start=(roomid)->
             undefined
     getname=(obj)->getprop obj,"name"
     ###
-    # 役職情報をもらった
-    getjobinfo=(obj)->
-        console.log obj,this_room_id
-        return unless obj.id==this_room_id
-        my_job=obj.type
-        $("#jobinfo").empty()
-        pp=(text)->
-            p=document.createElement "p"
-            p.textContent=text
-            p
-        if obj.type
-            infop=$ "<p>あなたは<b>#{obj.jobname}</b>です（</p>"
-            if obj.desc
-                # 役職説明
-                for o,i in obj.desc
-                    if i>0
-                        infop.append "・"
-                    a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '詳細' else "#{o.name}の詳細"}</a>"
-                    infop.append a
-                infop.append "）"
-                    
-
-            $("#jobinfo").append infop
-        if obj.wolves?
-            $("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
-        if obj.peers?
-            $("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
-        if obj.foxes?
-            $("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
-        if obj.nobles?
-            $("#jobinfo").append pp "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
-        if obj.queens?.length>0
-            $("#jobinfo").append pp "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
-        if obj.spy2s?.length>0
-            $("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
-        if obj.friends?.length>0
-            $("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
-        if obj.stalking?
-            $("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
-        if obj.cultmembers?
-            $("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
-        if obj.vampires?
-            $("#jobinfo").append pp "ヴァンパイアは#{obj.vampires.map((x)->x.name).join(',')}"
-        if obj.supporting?
-            $("#jobinfo").append pp "#{obj.supporting.name}（#{obj.supportingJob}）をサポートしています"
-        if obj.dogOwner?
-            $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
-        if obj.quantumwerewolf_number?
-            $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
-        
-        if obj.winner?
-            # 勝敗
-            $("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
-        if obj.dead
-            # 自分は既に死んでいる
-            document.body.classList.add "heaven"
-        if obj.will
-            $("#willform").get(0).elements["will"].value=obj.will
-            
-        if game=obj.game
-            if game.finished
-                # 終了
-                document.body.classList.add "finished"
-                document.body.classList.remove x for x in ["day","night"]
-                $("#jobform").attr "hidden","hidden"
-                if timerid
-                    clearInterval timerid
-                    timerid=null
-            else
-                document.body.classList.add (if game.night then "night" else "day")
-                document.body.classList.remove (if game.night then "day" else "night")
-            unless $("#jobform").get(0).hidden= game.finished ||  obj.sleeping || !obj.type
-                # 代入しつつの　投票フォーム必要な場合
-                $("#jobform div.jobformarea").attr "hidden","hidden"
-                #$("#form_day").get(0).hidden= game.night || obj.sleeping || obj.type=="GameMaster"
-                $("#form_day").get(0).hidden= !obj.voteopen
-                obj.open?.forEach (x)->
-                    # 開けるべきフォームが指定されている
-                    $("#form_#{x}").prop "hidden",false
-                if (obj.job_selection ? []).length==0
-                    # 対象選択がない・・・表示しない
-                    $("#form_players").prop "hidden",true
-                else
-                    $("#form_players").prop "hidden",false
-            if game.players
-                formplayers game.players
-                unless this_rule?
-                    $("#speakform").get(0).elements["rulebutton"].disabled=false
-                this_rule=
-                    jobscount:game.jobscount
-                    rule:game.rule
-            setJobSelection obj.job_selection ? []
-            select=$("#speakform").get(0).elements["mode"]
-            if obj.speak && obj.speak.length>0
-                # 発言方法の選択
-                $(select).empty()
-                select.disabled=false
-                for val in obj.speak
-                    option=document.createElement "option"
-                    option.value=val
-                    option.text=speakValueToStr game,val
-                    select.add option
-                select.value=obj.speak[0]
-                select.options[0]?.selected=true
-            else
-                select.disabled=true
 
 
     formplayers=(players)-> #jobflg: 1:生存の人 2:死人

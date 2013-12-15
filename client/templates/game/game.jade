@@ -96,9 +96,12 @@
           label(title="遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。")
             | 遺言
             input(name="will",type="checkbox",value="die",checked)
-          label(title="有効な場合、霊界で役職一覧が見られ、夜の発言や能力も全て把握できます。")
-            | 死んだ後は役職一覧が見られる
-            input(name="heavenview",type="checkbox",value="view",checked)
+          label(title="ありの場合、霊界で役職一覧が見られ、夜の発言や能力も全て把握できます。")
+            | 霊界表示
+            select(name="heavenview")
+              option(value="view",title="蘇生役職が存在する場合でも全て公開します。") 常にあり
+              option(value="norevive",selected,title="表示しますが、誰かが蘇生する可能性がある場合は表示しません。") あり
+              option(value="",title="ゲーム終了まで非公開にします。") なし
           label(title="有効な場合、昼の投票で自分に投票することができます。")
             | 昼は自分に投票できる
             input(name="votemyself",type="checkbox",value="ok")
