@@ -4813,6 +4813,13 @@ class BloodyMary extends Player
         if @flag && !("BloodyMary" in obj.open)
             obj.open.push "BloodyMary"
 
+class King extends Player
+    type:"King"
+    jobname:"王様"
+    dovote:(game,target)->
+        super
+        game.votingbox.votePower this,1
+        null
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5404,6 +5411,7 @@ jobs=
     TroubleMaker:TroubleMaker
     FrankensteinsMonster:FrankensteinsMonster
     BloodyMary:BloodyMary
+    King:King
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
