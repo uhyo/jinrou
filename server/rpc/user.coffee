@@ -53,19 +53,31 @@ exports.actions =(req,res,ss)->
 # cb: エラーメッセージ（成功なら偽）
     newentry: (query)->
         unless /^\w+$/.test(query.userid)
-            res "ユーザーIDが不正です"
+            res {
+                login:false
+                error:"ユーザーIDが不正です"
+            }
             return
         unless /^\w+$/.test(query.password)
-            res "パスワードが不正です"
+            res {
+                login:false
+                error:"パスワードが不正です"
+            }
             return
         M.users.find({"userid":query.userid}).count (err,count)->
             if count>0
-                res "そのユーザーIDは既に使用されています"
+                res {
+                    login:false
+                    error:"そのユーザーIDは既に使用されています"
+                }
                 return
             userobj = makeuserdata(query)
             M.users.insert userobj,{safe:true},(err,records)->
                 if err?
-                    res "DB err:#{err}"
+                    res {
+                        login:false
+                        error:"DB err:#{err}"
+                    }
                     return
                 login query,req,res,ss
                 
