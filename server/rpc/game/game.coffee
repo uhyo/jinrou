@@ -969,7 +969,7 @@ class Game
         deads.forEach (x)=>
             situation=switch x.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho"
                     "無惨な姿で発見されました"
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1861,6 +1861,8 @@ class Player
     beforebury: (game,type)->
     # 占われたとき（結果は別にとられる player:占い元）
     divined:(game,player)->
+    # ちょっかいを出されたとき(jobのとき)
+    touched:(game,from)->
     # 選択肢を返す
     makeJobSelection:(game)->
         if game.night
@@ -2097,9 +2099,10 @@ class Werewolf extends Player
             to:playerid
         }
         game.werewolf_target_remain--
+        tp.touched game,@id
         log=
             mode:"wolfskill"
-            comment:"#{@name}たち人狼は#{game.getPlayer(playerid).name}に狙いを定めました。"
+            comment:"#{@name}たち人狼は#{tp.name}に狙いを定めました。"
         splashlog game.id,game,log
         game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
@@ -2177,6 +2180,7 @@ class Diviner extends Player
         p=game.getPlayer @target
         if p?
             p.divined game,this
+            p.touched game,@id
     #占い実行
     dodivine:(game)->
         p=game.getPlayer @target
@@ -2262,6 +2266,7 @@ class Guard extends Player
             pl.transProfile newpl
             newpl.cmplFlag=@id  # 護衛元cmplFlag
             pl.transform game,newpl
+            newpl.touched game,@id
             null
         else
             "自分を護衛することはできません"
@@ -2365,7 +2370,7 @@ class TinyFox extends Diviner
         # 占った影響
         p=game.getPlayer @target
         if p?
-            p.divined game,this
+            p.touched game,@id
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
@@ -2443,6 +2448,7 @@ class Magician extends Player
             return "まだ能力を発動できません"
         @setTarget playerid
         pl=game.getPlayer playerid
+        pl.touched game,@id
         
         log=
             mode:"skill"
@@ -2550,6 +2556,7 @@ class WolfDiviner extends Werewolf
         p=game.getPlayer @target
         if p?
             p.divined game,this
+            p.touched game,@id
     showdivineresult:(game)->
         r=@results[@results.length-1]
         return unless r?
@@ -2617,6 +2624,7 @@ class Fugitive extends Player
         if playerid==@id
             return "自分の家へは逃げられません"
         @setTarget playerid
+        pl?.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -2667,6 +2675,7 @@ class Merchant extends Player
             return "発送先は既に死んでいます"
         if pl.id==@id
             return "自分には発送できません"
+        pl.touched game,@id
         # 複合させる
         sub=Player.factory query.Merchant_kit   # 副を作る
         pl.transProfile sub
@@ -2729,10 +2738,14 @@ class Liar extends Player
         if @target?
             return "既に占い対象を決定しています"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+            comment:"#{@name}が#{pl.name}を占いました。"
         splashlog game.id,game,log
         null
     sunrise:(game)->
@@ -2811,10 +2824,12 @@ class Copier extends Player
         if @target?
             return "既にコピーしています"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}の能力をコピーしました。"
+            comment:"#{@name}が#{pl.name}の能力をコピーしました。"
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type
@@ -2840,10 +2855,12 @@ class Light extends Player
         if @target?
             return "既に対象を選択しています"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}の名前を死神の手帳に書きました。"
+            comment:"#{@name}が#{pl.name}の名前を死神の手帳に書きました。"
         splashlog game.id,game,log
         null
     midnight:(game)->
@@ -2965,6 +2982,7 @@ class Cupid extends Player
         for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
             # 2人ぶん処理
         
+            pl.touched game,@id
             newpl=Player.factory null,pl,null,Friend    # 恋人だ！
             pl.transProfile newpl
             pl.transform game,newpl # 入れ替え
@@ -3007,6 +3025,7 @@ class Stalker extends Player
         pl=game.getPlayer playerid
         unless pl?
             return "対象が不正です"
+        pl.touched game,@id
         @setTarget playerid
         log=
             mode:"skill"
@@ -3139,10 +3158,12 @@ class Spellcaster extends Player
             # 既に呪いをかけたことがある
             return "その対象には既に呪いをかけています"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}に呪いをかけました。"
+            comment:"#{@name}が#{pl.name}に呪いをかけました。"
         splashlog game.id,game,log
         arr.push playerid
         @setFlag JSON.stringify arr
@@ -3183,13 +3204,14 @@ class Priest extends Player
             return "その対象は存在しません"
         if playerid==@id
             return "自分を対象にはできません"
+        pl.touched game,@id
 
         @setTarget playerid
         @setFlag "done"    # すでに能力を発動している
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を聖なる力で守りました。"
+            comment:"#{@name}が#{pl.name}を聖なる力で守りました。"
         splashlog game.id,game,log
         
         # その場で変える
@@ -3223,10 +3245,12 @@ class PI extends Diviner
     jobdone:->@flag?
     job:(game,playerid)->
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}とその両隣を調査しました。"
+            comment:"#{@name}が#{pl.name}とその両隣を調査しました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3291,10 +3315,12 @@ class Sorcerer extends Diviner
             @job game,game.players[r].id,{}
     job:(game,playerid)->
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を調べました。"
+            comment:"#{@name}が#{pl.name}を調べました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3394,10 +3420,12 @@ class CultLeader extends Player
             @job game,game.players[r].id,{}
     job:(game,playerid)->
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を信者にしました。"
+            comment:"#{@name}が#{pl.name}を信者にしました。"
         splashlog game.id,game,log
         @addGamelog game,"brainwash",null,playerid
         null
@@ -3443,10 +3471,12 @@ class Vampire extends Player
         if game.day==1
             return "今日は襲えません"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を襲撃しました。"
+            comment:"#{@name}が#{pl.name}を襲撃しました。"
         splashlog game.id,game,log
         null
     midnight:(game)->
@@ -3487,6 +3517,7 @@ class Cat extends Poisoner
             return "まだ能力を発動できません"
         @setTarget playerid
         pl=game.getPlayer playerid
+        pl.touched game,@id
         
         log=
             mode:"skill"
@@ -3549,6 +3580,7 @@ class Witch extends Player
             return "薬の使用先が不正です"
         if pl.id==@id
             return "自分には使用できません"
+        pl.touched game,@id
 
         if query.Witch_drug=="kill"
             # 毒薬
@@ -3649,6 +3681,7 @@ class OccultMania extends Player
             return "その対象は存在しません"
         if pl.dead
             return "対象は既に死亡しています"
+        pl.touched game,@id
         
         log=
             mode:"skill"
@@ -3728,6 +3761,7 @@ class Lover extends Player
             return "対象が不正です"
         if playerid==@id
             return "自分以外を選択して下さい"
+        pl.touched game,@id
 
         @setTarget playerid
         # 恋人二人が決定した
@@ -3884,6 +3918,7 @@ class Dog extends Player
             pl=game.getPlayer playerid
             unless pl?
                 return "対象が不正です"
+            pl.touched game,@id
             # 飼い主を選択した
             log=
                 mode:"skill"
@@ -3994,6 +4029,7 @@ class Trapper extends Player
             @setTarget playerid
             @setFlag playerid
             pl=game.getPlayer(playerid)
+            pl.touched game,@id
             log=
                 mode:"skill"
                 to:@id
@@ -4023,6 +4059,7 @@ class WolfBoy extends Madman
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -4322,10 +4359,12 @@ class Counselor extends Player
         if @target?
             return "既に対象を選択しています"
         @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}をカウンセリングしました。"
+            comment:"#{@name}が#{pl.name}をカウンセリングしました。"
         splashlog game.id,game,log
         null
     midnight:(game)->
@@ -4439,6 +4478,7 @@ class FascinatingWolf extends Werewolf
         pl=game.getPlayer playerid
         unless pl?
             return "対象のプレイヤーは存在しません"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -4551,6 +4591,7 @@ class ThreateningWolf extends Werewolf
         if game.night
             return "夜には発動できません"
         pl=game.getPlayer playerid
+        pl.touched game,@id
         unless pl?
             return "対象が不正です"
         @setTarget playerid
@@ -4618,6 +4659,7 @@ class WanderingGuard extends Player
         @setTarget playerid
         # OK!
         pl=game.getPlayer(playerid)
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -4671,6 +4713,7 @@ class ObstructiveMad extends Madman
         pl=game.getPlayer playerid
         unless pl?
             return "そのプレイヤーは存在しません"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -4835,6 +4878,25 @@ class King extends Player
         super
         game.votingbox.votePower this,1
         null
+class PsychoKiller extends Madman
+    type:"PsychoKiller"
+    jobname:"サイコキラー"
+    constructor:->
+        super
+        @flag="[]"
+    touched:(game,from)->
+        # 殺すリストに追加する
+        fl=JSON.parse @flag || "[]"
+        fl.push from
+        @setFlag JSON.stringify fl
+    midnight:(game)->
+        fl=JSON.parse @flag || "[]"
+        for id in fl
+            pl=game.getPlayer id
+            if pl? && !pl.dead
+                pl.die game,"psycho",@id
+        @setFlag "[]"
+
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5427,6 +5489,7 @@ jobs=
     FrankensteinsMonster:FrankensteinsMonster
     BloodyMary:BloodyMary
     King:King
+    PsychoKiller:PsychoKiller
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
