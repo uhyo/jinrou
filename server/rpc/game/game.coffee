@@ -387,7 +387,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Lover"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -5865,6 +5865,10 @@ module.exports.actions=(req,res,ss)->
                                     continue
                                 # 霊能を出す
                                 unless Math.random()<0.15 ||  init "Psychic","Human"
+                                    continue
+                            when "BloodyMary"
+                                # 狼が2以上必要
+                                if countCategory("Werewolf")<=1
                                     continue
 
                     joblist[job]++

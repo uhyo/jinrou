@@ -139,7 +139,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
             # ログ検索
             page "logs",null,Index.logs,null
         else
-            if result=url.match /^\/room\/(\d+)$/
+            if result=url.match /^\/room\/-?(\d+)$/
                 # ルーム
                 page "game-game",null,Index.game.game,parseInt result[1]
             else if result=url.match /^\/user\/(\w+)$/
