@@ -233,7 +233,7 @@ class Game
         game.night=obj.night
         game.winner=obj.winner
         game.jobscount=obj.jobscount
-        game.gamelogss=obj.gamelogs ? {}
+        game.gamelogs=obj.gamelogs ? {}
         game.gm=obj.gm
         game.iconcollection=obj.iconcollection ? {}
         game.werewolf_flag=obj.werewolf_flag ? null
@@ -3632,13 +3632,13 @@ class Witch extends Player
         
         if @flag & 8
             # 蘇生
-            @flag^=8
+            @setFlag @flag^8
             # 蘇生 目を覚まさせる
             @addGamelog game,"witchraise",null,pl.id
             pl.revive game
         else if @flag & 16
             # 殺害
-            @flag ^= 16
+            @setFlag @flag^16
             @addGamelog game,"witchkill",null,pl.id
             pl.die game,"witch"
 class Oldman extends Player
@@ -5837,7 +5837,7 @@ module.exports.actions=(req,res,ss)->
                                     continue
                             when "QueenSpectator"
                                 # 2人いたらだめ
-                                if joblist.QueenSpectator>0
+                                if joblist.QueenSpectator>0 || joblist.Spy2>0
                                     continue
                                 # 女王観戦者はガードがないと不安
                                 if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
@@ -5848,7 +5848,10 @@ module.exports.actions=(req,res,ss)->
                                                 continue
                             when "Spy2"
                                 # スパイIIは2人いるとかわいそうなので入れない
-                                if joblist.Spy2>0
+                                if joblist.Spy2>0 || joblist.QueenSpectator>0
+                                    continue
+                                else if Math.random()>0.1
+                                    # 90%の確率で弾く（レア）
                                     continue
                             when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy"
                                 # 占い系がいないと入れない
