@@ -1221,11 +1221,11 @@ class Game
                             iswin=false
                         else if iswin==false
                             iswin=true
-                            # ただし突然死したら負け
-                            if @gamelogs.some((log)->
-                                log.id==x.id && log.event=="found" && log.flag in ["gone-day","gone-night"]
-                            )
-                                iswin=false
+                    # ただし突然死したら負け
+                    if @gamelogs.some((log)->
+                        log.id==x.id && log.event=="found" && log.flag in ["gone-day","gone-night"]
+                    )
+                        iswin=false
                     x.setWinner iswin   #勝利か
                     # ユーザー情報
                     if x.winner

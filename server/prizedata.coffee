@@ -254,6 +254,11 @@ makeOtherPrize=(result)->
                 10:"徒"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="brainwash").length
+        # 突然死する
+        gone:
+            names:{}
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.id==pl.id && x.event=="found" && x.flag in ["gone-day","gone-night"]).length
     result.ownprizesprize=
         prizecount:
             names:
