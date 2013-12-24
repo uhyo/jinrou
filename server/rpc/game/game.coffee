@@ -4896,6 +4896,105 @@ class PsychoKiller extends Madman
             if pl? && !pl.dead
                 pl.die game,"psycho",@id
         @setFlag "[]"
+class SantaClaus extends Player
+    type:"SantaClaus"
+    jobname:"サンタクロース"
+    sleeping:->@target?
+    constructor:->
+        super
+        @setFlag "[]"
+    isWinner:(game,team)->@flag=="gone" || super
+    sunset:(game)->
+        # まだ届けられる人がいるかチェック
+        fl=JSON.parse(@flag ? "[]")
+        if game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
+            @setTarget null
+        else
+            @setTarget ""
+    sunrise:(game)->
+        # 全員に配ったかチェック
+        fl=JSON.parse(@flag ? "[]")
+        unless game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
+            # 村を去る
+            @setFlag "gone"
+            @die game,"spygone"
+
+    job:(game,playerid)->
+        if @flag=="gone"
+            return "もう村を去っています"
+        fl=JSON.parse(@flag ? "[]")
+        if playerid == @id
+            return "自分にはプレゼントを届けられません"
+        if playerid in fl
+            return "その人にはもうプレゼントを届けられません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}にプレゼントを届けました。"
+        splashlog game.id,game,log
+        fl.push playerid
+        @setFlag JSON.stringify fl
+        null
+    midnight:(game)->
+        return unless @target?
+        pl=game.getPlayer @target
+        return unless pl?
+        return if @flag=="gone"
+
+        # プレゼントを送る
+        r=Math.random()
+        settype=""
+        setname=""
+        if r<0.05
+            # 毒だった
+            log=
+                mode:"skill"
+                to:pl.id
+                comment:"#{pl.name}に毒入りプレゼントが届きました。"
+            splashlog game.id,game,log
+            pl.die game,"poison",@id
+            @addGamelog game,"sendpresent","poison",pl.id
+            return
+        else if r<0.1
+            settype="HolyMarked"
+            setname="聖痕者セット"
+        else if r<0.15
+            settype="Oldman"
+            setname="玉手箱"
+        else if r<0.225
+            settype="Priest"
+            setname="聖職者セット"
+        else if r<0.3
+            settype="Miko"
+            setname="コスプレセット（巫女）"
+        else if r<0.55
+            settype="Diviner"
+            setname="占いセット"
+        else if r<0.8
+            settype="Guard"
+            setname="狩人セット"
+        else
+            settype="Psychic"
+            setname="霊能セット"
+
+        # 複合させる
+        log=
+            mode:"skill"
+            to:pl.id
+            comment:"#{pl.name}に#{setname}が到着しました。"
+        splashlog game.id,game,log
+        
+        # 複合させる
+        sub=Player.factory settype   # 副を作る
+        pl.transProfile sub
+        newpl=Player.factory null,pl,sub,Complex    # Complex
+        pl.transProfile newpl
+        pl.transform game,newpl
+        @addGamelog game,"sendpresent",settype,pl.id
 
 
 # 処理上便宜的に使用
@@ -5490,6 +5589,7 @@ jobs=
     BloodyMary:BloodyMary
     King:King
     PsychoKiller:PsychoKiller
+    SantaClaus:SantaClaus
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5765,6 +5865,20 @@ module.exports.actions=(req,res,ss)->
                                 joblist.category_Madman ?= 0
                                 joblist.category_Madman++
                                 frees--
+                ((date)->
+                    if date.getMonth()==11 && 24<=date.getDate()<=25
+                        if safety.jobs
+                            # 12/24〜12/25はサンタがよくでる
+                            if Math.random()<0.5 && frees>0
+                                joblist.SantaClaus ?= 0
+                                joblist.SantaClaus++
+                                frees--
+                        else
+                            # サンタは出にくい
+                            if Math.random()<0.8
+                                exceptions.push "SantaClaus"
+
+                )(new Date)
                 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
                 
