@@ -4909,6 +4909,13 @@ class SantaClaus extends Player
         fl=JSON.parse(@flag ? "[]")
         if game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
             @setTarget null
+            if @scapegoat
+                cons=game.players.filter((x)=>!x.dead && x.id!=@id && !(x.id in fl))
+                if alives.length>0
+                    r=Math.floor Math.random()*alives.length
+                    @job game,alives[r].id,{}
+                else
+                    @setTarget ""
         else
             @setTarget ""
     sunrise:(game)->
@@ -5177,6 +5184,16 @@ class Complex
                 unless result.some((x)->x.value==obj.value)
                     result.push obj
         result
+    checkJobValidity:(game,query)->
+        if query.jobtype=="_day"
+            return @mcall(game,@main.checkJobValidity,game,query)
+        if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
+            return @mcall(game,@main.checkJobValidity,game,query)
+        else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
+            return @sub.checkJobValidity game,query
+        else
+            return true
+
     getSpeakChoiceDay:(game)->
         result=@mcall game,@main.getSpeakChoiceDay,game
         if @sub?
@@ -6349,6 +6366,9 @@ module.exports.actions=(req,res,ss)->
                 res {error:"その人には投票できません"}
                 return
             ###
+            unless player.checkJobValidity game,query
+                res {error:"対象を選択して下さい"}
+                return
             err=player.dovote game,query.target
             if err?
                 res {error:err}
