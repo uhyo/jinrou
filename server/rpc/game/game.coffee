@@ -761,7 +761,7 @@ class Game
             # もう一回死体処理
             @bury(if @night then "night" else "day")
     
-        return if @judge()
+            return if @judge()
 
         @voting=false
         if @night
