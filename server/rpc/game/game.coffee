@@ -2558,6 +2558,9 @@ class WolfDiviner extends Werewolf
         if p?
             p.divined game,this
             p.touched game,@id
+            if p.isJobType "Diviner"
+                # 逆呪殺
+                @die game,"curse"
     showdivineresult:(game)->
         r=@results[@results.length-1]
         return unless r?
@@ -2574,9 +2577,6 @@ class WolfDiviner extends Werewolf
                 result: "#{@name}が#{p.name}を人狼占いで占ったところ、#{p.jobname}でした。"
             }
             @addGamelog game,"wolfdivine",null,@flag  # 占った
-            if p.isJobType "Diviner"
-                # 逆呪殺
-                @die game,"curse"
             if p.team=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
