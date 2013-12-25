@@ -2080,11 +2080,12 @@ class Werewolf extends Player
     sunset:(game)->
         @setTarget null
         unless game.day==1 && game.rule.scapegoat!="off"
-            if @scapegoat && game.players.filter((x)->x.isWerewolf()).length==1
+            if @scapegoat && game.players.filter((x)->!x.dead && x.isWerewolf()).length==1
                 # 自分しか人狼がいない
-                r=Math.floor Math.random()*game.players.length
-                if @job game,game.players[r].id,{}
-                    @sunset
+                hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
+                if hus.length>0
+                    r=Math.floor Math.random()*hus.length
+                    @job game,hus[r].id,{}
 
     sleeping:(game)->game.werewolf_target_remain<=0 || !game.night
     job:(game,playerid)->
@@ -4532,7 +4533,7 @@ class SolitudeWolf extends Werewolf
         super
     sunset:(game)->
         wolves=game.players.filter (x)->x.isWerewolf()
-        if wolves.every((x)->x.dead || x.isJobType("SolitudeWolf") && !x.flag)
+        if !@flag && wolves.every((x)->x.dead || x.isJobType("SolitudeWolf") && !x.flag)
             # 襲えるやつ誰もいない
             @setFlag true
             log=
