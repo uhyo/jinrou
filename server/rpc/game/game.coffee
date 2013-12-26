@@ -4912,9 +4912,9 @@ class SantaClaus extends Player
             @setTarget null
             if @scapegoat
                 cons=game.players.filter((x)=>!x.dead && x.id!=@id && !(x.id in fl))
-                if alives.length>0
-                    r=Math.floor Math.random()*alives.length
-                    @job game,alives[r].id,{}
+                if cons.length>0
+                    r=Math.floor Math.random()*cons.length
+                    @job game,cons[r].id,{}
                 else
                     @setTarget ""
         else
