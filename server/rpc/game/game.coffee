@@ -5632,6 +5632,87 @@ complexes=
     Threatened:Threatened
     DivineObstructed:DivineObstructed
 
+    # 役職ごとの強さ
+jobStrength=
+    Human:5
+    Werewolf:40
+    Diviner:25
+    Psychic:15
+    Madman:10
+    Guard:23
+    Couple:10
+    Fox:25
+    Poisoner:20
+    BigWolf:80
+    TinyFox:10
+    Bat:10
+    Noble:12
+    Slave:5
+    Magician:14
+    Spy:14
+    WolfDiviner:60
+    Fugitive:8
+    Merchant:18
+    QueenSpectator:5
+    MadWolf:40
+    Neet:50
+    Liar:8
+    Spy2:5
+    Copier:10
+    Light:30
+    Fanatic:20
+    Immoral:5
+    Devil:20
+    ToughGuy:11
+    Cupid:37
+    Stalker:10
+    Cursed:2
+    ApprenticeSeer:23
+    Diseased:16
+    Spellcaster:6
+    Lycan:5
+    Priest:17
+    Prince:17
+    PI:23
+    Sorcerer:14
+    Doppleganger:15
+    CultLeader:10
+    Vampire:40
+    LoneWolf:28
+    Cat:22
+    Witch:23
+    Oldman:4
+    Tanner:15
+    OccultMania:10
+    MinionSelector:0
+    WolfCub:70
+    WhisperingMad:20
+    Lover:10
+    Thief:0
+    Dog:7
+    Dictator:18
+    SeersMama:15
+    Trapper:13
+    WolfBoy:11
+    Hoodlum:5
+    QuantumPlayer:0
+    RedHood:16
+    Counselor:25
+    Miko:12
+    GreedyWolf:60
+    FascinatingWolf:52
+    SolitudeWolf:20
+    ToughWolf:55
+    ThreateningWolf:50
+    HolyMarked:6
+    WanderingGuard:10
+    ObstructiveMad:19
+    TroubleMaker:10
+    FrankensteinsMonster:50
+    BloodyMary:5
+    King:15
+    PsychoKiller:25
+    SantaClaus:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
@@ -5718,6 +5799,7 @@ module.exports.actions=(req,res,ss)->
                     jingais:false   # 人外の数を調整
                     teams:false     # 陣営の数を調整
                     jobs:false      # 職どうしの数を調整
+                    strength:false  # 職の強さも考慮
                 }
                 switch query.yaminabe_safety
                     when "low"
@@ -5730,6 +5812,11 @@ module.exports.actions=(req,res,ss)->
                         safety.jingais=true
                         safety.teams=true
                         safety.jobs=true
+                    when "super"
+                        safety.jingais=true
+                        safety.teams=true
+                        safety.jobs=true
+                        safety.strength=true
 
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
@@ -5891,10 +5978,10 @@ module.exports.actions=(req,res,ss)->
                                 joblist.SantaClaus ?= 0
                                 joblist.SantaClaus++
                                 frees--
-                        else
-                            # サンタは出にくい
-                            if Math.random()<0.8
-                                exceptions.push "SantaClaus"
+                    else
+                        # サンタは出にくい
+                        if Math.random()<0.8
+                            exceptions.push "SantaClaus"
 
                 )(new Date)
                 
@@ -5906,7 +5993,7 @@ module.exports.actions=(req,res,ss)->
                 init=(jobname,categoryname)->
                     unless jobname in possibility
                         return false
-                    if joblist["category_#{categoryname}"]>0
+                    if categoryname? && joblist["category_#{categoryname}"]>0
                         # あった
                         joblist[jobname]++
                         joblist["category_#{categoryname}"]--
@@ -5917,6 +6004,9 @@ module.exports.actions=(req,res,ss)->
                         frees--
                         return true
                     return false
+                # 役職バリデーション
+                validate=(joblist)->
+                    # 返り値: null->OK ""->だめ "(jobtype)"->それを入れればOK
 
                 while true
                     category=null
