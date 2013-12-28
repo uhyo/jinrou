@@ -3,6 +3,13 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
+# 浅いコピー
+copyObject=(obj)->
+    result=Object.create Object.getPrototypeOf obj
+    for key in Object.keys(obj)
+        result[key]=obj[key]
+    result
+
 #内部用
 module.exports=
     newGame: (room,ss)->
@@ -5987,7 +5994,6 @@ module.exports.actions=(req,res,ss)->
                 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
                 
-                wolf_teams=countCategory "Werewolf"
             
                 # 強制的に入れる関数
                 init=(jobname,categoryname)->
@@ -6004,107 +6010,163 @@ module.exports.actions=(req,res,ss)->
                         frees--
                         return true
                     return false
-                # 役職バリデーション
-                validate=(joblist)->
-                    # 返り値: null->OK ""->だめ "(jobtype)"->それを入れればOK
 
-                while true
-                    category=null
-                    job=null
-                    #カテゴリ役職がまだあるか探す
-                    for type,arr of Shared.game.categories
-                        if joblist["category_#{type}"]>0
-                            r=Math.floor Math.random()*arr.length
-                            job=arr[r]
-                            category="category_#{type}"
-                            break
-                    unless job?
-                        # もうカテゴリがない
-                        if frees<=0
-                            # もう空きがない
-                            break
-                        r=Math.floor Math.random()*possibility.length
-                        job=possibility[r]
-                    if safety.teams && !category?
-                        if job in Shared.game.teams.Werewolf
-                            if wolf_teams+1>=plsh
-                                # 人狼が過半数を越えた（PP）
-                                continue
-                    if safety.jobs
-                        # 職どうしの兼ね合いを考慮
-                        switch job
-                            when "Psychic","RedHood"
-                                # 1人のとき霊能は意味ない
-                                if countCategory("Werewolf")==1
-                                    # 狼1人だと霊能が意味ない
+                # セーフティ超用
+                trial_count=0
+                trial_max=if safety.strength then 40 else 1
+                best_list=null
+                best_points=null
+                best_diff=Infinity
+                first_list=joblist
+                first_frees=frees
+                # チームのやつキャッシュ
+                teamCache={}
+                getTeam=(job)->
+                    if teamCache[job]?
+                        return teamCache[job]
+                    for team of Shared.game.teams
+                        if job in Shared.game.teams[team]
+                            teamCache[job]=team
+                            return team
+                    return null
+                while trial_count++ < trial_max
+                    joblist=copyObject first_list
+                    #wolf_teams=countCategory "Werewolf"
+                    wolf_teams=0
+                    frees=first_frees
+                    while true
+                        category=null
+                        job=null
+                        #カテゴリ役職がまだあるか探す
+                        for type,arr of Shared.game.categories
+                            if joblist["category_#{type}"]>0
+                                r=Math.floor Math.random()*arr.length
+                                job=arr[r]
+                                category="category_#{type}"
+                                break
+                        unless job?
+                            # もうカテゴリがない
+                            if frees<=0
+                                # もう空きがない
+                                break
+                            r=Math.floor Math.random()*possibility.length
+                            job=possibility[r]
+                        if safety.teams && !category?
+                            if job in Shared.game.teams.Werewolf
+                                if wolf_teams+1>=plsh
+                                    # 人狼が過半数を越えた（PP）
                                     continue
-                            when "Couple"
-                                # 共有者はひとりだと寂しい
-                                if joblist.Couple==0
-                                    unless init "Couple","Human"
-                                        #共有者が入る隙間はない
+                        if safety.jobs
+                            # 職どうしの兼ね合いを考慮
+                            switch job
+                                when "Psychic","RedHood"
+                                    # 1人のとき霊能は意味ない
+                                    if countCategory("Werewolf")==1
+                                        # 狼1人だと霊能が意味ない
                                         continue
-                            when "Noble"
-                                # 貴族は奴隷がほしい
-                                if joblist.Slave==0
-                                    unless init "Slave","Human"
+                                when "Couple"
+                                    # 共有者はひとりだと寂しい
+                                    if joblist.Couple==0
+                                        unless init "Couple","Human"
+                                            #共有者が入る隙間はない
+                                            continue
+                                when "Noble"
+                                    # 貴族は奴隷がほしい
+                                    if joblist.Slave==0
+                                        unless init "Slave","Human"
+                                            continue
+                                when "Slave"
+                                    if joblist.Noble==0
+                                        unless init "Noble","Human"
+                                            continue
+                                when "OccultMania"
+                                    if joblist.Diviner==0 && Math.random()<0.5
+                                        # 占い師いないと出現確率低い
                                         continue
-                            when "Slave"
-                                if joblist.Noble==0
-                                    unless init "Noble","Human"
+                                when "QueenSpectator"
+                                    # 2人いたらだめ
+                                    if joblist.QueenSpectator>0 || joblist.Spy2>0
                                         continue
-                            when "OccultMania"
-                                if joblist.Diviner==0 && Math.random()<0.5
-                                    # 占い師いないと出現確率低い
-                                    continue
-                            when "QueenSpectator"
-                                # 2人いたらだめ
-                                if joblist.QueenSpectator>0 || joblist.Spy2>0
-                                    continue
-                                # 女王観戦者はガードがないと不安
-                                if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
-                                    unless Math.random()<0.4 && init "Guard","Human"
-                                        unless Math.random()<0.5 && init "Priest","Human"
-                                            unless init "Trapper","Human"
-                                                # 護衛がいない
-                                                continue
-                            when "Spy2"
-                                # スパイIIは2人いるとかわいそうなので入れない
-                                if joblist.Spy2>0 || joblist.QueenSpectator>0
-                                    continue
-                                else if Math.random()>0.1
-                                    # 90%の確率で弾く（レア）
-                                    continue
-                            when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy"
-                                # 占い系がいないと入れない
-                                if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
-                                    continue
-                            when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary","WolfCub"
-                                # 誘惑する女狼はほかに人狼がいないと効果発揮しない
-                                # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
-                                if countCategory("Werewolf")-(if category? then 1 else 0)==0
-                                    continue
-                            when "BigWolf"
-                                # 強いので狼2以上
-                                if countCategory("Werewolf")-(if category? then 1 else 0)==0
-                                    continue
-                                # 霊能を出す
-                                unless Math.random()<0.15 ||  init "Psychic","Human"
-                                    continue
-                            when "BloodyMary"
-                                # 狼が2以上必要
-                                if countCategory("Werewolf")<=1
-                                    continue
+                                    # 女王観戦者はガードがないと不安
+                                    if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
+                                        unless Math.random()<0.4 && init "Guard","Human"
+                                            unless Math.random()<0.5 && init "Priest","Human"
+                                                unless init "Trapper","Human"
+                                                    # 護衛がいない
+                                                    continue
+                                when "Spy2"
+                                    # スパイIIは2人いるとかわいそうなので入れない
+                                    if joblist.Spy2>0 || joblist.QueenSpectator>0
+                                        continue
+                                    else if Math.random()>0.1
+                                        # 90%の確率で弾く（レア）
+                                        continue
+                                when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy"
+                                    # 占い系がいないと入れない
+                                    if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
+                                        continue
+                                when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary","WolfCub"
+                                    # 誘惑する女狼はほかに人狼がいないと効果発揮しない
+                                    # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
+                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                        continue
+                                when "BigWolf"
+                                    # 強いので狼2以上
+                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                        continue
+                                    # 霊能を出す
+                                    unless Math.random()<0.15 ||  init "Psychic","Human"
+                                        continue
+                                when "BloodyMary"
+                                    # 狼が2以上必要
+                                    if countCategory("Werewolf")<=1
+                                        continue
 
-                    joblist[job]++
-                    # ひとつ追加
-                    if category?
-                        joblist[category]--
-                    else
-                        frees--
+                        joblist[job]++
+                        # ひとつ追加
+                        if category?
+                            joblist[category]--
+                        else
+                            frees--
 
-                    if safety.teams && (job in Shared.game.teams.Werewolf)
-                        wolf_teams++    # 人狼陣営が増えた
+                        if safety.teams && (job in Shared.game.teams.Werewolf)
+                            wolf_teams++    # 人狼陣営が増えた
+                    # セーフティ超の場合判定が入る
+                    if safety.strength
+                        # ポイントを計算する
+                        points=
+                            Human:0
+                            Werewolf:0
+                            Others:0
+                        for job of jobStrength
+                            if joblist[job]>0
+                                switch getTeam(job)
+                                    when "Human"
+                                        points.Human+=jobStrength[job]*joblist[job]
+                                    when "Werewolf"
+                                        points.Werewolf+=jobStrength[job]*joblist[job]
+                                    else
+                                        points.Others+=jobStrength[job]*joblist[job]
+                        # 判定する
+                        if points.Others>points.Human || points.Others>points.Werewolf
+                            # だめだめ
+                            continue
+                        diff=Math.abs(points.Human-points.Werewolf)
+                        if diff<best_diff
+                            best_list=copyObject joblist
+                            best_diff=diff
+                            best_points=points
+                            #console.log "diff:#{diff}"
+                            #console.log best_list
+
+                if safety.strength && best_list?
+                    # セーフティ超
+                    joblist=best_list
+                    log=
+                        mode:"system"
+                        comment:"（テスト用ログ）村人陣営:#{best_points.Human} 人狼陣営:#{best_points.Werewolf} その他:#{best_points.Others}"
+                    splashlog game.id,game,log
+
                 if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0) && query.divineresult=="immediate"
                     query.divineresult="sunrise"
                     log=
