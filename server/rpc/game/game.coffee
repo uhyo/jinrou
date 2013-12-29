@@ -809,11 +809,19 @@ class Game
                     comment:"狼の子の力で、今日は2人襲撃できます。"
                 splashlog @id,this,log
             
-            for pl in @players
-                if pl.dead
-                    pl.deadsunset this
+            players=shuffle @players.concat []
+            alives=[]
+            deads=[]
+            for player in players
+                if player.dead
+                    deads.push player.id
                 else
-                    pl.sunset this
+                    alives.push player.id
+            for player in players
+                if player.id in alives
+                    player.sunset this
+                else
+                    player.deadsunset this
         else
             # 処理
             if @rule.deathnote
@@ -836,11 +844,19 @@ class Game
             # 投票リセット処理
             @votingbox.init()
             @votingbox.setCandidates @players.filter (x)->!x.dead
-            for pl in @players
-                if pl.dead
-                    pl.deadsunrise this
+            players=shuffle @players.concat []
+            alives=[]
+            deads=[]
+            for player in players
+                if player.dead
+                    deads.push player.id
                 else
-                    pl.sunrise this
+                    alives.push player.id
+            for player in players
+                if player.id in alives
+                    player.sunrise this
+                else
+                    player.deadsunrise this
             for pl in @players
                 if !pl.dead
                     pl.votestart this
@@ -899,8 +915,15 @@ class Game
     #夜の能力を処理する
     midnight:->
         players=shuffle @players.concat []
-        players.forEach (player)=>
-            unless player.dead
+        alives=[]
+        deads=[]
+        for player in players
+            if player.dead
+                deads.push player.id
+            else
+                alives.push player.id
+        for player in players
+            if player.id in alives
                 player.midnight this
             else
                 player.deadnight this
@@ -6101,7 +6124,7 @@ module.exports.actions=(req,res,ss)->
                                     else if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
-                                when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy"
+                                when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy","ObstructirveMad"
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
