@@ -5683,7 +5683,7 @@ jobStrength=
     WolfDiviner:60
     Fugitive:8
     Merchant:18
-    QueenSpectator:5
+    QueenSpectator:20
     MadWolf:40
     Neet:50
     Liar:8
