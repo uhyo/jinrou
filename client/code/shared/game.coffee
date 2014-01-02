@@ -1459,6 +1459,22 @@ exports.rules=[
                     }
                 ]
             }
+            {
+                name:"friendssplit"
+                label:"恋人はそれぞれ独立する"
+                title:"恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
+                type:"checkbox"
+                value:{
+                    value:"split"
+                    label:"あり"
+                    checked:true
+                }
+                getstr:(value)->
+                    {
+                        label:"恋人の独立"
+                        value:if value=="split" then "あり" else "なし"
+                    }
+            }
         ]
     }
     # 量子人狼

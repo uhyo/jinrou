@@ -3010,13 +3010,15 @@ class Cupid extends Player
         @setTarget playerid
         # 恋人二人が決定した
         
-        for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
+        plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
+        for pl,i in plpls
             # 2人ぶん処理
         
             pl.touched game,@id
             newpl=Player.factory null,pl,null,Friend    # 恋人だ！
             pl.transProfile newpl
             pl.transform game,newpl # 入れ替え
+            newpl.cmplFlag=plpls[1-i].id
             log=
                 mode:"skill"
                 to:@id
@@ -3798,10 +3800,12 @@ class Lover extends Player
         # 恋人二人が決定した
         
     
-        for x in [this,pl]
+        plpls=[this,pl]
+        for x,i in plpls
             newpl=Player.factory null,x,null,Friend # 恋人だ！
             x.transProfile newpl
             x.transform game,newpl  # 入れ替え
+            newpl.cmplFlag=plpls[1-i].id
         log=
             mode:"skill"
             to:@id
@@ -5245,6 +5249,7 @@ class Complex
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
+    # cmplFlag: 相方のid
     cmplType:"Friend"
     isFriend:->true
     team:"Friend"
@@ -5254,9 +5259,19 @@ class Friend extends Complex    # 恋人
     beforebury:(game,type)->
         @mcall game,@main.beforebury,game,type
         @sub?.beforebury? game,type
-        friends=game.players.filter (x)->x.isFriend()   #恋人たち
+        ato=false
+        if game.rule.friendssplit=="split"
+            # 独立
+            pl=game.getPlayer @cmplFlag
+            if pl? && pl.dead && pl.isFriend()
+                ato=true
+        else
+            # みんな
+            friends=game.players.filter (x)->x.isFriend()   #恋人たち
+            if friends.length>1 && friends.some((x)->x.dead)
+                ato=true
         # 恋人が誰か死んだら自殺
-        if friends.length>1 && friends.some((x)->x.dead)
+        if ato
             @die game,"friendsuicide"
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
@@ -5266,8 +5281,14 @@ class Friend extends Complex    # 恋人
             name:"恋人"
             type:"Friend"
         }
-        result.friends=game.players.filter((x)->x.isFriend()).map (x)->
-            x.publicinfo()
+        if game.rule.friendssplit=="split"
+            # 独立
+            result.friends=[this,game.getPlayer(@cmplFlag)].filter((x)->x.isFriend()).map (x)->
+                x.publicinfo()
+        else
+            # みんないっしょ
+            result.friends=game.players.filter((x)->x.isFriend()).map (x)->
+                x.publicinfo()
     isWinner:(game,team)->@team==team
 # 聖職者にまもられた人
 class HolyProtected extends Complex
@@ -6289,6 +6310,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff",
+            "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_hidejobs","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
