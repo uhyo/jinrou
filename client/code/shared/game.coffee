@@ -1,4 +1,4 @@
-shared=
+Shared=
     game:exports
 # ------ 役職一覧
 # 基本役職
