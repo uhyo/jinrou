@@ -5289,7 +5289,7 @@ class Friend extends Complex    # 恋人
             # みんないっしょ
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
-    isWinner:(game,team)->@team==team
+    isWinner:(game,team)->@team==team && !@dead
 # 聖職者にまもられた人
 class HolyProtected extends Complex
     # cmplFlag: 護衛元
