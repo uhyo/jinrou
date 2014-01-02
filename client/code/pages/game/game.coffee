@@ -219,6 +219,108 @@ exports.start=(roomid)->
         newgamebutton = (je)->
             form=$("#gamestart").get 0
             # ルール設定保存を参照する
+            # ルール画面を構築するぞーーー(idx: グループのアレ)
+            buildrules=(arr,parent)->
+                p=null
+                for obj,idx in arr
+                    if obj.rules
+                        # グループだ
+                        if p && !p.get(0).hasChildNodes()
+                            # 空のpは要らない
+                            p.remove()
+                        fieldset=$ "<fieldset>"
+                        
+                        pn=parent.attr("name") || ""
+                        fieldset.attr "name","#{pn}.#{idx}"
+                        if obj.label
+                            fieldset.append $ "<legend>#{obj.label}</legend>"
+                        buildrules obj.rules,fieldset
+                        parent.append fieldset
+                        p=null
+                    else
+                        # ひとつの設定だ
+                        if obj.type=="separator"
+                            # pの区切り
+                            p=$ "<p>"
+                            p.appendTo parent
+                            continue
+                        unless p?
+                            p=$ "<p>"
+                            p.appendTo parent
+                        label=$ "<label>"
+                        if obj.title
+                            label.attr "title",obj.title
+                        unless obj.backlabel
+                            if obj.type!="hidden"
+                                label.text obj.label
+                        switch obj.type
+                            when "checkbox"
+                                input=$ "<input>"
+                                input.attr "type","checkbox"
+                                input.attr "name",obj.name
+                                input.attr "value",obj.value.value
+                                input.prop "checked",!!obj.value.checked
+                                label.append input
+                            when "select"
+                                select=$ "<select>"
+                                select.attr "name",obj.name
+                                slv=null
+                                for o in obj.values
+                                    op=$ "<option>"
+                                    op.text o.label
+                                    if o.title
+                                        op.attr "title",o.title
+                                    op.attr "value",o.value
+                                    select.append op
+                                    if o.selected
+                                        slv=o.value
+                                if slv?
+                                    select.get(0).value=slv
+                                label.append select
+                            when "time"
+                                input=$ "<input>"
+                                input.attr "type","number"
+                                input.attr "name",obj.name.minute
+                                input.attr "min","0"
+                                input.attr "step","1"
+                                input.attr "size","5"
+                                input.attr "value",String obj.defaultValue.minute
+                                label.append input
+                                label.append document.createTextNode "分"
+
+                                input=$ "<input>"
+                                input.attr "type","number"
+                                input.attr "name",obj.name.second
+                                input.attr "min","0"
+                                input.attr "max","59"
+                                input.attr "step","1"
+                                input.attr "size","5"
+                                input.attr "value",String obj.defaultValue.second
+                                label.append input
+                                label.append document.createTextNode "秒"
+                            when "hidden"
+                                input=$ "<input>"
+                                input.attr "type","hidden"
+                                input.attr "name",obj.name
+                                input.attr "value",obj.value.value
+                                label.append input
+                            when "second"
+                                input=$ "<input>"
+                                input.attr "type","number"
+                                input.attr "name",obj.name
+                                input.attr "min","0"
+                                input.attr "step","1"
+                                input.attr "size","5"
+                                input.attr "value",obj.defaultValue.value
+                                label.append input
+                        if obj.backlabel
+                            if obj.type!="hidden"
+                                label.append document.createTextNode obj.label
+                        p.append label
+
+
+            $("#rules").attr "name","rule"
+            buildrules Shared.game.rules,$("#rules")
             if sessionStorage.savedRule
                 rule=JSON.parse sessionStorage.savedRule
                 jobs=JSON.parse sessionStorage.savedJobs
@@ -234,7 +336,6 @@ exports.start=(roomid)->
                 form.elements["remain_second"].value=remainsec%60
                 # その他
                 delete rule.number  # 人数は違うかも
-                console.log rule
                 for key of rule
                     e=form.elements[key]
                     if e?
@@ -799,38 +900,31 @@ exports.start=(roomid)->
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
             $("#jobsfield").get(0).hidden=false
             $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
-            $("#yaminabe_opt").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             #$("#yaminabe_opt_nums").get(0).hidden=true
-            setjobsmonitor form,number
-            return
         else if jobrulename=="特殊ルール.闇鍋"
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
-            $("#yaminabe_opt").get(0).hidden=false
             #$("#yaminabe_opt_nums").get(0).hidden=false
-            setjobsmonitor form,number
-            return
         else
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
-            $("#yaminabe_opt").get(0).hidden=true
         if jobrulename=="特殊ルール.量子人狼"
             jobrulename="内部利用.量子人狼"
         obj= Shared.game.getrulefunc jobrulename
-        return unless obj?
+        if obj?
 
-        form.elements["number"].value=number
-        for x in Shared.game.jobs
-            form.elements[x].value=0
-        jobs=obj number
-        count=0 #村人以外
-        for job,num of jobs
-            form.elements[job]?.value=num
-            count+=num
-        # カテゴリ別
-        for type of Shared.game.categoryNames
-            count+= parseInt(form.elements["category_#{type}"].value ? 0)
-        form.elements["Human"].value=number-count   # 村人
+            form.elements["number"].value=number
+            for x in Shared.game.jobs
+                form.elements[x].value=0
+            jobs=obj number
+            count=0 #村人以外
+            for job,num of jobs
+                form.elements[job]?.value=num
+                count+=num
+            # カテゴリ別
+            for type of Shared.game.categoryNames
+                count+= parseInt(form.elements["category_#{type}"].value ? 0)
+            form.elements["Human"].value=number-count   # 村人
         setjobsmonitor form,number
     jobsformvalidate=(room,form)->
         # 村人の人数を調節する
@@ -847,31 +941,30 @@ exports.start=(roomid)->
         form.elements["Human"].value=pl-sum
         form.elements["number"].value=pl
         setjobsmonitor form,pl
+    # ルールの表示具合をチェックする
+    checkrule=(form,ruleobj,rules,fsetname)->
+        for obj,idx in rules
+            continue unless obj.rules
+            fsetname2="#{fsetname}.#{idx}"
+            form.elements[fsetname2].hidden=!(obj.visible ruleobj,ruleobj)
+            checkrule form,ruleobj,obj.rules,fsetname2
+            
+            
     # 配役をテキストで書いてあげる
     setjobsmonitor=(form,number)->
         text=""
-        ###
-        if form.elements["jobrule"].value=="特殊ルール.一部闇鍋"
-            text="闇鍋 / "
-
-        for job in Shared.game.jobs
-            continue if job=="Human" && form.elements["jobrule"].value=="特殊ルール.一部闇鍋"   #一部闇鍋は村人部分だけ闇鍋
-            input=form.elements[job]
-            num=input.value
-            continue unless parseInt num
-            text+="#{input.dataset.jobname}#{num} "
-        ###
-        jobrule=form.elements["jobrule"].value
+        rule=Index.util.formQuery form
+        jobrule=rule.jobrule
         if jobrule=="特殊ルール.闇鍋"
             # 闇鍋の場合
-            #$("#jobsmonitor").text "闇鍋 / 人狼#{form.elements["yaminabe_Werewolf"].value} 妖狐#{form.elements["yaminabe_Fox"].value}"
             $("#jobsmonitor").text "闇鍋"
         else
             ruleobj=Shared.game.getruleobj jobrule
             if ruleobj?.minNumber>number
                 $("#jobsmonitor").text "（この配役は最低#{ruleobj.minNumber}人必要です）"
             else
-                $("#jobsmonitor").text Shared.game.getrulestr jobrule, Index.util.formQuery form
+                $("#jobsmonitor").text Shared.game.getrulestr jobrule,rule
+        ###
         jobprops=$("#jobprops")
         jobprops.children(".prop").prop "hidden",true
         for job in Shared.game.jobs
@@ -886,7 +979,12 @@ exports.start=(roomid)->
                 ruleprops.children(".prop.rule-quantum").prop "hidden",false
                 # あと身代わりくんはOFFにしたい
                 form.elements["scapegoat"].value="off"
-
+        ###
+        if jobrule=="特殊ルール.量子人狼"
+            # あと身代わりくんはOFFにしたい
+            form.elements["scapegoat"].value="off"
+            rule.scapegoat="off"
+        checkrule form,rule,Shared.game.rules,$("#rules").attr("name")
         
         
     #ログをもらった
