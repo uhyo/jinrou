@@ -6288,7 +6288,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff",
-            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_safety"]
+            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_hidejobs","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
 

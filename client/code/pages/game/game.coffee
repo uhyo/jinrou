@@ -575,7 +575,7 @@ exports.start=(roomid)->
         $(speakform).keydown (je)->
             if je.keyCode==13 && je.shiftKey && je.target.form.elements["multilinecheck"].checked==false
                 # 複数行にする
-                je.target.form.elements["multilinecheck"].click();
+                je.target.form.elements["multilinecheck"].click()
                 
                 je.preventDefault()
                 
@@ -584,6 +584,7 @@ exports.start=(roomid)->
         $("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
             return unless this_rule?
             win=Index.util.blankWindow()
+            win.append $ "<h1>ルール</h1>"
             p=document.createElement "p"
             Object.keys(this_rule.jobscount).forEach (x)->
                 a=document.createElement "a"
@@ -592,99 +593,56 @@ exports.start=(roomid)->
                 p.appendChild a
                 p.appendChild document.createTextNode " "
             win.append p
-            rulestr=
-                "decider":
-                    "_name":"決定者"
-                    "1":"あり"
-                "authority":
-                    "_name":"権力者"
-                    "1":"あり"
-                "scapegoat":
-                    "_name":"一日目"
-                    "_default":""
-                    "on":"身代わり君が死ぬ"
-                    "off":"参加者が死ぬ"
-                    "no":"誰も死なない"
-                "will":
-                    "_name":"遺言"
-                    "_default":"なし"
-                    "die":"あり"
-                "wolfsound":
-                    "_name":"人狼の遠吠え"
-                    "_default":"聞こえない"
-                    "aloud":"聞こえる"
-                "couplesound":
-                    "_name":"共有者の声"
-                    "_default":"聞こえない"
-                    "aloud":"聞こえる"
-                "heavenview":
-                    "_name":"霊界表示"
-                    "_default":"なし"
-                    "":"なし"
-                    "norevive":"あり"
-                    "view":"常にあり"
-                "wolfattack":
-                    "_name":"人狼が人狼を襲う"
-                    "_default":"不可"
-                    "ok":"可能"
-                "guardmyself":
-                    "_name":"狩人の自分守り"
-                    "_default":"不可"
-                    "ok":"可能"
-                "votemyself":
-                    "_name":"昼に自分へ投票"
-                    "_default":"不可"
-                    "ok":"可能"
-                "deadfox":
-                    "_name":"妖狐の呪殺死体"
-                    "_default":"人狼によるのと区別がつかない"
-                    "ok":"人狼によるのと区別が付く"
-                "divineresult":
-                    "_name":"占い結果"
-                    "_default":"翌朝分かる"
-                    "immediate":"すぐ分かる"
-                "psychicresult":
-                    "_name":"霊能結果"
-                    "_default":"翌朝分かる"
-                    "sunset":"すぐ分かる"
-                "waitingnight":
-                    "_name":"夜は時間限界まで待つか"
-                    "_default":"待たない"
-                    "wait":"待つ"
-                "friendsjudge":
-                    "_name":"恋人の勝利条件"
-                    "alive":"終了時に生存"
-                    "_default":"恋人だけ生存"
-                "noticebitten":
-                    "_name":"噛まれたら分かるか"
-                    "notice":"分かる"
-                    "_default":"分からない"
-                "voteresult":
-                    "_name":"投票結果"
-                    "hide":"隠す"
-                "GMpsychic":
-                    "_name":"GM霊能"
-                    "on":"あり"
-                "losemode":
-                    "_name":"敗北村"
-                    "on":"あり"
-                "gjmessage":
-                    "_name":"狩人の護衛結果"
-                    "on":"成功時分かる"
-                "runoff":
-                    "_name":"決選投票"
-                    "no":"なし"
-                    "revote":"再投票時"
-                    "yes":"常に行う"
-            Object.keys(this_rule.rule).forEach (x)->
-                tru=rulestr[x]
-                return unless tru?
-                val=tru[this_rule.rule[x]] ? tru._default
-                return unless val
-                p=document.createElement "p"
-                p.textContent="#{tru._name} : #{val}"
-                win.append p
-                
+            chkrule=(ruleobj,jobscount,rules)->
+                for obj in rules
+                    if obj.rules
+                        continue unless obj.visible ruleobj,jobscount
+                        chkrule ruleobj,jobscount,obj.rules
+                    else
+                        p=$ "<p>"
+                        val=""
+                        if obj.title?
+                            p.attr "title",obj.title
+                        if obj.type=="separator"
+                            continue
+                        if obj.getstr?
+                            valobj=obj.getstr ruleobj[obj.name]
+                            unless valobj?
+                                continue
+                            val="#{valobj.label ? ''}:#{valobj.value ? ''}"
+                        else
+                            val="#{obj.label}:"
+                            switch obj.type
+                                when "checkbox"
+                                    if ruleobj[obj.name]==obj.value.value
+                                        unless obj.value.label?
+                                            continue
+                                        val+=obj.value.label
+                                    else
+                                        unless obj.value.nolabel?
+                                            continue
+                                        val+=obj.value.nolabel
+                                when "select"
+                                    flg=false
+                                    for vobj in obj.values
+                                        if ruleobj[obj.name]==vobj.value
+                                            val+=vobj.label
+                                            if vobj.title
+                                                p.attr "title",vobj.title
+                                            flg=true
+                                            break
+                                    unless flg
+                                        continue
+                                when "time"
+                                    console.log ruleobj
+                                    val+="#{ruleobj[obj.name.minute]}分#{ruleobj[obj.name.second]}秒"
+                                when "second"
+                                    val+="#{ruleobj[obj.name]}秒"
+                                when "hidden"
+                                    continue
+                        p.text val
+                        win.append p
+            chkrule this_rule.rule, this_rule.jobscount,Shared.game.rules
             
         $("#willform").submit (je)->
             form=je.target

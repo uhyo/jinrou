@@ -1,4 +1,4 @@
-Shared=
+shared=
     game:exports
 # ------ 役職一覧
 # 基本役職
@@ -1045,6 +1045,7 @@ exports.rules=[
                 defaultValue:
                     minute:5
                     second:30
+                getstr:->null
             }
             {
                 type:"time"
@@ -1055,6 +1056,7 @@ exports.rules=[
                 defaultValue:
                     minute:2
                     second:30
+                getstr:->null
             }
             {
                 type:"time"
@@ -1065,6 +1067,7 @@ exports.rules=[
                 defaultValue:
                     minute:2
                     second:0
+                getstr:->null
             }
             {
                 type:"separator"
@@ -1077,6 +1080,7 @@ exports.rules=[
                 value:{
                     value:"die"
                     label:"あり"
+                    nolabel:"なし"
                     checked:true
                 }
             }
@@ -1112,7 +1116,13 @@ exports.rules=[
                 value:{
                     value:"ok"
                     label:"あり"
+                    nolabel:"なし"
                 }
+                getstr:(value)->
+                    {
+                        label:"自分投票"
+                        value:if value=="ok" then "あり" else "なし"
+                    }
             }
             {
                 name:"waitingnight"
@@ -1121,6 +1131,7 @@ exports.rules=[
                 value:{
                     value:"wait"
                     label:"あり"
+                    nolabel:"なし"
                 }
             }
             {
@@ -1155,7 +1166,13 @@ exports.rules=[
                 value:{
                     value:"notice"
                     label:"あり"
+                    nolabel:"なし"
                 }
+                getstr:(value)->
+                    {
+                        label:"襲撃された通知"
+                        value:if value=="notice" then "あり" else "なし"
+                    }
             }
             {
                 name:"GMpsychic"
@@ -1165,6 +1182,7 @@ exports.rules=[
                 value:{
                     value:"on"
                     label:"あり"
+                    nolabel:"なし"
                 }
             }
             {
@@ -1176,6 +1194,14 @@ exports.rules=[
                 defaultValue:{
                     value:0
                 }
+                getstr:(value)->
+                    if value==0
+                        return null
+                    else
+                        return {
+                            label:null
+                            value:"#{value}秒ルール"
+                        }
             }
             {
                 name:"losemode"
@@ -1237,8 +1263,14 @@ exports.rules=[
                 value:{
                     value:"aloud"
                     label:"あり"
+                    nolabel:"なし"
                     checked:true
                 }
+                getstr:(value)->
+                    {
+                        label:"人狼の遠吠え"
+                        value:if value=="aloud" then "聞こえる" else "聞こえない"
+                    }
             }
             {
                 name:"wolfattack"
@@ -1248,6 +1280,14 @@ exports.rules=[
                     value:"ok"
                     label:"あり"
                 }
+                getstr:(value)->
+                    if value=="ok"
+                        {
+                            label:null
+                            value:"人狼は人狼を襲撃対象に選択できる"
+                        }
+                    else
+                        null
             }
         ]
     }
@@ -1320,7 +1360,13 @@ exports.rules=[
                 value:{
                     value:"aloud"
                     label:"あり"
+                    nolabel:"なし"
                 }
+                getstr:(value)->
+                    {
+                        label:"共有者の小声"
+                        value:if value=="aloud" then "聞こえる" else "聞こえない"
+                    }
             }
         ]
     }
@@ -1342,6 +1388,11 @@ exports.rules=[
                     value:"ok"
                     label:"あり"
                 }
+                getstr:(value)->
+                    {
+                        label:"狩人の自分護衛"
+                        value:if value=="ok" then "あり" else "なし"
+                    }
             }
             {
                 name:"gjmessage"
@@ -1352,6 +1403,11 @@ exports.rules=[
                     value:"on"
                     label:"あり"
                 }
+                getstr:(value)->
+                    {
+                        label:"護衛成功通知"
+                        value:if value=="on" then "あり" else "なし"
+                    }
             }
         ]
     }
@@ -1370,6 +1426,12 @@ exports.rules=[
                 value:
                     value:"on"
                     label:"あり"
+                    nolabel:"なし"
+                getstr:(value)->
+                    {
+                        label:"呪殺ログと襲撃ログの区別"
+                        value:if value=="on" then "あり" else "なし"
+                    }
             }
         ]
     }
@@ -1429,6 +1491,7 @@ exports.rules=[
                 value:{
                     value:"no"
                     label:"あり"
+                    nolabel:"なし"
                 }
             }
             {
@@ -1439,6 +1502,7 @@ exports.rules=[
                 value:{
                     value:"on"
                     label:"あり"
+                    nolabel:"なし"
                 }
             }
         ]
