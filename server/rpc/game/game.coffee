@@ -4785,6 +4785,7 @@ class TroubleMaker extends Player
             splashlog game.id,game,log
             @setFlag "done"
             game.votingbox.addPunishedNumber 1
+    deadsunrise:(game)->@sunrise game
 
 class FrankensteinsMonster extends Player
     type:"FrankensteinsMonster"
