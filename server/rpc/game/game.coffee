@@ -4023,6 +4023,7 @@ class Dictator extends Player
         pl.die game,"punish"
         # 強制的に次のターンへ
         game.nextturn()
+        null
 class SeersMama extends Player
     type:"SeersMama"
     jobname:"予言者のママ"
@@ -5458,11 +5459,11 @@ class TrapGuarded extends Complex
                 canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
             else if ft.isVampire()
                 canbedead=game.players.filter (x)->!x.dead && x.id==from
-        return if canbedead.length==0
-        r=Math.floor Math.random()*canbedead.length
-        pl=canbedead[r] # 被害者
-        pl.die game,"trap"
-        @addGamelog game,"trapkill",null,pl.id
+            return if canbedead.length==0
+            r=Math.floor Math.random()*canbedead.length
+            pl=canbedead[r] # 被害者
+            pl.die game,"trap"
+            @addGamelog game,"trapkill",null,pl.id
 
 
     sunrise:(game)->
