@@ -1197,7 +1197,7 @@ exports.parselognode=parselognode=(node)->
                     a.textContent="##{res2[1]}"
                 else if res[4] in ["","/"] && res[3].length<20
                     a.textContent="#{res[2]}#{res[3]}/"
-                else if res[0].length<60
+                else if res[0].length-res[2].length<60
                     a.textContent=res[0]
                 else if res[3].length<40
                     a.textContent="#{res[2]}#{res[3]}#{res[4].slice(0,10)}...#{res[4].slice(-10)}"
