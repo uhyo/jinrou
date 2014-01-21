@@ -6078,7 +6078,10 @@ module.exports.actions=(req,res,ss)->
                 trial_max=if safety.strength then 40 else 1
                 best_list=null
                 best_points=null
-                best_diff=Infinity
+                if safety.reverse
+                    best_diff=-Infinity
+                else
+                    best_diff=Intinify
                 first_list=joblist
                 first_frees=frees
                 # チームのやつキャッシュ
