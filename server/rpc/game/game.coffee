@@ -5863,6 +5863,7 @@ module.exports.actions=(req,res,ss)->
                     teams:false     # 陣営の数を調整
                     jobs:false      # 職どうしの数を調整
                     strength:false  # 職の強さも考慮
+                    reverse:false   # 職の強さが逆
                 }
                 switch query.yaminabe_safety
                     when "low"
@@ -5880,6 +5881,11 @@ module.exports.actions=(req,res,ss)->
                         safety.teams=true
                         safety.jobs=true
                         safety.strength=true
+                    when "reverse"
+                        safety.jingais=true
+                        safety.jobs=true
+                        safety.strength=true
+                        safety.reverse=true
 
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
@@ -6208,12 +6214,19 @@ module.exports.actions=(req,res,ss)->
                             # だめだめ
                             continue
                         diff=Math.abs(points.Human-points.Werewolf)
-                        if diff<best_diff
-                            best_list=copyObject joblist
-                            best_diff=diff
-                            best_points=points
-                            #console.log "diff:#{diff}"
-                            #console.log best_list
+                        if safety.reverse
+                            # 逆
+                            if diff>best_diff
+                                best_list=copyObject joblist
+                                best_diff=diff
+                                best_points=points
+                        else
+                            if diff<best_diff
+                                best_list=copyObject joblist
+                                best_diff=diff
+                                best_points=points
+                                #console.log "diff:#{diff}"
+                                #console.log best_list
 
                 if safety.strength && best_list?
                     # セーフティ超
