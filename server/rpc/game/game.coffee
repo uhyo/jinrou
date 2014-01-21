@@ -2636,16 +2636,19 @@ class WolfDiviner extends Werewolf
 class Fugitive extends Player
     type:"Fugitive"
     jobname:"逃亡者"
-    willDieWerewolf:false   # 人狼に直接噛まれても死なない
     sunset:(game)->
         @setTarget null
         if game.day<=1 && game.rule.scapegoat!="off"    # 一日目は逃げない
             @setTarget ""
         else if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
-                @sunset sleeping:->@target?
+            als=game.players.filter (x)=>!x.dead && x.id!=@id
+            if als.length==0
+                @setTarget ""
+                return
+            r=Math.floor Math.random()*als.length
+            if @job game,als[r].id,{}
+                @setTarget ""
     sleeping:->@target?
     job:(game,playerid)->
         # 逃亡先
@@ -2666,7 +2669,10 @@ class Fugitive extends Player
     die:(game,found)->
         # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬は回避
         if found in ["werewolf","vampire","witch"]
-            return
+            if @target!=""
+                return
+            else
+                super
         else
             super
         
@@ -2927,6 +2933,7 @@ class Devil extends Player
     type:"Devil"
     jobname:"悪魔くん"
     team:"Devil"
+    psychicResult:"人狼"
     die:(game,found)->
         return if @dead
         if found=="werewolf"
@@ -4391,6 +4398,9 @@ class Counselor extends Player
     jobdone:->@target?
     sunset:(game)->
         @setTarget null
+        if game.day==1
+            # 一日目はカウンセリングできない
+            @setTarget ""
     job:(game,playerid,query)->
         if @target?
             return "既に対象を選択しています"
@@ -5874,7 +5884,7 @@ module.exports.actions=(req,res,ss)->
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
                 options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
-                if query.yaminabe_hidejobs==""
+                if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
                 if query.jobrule=="特殊ルール.一部闇鍋"
                     # 一部闇鍋のときは村人のみ闇鍋
@@ -6208,10 +6218,6 @@ module.exports.actions=(req,res,ss)->
                 if safety.strength && best_list?
                     # セーフティ超
                     joblist=best_list
-                    log=
-                        mode:"system"
-                        comment:"（テスト用ログ）村人陣営:#{best_points.Human} 人狼陣営:#{best_points.Werewolf} その他:#{best_points.Others}"
-                    splashlog game.id,game,log
 
                 if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0) && query.divineresult=="immediate"
                     query.divineresult="sunrise"

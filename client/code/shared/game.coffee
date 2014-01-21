@@ -901,8 +901,8 @@ exports.rules=[
                 values:[
                     {
                         value:"super"
-                        label:"超(α)"
-                        title:"まだ試験段階です。"
+                        label:"超(β)"
+                        title:"強さのバランスを調整します。"
                     }
                     {
                         value:"high"
