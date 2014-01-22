@@ -5883,7 +5883,6 @@ module.exports.actions=(req,res,ss)->
                         safety.strength=true
                     when "reverse"
                         safety.jingais=true
-                        safety.jobs=true
                         safety.strength=true
                         safety.reverse=true
 
@@ -6219,6 +6218,7 @@ module.exports.actions=(req,res,ss)->
                         diff=Math.abs(points.Human-points.Werewolf)
                         if safety.reverse
                             # 逆
+                            diff+=points.Others
                             if diff>best_diff
                                 best_list=copyObject joblist
                                 best_diff=diff
