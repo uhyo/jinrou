@@ -6080,7 +6080,7 @@ module.exports.actions=(req,res,ss)->
                 if safety.reverse
                     best_diff=-Infinity
                 else
-                    best_diff=Intinify
+                    best_diff=Infinity
                 first_list=joblist
                 first_frees=frees
                 # チームのやつキャッシュ
