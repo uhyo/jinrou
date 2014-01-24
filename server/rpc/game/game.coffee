@@ -1218,21 +1218,53 @@ class Game
                 if @players.some((x)->!x.dead && x.isFox())
                     team="Fox"
                 # 恋人判定
-                if @rule.friendsjudge=="alive" && @players.some((x)->x.isFriend())
+                if @players.some((x)->x.isFriend())
                     # 終了時に恋人生存
-                    friends=@players.filter (x)->x.isFriend()
-                    if friends.every((x)->!x.dead)
-                        team="Friend"
+                    friends=@players.filter (x)->x.isFriend() && !x.dead
+                    gid=0
+                    cnt=0
+                    friends_table={}
+                    for pl in friends
+                        unless friends_table[pl.id]?
+                            pt=pl.getPartner()
+                            unless friends_table[pt]?
+                                cnt++
+                                gid++
+                                friends_table[pl.id]=gid
+                                friends_table[pt]=gid
+                            else
+                                # 合併
+                                friends_table[pl.id]=friends_table[pt]
+                        else
+                            unless friends_table[pt]?
+                                friends_table[pt]=friends_table[pl.id]
+                            else if friends_table[pt]!=friends_table[pl.id]
+                                # 食い違っている
+                                c=Math.min friends_table[pt],friends_table[pl.id]
+                                d=Math.max friends_table[pt],friends_table[pl.id]
+                                for key,value of friends_table
+                                    if value==d
+                                        friends_table[key]=c
+                                # グループが合併した
+                                cnt--
+
+
+                    if cnt<=1
+                        # 1組しかいない
+                        if @rule.friendsjudge=="alive"
+                            team="Friend"
+                        else if friends.length==alives
+                            team="Friend"
+                    else
+                        # 恋人バトル
+                        team=null
             # カルト判定
-            if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader"))
+            if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.team=="Cult" )
                 # 全員信者
                 team="Cult"
             # 悪魔くん判定
-            if @players.some((x)->x.type=="Devil" && x.flag=="winner")
+            if @players.some((x)->x.type=="Devil" && x.flag=="winner" && x.team=="Devil")
                 team="Devil"
-            if alives>0 && aliveps.every((x)->x.isFriend()) && @players.filter((x)->x.isFriend()).every((x)->!x.dead)
-                # 恋人のみ生存
-                team="Friend"
 
         if @revote_num>=4
             # 再投票多すぎ
@@ -2584,7 +2616,7 @@ class WolfDiviner extends Werewolf
         @divineeffect game
     #占った影響を与える
     divineeffect:(game)->
-        p=game.getPlayer @target
+        p=game.getPlayer @flag
         if p?
             p.divined game,this
             p.touched game,@id
@@ -5301,6 +5333,12 @@ class Friend extends Complex    # 恋人
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
     isWinner:(game,team)->@team==team && !@dead
+    # 相手のIDは?
+    getPartner:->
+        if @cmplType=="Friend"
+            return @cmplFlag
+        else
+            return @main.getPartner()
 # 聖職者にまもられた人
 class HolyProtected extends Complex
     # cmplFlag: 護衛元
