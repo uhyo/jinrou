@@ -2040,6 +2040,7 @@ class Player
                 
         aftpl=game.getPlayer @id
         #前と後で比較
+        console.log "#{aftpl.id} is transforming!",befpl.getJobname(),aftpl.getJobname(),befpl.originalJobname
         if befpl.getJobname()!=aftpl.getJobname()
             aftpl.setOriginalJobname "#{befpl.originalJobname}→#{aftpl.getJobname()}"
                 
@@ -2048,6 +2049,7 @@ class Player
         @addGamelog game,"transform",newpl.type
         # 役職変化ログ
         newpl.setOriginalType @originalType
+        console.log "#{@id} is transforming!",@getJobname(),newpl.getJobname(),@originalJobname
         if @getJobname()!=newpl.getJobname()
             unless initial
                 # ふつうの変化
@@ -5081,7 +5083,86 @@ class SantaClaus extends Player
         pl.transProfile newpl
         pl.transform game,newpl
         @addGamelog game,"sendpresent",settype,pl.id
+#怪盗
+class Phantom extends Player
+    type:"Phantom"
+    jobname:"怪盗"
+    sleeping:->@target?
+    sunset:(game)->
+        if @flag==true
+            # もう交換済みだ
+            @setTarget ""
+        else
+            @setTarget null
+            if @scapegoat
+                rs=@makeJobSelection game
+                console.log rs
+                if rs.length>0
+                    r=Math.floor Math.random()*rs.length
+                    @job game,rs[r].value
+    makeJobSelection:(game)->
+        if game.night
+            res=[{
+                name:"盗まない"
+                value:""
+            }]
+            sup=super
+            for obj in sup
+                pl=game.getPlayer obj.value
+                unless pl?.scapegoat
+                    res.push obj
+            return res
+        else
+            super
+    job:(game,playerid)->
+        console.log "job!",playerid
+        @setTarget playerid
+        if playerid==""
+            # 交換しない
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は役職を盗みませんでした。"
+            splashlog game.id,game,log
+            return
+        pl=game.getPlayer playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{pl.name}の役職を盗みました。#{pl.name}は#{pl.getJobDisp()}でした。"
+        splashlog game.id,game,log
+        @addGamelog game,"phantom",pl.type,playerid
+        null
+    sunrise:(game)->
+        @setFlag true
+        pl=game.getPlayer @target
+        unless pl?
+            return
+        pl.touched game,@id
+        savedobj={}
+        pl.makejobinfo game,savedobj
+        flagobj={}
+        # jobinfo表示のみ抜粋
+        for value in Shared.game.jobinfos
+            if savedobj[value.name]?
+                flagobj[value.name]=savedobj[value.name]
 
+        # 自分はその役職に変化する
+        newpl=Player.factory pl.type
+        @transProfile newpl
+        @transferData newpl
+        @transform game,newpl
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
+        splashlog game.id,game,log
+
+        # 盗まれた側は怪盗予備軍のフラグを立てる
+        newpl2=Player.factory null,pl,null,PhantomStolen
+        newpl2.cmplFlag=flagobj
+        pl.transProfile newpl2
+        pl.transform game,newpl2
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5605,6 +5686,49 @@ class DivineObstructed extends Complex
         obstmad=game.getPlayer @cmplFlag
         if obstmad?
             obstmad.addGamelog game,"divineObstruct",null,@id
+class PhantomStolen extends Complex
+    cmplType:"PhantomStolen"
+    # cmplFlag: 保存されたアレ
+    sunset:(game)->
+        # 夜になると怪盗になってしまう!!!!!!!!!!!!
+        @sub?.sunrise? game
+        newpl=Player.factory "Phantom"
+        # アレがなぜか狂ってしまうので一時的に保存
+        saved=@originalJobname
+        @mcall game,@main.transProfile,newpl
+        @mcall game,@main.transferData,newpl
+        @mcall game,@main.transform,game,newpl
+        log=
+            mode:"skill"
+            to:newpl.id
+            comment:"#{newpl.name}は役職を盗まれて#{newpl.getJobDisp()}になりました。"
+        splashlog game.id,game,log
+        # 夜の初期化
+        @uncomplex game
+        pl=game.getPlayer newpl.id
+        pl.setOriginalJobname saved
+        pl.setFlag true # もう盗めない
+        pl.sunset game
+    getJobname:->"怪盗" #霊界とかでは既に怪盗化
+    # 勝利条件関係は村人化（昼の間だけだし）
+    isWerewolf:->false
+    isFox:->false
+    isFriend:->false
+    isVampire:->false
+    #team:"Human" #女王との兼ね合いで
+    isWinner:(game,team)->
+        team=="Human"
+    die:(game,found,from)->
+        # 抵抗もなく死ぬし
+        if found=="punish"
+            Player::die.apply this,arguments
+        else
+            super
+    dying:(game,found)->
+    makejobinfo:(game,obj)->
+        super
+        for key,value of @cmplFlag
+            obj[key]=value
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -5709,6 +5833,7 @@ jobs=
     King:King
     PsychoKiller:PsychoKiller
     SantaClaus:SantaClaus
+    Phantom:Phantom
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5732,6 +5857,7 @@ complexes=
     MikoProtected:MikoProtected
     Threatened:Threatened
     DivineObstructed:DivineObstructed
+    PhantomStolen:PhantomStolen
 
     # 役職ごとの強さ
 jobStrength=
@@ -5814,6 +5940,7 @@ jobStrength=
     King:15
     PsychoKiller:25
     SantaClaus:20
+    Phantom:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'

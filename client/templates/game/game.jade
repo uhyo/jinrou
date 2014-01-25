@@ -233,6 +233,10 @@
       p
         | プレゼントを送る相手を選んで下さい:
         input(type="submit",value="送る",data-job="SantaClaus")
+    #form_Phantom(hidden).jobformarea
+      p
+        | 役職を盗む相手を選んで下さい:
+        input(type="submit",value="選択",data-job="Phantom")
   form#speakform
     p
       input(size="50",name="comment",required)
