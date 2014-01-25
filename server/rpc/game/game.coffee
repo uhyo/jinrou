@@ -1249,7 +1249,7 @@ class Game
                                 cnt--
 
 
-                    if cnt<=1
+                    if cnt==1
                         # 1組しかいない
                         if @rule.friendsjudge=="alive"
                             team="Friend"
