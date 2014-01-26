@@ -1255,7 +1255,7 @@ class Game
                             team="Friend"
                         else if friends.length==alives
                             team="Friend"
-                    else
+                    else if cnt>1
                         # 恋人バトル
                         team=null
             # カルト判定
@@ -1266,7 +1266,7 @@ class Game
             if @players.some((x)->x.type=="Devil" && x.flag=="winner" && x.team=="Devil")
                 team="Devil"
 
-        if @revote_num>=4
+        if @revote_num>=4 && !team?
             # 再投票多すぎ
             team="Draw" # 引き分け
             
