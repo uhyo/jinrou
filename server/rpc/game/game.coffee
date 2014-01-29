@@ -2454,6 +2454,11 @@ class TinyFox extends Diviner
             to:@id
             comment:r.result
         splashlog game.id,game,log
+    divineeffect:(game)->
+        p=game.getPlayer @target
+        if p?
+            p.touched game,@id
+
     
     
 class Bat extends Player
@@ -2613,9 +2618,9 @@ class WolfDiviner extends Werewolf
             @showdivineresult game
     midnight:(game)->
         super
+        @divineeffect game
         unless game.rule.divineresult=="immediate"
             @dodivine game
-        @divineeffect game
     #占った影響を与える
     divineeffect:(game)->
         p=game.getPlayer @flag
@@ -3420,6 +3425,10 @@ class Sorcerer extends Diviner
             to:@id
             comment:r.result
         splashlog game.id,game,log
+    divineeffect:(game)->
+        p=game.getPlayer @target
+        if p?
+            p.touched game,@id
 class Doppleganger extends Player
     type:"Doppleganger"
     jobname:"ドッペルゲンガー"
@@ -3994,6 +4003,8 @@ class Dog extends Player
             pl=game.getPlayer playerid
             unless pl?
                 return "対象が不正です"
+            if pl.id==@id
+                return "自分を飼い主には選べません。"
             pl.touched game,@id
             # 飼い主を選択した
             log=
