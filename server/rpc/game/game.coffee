@@ -2221,10 +2221,14 @@ class Diviner extends Player
     sleeping:->@target?
     job:(game,playerid)->
         super
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません。"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+            comment:"#{@name}が#{pl.name}を占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -2245,7 +2249,6 @@ class Diviner extends Player
         p=game.getPlayer @target
         if p?
             p.divined game,this
-            p.touched game,@id
     #占い実行
     dodivine:(game)->
         p=game.getPlayer @target
@@ -2414,10 +2417,14 @@ class TinyFox extends Diviner
 
     job:(game,playerid)->
         super
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません。"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を占いました。"
+            comment:"#{@name}が#{pl.name}を占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -2432,10 +2439,6 @@ class TinyFox extends Diviner
         super
         unless game.rule.divineresult=="immediate"
             @dodivine game
-        # 占った影響
-        p=game.getPlayer @target
-        if p?
-            p.touched game,@id
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
@@ -2455,10 +2458,6 @@ class TinyFox extends Diviner
             comment:r.result
         splashlog game.id,game,log
     divineeffect:(game)->
-        p=game.getPlayer @target
-        if p?
-            p.touched game,@id
-
     
     
 class Bat extends Player
@@ -2602,11 +2601,17 @@ class WolfDiviner extends Werewolf
         # 占い
         if @flag?
             return "既に占い対象を決定しています"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません。"
         @setFlag playerid
+        unless pl.team=="Werewolf" && p.isHuman()
+            # 狂人は変化するので
+            pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}を人狼占いで占いました。"
+            comment:"#{@name}が#{pl.name}を人狼占いで占いました。"
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -2626,7 +2631,6 @@ class WolfDiviner extends Werewolf
         p=game.getPlayer @flag
         if p?
             p.divined game,this
-            p.touched game,@id
             if p.isJobType "Diviner"
                 # 逆呪殺
                 @die game,"curse"
@@ -3426,9 +3430,6 @@ class Sorcerer extends Diviner
             comment:r.result
         splashlog game.id,game,log
     divineeffect:(game)->
-        p=game.getPlayer @target
-        if p?
-            p.touched game,@id
 class Doppleganger extends Player
     type:"Doppleganger"
     jobname:"ドッペルゲンガー"
@@ -5137,6 +5138,7 @@ class Phantom extends Player
             splashlog game.id,game,log
             return
         pl=game.getPlayer playerid
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
@@ -5149,7 +5151,6 @@ class Phantom extends Player
         pl=game.getPlayer @target
         unless pl?
             return
-        pl.touched game,@id
         savedobj={}
         pl.makejobinfo game,savedobj
         flagobj={}
