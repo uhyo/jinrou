@@ -4,7 +4,7 @@ html
     meta(charset="utf-8")
     title 月下人狼 &#x2013; 汝は人狼なりや?
     meta(name="application-name",content="月下人狼")
-    meta(name="description",content="リアルタイムチャットが可能な人狼サーバーです。60種以上の役職が使用可能。")
+    meta(name="description",content="リアルタイムチャットが可能な人狼サーバーです。70種以上の役職が使用可能。")
     != SocketStream
   body
     header
@@ -32,7 +32,7 @@ html
           li
             a(href="/manual/about") 月下人狼について
     script(type="text/javascript")
-      if(("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)||(!document.body.dataset)){
+      if((("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)||(!document.body.dataset))&&(navigator.userAgent.indexOf("Googlebot")<0)){
         //要件を満たさない
         location.replace("/noIE.html");
       }
