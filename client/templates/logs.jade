@@ -42,12 +42,13 @@ section.lobby
           input(name="rule_on",type="checkbox")
           select(name="rule",disabled)#rulebox
        
-    p: input(type="submit",value="検索")
+    p: input(type="submit",value="検索",disabled)
+    p 申し訳ありませんが、現在ログ検索は高負荷がかかるため使用できません。
       
   form#pager
     p
-      input(type="button",name="prev",value="前のページ")
-      input(type="button",name="next",value="次のページ")
+      input(type="button",name="prev",value="前のページ",disabled)
+      input(type="button",name="next",value="次のページ",disabled)
   table.roomstable
     thead
       tr

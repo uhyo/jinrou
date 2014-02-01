@@ -458,6 +458,8 @@ module.exports.actions=(req,res,ss)->
         unless query?
             res {error:"クエリが不正です"}
             return
+        res {error:"現在ログ検索は利用できません。"}
+        return
         q=
             finished:true
         if query.result_team
