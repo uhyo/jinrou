@@ -1531,6 +1531,17 @@ exports.rules=[
                     nolabel:"なし"
                 }
             }
+            {
+                name:"quantumwerewolf_firstattack"
+                label:"初日の襲撃"
+                title:"ありの場合初日から襲撃対象を選択します。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
         ]
     }
 ]

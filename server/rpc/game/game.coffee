@@ -4247,7 +4247,7 @@ class QuantumPlayer extends Player
             Werewolf:null
         if obj.Diviner==0
             tarobj.Diviner=""   # なし
-        if obj.Werewolf==0
+        if obj.Werewolf==0 || (game.rule.quantumwerewolf_firstattack!="on" && game.day==1)
             tarobj.Werewolf=""
 
         @setTarget JSON.stringify tarobj
@@ -6511,7 +6511,7 @@ module.exports.actions=(req,res,ss)->
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff",
             "friendssplit",
-            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","yaminabe_hidejobs","yaminabe_safety"]
+            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
 
