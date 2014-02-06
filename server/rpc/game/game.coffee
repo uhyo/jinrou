@@ -6360,7 +6360,7 @@ module.exports.actions=(req,res,ss)->
                                     # 霊能を出す
                                     unless Math.random()<0.15 ||  init "Psychic","Human"
                                         continue
-                                when "BloodyMary"
+                                when "BloodyMary","RedHood"
                                     # 狼が2以上必要
                                     if countCategory("Werewolf")<=1
                                         continue
