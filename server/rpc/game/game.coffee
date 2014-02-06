@@ -3419,7 +3419,7 @@ class Sorcerer extends Diviner
                 "占い師ではありませんでした"
             @results.push {
                 player: game.getPlayer(@target).publicinfo()
-                result: "#{@name}や#{pl.name}を調べたところ、#{resultstring}。"
+                result: "#{@name}が#{pl.name}を調べたところ、#{resultstring}。"
             }
     showdivineresult:(game)->
         r=@results[@results.length-1]
