@@ -2723,7 +2723,7 @@ class Fugitive extends Player
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
-        if !pl.dead && pl.isWerewolf() && pl.team=="Werewolf"
+        if !pl.dead && pl.isWerewolf() && pl.team in ["Werewolf","LoneWolf"]
             @die game,"werewolf2"
         else if !pl.dead && pl.isVampire() && pl.team=="Vampire"
             @die game,"vampire2"
@@ -5666,6 +5666,8 @@ class Threatened extends Complex
     midnight:(game)->
     job:(game,playerid,query)->
         null
+    die:(game,found,from)->
+        Human.prototype.die.call @,game,found,from
     dying:(game,found,from)->
         Human.prototype.dying.call @,game,found,from
     divined:(game,player)->
