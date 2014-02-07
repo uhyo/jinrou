@@ -21,10 +21,10 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Dictator","SeersMama","Trapper","WolfBoy","King",
 # Twitter人狼の役職
 "Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
-# 人狼天国の役職
-"ObstructiveMad",
-# 錠前天国の役職
-"WanderingGuard",
+# 天国系の役職
+"ObstructiveMad", # 人狼天国
+"WanderingGuard", # 錠前天国
+"BadLady", # 蒼汁天国、人狼天国
 # その他
 "RedHood",
 # アプリの役職
@@ -53,7 +53,7 @@ exports.teams=teams=
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller"]
     Fox:["Fox","TinyFox","Immoral"]
     Devil:["Devil"]
-    Friend:["Cupid","Lover"]
+    Friend:["Cupid","Lover","BadLady"]
     Vampire:["Vampire"]
     Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer"],
     Neet:["Neet"]
@@ -65,7 +65,7 @@ exports.categories=
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom"]
-    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady"]
 
 exports.categoryNames=
     Human:"村人系"
@@ -849,6 +849,9 @@ exports.jobinfo=
         Lover:
             name:"求愛者"
             color:"#ffcfee"
+        BadLady:
+            name:"悪女"
+            color:"#cf0085"
     Vampire:
         name:"ヴァンパイア陣営"
         color:"#8f00bf"

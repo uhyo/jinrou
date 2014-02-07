@@ -5175,6 +5175,91 @@ class Phantom extends Player
         newpl2.cmplFlag=flagobj
         pl.transProfile newpl2
         pl.transform game,newpl2
+class BadLady extends Player
+    type:"BadLady"
+    jobname:"悪女"
+    team:"Friend"
+    sleeping:->@flag?.set
+    sunset:(game)->
+        unless @flag?.set
+            # まだ恋人未設定
+            if @scapegoat
+                @flag={
+                    set:true
+                }
+    job:(game,playerid,query)->
+        fl=@flag ? {}
+        if fl.set
+            return "既に対象は決定しています"
+        if playerid==@id
+            return "自分以外を選択して下さい"
+        
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        pl.touched game,@id
+
+        unless fl.main?
+            # 本命を決める
+            fl.main=playerid
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は#{pl.name}を本命の相手に選びました。"
+            splashlog game.id,game,log
+            @setFlag fl
+            @addGamelog game,"badlady_main",pl.type,playerid
+            return null
+        unless fl.keep?
+            # キープ相手を決める
+            fl.keep=playerid
+            fl.set=true
+            @setFlag fl
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は#{pl.name}を手玉に取りました。"
+            splashlog game.id,game,log
+            # 2人を恋人、1人をキープに
+            plm=game.getPlayer fl.main
+            for pll in [plm,pl]
+                if pll?
+                    log=
+                        mode:"skill"
+                        to:pll.id
+                        comment:"#{pll.name}は求愛されて恋人になりました。"
+                    splashlog game.id,game,log
+            # 自分恋人
+            newpl=Player.factory null,this,null,Friend # 恋人だ！
+            @transProfile newpl
+            @transform game,newpl  # 入れ替え
+            newpl.cmplFlag=fl.main
+            # 相手恋人
+            newpl=Player.factory null,plm,null,Friend # 恋人だ！
+            plm.transProfile newpl
+            plm.transform game,newpl  # 入れ替え
+            newpl.cmplFlag=@id
+            # キープ
+            newpl=Player.factory null,pl,null,KeepedLover # 恋人か？
+            pl.transProfile newpl
+            pl.transform game,newpl  # 入れ替え
+            newpl.cmplFlag=@id
+            game.splashjobinfo [@id,plm.id,pl.id].map (id)->game.getPlayer id
+            @addGamelog game,"badlady_keep",pl.type,playerid
+        null
+    makejobinfo:(game,result)->
+        super
+        if !@jobdone(game) && game.night
+            # 夜の選択肢
+            fl=@flag ? {}
+            unless fl.set
+                unless fl.main
+                    # 本命を決める
+                    result.open.push "BadLady1"
+                else if !fl.keep
+                    # 手玉に取る
+                    result.open.push "BadLady2"
+
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5743,6 +5828,25 @@ class PhantomStolen extends Complex
         super
         for key,value of @cmplFlag
             obj[key]=value
+class KeepedLover extends Complex    # 悪女に手玉にとられた（見た目は恋人）
+    # cmplFlag: 相方のid
+    cmplType:"KeepedLover"
+    getJobname:->"手玉（#{@main.getJobname()}）"
+    getJobDisp:->"恋人（#{@main.getJobDisp()}）"
+    
+    ###
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @mcall game,@main.makejobinfo,game,result
+        # 恋人が分かる
+        result.desc?.push {
+            name:"恋人"
+            type:"Friend"
+        }
+        # 恋人だと思い込む
+        result.friends=[this,game.getPlayer(@cmplFlag)].map (x)->
+            x.publicinfo()
+    ###
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -5848,6 +5952,7 @@ jobs=
     PsychoKiller:PsychoKiller
     SantaClaus:SantaClaus
     Phantom:Phantom
+    BadLady:BadLady
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -5872,6 +5977,7 @@ complexes=
     Threatened:Threatened
     DivineObstructed:DivineObstructed
     PhantomStolen:PhantomStolen
+    KeepedLover:KeepedLover
 
     # 役職ごとの強さ
 jobStrength=
@@ -6167,7 +6273,7 @@ module.exports.actions=(req,res,ss)->
                             else if Math.random()<0.1
                                 joblist.Cupid++
                                 frees--
-                    exceptions.push "Cupid","Lover"
+                    exceptions.push "Cupid","Lover","BadLady"
                     # 妖狐陣営
                     if frees>0 && joblist.Fox>0
                         if joblist.Fox==1

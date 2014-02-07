@@ -237,6 +237,15 @@
       p
         | 役職を盗む相手を選んで下さい:
         input(type="submit",value="選択",data-job="Phantom")
+    #form_BadLady(hidden).jobformarea
+    #form_BadLady1(hidden).jobformarea
+      p
+        | まず本命の相手を選択して下さい:
+        input(type="submit",value="求愛する",data-job="BadLady")
+    #form_BadLady2(hidden).jobformarea
+      p
+        | 手玉に取る相手を選択して下さい:
+        input(type="submit",value="手玉に取る",data-job="BadLady")
   form#speakform
     p
       input(size="50",name="comment",required)
