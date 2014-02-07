@@ -3977,7 +3977,7 @@ class Dog extends Player
         @setTarget null    # 1日目:飼い主選択 選択後:かみ殺す人選択
         if !@flag   # 飼い主を決めていない
             if @scapegoat
-                alives=game.players.filter (x)->!x.dead
+                alives=game.players.filter (x)=>!x.dead && x.id!=@id
                 r=Math.floor Math.random()*alives.length
                 pl=alives[r]
                 @job game,pl.id,{}
