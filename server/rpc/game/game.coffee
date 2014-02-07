@@ -5834,7 +5834,6 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
     getJobname:->"手玉（#{@main.getJobname()}）"
     getJobDisp:->"恋人（#{@main.getJobDisp()}）"
     
-    ###
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @mcall game,@main.makejobinfo,game,result
@@ -5846,7 +5845,6 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
         # 恋人だと思い込む
         result.friends=[this,game.getPlayer(@cmplFlag)].map (x)->
             x.publicinfo()
-    ###
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
