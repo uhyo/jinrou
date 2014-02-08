@@ -4561,6 +4561,16 @@ class FascinatingWolf extends Werewolf
     type:"FascinatingWolf"
     jobname:"誘惑する女狼"
     sleeping:(game)->super && @flag?
+    sunset:(game)->
+        super
+        if @scapegoat && !@flag?
+            # 誘惑する
+            hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
+            if hus.length>0
+                r=Math.floor Math.random()*hus.length
+                @job game,hus[r].id,{jobtype:"FascinatingWolf"}
+            else
+                @setFlag ""
     job:(game,playerid,query)->
         if query.jobtype!="FascinatingWolf"
             # 人狼の仕事
