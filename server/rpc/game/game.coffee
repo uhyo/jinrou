@@ -4463,7 +4463,7 @@ class Counselor extends Player
         t=game.getPlayer @target
         return unless t?
         return if t.dead
-        if t.isWerewolf() && t.team=="Werewolf"
+        if t.isWerewolf() && t.team in ["Werewolf","LoneWolf"]
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
@@ -4907,7 +4907,7 @@ class BloodyMary extends Player
             !(game.players.some (x)->!x.dead && x.team=="Human")
         else if @flag=="werewolf"
             if game.players.filter((x)->!x.dead && x.isWerewolf()).length>1
-                !(game.players.some (x)->!x.dead && x.team=="Werewolf")
+                !(game.players.some (x)->!x.dead && x.team in ["Werewolf","LoneWolf"])
             else
                 # 狼が残り1匹だと何もない
                 true
@@ -4950,7 +4950,7 @@ class BloodyMary extends Player
     revive:->
     isWinner:(game,team)->
         if @flag=="punish"
-            team=="Werewolf"
+            team in ["Werewolf","LoneWolf"]
         else
             team==@team
     makeJobSelection:(game)->
@@ -4961,7 +4961,7 @@ class BloodyMary extends Player
                 pls=game.players.filter (x)->!x.dead && x.team=="Human"
             else if @flag=="werewolf"
                 # 人狼を……
-                pls=game.players.filter (x)->!x.dead && x.team=="Werewolf"
+                pls=game.players.filter (x)->!x.dead && x.team in ["Werewolf","LoneWolf"]
             return (for pl in pls
                 {
                     name:pl.name
