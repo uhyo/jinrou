@@ -3959,7 +3959,7 @@ class Thief extends Player
     makeJobSelection:(game)->
         if game.night
             # 役職から選択
-            arr=JSON.parse @flag
+            arr=JSON.parse(@flag ? '["Human"]')
             arr.map (x)->
                 testpl=new jobs[x]
                 {
