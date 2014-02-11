@@ -4849,13 +4849,13 @@ class TroubleMaker extends Player
         null
     sunrise:(game)->
         if @flag=="using"
+            game.votingbox.addPunishedNumber 1
             # トラブルがおきた
             log=
                 mode:"system"
-                comment:"トラブルメーカーにより村が混乱しています。今日は2人処刑されます。"
+                comment:"トラブルメーカーにより村が混乱しています。今日は#{game.votingbox.remains}人処刑されます。"
             splashlog game.id,game,log
             @setFlag "done"
-            game.votingbox.addPunishedNumber 1
     deadsunrise:(game)->@sunrise game
 
 class FrankensteinsMonster extends Player
