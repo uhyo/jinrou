@@ -1847,6 +1847,9 @@ class Player
     dovote:(game,target)->
         # 戻り値にも意味があるよ！
         game.votingbox.vote this,target,1
+        @voteafter game,target
+        null
+    voteafter:(game,target)->
     # 昼のはじまり（死体処理よりも前）
     sunrise:(game)->
     deadsunrise:(game)->
@@ -4977,10 +4980,9 @@ class BloodyMary extends Player
 class King extends Player
     type:"King"
     jobname:"王様"
-    dovote:(game,target)->
+    voteafter:(game,target)->
         super
         game.votingbox.votePower this,1
-        null
 class PsychoKiller extends Madman
     type:"PsychoKiller"
     jobname:"サイコキラー"
@@ -5424,6 +5426,9 @@ class Complex
     voted:(game,votingbox)->@mcall game,@main.voted,game,votingbox
     dovote:(game,target)->
         @mcall game,@main.dovote,game,target
+    voteafter:(game,target)->
+        @mcall game,@main.voteafter,game,target
+        @sub?.voteafter game,target
     
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
@@ -5766,6 +5771,7 @@ class Threatened extends Complex
     dying:(game,found,from)->
         Human.prototype.dying.call @,game,found,from
     divined:(game,player)->
+    voteafter:(game,target)->
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
     getSpeakChoice:(game)->
