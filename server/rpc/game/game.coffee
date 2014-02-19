@@ -2482,7 +2482,7 @@ class Noble extends Player
             else
                 # 奴隷が代わりに死ぬ
                 slaves.forEach (x)->
-                    x.die game,"werewolf"
+                    x.die game,"werewolf2"
                     x.addGamelog game,"slavevictim"
                 @addGamelog game,"nobleavoid"
         else
@@ -5575,7 +5575,7 @@ class Guarded extends Complex
                     log=
                         mode:"skill"
                         to:guard.id
-                        comment:"#{guard.name}は#{@name}を襲撃から護衛しました。"
+                        comment:"#{guard.name}が#{@name}の護衛に成功しました。"
                     splashlog game.id,game,log
 
     sunrise:(game)->
