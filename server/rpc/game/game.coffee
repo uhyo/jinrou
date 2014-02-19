@@ -5004,6 +5004,8 @@ class PsychoKiller extends Madman
         fl=JSON.parse @flag || "[]"
         fl.push from
         @setFlag JSON.stringify fl
+    sunset:(game)->
+        @setFlag "[]"
     midnight:(game)->
         fl=JSON.parse @flag || "[]"
         for id in fl
@@ -5050,6 +5052,7 @@ class SantaClaus extends Player
         if playerid in fl
             return "その人にはもうプレゼントを届けられません"
         pl=game.getPlayer playerid
+        pl.touched game,@id
         unless pl?
             return "対象が不正です"
         @setTarget playerid
@@ -5780,6 +5783,7 @@ class Threatened extends Complex
         Human.prototype.die.call @,game,found,from
     dying:(game,found,from)->
         Human.prototype.dying.call @,game,found,from
+    touched:(game,from)->
     divined:(game,player)->
     voteafter:(game,target)->
     makejobinfo:(game,obj)->
