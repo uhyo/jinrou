@@ -2851,16 +2851,16 @@ class Liar extends Player
                 player: p.publicinfo()
                 result: if Math.random()<0.3
                     # 成功
-                    if p.isWerewolf()
-                        "人狼"
-                    else
-                        "村人"
+                    p.fortuneResult
                 else
                     # 逆
-                    if p.isWerewolf()
-                        "村人"
-                    else
-                        "人狼"
+                    switch p.fortuneResult
+                        when "村人"
+                            "人狼"
+                        when "人狼"
+                            "村人"
+                        else
+                            p.fortuneResult
     isWinner:(game,team)->team==@team && !@dead # 村人勝利で生存
 class Spy2 extends Player
     type:"Spy2"
@@ -3233,6 +3233,9 @@ class Spellcaster extends Player
     jobdone:->@target?
     sunset:(game)->
         @setTarget null
+        if game.day==1
+            # 初日は発動できません
+            @setTarget ""
     job:(game,playerid,query)->
         if @target?
             return "既に対象を選択しています"
