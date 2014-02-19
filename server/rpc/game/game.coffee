@@ -968,8 +968,9 @@ class Game
                         t.setDead true,"werewolf2"
                         t.dying this,"werewolf2",tw.id
                         if tw?
-                            tw.die this,"werewolf2"
-                            tw.addGamelog this,"toughwolfKilled",t.type,t.id
+                            unless tw.dead
+                                tw.die this,"werewolf2"
+                                tw.addGamelog this,"toughwolfKilled",t.type,t.id
         if /^(?:GreedyWolf|ToughWolf)_/.test @werewolf_flag
             # こいつらは1夜限り
             @werewolf_flag=null
@@ -2174,6 +2175,9 @@ class Werewolf extends Player
         log=
             mode:"wolfskill"
             comment:"#{@name}たち人狼は#{tp.name}に狙いを定めました。"
+        if @isJobType "SolitudeWolf"
+            # 孤独な狼なら自分だけ…
+            log.to=@id
         splashlog game.id,game,log
         game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
@@ -3941,7 +3945,7 @@ class Thief extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が選択可能な役職は#{jobnames.join(",")}です"
+                comment:"#{@name}が選択可能な役職は#{jobnames.join(",")}です。"
             splashlog game.id,game,log
             if @scapegoat
                 # 身代わり君
