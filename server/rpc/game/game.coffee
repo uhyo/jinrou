@@ -1981,6 +1981,9 @@ class Player
         if @team=="Human"
             obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
                 x.publicinfo()
+        else
+            # セットなどによる漏洩を防止
+            delete obj.queens
     # 昼でも対象選択を行えるか
     chooseJobDay:(game)->false
     # 仕事先情報を教える
