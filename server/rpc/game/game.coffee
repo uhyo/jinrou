@@ -4909,6 +4909,7 @@ class FrankensteinsMonster extends Player
 class BloodyMary extends Player
     type:"BloodyMary"
     jobname:"血まみれのメアリー"
+    isReviver:->true
     getJobname:->if @flag then @jobname else "メアリー"
     getJobDisp:->@getJobname()
     getTypeDisp:->if @flag then @type else "Mary"
@@ -6462,7 +6463,7 @@ module.exports.actions=(req,res,ss)->
                                         continue
                                 when "QueenSpectator"
                                     # 2人いたらだめ
-                                    if joblist.QueenSpectator>0 || joblist.Spy2>0
+                                    if joblist.QueenSpectator>0 || joblist.Spy2>0 || joblist.BloodyMary>0
                                         continue
                                     # 女王観戦者はガードがないと不安
                                     if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
@@ -6482,7 +6483,7 @@ module.exports.actions=(req,res,ss)->
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
-                                when "LoneWolf","FascinatingWolf","ToughWolf","BloodyMary","WolfCub"
+                                when "LoneWolf","FascinatingWolf","ToughWolf","WolfCub"
                                     # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                     # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
                                     if countCategory("Werewolf")-(if category? then 1 else 0)==0
@@ -6494,9 +6495,16 @@ module.exports.actions=(req,res,ss)->
                                     # 霊能を出す
                                     unless Math.random()<0.15 ||  init "Psychic","Human"
                                         continue
-                                when "BloodyMary","RedHood"
+                                when "RedHood"
                                     # 狼が2以上必要
                                     if countCategory("Werewolf")<=1
+                                        continue
+                                when "BloodyMary"
+                                    # 狼が2以上必要
+                                    if countCategory("Werewolf")<=1
+                                        continue
+                                    # 女王とは共存できない
+                                    if joblist.QueenSpectator>0
                                         continue
 
                         joblist[job]++
