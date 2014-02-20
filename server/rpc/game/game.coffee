@@ -2615,7 +2615,7 @@ class WolfDiviner extends Werewolf
         unless pl?
             return "そのプレイヤーは存在しません。"
         @setFlag playerid
-        unless pl.team=="Werewolf" && p.isHuman()
+        unless pl.team=="Werewolf" && pl.isHuman()
             # 狂人は変化するので
             pl.touched game,@id
         log=
