@@ -5533,8 +5533,12 @@ class Friend extends Complex    # 恋人
         }
         if game.rule.friendssplit=="split"
             # 独立
-            result.friends=[this,game.getPlayer(@cmplFlag)].filter((x)->x.isFriend()).map (x)->
+            fr=[this,game.getPlayer(@cmplFlag)].filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
+            if Array.isArray result.friends
+                result.friends=result.friends.concat fr
+            else
+                result.friends=fr
         else
             # みんないっしょ
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
@@ -5874,8 +5878,12 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
             type:"Friend"
         }
         # 恋人だと思い込む
-        result.friends=[this,game.getPlayer(@cmplFlag)].map (x)->
+        fr=[this,game.getPlayer(@cmplFlag)].map (x)->
             x.publicinfo()
+        if Array.isArray result.friends
+            result.friends=result.friends.concat fr
+        else
+            result.friends=fr
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
