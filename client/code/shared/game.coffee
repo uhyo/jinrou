@@ -1437,7 +1437,7 @@ exports.rules=[
                 title:"有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
                 type:"checkbox"
                 value:
-                    value:"on"
+                    value:"obvious"
                     label:"あり"
                     nolabel:"なし"
                 getstr:(value)->
