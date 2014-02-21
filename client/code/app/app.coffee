@@ -22,7 +22,6 @@ exports.init = ->
         t=je.target
         return if je.isDefaultPrevented()
         return if t.target=="_blank"
-        return if /^https?:\/\//.test t.href
         je.preventDefault()
 
         app.showUrl t.href
