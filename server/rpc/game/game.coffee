@@ -485,7 +485,7 @@ class Game
         
             newpl=Player.factory null,pl,null,Decider   # 酔っ払い
             pl.transProfile newpl
-            pl.transform @,newpl,true
+            pl.transform @,newpl,true,true
         if options.authority
             # 権力者を作る
             r=Math.floor Math.random()*@players.length
@@ -493,7 +493,7 @@ class Game
         
             newpl=Player.factory null,pl,null,Authority # 酔っ払い
             pl.transProfile newpl
-            pl.transform @,newpl,true
+            pl.transform @,newpl,true,true
         
         if @rule.wolfminion
             # 狼の子分がいる場合、子分決定者を作る
@@ -507,7 +507,7 @@ class Game
                 
                 newpl=Player.factory null,pl,sub,Complex
                 pl.transProfile newpl
-                pl.transform @,newpl
+                pl.transform @,newpl,true
         if @rule.drunk
             # 酔っ払いがいる場合
             nonvillagers= @players.filter (x)->!x.isJobType "Human"
@@ -519,7 +519,7 @@ class Game
             
                 newpl=Player.factory null,pl,null,Drunk # 酔っ払い
                 pl.transProfile newpl
-                pl.transform @,newpl,true
+                pl.transform @,newpl,true,true
 
             
         # プレイヤーシャッフル
@@ -1787,6 +1787,19 @@ class Player
         if p.isComplex()
             p.cmplFlag=obj.Complex_flag
         p
+    # 汎用関数: Complexを再構築する（chain:Complexの列（上から））
+    @reconstruct:(chain,base)->
+        for cmpl,i in chain by -1
+            console.log cmpl
+            console.log i
+            newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
+            for ok in Object.keys cmpl
+                # 自分のプロパティのみ
+                unless ok=="main" || ok=="sub"
+                    newpl[ok]=cmpl[ok]
+            base=newpl
+        base
+
     publicinfo:->
         # 見せてもいい情報
         {
@@ -2001,19 +2014,6 @@ class Player
         
         befpl=game.getPlayer @id
 
-        # Complexを再構築する(chain:Complexの列（上から）)
-        reconstruct=(chain,base)->
-            console.log chain
-            for cmpl,i in chain by -1
-                console.log cmpl
-                console.log i
-                newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
-                for ok in Object.keys cmpl
-                    # 自分のプロパティのみ
-                    unless ok=="main" || ok=="sub"
-                        newpl[ok]=cmpl[ok]
-                base=newpl
-            base
         # objがPlayerであること calleeは呼び出し元のオブジェクト chainは継承連鎖
         # index: game.playersの番号
         chk=(obj,index,callee,chain)->
@@ -2024,14 +2024,14 @@ class Player
                     # mainまたはsubである
                     if obj.main==callee || obj.sub==callee
                         # 自分は消える
-                        game.players[index]=reconstruct chain,obj.main
+                        game.players[index]=Player.reconstruct chain,obj.main
                     else
                         chk obj.main,index,callee,chc
                         chk obj.sub,index,callee,chc
                 else
                     # 自分がComplexである
                     if obj==callee
-                        game.players[index]=reconstruct chain,obj.main
+                        game.players[index]=Player.reconstruct chain,obj.main
                     else
                         chk obj.main,index,callee,chc
                         chk obj.sub,index,callee,chc
@@ -2047,60 +2047,61 @@ class Player
                 
         aftpl=game.getPlayer @id
         #前と後で比較
-        console.log "#{aftpl.id} is transforming!",befpl.getJobname(),aftpl.getJobname(),befpl.originalJobname
         if befpl.getJobname()!=aftpl.getJobname()
             aftpl.setOriginalJobname "#{befpl.originalJobname}→#{aftpl.getJobname()}"
                 
     # 自分自身を変える
-    transform:(game,newpl,initial=false)->
+    transform:(game,newpl,override,initial=false)->
+        # override: trueなら全部変える falseならメイン役職のみ変える
         @addGamelog game,"transform",newpl.type
         # 役職変化ログ
-        newpl.setOriginalType @originalType
-        console.log "#{@id} is transforming!",@getJobname(),newpl.getJobname(),@originalJobname
-        if @getJobname()!=newpl.getJobname()
-            unless initial
-                # ふつうの変化
-                newpl.setOriginalJobname "#{@originalJobname}→#{newpl.getJobname()}"
+        if override || !@isComplex()
+            # 全部取っ払ってnewplになる
+            newpl.setOriginalType @originalType
+            if @getJobname()!=newpl.getJobname()
+                unless initial
+                    # ふつうの変化
+                    newpl.setOriginalJobname "#{@originalJobname}→#{newpl.getJobname()}"
+                else
+                    # 最初の変化（ログに残さない）
+                    newpl.setOriginalJobname newpl.getJobname()
+            pa=@getParent game
+            unless pa?
+                # 親なんていない
+                game.players.forEach (x,i)=>
+                    if x.id==@id
+                        game.players[i]=newpl
+                game.participants.forEach (x,i)=>
+                    if x.id==@id
+                        game.participants[i]=newpl
             else
-                # 最初の変化（ログに残さない）
-                newpl.setOriginalJobname newpl.getJobname()
-        ###
-        tr=(parent,name)=>
-            if parent[name]?.isComplex? && parent[name].id==@id # Playerだよね
-                if parent[name]==this
-                    # ここを変える
+                # 親がいた
+                if pa.main==this
+                    # 親書き換え
+                    newparent=Player.factory null,newpl,pa.sub,complexes[pa.cmplType]
+                    newpl.transProfile newparent
 
-                    parent[name]=newpl
-                    return
-                if parent[name].isComplex()
-                    tr parent[name],"main"
-                    tr parent[name],"sub"
-                    
-        game.players.forEach (x,i)=>
-            if x.id==@id
-                tr game.players,i,nulld
-                #game.players[i]=newpl
-        ###
-        pa=@getParent game
-        unless pa?
+                    pa.transform game,newparent,override # たのしい再帰
+                else
+                    # サブだった
+                    pa.sub=newpl
+        else
+            # 中心のみ変える
+            pa=game.getPlayer @id
+            chain=[pa]
+            while pa.main.isComplex()
+                pa=pa.main
+                chain.push pa
+            # pa.mainはComplexではない
+            toppl=Player.reconstruct chain,newpl
+            toppl.setOriginalJobname "#{toppl.originalJobname}→#{toppl.getJobname()}"
             # 親なんていない
             game.players.forEach (x,i)=>
                 if x.id==@id
-                    game.players[i]=newpl
+                    game.players[i]=toppl
             game.participants.forEach (x,i)=>
                 if x.id==@id
-                    game.participants[i]=newpl
-        else
-            # 親がいた
-            if pa.main==this
-                # 親書き換え
-                newparent=Player.factory null,newpl,pa.sub,complexes[pa.cmplType]
-                newpl.transProfile newparent
-
-                pa.transform game,newparent # たのしい再帰
-            else
-                # サブだった
-                pa.sub=newpl
+                    game.participants[i]=toppl
     getParent:(game)->
         chk=(parent,name)=>
             if parent[name]?.isComplex?()
@@ -2343,7 +2344,7 @@ class Guard extends Player
             newpl=Player.factory null,pl,null,Guarded   # 守られた人
             pl.transProfile newpl
             newpl.cmplFlag=@id  # 護衛元cmplFlag
-            pl.transform game,newpl
+            pl.transform game,newpl,true
             newpl.touched game,@id
             null
         else
@@ -2668,7 +2669,7 @@ class WolfDiviner extends Werewolf
                 plobj.type=newjob
                 newpl=Player.unserialize plobj  # 新生狂人
                 p.transferData newpl
-                p.transform game,newpl
+                p.transform game,newpl,false
                 log=
                     mode:"skill"
                     to:p.id
@@ -2772,7 +2773,7 @@ class Merchant extends Player
         sub.sunset game
         newpl=Player.factory null,pl,sub,Complex    # Complex
         pl.transProfile newpl
-        pl.transform game,newpl
+        pl.transform game,newpl,true
 
         log=
             mode:"skill"
@@ -2926,7 +2927,7 @@ class Copier extends Player
         @transProfile newpl
         @transferData newpl
         newpl.sunset game   # 初期化してあげる
-        @transform game,newpl
+        @transform game,newpl,false
 
         
         #game.ss.publish.user newpl.id,"refresh",{id:game.id}
@@ -3077,7 +3078,7 @@ class Cupid extends Player
             pl.touched game,@id
             newpl=Player.factory null,pl,null,Friend    # 恋人だ！
             pl.transProfile newpl
-            pl.transform game,newpl # 入れ替え
+            pl.transform game,newpl,true # 入れ替え
             newpl.cmplFlag=plpls[1-i].id
             log=
                 mode:"skill"
@@ -3189,7 +3190,7 @@ class Cursed extends Player
 
             @transProfile newpl
             @transferData newpl
-            @transform game,newpl
+            @transform game,newpl,false
             newpl.sunset game
                     
             splashlog game.id,game,log
@@ -3218,7 +3219,7 @@ class ApprenticeSeer extends Player
                 comment:"#{@name}は#{newpl.jobname}になりました。"
             splashlog game.id,game,log
             
-            @transform game,newpl
+            @transform game,newpl,false
             
             # 更新
             game.ss.publish.user newpl.realid,"refresh",{id:game.id}
@@ -3278,7 +3279,7 @@ class Spellcaster extends Player
 
         newpl=Player.factory null,t,null,Muted  # 黙る人
         t.transProfile newpl
-        t.transform game,newpl
+        t.transform game,newpl,true
 class Lycan extends Player
     type:"Lycan"
     jobname:"狼憑き"
@@ -3316,7 +3317,7 @@ class Priest extends Player
         newpl=Player.factory null,pl,null,HolyProtected # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元
-        pl.transform game,newpl
+        pl.transform game,newpl,true
 
         null
 class Prince extends Player
@@ -3485,15 +3486,15 @@ class Doppleganger extends Player
             pa=@getParent game  # 親を得る
             unless pa?
                 # 親はいない
-                @transform game,newpl
+                @transform game,newpl,false
             else
                 # 親がいる
                 if pa.sub==this
                     # subなら親ごと置換
-                    pa.transform game,newpl
+                    pa.transform game,newpl,false
                 else
                     # mainなら自分だけ置換
-                    @transform game,newpl
+                    @transform game,newpl,false
             log=
                 mode:"skill"
                 to:@id
@@ -3539,7 +3540,7 @@ class CultLeader extends Player
         splashlog game.id,game,log
         newpl=Player.factory null, t,null,CultMember    # 合体
         t.transProfile newpl
-        t.transform game,newpl
+        t.transform game,newpl,true
 
     makejobinfo:(game,result)->
         super
@@ -3800,7 +3801,7 @@ class OccultMania extends Player
         @transProfile newpl
         @transferData newpl
         newpl.sunset game   # 初期化してあげる
-        @transform game,newpl
+        @transform game,newpl,false
 
         log=
             mode:"skill"
@@ -3868,7 +3869,7 @@ class Lover extends Player
         for x,i in plpls
             newpl=Player.factory null,x,null,Friend # 恋人だ！
             x.transProfile newpl
-            x.transform game,newpl  # 入れ替え
+            x.transform game,newpl,true  # 入れ替え
             newpl.cmplFlag=plpls[1-i].id
         log=
             mode:"skill"
@@ -3915,7 +3916,7 @@ class MinionSelector extends Player
         # 複合させる
         newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
         pl.transProfile newpl
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         log=
             mode:"wolfskill"
             comment:"#{@name}は#{pl.name}（#{pl.jobname}）を狼の子分に指定しました。"
@@ -3960,7 +3961,7 @@ class Thief extends Player
         @transProfile newpl
         @transferData newpl
         newpl.sunset game
-        @transform game,newpl
+        @transform game,newpl,false
         log=
             mode:"skill"
             to:@id
@@ -4005,7 +4006,7 @@ class Dog extends Player
                     newpl=Player.factory null,pl,null,Guarded   # 守られた人
                     pl.transProfile newpl
                     newpl.cmplFlag=@id  # 護衛元cmplFlag
-                    pl.transform game,newpl
+                    pl.transform game,newpl,true
 
     sleeping:->@flag?
     jobdone:->@target?
@@ -4142,7 +4143,7 @@ class Trapper extends Player
             newpl=Player.factory null,pl,null,TrapGuarded   # 守られた人
             pl.transProfile newpl
             newpl.cmplFlag=@id  # 護衛元cmplFlag
-            pl.transform game,newpl
+            pl.transform game,newpl,true
             null
         else
             "自分を護衛することはできません"
@@ -4172,7 +4173,7 @@ class WolfBoy extends Madman
         newpl=Player.factory null,pl,null,Lycanized
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         null
 class Hoodlum extends Player
     type:"Hoodlum"
@@ -4497,7 +4498,7 @@ class Counselor extends Player
 
             newpl=Player.factory null,t,null,Counseled  # カウンセリングされた
             t.transProfile newpl
-            t.transform game,newpl
+            t.transform game,newpl,true
         else
             @addGamelog game,"counselFailure",t.type,@target
 # 巫女
@@ -4522,7 +4523,7 @@ class Miko extends Player
 
         newpl=Player.factory null,pl,null,MikoProtected # 守られた人
         pl.transProfile newpl
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         null
     makeJobSelection:(game)->
         # 夜は投票しない
@@ -4620,7 +4621,7 @@ class FascinatingWolf extends Werewolf
 
         newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
         pl.transProfile newpl
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         log=
             mode:"skill"
             to:pl.id
@@ -4734,7 +4735,7 @@ class ThreateningWolf extends Werewolf
 
         newpl=Player.factory null,t,null,Threatened  # カウンセリングされた
         t.transProfile newpl
-        t.transform game,newpl
+        t.transform game,newpl,true
     makejobinfo:(game,result)->
         super
         if game.night
@@ -4785,7 +4786,7 @@ class WanderingGuard extends Player
         newpl=Player.factory null,pl,null,Guarded   # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         null
     beforebury:(game,type)->
         if type=="day"
@@ -4839,7 +4840,7 @@ class ObstructiveMad extends Madman
         newpl=Player.factory null,pl,null,DivineObstructed
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 邪魔元cmplFlag
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         null
 class TroubleMaker extends Player
     type:"TroubleMaker"
@@ -4899,7 +4900,7 @@ class FrankensteinsMonster extends Player
             thispl.transProfile newpl
 
             # 置き換える
-            thispl.transform game,newpl
+            thispl.transform game,newpl,true
             thispl=newpl
 
             thispl.addGamelog game,"frankeneat",pl.type,pl.id
@@ -5119,7 +5120,7 @@ class SantaClaus extends Player
         pl.transProfile sub
         newpl=Player.factory null,pl,sub,Complex    # Complex
         pl.transProfile newpl
-        pl.transform game,newpl
+        pl.transform game,newpl,true
         @addGamelog game,"sendpresent",settype,pl.id
 #怪盗
 class Phantom extends Player
@@ -5189,7 +5190,7 @@ class Phantom extends Player
         newpl=Player.factory pl.type
         @transProfile newpl
         @transferData newpl
-        @transform game,newpl
+        @transform game,newpl,false
         log=
             mode:"skill"
             to:@id
@@ -5200,7 +5201,7 @@ class Phantom extends Player
         newpl2=Player.factory null,pl,null,PhantomStolen
         newpl2.cmplFlag=flagobj
         pl.transProfile newpl2
-        pl.transform game,newpl2
+        pl.transform game,newpl2,true
 class BadLady extends Player
     type:"BadLady"
     jobname:"悪女"
@@ -5258,17 +5259,17 @@ class BadLady extends Player
             # 自分恋人
             newpl=Player.factory null,this,null,Friend # 恋人だ！
             @transProfile newpl
-            @transform game,newpl  # 入れ替え
+            @transform game,newpl,true  # 入れ替え
             newpl.cmplFlag=fl.main
             # 相手恋人
             newpl=Player.factory null,plm,null,Friend # 恋人だ！
             plm.transProfile newpl
-            plm.transform game,newpl  # 入れ替え
+            plm.transform game,newpl,true  # 入れ替え
             newpl.cmplFlag=@id
             # キープ
             newpl=Player.factory null,pl,null,KeepedLover # 恋人か？
             pl.transProfile newpl
-            pl.transform game,newpl  # 入れ替え
+            pl.transform game,newpl,true  # 入れ替え
             newpl.cmplFlag=@id
             game.splashjobinfo [@id,plm.id,pl.id].map (id)->game.getPlayer id
             @addGamelog game,"badlady_keep",pl.type,playerid
@@ -5831,7 +5832,7 @@ class PhantomStolen extends Complex
         saved=@originalJobname
         @mcall game,@main.transProfile,newpl
         @mcall game,@main.transferData,newpl
-        @mcall game,@main.transform,game,newpl
+        @mcall game,@main.transform,game,newpl,false
         log=
             mode:"skill"
             to:newpl.id
