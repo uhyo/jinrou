@@ -5830,17 +5830,18 @@ class PhantomStolen extends Complex
         newpl=Player.factory "Phantom"
         # アレがなぜか狂ってしまうので一時的に保存
         saved=@originalJobname
-        @mcall game,@main.transProfile,newpl
-        @mcall game,@main.transferData,newpl
-        @mcall game,@main.transform,game,newpl,false
+        @uncomplex game
+        pl=game.getPlayer @id
+        pl.transProfile newpl
+        pl.transferData newpl
+        pl.transform game,newpl,false
         log=
             mode:"skill"
-            to:newpl.id
-            comment:"#{newpl.name}は役職を盗まれて#{newpl.getJobDisp()}になりました。"
+            to:@id
+            comment:"#{@name}は役職を盗まれて#{newpl.getJobDisp()}になりました。"
         splashlog game.id,game,log
         # 夜の初期化
-        @uncomplex game
-        pl=game.getPlayer newpl.id
+        pl=game.getPlayer @id
         pl.setOriginalJobname saved
         pl.setFlag true # もう盗めない
         pl.sunset game
