@@ -5849,7 +5849,6 @@ class PhantomStolen extends Complex
     # 勝利条件関係は村人化（昼の間だけだし）
     isWerewolf:->false
     isFox:->false
-    isFriend:->false
     isVampire:->false
     #team:"Human" #女王との兼ね合いで
     isWinner:(game,team)->
