@@ -5497,6 +5497,7 @@ class Complex
         result
     isListener:(game,log)->
         @mcall(game,@main.isListener,game,log) || @sub?.isListener(game,log)
+    isReviver:->@main.isReviver() || @sub?.isReviver()
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
