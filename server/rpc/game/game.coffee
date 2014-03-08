@@ -1793,10 +1793,13 @@ class Player
             console.log cmpl
             console.log i
             newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
+            ###
             for ok in Object.keys cmpl
                 # 自分のプロパティのみ
                 unless ok=="main" || ok=="sub"
                     newpl[ok]=cmpl[ok]
+            ###
+            newpl.cmplFlag=cmpl.cmplFlag
             base=newpl
         base
 
