@@ -5018,6 +5018,8 @@ class PsychoKiller extends Madman
             if pl? && !pl.dead
                 pl.die game,"psycho",@id
         @setFlag "[]"
+    deadnight:(game)->
+        @midnight game
 class SantaClaus extends Player
     type:"SantaClaus"
     jobname:"サンタクロース"
