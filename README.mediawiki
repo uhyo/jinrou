@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.uhyohyo.net/ 月下人狼サーバー]稼働中!
 == version ==
-1.9.6-3
+1.9.7
 
 == requirements ==
 * SocketStream
@@ -55,8 +55,12 @@ and others...
 * 予言者のママ
 * 罠師
 * 狼少年
+* 王様
 === 究極の人狼 ===
 いろいろ
+=== 月夜の人狼 ===
+* 看板娘
+* 慎重な狼
 
 などなど
 
