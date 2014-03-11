@@ -5291,7 +5291,58 @@ class BadLady extends Player
                 else if !fl.keep
                     # 手玉に取る
                     result.open.push "BadLady2"
-
+# 看板娘
+class DrawGirl extends Player
+    type:"DrawGirl"
+    jobname:"看板娘"
+    sleeping:->true
+    die:(game,found)->
+        if found=="werewolf"
+            # 狼に噛まれた
+            @setFlag "bitten"
+        else
+            @setFlag ""
+        super
+    deadsunrise:(game)->
+        # 夜明けで死亡していた場合
+        if @flag=="bitten"
+            # 噛まれて死亡した場合
+            game.votingbox.addPunishedNumber 1
+            log=
+                mode:"system"
+                comment:"#{@name}は看板娘でした。今日は#{game.votingbox.remains}人処刑されます。"
+            splashlog game.id,game,log
+            @setFlag ""
+            @addGamelog game,"drawgirlpower",null,null
+# 慎重な狼
+class CautiousWolf extends Werewolf
+    type:"CautiousWolf"
+    jobname:"慎重な狼"
+    makeJobSelection:(game)->
+        if game.night
+            r=super
+            return r.concat {
+                name:"襲撃しない"
+                value:""
+            }
+        else
+            return super
+    job:(game,playerid)->
+        if playerid!=""
+            super
+            return
+        # 襲撃しない場合
+        game.werewolf_target.push {
+            from:@id
+            to:""
+        }
+        game.werewolf_target_remain--
+        log=
+            mode:"wolfskill"
+            comment:"#{@name}たち人狼は襲撃しませんでした。"
+        splashlog game.id,game,log
+        game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
+        null
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5997,6 +6048,8 @@ jobs=
     SantaClaus:SantaClaus
     Phantom:Phantom
     BadLady:BadLady
+    DrawGirl:DrawGirl
+    CautiousWolf:CautiousWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
