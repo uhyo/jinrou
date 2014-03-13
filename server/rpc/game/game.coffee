@@ -2606,6 +2606,7 @@ class WolfDiviner extends Werewolf
         @setTarget null
         @setFlag null  # 占い対象
         @result=null    # 占い結果
+        super
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
     job:(game,playerid,query)->
@@ -3992,12 +3993,16 @@ class Dog extends Player
     sunset:(game)->
         super
         @setTarget null    # 1日目:飼い主選択 選択後:かみ殺す人選択
-        if !@flag   # 飼い主を決めていない
+        if !@flag?   # 飼い主を決めていない
             if @scapegoat
                 alives=game.players.filter (x)=>!x.dead && x.id!=@id
-                r=Math.floor Math.random()*alives.length
-                pl=alives[r]
-                @job game,pl.id,{}
+                if alives.length>0
+                    r=Math.floor Math.random()*alives.length
+                    pl=alives[r]
+                    @job game,pl.id,{}
+                else
+                    @setFlag ""
+                    @setTarget ""
         else
             # 飼い主を護衛する
             pl=game.getPlayer @flag
@@ -4739,6 +4744,8 @@ class ThreateningWolf extends Werewolf
         newpl=Player.factory null,t,null,Threatened  # カウンセリングされた
         t.transProfile newpl
         t.transform game,newpl,true
+
+        super
     makejobinfo:(game,result)->
         super
         if game.night
