@@ -4166,7 +4166,7 @@ class WolfBoy extends Madman
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
             if @job game,game.players[r].id,{}
-                @sunset
+                @sunset game
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
