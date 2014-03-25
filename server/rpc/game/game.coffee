@@ -2140,6 +2140,7 @@ class Player
     transferData:(newpl)->
         return unless newpl?
         newpl.scapegoat=@scapegoat
+        newpl.setDead @dead,@found
         
             
 
@@ -5031,6 +5032,7 @@ class SantaClaus extends Player
     type:"SantaClaus"
     jobname:"サンタクロース"
     sleeping:->@target?
+    newpl.setDead @dead
     constructor:->
         super
         @setFlag "[]"
