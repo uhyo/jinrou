@@ -6167,6 +6167,9 @@ jobStrength=
     PsychoKiller:25
     SantaClaus:20
     Phantom:10
+    BadLady:20
+    DrawGirl:10
+    CautiousWolf:45
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
@@ -6613,7 +6616,8 @@ module.exports.actions=(req,res,ss)->
                         if points.Others>points.Human || points.Others>points.Werewolf
                             # だめだめ
                             continue
-                        diff=Math.abs(points.Human-points.Werewolf)
+                        jgs=Math.sqrt(points.Werewolf*points.Werewolf+points.Others*points.Others)
+                        diff=Math.abs(points.Human-jgs)
                         if safety.reverse
                             # 逆
                             diff+=points.Others

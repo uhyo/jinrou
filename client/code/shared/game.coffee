@@ -917,7 +917,7 @@ exports.rules=[
                 values:[
                     {
                         value:"super"
-                        label:"超(β)"
+                        label:"超(β2)"
                         title:"強さのバランスを調整します。"
                     }
                     {
