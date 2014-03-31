@@ -2753,7 +2753,7 @@ class Merchant extends Player
         super
         @setFlag null  # 発送済みかどうか
     sleeping:->true
-    jobdone:->@flag?
+    jobdone:(game)->game.day<=1 || @flag?
     job:(game,playerid,query)->
         if @flag?
             return "既に商品を発送しています"
