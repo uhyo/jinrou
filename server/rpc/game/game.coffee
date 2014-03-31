@@ -3566,7 +3566,7 @@ class Vampire extends Player
         if @scapegoat
             r=Math.floor Math.random()*game.players.length
             if @job game,game.players[r].id,{}
-                @sunset
+                @sunset game
     job:(game,playerid,query)->
         # 襲う先
         if @target?
@@ -4132,7 +4132,7 @@ class Trapper extends Player
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
             if @job game,game.players[r].id,{}
-                @sunset
+                @sunset game
     job:(game,playerid)->
         unless playerid==@id && game.rule.guardmyself!="ok"
             if playerid==@flag
