@@ -5404,8 +5404,8 @@ class Helper extends Player
         result.supporting=pl?.publicinfo()
         result.supportingJob=pl?.getJobDisp()
         for value in Shared.game.jobinfos
-            if helpedinfo[value]?
-                result[value]=helpedinfo[value]
+            if helpedinfo[value.name]?
+                result[value.name]=helpedinfo[value.name]
         null
 
 # 開始前のやつだ!!!!!!!!
