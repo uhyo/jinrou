@@ -5400,8 +5400,14 @@ class Helper extends Player
         super
         # ヘルプ先が分かる
         pl=game.getPlayer @flag
+        helpedinfo={}
+        pl.makejobinfo game,helpedinfo
         result.supporting=pl?.publicinfo()
         result.supportingJob=pl?.getJobDisp()
+        for value in Shared.game.jobinfos
+            if helpedinfo[value]?
+                result[value]=helpedinfo[value]
+        null
 
 # 開始前のやつだ!!!!!!!!
 class Waiting extends Player
