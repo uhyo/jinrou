@@ -916,6 +916,11 @@ exports.rules=[
                 type:"select"
                 values:[
                     {
+                        value:"supersuper"
+                        label:"走召（α）"
+                        title:"強さのバランスを調整するかもしれません。"
+                    }
+                    {
                         value:"super"
                         label:"超(β2)"
                         title:"強さのバランスを調整します。"

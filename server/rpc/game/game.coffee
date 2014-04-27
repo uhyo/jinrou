@@ -6275,6 +6275,9 @@ module.exports.actions=(req,res,ss)->
                         safety.teams=true
                         safety.jobs=true
                         safety.strength=true
+                    when "supersuper"
+                        safety.jobs=true
+                        safety.strength=true
                     when "reverse"
                         safety.jingais=true
                         safety.strength=true
@@ -6405,6 +6408,8 @@ module.exports.actions=(req,res,ss)->
                             joblist.category_Madman ?= 0
                             joblist.category_Madman++
                             frees--
+                # 占い確定
+                if safety.teams || safety.jobs
                     # 村人陣営
                     if frees>0
                         # 占い師いてほしい
@@ -6414,24 +6419,25 @@ module.exports.actions=(req,res,ss)->
                         else if Math.random()<0.3
                             joblist.ApprenticeSeer++
                             frees--
-                        # できれば狩人も
-                        if frees>0
-                            if joblist.Diviner>0
-                                if Math.random()<0.5
-                                    joblist.Guard++
-                                    frees--
-                            else if Math.random()<0.2
+                if safety.teams
+                    # できれば狩人も
+                    if frees>0
+                        if joblist.Diviner>0
+                            if Math.random()<0.5
                                 joblist.Guard++
                                 frees--
-                        if frees>0 && wolf_number>=3 && Math.random()<0.1
-                            # めずらしい
-                            joblist.MadWolf++
+                        else if Math.random()<0.2
+                            joblist.Guard++
                             frees--
-                            # 確定狂人サービス
-                            if frees>0
-                                joblist.category_Madman ?= 0
-                                joblist.category_Madman++
-                                frees--
+                    if frees>0 && wolf_number>=3 && Math.random()<0.1
+                        # めずらしい
+                        joblist.MadWolf++
+                        frees--
+                        # 確定狂人サービス
+                        if frees>0
+                            joblist.category_Madman ?= 0
+                            joblist.category_Madman++
+                            frees--
                 ((date)->
                     if date.getMonth()==11 && 24<=date.getDate()<=25
                         if safety.jobs
