@@ -5032,7 +5032,6 @@ class SantaClaus extends Player
     type:"SantaClaus"
     jobname:"サンタクロース"
     sleeping:->@target?
-    newpl.setDead @dead
     constructor:->
         super
         @setFlag "[]"
