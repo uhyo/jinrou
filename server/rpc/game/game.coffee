@@ -6627,7 +6627,8 @@ module.exports.actions=(req,res,ss)->
                         if points.Others>points.Human || points.Others>points.Werewolf
                             # だめだめ
                             continue
-                        jgs=Math.sqrt(points.Werewolf*points.Werewolf+points.Others*points.Others)
+                        # jgs=Math.sqrt(points.Werewolf*points.Werewolf+points.Others*points.Others)
+                        jgs = points.Werewolf+points.Others
                         diff=Math.abs(points.Human-jgs)
                         if safety.reverse
                             # 逆
