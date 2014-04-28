@@ -6145,7 +6145,7 @@ jobStrength=
     MinionSelector:0
     WolfCub:70
     WhisperingMad:20
-    Lover:10
+    Lover:25
     Thief:0
     Dog:7
     Dictator:18
@@ -6156,7 +6156,7 @@ jobStrength=
     QuantumPlayer:0
     RedHood:16
     Counselor:25
-    Miko:12
+    Miko:14
     GreedyWolf:60
     FascinatingWolf:52
     SolitudeWolf:20
@@ -6165,14 +6165,14 @@ jobStrength=
     HolyMarked:6
     WanderingGuard:10
     ObstructiveMad:19
-    TroubleMaker:10
+    TroubleMaker:15
     FrankensteinsMonster:50
     BloodyMary:5
     King:15
     PsychoKiller:25
     SantaClaus:20
-    Phantom:10
-    BadLady:20
+    Phantom:15
+    BadLady:30
     DrawGirl:10
     CautiousWolf:45
 
