@@ -6367,7 +6367,7 @@ module.exports.actions=(req,res,ss)->
                         frees--
                 
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
-                if safety.jingais
+                if safety.jingais || safety.jobs
                     if joblist.Fox==0
                         exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
                     
