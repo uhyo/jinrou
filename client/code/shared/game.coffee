@@ -917,7 +917,7 @@ exports.rules=[
                 values:[
                     {
                         value:"supersuper"
-                        label:"走召（α）"
+                        label:"走召（α2）"
                         title:"強さのバランスを調整するかもしれません。"
                     }
                     {
