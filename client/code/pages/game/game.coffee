@@ -206,9 +206,14 @@ exports.start=(roomid)->
                     $("#playersinfo").append b
                     $(b).click (je)->
                         # ルールを保存
-                        sessionStorage.savedRule=JSON.stringify result.game.rule
-                        sessionStorage.savedJobs=JSON.stringify result.game.jobscount
-                        Index.app.showUrl "/newroom"
+                        localStorage.savedRule=JSON.stringify result.game.rule
+                        localStorage.savedJobs=JSON.stringify result.game.jobscount
+                        #Index.app.showUrl "/newroom"
+                        # 新しいタブで開く
+                        a=document.createElement "a"
+                        a.href="/newroom"
+                        a.target="_blank"
+                        a.click()
 
                 
                 result.logs.forEach getlog
@@ -321,9 +326,11 @@ exports.start=(roomid)->
 
             $("#rules").attr "name","rule"
             buildrules Shared.game.rules,$("#rules")
-            if sessionStorage.savedRule
-                rule=JSON.parse sessionStorage.savedRule
-                jobs=JSON.parse sessionStorage.savedJobs
+            if localStorage.savedRule
+                rule=JSON.parse localStorage.savedRule
+                jobs=JSON.parse localStorage.savedJobs
+                delete localStorage.savedRule
+                delete localStorage.savedJobs
                 # 時間設定
                 daysec=rule.day-0
                 nightsec=rule.night-0
