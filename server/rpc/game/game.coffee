@@ -1157,6 +1157,7 @@ class Game
         vampires=@players.filter((x)->!x.dead && x.isVampire()).length
 
         team=null
+        friends_count=null
 
         # 量子人狼のときは特殊ルーチン
         if @rule.jobrule=="特殊ルール.量子人狼"
@@ -1223,13 +1224,13 @@ class Game
                     # 終了時に恋人生存
                     friends=@players.filter (x)->x.isFriend() && !x.dead
                     gid=0
-                    cnt=0
+                    friends_count=0
                     friends_table={}
                     for pl in friends
                         unless friends_table[pl.id]?
                             pt=pl.getPartner()
                             unless friends_table[pt]?
-                                cnt++
+                                friends_count++
                                 gid++
                                 friends_table[pl.id]=gid
                                 friends_table[pt]=gid
@@ -1247,18 +1248,21 @@ class Game
                                     if value==d
                                         friends_table[key]=c
                                 # グループが合併した
-                                cnt--
+                                friends_count--
 
 
-                    if cnt==1
+                    if friends_count==1
                         # 1組しかいない
                         if @rule.friendsjudge=="alive"
                             team="Friend"
                         else if friends.length==alives
                             team="Friend"
-                    else if cnt>1
-                        # 恋人バトル
-                        team=null
+                    else if friends_count>1
+                        if alives==friends.length
+                            team="Friend"
+                        else
+                            # 恋人バトル
+                            team=null
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.team=="Cult" )
                 # 全員信者
@@ -1313,11 +1317,15 @@ class Game
                 when "Devil"
                     ["村は悪魔くんのものとなりました。","悪魔くん勝利"]
                 when "Friend"
-                    friends=@players.filter (x)->x.isFriend()
-                    if friends.length==2 && friends.some((x)->x.isJobType "Noble") && friends.some((x)->x.isJobType "Slave")
-                        ["2人の禁断の愛の力には何者も敵わないのでした。","恋人勝利"]
+                    if friends_count>1
+                        # みんなで勝利（珍しい）
+                        ["村は渾沌に支配されました。","恋人勝利"]
                     else
-                        ["#{@players.filter((x)->x.isFriend()).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
+                        friends=@players.filter (x)->x.isFriend()
+                        if friends.length==2 && friends.some((x)->x.isJobType "Noble") && friends.some((x)->x.isJobType "Slave")
+                            ["2人の禁断の愛の力には何者も敵わないのでした。","恋人勝利"]
+                        else
+                            ["#{@players.filter((x)->x.isFriend() && !x.dead).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
                 when "Cult"
                     ["村はカルトに支配されました。","カルトリーダー勝利"]
                 when "Vampire"
