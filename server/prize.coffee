@@ -161,6 +161,7 @@ module.exports=exports=
 
     
     prizeName:(prizeid)->prize.names[prizeid]    # IDを名前に
+    prizePhonetic:(prizeid)->prize.phonetics[prizeid]
     prizeQuote:(prizename)->"≪#{prizename}≫"
             
 ###

@@ -140,9 +140,32 @@ exports.start=(user)->
         $("#prizearea").html "<p>獲得称号はありません。</p>"
     else
         $("#prizenumber").text user.prizenames.length
-        ull=$("#prizes")
+        prizesdiv=$("#prizes")
+        phs=["あいうえお","かきくけこがぎぐげご","さしすせそざじずぜぞ","たちつてとだぢづでど","なにぬねの","はひふへほばびぶべぼぱぴぷぺぽ","まみむめも","やゆよ","らりるれろ","わをん"]
         prizedictionary={}  # 称号のidと名前対応
+        user.prizenames.sort (a,b)->
+            if a.phonetic>b.phonetic
+                1
+            else
+                -1
+        # 同じグループは横ならびで
+        pindex=-1
+        ull=null
         user.prizenames.forEach (obj)->
+            # どのグループに属するか
+            thisgarr=phs[pindex] ? ""
+            if !ull || thisgarr.indexOf(obj.phonetic.charAt 0)<0
+                # これには属していない
+                ull=$(document.createElement "ul")
+                prizesdiv.append ull
+                # 属す奴を探す
+                pindex=-1
+                for ph,i in phs
+                    if ph.indexOf(obj.phonetic.charAt 0)>=0
+                        # これに属している
+                        pindex=i
+                        break
+
             li=document.createElement "li"
             li.textContent=obj.name
             li.dataset.id=obj.id

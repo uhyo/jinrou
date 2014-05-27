@@ -6,6 +6,7 @@ Shared=
 
 # コールバック:{
 #   names:{}
+#   phonetics:{}
 # }
 makePrize=(cb)->
     # 勝利と敗北を読み込む
@@ -18,7 +19,7 @@ makePrize=(cb)->
             # 残り
             makeOtherPrize result
             # 称号IDと名前の対応表を作る
-            result.names=makeNames result
+            makeNames result
             cb result
 exports.makePrize=makePrize
 
@@ -56,94 +57,92 @@ loadTable=(arr)->
 # 名前つける
 makeNames=(result)->
     names={}
+    phonetics={}
+    # ひとつ登録
+    mset=(key,namevalue)->
+        if Array.isArray namevalue
+            for n,i in namevalue
+                [name,phonetic]=n.split "/"
+                if i==0
+                    names[key]=name
+                    phonetics[key]=phonetic
+                else
+                    names["#{key}:#{i}"]=name
+                    phonetics["#{key}:#{i}"]=phonetic
+        else
+            [name,phonetic]=namevalue.split "/"
+            names[key]=name
+            phonetics[key]=phonetic
     for job,obj of result.wincountprize
         for num,name of obj
-            if Array.isArray name
-                for n,i in name
-                    if i==0
-                        names["wincount_#{job}_#{num}"]=n
-                    else
-                        names["wincount_#{job}_#{num}:#{i}"]=n
-            else
-                names["wincount_#{job}_#{num}"]=name
+            mset "wincount_#{job}_#{num}",name
     for job,obj of result.losecountprize
         for num,name of obj
-            if Array.isArray name
-                for n,i in name
-                    if i==0
-                        names["losecount_#{job}_#{num}"]=n
-                    else
-                        names["losecount_#{job}_#{num}:#{i}"]=n
-            else
-                names["losecount_#{job}_#{num}"]=name
+            mset "losecount_#{job}_#{num}",name
     for job,obj of result.winteamcountprize
         for num,name of obj
-            if Array.isArray name
-                for n,i in name
-                    if i==0
-                        names["winteamcount_#{job}_#{num}"]=n
-                    else
-                        names["winteamcount_#{job}_#{num}:#{i}"]=n
-            else
-                names["winteamcount_#{job}_#{num}"]=name
+            mset "winteamcount_#{job}_#{num}",name
     for kind,obj of result.counterprize
         for num,name of obj.names
-            names["#{kind}_#{num}"]=name
+            mset "#{kind}_#{num}",name
     for kind,obj of result.ownprizesprize
         for num,name of obj.names
-            names["#{kind}_#{num}"]=name
-    names
+            mset "#{kind}_#{num}",name
+    result.names=names
+    result.phonetics=phonetics
+    result
+
 # 他のprize
 makeOtherPrize=(result)->
     result.winteamcountprize=
         Human:
-            10:"白"
-            50:"光"
+            10:"白/しろ"
+            50:"光/ひかり"
         Werewlf:
-            5:"偽り"
-            10:"黒"
-            50:"闇"
+            5:"偽り/いつわり"
+            10:"黒/くろ"
+            50:"闇/やみ"
     result.loseteamcountprize={}
     result.counterprize=
         # 呪殺
         cursekill:
             names:
-                1:"呪殺"
-                5:"スナイパー"
-                10:"天敵"
-                15:"FOXHOUND"
-                30:"ハンター"
-                50:"奇跡"
+                1:"呪殺/じゅさつ"
+                5:"スナイパー/すないぱー"
+                10:"天敵/てんてき"
+                15:"FOXHOUND/ふぉっくすはうんど"
+                30:"ハンター/はんたー"
+                50:"奇跡/きせき"
             func:(game,pl)->
                 # 呪殺を数える
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="cursekill").length
         # 初日黒
         divineblack2:
             names:
-                5:"千里眼"
-                10:"心眼"
+                5:"千里眼/せんりがん"
+                10:"心眼/しんがん"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="divine" && x.flag in Shared.game.blacks).length
             
         # GJ判定
         GJ:
             names:
-                1:"GJ"
-                3:"護衛"
-                5:"防衛"
-                10:"鉄壁"
-                15:"救世主"
-                30:"ガーディアン"
+                1:"GJ/じーじぇー"
+                3:"護衛/ごえい"
+                5:"防衛/ぼうえい"
+                10:"鉄壁/てっぺき"
+                15:"救世主/きゅうせいしゅ"
+                30:"ガーディアン/がーでぃあん"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="GJ").length
         # 恋人の勝利回数
         lovers_wincount:
             names:
-                1:"両想い"
-                5:"いちゃいちゃ"
-                10:"ラブラブ"
-                15:"結婚"
-                30:"比翼連理"
+                1:"両想い/りょうおもい"
+                5:"いちゃいちゃ/いちゃいちゃ"
+                10:"ラブラブ/らぶらぶ"
+                15:"結婚/けっこん"
+                30:"比翼連理/ひよくれんり"
             func:(game,pl)->
                 if pl.winner && chkCmplType pl,"Friend"
                     1
@@ -152,11 +151,11 @@ makeOtherPrize=(result)->
         # 恋人の敗北回数
         lovers_losecount:
             names:
-                1:"倦怠期"
-                5:"浮気"
-                10:"失恋"
-                15:"離婚"
-                30:"愛憎劇"
+                1:"倦怠期/けんたいき"
+                5:"浮気/うわき"
+                10:"失恋/しつれん"
+                15:"離婚/りこん"
+                30:"愛憎劇/あいぞうげき"
             func:(game,pl)->
                 if !pl.winner && chkCmplType pl,"Friend"
                     1
@@ -165,24 +164,24 @@ makeOtherPrize=(result)->
         # 商品を受け取った回数
         getkits_merchant:
             names:
-                1:"受け取り"
-                5:"取引先"
-                10:"お得意様"
+                1:"受け取り/うけとり"
+                5:"取引先/とりひきさき"
+                10:"お得意様/おとくいさま"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="sendkit").length
         # 商品を人狼側に送った回数
         sendkits_to_wolves:
             names:
-                1:"誤送"
-                10:"発注ミス"
+                1:"誤送/ごそう"
+                10:"発注ミス/はっちゅうみす"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="sendkit" && getTeamByType(getTypeAtTime(game,x.target,x.day))=="Werewolf").length
         # コピーせずに終了
         nocopy:
             names:
-                1:"優柔不断"
-                5:"null"
-                10:"Undefined"
+                1:"優柔不断/ゆうじゅうふだん"
+                5:"null/なる"
+                10:"Undefined/あんでふぁいんど"
             func:(game,pl)->
                 if pl.type=="Copier"
                     1
@@ -191,11 +190,11 @@ makeOtherPrize=(result)->
         # 2日目昼に吊られた
         day2hanged:
             names:
-                1:"初日"
-                5:"寡黙"
-                10:"おはステ"
-                15:"怪しい人"
-                30:"壁"
+                1:"初日/しょにち"
+                5:"寡黙/かもく"
+                10:"おはステ/おはすて"
+                15:"怪しい人/あやしいひと"
+                30:"壁/かべ"
             func:(game,pl)->
                 game.gamelogs.filter((x)->
                     x.id==pl.id && x.event=="found" && x.flag=="punish" && x.day==2
@@ -204,33 +203,33 @@ makeOtherPrize=(result)->
         # 総試合数
         allgamecount:
             names:
-                1:"はじめて"
-                5:"ビギナー"
-                10:"ルーキー"
-                15:"先輩"
-                30:"経験者"
-                50:"エリート"
-                75:"エース"
-                100:"キャプテン"
-                150:"ベテラン"
-                200:"インペリアル"
-                300:"絶対"
-                400:"カリスマ"
-                500:"アルティメット"
-                600:"進撃"
-                750:"巨人"
-                1000:"神話"
-                1250:"永遠の旅人"
-                1500:"冥王"
-                2000:"レジェンド"
-                10000:"もうやめよう"
+                1:"はじめて/はじめて"
+                5:"ビギナー/びぎなー"
+                10:"ルーキー/るーきー"
+                15:"先輩/せんぱい"
+                30:"経験者/けいけんしゃ"
+                50:"エリート/えりーと"
+                75:"エース/えーす"
+                100:"キャプテン/きゃぷてん"
+                150:"ベテラン/べてらん"
+                200:"インペリアル/いんぺりある"
+                300:"絶対/ぜったい"
+                400:"カリスマ/かりすま"
+                500:"アルティメット/あるてぃめっと"
+                600:"進撃/しんげき"
+                750:"巨人/きょじん"
+                1000:"神話/しんわ"
+                1250:"永遠の旅人/えいえんのたびびと"
+                1500:"冥王/めいおう"
+                2000:"レジェンド/れじぇんど"
+                10000:"もうやめよう/もうやめよう"
             func:(game,pl)->1
         # 最終日に生存
         aliveatlast:
             names:
-                1:"生存"
-                5:"生き残り"
-                30:"最終兵器"
+                1:"生存/せいぞん"
+                5:"生き残り/いきのこり"
+                30:"最終兵器/さいしゅうへいき"
             func:(game,pl)->
                 if pl.dead
                     0
@@ -239,19 +238,19 @@ makeOtherPrize=(result)->
         # 蘇生
         revive:
             names:
-                1:"蘇生"
-                5:"黄泉がえり"
-                10:"不死王"
-                15:"アンデッド"
-                30:"不死鳥"
+                1:"蘇生/そせい"
+                5:"黄泉がえり/よみがえり"
+                10:"不死王/ふしおう"
+                15:"アンデッド/あんでっど"
+                30:"不死鳥/ふしちょう"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="revive").length
         # 信者になる
         brainwashed:
             names:
-                1:"教"
-                5:"信"
-                10:"徒"
+                1:"教/きょう"
+                5:"信/しん"
+                10:"徒/と"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="brainwash").length
         # 突然死する
@@ -262,11 +261,11 @@ makeOtherPrize=(result)->
     result.ownprizesprize=
         prizecount:
             names:
-                100:"天上天下"
-                200:"神の子"
-                300:"至高"
-                400:"究極"
-                500:"超越者"
+                100:"天上天下/てんじょうてんげ"
+                200:"神の子/かみのこ"
+                300:"至高/しこう"
+                400:"究極/きゅうきょく"
+                500:"超越者/ちょうえつしゃ"
             func:(prizes)->prizes.length
 # 解析用ファンクション
 # gameからプレイヤーオブジェクトを拾う
