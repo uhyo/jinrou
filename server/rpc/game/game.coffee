@@ -2090,6 +2090,7 @@ class Player
                 if pa.main==this
                     # 親書き換え
                     newparent=Player.factory null,newpl,pa.sub,complexes[pa.cmplType]
+                    newparent.cmplFlag=pa.cmplFlag
                     newpl.transProfile newparent
 
                     pa.transform game,newparent,override # たのしい再帰
