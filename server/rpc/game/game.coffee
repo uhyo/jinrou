@@ -1871,9 +1871,11 @@ class Player
     # 投票先決定
     dovote:(game,target)->
         # 戻り値にも意味があるよ！
-        game.votingbox.vote this,target,1
+        err=game.votingbox.vote this,target,1
+        if err?
+            return err
         @voteafter game,target
-        null
+        return null
     voteafter:(game,target)->
     # 昼のはじまり（死体処理よりも前）
     sunrise:(game)->
