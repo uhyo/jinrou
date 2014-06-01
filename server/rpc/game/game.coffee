@@ -6385,12 +6385,15 @@ module.exports.actions=(req,res,ss)->
                     # 陣営調整もする
                     # 恋人陣営
                     if frees>0
-                        if playersnumber>=12
-                            if Math.random()<0.3
+                        if 17>=playersnumber>=12
+                            if Math.random()<0.15
                                 joblist.Cupid++
                                 frees--
-                            else if Math.random()<0.2
+                            else if Math.random()<0.12
                                 joblist.Lover++
+                                frees--
+                            else if Math.random()<0.1
+                                joblist.BadLady++
                                 frees--
                         else if playersnumber>=8
                             if Math.random()<0.15
@@ -6579,7 +6582,7 @@ module.exports.actions=(req,res,ss)->
                                     else if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
-                                when "Lycan","SeersMama","Sorcerer","SeersMama","WolfBoy","ObstructirveMad"
+                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructirveMad"
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
@@ -6594,10 +6597,6 @@ module.exports.actions=(req,res,ss)->
                                         continue
                                     # 霊能を出す
                                     unless Math.random()<0.15 ||  init "Psychic","Human"
-                                        continue
-                                when "RedHood"
-                                    # 狼が2以上必要
-                                    if countCategory("Werewolf")<=1
                                         continue
                                 when "BloodyMary"
                                     # 狼が2以上必要
