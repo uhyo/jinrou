@@ -863,7 +863,7 @@ class Game
             @revote_num=0   # 再投票の回数は0にリセット
 
         #死体処理
-        @bury("other")
+        @bury "other"
         return if @judge()
         @splashjobinfo()
         if @night
@@ -976,7 +976,9 @@ class Game
             @werewolf_flag=null
 
     # 死んだ人を処理する type: タイミング
+    # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
+
         deads=[]
         loop
             deads=@players.filter (x)->x.dead && x.found
@@ -1094,7 +1096,7 @@ class Game
             @votingbox.remains--
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
-                @bury "day"
+                @bury "other"
                 return false if @judge()
 
                 log=
