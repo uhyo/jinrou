@@ -4102,6 +4102,7 @@ class Dictator extends Player
         pl=game.getPlayer playerid
         unless pl?
             return "対象が不正です"
+        pl.touched game,@id
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
