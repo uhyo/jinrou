@@ -2682,7 +2682,8 @@ class WolfDiviner extends Werewolf
             if p.team=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
-                newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                #newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                newjob="Helper"
                 plobj=p.serialize()
                 plobj.type=newjob
                 newpl=Player.unserialize plobj  # 新生狂人
@@ -5395,8 +5396,9 @@ class Helper extends Player
     type:"Helper"
     jobname:"ヘルパー"
     team:""
-    jobdone:->true
+    jobdone:->@flag?
     sleeping:->true
+    voted:(game,votingbox)->true
     isWinner:(game,team)->
         pl=game.getPlayer @flag
         return pl?.isWinner game,team
@@ -5404,22 +5406,47 @@ class Helper extends Player
     # 同じものが見える
     isListener:(game,log)->
         pl=game.getPlayer @flag
-        return false unless pl?
+        unless pl?
+            # 自律行動ヘルパー?
+            return super
+        if pl.isJobType "Helper"
+            # ヘルパーのヘルパーの場合は聞こえない（無限ループ防止）
+            return false
         return pl.isListener game,log
     getSpeakChoice:(game)->
-        return ["helperwhisper_#{@flag}"]
+        if @flag?
+            return ["helperwhisper_#{@flag}"]
+        else
+            return ["helperwhisper"]
     getSpeakChoiceDay:(game)->@getSpeakChoice game
+    job:(game,playerid)->
+        if @flag?
+            return "既にヘルプ先が決定しています"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "ヘルプ先が存在しません"
+        @flag=playerid
+        log=
+            mode:"skill"
+            to:playerid
+            comment:"#{@name}が#{pl.name}のヘルパーになりました。"
+        splashlog game.id,game,log
+        # 自分の表記を改める
+        game.splashjobinfo [this]
+        null
+
     makejobinfo:(game,result)->
         super
         # ヘルプ先が分かる
         pl=game.getPlayer @flag
-        helpedinfo={}
-        pl.makejobinfo game,helpedinfo
-        result.supporting=pl?.publicinfo()
-        result.supportingJob=pl?.getJobDisp()
-        for value in Shared.game.jobinfos
-            if helpedinfo[value.name]?
-                result[value.name]=helpedinfo[value.name]
+        if pl?
+            helpedinfo={}
+            pl.makejobinfo game,helpedinfo
+            result.supporting=pl?.publicinfo()
+            result.supportingJob=pl?.getJobDisp()
+            for value in Shared.game.jobinfos
+                if helpedinfo[value.name]?
+                    result[value.name]=helpedinfo[value.name]
         null
 
 # 開始前のやつだ!!!!!!!!
@@ -6897,7 +6924,8 @@ module.exports.actions=(req,res,ss)->
                     log.mode=query.mode
 
             switch log.mode
-                when "monologue"
+                when "monologue","helperwhisper"
+                    # helperwhisper:守り先が決まっていないヘルパー
                     log.to=player.id
                 when "gm"
                     log.name="ゲームマスター"
@@ -7072,6 +7100,7 @@ splashlog=(roomid,game,log)->
         # その他
         game.participants.forEach (pl)->
             p=islogOK game,pl,log
+            console.log pl.id,p
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log
     flash log
@@ -7143,29 +7172,32 @@ makejobinfo = (game,player,result={})->
     result.id=game.id
 
     if player
+        # 参加者としての（perticipantsは除く）
+        plpl=game.getPlayer player.id
         player.makejobinfo game,result
         result.dead=player.dead
         result.voteopen=false
+        result.sleeping=true
         # 投票が終了したかどうか（フォーム表示するかどうか判断）
-        if game.night || game.day==0
-            if player.dead
-                result.sleeping=player.deadJobdone game
+        if plpl?
+            # 参加者として
+            if game.night || game.day==0
+                if player.dead
+                    result.sleeping=player.deadJobdone game
+                else
+                    result.sleeping=player.jobdone game
             else
-                result.sleeping=player.jobdone game
-        else
-            # 昼
-            result.sleeping=true
-            unless player.dead || game.votingbox.isVoteFinished player
-                # 投票ボックスオープン!!!
-                result.voteopen=true
-                result.sleeping=false
-            if player.chooseJobDay game
-                # 昼でも能力発動できる人
-                result.sleeping &&= player.jobdone game
+                # 昼
+                result.sleeping=true
+                unless player.dead || game.votingbox.isVoteFinished player
+                    # 投票ボックスオープン!!!
+                    result.voteopen=true
+                    result.sleeping=false
+                if player.chooseJobDay game
+                    # 昼でも能力発動できる人
+                    result.sleeping &&= player.jobdone game
 
         #result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
-        if player.isJobType "Helper"
-            result.sleeping=true    # 投票しない
         result.jobname=player.getJobDisp()
         result.winner=player.winner
         if game.night || game.day==0

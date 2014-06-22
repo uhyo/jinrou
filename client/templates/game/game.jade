@@ -246,6 +246,10 @@
       p
         | 手玉に取る相手を選択して下さい:
         input(type="submit",value="手玉に取る",data-job="BadLady")
+    #form_Helper(hidden).jobformarea
+      p
+        | ヘルパー対象を選択して下さい:
+        input(type="submit",value="ヘルパーになる",data-job="Helper")
   form#speakform
     p
       input(size="50",name="comment",required)

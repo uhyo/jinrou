@@ -1335,6 +1335,9 @@ speakValueToStr=(game,value)->
             "観戦者へ"
         when "gmmonologue"
             "独り言"
+        when "helperwhisper"
+            # ヘルパー先がいない場合（自分への助言）
+            "助言"
         else
             if result=value.match /^gmreply_(.+)$/
                 pl=game.players.filter((x)->x.id==result[1])[0]
