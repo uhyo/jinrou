@@ -5646,7 +5646,7 @@ class Friend extends Complex    # 恋人
         }
         if game.rule.friendssplit=="split"
             # 独立
-            fr=[this,game.getPlayer(@cmplFlag)].filter((x)->x.isFriend()).map (x)->
+            fr=[this,game.getPlayer(@cmplFlag)].filter((x)->x?.isFriend()).map (x)->
                 x.publicinfo()
             if Array.isArray result.friends
                 result.friends=result.friends.concat fr
@@ -5946,7 +5946,7 @@ class PhantomStolen extends Complex
         pl=game.getPlayer @id
         pl.transProfile newpl
         pl.transferData newpl
-        pl.transform game,newpl,false
+        pl.transform game,newpl,true
         log=
             mode:"skill"
             to:@id
