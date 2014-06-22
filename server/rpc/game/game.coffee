@@ -2682,8 +2682,7 @@ class WolfDiviner extends Werewolf
             if p.team=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
-                #newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                newjob="Helper"
+                newjob=jobnames[Math.floor Math.random()*jobnames.length]
                 plobj=p.serialize()
                 plobj.type=newjob
                 newpl=Player.unserialize plobj  # 新生狂人
