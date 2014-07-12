@@ -483,17 +483,43 @@ exports.jobrules=[
           ret.Werewolf=1
           ret.Diviner=1
           ret.Guard=1
+          # 人狼
           if number>=9
             ret.Werewolf++
             count++
-            if number>=15
+            if number>=14
               ret.Werewolf++
               count++
+              if number>=24
+                ret.Werewolf++
+                count++
+          # 占い師・妖術師
+          if number>=8
+            ret.Diviner++
+            ret.Sorcerer=1
+            count+=2
+          # 霊能者
           if number>=10
-            ret.Psychic++
+            ret.Psychic=1
             count++
+          # 狂信者
+          if number>=17
+            ret.Fanatic=1
+            count++
+          # 独裁者
           if number>=12
-            ret.Fox++
+            ret.Dictator=1
+            count++
+            if number>=14
+              ret.Dictator++
+              count++
+          # 埋毒者
+          if number>=16
+            ret.Poisoner=1
+            count++
+          # 魔女
+          if number>=21
+            ret.Witch=1
             count++
           ret.Madman=number-count   #残り全部狂人
           ret
