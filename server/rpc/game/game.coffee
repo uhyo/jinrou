@@ -3576,10 +3576,10 @@ class Vampire extends Player
     isVampire:->true
     sunset:(game)->
         @setTarget null
-        if @scapegoat
+        if game.day>1 && @scapegoat
             r=Math.floor Math.random()*game.players.length
             if @job game,game.players[r].id,{}
-                @sunset game
+                @setTarget ""
     job:(game,playerid,query)->
         # 襲う先
         if @target?
@@ -4309,7 +4309,6 @@ class QuantumPlayer extends Player
     job:(game,playerid,query)->
         tarobj=JSON.parse(@target||"{}")
         pl=game.getPlayer playerid
-        console.log query.jobtype,playerid,tarobj
         unless pl?
             return "その対象は存在しません"
         if query.jobtype=="_Quantum_Diviner" && !tarobj.Diviner?
@@ -4466,7 +4465,6 @@ class RedHood extends Player
     deadsunset:(game)->
         if @flag
             w=game.getPlayer @flag
-            console.log w?.dead
             if w?.dead
                 # 殺した狼が死んだ!復活する
                 @revive game
@@ -5162,7 +5160,6 @@ class Phantom extends Player
             @setTarget null
             if @scapegoat
                 rs=@makeJobSelection game
-                console.log rs
                 if rs.length>0
                     r=Math.floor Math.random()*rs.length
                     @job game,rs[r].value
@@ -5181,7 +5178,6 @@ class Phantom extends Player
         else
             super
     job:(game,playerid)->
-        console.log "job!",playerid
         @setTarget playerid
         if playerid==""
             # 交換しない
@@ -7099,7 +7095,6 @@ splashlog=(roomid,game,log)->
         # その他
         game.participants.forEach (pl)->
             p=islogOK game,pl,log
-            console.log pl.id,p
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log
     flash log
