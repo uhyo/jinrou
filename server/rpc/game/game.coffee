@@ -5526,6 +5526,9 @@ class Complex
     
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     job:(game,playerid,query)-> # どちらの
+        # query.jobtypeがない場合は内部処理なのでmainとして処理する?
+        unless query.jobtype?
+            query.jobtype=@main.type
         if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
             @mcall game,@main.job,game,playerid,query
         else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
