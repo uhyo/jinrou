@@ -6476,15 +6476,6 @@ module.exports.actions=(req,res,ss)->
                         else if Math.random()<0.2
                             joblist.Guard++
                             frees--
-                    if frees>0 && wolf_number>=3 && Math.random()<0.1
-                        # めずらしい
-                        joblist.MadWolf++
-                        frees--
-                        # 確定狂人サービス
-                        if frees>0
-                            joblist.category_Madman ?= 0
-                            joblist.category_Madman++
-                            frees--
                 ((date)->
                     if date.getMonth()==11 && 24<=date.getDate()<=25
                         if safety.jobs
@@ -6598,6 +6589,9 @@ module.exports.actions=(req,res,ss)->
                                     # 2人いたらだめ
                                     if joblist.QueenSpectator>0 || joblist.Spy2>0 || joblist.BloodyMary>0
                                         continue
+                                    if Math.random()>0.1
+                                        # 90%の確率で弾く
+                                        continue
                                     # 女王観戦者はガードがないと不安
                                     if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
                                         unless Math.random()<0.4 && init "Guard","Human"
@@ -6610,6 +6604,10 @@ module.exports.actions=(req,res,ss)->
                                     if joblist.Spy2>0 || joblist.QueenSpectator>0
                                         continue
                                     else if Math.random()>0.1
+                                        # 90%の確率で弾く（レア）
+                                        continue
+                                when "MadWolf"
+                                    if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
                                 when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructirveMad"
