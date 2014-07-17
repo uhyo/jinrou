@@ -5709,18 +5709,18 @@ class Guarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
-        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
+        @mcall game,@main.sunrise,game
 # 黙らされた人
 class Muted extends Complex
     cmplType:"Muted"
 
     sunset:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
+        @mcall game,@main.sunset,game
         game.ss.publish.user @id,"refresh",{id:game.id}
     getSpeakChoiceDay:(game)->
         ["monologue"]   # 全員に喋ることができない
@@ -5838,18 +5838,18 @@ class TrapGuarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
-        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
+        @mcall game,@main.sunrise,game
 # 黙らされた人
 class Lycanized extends Complex
     cmplType:"Lycanized"
     fortuneResult:"人狼"
     sunset:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
+        @mcall game,@main.sunset,game
 # カウンセラーによって更生させられた人
 class Counseled extends Complex
     cmplType:"Counseled"
@@ -5873,9 +5873,9 @@ class MikoProtected extends Complex
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
     sunset:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
+        @mcall game,@main.sunset,game
 # 威嚇する人狼に威嚇された
 class Threatened extends Complex
     cmplType:"Threatened"
@@ -5912,9 +5912,9 @@ class DivineObstructed extends Complex
     cmplType:"DivineObstructed"
     sunrise:(game)->
         # 一日しか守られない
-        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
+        @mcall game,@main.sunrise,game
     # 占いの影響なし
     divineeffect:(game)->
     showdivineresult:(game)->
