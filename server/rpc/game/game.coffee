@@ -6270,7 +6270,7 @@ module.exports.actions=(req,res,ss)->
                 frees++
             playersnumber=frees
             # 人数の確認
-            if frees<4
+            if frees<6
                 res "人数が少なすぎるので開始できません"
                 return
             if query.jobrule=="特殊ルール.量子人狼" && frees>=20
