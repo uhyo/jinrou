@@ -39,9 +39,14 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 
 # 期間限定役職
 ((date)->
-    if date.getMonth()==11 && date.getDate()>=24
+    month=date.getMonth()
+    d=date.getDate()
+    if month==11 && d>=24
         # 12/24〜12/31
         exports.jobs.push "SantaClaus"
+    if month==6 && d>=26 || month==7 && d<=16
+        # 7/26〜8/16
+        exports.jobs.push "Pyrotechnist"
 )(new Date)
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf"]
@@ -51,7 +56,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf"]
     Fox:["Fox","TinyFox","Immoral"]
     Devil:["Devil"]
@@ -801,6 +806,9 @@ exports.jobinfo=
         DrawGirl:
             name:"看板娘"
             color:"#ffc796"
+        Pyrotechnist:
+            name:"花火師"
+            color:"#ff6a19"
         
     Werewolf:
         name:"人狼陣営"
@@ -1667,6 +1675,10 @@ exports.jobinfos=[
         prefix:"あなたのプレイヤー番号は"
         suffix:"番です"
         type:"raw"
+    }
+    {
+        name:"watchingfireworks",
+        type:"hidden"
     }
 ]
 

@@ -1057,11 +1057,11 @@ exports.start=(roomid)->
                 span.classList.add log.size
             
             wrdv=document.createElement "div"
-            wrdv.textContent=log.comment
+            wrdv.textContent=log.comment ? ""
             # 改行の処理
             spp=wrdv.firstChild # Text
             wr=0
-            while (wr=spp.nodeValue.indexOf("\n"))>=0
+            while spp? && (wr=spp.nodeValue.indexOf("\n"))>=0
                 spp=spp.splitText wr+1
                 wrdv.insertBefore document.createElement("br"),spp
             

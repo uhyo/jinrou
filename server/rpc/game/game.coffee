@@ -823,6 +823,8 @@ class Game
                 else
                     player.deadsunset this
         else
+            # 誤爆防止
+            @werewolf_target_remain=0
             # 処理
             if @rule.deathnote
                 # デスノート採用
@@ -2218,7 +2220,7 @@ class Werewolf extends Player
     team: "Werewolf"
     makejobinfo:(game,result)->
         super
-        if game.werewolf_target_remain>0
+        if game.night && game.werewolf_target_remain>0
             # まだ襲える
             result.open.push "_Werewolf"
         # 人狼は仲間が分かる
@@ -5361,6 +5363,47 @@ class CautiousWolf extends Werewolf
         splashlog game.id,game,log
         game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
+# 花火師
+class Pyrotechnist extends Player
+    type:"Pyrotechnist"
+    jobname:"花火師"
+    sleeping:->true
+    jobdone:(game)->@flag? || game.night
+    chooseJobDay:(game)->true
+    job:(game,playerid,query)->
+        if @flag?
+            return "もう能力を発動できません"
+        if game.night
+            return "夜には発動できません"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は花火を打ち上げる準備をしています。"
+        splashlog game.id,game,log
+        # 使用済
+        @setFlag "using"
+        # 全員花火の虜にしてしまう
+        for pl in game.players
+            newpl=Player.factory null,pl,null,WatchingFireworks
+            pl.transProfile newpl
+            newpl.cmplFlag=@id
+            pl.transform game,newpl,true
+        null
+    sunset:(game)->
+        if @flag=="using"
+            log=
+                mode:"system"
+                comment:"きれいな花火が打ち上がりました。今夜は能力を使用できません。"
+            splashlog game.id,game,log
+            @setFlag "done"
+    deadsunset:(game)->
+        @sunset game
+    checkJobValidity:(game,query)->
+        if query.jobtype=="Pyrotechnist"
+            # 対象選択は不要
+            return true
+        return super
+
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -5995,6 +6038,21 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
             result.friends=result.friends.concat fr
         else
             result.friends=fr
+# 花火を見ている
+class WatchingFireworks extends Complex
+    # cmplFlag: 花火師のid
+    cmplType:"WatchingFireworks"
+    sleeping:->true
+    jobdone:->true
+
+    sunrise:(game)->
+        @sub?.sunrise? game
+        # もう終了
+        @uncomplex game
+        @mcall game,@main.sunrise,game
+    makejobinfo:(game,result)->
+        super
+        result.watchingfireworks=true
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -6103,6 +6161,7 @@ jobs=
     BadLady:BadLady
     DrawGirl:DrawGirl
     CautiousWolf:CautiousWolf
+    Pyrotechnist:Pyrotechnist
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -6128,6 +6187,7 @@ complexes=
     DivineObstructed:DivineObstructed
     PhantomStolen:PhantomStolen
     KeepedLover:KeepedLover
+    WatchingFireworks:WatchingFireworks
 
     # 役職ごとの強さ
 jobStrength=
@@ -6477,7 +6537,9 @@ module.exports.actions=(req,res,ss)->
                             joblist.Guard++
                             frees--
                 ((date)->
-                    if date.getMonth()==11 && 24<=date.getDate()<=25
+                    month=date.getMonth()
+                    d=date.getDate()
+                    if month==11 && 24<=d<=25
                         if safety.jobs
                             # 12/24〜12/25はサンタがよくでる
                             if Math.random()<0.5 && frees>0
@@ -6488,6 +6550,10 @@ module.exports.actions=(req,res,ss)->
                         # サンタは出にくい
                         if Math.random()<0.8
                             exceptions.push "SantaClaus"
+                    unless month==6 && 26<=d || month==7 && d<=16
+                        # 期間外は花火師は出にくい
+                        if Math.random()<0.7
+                            exceptions.push "Pyrotechnist"
 
                 )(new Date)
                 
