@@ -6554,6 +6554,12 @@ module.exports.actions=(req,res,ss)->
                         # 期間外は花火師は出にくい
                         if Math.random()<0.7
                             exceptions.push "Pyrotechnist"
+                    else
+                        # ちょっと出やすい
+                        if Math.random()<0.11 && frees>0
+                            joblist.Pyrotechnist ?= 0
+                            joblist.Pyrotechnist++
+                            frees--
 
                 )(new Date)
                 
