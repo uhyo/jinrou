@@ -3482,6 +3482,7 @@ class Doppleganger extends Player
             return "自分を対象にできません"
         if pl.dead
             return "対象は既に死んでいます"
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
