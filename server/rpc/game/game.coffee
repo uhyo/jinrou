@@ -5590,6 +5590,12 @@ class Complex
     midnight:(game)->
         @mcall game,@main.midnight,game
         @sub?.midnight? game
+    deadsunset:(game)->
+        @mcall game,@main.deadsunset,game
+        @sub?.deadsunset? game
+    deadsunrise:(game)->
+        @mcall game,@main.deadsunrise,game
+        @sub?.deadsunrise? game
     sunrise:(game)->
         @mcall game,@main.sunrise,game
         @sub?.sunrise? game
