@@ -3788,7 +3788,7 @@ class OccultMania extends Player
     jobname:"オカルトマニア"
     sleeping:(game)->@target? || game.day<2
     sunset:(game)->
-        @setTarget (if game.day==2 then null else "")
+        @setTarget (if game.day>=2 then null else "")
         if !@target? && @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
