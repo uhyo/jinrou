@@ -6353,10 +6353,10 @@ module.exports.actions=(req,res,ss)->
 
             if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]   # 自由のときはクエリを参考にする
                 for job in Shared.game.jobs
-                    joblist[job]=parseInt query[job]    # 仕事の数
+                    joblist[job]=parseInt(query[job]) || 0    # 仕事の数
                 # カテゴリも
                 for type of Shared.game.categoryNames
-                    joblist["category_#{type}"]=parseInt query["category_#{type}"]
+                    joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
                 # カテゴリ内の人数の合計がわかる関数
@@ -6367,6 +6367,12 @@ module.exports.actions=(req,res,ss)->
                 pls=frees   # プレイヤーの数をとっておく
                 plsh=Math.floor pls/2   # 過半数
         
+                if query.jobrule=="特殊ルール.一部闇鍋"
+                    # 一部闇鍋のときは村人のみ闇鍋
+                    frees=joblist.Human ? 0
+                    joblist.Human=0
+                ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
+
                 safety={
                     jingais:false   # 人外の数を調整
                     teams:false     # 陣営の数を調整
@@ -6398,15 +6404,12 @@ module.exports.actions=(req,res,ss)->
                         safety.strength=true
                         safety.reverse=true
 
+
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
                 options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
-                if query.jobrule=="特殊ルール.一部闇鍋"
-                    # 一部闇鍋のときは村人のみ闇鍋
-                    frees=joblist.Human ? 0
-                    joblist.Human=0
                 unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
                     #人外の数
                     if safety.jingais
@@ -6460,13 +6463,21 @@ module.exports.actions=(req,res,ss)->
                         if frees>=11 && Math.random()<0.2
                             devil_number++
                         # セットする
+                        if joblist.category_Werewolf>0
+                            frees+=joblist.category_Werewolf
                         joblist.category_Werewolf=wolf_number
+                        if joblist.Fox>0
+                            frees+=joblist.Fox
                         joblist.Fox=fox_number
                         if fox_number>1 && Math.random()<0.4
                             # 子狐
                             joblist.TinyFox=1
                             joblist.Fox--
+                        if joblist.Vampire>0
+                            frees+=joblist.Vampire
                         joblist.Vampire=vampire_number
+                        if joblist.Devil>0
+                            frees+=joblist.Devil
                         joblist.Devil=devil_number
                         frees-= wolf_number+fox_number+vampire_number+devil_number
                         # 人外は選んだのでもう選ばれなくする
@@ -6476,7 +6487,6 @@ module.exports.actions=(req,res,ss)->
                         joblist.category_Werewolf=1
                         frees--
                 
-                ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
                 if safety.jingais || safety.jobs
                     if joblist.Fox==0
                         exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
