@@ -6855,6 +6855,7 @@ module.exports.actions=(req,res,ss)->
                     # 陣営のみ公開
                     # 各陣営
                     teaminfos=[]
+                    console.log game.id,joblist
                     for team,obj of Shared.game.jobinfo
                         teamcount=0
                         for job,num of joblist
