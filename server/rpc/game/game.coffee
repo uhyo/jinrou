@@ -5964,11 +5964,11 @@ class Threatened extends Complex
 class DivineObstructed extends Complex
     # cmplFlag: 邪魔元ID
     cmplType:"DivineObstructed"
-    sunrise:(game)->
+    sunset:(game)->
         # 一日しか守られない
         @sub?.sunrise? game
         @uncomplex game
-        @mcall game,@main.sunrise,game
+        @mcall game,@main.sunset,game
     # 占いの影響なし
     divineeffect:(game)->
     showdivineresult:(game)->
