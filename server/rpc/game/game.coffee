@@ -5409,6 +5409,33 @@ class Pyrotechnist extends Player
             return true
         return super
 
+# パン屋
+class Baker extends Player
+    type:"Baker"
+    jobname:"パン屋"
+    sleeping:->true
+    sunrise:(game)->
+        # 最初の1人がパン屋ログを管理
+        bakers=game.players.filter (x)->x.type=="Baker"
+        firstBakery=bakers[0]
+        if firstBakery?.id==@id
+            # わ た し だ
+            if bakers.some((x)->!x.dead)
+                # 生存パン屋がいる
+                log=
+                    mode:"system"
+                    comment:"パン屋がおいしいパンを焼いてくれたそうです。"
+                splashlog game.id,game,log
+            else if @flag!="done"
+                # 全員死亡していてまたログを出していない
+                log=
+                    mode:"system"
+                    comment:"今日からはもうおいしいパンが食べられません。"
+                splashlog game.id,game,log
+                @setFlag "done"
+
+    deadsunrise:(game)->
+        @sunrise game
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -6173,6 +6200,7 @@ jobs=
     DrawGirl:DrawGirl
     CautiousWolf:CautiousWolf
     Pyrotechnist:Pyrotechnist
+    Baker:Baker
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -6285,6 +6313,8 @@ jobStrength=
     BadLady:30
     DrawGirl:10
     CautiousWolf:45
+    Pyrotechnist:20
+    Baker:16
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
