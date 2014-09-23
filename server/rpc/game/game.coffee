@@ -1323,7 +1323,7 @@ class Game
                 when "Friend"
                     if friends_count>1
                         # みんなで勝利（珍しい）
-                        ["村は渾沌に支配されました。","恋人勝利"]
+                        ["村は恋人たちに支配されました。","恋人勝利"]
                     else
                         friends=@players.filter (x)->x.isFriend()
                         if friends.length==2 && friends.some((x)->x.isJobType "Noble") && friends.some((x)->x.isJobType "Slave")
@@ -3240,7 +3240,7 @@ class ApprenticeSeer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{newpl.jobname}になりました。"
+                comment:"#{@name}は#{@jobname}から#{newpl.jobname}になりました。"
             splashlog game.id,game,log
             
             @transform game,newpl,false
