@@ -5321,7 +5321,7 @@ class DrawGirl extends Player
     type:"DrawGirl"
     jobname:"看板娘"
     sleeping:->true
-    die:(game,found)->
+    dying:(game,found)->
         if found=="werewolf"
             # 狼に噛まれた
             @setFlag "bitten"
