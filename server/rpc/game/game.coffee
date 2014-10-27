@@ -6574,7 +6574,7 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.8
                             joblist.Diviner++
                             frees--
-                        else if Math.random()<0.3
+                        else if !safety.jobs && Math.random()<0.3
                             joblist.ApprenticeSeer++
                             frees--
                 if safety.teams
