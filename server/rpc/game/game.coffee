@@ -809,15 +809,15 @@ class Game
                     comment:"狼の子の力で、今日は2人襲撃できます。"
                 splashlog @id,this,log
             
-            players=shuffle @players.concat []
             alives=[]
             deads=[]
-            for player in players
+            for player in @players
                 if player.dead
                     deads.push player.id
                 else
                     alives.push player.id
-            for player in players
+            for i in (shuffle [0...(@players.length)])
+                player=@players[i]
                 if player.id in alives
                     player.sunset this
                 else
@@ -846,7 +846,6 @@ class Game
             # 投票リセット処理
             @votingbox.init()
             @votingbox.setCandidates @players.filter (x)->!x.dead
-            players=shuffle @players.concat []
             alives=[]
             deads=[]
             for player in players
@@ -854,7 +853,8 @@ class Game
                     deads.push player.id
                 else
                     alives.push player.id
-            for player in players
+            for i in (shuffle [0...(@players.length)])
+                player=@players[i]
                 if player.id in alives
                     player.sunrise this
                 else
@@ -916,15 +916,15 @@ class Game
 
     #夜の能力を処理する
     midnight:->
-        players=shuffle @players.concat []
         alives=[]
         deads=[]
-        for player in players
+        for player in @players
             if player.dead
                 deads.push player.id
             else
                 alives.push player.id
-        for player in players
+        for i in (shuffle [0...(@players.length)])
+            player=@players[i]
             if player.id in alives
                 player.midnight this
             else
