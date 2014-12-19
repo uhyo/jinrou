@@ -3435,13 +3435,6 @@ class Sorcerer extends Diviner
     jobname:"妖術師"
     team:"Werewolf"
     sleeping:->@target?
-    sunset:(game)->
-        super
-        @setTarget null
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            @job game,game.players[r].id,{}
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
