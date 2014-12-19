@@ -2178,9 +2178,17 @@ class Werewolf extends Player
             if @scapegoat && game.players.filter((x)->!x.dead && x.isWerewolf()).length==1
                 # 自分しか人狼がいない
                 hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
-                if hus.length>0
+                while hus.length>0 && game.werewolf_target_remain>0
                     r=Math.floor Math.random()*hus.length
                     @job game,hus[r].id,{}
+                    hus.splice r,1
+                if game.werewolf_target_remain>0
+                    # 襲撃したい人全員襲撃したけどまだ襲撃できるときは重複襲撃
+                    hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
+                    while hus.length>0 && game.werewolf_target_remain>0
+                        r=Math.floor Math.random()*hus.length
+                        @job game,hus[r].id,{}
+
 
     sleeping:(game)->game.werewolf_target_remain<=0 || !game.night
     job:(game,playerid)->
