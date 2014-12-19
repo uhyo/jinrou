@@ -848,7 +848,7 @@ class Game
             @votingbox.setCandidates @players.filter (x)->!x.dead
             alives=[]
             deads=[]
-            for player in players
+            for player in @players
                 if player.dead
                     deads.push player.id
                 else
