@@ -2848,9 +2848,11 @@ class Liar extends Player
     type:"Liar"
     jobname:"嘘つき"
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
+    constructor:->
+        super
+        @results=[]
     sunset:(game)->
         @setTarget null
-        @result=null    # 占い結果
         if @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
@@ -2873,18 +2875,17 @@ class Liar extends Player
         null
     sunrise:(game)->
         super
-        return unless @result?
+        return if !@results? || @results.length==0
         log=
             mode:"skill"
             to:@id
-            comment:"あんまり自信ないけど、霊能占いの結果、#{@result.player.name}は#{@result.result}だと思う。たぶん。"
+            comment:"あんまり自信ないけど、霊能占いの結果、#{@results[@results.length-1].player.name}は#{@results[@results.length-1].result}だと思う。たぶん。"
         splashlog game.id,game,log
     midnight:(game)->
-        super
         p=game.getPlayer @target
         if p?
             @addGamelog game,"liardivine",null,p.id
-            @result=
+            @results.push {
                 player: p.publicinfo()
                 result: if Math.random()<0.3
                     # 成功
@@ -2898,6 +2899,7 @@ class Liar extends Player
                             "村人"
                         else
                             p.fortuneResult
+            }
     isWinner:(game,team)->team==@team && !@dead # 村人勝利で生存
 class Spy2 extends Player
     type:"Spy2"
