@@ -5419,7 +5419,7 @@ class Baker extends Player
     sleeping:->true
     sunrise:(game)->
         # 最初の1人がパン屋ログを管理
-        bakers=game.players.filter (x)->x.type=="Baker"
+        bakers=game.players.filter (x)->x.isJobType "Baker"
         firstBakery=bakers[0]
         if firstBakery?.id==@id
             # わ た し だ
