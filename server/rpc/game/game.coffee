@@ -5425,6 +5425,8 @@ class Baker extends Player
             # わ た し だ
             if bakers.some((x)->!x.dead)
                 # 生存パン屋がいる
+                if @flag=="done"
+                    @setFlag null
                 log=
                     mode:"system"
                     comment:"パン屋がおいしいパンを焼いてくれたそうです。"
