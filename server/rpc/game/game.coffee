@@ -6696,12 +6696,11 @@ module.exports.actions=(req,res,ss)->
                     month=date.getMonth()
                     d=date.getDate()
                     if month==11 && 24<=d<=25
-                        if safety.jobs
-                            # 12/24〜12/25はサンタがよくでる
-                            if Math.random()<0.5 && frees>0
-                                joblist.SantaClaus ?= 0
-                                joblist.SantaClaus++
-                                frees--
+                        # 12/24〜12/25はサンタがよくでる
+                        if Math.random()<0.5 && frees>0
+                            joblist.SantaClaus ?= 0
+                            joblist.SantaClaus++
+                            frees--
                     else
                         # サンタは出にくい
                         if Math.random()<0.8
