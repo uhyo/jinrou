@@ -6172,11 +6172,14 @@ class BombTrapped extends Complex
             # 処刑された場合は処刑者の中から選んでしぬ
             # punishのときはfromがidの配列
             if from? && from.length>0
-                r=Math.floor Math.random()*from.length
-                pl=game.getPlayer from[r]
-                if pl?
-                    pl.die game,"trap"
-                    @addGamelog game,"bombkill",null,pl.id
+                pls=from.map (id)->game.getPlayer id
+                pls=pls.filter (x)->!x.dead
+                if pls.length>0
+                    r=Math.floor Math.random()*pls.length
+                    pl=pls[r]
+                    if pl?
+                        pl.die game,"trap"
+                        @addGamelog game,"bombkill",null,pl.id
         else if found in ["werewolf","vampire"]
             # 狼に噛まれた場合は襲撃者を巻き添えにする
             bomber=game.getPlayer @cmplFlag
@@ -6188,7 +6191,7 @@ class BombTrapped extends Complex
                 wl.die game,"trap"
                 @addGamelog game,"bombkill",null,wl.id
         # 自分もちゃんと死ぬ
-        @mcall game,@main.die,game,found
+        @mcall game,@main.die,game,found,from
 
 # 決定者
 class Decider extends Complex
