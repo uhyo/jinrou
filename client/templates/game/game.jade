@@ -254,6 +254,10 @@
       p
         | ヘルパー対象を選択して下さい:
         input(type="submit",value="ヘルパーになる",data-job="Helper")
+    #form_Bomber(hidden).jobformarea
+      p
+        | 爆弾を仕掛ける相手を選んで下さい（非強制）:
+        input(type="submit",value="送る",data-job="Bomber")
   form#speakform
     p
       input(size="50",name="comment",required)

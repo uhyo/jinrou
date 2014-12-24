@@ -1086,7 +1086,9 @@ class Game
         else if mode=="punish"
             # 投票
             # 結果が出た 死んだ!
-            player.die this,"punish"
+            # だれが投票したか調べる
+            follower=table.filter((obj)-> obj.voteto==player.id).map (obj)->obj.id
+            player.die this,"punish",follower
             
             if player.dead && @rule.GMpsychic=="on"
                 # GM霊能
@@ -1931,7 +1933,7 @@ class Player
     #勝利かどうか team:勝利陣営名
     isWinner:(game,team)->
         team==@team # 自分の陣営かどうか
-    # 殺されたとき(found:死因))
+    # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
         pl=game.getPlayer @id
@@ -4120,7 +4122,7 @@ class Dictator extends Player
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
-        pl.die game,"punish"
+        pl.die game,"punish",[this]
         # 強制的に次のターンへ
         game.nextturn()
         null
@@ -5441,6 +5443,30 @@ class Baker extends Player
 
     deadsunrise:(game)->
         @sunrise game
+class Bomber extends Madman
+    type:"Bomber"
+    jobname:"爆弾魔"
+    sleeping:->true
+    jobdone:->@flag?
+    job:(game,playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です。"
+        pl.touched game,@id
+        @setTarget playerid
+        @setFlag true
+        # 爆弾を仕掛ける
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}に爆弾を仕掛けました。"
+        splashlog game.id,game,log
+
+        newpl=Player.factory null,pl,null,BombTrapped
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 護衛元cmplFlag
+        pl.transform game,newpl,true
+        null
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -6096,6 +6122,74 @@ class WatchingFireworks extends Complex
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
+# 爆弾魔に爆弾を仕掛けられた人
+class BombTrapped extends Complex
+    # cmplFlag: 護衛元ID
+    cmplType:"BombTrapped"
+    midnight:(game)->
+        @mcall game,@main.midnight,game
+        @sub?.midnight? game
+        # 狩人とかぶったら狩人が死んでしまう!!!!!
+        # midnight: 狼の襲撃よりも前に行われることが保証されている処理
+        wholepl=game.getPlayer @id  # 一番表から見る
+        result=@checkGuard game,wholepl
+        if result
+            # 狩人がいた!（罠も無効）
+            @uncomplex game
+    # midnight処理用
+    checkGuard:(game,pl)->
+        return false unless pl.isComplex()
+        # Complexの場合:mainとsubを確かめる
+        unless pl.cmplType=="Guarded"
+            # 見つからない
+            result=false
+            result ||= @checkGuard game,pl.main
+            if pl.sub?
+                # 枝を切る
+                result ||=@checkGuard game,pl.sub
+            return result
+        else
+            # あった!
+            # cmplFlag: 護衛元の狩人
+            gu=game.getPlayer pl.cmplFlag
+            if gu?
+                tr = game.getPlayer @cmplFlag   #爆弾魔
+                if tr?
+                    tr.addGamelog game,"bombTrappedGuard",null,@id
+                # 護衛元が死ぬ
+                gu.die game,"trap"
+                # 自分も死ぬ
+                @die game,"trap"
+
+
+            pl.uncomplex game   # 罠は消滅
+            # 子の調査を継続
+            @checkGuard game,pl.main
+            return true
+
+    die:(game,found,from)->
+        if found=="punish"
+            # 処刑された場合は処刑者の中から選んでしぬ
+            # punishのときはfromがidの配列
+            if from? && from.length>0
+                r=Math.floor Math.random()*from.length
+                pl=game.getPlayer from[r]
+                if pl?
+                    pl.die game,"trap"
+                    @addGamelog game,"bombkill",null,pl.id
+        else if found in ["werewolf","vampire"]
+            # 狼に噛まれた場合は襲撃者を巻き添えにする
+            bomber=game.getPlayer @cmplFlag
+            if bomber?
+                bomber.addGamelog game,"bompGJ",null,@id
+            # 反撃する
+            wl=game.getPlayer from
+            if wl?
+                wl.die game,"trap"
+                @addGamelog game,"bombkill",null,wl.id
+        # 自分もちゃんと死ぬ
+        @mcall game,@main.die,game,found
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -6206,6 +6300,7 @@ jobs=
     CautiousWolf:CautiousWolf
     Pyrotechnist:Pyrotechnist
     Baker:Baker
+    Bomber:Bomber
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -6232,6 +6327,7 @@ complexes=
     PhantomStolen:PhantomStolen
     KeepedLover:KeepedLover
     WatchingFireworks:WatchingFireworks
+    BombTrapped:BombTrapped
 
     # 役職ごとの強さ
 jobStrength=
@@ -6320,6 +6416,7 @@ jobStrength=
     CautiousWolf:45
     Pyrotechnist:20
     Baker:16
+    Bomber:23
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
@@ -6615,6 +6712,12 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.11 && frees>0
                             joblist.Pyrotechnist ?= 0
                             joblist.Pyrotechnist++
+                            frees--
+                    if month==11 && 24<=d<=25 || month==1 && d==14
+                        # 爆弾魔がでやすい
+                        if Math.random()<0.5 && frees>0
+                            joblist.Bomber ?= 0
+                            joblist.Bomber++
                             frees--
 
                 )(new Date)

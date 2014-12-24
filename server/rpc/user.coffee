@@ -15,8 +15,8 @@ login= (query,req,cb,ss)->
     auth.authenticate query,(response)=>
         if response.success
             req.session.setUserId response.userid
-            console.log "login."
-            console.log req
+            #console.log "login."
+            #console.log req
             response.ip=req.clientIp
             req.session.user=response
             #req.session.room=null  # 今入っている部屋
