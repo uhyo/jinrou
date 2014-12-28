@@ -428,7 +428,7 @@ exports.jobrules=[
         }
         {
           name:"女王村"
-          title:"女王観戦者のいる村。推奨人数:14〜16人。"
+          title:"女王感戦者のいる村。推奨人数:14〜16人。"
           minNumber:10
           suggestedOption:
             scapegoat:"no"
@@ -709,7 +709,7 @@ exports.jobinfo=
             name:"商人"
             color:"#e06781"
         QueenSpectator:
-            name:"女王観戦者"
+            name:"女王感戦者"
             color:"#faeebe"
         Liar:
             name:"嘘つき"
@@ -1642,7 +1642,7 @@ exports.jobinfos=[
     }
     {
         name:"queens"
-        prefix:"女王観戦者は"
+        prefix:"女王感戦者は"
         type:"pubinfo-array"
     }
     {
