@@ -5174,7 +5174,9 @@ class Phantom extends Player
                 rs=@makeJobSelection game
                 if rs.length>0
                     r=Math.floor Math.random()*rs.length
-                    @job game,rs[r].value
+                    @job game,rs[r].value,{
+                        jobtype:@type
+                    }
     makeJobSelection:(game)->
         if game.night
             res=[{
@@ -5633,6 +5635,9 @@ class Complex
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     job:(game,playerid,query)-> # どちらの
         # query.jobtypeがない場合は内部処理なのでmainとして処理する?
+
+        unless query?
+            query={}
         unless query.jobtype?
             query.jobtype=@main.type
         if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
