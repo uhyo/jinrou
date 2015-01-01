@@ -6726,6 +6726,12 @@ module.exports.actions=(req,res,ss)->
                             joblist.Bomber ?= 0
                             joblist.Bomber++
                             frees--
+                    if month==0 && d<=3
+                        # 正月は巫女がでやすい
+                        if Math.random()<0.5 && frees>0
+                            joblist.Miko ?= 0
+                            joblist.Miko++
+                            frees--
 
                 )(new Date)
                 
