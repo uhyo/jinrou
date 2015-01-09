@@ -1896,7 +1896,7 @@ class Player
             r=Math.floor Math.random()*alives.length    # 投票先
             return unless alives[r]?
             #@voteto=alives[r].id
-            game.votingbox.vote this,alives[r].id
+            @dovote game,alives[r].id
         
     # 夜のはじまり（死体処理よりも前）
     sunset:(game)->
