@@ -2112,13 +2112,14 @@ class Player
         else
             # 中心のみ変える
             pa=game.getPlayer @id
+            orig_originalJobname=pa.originalJobname
             chain=[pa]
             while pa.main.isComplex()
                 pa=pa.main
                 chain.push pa
             # pa.mainはComplexではない
             toppl=Player.reconstruct chain,newpl
-            toppl.setOriginalJobname "#{toppl.originalJobname}→#{toppl.getJobname()}"
+            toppl.setOriginalJobname "#{orig_originalJobname}→#{toppl.getJobname()}"
             # 親なんていない
             game.players.forEach (x,i)=>
                 if x.id==@id
