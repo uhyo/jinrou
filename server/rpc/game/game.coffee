@@ -2178,7 +2178,7 @@ class Werewolf extends Player
     sunset:(game)->
         @setTarget null
         unless game.day==1 && game.rule.scapegoat!="off"
-            if @scapegoat && game.players.filter((x)->!x.dead && x.isWerewolf()).length==1
+            if @scapegoat && @isAttacker() && game.players.filter((x)->!x.dead && x.isWerewolf() && x.isAttacker()).length==1
                 # 自分しか人狼がいない
                 hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
                 while hus.length>0 && game.werewolf_target_remain>0
@@ -2218,6 +2218,8 @@ class Werewolf extends Player
         null
                 
     isWerewolf:->true
+    # おおかみ専用メソッド：襲撃できるか
+    isAttacker:->!@dead
     
     isListener:(game,log)->
         if log.mode in ["werewolf","wolfskill"]
@@ -4672,23 +4674,33 @@ class SolitudeWolf extends Werewolf
     jobname:"孤独な狼"
     sleeping:(game)-> !@flag || super
     isListener:(game,log)->
-        if log.mode in ["werewolf","wolfskill"]
-            # 狼の声は聞こえない
+        if (log.mode in ["werewolf","wolfskill"]) && (log.to != @id)
+            # 狼の声は聞こえない（自分のスキルは除く）
             false
         else super
     job:(game,playerid,query)->
         if !@flag
             return "まだ襲えません"
         super
+    isAttacker:->!@dead && @flag
     sunset:(game)->
         wolves=game.players.filter (x)->x.isWerewolf()
-        if !@flag && wolves.every((x)->x.dead || x.isJobType("SolitudeWolf") && !x.flag)
+        attackers=wolves.filter (x)->!x.dead && x.isAttacker()
+        if !@flag && attackers.length==0
             # 襲えるやつ誰もいない
             @setFlag true
             log=
                 mode:"skill"
                 to:@id
                 comment:"#{@name}は襲撃できるようになりました。"
+            splashlog game.id,game,log
+        else if @flag && attackers.length>1
+            # 複数いるのでやめる
+            @setFlag false
+            log=
+                mode:"skill"
+                to:@id
+                comment:"他にも人狼がいるようです。#{@name}は襲撃できなくなりました。"
             splashlog game.id,game,log
         super
     getSpeakChoice:(game)->
