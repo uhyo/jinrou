@@ -46,23 +46,44 @@ module.exports=
                     pr+=x.value
             if pr
                 name="#{Server.prize.prizeQuote pr}#{name}"
-        log=
-            comment:"#{name}さんが訪れました。"
-            userid:-1
-            name:null
-            mode:"system"
-        if games[room.id]
-            splashlog room.id,games[room.id], log
-            # プレイヤーを追加
-            newpl=Player.factory "Waiting"
-            newpl.setProfile {
-                id:player.userid
-                realid:player.realid
-                name:player.name
-            }
-            newpl.setTarget null
-            games[room.id].players.push newpl
-            games[room.id].participants.push newpl
+        if room.mode=="waiting"
+            # 開始前（ふつう）
+            log=
+                comment:"#{name}さんが訪れました。"
+                userid:-1
+                name:null
+                mode:"system"
+            if games[room.id]
+                splashlog room.id,games[room.id], log
+                # プレイヤーを追加
+                newpl=Player.factory "Waiting"
+                newpl.setProfile {
+                    id:player.userid
+                    realid:player.realid
+                    name:player.name
+                }
+                newpl.setTarget null
+                games[room.id].players.push newpl
+                games[room.id].participants.push newpl
+        else if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
+            # エンドレス闇鍋に途中参加
+            if games[room.id]
+                game=games[room.id]
+                log=
+                    comment:"#{name}さんが参加しようとしています。"
+                    mode:"inlog"
+                    to:player.userid
+                splashlog room.id,game,log
+                # プレイヤーを追加（まだ参加しない系のひと）
+                newpl=Player.factory "Watching"
+                newpl.setProfile {
+                    id:player.userid
+                    realid:player.realid
+                    name:player.name
+                }
+                newpl.setTarget null
+                # playersには追加しない（翌朝追加）
+                games[room.id].participants.push newpl
     outlog:(room,player)->
         log=
             comment:"#{player.name}さんが去りました。"
@@ -842,7 +863,70 @@ class Game
                             @players[i]=newpl
                         else
                             x
-                
+            # エンドレス闇鍋用途中参加処理
+            if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
+                pcs=@participants.concat []
+                for player in pcs
+                    if player.isJobType "Watching"
+                        # 参加待機のひとだ
+                        if !@players.some((p)->p.id==player.id)
+                            # 本参加ではないのでOK
+                            # 役職をランダムに決定
+                            jobnames=Object.keys jobs
+                            newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                            newpl=Player.factory newjob
+                            player.transProfile newpl
+                            player.transferData newpl
+                            # 観戦者を除去
+                            @participants=@participants.filter (x)->x!=player
+                            # プレイヤーとして追加
+                            @players.push newpl
+                            @participants.push newpl
+                            # ログをだす
+                            log=
+                                mode:"system"
+                                comment:"#{newpl.name}さんが参加しました。"
+                            splashlog @id,@,log
+                # たまに転生
+                deads=@players.filter (x)->x.dead && !x.scapegoat
+                if Math.random()<0.6 && deads.length>0
+                    # とりあえずひとり転生
+                    r=Math.floor Math.random()*deads.length
+                    pl=deads[r]
+                    # 役職決定・新オブジェクト
+                    jobnames=Object.keys jobs
+                    newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                    newpl=Player.factory newjob
+                    pl.transProfile newpl
+                    pl.transferData newpl
+                    # 蘇生
+                    newpl.setDead false
+                    pl.transform @,newpl,true
+                    log=
+                        mode:"system"
+                        comment:"#{pl.name}は転生しました。"
+                    splashlog @id,@,log
+                    @ss.publish.user newpl.id,"refresh",{id:@id}
+                deads=@players.filter (x)->x.dead
+                # さらに死者全員に対して転生判定
+                for pl in deads
+                    if Math.random()<0.1
+                        jobnames=Object.keys jobs
+                        newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                        newpl=Player.factory newjob
+                        pl.transProfile newpl
+                        pl.transferData newpl
+                        # 蘇生
+                        newpl.setDead false
+                        pl.transform @,newpl,true
+                        log=
+                            mode:"system"
+                            comment:"#{pl.name}は転生しました。"
+                        splashlog @id,@,log
+                        @ss.publish.user newpl.id,"refresh",{id:@id}
+                        deads.splice r,1
+
+
             # 投票リセット処理
             @votingbox.init()
             @votingbox.setCandidates @players.filter (x)->!x.dead
@@ -5611,6 +5695,20 @@ class Waiting extends Player
                 comment:"#{@name}は希望役職をおまかせにしました。"
         splashlog game.id,game,log
         null
+# エンドレス闇鍋でまだ入ってないやつ
+class Watching extends Player
+    type:"Watching"
+    jobname:"観戦者"
+    team:""
+    sleeping:(game)->true
+    isWinner:(game,team)->true
+    isListener:(game,log)->
+       if log.mode in ["audience","inlog"]
+           # 参加前なので
+           true
+       else super
+    getSpeakChoice:(game)->
+        return ["prepare"]
 
             
 
@@ -6327,6 +6425,7 @@ jobs=
     Helper:Helper
     # 開始前
     Waiting:Waiting
+    Watching:Watching
     
 complexes=
     Complex:Complex
@@ -6511,7 +6610,7 @@ module.exports.actions=(req,res,ss)->
                 for type of Shared.game.categoryNames
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
                 # カテゴリ内の人数の合計がわかる関数
                 countCategory=(categoryname)->
                     Shared.game.categories[categoryname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["category_#{categoryname}"]
@@ -6559,7 +6658,7 @@ module.exports.actions=(req,res,ss)->
 
 
                 # 闇鍋のときは入れないのがある
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting"]
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching"]
                 options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
@@ -7072,7 +7171,12 @@ module.exports.actions=(req,res,ss)->
                 game.setplayers (result)->
                     unless result?
                         # プレイヤー初期化に成功
-                        M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                        M.rooms.update {id:roomid},{
+                            $set:{
+                                mode:"playing",
+                                jobrule:query.jobrule
+                            }
+                        }
                         game.nextturn()
                         res null
                         ss.publish.channel "room#{roomid}","refresh",{id:roomid}

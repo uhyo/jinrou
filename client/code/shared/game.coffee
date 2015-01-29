@@ -652,6 +652,8 @@ exports.getrulestr=(rule,jobs={})->
     if rule=="特殊ルール.闇鍋"
         # 闇鍋の場合
         return "闇鍋"
+    if rule=="特殊ルール.エンドレス闇鍋"
+        return "エンドレス闇鍋"
     text="#{rule.split('.').pop()} / "
 
     for job in Shared.game.jobs
@@ -964,7 +966,7 @@ exports.rules=[
     # 闇鍋関係
     {
         label:"闇鍋オプション"
-        visible:(rule,jobs)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+        visible:(rule,jobs)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
         rules:[
             {
                 name:"yaminabe_safety"

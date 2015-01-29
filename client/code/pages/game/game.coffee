@@ -147,8 +147,10 @@ exports.start=(roomid)->
                         clearInterval timerid
                         timerid=null
                 else
+                    # 昼と夜の色
                     document.body.classList.add (if game.night then "night" else "day")
                     document.body.classList.remove (if game.night then "day" else "night")
+
                 unless $("#jobform").get(0).hidden= game.finished ||  obj.sleeping || !obj.type
                     # 代入しつつの　投票フォーム必要な場合
                     $("#jobform div.jobformarea").attr "hidden","hidden"
@@ -197,6 +199,13 @@ exports.start=(roomid)->
                 if result.game?.day>=1
                     # ゲームが始まったら消す
                     $("#playersinfo").empty()
+                    #TODO: ゲームに参加ボタンが2箇所にあるぞ
+                    if result.game
+                        if !result.game.finished && result.game.rule.jobrule=="特殊ルール.エンドレス闇鍋" && !result.type?
+                            # エンドレス闇鍋に参加可能
+                            b=makebutton "ゲームに参加"
+                            $("#playersinfo").append b
+                            $(b).click joinbutton
                 getjobinfo result
                 $("#logs").empty()
                 $("#chooseviewday").empty() # 何日目だけ表示
@@ -365,70 +374,73 @@ exports.start=(roomid)->
             room.players.forEach (x)->
                 li=makeplayerbox x,room.blind
                 $("#players").append li
-            unless enter_result?.joined
-                # 未参加
-                b=makebutton "ゲームに参加"
-                $("#playersinfo").append b
-                $(b).click (je)->
-                    # 参加
-                    opt=
-                        name:""
-                        icon:null
-                    into=->
-                        ss.rpc "game.rooms.join", roomid,opt,(result)->
-                            if result?.require=="login"
-                                # ログインが必要
-                                Index.util.loginWindow ->
-                                    if Index.app.userid()
-                                        into()
-                            else if result?.error?
-                                Index.util.message "ルーム",result.error
-                            else
-                                Index.app.refresh()
-
-
-                    if room.blind
-                        # 参加者名
-                        ###
-                        Index.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
-                            if name
-                                opt.name=name
+        # 未参加の場合は参加ボタン
+        joinbutton=(je)->
+            # 参加
+            opt=
+                name:""
+                icon:null
+            into=->
+                ss.rpc "game.rooms.join", roomid,opt,(result)->
+                    if result?.require=="login"
+                        # ログインが必要
+                        Index.util.loginWindow ->
+                            if Index.app.userid()
                                 into()
-                        ###
-                        # ここ書いてないよ!
-                        Index.util.blindName null,(obj)->
-                            if obj?
-                                opt.name=obj.name
-                                opt.icon=obj.icon
-                                into()
+                    else if result?.error?
+                        Index.util.message "ルーム",result.error
                     else
+                        Index.app.refresh()
+
+
+            if room.blind
+                # 参加者名
+                ###
+                Index.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
+                    if name
+                        opt.name=name
+                        into()
+                ###
+                # ここ書いてないよ!
+                Index.util.blindName null,(obj)->
+                    if obj?
+                        opt.name=obj.name
+                        opt.icon=obj.icon
                         into()
             else
-                b=makebutton "ゲームから脱退"
+                into()
+        if (room.mode=="waiting" || room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋") && !enter_result?.joined
+            # 未参加
+            b=makebutton "ゲームに参加"
+            $("#playersinfo").append b
+            $(b).click joinbutton
+        else if room.mode=="waiting" && enter_result?.joined
+            # エンドレス闇鍋でも脱退はできない
+            b=makebutton "ゲームから脱退"
+            $("#playersinfo").append b
+            $(b).click (je)->
+                # 脱退
+                ss.rpc "game.rooms.unjoin", roomid,(result)->
+                    if result?
+                        Index.util.message "ルーム",result
+                    else
+                        Index.app.refresh()
+            if room.mode=="waiting"
+                # 開始前
+                b=makebutton "準備完了/準備中","全員が準備完了になるとゲームを開始できます。"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    # 脱退
-                    ss.rpc "game.rooms.unjoin", roomid,(result)->
+                    ss.rpc "game.rooms.ready", roomid,(result)->
                         if result?
                             Index.util.message "ルーム",result
-                        else
-                            Index.app.refresh()
-                if room.mode=="waiting"
-                    # 開始前
-                    b=makebutton "準備完了/準備中","全員が準備完了になるとゲームを開始できます。"
-                    $("#playersinfo").append b
-                    $(b).click (je)->
-                        ss.rpc "game.rooms.ready", roomid,(result)->
-                            if result?
-                                Index.util.message "ルーム",result
-                b=makebutton "ヘルパー","ヘルパーになると、ゲームに参加せずに助言役になります。"
-                # ヘルパーになる/やめるボタン
-                $(b).click (je)->
-                    Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
-                        ss.rpc "game.rooms.helper",roomid, id,(result)->
-                            if result?
-                                Index.util.message "エラー",result
-                $("#playersinfo").append b
+            b=makebutton "ヘルパー","ヘルパーになると、ゲームに参加せずに助言役になります。"
+            # ヘルパーになる/やめるボタン
+            $(b).click (je)->
+                Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+                    ss.rpc "game.rooms.helper",roomid, id,(result)->
+                        if result?
+                            Index.util.message "エラー",result
+            $("#playersinfo").append b
 
         userid=Index.app.userid()
         if room.mode=="waiting"
@@ -462,10 +474,6 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
-                                        
-
-
-            
 
 
         form=$("#gamestart").get 0
@@ -743,7 +751,6 @@ exports.start=(roomid)->
             if msg.id==roomid
                 #Index.app.refresh()
                 ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,(result)->
-                    #ss.rpc "game.rooms.oneRoom", roomid,initroom
                     ss.rpc "game.game.getlog", roomid,sentlog
                 ss.rpc "game.rooms.oneRoom", roomid,(r)->room=r
         # 投票フォームオープン
@@ -847,6 +854,11 @@ exports.start=(roomid)->
                     max:60
                 }
             }
+            {
+                name:"エンドレス闇鍋"
+                title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
+                rule:null
+            }
         ]
         
     ]),[],$("#jobruleselect").get 0
@@ -866,7 +878,7 @@ exports.start=(roomid)->
             $("#jobsfield").get(0).hidden=false
             $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             #$("#yaminabe_opt_nums").get(0).hidden=true
-        else if jobrulename=="特殊ルール.闇鍋"
+        else if jobrulename in ["特殊ルール.闇鍋","特殊ルール.エンドレス闇鍋"]
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
             #$("#yaminabe_opt_nums").get(0).hidden=false
@@ -923,6 +935,8 @@ exports.start=(roomid)->
         if jobrule=="特殊ルール.闇鍋"
             # 闇鍋の場合
             $("#jobsmonitor").text "闇鍋"
+        else if jobrule=="特殊ルール.エンドレス闇鍋"
+            $("#jobsmonitor").text "エンドレス闇鍋"
         else
             ruleobj=Shared.game.getruleobj jobrule
             if ruleobj?.minNumber>number

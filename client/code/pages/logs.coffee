@@ -44,6 +44,11 @@ exports.start=->
                 title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
                 rule:null
             }
+            {
+                name:"エンドレス闇鍋"
+                title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
+                rule:null
+            }
         ]
     ]),[],$("#rulebox").get 0
     $("#pager").click (je)->

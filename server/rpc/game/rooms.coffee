@@ -14,6 +14,7 @@ room: {
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
   gm: Booelan(trueならオーナーGM)
+  jobrule: String   //開始後はなんの配役か（エンドレス闇鍋用）
 }
 PlayerObject.start=Boolean
 PlayerObject.mode="player" / "gm" / "helper"
@@ -140,6 +141,7 @@ module.exports.actions=(req,res,ss)->
                 mode:"waiting"
                 players:[]
                 made:Date.now()
+                jobrule:null
             room.password=query.password ? null
             room.blind=query.blind
             room.comment=query.comment ? ""
@@ -193,11 +195,11 @@ module.exports.actions=(req,res,ss)->
                     # 満員
                     res error:"これ以上入れません"
                     return
-                unless room.mode=="waiting"
-                    res error:"既に参加は締めきられています"
-                    return
                 if room.gm && room.owner.userid==req.session.userId
                     res error:"ゲームマスターは参加できません"
+                    return
+                unless room.mode=="waiting" || (room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋")
+                    res error:"既に参加は締めきられています"
                     return
                 #room.players.push req.session.user
                 su=req.session.user
@@ -245,7 +247,8 @@ module.exports.actions=(req,res,ss)->
                         # 入室通知
                         delete user.ip
                         Server.game.game.inlog room,user
-                        ss.publish.channel "room#{roomid}", "join", user
+                        if room.mode=="playing"
+                            ss.publish.channel "room#{roomid}", "join", user
     # 部屋から出る
     unjoin: (roomid)->
         unless req.session.userId
