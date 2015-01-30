@@ -5708,7 +5708,7 @@ class Watching extends Player
            true
        else super
     getSpeakChoice:(game)->
-        return ["prepare"]
+        return ["audience"]
 
             
 
