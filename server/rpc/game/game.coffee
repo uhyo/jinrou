@@ -865,6 +865,8 @@ class Game
                             x
             # エンドレス闇鍋用途中参加処理
             if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching"]
+                jobnames=Object.keys(jobs).filter (name)->!(name in exceptions)
                 pcs=@participants.concat []
                 join_count=0
                 for player in pcs
@@ -873,7 +875,6 @@ class Game
                         if !@players.some((p)->p.id==player.id)
                             # 本参加ではないのでOK
                             # 役職をランダムに決定
-                            jobnames=Object.keys jobs
                             newjob=jobnames[Math.floor Math.random()*jobnames.length]
                             newpl=Player.factory newjob
                             player.transProfile newpl
@@ -891,8 +892,6 @@ class Game
                             join_count++
                 # たまに転生
                 deads=shuffle @players.filter (x)->x.dead && !x.norevive
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching"]
-                jobnames=Object.keys(jobs).filter (name)->!(name in exceptions)
                 # 転生確率
                 # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
                 # 1ターンに2人しぬとしてp(n+2)=2とおくとp=2/(n+2) 。
@@ -917,7 +916,6 @@ class Game
                             comment:"#{pl.name}は転生しました。"
                         splashlog @id,@,log
                         @ss.publish.user newpl.id,"refresh",{id:@id}
-                        deads.splice r,1
 
 
             # 投票リセット処理
