@@ -859,7 +859,7 @@ exports.start=(roomid)->
                 title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
                 rule:null
                 suggestedOption:{
-                    heavenview:"なし"
+                    heavenview:""
                 }
             }
         ]
