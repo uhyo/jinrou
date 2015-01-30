@@ -168,6 +168,7 @@ exports.start=(roomid)->
                     formplayers game.players
                     unless this_rule?
                         $("#speakform").get(0).elements["rulebutton"].disabled=false
+                        $("#speakform").get(0).elements["norevivebutton"].disabled=false
                     this_rule=
                         jobscount:game.jobscount
                         rule:game.rule
@@ -690,6 +691,17 @@ exports.start=(roomid)->
                 # 送信ボタン
                 bt.form.elements["commandname"].value=bt.name   # コマンド名教えてあげる
                 bt.form.elements["jobtype"].value=bt.dataset.job    # 役職名も教えてあげる
+        # 蘇生辞退ボタン
+        $("#speakform").get(0).elements["norevivebutton"].addEventListener "click",(e)->
+            Index.util.ask "蘇生辞退","一度蘇生辞退をすると解除することができません。よろしいですか？",(result)->
+                if result
+                    ss.rpc "game.game.norevive", roomid, (result)->
+                        if result?
+                            # エラー
+                            Index.util.message "エラー",result
+                        else
+                            Index.util.message "蘇生辞退","蘇生を辞退しました。"
+        ,false
         #========================================
             
         # 誰かが参加した!!!!
@@ -1308,6 +1320,12 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
             df.appendChild p
     if obj.dead
         df.classList.add "dead"
+        if !obj.winner? && obj.norevive==true
+            # 蘇生辞退
+            p=document.createElement "p"
+            p.classList.add "job"
+            p.textContent="[蘇生辞退]"
+            df.appendChild p
     if obj.mode=="gm"
         # GM
         p=document.createElement "p"

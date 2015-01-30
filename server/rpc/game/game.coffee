@@ -1486,6 +1486,7 @@ class Game
                         @players.forEach (x)=>
                             return if x.dead || x.sleeping(@)
                             x.die this,"gone-night" # 突然死
+                            x.setNorevive true
                             # 突然死記録
                             M.users.update {userid:x.realid},{$push:{gone:@id}}
                         @bury("other")
@@ -1526,6 +1527,7 @@ class Game
                         @players.forEach (x)=>
                             return if x.dead || x.voted(this,@votingbox)
                             x.die this,"gone-day"
+                            x.setNorevive true
                             revoting=true
                         @bury("other")
                         @judge()
@@ -1545,6 +1547,7 @@ class Game
                     @players.forEach (x)=>
                         return if x.dead || x.voted(this,@votingbox)
                         x.die this,"gone-day"
+                        x.setNorevive true
                         revoting=true
                     @bury("other")
                     @judge()
@@ -1819,6 +1822,9 @@ class Player
         # もとの役職
         @originalType=@type
         @originalJobname=@getJobname()
+        # 蘇生辞退
+        @norevive=false
+
         
     @factory:(type,main=null,sub=null,cmpl=null)->
         p=null
@@ -1856,6 +1862,7 @@ class Player
             winner:@winner
             originalType:@originalType
             originalJobname:@originalJobname
+            norevive:@norevive
         if @isComplex()
             r.type="Complex"
             r.Complex_main=@main.serialize()
@@ -1882,14 +1889,13 @@ class Player
         p.winner=obj.winner
         p.originalType=obj.originalType
         p.originalJobname=obj.originalJobname
+        p.norevive=!!obj.norevive   # backward compatibility
         if p.isComplex()
             p.cmplFlag=obj.Complex_flag
         p
     # 汎用関数: Complexを再構築する（chain:Complexの列（上から））
     @reconstruct:(chain,base)->
         for cmpl,i in chain by -1
-            console.log cmpl
-            console.log i
             newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
             ###
             for ok in Object.keys cmpl
@@ -1907,6 +1913,7 @@ class Player
             id:@id
             name:@name
             dead:@dead
+            norevive:@norevive
         }
     # プロパティセット系(Complex対応)
     setDead:(@dead,@found)->
@@ -1916,6 +1923,7 @@ class Player
     setWill:(@will)->
     setOriginalType:(@originalType)->
     setOriginalJobname:(@originalJobname)->
+    setNorevive:(@norevive)->
         
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
@@ -2032,6 +2040,9 @@ class Player
     # 行きかえる
     revive:(game)->
         # logging: ログを表示するか
+        if @norevive
+            # 蘇生しない
+            return
         @setDead false,null
         p=@getParent game
         unless p?.sub==this
@@ -2134,6 +2145,7 @@ class Player
                         game.players[index]=Player.reconstruct chain,obj.main
                     else
                         chk obj.main,index,callee,chc
+                        # TODO これはよくない
                         chk obj.sub,index,callee,chc
                 else
                     # 自分がComplexである
@@ -2141,6 +2153,7 @@ class Player
                         game.players[index]=Player.reconstruct chain,obj.main
                     else
                         chk obj.main,index,callee,chc
+                        # TODO これはよくない
                         chk obj.sub,index,callee,chc
         
         game.players.forEach (x,i)=>
@@ -5741,6 +5754,7 @@ class Complex
     setWill:(@will)->@main.setWill @will
     setOriginalType:(@originalType)->@main.setOriginalType @originalType
     setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
+    setNorevive:(@norevive)->@main.setNorevive @norevive
 
     
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
@@ -6068,7 +6082,10 @@ class TrapGuarded extends Complex
         # 一日しか守られない
         @sub?.sunrise? game
         @uncomplex game
-        @mcall game,@main.sunrise,game
+        pl=game.getPlayer @id
+        if pl?
+            #pl.sunset game
+            pl.sunrise game
 # 黙らされた人
 class Lycanized extends Complex
     cmplType:"Lycanized"
@@ -6234,7 +6251,10 @@ class WatchingFireworks extends Complex
         @sub?.sunrise? game
         # もう終了
         @uncomplex game
-        @mcall game,@main.sunrise,game
+        pl=game.getPlayer @id
+        if pl?
+            #pl.sunset game
+            pl.sunrise game
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
@@ -7437,8 +7457,25 @@ module.exports.actions=(req,res,ss)->
         if player.dead
             res "お前は既に死んでいる"
             return
-        player.will=will
+        player.setWill will
         res null
+    #蘇生辞退
+    norevive:(roomid)->
+        game=games[roomid]
+        unless game?
+            res "そのゲームは存在しません"
+            return
+        unless req.session.userId
+            res "ログインして下さい"
+            return
+        player=game.getPlayerReal req.session.userId
+        unless player?
+            res "参加していません"
+        player.setNorevive true
+        # 全員に通知
+        game.splashjobinfo()
+        res null
+
         
 
 splashlog=(roomid,game,log)->
