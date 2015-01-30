@@ -866,6 +866,7 @@ class Game
             # エンドレス闇鍋用途中参加処理
             if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
                 pcs=@participants.concat []
+                join_count=0
                 for player in pcs
                     if player.isJobType "Watching"
                         # 参加待機のひとだ
@@ -887,30 +888,21 @@ class Game
                                 mode:"system"
                                 comment:"#{newpl.name}さんが参加しました。"
                             splashlog @id,@,log
+                            join_count++
                 # たまに転生
-                deads=@players.filter (x)->x.dead && !x.scapegoat
-                if Math.random()<0.6 && deads.length>0
-                    # とりあえずひとり転生
-                    r=Math.floor Math.random()*deads.length
-                    pl=deads[r]
-                    # 役職決定・新オブジェクト
-                    jobnames=Object.keys jobs
-                    newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                    newpl=Player.factory newjob
-                    pl.transProfile newpl
-                    pl.transferData newpl
-                    # 蘇生
-                    newpl.setDead false
-                    pl.transform @,newpl,true
-                    log=
-                        mode:"system"
-                        comment:"#{pl.name}は転生しました。"
-                    splashlog @id,@,log
-                    @ss.publish.user newpl.id,"refresh",{id:@id}
-                deads=@players.filter (x)->x.dead
-                # さらに死者全員に対して転生判定
+                deads=shuffle @players.filter (x)->x.dead && !x.norevive
+                # 転生確率
+                # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
+                # 1ターンに2人しぬとしてp(n+2)=2とおくとp=2/(n+2) 。
+                # 少し減らして人数を減少に持って行く
+                p = 2/(deads.length+3)
+                # 死者全員に対して転生判定
                 for pl in deads
-                    if Math.random()<0.1
+                    if Math.random()<p
+                        # でも参加者がいたら蘇生のかわりに
+                        if join_count>0 && Math.random()>p
+                            join_count--
+                            continue
                         jobnames=Object.keys jobs
                         newjob=jobnames[Math.floor Math.random()*jobnames.length]
                         newpl=Player.factory newjob
