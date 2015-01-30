@@ -7103,7 +7103,7 @@ module.exports.actions=(req,res,ss)->
                 comment:"配役: #{ruleinfo_str}"
             splashlog game.id,game,log
             
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
                 if query.yaminabe_hidejobs==""
                     # 役職は公開される
                     jobinfos=[]
