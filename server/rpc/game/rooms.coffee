@@ -247,7 +247,7 @@ module.exports.actions=(req,res,ss)->
                         # 入室通知
                         delete user.ip
                         Server.game.game.inlog room,user
-                        if room.mode=="playing"
+                        if room.mode!="playing"
                             ss.publish.channel "room#{roomid}", "join", user
     # 部屋から出る
     unjoin: (roomid)->
