@@ -27,7 +27,6 @@ exports.init = ->
         app.showUrl t.href
         return
         
-    console.log localStorage.userid,localStorage.password
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
             if result
@@ -41,6 +40,8 @@ exports.init = ->
             showUrl decodeURIComponent p
     else
         showUrl decodeURIComponent location.pathname
+    # ユーザーCSS指定
+    cp=useColorProfile getCurrentColorProfile()
     window.addEventListener "popstate",((e)->
         # location.pathname
         showUrl location.pathname,true
@@ -197,5 +198,64 @@ exports.login=login=(uid,ups,cb)->
 exports.userid=->my_userid
 exports.setUserid=(id)->my_userid=id
 
+# カラー設定を読み込む
+exports.getCurrentColorProfile=getCurrentColorProfile=->
+    p=localStorage.colorProfile || "{}"
+    obj=null
+    try
+        obj=JSON.parse p
 
+    catch e
+        # default setting
+        obj={}
+    unless obj.day?
+        obj.day=
+            bg:"#ffd953"
+            color:"#000000"
+    unless obj.night?
+        obj.night=
+            bg:"#000044"
+            color:"#ffffff"
+    unless obj.heaven?
+        obj.heaven=
+            bg:"#fffff0"
+            color:"#000000"
+    return obj
+# 保存する
+exports.setCurrentColorProfile=(cp)->
+    localStorage.colorProfile=JSON.stringify cp
+# カラー設定反映
+exports.useColorProfile=useColorProfile=(cp)->
+    st=$("#profilesheet").get 0
+    if st?
+        sheet=st.sheet
+        # 設定されているものを利用
+        while sheet.cssRules.length>0
+            sheet.deleteRule 0
+            
+    else
+        # 新規に作る
+        st=$("<style id='profilesheet'>").appendTo(document.head).get 0
+        sheet=st.sheet
+    # ルールを定義
+    sheet.insertRule """
+body.day, #logs .day {
+    background-color: #{cp.day.bg} !important;
+    color: #{cp.day.color} !important;
+}""",0
+    sheet.insertRule """
+body.night, #logs .werewolf, #logs .monologue {
+    background-color: #{cp.night.bg} !important;
+    color: #{cp.night.color} !important;
+}""",1
+    sheet.insertRule """
+body.night a, #logs .werewolf a, #logs .monologue a{
+    color: #{cp.night.color} !important;
+}""",2
+    sheet.insertRule """
+body.heaven, #logs .heaven, #logs .prepare {
+    background-color: #{cp.heaven.bg} !important;
+    color: #{cp.heaven.color} !important;
+}""",3
+    return
 

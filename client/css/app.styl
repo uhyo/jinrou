@@ -263,7 +263,7 @@ body.heaven
       max-width 22ex
   .day
     background-color #f0e68c
-    borderud 1px dashed rgb(255,234,90)
+    //borderud 1px dashed rgb(255,234,90)
     color #000000
   .system
     background-color #cccccc
@@ -400,6 +400,39 @@ table
     background-color #dddddd
 p
   line-height 110%
+
+// color profile
+.colorprofilebox
+  display inline-block
+  position relative
+  top 0
+  left 0
+  width 50px
+  height 50px
+  margin 5px 15px
+  .backbox
+    cursor pointer
+    box-sizing border-box
+    position absolute
+    top 0
+    left 0
+    width 36px
+    height 36px
+    border 1px solid black
+  .colorbox
+    cursor pointer
+    box-sizing border-box
+    position absolute
+    top 14px
+    left 14px
+    width 36px
+    height 36px
+    border 1px solid black
+.presetbox
+  border-top 1px dashed #a0a0a0
+  margin-top 6px
+
+
 
 //manual
 section.manual

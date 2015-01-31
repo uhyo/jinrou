@@ -55,6 +55,11 @@ exports.start=(user)->
             seticon url
     ),false
     
+    $("#changeprofile").get(0).elements["colorsettingbutton"].addEventListener "click",(e)->
+        # 移動
+        app.page "user-color",null,Index.user.color,null
+    ,false
+    
     $("#morescore").submit (je)->
         je.preventDefault()
         op=je.target.elements["open"].value
