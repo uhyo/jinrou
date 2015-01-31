@@ -1928,7 +1928,7 @@ class Player
         
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
-        if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table"]
+        if log.mode in ["day","system","nextturn","prepare","monologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo"]
             # 全員に見える
             true
         else if log.mode in ["heaven","gmheaven"]
@@ -7473,6 +7473,11 @@ module.exports.actions=(req,res,ss)->
         unless player?
             res "参加していません"
         player.setNorevive true
+        log=
+            mode:"userinfo"
+            comment:"#{player.name}は蘇生を辞退しました。"
+            to:player.id
+        splashlog roomid,game,log
         # 全員に通知
         game.splashjobinfo()
         res null
