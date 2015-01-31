@@ -30,6 +30,14 @@ module.exports=
                 throw err
             games[doc.id]=Game.unserialize doc,ss
     ###
+    # 参加中のプレイヤー人数（エンドレス闇鍋用）
+    endlessPlayersNumber:(roomid)->
+        game=games[roomid]
+        if game?
+            # 蘇生辞退はカウントしない
+            return game.players.filter((x)->!x.dead || !x.norevive).length
+        else
+            return Number.NaN
     # プレイヤーが入室したぞ!
     inlog:(room,player)->
         name="#{player.name}"
@@ -82,6 +90,8 @@ module.exports=
                     name:player.name
                 }
                 newpl.setTarget null
+                # アイコン追加
+                game.iconcollection[newpl.id]=player.icon
                 # playersには追加しない（翌朝追加）
                 games[room.id].participants.push newpl
     outlog:(room,player)->

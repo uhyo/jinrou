@@ -191,16 +191,22 @@ module.exports.actions=(req,res,ss)->
                 if req.session.userId in (room.players.map (x)->x.realid)
                     res error:"すでに参加しています"
                     return
-                if room.players.length >= room.number
-                    # 満員
-                    res error:"これ以上入れません"
-                    return
                 if room.gm && room.owner.userid==req.session.userId
                     res error:"ゲームマスターは参加できません"
                     return
                 unless room.mode=="waiting" || (room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋")
                     res error:"既に参加は締めきられています"
                     return
+                if room.mode=="waiting" && room.players.length >= room.number
+                    # 満員
+                    res error:"これ以上入れません"
+                    return
+                if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
+                    # エンドレス闇鍋の場合はゲーム内人数による人数判定を行う
+                    if Server.game.game.endlessPlayersNumber(roomid) >= room.number
+                        # 満員
+                        res error:"これ以上入れません"
+                        return
                 #room.players.push req.session.user
                 su=req.session.user
                 user=
@@ -238,7 +244,6 @@ module.exports.actions=(req,res,ss)->
                     user.name=opt.name
                     user.userid=makeid()
                     user.icon= opt.icon ? null
-                        
                 M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
                     if err?
                         res error:"エラー:#{err}"

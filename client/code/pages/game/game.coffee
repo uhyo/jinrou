@@ -522,6 +522,7 @@ exports.start=(roomid)->
             # 相違がないか探す
             diff=null
             for key,value of (ruleobj.suggestedOption ? {})
+                console.log key,value,query[key], je.target.elements[key]
                 if query[key]!=value
                     diff=
                         key:key
@@ -1354,6 +1355,8 @@ speakValueToStr=(game,value)->
     switch value
         when "day","prepare"
             "全員に発言"
+        when "audience"
+            "観戦者の会話"
         when "monologue"
             "独り言"
         when "werewolf"
