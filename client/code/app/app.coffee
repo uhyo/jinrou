@@ -240,22 +240,22 @@ exports.useColorProfile=useColorProfile=(cp)->
     # ルールを定義
     sheet.insertRule """
 body.day, #logs .day {
-    background-color: #{cp.day.bg} !important;
-    color: #{cp.day.color} !important;
+    background-color: #{cp.day.bg};
+    color: #{cp.day.color};
 }""",0
     sheet.insertRule """
 body.night, #logs .werewolf, #logs .monologue {
-    background-color: #{cp.night.bg} !important;
-    color: #{cp.night.color} !important;
+    background-color: #{cp.night.bg};
+    color: #{cp.night.color};
 }""",1
     sheet.insertRule """
-body.night a, #logs .werewolf a, #logs .monologue a{
-    color: #{cp.night.color} !important;
+body.night:not(.heaven) a, #logs .werewolf a, #logs .monologue a{
+    color: #{cp.night.color};
 }""",2
     sheet.insertRule """
 body.heaven, #logs .heaven, #logs .prepare {
-    background-color: #{cp.heaven.bg} !important;
-    color: #{cp.heaven.color} !important;
+    background-color: #{cp.heaven.bg};
+    color: #{cp.heaven.color};
 }""",3
     return
 
