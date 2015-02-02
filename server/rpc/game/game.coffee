@@ -7596,8 +7596,9 @@ makejobinfo = (game,player,result={})->
                 if player.chooseJobDay game
                     # 昼でも能力発動できる人
                     result.sleeping &&= player.jobdone game
-
-        #result.sleeping=if game.night then player.jobdone(game) else game.votingbox.isVoteFinished(player)
+        else
+            # それ以外（participants）
+            result.sleeping=if game.night then player.jobdone(game) else true
         result.jobname=player.getJobDisp()
         result.winner=player.winner
         if game.night || game.day==0
