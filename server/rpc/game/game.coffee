@@ -7173,7 +7173,7 @@ module.exports.actions=(req,res,ss)->
             game.startplayers=players
             game.startsupporters=supporters
             
-            if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼"])
+            if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼","特殊ルール.エンドレス闇鍋"])
                 # 希望役職制あり
                 # とりあえず入れなくする
                 M.rooms.update {id:roomid},{$set:{mode:"playing"}}
