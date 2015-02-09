@@ -4617,7 +4617,7 @@ class Counselor extends Player
             @addGamelog game,"counselKilled",t.type,@target
             return
         if t.isVampire() && t.team=="Vampire"
-            @die game,"vampire"
+            @die game,"vampire2"
             @addGamelog game,"counselKilled",t.type,@target
             return
         if t.team!="Human"
