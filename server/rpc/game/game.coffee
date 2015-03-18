@@ -2927,7 +2927,7 @@ class Merchant extends Player
         null
 class QueenSpectator extends Player
     type:"QueenSpectator"
-    jobname:"女王感戦者"
+    jobname:"女王観戦者"
     dying:(game,found)->
         super
         # 感染
