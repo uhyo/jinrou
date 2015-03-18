@@ -2030,12 +2030,8 @@ class Player
     die:(game,found,from)->
         return if @dead
         pl=game.getPlayer @id
-        if this!=pl
-            # サブ役職では呼び出さない
-            pl.die game,found,from
-            return
-        @setDead true,found
-        @dying game,found,from
+        pl.setDead true,found
+        pl.dying game,found,from
     # 死んだとき
     dying:(game,found)->
     # 行きかえる
