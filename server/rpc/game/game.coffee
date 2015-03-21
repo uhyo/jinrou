@@ -3059,8 +3059,9 @@ class Copier extends Player
         newpl=Player.factory p.type
         @transProfile newpl
         @transferData newpl
-        newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
+        pl=game.getPlayer @id
+        pl.sunset game   # 初期化してあげる
 
         
         #game.ss.publish.user newpl.id,"refresh",{id:game.id}
