@@ -5720,6 +5720,8 @@ class Watching extends Player
        else super
     getSpeakChoice:(game)->
         return ["audience"]
+    getSpeakChoiceDay:(game)->
+        return ["audience"]
 
             
 
