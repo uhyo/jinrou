@@ -1222,11 +1222,12 @@ exports.parselognode=parselognode=(node)->
         result=document.createDocumentFragment()
         while v=node.nodeValue
             if res=v.match /^(.*?)(https?:\/\/)([^\s\/]+)(\/\S*)?/
+                res[4] ?= ""
                 if res[1]
                     # 前の部分
                     node=node.splitText res[1].length
                     parselognode node.previousSibling
-                url = res[2]+res[3]+(res[4] ? "")
+                url = res[2]+res[3]+res[4]
                 a=document.createElement "a"
                 a.href=url
 
