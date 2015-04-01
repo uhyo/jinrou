@@ -6864,6 +6864,15 @@ module.exports.actions=(req,res,ss)->
                             joblist.Miko ?= 0
                             joblist.Miko++
                             frees--
+                    if month==3 && d==1
+                        # 4月1日は嘘つきがでやすい
+                        if Math.random()<0.5
+                            while frees>0
+                                joblist.Liar ?= 0
+                                joblist.Liar++
+                                frees--
+                                if Math.random()<0.75
+                                    break
 
                 )(new Date)
                 
