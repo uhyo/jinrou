@@ -5146,13 +5146,19 @@ class PsychoKiller extends Madman
         @flag="[]"
     touched:(game,from)->
         # 殺すリストに追加する
-        fl=JSON.parse @flag || "[]"
+        fl=try
+               JSON.parse @flag || "[]"
+           catch e
+               []
         fl.push from
         @setFlag JSON.stringify fl
     sunset:(game)->
         @setFlag "[]"
     midnight:(game)->
-        fl=JSON.parse @flag || "[]"
+        fl=try
+               JSON.parse @flag || "[]"
+           catch e
+               []
         for id in fl
             pl=game.getPlayer id
             if pl? && !pl.dead
