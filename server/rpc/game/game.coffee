@@ -1027,7 +1027,7 @@ class Game
                     to:t.id
                     comment:"#{t.name}は人狼に襲われました。"
                 splashlog @id,this,log
-            if t.willDieWerewolf && !t.dead
+            if !t.dead
                 # 死んだ
                 t.die this,"werewolf",target.from
             # 逃亡者を探す
@@ -2029,6 +2029,9 @@ class Player
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
+        if found=="werewolf" && @willDieWerewolf
+            # 襲撃耐性あり
+            return
         pl=game.getPlayer @id
         pl.setDead true,found
         pl.dying game,found,from
