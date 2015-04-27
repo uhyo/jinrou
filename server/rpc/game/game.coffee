@@ -2029,7 +2029,7 @@ class Player
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
-        if found=="werewolf" && @willDieWerewolf
+        if found=="werewolf" && !@willDieWerewolf
             # 襲撃耐性あり
             return
         pl=game.getPlayer @id
