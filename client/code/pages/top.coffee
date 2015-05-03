@@ -19,6 +19,7 @@ exports.start=->
             password: form.elements["password"].value
         ss.rpc "user.newentry", q,(result)->
             if result?.login
+                Index.app.setUserid q.userid
                 Index.app.showUrl "/my"
             else if result?.error?
                 $("#newentryerror").text result.error
