@@ -2802,6 +2802,7 @@ class WolfDiviner extends Werewolf
                 plobj=p.serialize()
                 plobj.type=newjob
                 newpl=Player.unserialize plobj  # 新生狂人
+                newpl.setFlag null
                 p.transferData newpl
                 p.transform game,newpl,false
                 log=
