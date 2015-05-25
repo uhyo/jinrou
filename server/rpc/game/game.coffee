@@ -203,7 +203,7 @@ class Game
         
         @werewolf_target=[] # 人狼の襲い先
         @werewolf_target_remain=0   #襲撃先をあと何人設定できるか
-        @werewolf_flag=null # 人狼襲撃に関するフラグ
+        @werewolf_flag=[] # 人狼襲撃に関するフラグ
 
         @slientexpires=0    # 静かにしてろ！（この時間まで）
         @heavenview=false   # 霊界表示がどうなっているか
@@ -274,7 +274,14 @@ class Game
         game.gamelogs=obj.gamelogs ? {}
         game.gm=obj.gm
         game.iconcollection=obj.iconcollection ? {}
-        game.werewolf_flag=obj.werewolf_flag ? null
+        game.werewolf_flag=if Array.isArray obj.werewolf_flag
+            # 配列ではなく文字列/nullだった時代のあれ
+            obj.werewolf_flag
+        else if obj.werewolf_flag?
+            [obj.werewolf_flag]
+        else
+            []
+
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
         # 開始前なら準備中を用意してあげないと！
@@ -823,22 +830,25 @@ class Game
                 # 誰も襲わない
                 @werewolf_target_remain=0
             
-            if @werewolf_flag=="Diseased"
-                # 病人フラグが立っている（今日は襲撃できない
-                @werewolf_flag=null
-                @werewolf_target_remain=0
-                log=
-                    mode:"wolfskill"
-                    comment:"人狼たちは病気になりました。今日は襲撃できません。"
-                splashlog @id,this,log
-            else if @werewolf_flag=="WolfCub"
-                # 狼の子フラグが立っている（2回襲撃できる）
-                @werewolf_flag=null
-                @werewolf_target_remain=2
-                log=
-                    mode:"wolfskill"
-                    comment:"狼の子の力で、今日は2人襲撃できます。"
-                splashlog @id,this,log
+            werewolf_flag_result=[]
+            for fl in @werewolf_flag
+                if fl=="Diseased"
+                    # 病人フラグが立っている（今日は襲撃できない
+                    @werewolf_target_remain=0
+                    log=
+                        mode:"wolfskill"
+                        comment:"人狼たちは病気になりました。今日は襲撃できません。"
+                    splashlog @id,this,log
+                else if fl=="WolfCub"
+                    # 狼の子フラグが立っている（2回襲撃できる）
+                    @werewolf_target_remain=2
+                    log=
+                        mode:"wolfskill"
+                        comment:"狼の子の力で、今日は2人襲撃できます。"
+                    splashlog @id,this,log
+                else
+                    werewolf_flag_result.push fl
+            @werewolf_flag=werewolf_flag_result
             
             alives=[]
             deads=[]
@@ -1037,30 +1047,41 @@ class Game
 
             if !t.dead
                 # 死んでない
-                res = @werewolf_flag?.match? /^GreedyWolf_(.+)$/
-                if res?
-                    # 欲張り狼がやられた!
-                    gw = @getPlayer res[1]
-                    if gw?
-                        gw.die this,"werewolf2"
-                        gw.addGamelog this,"greedyKilled",t.type,t.id
-                        # 以降は襲撃できない
+                flg_flg=false  # なにかのフラグ
+                for fl in @werewolf_flag
+                    res = fl.match /^ToughWolf_(.+)$/
+                    if res?
+                        # 一途な狼がすごい
+                        tw = @getPlayer res[1]
+                        t=@getPlayer target.to
+                        if t?
+                            t.setDead true,"werewolf2"
+                            t.dying this,"werewolf2",tw.id
+                            flg_flg=true
+                            if tw?
+                                unless tw.dead
+                                    tw.die this,"werewolf2"
+                                    tw.addGamelog this,"toughwolfKilled",t.type,t.id
+                            break
+                unless flg_flg
+                    # 一途は発動しなかった
+                    for fl in @werewolf_flag
+                        res = fl.match /^GreedyWolf_(.+)$/
+                        if res?
+                            # 欲張り狼がやられた!
+                            gw = @getPlayer res[1]
+                            if gw?
+                                gw.die this,"werewolf2"
+                                gw.addGamelog this,"greedyKilled",t.type,t.id
+                                # 以降は襲撃できない
+                                flg_flg=true
+                                break
+                    if flg_flg
+                        # 欲張りのあれで襲撃終了
                         break
-                res = @werewolf_flag?.match? /^ToughWolf_(.+)$/
-                if res?
-                    # 一途な狼がすごい
-                    tw = @getPlayer res[1]
-                    t=@getPlayer target.to
-                    if t?
-                        t.setDead true,"werewolf2"
-                        t.dying this,"werewolf2",tw.id
-                        if tw?
-                            unless tw.dead
-                                tw.die this,"werewolf2"
-                                tw.addGamelog this,"toughwolfKilled",t.type,t.id
-        if /^(?:GreedyWolf|ToughWolf)_/.test @werewolf_flag
+        @werewolf_flag=@werewolf_flag.filter (fl)->
             # こいつらは1夜限り
-            @werewolf_flag=null
+            return !(/^(?:GreedyWolf_|ToughWolf)_/.test fl)
 
     # 死んだ人を処理する type: タイミング
     # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
@@ -3368,7 +3389,7 @@ class Diseased extends Player
         super
         if found=="werewolf"
             # 噛まれた場合次の日人狼襲撃できない！
-            game.werewolf_flag="Diseased"   # 病人フラグを立てる
+            game.werewolf_flag.push "Diseased"   # 病人フラグを立てる
 class Spellcaster extends Player
     type:"Spellcaster"
     jobname:"呪いをかける者"
@@ -3951,7 +3972,7 @@ class WolfCub extends Werewolf
     jobname:"狼の子"
     dying:(game,found)->
         super
-        game.werewolf_flag="WolfCub"
+        game.werewolf_flag.push "WolfCub"
 # 囁き狂人
 class WhisperingMad extends Fanatic
     type:"WhisperingMad"
@@ -4684,7 +4705,7 @@ class GreedyWolf extends Werewolf
             comment:"#{@name}は欲張りました。人狼たちはもう1人襲撃できます。"
         splashlog game.id,game,log
         game.werewolf_target_remain++
-        game.werewolf_flag="GreedyWolf_#{@id}"
+        game.werewolf_flag.push "GreedyWolf_#{@id}"
         game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
         null
     makejobinfo:(game,result)->
@@ -4822,7 +4843,7 @@ class ToughWolf extends Werewolf
         if res?
             return res
         @setFlag true
-        game.werewolf_flag="ToughWolf_#{@id}"
+        game.werewolf_flag.push "ToughWolf_#{@id}"
         tp=game.getPlayer playerid
         unless tp?
             return "その対象は存在しません"
