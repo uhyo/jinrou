@@ -6171,8 +6171,6 @@ class Threatened extends Complex
     midnight:(game)->
     job:(game,playerid,query)->
         null
-    die:(game,found,from)->
-        Human.prototype.die.call @,game,found,from
     dying:(game,found,from)->
         Human.prototype.dying.call @,game,found,from
     touched:(game,from)->
