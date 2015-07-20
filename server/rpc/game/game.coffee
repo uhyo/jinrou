@@ -1264,9 +1264,9 @@ class Game
         aliveps=@players.filter (x)->!x.dead    # 生きている人を集める
         # 数える
         alives=aliveps.length
-        humans=@players.filter((x)->!x.dead && x.isHuman()).length
-        wolves=@players.filter((x)->!x.dead && x.isWerewolf()).length
-        vampires=@players.filter((x)->!x.dead && x.isVampire()).length
+        humans=@players.filter((x)->!x.dead && !x.isFox() && x.isHuman()).length
+        wolves=@players.filter((x)->!x.dead && !x.isFox() && x.isWerewolf()).length
+        vampires=@players.filter((x)->!x.dead && !x.isFox() && x.isVampire()).length
 
         team=null
         friends_count=null
@@ -3135,7 +3135,7 @@ class Immoral extends Player
     team:"Fox"
     beforebury:(game,type)->
         # 狐が全員死んでいたら自殺
-        unless game.players.some((x)->!x.dead && x.isFox())
+        unless game.players.some((x)->!x.dead && x.type=="Fox")
             @die game,"foxsuicide"
     makejobinfo:(game,result)->
         super
