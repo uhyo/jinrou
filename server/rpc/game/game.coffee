@@ -5611,7 +5611,7 @@ class Bomber extends Madman
         @addGamelog game,"bomber_set",pl.type,playerid
         null
 
-class Blasphemy extends Immoral
+class Blasphemy extends Player
     type:"Blasphemy"
     jobname:"冒涜者"
     team:"Fox"
@@ -5633,7 +5633,9 @@ class Blasphemy extends Immoral
     beforebury:(game,type)->
         if @flag
             # まだ狐を作ってないときは耐える
-            super
+            # 狐が全員死んでいたら自殺
+            unless game.players.some((x)->!x.dead && x.isFox())
+                @die game,"foxsuicide"
     job:(game,playerid)->
         if @flag || @target?
             return "もう能力を発動できません"
@@ -6474,6 +6476,10 @@ class FoxMinion extends Complex
 # 丑刻参に呪いをかけられた
 class DivineCursed extends Complex
     cmplType:"DivineCursed"
+    sunset:(game)->
+        # 1日で消える
+        @uncomplex game
+        @mcall game,@main.sunset,game
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @die game,"curse"
