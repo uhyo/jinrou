@@ -3760,7 +3760,7 @@ class Cat extends Poisoner
         if !@target? && @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
-            unless @job game,game.players[r].id,{}
+            if @job game,game.players[r].id,{}
                 @setTarget ""
     job:(game,playerid)->
         if game.day<2
@@ -3920,7 +3920,7 @@ class OccultMania extends Player
         if !@target? && @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
-            unless @job game,game.players[r].id,{}
+            if @job game,game.players[r].id,{}
                 @setTarget ""
     job:(game,playerid)->
         if game.day<2
@@ -4052,7 +4052,7 @@ class MinionSelector extends Player
         if !@target? && @scapegoat
             # 身代わり君の自動占い
             r=Math.floor Math.random()*game.players.length
-            unless @job game,game.players[r].id,{}
+            if @job game,game.players[r].id,{}
                 @setTarget ""
     
     job:(game,playerid)->
@@ -5628,7 +5628,7 @@ class Blasphemy extends Player
                 # 身代わりくん
                 alives=game.players.filter (x)->!x.dead
                 r=Math.floor Math.random()*alives.length
-                unless @job game,alives[r].id,{}
+                if @job game,alives[r].id,{}
                     @setTarget ""
     beforebury:(game,type)->
         if @flag
@@ -5677,7 +5677,7 @@ class Ushinotokimairi extends Madman
             alives=game.players.filter (x)->!x.dead
             if alives.length>0
                 r=Math.floor Math.random()*alives.length
-                unless @job game,alives[r].id,{}
+                if @job game,alives[r].id,{}
                     @setTarget ""
             else
                 @setTarget ""
