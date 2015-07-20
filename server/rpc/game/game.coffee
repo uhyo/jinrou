@@ -6713,6 +6713,8 @@ jobStrength=
     Pyrotechnist:20
     Baker:16
     Bomber:23
+    Blasphemy:10
+    Ushinotokimairi:19
 
 module.exports.actions=(req,res,ss)->
     req.use 'session'
