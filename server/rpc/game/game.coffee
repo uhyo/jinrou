@@ -432,7 +432,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Lover"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -3140,7 +3140,7 @@ class Immoral extends Player
     makejobinfo:(game,result)->
         super
         # 妖狐が分かる
-        result.foxes=game.players.filter((x)->x.type=="Fox").map (x)->
+        result.foxes=game.players.filter((x)->x.isFox()).map (x)->
             x.publicinfo()
 class Devil extends Player
     type:"Devil"
@@ -3992,19 +3992,18 @@ class Lover extends Player
         super
         @setTarget null    # 相手
     sunset:(game)->
-        if game.day>=2
-            # 2日目以降はもう遅い
-            @setTarget ""
-        else
-            @setTarget null
+        unless @flag?
             if @scapegoat
-                # 身代わり君はかわいそうなのでやめる
+                # 身代わりくんは求愛しない
+                @setFlag true
                 @setTarget ""
-    sleeping:(game)->game.day>=2 || @target?
+            else
+                @setTarget null
+    sleeping:(game)->@flag || @target?
     job:(game,playerid,query)->
         if @target?
             return "既に対象は決定しています"
-        if game.day>=2  #もう遅い
+        if @flag
             return "もう恋の矢を放てません"
     
         pl=game.getPlayer playerid
@@ -4015,6 +4014,7 @@ class Lover extends Player
         pl.touched game,@id
 
         @setTarget playerid
+        @setFlag true
         # 恋人二人が決定した
         
     
@@ -5646,7 +5646,7 @@ class Blasphemy extends Immoral
 
         log=
             mode:"skill"
-            to:pl.id
+            to:@id
             comment:"#{@name}は#{pl.name}を冒涜しました。"
         splashlog game.id,game,log
 
@@ -5655,7 +5655,7 @@ class Blasphemy extends Immoral
     midnight:(game)->
         pl=game.getPlayer @target
         return unless pl?
-        return if t.dead
+        return if pl.dead
 
         # 狐憑きをつける
         newpl=Player.factory null,pl,null,FoxMinion
@@ -6461,12 +6461,10 @@ class BombTrapped extends Complex
 # 狐憑き
 class FoxMinion extends Complex
     cmplType:"FoxMinion"
-    team:"Fox"
     willDieWerewolf:false
     isHuman:->false
     isFox:->true
     getJobname:->"狐憑き（#{@main.getJobname()}）"
-    isWinner:(game,team)->@team==team
     # 占われたら死ぬ
     divined:(game,player)->
         @mcall game,@main.divined,game,player
