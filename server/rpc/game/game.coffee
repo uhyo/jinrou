@@ -5607,7 +5607,107 @@ class Bomber extends Madman
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
+
+        @addGamelog game,"bomber_set",pl.type,playerid
         null
+
+class Blasphemy extends Immoral
+    type:"Blasphemy"
+    jobname:"冒涜者"
+    team:"Fox"
+    sleeping:(game)->@target? || @flag
+    constructor:->
+        super
+        @setFlag null
+    sunset:(game)->
+        if @flag
+            @setTarget ""
+        else
+            @setTarget null
+            if @scapegoat
+                # 身代わりくん
+                alives=game.players.filter (x)->!x.dead
+                r=Math.floor Math.random()*alives.length
+                unless @job game,alives[r].id,{}
+                    @setTarget ""
+    beforebury:(game,type)->
+        if @flag
+            # まだ狐を作ってないときは耐える
+            super
+    job:(game,playerid)->
+        if @flag || @target?
+            return "もう能力を発動できません"
+        @setTarget playerid
+        pl=game.getPlayer playerid
+        unless pl?
+            return "その対象は存在しません"
+        if pl.dead
+            return "対象は既に死亡しています"
+
+        log=
+            mode:"skill"
+            to:pl.id
+            comment:"#{@name}は#{pl.name}を冒涜しました。"
+        splashlog game.id,game,log
+
+        @addGamelog game,"blasphemy",pl.type,playerid
+        return null
+    midnight:(game)->
+        pl=game.getPlayer @target
+        return unless pl?
+        return if t.dead
+
+        # 狐憑きをつける
+        newpl=Player.factory null,pl,null,FoxMinion
+        pl.transProfile newpl
+        pl.transform game,newpl,true
+        @setFlag true
+
+class Ushinotokimairi extends Madman
+    type:"Ushinotokimairi"
+    jobname:"丑刻参"
+    sleeping:->true
+    jobdone:->@target?
+    sunset:(game)->
+        super
+        @setTarget null
+        if @scapegoat
+            alives=game.players.filter (x)->!x.dead
+            if alives.length>0
+                r=Math.floor Math.random()*alives.length
+                unless @job game,alives[r].id,{}
+                    @setTarget ""
+            else
+                @setTarget ""
+
+    job:(game,playerid)->
+        @setTarget playerid
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{pl.name}に呪いをかけました。"
+        splashlog game.id,game,log
+        # 複合させる
+
+        newpl=Player.factory null,pl,null,DivineCursed
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 邪魔元cmplFlag
+        pl.transform game,newpl,true
+
+        @addGamelog game,"ushinotokimairi_curse",pl.type,playerid
+        null
+    divined:(game,player)->
+        if @target?
+            # 能力を使用していた場合は占われると死ぬ
+            @die game,"curse"
+            player.addGamelog game,"cursekill",null,@id
+        super
+
+
 
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -6358,6 +6458,31 @@ class BombTrapped extends Complex
         # 自分もちゃんと死ぬ
         @mcall game,@main.die,game,found,from
 
+# 狐憑き
+class FoxMinion extends Complex
+    cmplType:"FoxMinion"
+    team:"Fox"
+    willDieWerewolf:false
+    isHuman:->false
+    isFox:->true
+    getJobname:->"狐憑き（#{@main.getJobname()}）"
+    isWinner:(game,team)->@team==team
+    # 占われたら死ぬ
+    divined:(game,player)->
+        @mcall game,@main.divined,game,player
+        @die game,"curse"
+        player.addGamelog game,"cursekill",null,@id # 呪殺した
+
+# 丑刻参に呪いをかけられた
+class DivineCursed extends Complex
+    cmplType:"DivineCursed"
+    divined:(game,player)->
+        @mcall game,@main.divined,game,player
+        @die game,"curse"
+        player.addGamelog game,"cursekill",null,@id # 呪殺した
+
+
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -6469,6 +6594,8 @@ jobs=
     Pyrotechnist:Pyrotechnist
     Baker:Baker
     Bomber:Bomber
+    Blasphemy:Blasphemy
+    Ushinotokimairi:Ushinotokimairi
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -6497,6 +6624,8 @@ complexes=
     KeepedLover:KeepedLover
     WatchingFireworks:WatchingFireworks
     BombTrapped:BombTrapped
+    FoxMinion:FoxMinion
+    DivineCursed:DivineCursed
 
     # 役職ごとの強さ
 jobStrength=

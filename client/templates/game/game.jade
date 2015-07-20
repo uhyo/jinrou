@@ -258,6 +258,14 @@
       p
         | 爆弾を仕掛ける相手を選んで下さい（非強制）:
         input(type="submit",value="送る",data-job="Bomber")
+    #form_Blasphemy(hidden).jobformarea
+      p
+        | 冒涜する相手を選んで下さい:
+        input(type="submit",value="冒涜する",data-job="Blasphemy")
+    #form_Ushinotokimairi(hidden).jobformarea
+      p
+        | 呪いをかける相手を選んで下さい:
+        input(type="submit",value="選択",data-job="Ushinotokimairi")
   form#speakform
     p
       input(size="50",name="comment",required)
