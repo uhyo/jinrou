@@ -1,5 +1,6 @@
 csv=require 'csv'
 path=require 'path'
+fs=require 'fs'
 
 Shared=
     game:require '../client/code/shared/game'
@@ -10,17 +11,34 @@ Shared=
 # }
 makePrize=(cb)->
     # 勝利と敗北を読み込む
-    result={}
+    result={
+        names: {}
+        phonetics: {}
+    }
     dir=path.normalize __dirname+"/../prizedata"
-    csv().from.path("#{dir}/win.csv").to.array (arr)->
-        result.wincountprize = loadTable arr
-        csv().from.path("#{dir}/lose.csv").to.array (arr)->
-            result.losecountprize = loadTable arr
-            # 残り
-            makeOtherPrize result
-            # 称号IDと名前の対応表を作る
-            makeNames result
+    fs.readFile path.join(dir,"win.csv"),{encoding:"utf8"}, (err,data)->
+        if err?
             cb result
+            return
+        csv.parse data,(err,arr)->
+            if err?
+                cb result
+                return
+            result.wincountprize = loadTable arr
+            fs.readFile path.join(dir,"lose.csv"),{encoding:"utf8"}, (err,data)->
+                if err?
+                    cb result
+                    return
+                csv.parse data,(err,arr)->
+                    if err?
+                        cb result
+                        return
+                    result.losecountprize = loadTable arr
+                    # 残り
+                    makeOtherPrize result
+                    # 称号IDと名前の対応表を作る
+                    makeNames result
+                    cb result
 exports.makePrize=makePrize
 
 # win.csv,lose.csvを読み込む
