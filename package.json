@@ -6,7 +6,7 @@
     "private": false,
     "engines": { "node": ">= 0.10.0" },
     "dependencies": {
-        "socketstream": "^0.3.12",
+        "socketstream": "0.3.10",
         "mongodb": "^1",
         "oauth": "^0.9.6",
         "ntwitter":"^0.5.0",
