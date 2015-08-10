@@ -1086,7 +1086,8 @@ class Game
     # 死んだ人を処理する type: タイミング
     # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
-
+        
+        @votingbox.candidates = @votingbox.candidates.filter (x)->!x.dead
         deads=[]
         loop
             deads=@players.filter (x)->x.dead && x.found
