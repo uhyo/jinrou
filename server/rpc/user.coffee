@@ -52,7 +52,7 @@ exports.actions =(req,res,ss)->
             res()
             
 # 新規登録
-# cb: エラーメッセージ（成功なら偽）
+# cb: 错误メッセージ（成功なら偽）
     newentry: (query)->
         unless /^\w+$/.test(query.userid)
             res {
@@ -63,7 +63,7 @@ exports.actions =(req,res,ss)->
         unless /^\w+$/.test(query.password)
             res {
                 login:false
-                error:"パスワードが不正です"
+                error:"密码が不正です"
             }
             return
         M.users.find({"userid":query.userid}).count (err,count)->
@@ -123,13 +123,13 @@ exports.actions =(req,res,ss)->
                 res {error:err}
                 return
             res results
-# twitterアイコンを調べてあげる
+# twitter头像を調べてあげる
     getTwitterIcon:(id)->
         Server.oauth.getTwitterIcon id,(url)->
             res url
         
                 
-# プロフィール変更 返り値=変更後 {"error":"message"}
+# 配置変更 返り値=変更後 {"error":"message"}
     changeProfile: (query)->
         M.users.findOne {"userid":req.session.userId,"password":Server.user.crpassword(query.password)},(err,record)=>
             if err?
@@ -152,7 +152,7 @@ exports.actions =(req,res,ss)->
                 record.icon=query.icon
             M.users.update {"userid":req.session.userId}, record, {safe:true},(err,count)=>
                 if err?
-                    res {error:"プロフィール変更に失敗しました"}
+                    res {error:"配置変更に失敗しました"}
                     return
                 delete record.password
                 req.session.user=record
@@ -167,11 +167,11 @@ exports.actions =(req,res,ss)->
                 res {error:"ユーザー認証に失敗しました"}
                 return
             if query.newpass!=query.newpass2
-                res {error:"パスワードが一致しません"}
+                res {error:"密码が一致しません"}
                 return
             M.users.update {"userid":req.session.userId}, {$set:{password:Server.user.crpassword(query.newpass)}},{safe:true},(err,count)=>
                 if err?
-                    res {error:"プロフィール変更に失敗しました"}
+                    res {error:"配置変更に失敗しました"}
                     return
                 res null
     usePrize: (query)->
@@ -212,7 +212,7 @@ exports.actions =(req,res,ss)->
 # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
-            res {error:"ログインして下さい"}
+            res {error:"请登陆"}
             return
         myid=req.session.userId
         # DBから自分のやつを引っ張ってくる
@@ -230,7 +230,7 @@ exports.actions =(req,res,ss)->
             
 
 
-#パスワードハッシュ化
+#密码ハッシュ化
 #   crpassword: (raw)-> raw && hashlib.sha256(raw+hashlib.md5(raw))
 exports.crpassword= (raw)->
         return "" unless raw
@@ -238,7 +238,7 @@ exports.crpassword= (raw)->
         md5=crypto.createHash "md5"
         md5.update raw  # md5でハッシュ化
         sha256.update raw+md5.digest 'hex'  # sha256でさらにハッシュ化
-        sha256.digest 'hex' # 結果を返す
+        sha256.digest 'hex' # 结果を返す
 #ユーザーデータ作る
 makeuserdata=(query)->
     {

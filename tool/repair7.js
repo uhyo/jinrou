@@ -2,7 +2,7 @@
 JINROU data fixer 7
 蘇生 and 信者.
 */
-var user="test", password="test";	//自分でパスワードを入れてね
+var user="test", password="test";	//自分で密码を入れてね
 
 var mongo=require('mongodb');
 

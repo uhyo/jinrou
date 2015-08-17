@@ -20,25 +20,25 @@ exports.actions =(req,res,ss)->
             flag=true
 
         unless flag
-            res "パスワードが違います。"
+            res "管理员密码错误。"
         else
             req.session.save ->res null
 
     # ------------- blacklist関係
-    # blacklist一覧を得る
+    # blacklist一览を得る
     getBlacklist:(query)->
         unless req.session.administer
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         M.blacklist.find().limit(100).skip(100*(query.page ? 0)).toArray (err,docs)->
             res {docs:docs}
     addBlacklist:(query)->
         unless req.session.administer
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         M.users.findOne {userid:query.userid},(err,doc)->
             unless doc?
-                res {error:"そのユーザーは見つかりません"}
+                res {error:"没有发现这个用户"}
                 return
             addquery=
                 userid:doc.userid
@@ -52,7 +52,7 @@ exports.actions =(req,res,ss)->
                 res null
     removeBlacklist:(query)->
         unless req.session.administer
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         M.blacklist.remove {userid:query.userid},(err)->
             res null
@@ -60,7 +60,7 @@ exports.actions =(req,res,ss)->
     # -------------- grandalert関係
     spreadGrandalert:(query)->
         unless req.session.administer
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         if query.system
             message=
@@ -74,7 +74,7 @@ exports.actions =(req,res,ss)->
     # -------------- dataexport関係
     dataExport:(query)->
         unless query?
-            res {error:"クエリが不正です"}
+            res {error:"检索无效"}
             return
         unless Config.admin.securityHole
             res {error:"そのセキュリティホールは利用できません"}
@@ -102,7 +102,7 @@ exports.actions =(req,res,ss)->
     doCommand:(query)->
         # 僕だけだよ！ あの文字列を送ろう
         unless query?
-            res {error:"クエリが不正です"}
+            res {error:"检索无效"}
             return
         unless Config.admin.securityHole
             res {error:"そのセキュリティホールは利用できません"}
@@ -139,7 +139,7 @@ exports.actions =(req,res,ss)->
     #-- 更新
     update:->
         unless req.session.maintenance
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         script=Config.maintenance.script ? []
         result=""
@@ -162,22 +162,22 @@ exports.actions =(req,res,ss)->
         one 0
     end:->
         unless req.session.maintenance
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         process.exit()
         res {}
 
     # ------------- news関係
-    # news一覧を得る
+    # news一览を得る
     getNews:(query)->
         unless req.session.maintenance
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         M.news.find().limit(query.num).toArray (err,docs)->
             res {docs:docs}
     addNews:(query)->
         unless req.session.maintenance
-            res {error:"管理者ではありません"}
+            res {error:"不是管理员"}
             return
         addquery=
             time:new Date()

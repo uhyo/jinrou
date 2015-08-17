@@ -1,49 +1,49 @@
 section.admin#admin
-  h1 メニュー
-  p 下のメニューから操作項目を選択して下さい:
+  h1 菜单
+  p 请从下列菜单选择要管理的项目:
   ul
-    li(data-opener="blacklist") アク禁管理
+    li(data-opener="blacklist") 黑名单管理
     li(data-opener="grandalert") 全体告知
-    li(data-opener="dataexport") データエクスポート
+    li(data-opener="dataexport") 信息导出
     li(data-opener="update") 更新
-    li(data-opener="news") お知らせ管理
+    li(data-opener="news") 通知管理
   section#blacklist(hidden)
-    h1 アク禁管理
+    h1 黑名单管理
     table
       thead
         tr
-          th ユーザーID
-          th IPアドレス
+          th 账号
+          th IP地址
           th 期限
           th 解除
       tbody#blacklisttable
-    h2 新規アク禁
+    h2 新建黑名单
     form#newbanform
       p
-        | アク禁にするユーザーID:
+        | 黑名单账号:
         input(name="userid",size="20",required)
       p
         | 期間:
         label
           input(type="radio",name="expire",value="forever",checked)
-          無期限
+          无期限
         | |
         input(type="radio",name="expire",value="some")
         input(name="month",type="number",step="1",value="0",min="0")
-        | ヶ月
+        | 月
         input(name="day",type="number",step="1",value="0",min="0")
-        | 日
+        | 天
       p
         input(type="submit",value="OK")
   section#grandalert(hidden)
     h1 全体告知
     form#alertform
       p
-        | タイトル:
-        input(name="title",size="20",value="お知らせ")
+        | 标题:
+        input(name="title",size="20",value="通知")
       p
         | 内容:
-        input(name="message",size="50",placeholder="メッセージ",required)
+        input(name="message",size="50",placeholder="消息",required)
       p
         label
           input(type="checkbox",name="system",value="on",checked)
@@ -52,33 +52,33 @@ section.admin#admin
           input(type="checkbox",name="twitter",value="on")
           | twitterへ
         
-      p: input(type="submit",value="送信")
+      p: input(type="submit",value="发送")
   section#dataexport(hidden)
-    h1 データエクスポート
+    h1 信息导出
     form#dataexportform
       p
-        | パスワード
+        | 密码
         input(name="pass",size="30",required)
       p
-        | コマンド?
+        | 命令
         input(name="command",size="100")
       p: input(type="submit",value="取得")
   section#update(hidden)
     h1 更新
     form#pullform
-      p: input(type="submit",value="更新する")
+      p: input(type="submit",value="更新")
     pre
       samp#pullresult
   section#news(hidden)
-    h1 お知らせ管理
+    h1 通知管理
     table
       thead
         tr
           th _id
-          th 時間
+          th 时间
           th 内容
       tbody#newstable
-    h2 新規お知らせ
+    h2 新建通知
     form#newnewsform
       p
         | 内容

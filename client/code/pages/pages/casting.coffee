@@ -6,13 +6,13 @@ exports.start=(rolename)->
     func=ruleobj.rule
     rolename.replace "-","."
     unless func?
-        $("#roletitle").text "その配役表は利用できません。"
+        $("#roletitle").text "这个配置表无法使用。"
         return
     if result=rolename.match /^(.+)\-([^\-]+)$/
         $("#rolename").text result[2]
     $("#roletitle").text ruleobj.title
 
-    jobs=[null] # 出現する役職の一覧
+    jobs=[null] # 出現する役職の一览
     
     the=$("#rolehead").get 0
     thr=the.insertRow 0
@@ -35,14 +35,14 @@ exports.start=(rolename)->
     
     count=0 # 何個行をつくったか
     max=30  # 最大
-    index=6 # 現在の人数
+    index=6 # 现在的人数
     while count<max
         obj=func index
         sum=0
 
         for key,value of obj
             sum+=value
-            unless key in jobs  #新出の役職
+            unless key in jobs  #新出的职业
                 appendjob key
             
             

@@ -54,7 +54,7 @@ exports.start=->
 		je.preventDefault()
 		ss.rpc "lobby.say", je.target.elements["comment"].value,(result)->
 			if result?
-				ss.rpc "util.message", "エラー",result
+				ss.rpc "util.message", "错误",result
 		je.target.reset()
 	socids=[
 		Index.socket.on "log",null,getlog

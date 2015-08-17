@@ -17,7 +17,7 @@ exports.start=->
     for cp in presets
         ((cp)->
             $("#presetcolors").append makeColorSet(cp).addClass("presetbox").click (je)->
-                util.ask "色設定","このプリセットを使用しますか？",(result)->
+                util.ask "配色设定","使用这个预设配置吗？",(result)->
                     if result
                         app.setCurrentColorProfile cp
                         app.useColorProfile cp
@@ -32,7 +32,7 @@ makeColorSet=(cp,editable=false,callback)->
 
     $("<div>").append("昼：").append(makeColorBox cp.day,editable,callback)
     .append("夜：").append(makeColorBox cp.night,editable,callback)
-    .append("霊界：").append(makeColorBox cp.heaven,editable,callback)
+    .append("灵界：").append(makeColorBox cp.heaven,editable,callback)
 
 makeColorBox=(obj,editable,callback)->
     # color profileをもとにcolorboxを作る

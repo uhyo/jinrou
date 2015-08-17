@@ -1,36 +1,37 @@
 section.window
   h1
-    | ログイン
+    | 您尚未登陆
     input.closer(type="button",value="×",name="cancel")
+  h2 登陆
   form(aciton="/")#loginform
     p
       label
-        | ユーザーID
-        input(type="text",size="30",name="userid",pattern="\\\\w+",title="ユーザーIDは半角英数字のみ可能です",required)
+        | 账号
+        input(type="text",size="30",name="userid",pattern="\\\\w+",title="账号只能使用半角英数字",required)
     p
       label
-        | パスワード
+        | 密码
         input(type="password",size="30",name="password",pattern="\\\\w+",required)
     p
-      input(type="submit",value="ログイン")
+      input(type="submit",value="登陆")
       label
-        | ログイン状態を記憶
+        | 记住登陆状态
         input(type="checkbox",name="remember_me",checked)
     p#loginerror.error
-  h2 新規登録
+  h2 注册
   form(aciton="/")#newentryform
     p
       label
-        | ユーザーID
+        | 账号
         input(type="text",size="30",name="userid",required)
     p
       label
-        | パスワード
+        | 密码
         input(type="password",size="30",name="password",required)
     p
-      input(type="submit",value="登録")
+      input(type="submit",value="注册")
     p#newentryerror.error
-    p: a(href="/manual/login",target="_blank") ヘルプ
+    p: a(href="/manual/login",target="_blank") 帮助
 
 
 

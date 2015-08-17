@@ -3,7 +3,7 @@ JINROU data recoverer:
 adds 'winner' to each player 2011-12-26
 
 */
-var user="test", password="test";	//自分でパスワードを入れてね
+var user="test", password="test";	//自分で密码を入れてね
 
 var mongo=require('mongodb');
 var db=new mongo.Db("werewolf",new mongo.Server("localhost",27017));
@@ -44,7 +44,7 @@ function getdb(games){
 						pl.winner=pl.Complex_main.winner;
 						break;
 					case "Bat":
-						pl.winner=!pl.dead;	//こうもりは死ななければOK
+						pl.winner=!pl.dead;	//蝙蝠は死ななければOK
 						break;
 					case "Slave":
 						pl.winner= gw=="Human" && !game.players.some(function(x){return !x.dead && x.type=="Noble"});

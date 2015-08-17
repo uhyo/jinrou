@@ -1,62 +1,62 @@
 section.profile
-  h1 プロフィール
+  h1 个人页面
   form#changeprofile(action="/")
-    h2 ユーザーID
+    h2 账号
     p.userid=userid
-    h2 名前
-    p 表示される名前。
+    h2 名字
+    p 显示的名字。
     p.edit(data-pname="name",data-type="text",data-maxlength="20",data-required="required")=name
-    h2 コメント
+    h2 简介
     p.edit(data-pname="comment",data-type="text",data-maxlength="100")=comment
-    h2 アイコン
+    h2 头像
     p
       input(type="hidden",name="icon",value="")
-      img#myicon(width="48",height="48",alt="アイコン")
-      input(type="button",value="アイコン選択",name="twittericonbutton")
+      img#myicon(width="48",height="48",alt="头像")
+      input(type="button",value="头像选择",name="twittericonbutton")
     p
-      input(type="submit",value="変更を保存",title="名前・コメント・アイコンを変更したら保存ボタンで反映して下さい")
-      input(type="button",name="changepasswordbutton",value="パスワードを変更")
-      input(type="button",name="colorsettingbutton",value="色設定")
+      input(type="submit",value="变更保存",title="名字・简介・头像变更后请点击保存")
+      input(type="button",name="changepasswordbutton",value="密码变更")
+      input(type="button",name="colorsettingbutton",value="配色设定")
   form#changepassword(hidden)
-    h2 パスワード変更
+    h2 密码变更
     p: label
-      | 新しいパスワード
+      | 新密码
       input(name="newpass",type="password",size="20",required)
     p: label
-      | 再入力
+      | 再输入一次
       input(name="newpass2",type="password",size="20",required)
     p: label
-      | 現在のパスワード
+      | 现在的密码
       input(name="password",type="password",size="20",required)
     p: input(type="submit",value="変更")
-  h1 お知らせ
+  h1 通知
   table.newstable
     thead
       tr
-        th 日付
+        th 日期
         th 内容
     tbody#newslist
     
-  h1 ルーム
+  h1 房间
   table.roomstable
     thead
       tr
-        th ルーム名
-        th 状態
-        th オーナー
+        th 房间名
+        th 状态
+        th 房主
         th 最大人数
-        th 日時
-        th コメント
+        th 时间
+        th 简介
     tbody#roomlist
-  h1 対戦成績
-  p: a(href="/rooms/my") 自分が参加した部屋
+  h1 对战成绩
+  p: a(href="/rooms/my") 加入的房间
   form#morescore
     input(type="hidden",name="open",value="false")
-    p: input(type="submit",name="submit",value="詳細情報を見る")
+    p: input(type="submit",name="submit",value="查看详细情报")
   #grapharea
   section
     h1 称号
-    p 入室時に名前の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
+    p 入室時に名字の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
     p 
       | 称号獲得数:
       span#prizenumber 0

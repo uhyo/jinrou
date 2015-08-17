@@ -10,7 +10,7 @@ Shared=
 #   phonetics:{}
 # }
 makePrize=(cb)->
-    # 勝利と敗北を読み込む
+    # 胜利と败北を読み込む
     result={
         names: {}
         phonetics: {}
@@ -36,7 +36,7 @@ makePrize=(cb)->
                     result.losecountprize = loadTable arr
                     # 残り
                     makeOtherPrize result
-                    # 称号IDと名前の対応表を作る
+                    # 称号IDと名字の対応表を作る
                     makeNames result
                     cb result
 exports.makePrize=makePrize
@@ -72,7 +72,7 @@ loadTable=(arr)->
                obj[if normalflag then normals[i] else specials[i]]=(if ns.length>1 then ns else name)
     result
 
-# 名前つける
+# 名字つける
 makeNames=(result)->
     names={}
     phonetics={}
@@ -146,14 +146,14 @@ makeOtherPrize=(result)->
         GJ:
             names:
                 1:"GJ/じーじぇー"
-                3:"護衛/ごえい"
+                3:"护卫/ごえい"
                 5:"防衛/ぼうえい"
                 10:"鉄壁/てっぺき"
                 15:"救世主/きゅうせいしゅ"
                 30:"ガーディアン/がーでぃあん"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="GJ").length
-        # 恋人の勝利回数
+        # 恋人の胜利回数
         lovers_wincount:
             names:
                 1:"両想い/りょうおもい"
@@ -166,7 +166,7 @@ makeOtherPrize=(result)->
                     1
                 else
                     0
-        # 恋人の敗北回数
+        # 恋人の败北回数
         lovers_losecount:
             names:
                 1:"倦怠期/けんたいき"
@@ -194,7 +194,7 @@ makeOtherPrize=(result)->
                 10:"発注ミス/はっちゅうみす"
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="sendkit" && getTeamByType(getTypeAtTime(game,x.target,x.day))=="Werewolf").length
-        # コピーせずに終了
+        # 模仿者せずに终了
         nocopy:
             names:
                 1:"優柔不断/ゆうじゅうふだん"
@@ -301,16 +301,16 @@ chkCmplType=(obj,cmpltype)->
         obj.Complex_type==cmpltype || chkCmplType obj.Complex_main,cmpltype
     else
         false
-# プレイヤーの役職を調べる
+# プレイヤー的职业を調べる
 getType=(pl)->
     if pl.type=="Complex"
         getType pl.Complex_main
     else
         pl.type
-# もともとの役職を調べる
+# もともと的职业を調べる
 getOriginalType=(game,userid)->
     getTypeAtTime game,userid,0
-# あるプレイヤーのある時点での役職を調べる
+# あるプレイヤーのある時点で的职业を調べる
 getTypeAtTime=(game,userid,day)->
     id=(pl=getpl(game,userid)).id
     ls=game.gamelogs.filter (x)->x.event=="transform" && x.id==id && x.day>day  # 変化履歴を調べる

@@ -1,10 +1,13 @@
 !!! 5
-html
+html(xmlns:wb="http://open.weibo.com/wb")
   head
     meta(charset="utf-8")
     title 月下人狼
     meta(name="application-name",content="月下人狼")
-    meta(name="description",content="リアルタイムチャットが可能な人狼サーバーです。70種以上の役職が使用可能。")
+    meta(name="description",content="一个实时的高自由度的人狼服务器。有70种以上的职业可供使用。")
+    <meta property="wb:webmaster" content="429c879e40644052" />
+    <script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=2598264088&debug=true" type="text/javascript" charset="utf-8"></script>
+
     != SocketStream
   body
     header
@@ -14,23 +17,23 @@ html
       nav
         ul
           li
-            a(href="/") トップ
+            a(href="/logout") 退出
           li
-            a(href="/my") マイページ
+            a(href="/") 首页
           li
-            a(href="/lobby") ロビー
+            a(href="/my") 个人页面
           li
-            a(href="/logout") ログアウト
+            a(href="/lobby") 休息室
           li
-            a(href="/rooms") ルーム一覧
+            a(href="/rooms") 房间一览
           li
-            a(href="/logs") ログ検索
+            a(href="/logs") 历史检索
           li
-            a(href="/manual") マニュアル
+            a(href="/manual") 参考手册
           li
-            a(href="/backdoor/home") ホームに戻る
+            a(href="/backdoor/home") 返回主页
           li
-            a(href="/manual/about") 月下人狼について
+            a(href="/manual/about") 关于月下人狼
     script(type="text/javascript")
       if((("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)||(!document.body.dataset))&&(navigator.userAgent.indexOf("Googlebot")<0)){
         //要件を満たさない

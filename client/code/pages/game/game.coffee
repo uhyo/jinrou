@@ -6,10 +6,10 @@ my_job=null
 
 timerid=null    # setTimeout
 remain_time=null
-this_rule=null  # ルールオブジェクトがある
+this_rule=null  # 规则オブジェクトがある
 enter_result=null #enter
 
-this_icons={}   #名前とアイコンの対応表
+this_icons={}   #名字と头像の対応表
 this_logdata={} # ログデータをアレする
 this_style=null #style要素（終わったら消したい）
 
@@ -21,14 +21,14 @@ exports.start=(roomid)->
     my_job=null
     this_room_id=null
 
-    # 役職名一覧
-    cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
+    # 役職名一览
+    cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で决定する
 
     # CSS操作
     this_style=document.createElement "style"
     document.head.appendChild this_style
     sheet=this_style.sheet
-    #現在のルール
+    #現在の规则
     myrules=
         player:null # プレイヤー・ネーム
         day:"all"   # 表示する日にち
@@ -49,13 +49,13 @@ exports.start=(roomid)->
 
     getenter=(result)->
         if result.error?
-            # エラー
-            Index.util.message "ルーム",result.error
+            # 错误
+            Index.util.message "房间",result.error
             return
         else if result.require?
             if result.require=="password"
-                #パスワード入力
-                Index.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
+                #密码入力
+                Index.util.prompt "房间","房间已加密，请输入密码",{type:"password"},(pass)->
                     unless pass?
                         Index.app.showUrl "/rooms"
                         return
@@ -68,7 +68,7 @@ exports.start=(roomid)->
     ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
     initroom=(room)->
         unless room?
-            Index.util.message "ルーム","そのルームは存在しません。"
+            Index.util.message "房间","这个房间不存在。"
             Index.app.showUrl "/rooms"
             return
         # フォームを修正する
@@ -89,48 +89,48 @@ exports.start=(roomid)->
                 p.textContent=text
                 p
             if obj.type
-                infop=$ "<p>あなたは<b>#{obj.jobname}</b>です（</p>"
+                infop=$ "<p>你的身份是<b>#{obj.jobname}</b>（</p>"
                 if obj.desc
                     # 役職説明
                     for o,i in obj.desc
                         if i>0
                             infop.append "・"
-                        a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '詳細' else "#{o.name}の詳細"}</a>"
+                        a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '详细' else "#{o.name}的详细"}</a>"
                         infop.append a
                     infop.append "）"
                         
 
                 $("#jobinfo").append infop
             if obj.wolves?
-                $("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
+                $("#jobinfo").append pp "同伴的人狼是#{obj.wolves.map((x)->x.name).join(",")}"
             if obj.peers?
-                $("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "共有者是#{obj.peers.map((x)->x.name).join(',')}"
             if obj.foxes?
-                $("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "同伴的妖狐是#{obj.foxes.map((x)->x.name).join(',')}"
             if obj.nobles?
-                $("#jobinfo").append pp "貴族は#{obj.nobles.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "贵族是#{obj.nobles.map((x)->x.name).join(',')}"
             if obj.queens?.length>0
-                $("#jobinfo").append pp "女王観戦者は#{obj.queens.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "女王观战者是#{obj.queens.map((x)->x.name).join(',')}"
             if obj.spy2s?.length>0
-                $("#jobinfo").append pp "スパイⅡは#{obj.spy2s.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "间谍Ⅱ是#{obj.spy2s.map((x)->x.name).join(',')}"
             if obj.friends?.length>0
-                $("#jobinfo").append pp "恋人は#{obj.friends.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "恋人是#{obj.friends.map((x)->x.name).join(',')}"
             if obj.stalking?
-                $("#jobinfo").append pp "あなたは#{obj.stalking.name}のストーカーです"
+                $("#jobinfo").append pp "你是#{obj.stalking.name}的跟踪狂"
             if obj.cultmembers?
-                $("#jobinfo").append pp "信者は#{obj.cultmembers.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "信者是#{obj.cultmembers.map((x)->x.name).join(',')}"
             if obj.vampires?
-                $("#jobinfo").append pp "ヴァンパイアは#{obj.vampires.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "吸血鬼是#{obj.vampires.map((x)->x.name).join(',')}"
             if obj.supporting?
-                $("#jobinfo").append pp "#{obj.supporting.name}（#{obj.supportingJob}）をサポートしています"
+                $("#jobinfo").append pp "向#{obj.supporting.name}（#{obj.supportingJob}）提供帮助"
             if obj.dogOwner?
-                $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
+                $("#jobinfo").append pp "你的饲主是#{obj.dogOwner.name}"
             if obj.quantumwerewolf_number?
-                $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
+                $("#jobinfo").append pp "你的玩家编号是第#{obj.quantumwerewolf_number}号"
             
             if obj.winner?
                 # 勝敗
-                $("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
+                $("#jobinfo").append pp "你#{if obj.winner then '胜利' else '败北'}了"
             if obj.dead
                 # 自分は既に死んでいる
                 document.body.classList.add "heaven"
@@ -139,7 +139,7 @@ exports.start=(roomid)->
                 
             if game=obj.game
                 if game.finished
-                    # 終了
+                    # 终了
                     document.body.classList.add "finished"
                     document.body.classList.remove x for x in ["day","night"]
                     $("#jobform").attr "hidden","hidden"
@@ -175,7 +175,7 @@ exports.start=(roomid)->
                 setJobSelection obj.job_selection ? []
                 select=$("#speakform").get(0).elements["mode"]
                 if obj.speak && obj.speak.length>0
-                    # 発言方法の選択
+                    # 发言方法の選択
                     $(select).empty()
                     select.disabled=false
                     for val in obj.speak
@@ -195,27 +195,27 @@ exports.start=(roomid)->
                     ss.rpc "game.game.getlog",roomid,sentlog
         sentlog=(result)->
             if result.error?
-                Index.util.message "エラー",result.error
+                Index.util.message "错误",result.error
             else
                 if result.game?.day>=1
                     # ゲームが始まったら消す
                     $("#playersinfo").empty()
-                    #TODO: ゲームに参加ボタンが2箇所にあるぞ
+                    #TODO: 加入游戏ボタンが2箇所にあるぞ
                     if result.game
-                        if !result.game.finished && result.game.rule.jobrule=="特殊ルール.エンドレス闇鍋" && !result.type?
-                            # エンドレス闇鍋に参加可能
-                            b=makebutton "ゲームに参加"
+                        if !result.game.finished && result.game.rule.jobrule=="特殊规则.Endless黑暗火锅" && !result.type?
+                            # Endless黑暗火锅に参加可能
+                            b=makebutton "加入游戏"
                             $("#playersinfo").append b
                             $(b).click joinbutton
                 getjobinfo result
                 $("#logs").empty()
                 $("#chooseviewday").empty() # 何日目だけ表示
                 if result.game?.finished
-                    # 終了した・・・次のゲームボタン
-                    b=makebutton "同じ設定で次の部屋を建てる","建てたあとも設定の変更は可能です。"
+                    # 终了した・・・次のゲームボタン
+                    b=makebutton "以相同设定建立新房间","新房间建成后仍可以变更设定。"
                     $("#playersinfo").append b
                     $(b).click (je)->
-                        # ルールを保存
+                        # 规则を保存
                         localStorage.savedRule=JSON.stringify result.game.rule
                         localStorage.savedJobs=JSON.stringify result.game.jobscount
                         #Index.app.showUrl "/newroom"
@@ -233,8 +233,8 @@ exports.start=(roomid)->
         # 新しいゲーム
         newgamebutton = (je)->
             form=$("#gamestart").get 0
-            # ルール設定保存を参照する
-            # ルール画面を構築するぞーーー(idx: グループのアレ)
+            # 规则設定保存を参照する
+            # 规则画面を構築するぞーーー(idx: グループのアレ)
             buildrules=(arr,parent)->
                 p=null
                 for obj,idx in arr
@@ -351,7 +351,7 @@ exports.start=(roomid)->
                 form.elements["night_second"].value=nightsec%60
                 form.elements["remain_minute"].value=parseInt remainsec/60
                 form.elements["remain_second"].value=remainsec%60
-                # その他
+                # 其他
                 delete rule.number  # 人数は違うかも
                 for key of rule
                     e=form.elements[key]
@@ -371,7 +371,7 @@ exports.start=(roomid)->
             $("#gamestartsec").removeAttr "hidden"
         $("#roomname").text room.name
         if room.mode=="waiting"
-            # 開始前のユーザー一覧は roomから取得する
+            # 開始前のユーザー一览は roomから取得する
             room.players.forEach (x)->
                 li=makeplayerbox x,room.blind
                 $("#players").append li
@@ -389,7 +389,7 @@ exports.start=(roomid)->
                             if Index.app.userid()
                                 into()
                     else if result?.error?
-                        Index.util.message "ルーム",result.error
+                        Index.util.message "房间",result.error
                     else
                         Index.app.refresh()
 
@@ -397,7 +397,7 @@ exports.start=(roomid)->
             if room.blind
                 # 参加者名
                 ###
-                Index.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
+                Index.util.prompt "加入游戏","请输入昵称",null,(name)->
                     if name
                         opt.name=name
                         into()
@@ -410,71 +410,71 @@ exports.start=(roomid)->
                         into()
             else
                 into()
-        if (room.mode=="waiting" || room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋") && !enter_result?.joined
+        if (room.mode=="waiting" || room.mode=="playing" && room.jobrule=="特殊规则.Endless黑暗火锅") && !enter_result?.joined
             # 未参加
-            b=makebutton "ゲームに参加"
+            b=makebutton "加入游戏"
             $("#playersinfo").append b
             $(b).click joinbutton
         else if room.mode=="waiting" && enter_result?.joined
-            # エンドレス闇鍋でも脱退はできない
-            b=makebutton "ゲームから脱退"
+            # Endless黑暗火锅でも脱退はできない
+            b=makebutton "退出游戏"
             $("#playersinfo").append b
             $(b).click (je)->
                 # 脱退
                 ss.rpc "game.rooms.unjoin", roomid,(result)->
                     if result?
-                        Index.util.message "ルーム",result
+                        Index.util.message "房间",result
                     else
                         Index.app.refresh()
             if room.mode=="waiting"
                 # 開始前
-                b=makebutton "準備完了/準備中","全員が準備完了になるとゲームを開始できます。"
+                b=makebutton "准备/取消准备","全员准备好后即可开始游戏。"
                 $("#playersinfo").append b
                 $(b).click (je)->
                     ss.rpc "game.rooms.ready", roomid,(result)->
                         if result?
-                            Index.util.message "ルーム",result
-            b=makebutton "ヘルパー","ヘルパーになると、ゲームに参加せずに助言役になります。"
-            # ヘルパーになる/やめるボタン
+                            Index.util.message "房间",result
+            b=makebutton "帮手","成为他人的帮手后，将不会直接参与游戏，而是向帮助的对象提供建议。"
+            # 帮手になる/やめるボタン
             $(b).click (je)->
-                Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+                Index.util.selectprompt "帮手","想要成为谁的帮手?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
                     ss.rpc "game.rooms.helper",roomid, id,(result)->
                         if result?
-                            Index.util.message "エラー",result
+                            Index.util.message "错误",result
             $("#playersinfo").append b
 
         userid=Index.app.userid()
         if room.mode=="waiting"
             if room.owner.userid==Index.app.userid()
                 # 自分
-                b=makebutton "ゲーム開始画面を開く"
+                b=makebutton "展开游戏开始界面"
                 $("#playersinfo").append b
                 $(b).click newgamebutton
-                b=makebutton "参加者を追い出す"
+                b=makebutton "将参加者踢出游戏"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
-#                   Index.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
+                    Index.util.selectprompt "踢出","请选择要被踢出的人",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+#                   Index.util.prompt "踢出","踢出人のidを入力して下さい:",null,(id)->
                         ss.rpc "game.rooms.kick", roomid,id,(result)->
                             if result?
-                                Index.util.message "エラー",result
-                b=makebutton "[ready]を初期化する"
+                                Index.util.message "错误",result
+                b=makebutton "重置[ready]状态"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.ask "[ready]初期化","全員の[ready]を解除しますか?",(cb)->
+                    Index.util.ask "重置[ready]状态","要解除全员的[ready]状态吗?",(cb)->
                         if cb
                             ss.rpc "game.rooms.unreadyall",roomid,(result)->
                                 if result?
-                                    Index.util.message "エラー",result
+                                    Index.util.message "错误",result
             if room.owner.userid==Index.app.userid() || room.old
-                b=makebutton "この部屋を廃村にする"
+                b=makebutton "废弃这个房间"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
+                    Index.util.ask "废弃房间","确定要废弃这个房间吗?",(cb)->
                         if cb
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
-                                    Index.util.message "エラー",result
+                                    Index.util.message "错误",result
 
 
         form=$("#gamestart").get 0
@@ -483,7 +483,7 @@ exports.start=(roomid)->
             form=t.form
             pl=room.players.filter((x)->x.mode=="player").length
             if t.name=="jobrule"
-                # ルール変更があった
+                # 规则変更があった
                 setplayersbyjobrule room,form,pl
                 return
             jobsformvalidate room,form
@@ -506,7 +506,7 @@ exports.start=(roomid)->
                 #console.log ruleobj,night,minNight,maxNight
                 if night<minNight || maxNight<night
                     # 範囲オーバー
-                    Index.util.ask "オプション","この配役では夜の時間は#{if isFinite(minNight) then minNight+'秒以上' else ''}#{if isFinite(maxNight) then maxNight+'秒以下' else ''}が推奨されています。このまま開始してもいいですか？",(res)->
+                    Index.util.ask "选项","这个配置推荐的夜间时间在#{if isFinite(minNight) then minNight+'秒以上' else ''}#{if isFinite(maxNight) then maxNight+'秒以下' else ''}，可以这样开始游戏吗？",(res)->
                         if res
                             #OKだってよ...
                             starting()
@@ -516,7 +516,7 @@ exports.start=(roomid)->
             starting=->
                 ss.rpc "game.game.gameStart", roomid,query,(result)->
                     if result?
-                        Index.util.message "ルーム",result
+                        Index.util.message "房间",result
                     else
                         $("#gamestartsec").attr "hidden","hidden"
             # 相違がないか探す
@@ -538,7 +538,7 @@ exports.start=(roomid)->
                                 sugval=opt.text
                                 break
                         if sugval?
-                            Index.util.ask "オプション","この配役ではオプション「#{control.dataset.name}」を「#{sugval}」にすることが推奨されています。このまま開始してもいいですか？",(res)->
+                            Index.util.ask "选项","这个配置下推荐选项「#{control.dataset.name}」 「#{sugval}」。可以这样开始游戏吗？",(res)->
                                 if res
                                     # OKだってよ...
                                     step2()
@@ -550,21 +550,21 @@ exports.start=(roomid)->
             form=je.target
             ss.rpc "game.game.speak", roomid,Index.util.formQuery(form),(result)->
                 if result?
-                    Index.util.message "エラー",result
+                    Index.util.message "错误",result
             je.preventDefault()
             form.elements["comment"].value=""
             if form.elements["multilinecheck"].checked
                 # 複数行は直す
                 form.elements["multilinecheck"].click()
         speakform.elements["willbutton"].addEventListener "click", (e)->
-            # 遺言フォームオープン
+            # 遗言フォームオープン
             wf=$("#willform").get 0
             if wf.hidden
                 wf.hidden=false
-                e.target.value="遺言を隠す"
+                e.target.value="折叠遗言"
             else
                 wf.hidden=true
-                e.target.value="遺言"
+                e.target.value="遗言"
         ,false
         speakform.elements["multilinecheck"].addEventListener "click",(e)->
             # 複数行
@@ -597,11 +597,11 @@ exports.start=(roomid)->
                 je.preventDefault()
                 
         
-        # ルール表示
+        # 规则表示
         $("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
             return unless this_rule?
             win=Index.util.blankWindow()
-            win.append $ "<h1>ルール</h1>"
+            win.append $ "<h1>规则</h1>"
             p=document.createElement "p"
             Object.keys(this_rule.jobscount).forEach (x)->
                 a=document.createElement "a"
@@ -666,10 +666,10 @@ exports.start=(roomid)->
             je.preventDefault()
             ss.rpc "game.game.will", roomid,form.elements["will"].value,(result)->
                 if result?
-                    Index.util.message "エラー",result
+                    Index.util.message "错误",result
                 else
                     $("#willform").get(0).hidden=true
-                    $("#speakform").get(0).elements["willbutton"].value="遺言"
+                    $("#speakform").get(0).elements["willbutton"].value="遗言"
         
         # 夜の仕事（あと投票）
         $("#jobform").submit (je)->
@@ -678,7 +678,7 @@ exports.start=(roomid)->
             $("#jobform").attr "hidden","hidden"
             ss.rpc "game.game.job", roomid,Index.util.formQuery(form), (result)->
                 if result?.error?
-                    Index.util.message "エラー",result.error
+                    Index.util.message "错误",result.error
                     $("#jobform").removeAttr "hidden"
                 else if !result?.sleeping
                     # まだ仕事がある
@@ -692,16 +692,16 @@ exports.start=(roomid)->
                 # 送信ボタン
                 bt.form.elements["commandname"].value=bt.name   # コマンド名教えてあげる
                 bt.form.elements["jobtype"].value=bt.dataset.job    # 役職名も教えてあげる
-        # 蘇生辞退ボタン
+        # 强行退出ボタン
         $("#speakform").get(0).elements["norevivebutton"].addEventListener "click",(e)->
-            Index.util.ask "蘇生辞退","一度蘇生辞退をすると解除することができません。よろしいですか？",(result)->
+            Index.util.ask "强行退出","一旦成功强行退出将不能撤销。确定要这样做吗？",(result)->
                 if result
                     ss.rpc "game.game.norevive", roomid, (result)->
                         if result?
-                            # エラー
-                            Index.util.message "エラー",result
+                            # 错误
+                            Index.util.message "错误",result
                         else
-                            Index.util.message "蘇生辞退","蘇生を辞退しました。"
+                            Index.util.message "强行退出","成功强行退出。"
         ,false
         #========================================
             
@@ -779,7 +779,7 @@ exports.start=(roomid)->
                 gettimer parseInt(msg.time),msg.mode
     
         $(document).click (je)->
-            # クリックで発言強調
+            # クリックで发言強調
             li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
             myrules.player=null
             if $(li).parent("#players").length >0
@@ -842,34 +842,34 @@ exports.start=(roomid)->
                 parent.appendChild option
                 
     setjobrule Shared.game.jobrules.concat([
-        name:"特殊ルール"
+        name:"特殊规则"
         rule:[
             {
-                name:"自由配役"
-                title:"配役を自由に設定できます。"
+                name:"自由角色"
+                title:"可以自由的选择角色。"
                 rule:null
             }
             {
-                name:"闇鍋"
-                title:"配役がランダムに設定されます。"
+                name:"黑暗火锅"
+                title:"各角色人数将随机分配。"
                 rule:null
             }
             {
-                name:"一部闇鍋"
-                title:"一部の配役を固定して残りをランダムにします。"
+                name:"半份黑暗火锅"
+                title:"固定一部分角色，其他角色随机分配。"
                 rule:null
             }
             {
                 name:"量子人狼"
-                title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
+                title:"全员的职业将由概率表表示。只限村人・人狼・占卜师。"
                 rule:null
                 suggestedNight:{
                     max:60
                 }
             }
             {
-                name:"エンドレス闇鍋"
-                title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
+                name:"Endless黑暗火锅"
+                title:"可以途中参加・死亡后立刻转生黑暗火锅。"
                 rule:null
                 suggestedOption:{
                     heavenview:""
@@ -885,23 +885,23 @@ exports.start=(roomid)->
         form.elements["number"].value=number
         setplayersbyjobrule room,form,number
         jobsformvalidate room,form
-    # 配役一覧をアレする
+    # 配役一览をアレする
     setplayersbyjobrule=(room,form,number)->
         jobrulename=form.elements["jobrule"].value
         if form.elements["scapegoat"].value=="on"
-            number++    # 身代わりくん
-        if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
+            number++    # 替身君
+        if jobrulename in ["特殊规则.自由配役","特殊规则.半份黑暗火锅"]
             $("#jobsfield").get(0).hidden=false
-            $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
+            $("#catesfield").get(0).hidden= jobrulename!="特殊规则.半份黑暗火锅"
             #$("#yaminabe_opt_nums").get(0).hidden=true
-        else if jobrulename in ["特殊ルール.闇鍋","特殊ルール.エンドレス闇鍋"]
+        else if jobrulename in ["特殊规则.黑暗火锅","特殊规则.Endless黑暗火锅"]
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
             #$("#yaminabe_opt_nums").get(0).hidden=false
         else
             $("#jobsfield").get(0).hidden=true
             $("#catesfield").get(0).hidden=true
-        if jobrulename=="特殊ルール.量子人狼"
+        if jobrulename=="特殊规则.量子人狼"
             jobrulename="内部利用.量子人狼"
         obj= Shared.game.getrulefunc jobrulename
         if obj?
@@ -923,7 +923,7 @@ exports.start=(roomid)->
         # 村人の人数を調節する
         pl=room.players.filter((x)->x.mode=="player").length
         if form.elements["scapegoat"].value=="on"
-            # 身代わりくん
+            # 替身君
             pl++
         sum=0
         cjobs.forEach (x)->
@@ -934,7 +934,7 @@ exports.start=(roomid)->
         form.elements["Human"].value=pl-sum
         form.elements["number"].value=pl
         setjobsmonitor form,pl
-    # ルールの表示具合をチェックする
+    # 规则の表示具合をチェックする
     checkrule=(form,ruleobj,rules,fsetname)->
         for obj,idx in rules
             continue unless obj.rules
@@ -948,15 +948,15 @@ exports.start=(roomid)->
         text=""
         rule=Index.util.formQuery form
         jobrule=rule.jobrule
-        if jobrule=="特殊ルール.闇鍋"
-            # 闇鍋の場合
-            $("#jobsmonitor").text "闇鍋"
-        else if jobrule=="特殊ルール.エンドレス闇鍋"
-            $("#jobsmonitor").text "エンドレス闇鍋"
+        if jobrule=="特殊规则.黑暗火锅"
+            # 黑暗火锅の場合
+            $("#jobsmonitor").text "黑暗火锅"
+        else if jobrule=="特殊规则.Endless黑暗火锅"
+            $("#jobsmonitor").text "Endless黑暗火锅"
         else
             ruleobj=Shared.game.getruleobj jobrule
             if ruleobj?.minNumber>number
-                $("#jobsmonitor").text "（この配役は最低#{ruleobj.minNumber}人必要です）"
+                $("#jobsmonitor").text "（这个配置最少需要#{ruleobj.minNumber}个人）"
             else
                 $("#jobsmonitor").text Shared.game.getrulestr jobrule,rule
         ###
@@ -964,19 +964,19 @@ exports.start=(roomid)->
         jobprops.children(".prop").prop "hidden",true
         for job in Shared.game.jobs
             jobpr=jobprops.children(".prop.#{job}")
-            if jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
+            if jobrule in ["特殊规则.黑暗火锅","特殊规则.半份黑暗火锅"] || form.elements[job].value>0
                 jobpr.prop "hidden",false
-        # ルールによる設定
+        # 规则による設定
         ruleprops=$("#ruleprops")
         ruleprops.children(".prop").prop "hidden",true
         switch jobrule
-            when "特殊ルール.量子人狼"
+            when "特殊规则.量子人狼"
                 ruleprops.children(".prop.rule-quantum").prop "hidden",false
-                # あと身代わりくんはOFFにしたい
+                # あと替身君はOFFにしたい
                 form.elements["scapegoat"].value="off"
         ###
-        if jobrule=="特殊ルール.量子人狼"
-            # あと身代わりくんはOFFにしたい
+        if jobrule=="特殊规则.量子人狼"
+            # あと替身君はOFFにしたい
             form.elements["scapegoat"].value="off"
             rule.scapegoat="off"
         checkrule form,rule,Shared.game.rules,$("#rules").attr("name")
@@ -996,7 +996,7 @@ exports.start=(roomid)->
             
             tb=document.createElement "table"
             if log.mode=="voteresult"
-                tb.createCaption().textContent="投票結果"
+                tb.createCaption().textContent="投票结果"
                 vr=log.voteresult
                 tos=log.tos
                 vr.forEach (player)->
@@ -1016,23 +1016,23 @@ exports.start=(roomid)->
                         node.style.fontWeight="bold"
                     return
 
-                tb.createCaption().textContent="確率表"
+                tb.createCaption().textContent="概率表"
                 pt=log.probability_table
                 # 見出し
                 tr=tb.insertRow -1
                 th=document.createElement "th"
-                th.textContent="名前"
+                th.textContent="名字"
                 tr.appendChild th
                 th=document.createElement "th"
                 if this_rule?.rule.quantumwerewolf_diviner=="on"
                     th.textContent="村人"
                 else
-                    th.textContent="人間"
+                    th.textContent="人类"
                 tr.appendChild th
                 if this_rule?.rule.quantumwerewolf_diviner=="on"
-                    # 占い師の確率も表示:
+                    # 占卜师の確率も表示:
                     th=document.createElement "th"
-                    th.textContent="占い師"
+                    th.textContent="占卜师"
                     tr.appendChild th
                 th=document.createElement "th"
                 th.textContent="人狼"
@@ -1063,13 +1063,13 @@ exports.start=(roomid)->
             if log.name?
                 div.textContent=switch log.mode
                     when "monologue"
-                        "#{log.name}の独り言:"
+                        "#{log.name}自言自语:"
                     when "will"
-                        "#{log.name}の遺言:"
+                        "#{log.name}遗言:"
                     else
                         "#{log.name}:"
                 if this_icons[log.name]
-                    # アイコンがある
+                    # 头像がある
                     img=document.createElement "img"
                     img.style.width="1em"
                     img.style.height="1em"
@@ -1083,7 +1083,7 @@ exports.start=(roomid)->
             span=document.createElement "div"
             span.classList.add "comment"
             if log.size in ["big","small"]
-                # 大/小発言
+                # 大/小发言
                 span.classList.add log.size
             
             wrdv=document.createElement "div"
@@ -1113,7 +1113,7 @@ exports.start=(roomid)->
                     # 朝の場合optgroupに追加
                     option=document.createElement "option"
                     option.value=log.day
-                    option.textContent="#{log.day}日目"
+                    option.textContent="第#{log.day}天"
                     $("#chooseviewday").append option
                     setcss()
         # 日にちデータ
@@ -1147,11 +1147,11 @@ exports.start=(roomid)->
         $("#players").empty()
         $("#playernumberinfo").text "生存者#{players.filter((x)->!x.dead).length}人 / 死亡者#{players.filter((x)->x.dead).length}人"
         players.forEach (x)->
-            # 上の一覧用
+            # 上の一览用
             li=makeplayerbox x
             $("#players").append li
             
-            # アイコン
+            # 头像
             if x.icon
                 this_icons[x.name]=x.icon
 
@@ -1201,7 +1201,7 @@ exports.start=(roomid)->
 exports.end=->
     ss.rpc "game.rooms.exit", this_room_id,(result)->
         if result?
-            Index.util.message "ルーム",result
+            Index.util.message "房间",result
             return
     clearInterval timerid if timerid?
     alloff socket_ids...
@@ -1315,18 +1315,18 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
             p.classList.add "outcome"
             if obj.winner
                 p.classList.add "win"
-                p.textContent="勝利"
+                p.textContent="胜利"
             else
                 p.classList.add "lose"
-                p.textContent="敗北"
+                p.textContent="败北"
             df.appendChild p
     if obj.dead
         df.classList.add "dead"
         if !obj.winner? && obj.norevive==true
-            # 蘇生辞退
+            # 强行退出
             p=document.createElement "p"
             p.classList.add "job"
-            p.textContent="[蘇生辞退]"
+            p.textContent="[强行退出]"
             df.appendChild p
     if obj.mode=="gm"
         # GM
@@ -1336,11 +1336,11 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         p.textContent="[GM]"
         df.appendChild p
     else if /^helper_/.test obj.mode
-        # ヘルパー
+        # 帮手
         p=document.createElement "p"
         p.classList.add "job"
         p.classList.add "helper"
-        p.textContent="[helper]"
+        p.textContent="[帮手]"
         df.appendChild p
 
     if obj.start
@@ -1352,34 +1352,34 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
     df
 
 speakValueToStr=(game,value)->
-    # 発言のモード名を文字列に
+    # 发言のモード名を文字列に
     switch value
         when "day","prepare"
-            "全員に発言"
+            "向全员发言"
         when "audience"
-            "観戦者の会話"
+            "观战者的会话"
         when "monologue"
-            "独り言"
+            "自言自语"
         when "werewolf"
-            "人狼の会話"
+            "人狼的会话"
         when "couple"
-            "共有者の会話"
+            "共有者的会话"
         when "fox"
-            "妖狐の会話"
+            "妖狐的会话"
         when "gm"
-            "全員へ"
+            "致全员"
         when "gmheaven"
-            "霊界へ"
+            "至灵界"
         when "gmaudience"
-            "観戦者へ"
+            "致观战者"
         when "gmmonologue"
-            "独り言"
+            "自言自语"
         when "helperwhisper"
-            # ヘルパー先がいない場合（自分への助言）
-            "助言"
+            # 帮手先がいない場合（自分への建议）
+            "建议"
         else
             if result=value.match /^gmreply_(.+)$/
                 pl=game.players.filter((x)->x.id==result[1])[0]
                 "→#{pl.name}"
             else if result=value.match /^helperwhisper_(.+)$/
-                "助言"
+                "建议"

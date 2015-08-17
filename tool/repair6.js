@@ -3,7 +3,7 @@ JINROU data fixer
 Counts all userlogs.
 
 */
-var user="test", password="test";	//自分でパスワードを入れてね
+var user="test", password="test";	//自分で密码を入れてね
 
 var mongo=require('mongodb');
 
@@ -44,7 +44,7 @@ function getdb(prize,db,games,users,userlogs){
 				return;
 			}
 			game.players.forEach(function(pl){
-				if(pl.realid==="身代わりくん")return;
+				if(pl.realid==="替身君")return;
 				var q=queries[pl.realid];
 				if(q==null){
 					queries[pl.realid]=q={

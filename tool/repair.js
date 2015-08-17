@@ -5,7 +5,7 @@ adds 'realid'!
 Contains a great deal of hard-coding...
 
 */
-var user="test", password="test";	//自分でパスワードを入れてね
+var user="test", password="test";	//自分で密码を入れてね
 
 var mongo=require('mongodb');
 var db=new mongo.Db("werewolf",new mongo.Server("localhost",27017));

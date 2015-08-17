@@ -18,7 +18,7 @@ heartbeat=(userid,ss)->
 		ss.publish.user userid,"lobby_heartbeat",null
 		time=Date.now()
 		timer2=setTimeout (->
-			# 3秒猶予
+			# 3秒犹豫
 			pl=players.filter((x)->x.userid==userid)[0]
 			if pl?
 				if pl.heartbeat<time

@@ -10,7 +10,7 @@ exports.start=->
                     localStorage.setItem "password", form.elements["password"].value
                 Index.app.showUrl "/my"
             else
-                $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
+                $("#loginerror").text "账号或密码错误。"
     $("#newentryform").submit (je)->
         je.preventDefault()
         form=je.target

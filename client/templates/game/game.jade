@@ -1,20 +1,20 @@
 .game
   h1#roomname
   section.players
-    h1 参加者一覧
+    h1 参加者一览
     #playernumberinfo
     ul#players
     #playersinfo
   section#gamestartsec(hidden)
-    h1 ゲーム開始
+    h1 游戏开始
     form#gamestart
       p
-        | 現在の人数 : 
+        | 现在的人数 : 
         output(name="number")
         | 人 - 
         span#jobsmonitor
       fieldset
-        legend 役職
+        legend 职业
         p: select#jobruleselect(name="jobrule")
         dl.jobs#jobsfield(hidden)
           dt 村人
@@ -23,7 +23,7 @@
       fieldset#rules
         //- dd(name="category_Foobar")
 
-      p: input(type="submit",value="開始")
+      p: input(type="submit",value="开始")
   .infobox
     div
     #jobinfo
@@ -33,264 +33,264 @@
     ul#form_players
     #form_day(hidden).jobformarea
       p
-        | 処刑する人に投票して下さい：
-        input(type="submit",value="投票する",data-job="_day")
+        | 请投票选择要处刑的人：
+        input(type="submit",value="投票",data-job="_day")
     #form_Waiting(hidden).jobformarea
       p
-        | 希望する役職を選択して下さい:
-        input(type="submit",value="選択",data-job="Waiting")
+        | 请选择希望就职的角色:
+        input(type="submit",value="选择",data-job="Waiting")
     #form_GameMaster(hidden).jobformarea
       p
-        | 死亡させる人を選んで下さい:
-        input(type="submit",value="死亡させる",data-job="GameMaster")
+        | 请选择要处死的人:
+        input(type="submit",value="杀死",data-job="GameMaster")
     #form__Werewolf(hidden).jobformarea
       p
-        | 殺す人を一人選んで下さい：
-        input(type="submit",value="殺す",data-job="_Werewolf")
+        | 请选择要杀死的人：
+        input(type="submit",value="杀死",data-job="_Werewolf")
     #form_WolfDiviner(hidden).jobformarea
       p
-        | 人狼占いで占う人を一人選んで下さい（占いは必須ではありません）：
-        input(type="submit",value="占う",data-job="WolfDiviner")
+        | 人狼占卜师请选择一个要占卜的人（占卜非强制）：
+        input(type="submit",value="占卜",data-job="WolfDiviner")
     #form_GreedyWolf(hidden).jobformarea
       p
-        | 欲張る場合は選択して下さい（非強制）:
-        input(type="submit",value="欲張る",data-job="GreedyWolf")
+        | 在希望满足自身贪欲的场合下请选择（非强制）:
+        input(type="submit",value="贪欲满盈",data-job="GreedyWolf")
     #form_Diviner(hidden).jobformarea
       p
-        | 占う人を一人選んで下さい：
-        input(type="submit",value="占う",data-job="Diviner")
+        | 请选择一个要占卜的人：
+        input(type="submit",value="占卜",data-job="Diviner")
     #form_TinyFox(hidden).jobformarea
       p
-        | 占う人を一人選んで下さい：
-        input(type="submit",value="占う",data-job="TinyFox")
+        | 请选择一个要占卜的人：
+        input(type="submit",value="占卜",data-job="TinyFox")
     #form_Guard(hidden).jobformarea
       p
-        | 護衛する人を一人選んで下さい:
-        input(type="submit",value="護衛する",data-job="Guard")
+        | 请选择一个要护卫的人:
+        input(type="submit",value="护卫",data-job="Guard")
     #form_Magician(hidden).jobformarea
       p
-        | 蘇生する人を一人選んで下さい:
-        input(type="submit",value="蘇生する",data-job="Magician")
+        | 请选择一个要复活的人:
+        input(type="submit",value="复活",data-job="Magician")
     #form_Spy(hidden).jobformarea
       p
-        input(type="submit",value="任務完了(村を去る)",data-job="Spy")
+        input(type="submit",value="任务完成(离开村子)",data-job="Spy")
     #form_Fugitive(hidden).jobformarea
       p
-        | 逃亡先を一人選んで下さい:
-        input(type="submit",value="逃亡する",data-job="Fugitive")
+        | 请选择要逃亡到谁家里:
+        input(type="submit",value="逃亡",data-job="Fugitive")
     #form_Merchant(hidden).jobformarea
       p
-        | 商品と発送先を選択して下さい:
+        | 请选择商品的收件人:
         select(name="Merchant_kit")
-          option(value="Diviner") 占いセット
-          option(value="Psychic") 霊能セット
-          option(value="Guard") 狩人セット
-        input(type="submit",value="発送する",data-job="Merchant")
+          option(value="Diviner") 占卜套装
+          option(value="Psychic") 灵能套装
+          option(value="Guard") 守护套装
+        input(type="submit",value="发送",data-job="Merchant")
     #form_Liar(hidden).jobformarea
       p
-        | 占う人を一人選んで下さい：
-        input(type="submit",value="占う",data-job="Liar")
+        | 请选择一个要占卜的人：
+        input(type="submit",value="占卜",data-job="Liar")
     #form_Copier(hidden).jobformarea
       p
-        | コピー対象を選択して下さい（必須ではありません）：
-        input(type="submit",value="コピー",data-job="Copier")
+        | 模仿者请选择模仿对象（非强制）：
+        input(type="submit",value="模仿",data-job="Copier")
     #form_Light(hidden).jobformarea
       p
-        | あなたは死神の手帳を持っています（必須ではありません）：
-        input(type="submit",value="手帳に書く",data-job="Light")
+        | 你现在持有死亡笔记（非强制）：
+        input(type="submit",value="在死亡笔记上写名字",data-job="Light")
     #form_Cupid(hidden).jobformarea
       p
-        | 恋人にする2人を1人ずつ選んで下さい:
-        input(type="submit",value="恋の矢を放つ",data-job="Cupid")
+        | 请选择要成为恋人2人中的1人:
+        input(type="submit",value="射出爱之箭",data-job="Cupid")
     #form_Lover(hidden).jobformarea
       p
-        | 恋人にする人を選んで下さい:
-        input(type="submit",value="恋人にする",data-job="Lover")
+        | 请选择要成为恋人的人:
+        input(type="submit",value="变成恋人",data-job="Lover")
     #form_Stalker(hidden).jobformarea
       p
-        | ストーキングする人を一人選んで下さい:
-        input(type="submit",value="ストーキングする",data-job="Stalker")
+        | 请选择要跟踪的对象:
+        input(type="submit",value="跟踪",data-job="Stalker")
     #form_Spellcaster(hidden).jobformarea
       p
-        | 呪いをかける人を一人選んで下さい（非強制）:
-        input(type="submit",value="呪いをかける",data-job="Spellcaster")
+        | 请选择要诅咒的人（非强制）:
+        input(type="submit",value="诅咒他",data-job="Spellcaster")
     #form_Priest(hidden).jobformarea
       p
-        | 守る人を一人選んで下さい（非強制）:
-        input(type="submit",value="聖なる力で守る",data-job="Priest")
+        | 请选择一个要守护的人（非强制）:
+        input(type="submit",value="用神圣的力量守护",data-job="Priest")
     #form_PI(hidden).jobformarea
       p
-        | 調査する人を一人選んで下さい（非強制）:
-        input(type="submit",value="調査する",data-job="PI")
+        | 请选择要调查的人（非强制）:
+        input(type="submit",value="调查",data-job="PI")
     #form_Sorcerer(hidden).jobformarea
       p
-        | 調べる人を一人選んで下さい:
-        input(type="submit",value="調査する",data-job="Sorcerer")
+        | 请选择要调查的人:
+        input(type="submit",value="调查",data-job="Sorcerer")
     #form_Doppleganger(hidden).jobformarea
       p
-        | ドッペルゲンガー対象を一人選んで下さい:
-        input(type="submit",value="選ぶ",data-job="Doppleganger")
+        | 请选择一个人作为二重身的对象:
+        input(type="submit",value="选择",data-job="Doppleganger")
     #form_CultLeader(hidden).jobformarea
       p
-        | 信者にする人を一人選んで下さい:
-        input(type="submit",value="信者にする",data-job="CultLeader")
+        | 请选择一个人使他成为信者:
+        input(type="submit",value="发展为信者",data-job="CultLeader")
     #form_Vampire(hidden).jobformarea
       p
-        | 襲撃する人を一人選んで下さい:
-        input(type="submit",value="殺す",data-job="Vampire")
+        | 请选择一个要袭击的人:
+        input(type="submit",value="杀死",data-job="Vampire")
     #form_Cat(hidden).jobformarea
       p
-        | 蘇生する人を一人選んで下さい（非強制）:
-        input(type="submit",value="蘇生する",data-job="Cat")
+        | 请选择一个要复活的人（非强制）:
+        input(type="submit",value="复活",data-job="Cat")
     #form_Witch(hidden).jobformarea
       p
-        | 使う薬と対象を選んで下さい（非強制）:
+        | 请选择使用魔药的对象（非强制）:
         select(name="Witch_drug")
-          option(value="revive") 蘇生薬
-          option(value="kill") 毒薬
-        input(type="submit",value="薬を使う",data-job="Witch")
+          option(value="revive") 复活药
+          option(value="kill") 毒药
+        input(type="submit",value="用药",data-job="Witch")
     #form_OccultMania(hidden).jobformarea
       p
-        | 対象を指定して下さい:
-        input(type="submit",value="指定する",data-job="OccultMania")
+        | 请指定一个对象:
+        input(type="submit",value="指定",data-job="OccultMania")
     #form_Dog(hidden).jobformarea
     #form_Dog1(hidden).jobformarea
       p
-        | 飼い主を殺す場合に押して下さい（非強制）:
-        input(type="submit",value="飼い主を襲う",data-job="Dog")
+        | 袭击你的饲主（非强制）:
+        input(type="submit",value="袭击饲主",data-job="Dog")
     #form_Dog2(hidden).jobformarea
       p
-        | 飼い主を選択して下さい:
-        input(type="submit",value="飼い主にする",data-job="Dog")
+        | 请选择你的饲主:
+        input(type="submit",value="选为饲主",data-job="Dog")
     #form_Dictator(hidden).jobformarea
       p
-        | 議論を中止させる場合は処刑対象を選択して下さい（1回のみ）:
-        input(type="submit",value="処刑する",data-job="Dictator")
+        | 终止讨论，指定处刑对象（只有一次）:
+        input(type="submit",value="处刑",data-job="Dictator")
     #form_Trapper(hidden).jobformarea
       p
-        | 護衛する対象を選択して下さい:
-        input(type="submit",value="護衛する",data-job="Trapper")
+        | 请选择要护卫的对象:
+        input(type="submit",value="护卫",data-job="Trapper")
     #form_WolfBoy(hidden).jobformarea
       p
-        | 人狼にみせかける人を選択して下さい（非強制）:
-        input(type="submit",value="選択する",data-job="WolfBoy")
+        | 想要让谁看起来像人狼（非强制）:
+        input(type="submit",value="选择",data-job="WolfBoy")
     #form_MinionSelector(hidden).jobformarea
       p
-        | 狼の子分にする人を指定して下さい:
-        input(type="submit",value="指定する",data-job="MinionSelector")
+        | 请指定狼的仆从:
+        input(type="submit",value="指定",data-job="MinionSelector")
     #form_Thief(hidden).jobformarea
       p
-        | 役職を選択して下さい:
-        input(type="submit",value="選択する",data-job="Thief")
+        | 请选择一个职业:
+        input(type="submit",value="选择",data-job="Thief")
     #form_Hoodlum(hidden).jobformarea
       p
-        | 恨む人を1人ずつ選択して下さい:
-        input(type="submit",value="選択する",data-job="Hoodlum")
+        | 请选择你仇恨的人:
+        input(type="submit",value="选择",data-job="Hoodlum")
     #form__Quantum_Diviner(hidden).jobformarea
       p
-        | 占う人を一人選んで下さい：
-        input(type="submit",value="占う",data-job="_Quantum_Diviner")
+        | 请选择一个要占卜的人：
+        input(type="submit",value="占卜",data-job="_Quantum_Diviner")
     #form__Quantum_Werewolf(hidden).jobformarea
       p
-        | 殺す人を一人選んで下さい：
-        input(type="submit",value="殺す",data-job="_Quantum_Werewolf")
+        | 请选择要杀死的人：
+        input(type="submit",value="杀死",data-job="_Quantum_Werewolf")
     #form_Counselor(hidden).jobformarea
       p
-        | カウンセリングする人を選んで下さい（非強制）:
-        input(type="submit",value="選択する",data-job="Counselor")
+        | 请选择你要策反的人（非强制）:
+        input(type="submit",value="选择",data-job="Counselor")
     #form_Miko(hidden).jobformarea
       p
-        input(type="submit",value="自分を守る（非強制）",data-job="Miko")
+        input(type="submit",value="守护自己（非强制）",data-job="Miko")
     #form_FascinatingWolf(hidden).jobformarea
       p
-        | 誘惑する人を選んで下さい:
-        input(type="submit",value="誘惑する",data-job="FascinatingWolf")
+        | 请选择要诱惑的人:
+        input(type="submit",value="诱惑",data-job="FascinatingWolf")
     #form_ToughWolf(hidden).jobformarea
       p
-        | 能力を使用する場合はこちらを選択して下さい:
-        input(type="submit",value="覚悟を決めて殺す",data-job="ToughWolf")
+        | 想要使用能力的时候请点此处:
+        input(type="submit",value="抱着觉悟杀了他",data-job="ToughWolf")
     #form_ThreateningWolf(hidden).jobformarea
       p
-        | 威嚇する人を選んで下さい（非強制）:
-        input(type="submit",value="威嚇する",data-job="ThreateningWolf")
+        | 请选择要威吓的人（非强制）:
+        input(type="submit",value="威吓",data-job="ThreateningWolf")
     #form_WanderingGuard(hidden).jobformarea
       p
-        | 護衛する人を一人選んで下さい:
-        input(type="submit",value="護衛する",data-job="WanderingGuard")
+        | 请选择一个要护卫的人:
+        input(type="submit",value="护卫",data-job="WanderingGuard")
     #form_ObstructiveMad(hidden).jobformarea
       p
-        | 邪魔する人を一人選んで下さい:
-        input(type="submit",value="邪魔する",data-job="ObstructiveMad")
+        | 请选择要妨碍的人:
+        input(type="submit",value="妨碍",data-job="ObstructiveMad")
     #form_TroubleMaker(hidden).jobformarea
       p
-        | 一度だけ次の昼に2人処刑することができます:
-        input(type="submit",value="トラブルを起こす",data-job="TroubleMaker")
+        | 白天将有两人被处刑（只限一次）:
+        input(type="submit",value="引起混乱",data-job="TroubleMaker")
     #form_BloodyMary(hidden).jobformarea
       p
-        | 呪い殺す人を一人選んで下さい:
-        input(type="submit",value="殺す",data-job="BloodyMary")
+        | 请选择要诅咒死的人:
+        input(type="submit",value="杀死",data-job="BloodyMary")
     #form_SantaClaus(hidden).jobformarea
       p
-        | プレゼントを送る相手を選んで下さい:
-        input(type="submit",value="送る",data-job="SantaClaus")
+        | 请选择要送礼物的对象:
+        input(type="submit",value="赠送",data-job="SantaClaus")
     #form_Phantom(hidden).jobformarea
       p
-        | 役職を盗む相手を選んで下さい:
-        input(type="submit",value="選択",data-job="Phantom")
+        | 请选择要盗走职业能力的对象:
+        input(type="submit",value="选择",data-job="Phantom")
     #form_BadLady(hidden).jobformarea
     #form_BadLady1(hidden).jobformarea
       p
-        | まず本命の相手を選択して下さい:
-        input(type="submit",value="求愛する",data-job="BadLady")
+        | 首先请选择你的本命对象:
+        input(type="submit",value="求爱",data-job="BadLady")
     #form_BadLady2(hidden).jobformarea
       p
-        | 手玉に取る相手を選択して下さい:
-        input(type="submit",value="手玉に取る",data-job="BadLady")
+        | 请选择要玩弄的对象:
+        input(type="submit",value="玩弄",data-job="BadLady")
     #form_Pyrotechnist(hidden).jobformarea
       p
-        | 花火を打ち上げる場合は選択して下さい（1回のみ）:
-        input(type="submit",value="花火を打ち上げる",data-job="Pyrotechnist")
+        | 准备放烟火的时候请点（只限一次）:
+        input(type="submit",value="放烟花",data-job="Pyrotechnist")
     #form_Helper(hidden).jobformarea
       p
-        | ヘルパー対象を選択して下さい:
-        input(type="submit",value="ヘルパーになる",data-job="Helper")
+        | 请选择要帮助的对象:
+        input(type="submit",value="帮助",data-job="Helper")
     #form_Bomber(hidden).jobformarea
       p
-        | 爆弾を仕掛ける相手を選んで下さい（非強制）:
-        input(type="submit",value="送る",data-job="Bomber")
+        | 请选择要送炸弹的人（非强制）:
+        input(type="submit",value="寄送",data-job="Bomber")
     #form_Blasphemy(hidden).jobformarea
       p
-        | 冒涜する相手を選んで下さい:
-        input(type="submit",value="冒涜する",data-job="Blasphemy")
+        | 请选择要冒渎的人:
+        input(type="submit",value="冒渎",data-job="Blasphemy")
     #form_Ushinotokimairi(hidden).jobformarea
       p
-        | 呪いをかける相手を選んで下さい:
-        input(type="submit",value="選択",data-job="Ushinotokimairi")
+        | 请选择要诅咒的人:
+        input(type="submit",value="选择",data-job="Ushinotokimairi")
   form#speakform
     p
       input(size="50",name="comment",required)
-      input(type="submit",value="発言")
+      input(type="submit",value="发言")
       span#gmsayopt
       select(name="size")
-        option(value="small") 小さく
+        option(value="small") 以小字号发言
         option(value="",selected) 普通
-        option(value="big") 大きく
+        option(value="big") 以大字号发言
       select(name="mode")
       label
         input(type="checkbox",name="multilinecheck")
-        複数行
+        复数行
       |  
       span#time
-      input(type="button",value="遺言",name="willbutton")
-      input(type="button",value="ルール",name="rulebutton",disabled)
+      input(type="button",value="遗言",name="willbutton")
+      input(type="button",value="规则",name="rulebutton",disabled)
       select#chooseviewselect
         option(value="all",selected) 全部
         option(value="today") 今日
-        optgroup#chooseviewday(label="一日ずつ")
-      input(type="button",value="蘇生辞退",name="norevivebutton",disabled)
+        optgroup#chooseviewday(label="单日")
+      input(type="button",value="强行退出",name="norevivebutton",disabled)
   form#willform(hidden)
     p
       textarea(name="will",cols="50",rows="3",maxlength="1000")
-      input(type="submit",value="決定")
+      input(type="submit",value="决定")
   #logs
   

@@ -115,7 +115,7 @@ exports.loginWindow=(cb=->app.refresh())->
                 cb()
                 closeWindow win
             else
-                $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
+                $("#loginerror").text "账号或密码错误。"
     $("#newentryform").submit (je)->
         je.preventDefault()
         form=je.target
@@ -130,7 +130,7 @@ exports.loginWindow=(cb=->app.refresh())->
                 localStorage.setItem "password", q.password
                 closeWindow win
                 # 初期情報を入力してもらう
-                util.blindName {title:"情報入力",message:"ユーザー名を設定して下さい"},(obj)->
+                util.blindName {title:"情报输入",message:"请设定用户名"},(obj)->
                     # 登録する感じの
                     ss.rpc "user.changeProfile", {
                         password:q.password
@@ -138,17 +138,17 @@ exports.loginWindow=(cb=->app.refresh())->
                         icon:obj.icon
                     },(obj)->
                         if obj?.error?
-                            #エラー
-                            util.message "エラー",obj.error
+                            #错误
+                            util.message "错误",obj.error
                         else
-                            util.message "登録","登録が完了しました。"
+                            util.message "注册","注册成功。"
                             app.setUserid q.userid
                             cb()
 
 exports.iconSelectWindow=(def,cb)->
     win = showWindow "util-iconselect"
     form=$("#iconform").get 0
-    # アイコン決定
+    # 头像决定
     okicon=(url)->
         $("#selecticondisp").attr "src",url
         def=url # 書き換え
@@ -160,17 +160,17 @@ exports.iconSelectWindow=(def,cb)->
             closeWindow win
             cb def  # 変わっていない
         else if t.name=="urliconbutton"
-            util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+            util.prompt "头像","请输入头像图片的URL",null,(url)->
                 okicon url ? ""
         else if t.name=="twittericonbutton"
-            util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
+            util.prompt "头像","请输入twitterID",null,(id)->
                 if id
                     # It's 1.0!
                     # okicon "http://api.twitter.com/1/users/profile_image/#{id}"
                     ss.rpc "user.getTwitterIcon",id,(url)->
-                        # アイコンを取得
+                        # 头像を取得
                         unless url
-                            util.message "エラー","アイコンを取得できませんでした。しばらく時間をあけてからお試しください。"
+                            util.message "错误","头像获取失败，请稍后再试。"
                             okicon ""
                         else
                             okicon url
@@ -179,9 +179,9 @@ exports.iconSelectWindow=(def,cb)->
     $("#iconform").submit (je)->
         je.preventDefault()
         closeWindow win
-        cb def  #結果通知
+        cb def  #结果通知
 exports.blindName=(opt={},cb)->
-    win = showWindow "util-blindname",{title:opt.title ? "ゲームに参加", message:opt.message ? "名前を入力して下さい"}
+    win = showWindow "util-blindname",{title:opt.title ? "加入游戏", message:opt.message ? "请输入昵称"}
     def=null
     win.click (je)->
         t=je.target
@@ -194,8 +194,21 @@ exports.blindName=(opt={},cb)->
                 $("#icondisp").attr "src",def
     $("#nameform").submit (je)->
         je.preventDefault()
-        closeWindow win
-        cb {name:je.target.elements["name"].value, icon:def}
+        #max bytes of blind name
+        maxLength=30
+
+        je.target.elements["name"].value = je.target.elements["name"].value.trim()
+        if je.target.elements["name"].value.trim() == ''
+            util.message "错误","昵称不能仅为空格。"
+        else if je.target.elements["name"].value.replace(/[^\x00-\xFF]/g,'**').length <= maxLength
+            closeWindow win
+            cb {name:je.target.elements["name"].value, icon:def}
+        else
+            byteSub = (str, maxLength) ->
+              str = str.substr(0, str.length - 1)  while str.replace(/[^\x00-\xFF]/g, "**").length > maxLength
+              str
+            je.target.elements["name"].value = byteSub(je.target.elements["name"].value, maxLength)
+            util.message "错误","昵称不能超过"+maxLength+"个字节。"
     
         
 

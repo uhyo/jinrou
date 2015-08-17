@@ -1,37 +1,37 @@
 section.rooms
-  h1 新しいルーム
+  h1 新建房间
   form#newroomform
     p
       label
-        | ルームの名前
+        | 房间名
         input(size="30",name="name",required)
     p
-      label(title="パスワードを設定すると、パスワードを入力しないと入れない鍵付き部屋になります。")
+      label(title="密码を設定すると、密码を入力しないと入れない鍵付き部屋になります。")
         input(type="checkbox",name="usepassword")
-        | パスワード
+        | 密码
       input(type="text",name="password",disabled,required)
     p
       label
-        | コメント
+        | 简介
         input(size="50",name="comment")
     fieldset
-      legend ルール
+      legend 规则
       p
         label
           | 最大人数
           input(type="number",min="5",name="number",step="1",value="30")
       p
-        label(title="覆面をありにすると、ゲーム中はIDが非公開になります。")
-          | 覆面
+        label(title="假面模式下，游戏中各个玩家的ID不会公开。")
+          | 假面模式
           select(name="blind")
-            option(value="",selected) なし
-            option(value="yes") あり（終了後に公開）
-            option(value="complete") あり（最後まで非公開）
+            option(value="") 否
+            option(value="yes",selected) 是（结束后公开）
+            option(value="complete") 是（结束后不公开）
       p
-        label(title="ありにすると、ルームを建てた人はGMになります")
+        label(title="选中时，房间的建造人将成为房间的GM")
           | GM
           select(name="ownerGM")
-            option(value="",selected) なし
-            option(value="yes") あり
+            option(value="",selected) 否
+            option(value="yes") 是
     p
-      input(type="submit",value="作成")
+      input(type="submit",value="新建房间")

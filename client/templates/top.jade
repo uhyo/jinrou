@@ -1,36 +1,36 @@
 section
   h1 月下人狼
-  p <strong>リアルタイム</strong>で<strong>自由度の高い</strong>人狼サーバーです。<a href="/manual/features">この人狼の特徴</a>
-  h2 ログイン
+  p 一个<strong>实时</strong>的<strong>高自由度</strong>的人狼服务器。<a href="/manual/features">游戏简介</a>
+  h2 登陆
   form(aciton="/")#loginform
     p
       label
-        | ユーザーID
-        input(type="text",size="30",name="userid",pattern="\\\\w+",title="ユーザーIDは半角英数字のみ可能です",required)
+        | 账号
+        input(type="text",size="30",name="userid",pattern="\\\\w+",title="账号只能使用半角英数字",required)
     p
       label
-        | パスワード
+        | 密码
         input(type="password",size="30",name="password",pattern="\\\\w+",required)
     p
-      input(type="submit",value="ログイン")
+      input(type="submit",value="登陆")
       label
-        | ログイン状態を記憶
+        | 记住登陆状态
         input(type="checkbox",name="remember_me",checked)
     p#loginerror.error
-  h2 新規登録
+  h2 注册
   form(aciton="/")#newentryform
     p
       label
-        | ユーザーID
+        | 账号
         input(type="text",size="30",name="userid",required)
     p
       label
-        | パスワード
+        | 密码
         input(type="password",size="30",name="password",required)
     p
-      input(type="submit",value="登録")
+      input(type="submit",value="注册")
     p#newentryerror.error
-  
+  <div id="wb_connect_btn"></div>
   footer
     p: small
       | &copy; 2011-2012 うひょ (

@@ -1,24 +1,24 @@
 section.rooms
-  h1 ルーム一覧
+  h1 房间一览
   table.roomstable
     thead
       tr
-        th ルーム名
-        th 状態
-        th オーナー
+        th 房间名
+        th 状态
+        th 房主
         th 最大人数
-        th 日時
-        th コメント
+        th 时间
+        th 简介
     tbody#roomlist
   form#pager
     p
-      input(type="button",name="prev",value="前のページ")
-      input(type="button",name="next",value="次のページ")
+      input(type="button",name="prev",value="上一页")
+      input(type="button",name="next",value="下一页")
   p
-    a(href="/newroom") 新しいルーム
-    | |
-    a(href="/rooms",title="現在募集中・対戦中の部屋です。部屋に参加したい場合ここを探しましょう。") 稼働中の部屋一覧
-    | |
-    a(href="/rooms/old",title="建てられたのに開始されず放置された部屋です。そのうち消えます。") 古い部屋一覧
-    | |
-    a(href="/rooms/log") 終了した部屋一覧
+    a(href="/newroom") 新建房间
+    |  | 
+    a(href="/rooms",title="現在募集中・对战中の部屋です。部屋に参加したい場合ここを探しましょう。") 活动房间一览
+    |  | 
+    a(href="/rooms/old",title="建てられたのに開始されず放置された部屋です。そのうち消えます。") 陈旧房间一览
+    |  | 
+    a(href="/rooms/log") 结束房间一览

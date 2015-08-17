@@ -1,7 +1,7 @@
-# gameのgamelogs一覧
+# gameのgamelogs一览
     {
       id:(id)	//自分のID
-      type:(type)	//自分の役職
+      type:(type)	//自分的职业
       event:(event name)	//起こったこと
       target:(target?)	//対象のID（あれば）
       flag:(String?)	//補助的な情報（あれば）
@@ -36,24 +36,24 @@ eventごとに列挙。
 * flag: 称号ID
 
 
-## 占い師系
+## 占卜师系
 
 ### divine
 占った
 
 * target: 相手のID
-* flag: その役職
+* flag: そ的职业
 
 ### cursekill
 呪殺した
 
 * target: 呪殺先のID
 
-## 狩人
+## 猎人
 ###GJ
 GJした
 
-* target: 護衛先
+* target: 护卫先
 
 ## 埋毒者
 ### poisonkill
@@ -67,27 +67,27 @@ GJした
 * target: もともとの蘇生相手
 * flag:成功ならtrue 失敗ならfalse 誤爆なら誤爆先のID
 
-## 子狐
+## 小狐
 ### foxdivine
 占った
 * target: 占い相手
 * flag: 成功ならtrue 失敗ならfalse
 
-## 貴族
+## 贵族
 ### nobleavoid
-奴隷を身代わりにした
+奴隶を身代わりにした
 
-## 奴隷
+## 奴隶
 ### slavevictim
-貴族の身代わりになった
+贵族の身代わりになった
 
-## 魔術師
+## 魔术师
 ### raise
 蘇生させた
 * target: 蘇生相手
 * flag:成功ならtrue 失敗ならfalse
 
-## 人狼占い
+## 人狼占卜师
 ### wolfdivine
 占った
 
@@ -104,23 +104,23 @@ GJした
 * target: 相手のID
 * flag:送ったもの
 
-## 嘘つき
+## 骗子
 ### liardivine
 占った
 * target: 相手のID
 
-## 聖職者
+## 圣职者
 ### holyGJ
 無事守った
 
-* target: 護衛先
+* target: 护卫先
 * flag:本来の死因
 
-## プリンス
+## 王子
 ### princeCO
 処刑を回避した
 
-## 超常現象研究者
+## 超常现象研究者
 ### PIdivine
 占った
 
@@ -138,14 +138,14 @@ GJした
 
 *target: 札がイサキ
 
-## ドッペルゲンガー
+## 二重身
 ### dopplemove
 死んだので移動した
 *target: 移動先ID
-* flag:その役職
+* flag:そ的职业
 
 ## 犬
 ### dogkill
 飼い主を噛んだ
 *target: 飼い主ID
-* flag:その役職
+* flag:そ的职业

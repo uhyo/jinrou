@@ -18,7 +18,7 @@ class CircleGraph extends Graph
         @circ=1 #0～1で円の完成度
         @table=null
     hide:->@circ=0
-    setData:(@data,@names)->    #names: 値の名前と実際のアレの対応
+    setData:(@data,@names)->    #names: 値の名字と実際のアレの対応
         #@names={ Human:{name:"村人",color:"#FF0000"}...}
         chk=(d,vals)->  # 合計算出 valsも一緒に作る
             unless typeof d=="object"

@@ -30,12 +30,12 @@ exports.start=(user)->
         je.preventDefault()
         q=Index.util.formQuery je.target
         q.userid=$("p.userid").get(0).textContent
-        Index.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+        Index.util.prompt "配置","请输入密码",{type:"password"},(result)->
             if result
                 q.password=result
                 ss.rpc "user.changeProfile", q,(result)->
                     if result.error?
-                        Index.util.message "エラー",result.error
+                        Index.util.message "错误",result.error
                     else
                         app.page "user-profile",result,Index.user.profile,result
     .get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
@@ -44,7 +44,7 @@ exports.start=(user)->
             je.preventDefault()
             ss.rpc "user.changePassword", Index.util.formQuery(je.target),(result)->
                 if result?.error?
-                    Index.util.message "エラー",result.error
+                    Index.util.message "错误",result.error
                 else
                     $("#changepassword").get(0).hidden=true
                     app.page "user-profile",result,Index.user.profile
@@ -65,19 +65,19 @@ exports.start=(user)->
         op=je.target.elements["open"].value
         if op=="true"
             # 隠す
-            je.target.elements["submit"].value="詳細情報を開く"
+            je.target.elements["submit"].value="展开详细情报"
             je.target.elements["open"].value="false"
             $("#grapharea").empty()
             return
         je.target.elements["open"].value="true"
-        je.target.elements["submit"].value="詳細情報を隠す"
+        je.target.elements["submit"].value="隐藏详细情报"
         ss.rpc "user.getMyuserlog", (obj)->
             unless obj?
-                Index.util.message "戦績表示","戦績が存在しないので表示できません。"
+                Index.util.message "战绩展示","尚不存在战绩，无法展示。"
                 return
             wincount=obj.wincount ? {}
             losecount=obj.losecount ? {}
-            # 陣営色
+            # 阵营色
             teamcolors=merge Shared.game.jobinfo,{}
                 
             grp=(title,size=200)->
@@ -92,9 +92,9 @@ exports.start=(user)->
                 graph
             
             # 勝率グラフ
-            graph=grp "勝敗ごとの役職"
+            graph=grp "胜败的职业"
             graph.hide()
-            # 勝敗を陣営ごとに
+            # 勝敗を阵营ごとに
             gs=
                 win:{}
                 lose:{}
@@ -108,30 +108,30 @@ exports.start=(user)->
                         gs.lose[x][job]=losecount[job]
             graph.setData gs,{
                 win:merge {
-                    name:"勝ち"
+                    name:"胜"
                     color:"#FF0000"
                 },teamcolors
                 lose:merge {
-                    name:"負け"
+                    name:"负"
                     color:"#0000FF"
                 },teamcolors
             }
             graph.openAnimate 0.2
             # 役職ごとの勝率
-            graph=grp "役職ごとの勝敗"
+            graph=grp "职业的胜败"
             graph.hide()
             gs={}
-            names=merge teamcolors,{}   #コピー
+            names=merge teamcolors,{}   #模仿者
             for team of names
                 gs[team]={}
                 
                 for type of names[team]
                     continue if type in ["name","color"]
                     names[team][type].win=
-                        name:"勝ち"
+                        name:"胜"
                         color:"#FF0000"
                     names[team][type].lose=
-                        name:"負け"
+                        name:"负"
                         color:"#0000FF"
                     gs[team][type]=
                         win:wincount[type] ? 0
@@ -142,12 +142,12 @@ exports.start=(user)->
     # 称号
     unless user.prizenames?.length>0
         # 称号がない
-        $("#prizearea").html "<p>獲得称号はありません。</p>"
+        $("#prizearea").html "<p>没有获得称号。</p>"
     else
         $("#prizenumber").text user.prizenames.length
         prizesdiv=$("#prizes")
         phs=["あいうえお","かきくけこがぎぐげご","さしすせそざじずぜぞ","たちつてとだぢづでど","なにぬねの","はひふへほばびぶべぼぱぴぷぺぽ","まみむめも","やゆよ","らりるれろ","わをん"]
-        prizedictionary={}  # 称号のidと名前対応
+        prizedictionary={}  # 称号のidと名字対応
         user.prizenames.sort (a,b)->
             if a.phonetic>b.phonetic
                 1
@@ -187,7 +187,7 @@ exports.start=(user)->
             ull.append li
         # 消すやつを追加
         li=document.createElement "li"
-        li.textContent="消す"
+        li.textContent="消去"
         li.classList.add "deleter"
         li.draggable=true
         ull.append li
@@ -252,7 +252,7 @@ exports.start=(user)->
         $("#prizearea").submit (je)->
             je.preventDefault()
             que=util.formQuery je.target
-            util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+            util.prompt "配置","请输入密码",{type:"password"},(result)->
                 if result
                     query=
                         password:result
@@ -274,10 +274,10 @@ exports.start=(user)->
                     
                     ss.rpc "user.usePrize", query,(result)->
                         if result?.error?
-                            util.message "エラー",result.error
+                            util.message "错误",result.error
     
-    Index.game.rooms.start()    # ルーム一覧を表示してもらう    
-    # お知らせ一覧を取得する
+    Index.game.rooms.start()    # 房间一览を表示してもらう    
+    # お知らせ一览を取得する
     ss.rpc "user.getNews",(docs)->
         if docs.error?
             # ?

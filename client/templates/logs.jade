@@ -1,5 +1,5 @@
 section.lobby
-  h1 ログ検索
+  h1 历史检索
   form#logsform
     fieldset
       legend 条件
@@ -15,48 +15,48 @@ section.lobby
           | 人以下
       p
         input(name="result_team_on",type="checkbox")
-        | 勝利陣営
+        | 胜利阵营
         select(name="result_team",disabled)
           option(value="Human") 村人
           option(value="Werewolf") 人狼
           option(value="Fox") 妖狐
-          option(value="Devil") 悪魔くん
+          option(value="Devil") 恶魔
           option(value="Friend") 恋人
-          option(value="Cult") カルトリーダー
-          option(value="Vampire") ヴァンパイア
+          option(value="Cult") 邪教主
+          option(value="Vampire") 吸血鬼
           option(value="LoneWolf") 一匹狼
-          option(value="Draw") 引き分け
+          option(value="Draw") 平局
       fieldset
-        legend 終了までの日数
+        legend 结束前的天数
         p
           input(name="min_day_on",type="checkbox")
           input(name="min_day",type="number",value="1",disabled)
-          | 日以上
+          | 天以上
         p
           input(name="max_day_on",type="checkbox")
           input(name="max_day",type="number",value="10",disabled)
-          | 日以下
+          | 天以下
       fieldset
-        legend ルール
+        legend 规则
         p
           input(name="rule_on",type="checkbox")
           select(name="rule",disabled)#rulebox
        
-    p: input(type="submit",value="検索",disabled)
-    p 申し訳ありませんが、現在ログ検索は高負荷がかかるため使用できません。
+    p: input(type="submit",value="检索",disabled)
+    p 非常抱歉，历史检索对服务器压力过大，暂时无法使用。
       
   form#pager
     p
-      input(type="button",name="prev",value="前のページ",disabled)
-      input(type="button",name="next",value="次のページ",disabled)
+      input(type="button",name="prev",value="上一页",disabled)
+      input(type="button",name="next",value="下一页",disabled)
   table.roomstable
     thead
       tr
-        th ルーム名
+        th 房间名
         th 状態
-        th オーナー
+        th 房主
         th 最大人数
         th 日時
-        th コメント
+        th 简介
     tbody#roomlist
 

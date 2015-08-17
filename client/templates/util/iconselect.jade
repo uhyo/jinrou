@@ -1,14 +1,14 @@
 section.window
   h1
-    | アイコン選択
+    | 头像选择
     input.closer(type="button",value="×",name="cancel")
   form(aciton="/")#iconform
-    p （URLが空の場合アイコン無しになります）
-    figure(style="float:left"): img#selecticondisp(width="48",height="48",alt="アイコン")
+    p （URL留空的时候不显示头像）
+    figure(style="float:left"): img#selecticondisp(width="48",height="48",alt="头像")
     p
-      input(type="button",name="urliconbutton",value="URLを入力")
+      input(type="button",name="urliconbutton",value="输入URL")
     p
-      input(type="button",name="twittericonbutton",value="twitterから")
+      input(type="button",name="twittericonbutton",value="从twitter导入",disabled="disabled")
     p: input(type="submit",value="OK")
 
 

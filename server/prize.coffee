@@ -11,7 +11,7 @@ prizedata.makePrize (r)->
 module.exports=exports=
     checkPrize:(game,cb)->
         # 評価対象のプレイヤーをアレする
-        pls=game.players.filter (x)->x.realid!="身代わりくん"
+        pls=game.players.filter (x)->x.realid!="替身君"
         result={}
         onecall= =>
             if pls.length==0
@@ -106,7 +106,7 @@ module.exports=exports=
             unless doc?
                 # 全部おわった
             # 自分が参加したゲームを全て出す
-            result=[]   # 賞の一覧
+            result=[]   # 賞の一览
             # 勝敗数に関係する称号
             # 勝った試合のみ抜き出して自分だけにする
             mes=docs.map((x)->x.players.filter((pl)->pl.realid==userid)[0])
@@ -160,15 +160,15 @@ module.exports=exports=
         ###
 
     
-    prizeName:(prizeid)->prize.names[prizeid]    # IDを名前に
+    prizeName:(prizeid)->prize.names[prizeid]    # IDを名字に
     prizePhonetic:(prizeid)->prize.phonetics[prizeid]
     prizeQuote:(prizename)->"≪#{prizename}≫"
             
 ###
-・役職ごとの勝利回数賞
+・役職ごとの胜利回数賞
 "wincount_(役職名)_(回数)" というIDをつける
 例） "wincount_Diviner_5"
-・役職ごとの敗北回数賞
+・役職ごとの败北回数賞
 "losecount_(役職名)_(回数)" というIDをつける
 例) "losecount_Human_20"
 

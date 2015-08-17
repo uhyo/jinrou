@@ -4,9 +4,9 @@
 app=require '/app'
 util=require '/util'
 ss.server.on 'disconnect', ->
-    util.message "サーバー","接続が切断されました。"
+    util.message "服务器","连接已断开。"
 ss.server.on 'reconnect', ->
-    util.message "サーバー","接続が回復しました。ページの更新を行って下さい。"
+    util.message "服务器","连接已恢复，请刷新页面。"
     
 # 全体告知
 ss.event.on 'grandalert', (msg)->
@@ -95,7 +95,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
     
     switch url
         when "/my"
-            # プロフィールとか
+            # 配置とか
             ss.rpc "user.myProfile", (user)->
                 unless user?
                     # ログインしていない
@@ -104,7 +104,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
                 user[x]?="" for x in ["userid","name","comment"]
                 page "user-profile",user,Index.user.profile,user
         when "/rooms"
-            # 部屋一覧
+            # 部屋一览
             page "game-rooms",null,Index.game.rooms, null
         when "/rooms/old"
             # 古い部屋
@@ -141,7 +141,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
             page "logs",null,Index.logs,null
         else
             if result=url.match /^\/room\/-?(\d+)$/
-                # ルーム
+                # 房间
                 page "game-game",null,Index.game.game,parseInt result[1]
             else if result=url.match /^\/user\/(\w+)$/
                 # ユーザー
@@ -154,7 +154,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
             else if result=url.match /^\/manual\/casting\/(.*)$/
                 # キャスティング情報
                 if result[1]=="index" || result[1]==""
-                    # 一覧
+                    # 一览
                     page "pages-castlist",null,Index.pages.castlist
                 else
                     page "pages-casting",null,Index.pages.casting,result[1]
@@ -189,7 +189,7 @@ exports.login=login=(uid,ups,cb)->
                     notice=document.createElement "div"
                     notice.classList.add "notice"
                     notice.id="newNewsNotice"
-                    notice.textContent="新しいお知らせがあります。マイページをチェックしましょう。"
+                    notice.textContent="有新的通知，请前往个人中心查看。"
                     $("#content").before notice
 
             cb? true
@@ -237,7 +237,7 @@ exports.useColorProfile=useColorProfile=(cp)->
         # 新規に作る
         st=$("<style id='profilesheet'>").appendTo(document.head).get 0
         sheet=st.sheet
-    # ルールを定義
+    # 规则を定義
     sheet.insertRule """
 body.day, #logs .day {
     background-color: #{cp.day.bg};

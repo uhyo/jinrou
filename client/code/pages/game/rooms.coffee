@@ -18,7 +18,7 @@ exports.start=(mode)->
 exports.getroom=(mode,rooms)->
 	tb=$("#roomlist").get(0)
 	if rooms.error?
-		Index.util.message "エラー","ルーム一覧を取得できませんでした。"
+		Index.util.message "错误","房间一览获取失败。"
 		return
 	while tb.rows.length>0
 		tb.deleteRow 0
@@ -34,26 +34,26 @@ exports.getroom=(mode,rooms)->
 		a.href="/room/#{room.id}"
 		a.textContent="#{room.name}(#{room.players.length})"
 		td.appendChild a
-		# 覆面フラグ
+		# 假面模式フラグ
 		if room.blind
 			img=document.createElement "img"
 			img.src="/images/blind.png"
 			img.width=img.height=16
-			img.alt="覆面"
+			img.alt="假面模式"
 			td.insertBefore img,td.firstChild
 		# ロックフラグ
 		if room.needpassword
 			img=document.createElement "img"
 			img.src=if mode=="old" then "/images/unlock.png" else "/images/lock.png"
 			img.width=img.height=16
-			img.alt="パスワード付き"
+			img.alt="房间加密"
 			td.insertBefore img,td.firstChild
-		# GMあり村
+		# 有GM村
 		if room.gm
 			img=document.createElement "img"
 			img.src="/images/gm.png"
 			img.width=img.height=16
-			img.alt="GMあり"
+			img.alt="有GM"
 			td.insertBefore img,td.firstChild
 		
 		#状態
@@ -62,9 +62,9 @@ exports.getroom=(mode,rooms)->
 			when "waiting"
 				"募集中"
 			when "playing"
-				"対戦中"
+				"对战中"
 			when "end"
-				"終了"
+				"终了"
 			else
 				"不明"
 		
@@ -78,7 +78,7 @@ exports.getroom=(mode,rooms)->
 		else
 			td.textContent="???"
 		
-		#ルール
+		#规则
 		td=tr.insertCell -1
 		td.textContent="#{room.number}人"
 		

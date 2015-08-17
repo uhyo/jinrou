@@ -31,13 +31,13 @@ tabs=
                 if query.command
                     ss.rpc "admin.doCommand", query,(result)->
                         if result.error?
-                            Index.util.message "エラー",result.error
+                            Index.util.message "错误",result.error
                             return
-                        Index.util.message "出力",result.result
+                        Index.util.message "报告",result.result
                 else
                     ss.rpc "admin.dataExport", query,(result)->
                         if result.error?
-                            Index.util.message "エラー",result.error
+                            Index.util.message "错误",result.error
                             return
                         window.open result.file
     update:
@@ -50,7 +50,7 @@ tabs=
                         $("#pullresult").text result.error
                     else
                         $("#pullresult").text result.result
-                    Index.util.ask "管理ページ","人狼を終了しますか?",(result)->
+                    Index.util.ask "管理界面","要停止人狼服务器吗?",(result)->
                         if result
                             ss.rpc "admin.end",(result)->
     news:
@@ -64,10 +64,10 @@ tabs=
 
 
 exports.start=->
-    Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{type:"password"},(pass)->
+    Index.util.prompt "管理界面","请输入管理密码",{type:"password"},(pass)->
         ss.rpc "admin.register", {password:pass},(err)->
             if err?
-                Index.util.message "管理ページ",err
+                Index.util.message "管理界面",err
     $("#admin").click (je)->
         t=je.target
         if t.dataset.opener && to=tabs[t.dataset.opener]
@@ -85,7 +85,7 @@ initblisttable=->
     table=$("#blacklisttable").get 0
     ss.rpc "admin.getBlacklist", {},(result)->
         if result.error?
-            Index.util.message "管理ページ",result.error
+            Index.util.message "管理界面",result.error
             return
         $(table).empty()
         result.docs.forEach (doc)->
@@ -100,7 +100,7 @@ initblisttable=->
             cell.textContent=doc.ip
             
             cell=row.insertCell 2
-            cell.textContent=doc.expires?.toLocaleString() ? "無期限"
+            cell.textContent=doc.expires?.toLocaleString() ? "无期限"
             
             cell=row.insertCell 3
             input=document.createElement "input"
@@ -113,7 +113,7 @@ initnewstable=->
     table=$("#newstable").get 0
     ss.rpc "admin.getNews", {num:10},(result)->
         if result.error?
-            Index.util.message "管理ページ",result.error
+            Index.util.message "管理界面",result.error
             return
         $(table).empty()
         result.docs.forEach (doc)->

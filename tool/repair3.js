@@ -3,7 +3,7 @@ JINROU data recoverer:
 adds 'winner' to each player 2011-12-26
 
 */
-var user="test", password="test";	//自分でパスワードを入れてね
+var user="test", password="test";	//自分で密码を入れてね
 
 var mongo=require('mongodb');
 var db=new mongo.Db("werewolf",new mongo.Server("localhost",27017));

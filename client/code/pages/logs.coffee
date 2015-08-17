@@ -4,7 +4,7 @@ exports.start=->
     getroom=Index.game.rooms.getroom
     #ss.rpc "game.rooms.getRooms", mode,page,getroom
 
-    # ルールの設定
+    # 规则の設定
     setjobrule=(rulearr,names,parent)->
         for obj in rulearr
             # name,title, ruleをもつ
@@ -22,31 +22,31 @@ exports.start=->
                 option.title=obj.title
                 parent.appendChild option
     setjobrule Shared.game.jobrules.concat([
-        name:"特殊ルール"
+        name:"特殊规则"
         rule:[
             {
                 name:"自由配役"
-                title:"配役を自由に設定できます。"
+                title:"可以自由设定角色。"
                 rule:null
             }
             {
-                name:"闇鍋"
-                title:"配役がランダムに設定されます。"
+                name:"黑暗火锅"
+                title:"角色数量完全随机分配。"
                 rule:null
             }
             {
-                name:"一部闇鍋"
-                title:"一部の配役を固定して残りをランダムにします。"
+                name:"半份黑暗火锅"
+                title:"一部分角色固定，另一部分随机分配。"
                 rule:null
             }
             {
                 name:"量子人狼"
-                title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
+                title:"全员的职业以概率表现。只限村人・人狼・占卜师。"
                 rule:null
             }
             {
-                name:"エンドレス闇鍋"
-                title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
+                name:"Endless黑暗火锅"
+                title:"可以途中参加・死亡后立刻转生的黑暗火锅。"
                 rule:null
             }
         ]
