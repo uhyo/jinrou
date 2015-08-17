@@ -7308,7 +7308,7 @@ module.exports.actions=(req,res,ss)->
                         jobinfos.push "#{Shared.game.getjobname job}#{num}"
                     log=
                         mode:"system"
-                        comment:"出現役職: "+jobinfos.join(" ")
+                        comment:"出场职业: "+jobinfos.join(" ")
                     splashlog game.id,game,log
                 else if query.yaminabe_hidejobs=="team"
                     # 阵营のみ公開
@@ -7328,7 +7328,7 @@ module.exports.actions=(req,res,ss)->
 
                     log=
                         mode:"system"
-                        comment:"出現阵营情報: "+teaminfos.join(" ")
+                        comment:"出场阵营信息: "+teaminfos.join(" ")
                     splashlog game.id,game,log
 
             
