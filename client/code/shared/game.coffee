@@ -1329,11 +1329,11 @@ exports.rules=[
                     }
                     {
                         value:"revote"
-                        label:"重新投票時"
+                        label:"票数相同时"
                     }
                     {
                         value:"yes"
-                        label:"一直"
+                        label:"总是"
                     }
                 ]
             }
