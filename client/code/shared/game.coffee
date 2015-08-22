@@ -367,7 +367,7 @@ exports.jobrules=[
           minNumber:6
           rule:(number)->
             ret={}
-            # 狼憑き
+            # 狼凭
             ret.Lycan=1
             if number>=10
               ret.Lycan++
@@ -740,7 +740,7 @@ exports.jobinfo=
             name:"诅咒师"
             color:"#4b4f7d"
         Lycan:
-            name:"狼憑き"
+            name:"狼凭"
             color:"#7d5f5f"
         Priest:
             name:"圣职者"
@@ -905,7 +905,7 @@ exports.jobinfo=
             name:"背德者"
             color:"#5c2f5c"
         Blasphemy:
-            name:"冒渎者"
+            name:"亵渎者"
             color:"#802060"
             
         
@@ -1036,7 +1036,7 @@ exports.rules=[
                     {
                         value:"team"
                         label:"只公开阵营数"
-                        title:"智慧公开将有几个阵营出现。"
+                        title:"只会公开将有几个阵营出现。"
                     }
                     {
                         value:"1"
@@ -1114,11 +1114,11 @@ exports.rules=[
                     {
                         value:"on"
                         label:"有"
-                        selected:true
                     }
                     {
                         value:"off"
                         label:"无（玩家会被杀）"
+                        selected:true
                     }
                     {
                         value:"no"
@@ -1136,7 +1136,7 @@ exports.rules=[
                     second:"day_second"
                 label:"昼"
                 defaultValue:
-                    minute:5
+                    minute:2
                     second:30
                 getstr:->null
             }
@@ -1147,7 +1147,7 @@ exports.rules=[
                     second:"night_second"
                 label:"夜"
                 defaultValue:
-                    minute:2
+                    minute:1
                     second:30
                 getstr:->null
             }
@@ -1403,11 +1403,11 @@ exports.rules=[
                     {
                         value:"immediate"
                         label:"立刻知道"
+                        selected:true
                     }
                     {
                         value:"sunrise"
                         label:"天亮才知道"
-                        selected:true
                     }
                 ]
             }
@@ -1429,11 +1429,11 @@ exports.rules=[
                     {
                         value:"sunset"
                         label:"立刻知道"
+                        selected:true
                     }
                     {
                         value:"sunrise"
                         label:"天亮才知道"
-                        selected:true
                     }
                 ]
             }
@@ -1480,6 +1480,7 @@ exports.rules=[
                 value:{
                     value:"ok"
                     label:"有"
+                    checked:true
                 }
                 getstr:(value)->
                     {
@@ -1516,10 +1517,11 @@ exports.rules=[
                 label:"区分咒杀和袭击"
                 title:"选中后，妖狐被占卜师咒杀和被狼人袭击致死会有不同的通知。"
                 type:"checkbox"
-                value:
+                value:{
                     value:"obvious"
                     label:"有"
                     nolabel:"无"
+                }
                 getstr:(value)->
                     {
                         label:"咒杀袭击区別"
@@ -1544,11 +1546,11 @@ exports.rules=[
                         value:"alive"
                         label:"终了时生存"
                         title:"与妖狐相同。"
-                        selected:true
                     }
                     {
                         value:"ruin"
                         label:"只有恋人生存"
+                        selected:true
                     }
                 ]
             }
@@ -1582,20 +1584,20 @@ exports.rules=[
                 values:[
                     {
                         value:"open"
-                        label:"プレイヤー名を表示"
+                        label:"显示玩家名"
                         selected:true
                     }
                     {
                         value:"anonymous"
-                        label:"プレイヤー番号を表示"
-                        title:"自分以外のプレイヤー番号は分かりません。"
+                        label:"显示玩家编号"
+                        title:"不会得知其他玩家的编号。"
                     }
                 ]
             }
             {
                 name:"quantumwerewolf_dead"
-                label:"死亡率を表示しない"
-                title:"概率表に死亡率を表示しない规则です。表示するのが普通です。"
+                label:"不显示死亡率"
+                title:"概率表中不显示死亡率。默认显示。"
                 type:"checkbox"
                 value:{
                     value:"no"
@@ -1605,8 +1607,8 @@ exports.rules=[
             }
             {
                 name:"quantumwerewolf_diviner"
-                label:"占卜师の確率も表示する"
-                title:"概率表に占卜师の確率も表示します。表示しないのが普通の规则です。"
+                label:"显示占卜师的概率"
+                title:"概率表中显示占卜师的概率。默认不显示。"
                 type:"checkbox"
                 value:{
                     value:"on"
@@ -1616,8 +1618,8 @@ exports.rules=[
             }
             {
                 name:"quantumwerewolf_firstattack"
-                label:"初日の襲撃"
-                title:"有の場合初日から襲撃対象を選択します。"
+                label:"第一天的袭击"
+                title:"选中后第一天即可发动袭击。"
                 type:"checkbox"
                 value:{
                     value:"on"
@@ -1632,65 +1634,65 @@ exports.rules=[
 exports.jobinfos=[
     {
         name:"wolves"
-        prefix:"同伴的人狼是"
+        prefix:"同伴的人狼是 "
         type:"pubinfo-array"
     }
     {
         name:"peers"
-        prefix:"共有者是"
+        prefix:"共有者是 "
         type:"pubinfo-array"
     }
     {
         name:"foxes"
-        prefix:"同伴的妖狐是"
+        prefix:"同伴的妖狐是 "
         type:"pubinfo-array"
     }
     {
         name:"nobles"
-        prefix:"贵族是"
+        prefix:"贵族是 "
         type:"pubinfo-array"
     }
     {
         name:"queens"
-        prefix:"女王观战者是"
+        prefix:"女王观战者是 "
         type:"pubinfo-array"
     }
     {
         name:"spy2s"
-        prefix:"间谍Ⅱ是"
+        prefix:"间谍Ⅱ是 "
         type:"pubinfo-array"
     }
     {
         name:"friends"
-        prefix:"恋人是"
+        prefix:"恋人是 "
         type:"pubinfo-array"
     }
     {
         name:"stalking"
-        prefix:"你是"
-        suffix:"的跟踪狂"
+        prefix:"你是 "
+        suffix:" 的跟踪狂"
         type:"pubinfo"
     }
     {
         name:"cultmembers"
-        prefix:"信者是"
+        prefix:"信者是 "
         type:"pubinfo-array"
     }
     {
         name:"supporting"
-        prefix:"向"
-        suffix:"提供帮助"
+        prefix:"向 "
+        suffix:" 提供帮助"
         type:"pubinfo+job-array"
     }
     {
         name:"dogOwner"
-        prefix:"你的饲主是"
+        prefix:"你的饲主是 "
         type:"pubinfo"
     }
     {
         name:"quantumwerewolf_number"
-        prefix:"你的玩家编号是第"
-        suffix:"号"
+        prefix:"你的玩家编号是第 "
+        suffix:" 号"
         type:"raw"
     }
     {
