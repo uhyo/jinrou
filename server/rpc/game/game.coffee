@@ -6510,7 +6510,7 @@ class Authority extends Complex
 games={}
 
 # ゲームのGC
-new cron.CronJob '0 0 0,12 * * *',()->
+new cron.CronJob '0 0 3,15 * * *',()->
     # いらないGameを消す
     tm=Date.now()-3600000   # 1時間前
     for id,game of games
