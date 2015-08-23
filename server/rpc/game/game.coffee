@@ -3,6 +3,8 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
+cron=require 'cron'
+
 # 浅いコピー
 copyObject=(obj)->
     result=Object.create Object.getPrototypeOf obj
@@ -6506,6 +6508,19 @@ class Authority extends Complex
         game.votingbox.votePower this,1 #票をひとつ増やす
         null
 games={}
+
+# ゲームのGC
+new cron.CronJob '0 0 0,12 * * *',()->
+    # いらないGameを消す
+    tm=Date.now()-3600000   # 1時間前
+    for id,game of games
+        if game.finished
+            # 終わっているやつが消す候補
+            l=game.logs[game.logs.length-1]
+            if (!l?) || (l.time<tm)
+                # 十分古い
+                delete games[id]
+
 
 # ゲームを得る
 getGame=(id)->
