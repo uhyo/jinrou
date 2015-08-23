@@ -191,6 +191,9 @@ module.exports.actions=(req,res,ss)->
                 if req.session.userId in (room.players.map (x)->x.realid)
                     res error:"すでに参加しています"
                     return
+                if opt.name in (room.players.map (x)->x.name)
+                    res error:"名前 #{opt.name} は既に存在します"
+                    return
                 if room.gm && room.owner.userid==req.session.userId
                     res error:"ゲームマスターは参加できません"
                     return
