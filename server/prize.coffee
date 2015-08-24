@@ -2,13 +2,13 @@ Shared=
     game:require './../client/code/shared/game.coffee'
     prize:require './../client/code/shared/prize.coffee'
 
-prizedata=require './prizedata'
+prizedata=require './prizedata.coffee'
 prize={}
 prizedata.makePrize (r)->
     prize=r
 
 # 内部用
-module.exports=exports=
+module.exports=
     checkPrize:(game,cb)->
         # 評価対象のプレイヤーをアレする
         pls=game.players.filter (x)->x.realid!="替身君"

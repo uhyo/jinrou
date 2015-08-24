@@ -1615,7 +1615,7 @@ class Game
             # 各々に対して処理
             query={userid:{$in:pls.map (x)->x.realid}}
             M.users.find(query).each (err,doc)=>
-                # return unless doc?
+                return unless doc?
                 # 奇怪的return
                 oldprize=doc.prize  # いままでの賞の一览
                 # 差分をとる
@@ -6742,7 +6742,7 @@ module.exports.actions=(req,res,ss)->
                 return
             unless room.mode=="waiting"
                 # すでに開始している
-                res "这场游戏已经开始"
+                res "本场游戏已经开始"
                 return
             if room.players.some((x)->!x.start)
                 res "全员尚未全部准备好"
@@ -7652,11 +7652,13 @@ module.exports.actions=(req,res,ss)->
         player.die game,"gone-norevive"
         player.setNorevive true
         game.bury("other")
+        ###
         log=
             mode:"userinfo"
             comment:"#{player.name} 强行退出了。"
             to:player.id
-        # splashlog roomid,game,log
+        splashlog roomid,game,log
+        ###
         # 全員に通知
         game.splashjobinfo()
         res null

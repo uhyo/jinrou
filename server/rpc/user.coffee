@@ -111,7 +111,7 @@ exports.actions =(req,res,ss)->
                 "#{(u.win.length/(u.win.length+u.lose.length)*100).toPrecision(2)}%"
             # 称号の処理をしてあげる
             u.prize ?= []
-            u.prizenames=u.prize.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? null}
+            u.prizenames=u.prize.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? "undefined"}
             delete u.prize
             res u
         else

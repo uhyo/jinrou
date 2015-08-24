@@ -92,7 +92,7 @@ exports.start=(user)->
                 graph
             
             # 勝率グラフ
-            graph=grp "胜败的职业"
+            graph=grp "胜败的职业分布"
             graph.hide()
             # 勝敗を阵营ごとに
             gs=
@@ -118,7 +118,7 @@ exports.start=(user)->
             }
             graph.openAnimate 0.2
             # 役職ごとの勝率
-            graph=grp "职业的胜败"
+            graph=grp "各个职业的胜败情况"
             graph.hide()
             gs={}
             names=merge teamcolors,{}   #模仿者
@@ -187,7 +187,7 @@ exports.start=(user)->
             ull.append li
         # 消すやつを追加
         li=document.createElement "li"
-        li.textContent="消去"
+        li.textContent="删除"
         li.classList.add "deleter"
         li.draggable=true
         ull.append li

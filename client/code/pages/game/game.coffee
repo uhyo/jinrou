@@ -102,31 +102,31 @@ exports.start=(roomid)->
 
                 $("#jobinfo").append infop
             if obj.wolves?
-                $("#jobinfo").append pp "同伴的人狼是#{obj.wolves.map((x)->x.name).join(",")}"
+                $("#jobinfo").append pp "同伴的人狼是 #{obj.wolves.map((x)->x.name).join(",")}"
             if obj.peers?
-                $("#jobinfo").append pp "共有者是#{obj.peers.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "共有者是 #{obj.peers.map((x)->x.name).join(',')}"
             if obj.foxes?
-                $("#jobinfo").append pp "同伴的妖狐是#{obj.foxes.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "同伴的妖狐是 #{obj.foxes.map((x)->x.name).join(',')}"
             if obj.nobles?
-                $("#jobinfo").append pp "贵族是#{obj.nobles.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "贵族是 #{obj.nobles.map((x)->x.name).join(',')}"
             if obj.queens?.length>0
-                $("#jobinfo").append pp "女王观战者是#{obj.queens.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "女王观战者是 #{obj.queens.map((x)->x.name).join(',')}"
             if obj.spy2s?.length>0
-                $("#jobinfo").append pp "间谍Ⅱ是#{obj.spy2s.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "间谍Ⅱ是 #{obj.spy2s.map((x)->x.name).join(',')}"
             if obj.friends?.length>0
-                $("#jobinfo").append pp "恋人是#{obj.friends.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "恋人是 #{obj.friends.map((x)->x.name).join(',')}"
             if obj.stalking?
-                $("#jobinfo").append pp "你是#{obj.stalking.name}的跟踪狂"
+                $("#jobinfo").append pp "你是 #{obj.stalking.name}的跟踪狂"
             if obj.cultmembers?
-                $("#jobinfo").append pp "信者是#{obj.cultmembers.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "信者是 #{obj.cultmembers.map((x)->x.name).join(',')}"
             if obj.vampires?
-                $("#jobinfo").append pp "吸血鬼是#{obj.vampires.map((x)->x.name).join(',')}"
+                $("#jobinfo").append pp "吸血鬼是 #{obj.vampires.map((x)->x.name).join(',')}"
             if obj.supporting?
-                $("#jobinfo").append pp "向#{obj.supporting.name}（#{obj.supportingJob}）提供帮助"
+                $("#jobinfo").append pp "向 #{obj.supporting.name}（#{obj.supportingJob}） 提供帮助"
             if obj.dogOwner?
-                $("#jobinfo").append pp "你的饲主是#{obj.dogOwner.name}"
+                $("#jobinfo").append pp "你的饲主是 #{obj.dogOwner.name}"
             if obj.quantumwerewolf_number?
-                $("#jobinfo").append pp "你的玩家编号是第#{obj.quantumwerewolf_number}号"
+                $("#jobinfo").append pp "你的玩家编号是第 #{obj.quantumwerewolf_number} 号"
             
             if obj.winner?
                 # 勝敗
@@ -696,12 +696,15 @@ exports.start=(roomid)->
         $("#speakform").get(0).elements["norevivebutton"].addEventListener "click",(e)->
             Index.util.ask "强行退出","一旦成功强行退出将不能撤销。确定要这样做吗？",(result)->
                 if result
-                    ss.rpc "game.game.norevive", roomid, (result)->
-                        if result?
-                            # 错误
-                            Index.util.message "错误",result
-                        else
-                            Index.util.message "强行退出","成功强行退出。"
+                    if room.mode=="playing"
+                        ss.rpc "game.game.norevive", roomid, (result)->
+                            if result?
+                                # 错误
+                                Index.util.message "错误",result
+                            else
+                                Index.util.message "强行退出","成功强行退出。"
+                    else 
+                        Index.util.message "错误","本场游戏已经结束"
         ,false
         #========================================
             
