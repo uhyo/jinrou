@@ -5659,13 +5659,17 @@ class Blasphemy extends Player
     midnight:(game)->
         pl=game.getPlayer @target
         return unless pl?
+
+        # まずい対象だと自分が冒涜される
+        if pl.type in ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
+            pl=this
         return if pl.dead
+        @setFlag true
 
         # 狐憑きをつける
         newpl=Player.factory null,pl,null,FoxMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
-        @setFlag true
 
 class Ushinotokimairi extends Madman
     type:"Ushinotokimairi"
