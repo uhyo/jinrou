@@ -161,8 +161,11 @@ exports.start=(user)->
             thisgarr=phs[pindex] ? ""
             if !ull || thisgarr.indexOf(obj.phonetic.charAt 0)<0
                 # これには属していない
-                ull=$(document.createElement "ul")
-                prizesdiv.append ull
+                if $("#prizes ul").length >0
+                    ull=$("#prizes ul")
+                else
+                    ull=$(document.createElement "ul")
+                    prizesdiv.append ull
                 # 属す奴を探す
                 pindex=-1
                 for ph,i in phs
