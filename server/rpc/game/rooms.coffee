@@ -223,11 +223,11 @@ module.exports.actions=(req,res,ss)->
                     nowprize:su.nowprize
                 
                 # 同IP制限
-                ###
+                
                 if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
-                    res error:"重複参加はできません #{su.ip}"
+                    res error:"禁止多开 #{su.ip}"
                     return
-                ###
+                
                 
                 if room.blind
                     unless opt?.name
