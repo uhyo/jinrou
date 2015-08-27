@@ -170,7 +170,7 @@ module.exports.actions=(req,res,ss)->
             M.rooms.insert room
             Server.game.game.newGame room,ss
             res {id: room.id}
-            Server.oauth.template room.id,"「#{room.name}」（房间号：#{room.id} #{if room.password then '・有密码' else ''}#{if room.blind then '・假面模式' else ''}#{if room.gm then '・有GM' else ''}）建成了。 #月下人狼",Config.admin.password
+            Server.oauth.template room.id,"「#{room.name}」（房间号：#{room.id} #{if room.password then '・有密码' else ''}#{if room.blind then '・匿名模式' else ''}#{if room.gm then '・有GM' else ''}）建成了。 #月下人狼",Config.admin.password
 
     # 部屋に入る
     # 成功ならnull 失敗なら错误メッセージ
@@ -233,7 +233,7 @@ module.exports.actions=(req,res,ss)->
                     unless opt?.name
                         res error:"请输入昵称"
                         return
-                    # 假面模式
+                    # 匿名模式
                     makeid=->   # ID生成
                         re=""
                         while !re

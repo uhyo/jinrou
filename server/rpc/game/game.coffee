@@ -43,7 +43,7 @@ module.exports=
         name="#{player.name}"
         pr=""
         unless room.blind in ["complete","yes"]
-            # 假面模式のときは称号OFF
+            # 匿名模式のときは称号OFF
             player.nowprize?.forEach? (x)->
                 if x.type=="prize"
                     prname=Server.prize.prizeName x.value

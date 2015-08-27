@@ -34,12 +34,12 @@ exports.getroom=(mode,rooms)->
 		a.href="/room/#{room.id}"
 		a.textContent="#{room.name}(#{room.players.length})"
 		td.appendChild a
-		# 假面模式フラグ
+		# 匿名模式フラグ
 		if room.blind
 			img=document.createElement "img"
 			img.src="/images/blind.png"
 			img.width=img.height=16
-			img.alt="假面模式"
+			img.alt="匿名模式"
 			td.insertBefore img,td.firstChild
 		# ロックフラグ
 		if room.needpassword
