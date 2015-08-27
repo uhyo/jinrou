@@ -3,7 +3,9 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
-# 浅い模仿者
+cron=require 'cron'
+
+# 浅いコピー
 copyObject=(obj)->
     result=Object.create Object.getPrototypeOf obj
     for key in Object.keys(obj)
@@ -5661,13 +5663,17 @@ class Blasphemy extends Player
     midnight:(game)->
         pl=game.getPlayer @target
         return unless pl?
+
+        # まずい対象だと自分が冒涜される
+        if pl.type in ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
+            pl=this
         return if pl.dead
+        @setFlag true
 
         # 狐凭をつける
         newpl=Player.factory null,pl,null,FoxMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
-        @setFlag true
 
 class Ushinotokimairi extends Madman
     type:"Ushinotokimairi"
@@ -6510,6 +6516,19 @@ class Authority extends Complex
         game.votingbox.votePower this,1 #票をひとつ増やす
         null
 games={}
+
+# ゲームのGC
+new cron.CronJob '0 0 3,15 * * *',()->
+    # いらないGameを消す
+    tm=Date.now()-3600000   # 1時間前
+    for id,game of games
+        if game.finished
+            # 終わっているやつが消す候補
+            l=game.logs[game.logs.length-1]
+            if (!l?) || (l.time<tm)
+                # 十分古い
+                delete games[id]
+
 
 # ゲームを得る
 getGame=(id)->
