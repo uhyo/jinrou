@@ -134,6 +134,13 @@ module.exports.actions=(req,res,ss)->
             return
         M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
             id=if doc? then doc.id+1 else 1
+            
+            #在一定时间间隔内，同一用户不能连续建房
+            minTimeInterval = 30*1000
+            if doc.owner.userid==req.session.user.userid
+                if (Date.now()-doc.made)<minTimeInterval
+                    res {error: "您在#{((minTimeInterval-(Date.now()-doc.made))/1000).toFixed(0)}秒内不能连续建房。"}
+                    return
             room=
                 id:id   #ID連番
                 name: query.name
