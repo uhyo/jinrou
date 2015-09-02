@@ -142,8 +142,18 @@ exports.actions =(req,res,ss)->
                 if query.name==""
                     res {error:"ニックネームを入力して下さい"}
                     return
-                    
                 record.name=query.name
+
+            #max bytes of nick name
+            maxLength=30
+            record.name = record.name.trim()
+            if record.name == ''
+                res {error:"昵称不能仅为空格"}
+                return
+            else if record.name.replace(/[^\x00-\xFF]/g,'**').length > maxLength
+                res {error:"昵称不能超过"+maxLength+"个字节。"}
+                return
+
             if query.email?
                 record.email=query.email
             if query.comment? && query.comment.length<=200
