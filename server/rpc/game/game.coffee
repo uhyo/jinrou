@@ -6940,6 +6940,7 @@ module.exports.actions=(req,res,ss)->
                                 joblist.TinyFox++
                             else
                                 joblist.Blasphemy++
+                            fox_number--
                         if joblist.Vampire>0
                             frees+=joblist.Vampire
                         joblist.Vampire=vampire_number
