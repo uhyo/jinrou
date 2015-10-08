@@ -6876,7 +6876,7 @@ module.exports.actions=(req,res,ss)->
                         if frees>=9
                             wolf_number++
                             if frees>=12
-                                if Math.random()<0.7
+                                if Math.random()<0.6
                                     fox_number++
                                 else if Math.random()<0.7
                                     devil_number++
@@ -6923,11 +6923,23 @@ module.exports.actions=(req,res,ss)->
                         joblist.category_Werewolf=wolf_number
                         if joblist.Fox>0
                             frees+=joblist.Fox
-                        joblist.Fox=fox_number
-                        if fox_number>1 && Math.random()<0.4
-                            # 子狐
-                            joblist.TinyFox=1
-                            joblist.Fox--
+                        if joblist.TinyFox>0
+                            frees+=joblist.TinyFox
+                        if joblist.Blasphemy>0
+                            frees+=joblist.Blasphemy
+                        joblist.Fox=0
+                        joblist.TinyFox=0
+                        joblist.Blasphemy=0
+
+                        # 狐を振分け
+                        while fox_number>0
+                            r = Math.random()
+                            if r<0.55
+                                joblist.Fox++
+                            else if r<0.85
+                                joblist.TinyFox++
+                            else
+                                joblist.Blasphemy++
                         if joblist.Vampire>0
                             frees+=joblist.Vampire
                         joblist.Vampire=vampire_number
@@ -6937,13 +6949,14 @@ module.exports.actions=(req,res,ss)->
                         frees-= wolf_number+fox_number+vampire_number+devil_number
                         # 人外は選んだのでもう選ばれなくする
                         exceptions=exceptions.concat Shared.game.nonhumans
+                        exceptions.push "Blasphemy"
                     else
                         # 調整しない
                         joblist.category_Werewolf=1
                         frees--
                 
                 if safety.jingais || safety.jobs
-                    if joblist.Fox==0
+                    if joblist.Fox==0 && joblist.TinyFox==0
                         exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
                     
 
