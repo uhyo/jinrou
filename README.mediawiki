@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.uhyohyo.net/ 月下人狼サーバー]稼働中!
 == version ==
-1.10.2
+1.10.5
 
 == requirements ==
 * SocketStream
