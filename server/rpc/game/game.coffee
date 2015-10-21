@@ -6932,7 +6932,7 @@ module.exports.actions=(req,res,ss)->
                         joblist.Blasphemy=0
 
                         # 狐を振分け
-                        while fox_number>0
+                        for i in [0...fox_number]
                             r = Math.random()
                             if r<0.55
                                 joblist.Fox++
@@ -6940,7 +6940,6 @@ module.exports.actions=(req,res,ss)->
                                 joblist.TinyFox++
                             else
                                 joblist.Blasphemy++
-                            fox_number--
                         if joblist.Vampire>0
                             frees+=joblist.Vampire
                         joblist.Vampire=vampire_number
