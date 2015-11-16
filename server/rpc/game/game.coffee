@@ -1083,7 +1083,7 @@ class Game
                         break
         @werewolf_flag=@werewolf_flag.filter (fl)->
             # こいつらは1夜限り
-            return !(/^(?:GreedyWolf_|ToughWolf)_/.test fl)
+            return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
 
     # 死んだ人を処理する type: タイミング
     # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
