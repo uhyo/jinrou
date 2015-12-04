@@ -4250,7 +4250,7 @@ class Dictator extends Player
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
-        pl.die game,"punish",[this]
+        pl.die game,"punish",[@id]
         # 強制的に次のターンへ
         game.nextturn()
         null
