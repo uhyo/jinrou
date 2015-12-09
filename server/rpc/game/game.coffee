@@ -5650,6 +5650,7 @@ class Blasphemy extends Player
             return "その対象は存在しません"
         if pl.dead
             return "対象は既に死亡しています"
+        pl.touched game,@id
 
         log=
             mode:"skill"
