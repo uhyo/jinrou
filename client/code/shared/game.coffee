@@ -1532,7 +1532,7 @@ exports.rules=[
     {
         label:null
         visible:(rule,jobs)->
-            return true if isYaminabe true
+            return true if isYaminabe rule
             return jobs.Poisoner>0 || jobs.Cat>0
         rules:[
             {
