@@ -2557,7 +2557,11 @@ class Poisoner extends Player
         canbedead = game.players.filter (x)->!x.dead    # 生きている人たち
         if found=="werewolf"
             # 噛まれた場合は狼のみ
-            canbedead=canbedead.filter (x)->x.isWerewolf()
+            if game.rule.poisonwolf == "selector"
+                # 襲撃者を道連れにする
+                canbedead = canbedead.filter (x)->x.id==from
+            else
+                canbedead=canbedead.filter (x)->x.isWerewolf()
         else if found=="vampire"
             canbedead=canbedead.filter (x)->x.id==from
         return if canbedead.length==0
@@ -7370,6 +7374,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff",
+            "poisonwolf",
             "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
             

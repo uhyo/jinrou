@@ -1528,6 +1528,31 @@ exports.rules=[
             }
         ]
     }
+    # 埋毒者、猫又
+    {
+        label:null
+        visible:(rule,jobs)->
+            return true if isYaminabe true
+            return jobs.Poisoner>0 || jobs.Cat>0
+        rules:[
+            {
+                name: "poisonwolf"
+                label: "人狼の毒持ち襲撃"
+                title: "人狼が埋毒者・猫又を襲撃した場合の動作を設定します。"
+                type: "select"
+                values:[
+                    {
+                        value: "selector"
+                        label: "襲撃者を道連れ"
+                        selected: true
+                    }
+                    {
+                        value: ""
+                        label: "ランダムに道連れ"
+                    }
+                ]
+            }
+        ]
     # 恋人
     {
         label:null
