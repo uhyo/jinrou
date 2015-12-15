@@ -1553,6 +1553,7 @@ exports.rules=[
                 ]
             }
         ]
+    }
     # 恋人
     {
         label:null
