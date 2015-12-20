@@ -4370,7 +4370,7 @@ class Hoodlum extends Player
         pl=game.getPlayer playerid
         unless pl?
             return "対象が不正です"
-        plids=JSON.parse(@flag)
+        plids=JSON.parse(@flag||"[]")
         if pl.id in plids
             # 既にいる
             return "#{pl.name}は既に対象に選択しています"
