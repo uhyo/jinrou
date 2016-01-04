@@ -134,6 +134,8 @@ exports.start=(roomid)->
             if obj.dead
                 # 自分は既に死んでいる
                 document.body.classList.add "heaven"
+            else
+                document.body.classList.remove "heaven"
             if obj.will
                 $("#willform").get(0).elements["will"].value=obj.will
                 
