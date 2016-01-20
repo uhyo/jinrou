@@ -2464,6 +2464,7 @@ class Psychic extends Player
     
     # 処刑で死んだ人を調べる
     beforebury:(game,type)->
+        @setFlag if @flag? then @flag else ""
         game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
             @setFlag @flag+"#{@name}の霊能の結果、前日処刑された#{x.name}は#{x.psychicResult}でした。\n"
 
