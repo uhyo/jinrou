@@ -36,6 +36,7 @@ login= (query,req,cb,ss)->
             }
 
 exports.actions =(req,res,ss)->
+    req.use 'user.fire.wall'
     req.use 'session'
 
 # ログイン

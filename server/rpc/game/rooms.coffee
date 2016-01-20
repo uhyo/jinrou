@@ -74,6 +74,7 @@ sethelper=(ss,roomid,userid,id,res)->
                             ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
 
 module.exports.actions=(req,res,ss)->
+    req.use 'user.fire.wall'
     req.use 'session'
 
     getRooms:(mode,page)->

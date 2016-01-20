@@ -6753,6 +6753,7 @@ jobStrength=
     Ushinotokimairi:19
 
 module.exports.actions=(req,res,ss)->
+    req.use 'user.fire.wall'
     req.use 'session'
 
 #ゲーム開始処理
