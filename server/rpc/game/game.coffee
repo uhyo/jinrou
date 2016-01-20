@@ -6126,7 +6126,7 @@ class WolfMinion extends Complex
         @mcall game,@main.makejobinfo,game,result
         result.desc?.push {
             name:"狼の子分"
-            value:"WolfMinion"
+            type:"WolfMinion"
         }
     isWinner:(game,team)->@team==team
 # 酔っ払い
