@@ -70,7 +70,7 @@ sethelper=(ss,roomid,userid,id,res)->
                         # ヘルパーの様子を 知らせる
                         if pl.mode!=mode
                             # 新しくなった
-                            Server.game.game.helperlog room,pl,topl
+                            Server.game.game.helperlog ss,room,pl,topl
                             ss.publish.channel "room#{roomid}", "mode", {userid:x.userid,mode:mode}
 
 module.exports.actions=(req,res,ss)->
@@ -431,7 +431,7 @@ module.exports.actions=(req,res,ss)->
             req.session.channel.reset()
 
             req.session.channel.subscribe "room#{roomid}"
-            Server.game.game.playerchannel roomid,req.session
+            Server.game.game.playerchannel ss,roomid,req.session
             res {joined:room.players.some((x)=>x.realid==req.session.userId)}
     
     # 成功ならnull 失敗ならエラーメッセージ

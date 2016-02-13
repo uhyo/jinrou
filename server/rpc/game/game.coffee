@@ -12,6 +12,20 @@ copyObject=(obj)->
         result[key]=obj[key]
     result
 
+# ゲームオブジェクトを読み込む
+loadGame = (roomid, ss, callback)->
+    if games[roomid]?
+        callback null, games[roomid]
+    else
+        M.games.findOne {id:roomid}, (err,doc)=>
+            if err?
+                console.error err
+                callback err,null
+            else if !doc?
+                callback "そのゲームは存在しません",null
+            else
+                games[roomid] = Game.unserialize doc,ss
+                callback null, games[roomid]
 #内部用
 module.exports=
     newGame: (room,ss)->
@@ -116,61 +130,63 @@ module.exports=
             splashlog room.id,games[room.id], log
             games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
             games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
-    helperlog:(room,player,topl)->
-        log=null
-        if topl?
-            log=
-                comment:"#{player.name}さんが#{topl.name}さんのヘルパーになりました。"
-                userid:-1
-                name:null
-                mode:"system"
-        else
-            log=
-                comment:"#{player.name}さんがヘルパーをやめました。"
-                userid:-1
-                name:null
-                mode:"system"
+    helperlog:(ss,room,player,topl)->
+        loadGame room.id, ss, (err,game)->
+            log=null
+            if topl?
+                log=
+                    comment:"#{player.name}さんが#{topl.name}さんのヘルパーになりました。"
+                    userid:-1
+                    name:null
+                    mode:"system"
+            else
+                log=
+                    comment:"#{player.name}さんがヘルパーをやめました。"
+                    userid:-1
+                    name:null
+                    mode:"system"
 
-        if games[room.id]
-            splashlog room.id,games[room.id], log
+            if game?
+                splashlog room.id,game, log
     deletedlog:(room)->
-        log=
-            comment:"この部屋は廃村になりました。"
-            userid:-1
-            name:null
-            mode:"system"
-        if games[room.id]
-            splashlog room.id,games[room.id], log
+        loadGame room.id, ss, (err,game)->
+            if game?
+                log=
+                    comment:"この部屋は廃村になりました。"
+                    userid:-1
+                    name:null
+                    mode:"system"
+                splashlog room.id,game, log
     # 状況に応じたチャンネルを割り当てる
-    playerchannel:(roomid,session)->
-        game=games[roomid]
-        unless game?
-            return
-        player=game.getPlayerReal session.userId
-        unless player?
-            session.channel.subscribe "room#{roomid}_audience"
-#           session.channel.subscribe "room#{roomid}_notwerewolf"
-#           session.channel.subscribe "room#{roomid}_notcouple"
-            return
-        if player.isJobType "GameMaster"
-            session.channel.subscribe "room#{roomid}_gamemaster"
-            return
-        ###
-        if player.dead
-            session.channel.subscribe "room#{roomid}_heaven"
-        if game.rule.heavenview!="view" || !player.dead
-            if player.isWerewolf()
-                session.channel.subscribe "room#{roomid}_werewolf"
-            else
-                session.channel.subscribe "room#{roomid}_notwerewolf"
-        if game.rule.heavenview!="view" || !player.dead
-            if player.type=="Couple"
-                session.channel.subscribe "room#{roomid}_couple"
-            else
-                session.channel.subscribe "room#{roomid}_notcouple"
-        if player.type=="Fox"
-            session.channel.subscribe "room#{roomid}_fox"
-        ###
+    playerchannel:(ss,roomid,session)->
+        loadGame roomid, ss, (err,game)->
+            unless game?
+                return
+            player=game.getPlayerReal session.userId
+            unless player?
+                session.channel.subscribe "room#{roomid}_audience"
+                #session.channel.subscribe "room#{roomid}_notwerewolf"
+                #session.channel.subscribe "room#{roomid}_notcouple"
+                return
+            if player.isJobType "GameMaster"
+                session.channel.subscribe "room#{roomid}_gamemaster"
+                return
+            ###
+            if player.dead
+                session.channel.subscribe "room#{roomid}_heaven"
+            if game.rule.heavenview!="view" || !player.dead
+                if player.isWerewolf()
+                    session.channel.subscribe "room#{roomid}_werewolf"
+                else
+                    session.channel.subscribe "room#{roomid}_notwerewolf"
+            if game.rule.heavenview!="view" || !player.dead
+                if player.type=="Couple"
+                    session.channel.subscribe "room#{roomid}_couple"
+                else
+                    session.channel.subscribe "room#{roomid}_notcouple"
+            if player.type=="Fox"
+                session.channel.subscribe "room#{roomid}_fox"
+            ###
 Server=
     game:
         game:module.exports
@@ -185,7 +201,6 @@ class Game
             # GMがいる場合
             @gm= if room.gm then room.owner.userid else null
         
-        @logs=[]
         @players=[]         # 村人たち
         @participants=[]    # 参加者全て(@playersと同じ内容含む）
         @rule=null
@@ -202,6 +217,7 @@ class Game
         @timer_remain=null  # 残り時間全体（秒）
         @timer_mode=null    # タイマーの名前
         @revote_num=0   # 再投票を行った回数
+        @last_time=Date.now()   # 最後に動きがあった時間
         
         @werewolf_target=[] # 人狼の襲い先
         @werewolf_target_remain=0   #襲撃先をあと何人設定できるか
@@ -236,7 +252,7 @@ class Game
     serialize:->
         {
             id:@id
-            logs:@logs
+            #logs:@logs
             rule:@rule
             players:@players.map (x)->x.serialize()
             # 差分
@@ -259,7 +275,7 @@ class Game
         game=new Game ss
         game.id=obj.id
         game.gm=obj.gm
-        game.logs=obj.logs
+        #game.logs=obj.logs
         game.rule=obj.rule
         game.players=obj.players.map (x)->Player.unserialize x
         # 追加する
@@ -343,7 +359,12 @@ class Game
         @participants.filter((x)->x.realid==realid)[0]
     # DBにセーブ
     save:->
-        M.games.update {id:@id},@serialize()
+        M.games.update {id:@id},{
+            $set: @serialize()
+            $setOnInsert: {
+                logs: []
+            }
+        }
     # gamelogsに追加
     addGamelog:(obj)->
         @gamelogs ?= []
@@ -1392,6 +1413,7 @@ class Game
         if team?
             # 勝敗決定
             @finished=true
+            @last_time=Date.now()
             @winner=team
             if team!="Draw"
                 @players.forEach (x)=>
@@ -1584,8 +1606,8 @@ class Game
                     return
         timeout()
     # プレイヤーごとに　見せてもよいログをリストにする
-    makelogs:(player)->
-        @logs.map (x)=>
+    makelogs:(logs,player)->
+        logs.map (x)=>
             if islogOK this,player,x
                 x
             else
@@ -6531,8 +6553,7 @@ new cron.CronJob '0 0 * * * *',()->
     for id,game of games
         if game.finished
             # 終わっているやつが消す候補
-            l=game.logs[game.logs.length-1]
-            if (!l?) || (l.time<tm)
+            if (!game.last_time?) || (game.last_time<tm)
                 # 十分古い
                 delete games[id]
 
@@ -7422,37 +7443,31 @@ module.exports.actions=(req,res,ss)->
                         res result
     # 情報を開示
     getlog:(roomid)->
-        game=games[roomid]
-        ne= =>
-            # ゲーム後の行動
-            player=game.getPlayerReal req.session.userId
-            result=
-                #logs:game.logs.filter (x)-> islogOK game,player,x
-                logs:game.makelogs player
-            result=makejobinfo game,player,result
-            result.timer=if game.timerid?
-                game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
+        M.games.findOne {id:roomid}, (err,doc)=>
+            if err?
+                console.error err
+                callback err,null
+            else if !doc?
+                callback "そのゲームは存在しません",null
             else
-                null
-            result.timer_mode=game.timer_mode
-            if game.day==0
-                # 開始前はプレイヤー情報配信しない
-                delete result.game.players
-            res result
-        if game?
-            ne()
-        else
-            # DBから読もうとする
-            M.games.findOne {id:roomid}, (err,doc)=>
-                if err?
-                    console.log err
-                    throw err
-                unless doc?
-                    res {error:"そのゲームは存在しません"}
-                    return
-                games[roomid]=game=Game.unserialize doc,ss
-                ne()
-            return
+                unless games[roomid]?
+                    games[roomid] = Game.unserialize doc,ss
+                game = games[roomid]
+                # ゲーム後の行動
+                player=game.getPlayerReal req.session.userId
+                result=
+                    #logs:game.logs.filter (x)-> islogOK game,player,x
+                    logs:game.makelogs (doc.logs ? []), player
+                result=makejobinfo game,player,result
+                result.timer=if game.timerid?
+                    game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
+                else
+                    null
+                    result.timer_mode=game.timer_mode
+                    if game.day==0
+                        # 開始前はプレイヤー情報配信しない
+                        delete result.game.players
+                        res result
         
     speak: (roomid,query)->
         game=games[roomid]
@@ -7703,7 +7718,6 @@ module.exports.actions=(req,res,ss)->
 
 splashlog=(roomid,game,log)->
     log.time=Date.now() # 時間を付加
-    game.logs.push log
     #DBに追加
     M.games.update {id:roomid},{$push:{logs:log}}
     flash=(log,rev=false)-> #rev: 逆な感じで配信
