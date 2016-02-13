@@ -5867,7 +5867,7 @@ class GotChocolate extends Player
             # ?????
             return "対象が不正です"
         while top?.isComplex()
-            if top.cmplType=="GotChocolateTrue"
+            if top.cmplType=="GotChocolateTrue" && top.sub==this
                 # 本命だ
                 t=game.getPlayer top.cmplFlag
                 if t?
@@ -5889,7 +5889,7 @@ class GotChocolate extends Player
                     flag = true
                     game.ss.publish.user top.id,"refresh",{id:game.id}
                     break
-            else if top.cmplType=="GotChocolateFalse"
+            else if top.cmplType=="GotChocolateFalse" && top.sub==this
                 # 義理だ
                 @setFlag "selected:#{top.cmplFlag}"
                 flag = true
