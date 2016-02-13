@@ -7374,7 +7374,7 @@ module.exports.actions=(req,res,ss)->
                             joblist.Bomber ?= 0
                             joblist.Bomber++
                             frees--
-                    if month==2 && 13<=d<=14
+                    if month==1 && 13<=d<=14
                         # パティシエールが出やすい
                         if Math.random()<0.4 && frees>0
                             joblist.Patissiere ?= 0
