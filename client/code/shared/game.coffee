@@ -48,6 +48,9 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
     if month==6 && d>=26 || month==7 && d<=16
         # 7/26〜8/16
         exports.jobs.push "Pyrotechnist"
+    if month==1 && 13<=d<=14
+        # 2/13〜2/14
+        exports.jobs.push "Patissiere"
 )(new Date)
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf"]
@@ -61,7 +64,7 @@ exports.teams=teams=
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
-    Friend:["Cupid","Lover","BadLady"]
+    Friend:["Cupid","Lover","BadLady","Patissiere"]
     Vampire:["Vampire"]
     Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer"],
     Neet:["Neet"]
@@ -74,7 +77,7 @@ exports.categories=
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom"]
-    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere"]
 
 exports.categoryNames=
     Human:"村人系"
@@ -927,6 +930,9 @@ exports.jobinfo=
         BadLady:
             name:"悪女"
             color:"#cf0085"
+        Patissiere:
+            name:"パティシエール"
+            color:"#ab5f30"
     Vampire:
         name:"ヴァンパイア陣営"
         color:"#8f00bf"

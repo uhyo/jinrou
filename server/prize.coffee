@@ -40,6 +40,8 @@ module.exports=exports=
                 inc=obj.func game,pl
                 if inc>0
                     query.$inc["counter.#{prizename}"]=inc
+            if Object.getOwnPropertyNames(query["$inc"]).length == 0
+                delete query["$inc"]
 
             M.userlogs.findAndModify {userid:pl.realid},{},query,{
                 new:true,

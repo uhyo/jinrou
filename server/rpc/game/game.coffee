@@ -908,7 +908,7 @@ class Game
                             x
             # エンドレス闇鍋用途中参加処理
             if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching"]
+                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
                 jobnames=Object.keys(jobs).filter (name)->!(name in exceptions)
                 pcs=@participants.concat []
                 join_count=0
@@ -2146,10 +2146,12 @@ class Player
             obj.open.push @type
         # 役職解説のアレ
         obj.desc ?= []
-        obj.desc.push {
-            name:@getJobDisp()
-            type:@getTypeDisp()
-        }
+        type = @getTypeDisp()
+        if type?
+            obj.desc.push {
+                name:@getJobDisp()
+                type:type
+            }
 
         obj.job_target=@getjob_target()
         # 選択肢を教える {name:"名前",value:"値"}
@@ -5747,6 +5749,250 @@ class Ushinotokimairi extends Madman
             player.addGamelog game,"cursekill",null,@id
         super
 
+class Patissiere extends Player
+    type: "Patissiere"
+    jobname: "パティシエール"
+    team:"Friend"
+    sunset:(game)->
+        unless @flag?
+            if @scapegoat
+                # 身代わりくんはチョコを配らない
+                @setFlag true
+                @setTarget ""
+            else
+                @setTarget null
+        else
+            @setTarget ""
+    sleeping:(game)->@flag || @target?
+    job:(game,playerid,query)->
+        if @target?
+            return "既に対象を決定しています"
+        if @flag
+            return "もうチョコを配れません"
+        pl=game.getPlayer playerid
+        unless pl?
+            return "対象が不正です"
+        if playerid==@id
+            return "自分以外を選択して下さい"
+        pl.touched game,@id
+        @setTarget playerid
+        @setFlag true
+        log=
+            mode: "skill"
+            to: @id
+            comment: "#{@name}は#{pl.name}を本命に選びました。"
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer @target
+        unless pl?
+            return
+
+        # 全員にチョコを配る（1人本命）
+        alives = game.players.filter((x)->!x.dead).map((x)-> x.id)
+        for pid in alives
+            p = game.getPlayer pid
+            if p.id == pl.id
+                # 本命
+                sub = Player.factory "GotChocolate"
+                p.transProfile sub
+                sub.sunset game
+                newpl = Player.factory null, p, sub, GotChocolateTrue
+                newpl.cmplFlag=@id
+                p.transProfile newpl
+                p.transferData newpl
+                p.transform game, newpl, true
+                log=
+                    mode:"skill"
+                    to: p.id
+                    comment: "#{p.name}にチョコレートが届きました。"
+                splashlog game.id,game,log
+            else if p.id != @id
+                # 義理
+                sub = Player.factory "GotChocolate"
+                p.transProfile sub
+                sub.sunset game
+                newpl = Player.factory null, p, sub, GotChocolateFalse
+                newpl.cmplFlag=@id
+                p.transProfile newpl
+                p.transferData newpl
+                p.transform game, newpl, true
+                log=
+                    mode:"skill"
+                    to: p.id
+                    comment: "#{p.name}にチョコレートが届きました。"
+                splashlog game.id,game,log
+        # 自分は本命と恋人になる
+        top = game.getPlayer @id
+        newpl = Player.factory null, top, null, Friend
+        newpl.cmplFlag=pl.id
+        top.transProfile newpl
+        top.transferData newpl
+        top.transform game,newpl,true
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: "#{@name}は#{pl.name}と恋人になりました。"
+        splashlog game.id, game, log
+        null
+
+# 内部処理用：チョコレートもらった
+class GotChocolate extends Player
+    type: "GotChocolate"
+    jobname: "チョコレート"
+    sleeping:->true
+    jobdone:(game)-> @flag!="unselected"
+    job_target:0
+    getTypeDisp:->if @flag=="done" then null else @type
+    makeJobSelection:(game)->
+        if game.night
+            []
+        else super
+    sunset:(game)->
+        if !@flag?
+            # 最初は選択できない
+            @setTarget ""
+            @setFlag "waiting"
+        else if @flag=="waiting"
+            # 選択できるようになった
+            @setFlag "unselected"
+    job:(game,playerid)->
+        unless @flag == "unselected"
+            return "能力を使用できません"
+        # 食べると本命か義理か判明する
+        flag = false
+        top = game.getPlayer @id
+        unless top?
+            # ?????
+            return "対象が不正です"
+        while top?.isComplex()
+            if top.cmplType=="GotChocolateTrue"
+                # 本命だ
+                t=game.getPlayer top.cmplFlag
+                if t?
+                    log=
+                        mode:"skill"
+                        to: @id
+                        comment: "#{@name}が食べたチョコレートは本命でした。#{@name}は#{t.name}と恋人になりました。"
+                    splashlog game.id, game, log
+                    @setFlag "done"
+                    # 本命を消す
+                    top.uncomplex game, false
+                    # 恋人になる
+                    top = game.getPlayer @id
+                    newpl = Player.factory null, top, null, Friend
+                    newpl.cmplFlag = t.id
+                    top.transProfile newpl
+                    top.transform game,newpl,true
+                    top = game.getPlayer @id
+                    flag = true
+                    game.ss.publish.user top.id,"refresh",{id:game.id}
+                    break
+            else if top.cmplType=="GotChocolateFalse"
+                # 義理だ
+                @setFlag "selected:#{top.cmplFlag}"
+                flag = true
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートは義理でした。"
+                splashlog game.id, game, log
+                break
+            top = top.main
+        if flag == false
+            # チョコレートをもらっていなかった
+            log=
+                mode:"skill"
+                to: @id
+                comment: "#{@name}はチョコレートを食べましたが、何も起こりませんでした。"
+            splashlog game.id, game, log
+        null
+    midnight:(game)->
+        re = @flag?.match /^selected:(.+)$/
+        if re?
+            @setFlag "done"
+            @uncomplex game, true
+            # 義理チョコの効果発動
+            top = game.getPlayer @id
+            r = Math.random()
+            if r < 0.12
+                # 呪いのチョコ
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートは呪いのチョコレートでした。次の昼は発言できません。"
+                splashlog game.id, game, log
+                newpl = Player.factory null, top, null, Muted
+                top.transProfile newpl
+                top.transform game, newpl, true
+            else if r < 0.30
+                # ブラックチョコ
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートはブラックチョコレートでした。占い・霊能結果が人狼になりました。"
+                splashlog game.id, game, log
+                newpl = Player.factory null, top, null, Blacked
+                top.transProfile newpl
+                top.transform game, newpl, true
+            else if r < 0.45
+                # ホワイトチョコ
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートはホワイトチョコレートでした。占い・霊能結果が村人になりました。"
+                splashlog game.id, game, log
+                newpl = Player.factory null, top, null, Whited
+                top.transProfile newpl
+                top.transform game, newpl, true
+            else if r < 0.50
+                # 毒入りチョコ
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートは毒入りチョコでした。"
+                splashlog game.id, game, log
+                @die game, "poison", @id
+            else if r < 0.57
+                # ストーカー化
+                topl = game.getPlayer re[1]
+                if topl?
+                    newpl = Player.factory "Stalker"
+                    top.transProfile newpl
+                    # ストーカー先
+                    newpl.setFlag re[1]
+                    top.transform game, newpl, true
+
+                    log=
+                        mode:"skill"
+                        to: @id
+                        comment: "#{@name}は執念でチョコレートの差出人を探し出しました。#{@name}は#{topl.name}のストーカーになりました。"
+                    splashlog game.id, game, log
+            else if r < 0.65
+                # 血入りの……
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートはなんだか鉄の味がしました。占い結果がヴァンパイアになりました。"
+                splashlog game.id, game, log
+                newpl = Player.factory null, top, null, VampireBlooded
+                top.transProfile newpl
+                top.transform game, newpl, true
+            else if r < 0.75
+                # 聖職
+                log=
+                    mode:"skill"
+                    to: @id
+                    comment: "#{@name}が食べたチョコレートは聖なるチョコでした。聖職者の能力を1度使えます。"
+                splashlog game.id, game, log
+                sub = Player.factory "Priest"
+                top.transProfile sub
+                newpl = Player.factory null, top, sub, Complex
+                top.transProfile newpl
+                top.transform game, newpl, true
+
+
 
 
 # 処理上便宜的に使用
@@ -6524,6 +6770,40 @@ class DivineCursed extends Complex
         @die game,"curse"
         player.addGamelog game,"cursekill",null,@id # 呪殺した
 
+# パティシエールに本命チョコをもらった
+class GotChocolateTrue extends Friend
+    cmplType:"GotChocolateTrue"
+    getJobname:->@main.getJobname()
+    getJobDisp:->@main.getJobDisp()
+    getPartner:->
+        if @cmplType=="GotChocolateTrue"
+            return @cmplFlag
+        else
+            return @main.getPartner()
+    makejobinfo:(game,result)->
+        # 恋人情報はでない
+        @sub?.makejobinfo? game,result
+        @mcall game,@main.makejobinfo,game,result
+# 本命ではない
+class GotChocolateFalse extends Complex
+    cmplType:"GotChocolateFalse"
+
+# 黒になった
+class Blacked extends Complex
+    cmplType:"Blacked"
+    fortuneResult: "人狼"
+    psychicResult:"人狼"
+
+# 白になった
+class Whited extends Complex
+    cmplType:"Whited"
+    fortuneResult: "村人"
+    psychicResult:"村人"
+
+# 占い結果ヴァンパイア化
+class VampireBlooded extends Complex
+    cmplType:"VampireBlooded"
+    fortuneResult: "ヴァンパイア"
 
 
 # 決定者
@@ -6651,6 +6931,8 @@ jobs=
     Bomber:Bomber
     Blasphemy:Blasphemy
     Ushinotokimairi:Ushinotokimairi
+    Patissiere:Patissiere
+    GotChocolate:GotChocolate
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -6681,6 +6963,11 @@ complexes=
     BombTrapped:BombTrapped
     FoxMinion:FoxMinion
     DivineCursed:DivineCursed
+    GotChocolateTrue:GotChocolateTrue
+    GotChocolateFalse:GotChocolateFalse
+    Blacked:Blacked
+    Whited:Whited
+    VampireBlooded:VampireBlooded
 
     # 役職ごとの強さ
 jobStrength=
@@ -7087,6 +7374,16 @@ module.exports.actions=(req,res,ss)->
                             joblist.Bomber ?= 0
                             joblist.Bomber++
                             frees--
+                    if month==2 && 13<=d<=14
+                        # パティシエールが出やすい
+                        if Math.random()<0.4 && frees>0
+                            joblist.Patissiere ?= 0
+                            joblist.Patissiere++
+                            frees--
+                    else
+                        # 出にくい
+                        if Math.random()<0.84
+                            exceptions.push "Patissiere"
                     if month==0 && d<=3
                         # 正月は巫女がでやすい
                         if Math.random()<0.5 && frees>0
@@ -7464,10 +7761,10 @@ module.exports.actions=(req,res,ss)->
                 else
                     null
                     result.timer_mode=game.timer_mode
-                    if game.day==0
-                        # 開始前はプレイヤー情報配信しない
-                        delete result.game.players
-                        res result
+                if game.day==0
+                    # 開始前はプレイヤー情報配信しない
+                    delete result.game.players
+                res result
         
     speak: (roomid,query)->
         game=games[roomid]
