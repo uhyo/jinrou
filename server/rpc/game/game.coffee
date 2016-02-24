@@ -3866,7 +3866,6 @@ class Witch extends Player
             return "薬の使用先が不正です"
         if pl.id==@id
             return "自分には使用できません"
-        pl.touched game,@id
 
         if query.Witch_drug=="kill"
             # 毒薬
@@ -3883,6 +3882,7 @@ class Witch extends Player
                 return "使用先は既に死んでいます"
             
             # 薬を使用
+            pl.touched game,@id
             @flag |= 16 # 今晩殺害使用
             if (@flag&1)==0
                 @flag |= 1  # 1つ目
@@ -3903,6 +3903,7 @@ class Witch extends Player
                 return "使用先はまだ生きています"
             
             # 薬を使用
+            pl.touched game,@id
             @flag |= 12
             @setTarget playerid
             log=
