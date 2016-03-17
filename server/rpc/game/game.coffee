@@ -4755,14 +4755,16 @@ class Miko extends Player
             to:@id
             comment:"#{@name}が聖なる力で自身を守りました。"
         splashlog game.id,game,log
-        @setFlag true
+        @setFlag "using"
         null
     midnight:(game)->
         # 複合させる
-        pl = game.getPlayer @id
-        newpl=Player.factory null,pl,null,MikoProtected # 守られた人
-        pl.transProfile newpl
-        pl.transform game,newpl,true
+        if @flag=="using"
+            pl = game.getPlayer @id
+            newpl=Player.factory null,pl,null,MikoProtected # 守られた人
+            pl.transProfile newpl
+            pl.transform game,newpl,true
+            @setFlag "done"
         null
     makeJobSelection:(game)->
         # 夜は投票しない
