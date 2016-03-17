@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.uhyohyo.net/ 月下人狼サーバー]稼働中!
 == version ==
-1.10.9
+1.11.0
 
 == requirements ==
 * SocketStream
@@ -20,7 +20,7 @@ and others...
 # SS_ENV=production SS_PACK=1 node app.js
 
 == jobs ==
-全70種くらい?
+全80種くらい?
 
 === 基本 ===
 * 村人
