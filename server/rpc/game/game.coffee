@@ -6130,7 +6130,7 @@ class Hypnotist extends Madman
         super
         @setFlag null
     sunset:(game)->
-        if @flag
+        if @flag || game.day==1
             @setTarget ""
         else
             @setTarget null
