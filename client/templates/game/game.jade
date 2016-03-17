@@ -270,6 +270,14 @@
       p
         | 本命チョコをあげる相手を選んで下さい：
         input(type="submit",value="選択",data-job="Patissiere")
+    #form_MadDog(hidden).jobformarea
+      p
+        | 襲撃する相手を選んで下さい（非強制）：
+        input(type="submit",value="襲撃",data-job="MadDog")
+    #form_Hypnotist(hidden).jobformarea
+      p
+        | 催眠術をかける相手を選んで下さい（非強制）：
+        input(type="submit",value="催眠術をかける",data-job="Hypnotist")
     #form_GotChocolate(hidden).jobformarea
       p
         input(type="submit",value="チョコを食べる",data-job="GotChocolate")
