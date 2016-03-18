@@ -3891,6 +3891,12 @@ class Witch extends Player
         @setTarget null
         unless @flag
             @setFlag 0
+        else
+            # jobだけ実行してmidnightがなかったときの処理
+            if @flag & 8
+                @setFlag @flag^8
+            if @flag & 16
+                @setFlag @flag^16
     job:(game,playerid,query)->
         # query.Witch_drug
         pl=game.getPlayer playerid
