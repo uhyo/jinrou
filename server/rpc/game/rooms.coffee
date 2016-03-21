@@ -463,7 +463,7 @@ module.exports.actions=(req,res,ss)->
                     res "エラー:#{err}"
                 else
                     res null
-                    Server.game.game.deletedlog room
+                    Server.game.game.deletedlog ss,room
                     
     # 部屋探し
     find:(query,page)->
