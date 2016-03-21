@@ -148,7 +148,7 @@ module.exports=
 
             if game?
                 splashlog room.id,game, log
-    deletedlog:(room)->
+    deletedlog:(ss,room)->
         loadGame room.id, ss, (err,game)->
             if game?
                 log=
