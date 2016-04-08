@@ -5703,6 +5703,8 @@ class Bomber extends Madman
     midnightSort:100
     sleeping:->true
     jobdone:->@flag?
+    sunset:(game)->
+        @setTarget null
     job:(game,playerid)->
         pl=game.getPlayer playerid
         unless pl?
