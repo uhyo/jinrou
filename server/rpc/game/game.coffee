@@ -6419,6 +6419,18 @@ class Complex
     revive:(game)->
         @mcall game,@main.revive,game
         @sub?.revive game
+        isRevived = if @sub? then !(@main.dead || @sub.dead) else !@main.dead
+        if isRevived
+            @setDead false,null
+        else
+            #@main or @sub is BloodyMary
+            @setDead true,null
+            log=
+                mode:"system"
+                comment:"#{@name} の蘇生は失敗しました。"
+            splashlog game.id,game,log
+            # @addGamelog game,"revive",null,null
+            game.ss.publish.user @id,"refresh",{id:game.id}
     makeJobSelection:(game)->
         result=@mcall game,@main.makeJobSelection,game
         if @sub?
