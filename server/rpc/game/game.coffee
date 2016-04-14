@@ -6417,8 +6417,20 @@ class Complex
         @mcall game,@main.dying,game,found,from
         @sub?.dying game,found,from
     revive:(game)->
+        # まずsubを蘇生
+        if @sub?
+            @sub.revive game
+            if @sub.dead
+                # 蘇生できない類だ
+                return
+        # 次にmainを蘇生
         @mcall game,@main.revive,game
-        @sub?.revive game
+        if @main.dead
+            # 蘇生できなかった
+            @setDead true, @main.found
+        else
+            # 蘇生できた
+            @setDead false, null
     makeJobSelection:(game)->
         result=@mcall game,@main.makeJobSelection,game
         if @sub?
