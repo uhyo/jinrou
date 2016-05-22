@@ -7044,7 +7044,7 @@ class Authority extends Complex
 games={}
 
 # ゲームのGC
-new cron.CronJob '0 0 * * * *',()->
+new cron.CronJob("0 0 * * * *", ->
     # いらないGameを消す
     tm=Date.now()-3600000   # 1時間前
     for id,game of games
@@ -7053,6 +7053,8 @@ new cron.CronJob '0 0 * * * *',()->
             if (!game.last_time?) || (game.last_time<tm)
                 # 十分古い
                 delete games[id]
+    return
+, null, true, "Asia/Tokyo")
 
 
 # ゲームを得る
