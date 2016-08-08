@@ -343,7 +343,7 @@ class Game
                     r.option=""
                     r.originalJobname=x.originalJobname
                     r.winner=x.winner
-                unless @rule?.blind=="complete" || (@rule?.blind=="yes" && !@finished)
+                if obj?.gm || not (@rule?.blind=="complete" || (@rule?.blind=="yes" && !@finished))
                     # 公開してもよい
                     r.realid=x.realid
                 r
@@ -7339,7 +7339,7 @@ module.exports.actions=(req,res,ss)->
             playersnumber=frees
             # 人数の確認
             if frees<6
-                res "人数が少なすぎるので開始できません"
+                res "人数が少なすぎるので開始できません。身代わりくんを含めて6人必要です。"
                 return
             if query.jobrule=="特殊ルール.量子人狼" && frees>=20
                 # 多すぎてたえられない
@@ -8315,10 +8315,14 @@ makejobinfo = (game,player,result={})->
             unless actpl?
                 #あれっ
                 actpl=player
-    openjob_flag=game.finished || (actpl?.dead && game.heavenview) || actpl?.isJobType("GameMaster")
+    is_gm = actpl?.isJobType("GameMaster")
+    openjob_flag=game.finished || (actpl?.dead && game.heavenview) || is_gm
     result.openjob_flag = openjob_flag
 
-    result.game=game.publicinfo({openjob:openjob_flag})  # 終了か霊界（ルール設定あり）の場合は職情報公開
+    result.game=game.publicinfo({
+        openjob: openjob_flag
+        gm: is_gm
+    })  # 終了か霊界（ルール設定あり）の場合は職情報公開
     result.id=game.id
 
     if player

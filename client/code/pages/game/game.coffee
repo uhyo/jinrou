@@ -234,6 +234,8 @@ exports.start=(roomid)->
         ss.rpc "game.game.getlog", roomid,sentlog
         # 新しいゲーム
         newgamebutton = (je)->
+            unless $("#gamestartsec").attr("hidden") == "hidden"
+                return
             form=$("#gamestart").get 0
             # ルール設定保存を参照する
             # ルール画面を構築するぞーーー(idx: グループのアレ)
@@ -368,9 +370,10 @@ exports.start=(roomid)->
                     if e?
                         e.value=jobs[job]?.number ? 0
 
+            $("#gamestartsec").removeAttr "hidden"
+
             forminfo()
 
-            $("#gamestartsec").removeAttr "hidden"
         $("#roomname").text room.name
         if room.mode=="waiting"
             # 開始前のユーザー一覧は roomから取得する
@@ -883,14 +886,15 @@ exports.start=(roomid)->
     
         
     setplayersnumber=(room,form,number)->
-        
         form.elements["number"].value=number
-        setplayersbyjobrule room,form,number
-        jobsformvalidate room,form
+        console.log $("#gamestartsec").attr("hidden")
+        unless $("#gamestartsec").attr("hidden") == "hidden"
+            setplayersbyjobrule room,form,number
+            jobsformvalidate room,form
     # 配役一覧をアレする
     setplayersbyjobrule=(room,form,number)->
         jobrulename=form.elements["jobrule"].value
-        if form.elements["scapegoat"].value=="on"
+        if form.elements["scapegoat"]?.value=="on"
             number++    # 身代わりくん
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
             $("#jobsfield").get(0).hidden=false
@@ -1287,9 +1291,9 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
     p=document.createElement "p"
     p.classList.add "name"
     
-    if !blindflg || !obj.realid
+    if obj.realid
         a=document.createElement "a"
-        a.href="/user/#{obj.realid ? obj.userid}"
+        a.href="/user/#{obj.realid}"
         a.textContent=obj.name
         p.appendChild a
     else

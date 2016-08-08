@@ -119,8 +119,10 @@ module.exports.actions=(req,res,ss)->
                 res {error:err}
                 return
             # クライアントからの問い合わせの場合
+            pl = result.players.filter((x)-> x.realid==req.session.userId)[0]
             result.players.forEach (p)->
-                delete p.realid
+                unless pl?.mode == "gm"
+                    delete p.realid
                 delete p.ip
             # ふるいかどうか
             if result.made < Date.now()-Config.rooms.fresh*3600000
