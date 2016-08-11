@@ -1,11 +1,11 @@
 {
   "name": "werewolf",
   "description": "You are a werewolf.",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "author": "uhyo <uhyohyo@uhyohyohyo.sakura.ne.jp>",
   "private": false,
   "engines": {
-    "node": ">= 0.10.0 <4.0.0"
+    "node": "0.12.7"
   },
   "dependencies": {
     "cron": "^1.0.9",
