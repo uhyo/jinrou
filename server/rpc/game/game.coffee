@@ -7155,10 +7155,10 @@ class Chemical extends Complex
             0
         else if @isWerewolf()
             0
-        else if @sub?
-            @main.humanCount() + @sub.humanCount()
+        else if @isHuman()
+            1
         else
-            @main.humanCount()
+            0
     werewolfCount:->
         if @isFox()
             0
