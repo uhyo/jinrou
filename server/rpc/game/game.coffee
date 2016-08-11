@@ -1361,6 +1361,10 @@ class Game
         humans=aliveps.map((x)->x.humanCount()).reduce(((a,b)->a+b), 0)
         wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
         vampires=aliveps.map((x)->x.vampireCount()).reduce(((a,b)->a+b), 0)
+        console.log humans, wolves, vampires
+        console.log aliveps.map((x)->x.humanCount())
+        console.log aliveps.map((x)->x.werewolfCount())
+        console.log aliveps.map((x)->x.vampireCount())
 
         team=null
         friends_count=null
@@ -6552,6 +6556,11 @@ class Complex
     isListener:(game,log)->
         @mcall(game,@main.isListener,game,log) || @sub?.isListener(game,log)
     isReviver:->@main.isReviver() || @sub?.isReviver()
+    isHuman:->@main.isHuman()
+    isWerewolf:->@main.isWerewolf()
+    isFox:->@main.isFox()
+    isVampire:->@main.isVampire()
+    isWinner:->@main.isWinner()
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
@@ -7145,7 +7154,11 @@ class Chemical extends Complex
     sleeping:(game)->@main.sleeping(game) && (!@sub? || @sub.sleeping(game))
     jobdone:(game)->@main.jobdone(game) && (!@sub? || @sub.jobdone(game))
 
-    isHuman:-> @main.isHuman() && @sub?.isHuman()
+    isHuman:->
+        if @sub?
+            @main.isHuman() && @sub.isHuman()
+        else
+            @main.isHuman()
     isWerewolf:-> @main.isWerewolf() || @sub?.isWerewolf()
     isFox:-> @main.isFox() || @sub?.isFox()
     isFoxVisible:-> @main.isFoxVisible() || @sub?.isFoxVisible()
