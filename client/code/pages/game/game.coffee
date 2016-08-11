@@ -487,10 +487,9 @@ exports.start=(roomid)->
             t=e.target
             form=t.form
             pl=room.players.filter((x)->x.mode=="player").length
-            if t.name=="jobrule"
+            if t.name=="jobrule" || t.name=="chemical"
                 # ルール変更があった
                 setplayersbyjobrule room,form,pl
-                return
             jobsformvalidate room,form
         form.addEventListener "input",jobsforminput,false
         form.addEventListener "change",jobsforminput,false
@@ -527,7 +526,6 @@ exports.start=(roomid)->
             # 相違がないか探す
             diff=null
             for key,value of (ruleobj.suggestedOption ? {})
-                console.log key,value,query[key], je.target.elements[key]
                 if query[key]!=value
                     diff=
                         key:key
@@ -656,7 +654,6 @@ exports.start=(roomid)->
                                     unless flg
                                         continue
                                 when "time"
-                                    console.log ruleobj
                                     val+="#{ruleobj[obj.name.minute]}分#{ruleobj[obj.name.second]}秒"
                                 when "second"
                                     val+="#{ruleobj[obj.name]}秒"
@@ -887,7 +884,6 @@ exports.start=(roomid)->
         
     setplayersnumber=(room,form,number)->
         form.elements["number"].value=number
-        console.log $("#gamestartsec").attr("hidden")
         unless $("#gamestartsec").attr("hidden") == "hidden"
             setplayersbyjobrule room,form,number
             jobsformvalidate room,form
@@ -911,7 +907,6 @@ exports.start=(roomid)->
             jobrulename="内部利用.量子人狼"
         obj= Shared.game.getrulefunc jobrulename
         if obj?
-
             form.elements["number"].value=number
             for x in Shared.game.jobs
                 form.elements[x].value=0
@@ -923,7 +918,13 @@ exports.start=(roomid)->
             # カテゴリ別
             for type of Shared.game.categoryNames
                 count+= parseInt(form.elements["category_#{type}"].value ? 0)
-            form.elements["Human"].value=number-count   # 村人
+            # 残りが村人の人数
+            if form.elements["chemical"]?.checked
+                # chemical人狼では村人を足す
+                form.elements["Human"].value = number*2 - count
+            else
+                form.elements["Human"].value = number-count
+
         setjobsmonitor form,number
     jobsformvalidate=(room,form)->
         # 村人の人数を調節する
@@ -937,7 +938,10 @@ exports.start=(roomid)->
         # カテゴリ別
         for type of Shared.game.categoryNames
             sum+= parseInt(form.elements["category_#{type}"].value ? 0)
-        form.elements["Human"].value=pl-sum
+        if form.elements["chemical"].checked
+            form.elements["Human"].value=pl*2-sum
+        else
+            form.elements["Human"].value=pl-sum
         form.elements["number"].value=pl
         setjobsmonitor form,pl
     # ルールの表示具合をチェックする

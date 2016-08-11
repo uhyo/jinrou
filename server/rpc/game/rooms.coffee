@@ -306,7 +306,6 @@ module.exports.actions=(req,res,ss)->
 
     ready:(roomid)->
         # 準備ができたか？
-        console.log req.session.userId
         unless req.session.userId
             res "ログインして下さい"
             return
@@ -494,7 +493,6 @@ module.exports.actions=(req,res,ss)->
         if query.rule
             q["rule.jobrule"]=query.rule
         # 日付新しい
-        console.log q
         M.games.find(q).sort({_id:-1}).limit(page_number).skip(page_number*page).toArray (err,results)->
             if err?
                 throw err

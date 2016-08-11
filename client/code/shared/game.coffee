@@ -1311,6 +1311,30 @@ exports.rules=[
                         }
             }
             {
+                name:"runoff"
+                label:"決選投票"
+                title:"ありの場合、上位候補で決選投票を行います。"
+                type:"select"
+                values:[
+                    {
+                        value:"no"
+                        label:"なし"
+                        selected:true
+                    }
+                    {
+                        value:"revote"
+                        label:"再投票時"
+                    }
+                    {
+                        value:"yes"
+                        label:"常に行う"
+                    }
+                ]
+            }
+            {
+                type: "separator"
+            }
+            {
                 name:"losemode"
                 label:"敗北村"
                 title:"負けることを目指す人狼です。"
@@ -1331,25 +1355,14 @@ exports.rules=[
                 }
             }
             {
-                name:"runoff"
-                label:"決選投票"
-                title:"ありの場合、上位候補で決選投票を行います。"
-                type:"select"
-                values:[
-                    {
-                        value:"no"
-                        label:"なし"
-                        selected:true
-                    }
-                    {
-                        value:"revote"
-                        label:"再投票時"
-                    }
-                    {
-                        value:"yes"
-                        label:"常に行う"
-                    }
-                ]
+                name:"chemical"
+                label:"ケミカル人狼"
+                title:"1人につき役職が2つ割り当てられる特殊ルールです。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
             }
         ]
     }
