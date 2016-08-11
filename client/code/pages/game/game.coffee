@@ -377,6 +377,7 @@ exports.start=(roomid)->
         $("#roomname").text room.name
         if room.mode=="waiting"
             # 開始前のユーザー一覧は roomから取得する
+            console.log room.players
             room.players.forEach (x)->
                 li=makeplayerbox x,room.blind
                 $("#players").append li

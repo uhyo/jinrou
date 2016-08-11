@@ -121,7 +121,7 @@ module.exports.actions=(req,res,ss)->
             # クライアントからの問い合わせの場合
             pl = result.players.filter((x)-> x.realid==req.session.userId)[0]
             result.players.forEach (p)->
-                unless pl?.mode == "gm"
+                unless result.blind == "" || pl?.mode == "gm"
                     delete p.realid
                 delete p.ip
             # ふるいかどうか
