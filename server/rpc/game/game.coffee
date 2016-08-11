@@ -7210,7 +7210,9 @@ class Chemical extends Complex
             "村人"
     isWinner:(game,team)->
         myt = null
-        if @main.team=="Fox" || @sub?.team=="Fox"
+        if @main.team=="Friend" || @sub?.team=="Friend"
+            myt = "Friend"
+        else if @main.team=="Fox" || @sub?.team=="Fox"
             myt = "Fox"
         else if @main.team=="Vampire" || @sub?.team=="Vampire"
             myt = "Vampire"
