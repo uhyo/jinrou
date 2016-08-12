@@ -6560,7 +6560,7 @@ class Complex
     isWerewolf:->@main.isWerewolf()
     isFox:->@main.isFox()
     isVampire:->@main.isVampire()
-    isWinner:->@main.isWinner()
+    isWinner:(game,team)->@main.isWinner game, team
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
