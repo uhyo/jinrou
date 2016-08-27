@@ -366,7 +366,7 @@ module.exports.actions=(req,res,ss)->
                     if user?
                         Server.game.game.kicklog room,user
                         ss.publish.channel "room#{roomid}", "unjoin",id
-                        ss.publish.user id,"refresh",{id:roomid}
+                        ss.publish.user id,"kicked",{id:roomid}
                         # ヘルパーさがす
                         query={$set:{}}
                         for pl,i in room.players

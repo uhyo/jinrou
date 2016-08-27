@@ -129,7 +129,7 @@ module.exports=
         if games[room.id]
             splashlog room.id,games[room.id], log
             games[room.id].players=games[room.id].players.filter (pl)->pl.realid!=player.realid
-            games[room.id].participants=games[room.id].participants.filter (pl)->pl.playerid!=player.realid
+            games[room.id].participants=games[room.id].participants.filter (pl)->pl.realid!=player.realid
     helperlog:(ss,room,player,topl)->
         loadGame room.id, ss, (err,game)->
             log=null
@@ -164,6 +164,7 @@ module.exports=
                 return
             player=game.getPlayerReal session.userId
             unless player?
+                console.log session.channel.list()
                 session.channel.subscribe "room#{roomid}_audience"
                 #session.channel.subscribe "room#{roomid}_notwerewolf"
                 #session.channel.subscribe "room#{roomid}_notcouple"
