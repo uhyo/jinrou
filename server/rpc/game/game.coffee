@@ -8457,6 +8457,7 @@ splashlog=(roomid,game,log)->
         #   game.ss.publish.channel "room#{roomid}_gamemaster","log",log
         # その他
         game.participants.forEach (pl)->
+            console.log "AIU", pl.realid
             p=islogOK game,pl,log
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log

@@ -460,10 +460,10 @@ exports.start=(roomid)->
                 $("#playersinfo").append b
                 $(b).click (je)->
                     Index.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
-#                   Index.util.prompt "追い出す","追い出す人のidを入力して下さい:",null,(id)->
-                        ss.rpc "game.rooms.kick", roomid,id,(result)->
-                            if result?
-                                Index.util.message "エラー",result
+                        if id
+                            ss.rpc "game.rooms.kick", roomid,id,(result)->
+                                if result?
+                                    Index.util.message "エラー",result
                 b=makebutton "[ready]を初期化する"
                 $("#playersinfo").append b
                 $(b).click (je)->
