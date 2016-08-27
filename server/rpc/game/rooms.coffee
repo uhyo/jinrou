@@ -257,6 +257,8 @@ module.exports.actions=(req,res,ss)->
                         res null
                         # 入室通知
                         delete user.ip
+                        if room.blind
+                            delete user.realid
                         Server.game.game.inlog room,user
                         if room.mode!="playing"
                             ss.publish.channel "room#{roomid}", "join", user
