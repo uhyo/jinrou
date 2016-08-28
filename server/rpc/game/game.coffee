@@ -7159,6 +7159,7 @@ class Chemical extends Complex
     isFox:-> @main.isFox() || @sub?.isFox()
     isFoxVisible:-> @main.isFoxVisible() || @sub?.isFoxVisible()
     isVampire:-> @main.isVampire() || @sub?.isVampire()
+    isAttacker:-> @main.isAttacker?() || @sub?.isAttacker?()
     humanCount:->
         if @isFox()
             0
