@@ -7245,6 +7245,9 @@ class Chemical extends Complex
             pl.dying game, found, from
         else
             pl.setDead false, null
+    touched:(game, from)->
+        @main.touched game, from
+        @sub?.touched game, from
 
 
 
