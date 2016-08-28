@@ -164,7 +164,6 @@ module.exports=
                 return
             player=game.getPlayerReal session.userId
             unless player?
-                console.log session.channel.list()
                 session.channel.subscribe "room#{roomid}_audience"
                 #session.channel.subscribe "room#{roomid}_notwerewolf"
                 #session.channel.subscribe "room#{roomid}_notcouple"
@@ -1362,10 +1361,6 @@ class Game
         humans=aliveps.map((x)->x.humanCount()).reduce(((a,b)->a+b), 0)
         wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
         vampires=aliveps.map((x)->x.vampireCount()).reduce(((a,b)->a+b), 0)
-        console.log humans, wolves, vampires
-        console.log aliveps.map((x)->x.humanCount())
-        console.log aliveps.map((x)->x.werewolfCount())
-        console.log aliveps.map((x)->x.vampireCount())
 
         team=null
         friends_count=null
@@ -6458,7 +6453,7 @@ class Complex
             query={}
         unless query.jobtype?
             query.jobtype=@main.type
-        if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
+        if @main.isJobType(query.jobtype) && !@main.jobdone(game)
             @mcall game,@main.job,game,playerid,query
         else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
             @sub.job? game,playerid,query
@@ -8457,7 +8452,6 @@ splashlog=(roomid,game,log)->
         #   game.ss.publish.channel "room#{roomid}_gamemaster","log",log
         # その他
         game.participants.forEach (pl)->
-            console.log "AIU", pl.realid
             p=islogOK game,pl,log
             if (p&&!rev) || (!p&&rev)
                 game.ss.publish.user pl.realid,"log",log
