@@ -7222,10 +7222,29 @@ class Chemical extends Complex
         if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
             # 人狼に対する襲撃耐性
             return
+        # main, subに対してdieをsimulateする（ただしdyingはdummyにする）
+        d = Object.getOwnPropertyDescriptor(this, "dying")
+        @dying = ()-> null
+
+        # どちらかが耐えたら耐える
+        @main.die game, found, from
+        isdead = @dead
+        @setDead false, null
+        if @sub?
+            @sub.die game, found, from
+            isdead = isdead && @dead
+        if d?
+            Object.defineProperty this, "dying", d
+        else
+            delete @dying
+
         # XXX duplicate
         pl=game.getPlayer @id
-        pl.setDead true, found
-        pl.dying game, found, from
+        if isdead
+            pl.setDead true, found
+            pl.dying game, found, from
+        else
+            pl.setDead false, null
 
 
 
