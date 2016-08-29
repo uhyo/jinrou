@@ -6557,6 +6557,7 @@ class Complex
     isFox:->@main.isFox()
     isVampire:->@main.isVampire()
     isWinner:(game,team)->@main.isWinner game, team
+    getMyChemicalTeam:->@main.getMyChemicalTeam?()
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
@@ -7205,7 +7206,7 @@ class Chemical extends Complex
             "人狼"
         else
             "村人"
-    isWinner:(game,team)->
+    getMyChemicalTeam:->
         myt = null
         if @main.team=="Friend" || @sub?.team=="Friend"
             myt = "Friend"
@@ -7217,7 +7218,9 @@ class Chemical extends Complex
             myt = "Werewolf"
         else
             myt = "Human"
-        return team == myt
+        return myt
+    isWinner:(game,team)->
+        return team == @getMyChemicalTeam()
     die:(game, found, from)->
         return if @dead
         if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
@@ -7250,11 +7253,13 @@ class Chemical extends Complex
         @main.touched game, from
         @sub?.touched game, from
     makejobinfo:(game,result)->
-        @sub?.makejobinfo? game,result
         @mcall game,@main.makejobinfo,game,result
+        @sub?.makejobinfo? game,result
         # 女王観戦者は村人陣営×村人陣営じゃないと見えない
         if result.queens? && (@main.team != "Human" || @sub?.team != "Human")
             delete result.queens
+        # 陣営情報
+        result.myteam = @getMyChemicalTeam()
 
 
 
