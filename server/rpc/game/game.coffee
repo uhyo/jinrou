@@ -3378,9 +3378,9 @@ class Cupid extends Player
         
             pl.touched game,@id
             newpl=Player.factory null,pl,null,Friend    # 恋人だ！
+            newpl.cmplFlag=plpls[1-i].id
             pl.transProfile newpl
             pl.transform game,newpl,true # 入れ替え
-            newpl.cmplFlag=plpls[1-i].id
             log=
                 mode:"skill"
                 to:@id
@@ -5631,19 +5631,19 @@ class BadLady extends Player
                     splashlog game.id,game,log
             # 自分恋人
             newpl=Player.factory null,this,null,Friend # 恋人だ！
+            newpl.cmplFlag=fl.main
             @transProfile newpl
             @transform game,newpl,true  # 入れ替え
-            newpl.cmplFlag=fl.main
             # 相手恋人
             newpl=Player.factory null,plm,null,Friend # 恋人だ！
+            newpl.cmplFlag=@id
             plm.transProfile newpl
             plm.transform game,newpl,true  # 入れ替え
-            newpl.cmplFlag=@id
             # キープ
             newpl=Player.factory null,pl,null,KeepedLover # 恋人か？
+            newpl.cmplFlag=@id
             pl.transProfile newpl
             pl.transform game,newpl,true  # 入れ替え
-            newpl.cmplFlag=@id
             game.splashjobinfo [@id,plm.id,pl.id].map (id)->game.getPlayer id
             @addGamelog game,"badlady_keep",pl.type,playerid
         null
@@ -7250,7 +7250,8 @@ class Chemical extends Complex
         @main.touched game, from
         @sub?.touched game, from
     makejobinfo:(game,result)->
-        super
+        @sub?.makejobinfo? game,result
+        @mcall game,@main.makejobinfo,game,result
         # 女王観戦者は村人陣営×村人陣営じゃないと見えない
         if result.queens? && (@main.team != "Human" || @sub?.team != "Human")
             delete result.queens
