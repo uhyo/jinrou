@@ -7253,7 +7253,7 @@ class Chemical extends Complex
         @main.touched game, from
         @sub?.touched game, from
     makejobinfo:(game,result)->
-        @mcall game,@main.makejobinfo,game,result
+        @main.makejobinfo game,result
         @sub?.makejobinfo? game,result
         # 女王観戦者は村人陣営×村人陣営じゃないと見えない
         if result.queens? && (@main.team != "Human" || @sub?.team != "Human")
