@@ -2253,7 +2253,7 @@ class Player
 
         # 女王観戦者が見える
         if @team=="Human"
-            obj.queens=game.players.filter((x)->x.type=="QueenSpectator").map (x)->
+            obj.queens=game.players.filter((x)->x.isJobType "QueenSpectator").map (x)->
                 x.publicinfo()
         else
             # セットなどによる漏洩を防止
