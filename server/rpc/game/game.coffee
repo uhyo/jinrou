@@ -180,11 +180,11 @@ module.exports=
                 else
                     session.channel.subscribe "room#{roomid}_notwerewolf"
             if game.rule.heavenview!="view" || !player.dead
-                if player.type=="Couple"
+                if player.isJobType "Couple"
                     session.channel.subscribe "room#{roomid}_couple"
                 else
                     session.channel.subscribe "room#{roomid}_notcouple"
-            if player.type=="Fox"
+            if player.isJobType "Fox"
                 session.channel.subscribe "room#{roomid}_fox"
             ###
 Server=
@@ -1238,7 +1238,7 @@ class Game
 #           if x.found=="punish"
 #               # 処刑→霊能
 #               @players.forEach (y)=>
-#                   if y.type=="Psychic"
+#                   if y.isJobType "Psychic"
 #                       # 霊能
 #                       y.results.push x
             @addGamelog {   # 死んだときと死因を記録
@@ -1474,7 +1474,7 @@ class Game
                 # 全員信者
                 team="Cult"
             # 悪魔くん判定
-            if @players.some((x)->x.type=="Devil" && x.flag=="winner" && x.team=="Devil")
+            if @players.some((x)->x.isJobType "Devil" && x.flag=="winner" && x.team=="Devil")
                 team="Devil"
 
         if @revote_num>=4 && !team?
@@ -2484,7 +2484,7 @@ class Werewolf extends Player
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
         # スパイ2も分かる
-        result.spy2s=game.players.filter((x)->x.type=="Spy2").map (x)->
+        result.spy2s=game.players.filter((x)->x.isJobType "Spy2").map (x)->
             x.publicinfo()
     getSpeakChoice:(game)->
         ["werewolf"].concat super
@@ -2773,7 +2773,7 @@ class Noble extends Player
         if found=="werewolf"
             return if @dead
             # 奴隷たち
-            slaves = game.players.filter (x)->!x.dead && x.type=="Slave"
+            slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
             unless slaves.length
                 super   # 自分が死ぬ
             else
@@ -2789,7 +2789,7 @@ class Slave extends Player
     type:"Slave"
     jobname:"奴隷"
     isWinner:(game,team)->
-        nobles=game.players.filter (x)->!x.dead && x.type=="Noble"
+        nobles=game.players.filter (x)->!x.dead && x.isJobType "Noble"
         if team==@team && nobles.length==0
             true    # 村人陣営の勝ちで貴族は死んだ
         else
@@ -2797,7 +2797,7 @@ class Slave extends Player
     makejobinfo:(game,result)->
         super
         # 奴隷は貴族が分かる
-        result.nobles=game.players.filter((x)->x.type=="Noble").map (x)->
+        result.nobles=game.players.filter((x)->x.isJobType "Noble").map (x)->
             x.publicinfo()
 class Magician extends Player
     type:"Magician"
@@ -8269,7 +8269,7 @@ module.exports.actions=(req,res,ss)->
                         
                 else if player.dead
                     # 天国
-                    if player.type=="Spy" && player.flag=="spygone"
+                    if player.isJobType "Spy" && player.flag=="spygone"
                         # スパイなら会話に参加できない
                         log.mode="monologue"
                         log.to=player.id
