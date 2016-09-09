@@ -7216,9 +7216,7 @@ class Chemical extends Complex
             "村人"
     getMyChemicalTeam:->
         myt = null
-        if @main.team=="Devil" || @sub?.team=="Devil"
-            myt = "Devil"
-        else if @main.team=="Cult" || @sub?.team=="Cult"
+        if @main.team=="Cult" || @sub?.team=="Cult"
             myt = "Cult"
         else if @main.team=="Friend" || @sub?.team=="Friend"
             myt = "Friend"
@@ -7238,9 +7236,9 @@ class Chemical extends Complex
     isWinner:(game,team)->
         myt = @getMyChemicalTeam()
         win = false
-        if @main.team == myt || @main.team == ""
+        if @main.team == myt || @main.team == "" || @main.team == "Devil"
             win = win || @main.isWinner(game,team)
-        if @sub?.team == myt || @sub?.team == ""
+        if @sub?.team == myt || @sub?.team == "" || @sub?.team == "Devil"
             win = win || @sub.isWinner(game,team)
         return win
     die:(game, found, from)->
