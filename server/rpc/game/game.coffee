@@ -1474,7 +1474,15 @@ class Game
                 # 全員信者
                 team="Cult"
             # 悪魔くん判定
-            if @players.some((x)->x.isJobType "Devil" && x.flag=="winner" && x.team=="Devil")
+            isDevilWinner = (pl)->
+                # 悪魔くんが勝利したか判定する
+                return false unless pl?
+                return false unless pl.isJobType "Devil"
+                if pl.isComplex()
+                    return isDevilWinner(pl.sub) || (pl.team == "Devil" && isDevilWinner(pl.main))
+                else
+                    return pl.flag == "winner"
+            if @players.some(isDevilWinner)
                 team="Devil"
 
         if @revote_num>=4 && !team?
@@ -7208,7 +7216,11 @@ class Chemical extends Complex
             "村人"
     getMyChemicalTeam:->
         myt = null
-        if @main.team=="Friend" || @sub?.team=="Friend"
+        if @main.team=="Devil" || @sub?.team=="Devil"
+            myt = "Devil"
+        else if @main.team=="Cult" || @sub?.team=="Cult"
+            myt = "Cult"
+        else if @main.team=="Friend" || @sub?.team=="Friend"
             myt = "Friend"
         else if @main.team=="Fox" || @sub?.team=="Fox"
             myt = "Fox"
@@ -7216,11 +7228,21 @@ class Chemical extends Complex
             myt = "Vampire"
         else if @main.team=="Werewolf" || @sub?.team=="Werewolf"
             myt = "Werewolf"
-        else
+        else if @main.team=="LoneWolf" || @sub?.team=="LoneWolf"
+            myt = "LoneWolf"
+        else if @main.team=="Human" || @sub?.team=="Human"
             myt = "Human"
+        else
+            myt = ""
         return myt
     isWinner:(game,team)->
-        return team == @getMyChemicalTeam()
+        myt = @getMyChemicalTeam()
+        win = false
+        if @main.team == myt || @main.team == ""
+            win = win || @main.isWinner(game,team)
+        if @sub?.team == myt || @sub?.team == ""
+            win = win || @sub.isWinner(game,team)
+        return win
     die:(game, found, from)->
         return if @dead
         if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
