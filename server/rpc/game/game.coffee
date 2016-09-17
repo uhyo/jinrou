@@ -2972,6 +2972,7 @@ class WolfDiviner extends Werewolf
                 newpl.setFlag null
                 p.transferData newpl
                 p.transform game,newpl,false
+                p.sunset game
                 log=
                     mode:"skill"
                     to:p.id
