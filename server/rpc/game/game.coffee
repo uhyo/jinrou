@@ -6514,7 +6514,7 @@ class Complex
         @mcall game,@main.beforebury,game,type
         @sub?.beforebury? game,type
         # deal with Walking Dead
-        unless @dead && @found
+        unless @dead
             isPlDead = @isDead()
             if isPlDead.dead && isPlDead.found
                 @setDead isPlDead.dead,isPlDead.found
