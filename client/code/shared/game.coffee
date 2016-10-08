@@ -1034,31 +1034,6 @@ exports.rules=[
                     }
                 ]
             }
-            {
-                name:"yaminabe_hidejobs"
-                label:"配役公開"
-                title:"配役の公開方法を指定します。"
-                type:"select"
-                values:[
-                    {
-                        # ""なのは歴史的経緯
-                        value:""
-                        label:"役職一覧を公開"
-                        title:"配役後、出現役職の一覧は公開されます。"
-                        selected:true
-                    }
-                    {
-                        value:"team"
-                        label:"陣営ごとの数のみ公開"
-                        title:"各陣営の数のみ公開されます。"
-                    }
-                    {
-                        value:"1"
-                        label:"非公開"
-                        title:"出現役職の一覧は分からなくなります。"
-                    }
-                ]
-            }
         ]
     }
     # 標準ルール
@@ -1333,6 +1308,32 @@ exports.rules=[
             }
             {
                 type: "separator"
+            }
+            {
+                # 名前がyaminabeなのは歴史的経緯
+                name:"yaminabe_hidejobs"
+                label:"配役公開"
+                title:"配役の公開方法を指定します。"
+                type:"select"
+                values:[
+                    {
+                        # ""なのは歴史的経緯
+                        value:""
+                        label:"役職一覧を公開"
+                        title:"ゲーム開始時、出現役職の一覧が公開されます。"
+                        selected:true
+                    }
+                    {
+                        value:"team"
+                        label:"陣営ごとの数のみ公開"
+                        title:"各陣営の数のみ公開されます。"
+                    }
+                    {
+                        value:"1"
+                        label:"非公開"
+                        title:"出現役職の一覧は分からなくなります。"
+                    }
+                ]
             }
             {
                 name:"losemode"

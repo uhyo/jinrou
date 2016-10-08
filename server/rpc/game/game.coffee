@@ -7568,6 +7568,11 @@ module.exports.actions=(req,res,ss)->
             if room.players.some((x)->!x.start)
                 res "まだ全員の準備ができていません"
                 return
+            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
+                res "「配役公開」オプションは闇鍋またはGMありのときだけ利用できます"
+                return
+
+
             # ルールオブジェクト用意
             ruleobj={
                 number: room.players.length
@@ -7582,7 +7587,7 @@ module.exports.actions=(req,res,ss)->
             }
             
             options={}  # オプションズ
-            for opt in ["decider","authority"]
+            for opt in ["decider","authority","yaminabe_hidejobs"]
                 options[opt]=query[opt] ? null
 
             joblist={}
@@ -7674,7 +7679,6 @@ module.exports.actions=(req,res,ss)->
 
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
-                options.yaminabe_hidejobs=query.yaminabe_hidejobs ? null
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
                 unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
@@ -8149,18 +8153,44 @@ module.exports.actions=(req,res,ss)->
                 else
                     joblist.Human=frees-sum
                 ruleinfo_str=Shared.game.getrulestr query.jobrule,joblist
+            if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
+                # 闇鍋以外で配役情報を公開しないときはアレする
+                ruleinfo_str = ""
+            if query.yaminabe_hidejobs!="" && query.jobrule=="特殊ルール.一部闇鍋"
+                ruleinfo_str = "一部闇鍋"
             if query.chemical == "on"
                 # ケミカル人狼の場合は表示
-                ruleinfo_str = "ケミカル人狼　" + ruleinfo_str
-                
-            log=
-                mode:"system"
-                comment:"配役: #{ruleinfo_str}"
-            splashlog game.id,game,log
+                ruleinfo_str = "ケミカル人狼　" + (ruleinfo_str ? "")
+
+            if ruleinfo_str != ""
+                # 表示すべき情報がない場合は表示しない
+                log=
+                    mode:"system"
+                    comment:"配役: #{ruleinfo_str}"
+                splashlog game.id,game,log
             
+            if query.yaminabe_hidejobs=="team"
+                # 陣営のみ公開モード
+                # 各陣営
+                teaminfos=[]
+                for team,obj of Shared.game.jobinfo
+                    teamcount=0
+                    for job,num of joblist
+                        #出現役職チェック
+                        continue if num==0
+                        if obj[job]?
+                            # この陣営だ
+                            teamcount+=num
+                    if teamcount>0
+                        teaminfos.push "#{obj.name}#{teamcount}"    #陣営名
+
+                log=
+                    mode:"system"
+                    comment:"出現陣営情報: "+teaminfos.join(" ")
+                splashlog game.id,game,log
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
                 if query.yaminabe_hidejobs==""
-                    # 役職は公開される
+                    # 闇鍋用の役職公開ログ
                     jobinfos=[]
                     for job,num of joblist
                         continue if num==0
@@ -8168,25 +8198,6 @@ module.exports.actions=(req,res,ss)->
                     log=
                         mode:"system"
                         comment:"出現役職: "+jobinfos.join(" ")
-                    splashlog game.id,game,log
-                else if query.yaminabe_hidejobs=="team"
-                    # 陣営のみ公開
-                    # 各陣営
-                    teaminfos=[]
-                    for team,obj of Shared.game.jobinfo
-                        teamcount=0
-                        for job,num of joblist
-                            #出現役職チェック
-                            continue if num==0
-                            if obj[job]?
-                                # この陣営だ
-                                teamcount+=num
-                        if teamcount>0
-                            teaminfos.push "#{obj.name}#{teamcount}"    #陣営名
-
-                    log=
-                        mode:"system"
-                        comment:"出現陣営情報: "+teaminfos.join(" ")
                     splashlog game.id,game,log
 
             
