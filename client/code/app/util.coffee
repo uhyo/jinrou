@@ -1,22 +1,30 @@
 app=require '/app'
 util=require '/util'
 exports.showWindow=showWindow=(templatename,tmpl)->
-    x=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientWidth/2)
-    y=Math.max 50,Math.floor(Math.random()*100-200+document.documentElement.clientHeight/2)
+    de = document.documentElement
+    bd = document.body
+    sclf = bd.scrollLeft || de.scrollLeft
+    sctp = bd.scrollTop || de.scrollTop
+    x=Math.max 50,sclf+Math.floor(Math.random()*100-200+document.documentElement.clientWidth/2)
+    y=Math.max 50,sctp+Math.floor(Math.random()*100-200+document.documentElement.clientHeight/2)
 
     win=$(JT["#{templatename}"](tmpl)).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn().draggable()
     $(".getfocus",win.get(0)).focus()
     win
 #編集域を返す
-exports.blankWindow=->
-    win=showWindow "util-blank"
+exports.blankWindow=(title)->
+    win=showWindow "util-blank", {title: title}
     div=document.createElement "div"
+    div.classList.add "window-content"
     $("form[name='okform']",win).before div
     win.submit (je)-> je.preventDefault()
     win.click (je)->
         t=je.target
-        if t.name=="ok"
-            closeWindow t
+        while t?
+            if t.name=="ok"
+                closeWindow t
+                break
+            t = t.parentNode
     $(div)
     
 
@@ -46,12 +54,16 @@ exports.ask=(title,message,cb)->
     win.submit (je)-> je.preventDefault()
     win.click (je)->
         t=je.target
-        if t.name=="yes"
-            cb true
-            closeWindow t
-        else if t.name=="no"
-            cb false
-            closeWindow t
+        while t?
+            if t.name=="yes"
+                cb true
+                closeWindow t
+                break
+            else if t.name=="no"
+                cb false
+                closeWindow t
+                break
+            t = t.parentNode
 #String / null
 exports.prompt=(title,message,opt,cb)->
     win = showWindow "util-prompt",{title:title,message:message}
@@ -61,12 +73,16 @@ exports.prompt=(title,message,opt,cb)->
     win.submit (je)-> je.preventDefault()
     win.click (je)->
         t=je.target
-        if t.name=="ok"
-            cb? inp.value
-            closeWindow t
-        else if t.name=="cancel"
-            cb? null
-            closeWindow t
+        while t?
+            if t.name=="ok"
+                cb? inp.value
+                closeWindow t
+                break
+            else if t.name=="cancel"
+                cb? null
+                closeWindow t
+                break
+            t = t.parentNode
 
 #arr: [{name:"aaa",value:"foo"}, ...]
 exports.selectprompt=(title,message,arr,cb)->
@@ -80,12 +96,16 @@ exports.selectprompt=(title,message,arr,cb)->
     win.submit (je)-> je.preventDefault()
     win.click (je)->
         t=je.target
-        if t.name=="ok"
-            cb? sel.value
-            closeWindow t
-        else if t.name=="cancel"
-            cb? null
-            closeWindow t
+        while t?
+            if t.name=="ok"
+                cb? sel.value
+                closeWindow t
+                break
+            else if t.name=="cancel"
+                cb? null
+                closeWindow t
+                break
+            t = t.parentNode
         
 
 
@@ -94,15 +114,21 @@ exports.message=(title,message,cb)->
     win.submit (je)-> je.preventDefault()
     win.click (je)->
         t=je.target
-        if t.name=="ok"
-            cb? true
-            closeWindow t
+        while t?
+            if t.name=="ok"
+                cb? true
+                closeWindow t
+                break
+            t = t.parentNode
 exports.loginWindow=(cb=->app.refresh())->
     win = showWindow "util-login"
     win.click (je)->
         t=je.target
-        if t.name=="cancel"
-            closeWindow win
+        while t?
+            if t.name=="cancel"
+                closeWindow win
+                break
+            t = t.parentNode
     $("#loginform").submit (je)->
         je.preventDefault()
         form=je.target
@@ -156,26 +182,31 @@ exports.iconSelectWindow=(def,cb)->
     okicon def  # さいしょ
     win.click (je)->
         t=je.target
-        if t.name=="cancel"
-            closeWindow win
-            cb def  # 変わっていない
-        else if t.name=="urliconbutton"
-            util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
-                okicon url ? ""
-        else if t.name=="twittericonbutton"
-            util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
-                if id
-                    # It's 1.0!
-                    # okicon "http://api.twitter.com/1/users/profile_image/#{id}"
-                    ss.rpc "user.getTwitterIcon",id,(url)->
-                        # アイコンを取得
-                        unless url
-                            util.message "エラー","アイコンを取得できませんでした。しばらく時間をあけてからお試しください。"
-                            okicon ""
-                        else
-                            okicon url
-                else
-                    okicon ""
+        while t?
+            if t.name=="cancel"
+                closeWindow win
+                cb def  # 変わっていない
+                break
+            else if t.name=="urliconbutton"
+                util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+                    okicon url ? ""
+                break
+            else if t.name=="twittericonbutton"
+                util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
+                    if id
+                        # It's 1.0!
+                        # okicon "http://api.twitter.com/1/users/profile_image/#{id}"
+                        ss.rpc "user.getTwitterIcon",id,(url)->
+                            # アイコンを取得
+                            unless url
+                                util.message "エラー","アイコンを取得できませんでした。しばらく時間をあけてからお試しください。"
+                                okicon ""
+                            else
+                                okicon url
+                    else
+                        okicon ""
+                break
+            t = t.parentNode
     $("#iconform").submit (je)->
         je.preventDefault()
         closeWindow win
@@ -185,13 +216,17 @@ exports.blindName=(opt={},cb)->
     def=null
     win.click (je)->
         t=je.target
-        if t.name=="cancel"
-            closeWindow win
-            cb null # 変わっていない
-        else if t.name=="iconselectbutton"
-            util.iconSelectWindow null,(url)->
-                def=url ? null
-                $("#icondisp").attr "src",def
+        while t?
+            if t.name=="cancel"
+                closeWindow win
+                cb null # 変わっていない
+                break
+            else if t.name=="iconselectbutton"
+                util.iconSelectWindow null,(url)->
+                    def=url ? null
+                    $("#icondisp").attr "src",def
+                break
+            t = t.parentNode
     $("#nameform").submit (je)->
         je.preventDefault()
         closeWindow win

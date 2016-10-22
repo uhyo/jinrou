@@ -15,10 +15,9 @@
         span#jobsmonitor
       fieldset
         legend 役職
-        p: select#jobruleselect(name="jobrule")
+        p
+          select#jobruleselect(name="jobrule")
         dl.jobs#jobsfield(hidden)
-          dt 村人
-          dd: output(name="Human",data-jobname="村人")
         dl.jobs#catesfield(hidden)
       fieldset#rules
         //- dd(name="category_Foobar")

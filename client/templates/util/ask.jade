@@ -1,9 +1,11 @@
 section.window
   h1
     = title
-    input.closer(type="button",value="×",name="no")
+    button.closer(type="button",name="no")
+      i.fa.fa-times
   form(name="askform",action="/")
-    p= message
+    div.window-content
+      p= message
     p
       input(type="submit",name="yes",value="はい")
       input(type="submit",name="no",value="いいえ")

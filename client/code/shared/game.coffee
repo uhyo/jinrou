@@ -78,7 +78,7 @@ exports.categories=
     Fox:["Fox","TinyFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist"]
     Immoral:["Immoral","Blasphemy"]
-    Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom"]
+    Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere"]
 
 exports.categoryNames=

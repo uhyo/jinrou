@@ -1,7 +1,8 @@
 section.window
   h1
     = typeof title!=="undefined" ? title : ""
-    input.closer(type="button",value="×",name="ok")
+    button.closer(type="button",name="ok")
+      i.fa.fa-times
   form(name="okform",action="/")
     p
       input(type="submit",name="ok",value="OK")

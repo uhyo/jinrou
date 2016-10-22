@@ -99,29 +99,37 @@ body > .notice
   border 1px solid #666666
   box-shadow 2px 2px 3px #000000
   margin 0
-  padding 0 0.6em
+  padding 0 0.6em 0.4em
   position absolute
-  background-color rgba(240,240,240,0.85)
+  background-color rgba(240,240,240,0.88)
   color #000000
   max-width 20em
+  
+  overflow hidden
   a
     color #0000FF !important
   
 .window.login
   width 20em
   
-.window h1
-  margin 0
+.window > h1
+  margin 0 -0.6em
   font-size 1.2em
-  padding-left 1em
-  color #000000
+  padding-left 1.6em
+  color #333333
   text-shadow #ffffff
   vertical-gradient rgba(255,255,255,0.4), rgba(255,255,255,0.6)
-  
+
 .window form p
   text-align center
 .window .closer
   float right
+  background none
+  border none
+  cursor pointer
+.window div.window-content
+  margin 1em 0.25em
+
   
 //user-profile
 section.profile
@@ -337,16 +345,75 @@ body.heaven
       display inline-table
 //jobs
 dl.jobs
-  dt
+  dt.jobs-cat
+    display block
+    margin 0.2em
+    padding 2px
+    background-color rgba(255,255,255,.6)
+
+    text-align center
     font-weight bold
-  dt,dd
-    display inline-block
-  dt
-    margin-right 0.3em
-  dd
-    margin-right 0.7em
-  dd input
-    width 2.8em
+  dd.jobs-cat
+    display flex
+    flex-flow row wrap
+    justify-content space-between
+    &::after
+      content ""
+      flex auto
+  div.jobs-job
+    background-color rgba(255,255,255,.3)
+    margin 0.25em
+    padding 0.3em
+    display flex
+    flex-flow column nowrap
+
+    &.jobs-job-active
+      background-color rgba(255,255,255,.82)
+    b
+      display flex
+      flex-flow row nowrap
+      margin-bottom 0.25em
+      span
+        flex 1 0 auto
+        text-align center
+      a
+        flex 0 0 auto
+        color rgba(0,0,0,.7)
+        text-decoration none
+        margin-left 0.15em
+    &.jobs-job-inactive
+      background-color rgba(255,255,255,.15)
+      b span
+        color rgba(0,0,0,.4)
+    &.jobs-job-error
+      background-color rgba(255,0,0,.82)
+
+    span.jobs-job-controls
+      word-wrap nowrap
+      text-align center
+      display flex
+      input.jobs-job-controls-check
+        flex 0 0 auto
+      input.jobs-job-controls-number
+        flex 1 0 2.8em
+      button.jobs-job-controls-button
+        border none
+        padding 2px
+        margin 0 0.2em
+        background transparent
+
+        font-size 1.05em
+        color rgba(0,0,0,.6)
+        cursor pointer
+  div.jobs-job[data-job="Human"] span.jobs-job-controls
+    text-align right
+  &[data-checkboxes="no"]
+    span.jobs-job-controls input.jobs-job-controls-check
+      display none
+  &:not([data-checkboxes="no"])
+    div.jobs-job[data-job="Human"]
+      display none
+
     
 //prizeedit
 .profile

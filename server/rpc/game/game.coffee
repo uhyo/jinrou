@@ -397,7 +397,6 @@ class Game
         @players=[]
         @iconcollection={}
         for job,num of joblist
-            #console.log "#{job}:#{num}"
             unless isNaN num
                 jnumber+=parseInt num
             if parseInt(num)<0
@@ -7679,6 +7678,16 @@ module.exports.actions=(req,res,ss)->
 
                 # 闇鍋のときは入れないのがある
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
+                # ユーザーが指定した入れないの
+                excluded_exceptions=[]
+                # チェックボックスが外れてるやつは登場しない
+                if query.jobrule=="特殊ルール.一部闇鍋"
+                    for job in Shared.game.jobs
+                        if query["job_use_#{job}"] != "on"
+                            # これは出してはいけない指定になっている
+                            exceptions.push job
+                            excluded_exceptions.push job
+                # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
                 unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
@@ -7899,7 +7908,9 @@ module.exports.actions=(req,res,ss)->
                 )(new Date)
                 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
-                
+                if possibility.length == 0
+                    # 0はまずい
+                    possibility.push "Human"
             
                 # 強制的に入れる関数
                 init=(jobname,categoryname)->
@@ -7949,10 +7960,16 @@ module.exports.actions=(req,res,ss)->
                         #カテゴリ役職がまだあるか探す
                         for type,arr of Shared.game.categories
                             if joblist["category_#{type}"]>0
-                                r=Math.floor Math.random()*arr.length
-                                job=arr[r]
-                                category="category_#{type}"
-                                break
+                                # カテゴリの中から候補をしぼる
+                                arr2 = arr.filter (x)->!(x in excluded_exceptions)
+                                if arr2.length > 0
+                                    r=Math.floor Math.random()*arr2.length
+                                    job=arr2[r]
+                                    category="category_#{type}"
+                                    break
+                                else
+                                    # これもう無理だわ
+                                    joblist["category_#{type}"] = 0
                         unless job?
                             # もうカテゴリがない
                             if frees<=0
@@ -8168,6 +8185,14 @@ module.exports.actions=(req,res,ss)->
                     mode:"system"
                     comment:"配役: #{ruleinfo_str}"
                 splashlog game.id,game,log
+            if query.jobrule == "特殊ルール.一部闇鍋" && excluded_exceptions.length > 0
+                # 除外役職の情報を表示する
+                exclude_str = excluded_exceptions.map((job)-> Shared.game.getjobname job).join ", "
+                log=
+                    mode:"system"
+                    comment:"除外役職：#{exclude_str}"
+                splashlog game.id,game,log
+
             
             if query.yaminabe_hidejobs=="team"
                 # 陣営のみ公開モード

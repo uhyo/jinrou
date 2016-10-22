@@ -479,6 +479,195 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.unreadyall",roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
+
+                # 役職入力フォームを作る
+                (()=>
+                    # job -> cat と job -> team を作る
+                    catTable = {}
+                    teamTable = {}
+
+                    dds = {}
+                    for category,members of Shared.game.categories
+                        # HTML
+                        dt = document.createElement "dt"
+                        dt.textContent = Shared.game.categoryNames[category]
+                        dt.classList.add "jobs-cat"
+                        dd = dds[category] = document.createElement "dd"
+                        dd.classList.add "jobs-cat"
+                        $("#jobsfield").append(dt).append(dd)
+                        # table
+                        for job in members
+                            catTable[job] = category
+
+                    dt = document.createElement "dt"
+                    dt.classList.add "jobs-cat"
+                    dt.textContent = "その他"
+                    dd = dds["*"] = document.createElement "dd"
+                    dd.classList.add "jobs-cat"
+                    # その他は今の所ない
+                    # $("#jobsfield").append(dt).append(dd)
+
+                    # table
+                    for team,members of Shared.game.teams
+                        for job in members
+                            teamTable[job] = team
+
+                    for job in Shared.game.jobs
+                        # 探す
+                        dd = $(dds[catTable[job] ? "*"])
+                        team = teamTable[job]
+                        continue unless team?
+                        ji = Shared.game.jobinfo[team][job]
+
+                        div = document.createElement "div"
+                        div.classList.add "jobs-job"
+                        div.dataset.job = job
+                        b = document.createElement "b"
+                        span = document.createElement "span"
+                        span.textContent = ji.name
+                        b.appendChild span
+                        b.insertAdjacentHTML "beforeend", "<a class='jobs-job-help' href='/manual/job/#{job}'><i class='fa fa-question-circle-o'></i></a>"
+                        span = document.createElement "span"
+                        span.classList.add "jobs-job-controls"
+
+                        if job == "Human"
+                            # 村人は違う処理
+                            output = document.createElement "output"
+                            output.name = job
+                            output.dataset.jobname = ji.name
+                            output.classList.add "jobs-job-controls-number"
+                            span.appendChild output
+                            check = document.createElement "input"
+                            check.type = "hidden"
+                            check.name = "job_use_#{job}"
+                            check.value = "on"
+                            span.appendChild check
+                        else
+                            # 使用チェック
+                            check = document.createElement "input"
+                            check.type = "checkbox"
+                            check.checked = true
+                            check.name = "job_use_#{job}"
+                            check.value = "on"
+                            check.classList.add "jobs-job-controls-check"
+                            check.title = "チェックを外すと、一部闇鍋で#{ji.name}が出現しなくなります。"
+                            span.appendChild check
+                            # 人数
+                            input = document.createElement "input"
+                            input.type = "number"
+                            input.min = 0
+                            input.step = 1
+                            input.value = 0
+                            input.name = job
+                            input.dataset.jobname = ji.name
+                            input.classList.add "jobs-job-controls-number"
+                            # plus / minus button
+                            button1 = document.createElement "button"
+                            button1.type = "button"
+                            button1.classList.add "jobs-job-controls-button"
+                            ic1 = document.createElement "i"
+                            ic1.classList.add "fa"
+                            ic1.classList.add "fa-plus-square"
+                            button1.appendChild ic1
+                            button1.addEventListener 'click', ((job)-> (e)->
+                                # plus 1
+                                form = e.currentTarget.form
+                                num = form.elements[job]
+                                v = parseInt(num.value)
+                                num.value = String(v + 1)
+                                jobsformvalidate room, form
+                            )(job)
+
+                            button2 = document.createElement "button"
+                            button2.type = "button"
+                            button2.classList.add "jobs-job-controls-button"
+                            ic2 = document.createElement "i"
+                            ic2.classList.add "fa"
+                            ic2.classList.add "fa-minus-square"
+                            button2.appendChild ic2
+                            button2.addEventListener 'click', ((job)-> (e)->
+                                # plus 1
+                                form = e.currentTarget.form
+                                num = form.elements[job]
+                                v = parseInt(num.value)
+                                if v > 0
+                                    num.value = String(v - 1)
+                                    jobsformvalidate room, form
+                            )(job)
+
+                            span.appendChild input
+                            span.appendChild button1
+                            span.appendChild button2
+                        div.appendChild b
+                        div.appendChild span
+                        dd.append div
+                    # カテゴリ別のも用意しておく
+                    dt = document.createElement "dt"
+                    dt.classList.add "jobs-cat"
+                    dt.textContent = "一部闇鍋用"
+                    dd = document.createElement "dd"
+                    dd.classList.add "jobs-cat"
+                    for type,name of Shared.game.categoryNames
+                        div = document.createElement "div"
+                        div.classList.add "jobs-job"
+                        div.dataset.job = "category_#{type}"
+                        b = document.createElement "b"
+                        span = document.createElement "span"
+                        span.textContent = name
+                        b.appendChild span
+                        span = document.createElement "span"
+                        span.classList.add "jobs-job-controls"
+
+                        input = document.createElement "input"
+                        input.type = "number"
+                        input.min = 0
+                        input.step = 1
+                        input.value = 0
+                        input.name = "category_#{type}"
+                        input.dataset.jobname = name
+                        input.classList.add "jobs-job-controls-number"
+                        # plus / minus button
+                        button1 = document.createElement "button"
+                        button1.type = "button"
+                        button1.classList.add "jobs-job-controls-button"
+                        ic1 = document.createElement "i"
+                        ic1.classList.add "fa"
+                        ic1.classList.add "fa-plus-square"
+                        button1.appendChild ic1
+                        button1.addEventListener 'click', ((type)-> (e)->
+                            # plus 1
+                            form = e.currentTarget.form
+                            num = form.elements["category_#{type}"]
+                            v = parseInt(num.value)
+                            num.value = String(v + 1)
+                            jobsformvalidate room, form
+                        )(type)
+
+                        button2 = document.createElement "button"
+                        button2.type = "button"
+                        button2.classList.add "jobs-job-controls-button"
+                        ic2 = document.createElement "i"
+                        ic2.classList.add "fa"
+                        ic2.classList.add "fa-minus-square"
+                        button2.appendChild ic2
+                        button2.addEventListener 'click', ((type)-> (e)->
+                            # plus 1
+                            form = e.currentTarget.form
+                            num = form.elements["category_#{type}"]
+                            v = parseInt(num.value)
+                            if v > 0
+                                num.value = String(v - 1)
+                                jobsformvalidate room, form
+                        )(type)
+
+                        span.appendChild input
+                        span.appendChild button1
+                        span.appendChild button2
+                        div.appendChild b
+                        div.appendChild span
+                        dd.appendChild div
+                    $("#catesfield").append(dt).append(dd)
+                )()
             if room.owner.userid==Index.app.userid() || room.old
                 b=makebutton "この部屋を廃村にする"
                 $("#playersinfo").append b
@@ -491,12 +680,14 @@ exports.start=(roomid)->
 
 
         form=$("#gamestart").get 0
+        # ゲーム開始フォームが何か変更されたら呼ばれる関数
         jobsforminput=(e)->
             t=e.target
             form=t.form
             pl=room.players.filter((x)->x.mode=="player").length
             if t.name=="jobrule" || t.name=="chemical"
                 # ルール変更があった
+                resetplayersinput room, form
                 setplayersbyjobrule room,form,pl
             jobsformvalidate room,form
         form.addEventListener "input",jobsforminput,false
@@ -808,35 +999,6 @@ exports.start=(roomid)->
             setcss()
         .click (je)->
             je.stopPropagation()
-
-    # 役職入力フォームを作る
-    for job in Shared.game.jobs
-        # 探す
-        continue if job=="Human"    # 村人だけは既に置いてある（あまり）
-        for team,members of Shared.game.teams
-            if job in members
-                dt=document.createElement "dt"
-                dt.textContent=Shared.game.jobinfo[team][job].name
-                dd=document.createElement "dd"
-                input=document.createElement "input"
-                input.type="number"
-                input.min=0; input.step=1; input.value=0
-                input.name=job
-                input.dataset.jobname=Shared.game.jobinfo[team][job].name
-                dd.appendChild input
-                $("#jobsfield").append(dt).append dd
-    # カテゴリ別のも用意しておく
-    for type,name of Shared.game.categoryNames
-        dt=document.createElement "dt"
-        dt.textContent=name
-        dd=document.createElement "dd"
-        input=document.createElement "input"
-        input.type="number"
-        input.min=0; input.step=1; input.value=0
-        input.name="category_#{type}"
-        input.dataset.categoryName=name
-        dd.appendChild input
-        $("#catesfield").append(dt).append dd
     # 配役タイプ
     setjobrule=(rulearr,names,parent)->
         for obj in rulearr
@@ -905,7 +1067,9 @@ exports.start=(roomid)->
         if form.elements["scapegoat"]?.value=="on"
             number++    # 身代わりくん
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
-            $("#jobsfield").get(0).hidden=false
+            j = $("#jobsfield").get 0
+            j.hidden=false
+            j.dataset.checkboxes = (if jobrulename!="特殊ルール.一部闇鍋" then "no" else "")
             $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
             #$("#yaminabe_opt_nums").get(0).hidden=true
         else if jobrulename in ["特殊ルール.闇鍋","特殊ルール.エンドレス闇鍋"]
@@ -946,7 +1110,11 @@ exports.start=(roomid)->
             pl++
         sum=0
         cjobs.forEach (x)->
-            sum+=parseInt form.elements[x].value
+            chk = form.elements["job_use_#{x}"].checked
+            if chk
+                sum+=Number form.elements[x].value
+            else
+                form.elements[x].value = 0
         # カテゴリ別
         for type of Shared.game.categoryNames
             sum+= parseInt(form.elements["category_#{type}"].value ? 0)
@@ -955,6 +1123,7 @@ exports.start=(roomid)->
         else
             form.elements["Human"].value=pl-sum
         form.elements["number"].value=pl
+        setplayersinput room, form
         setjobsmonitor form,pl
     # ルールの表示具合をチェックする
     checkrule=(form,ruleobj,rules,fsetname)->
@@ -963,6 +1132,40 @@ exports.start=(roomid)->
             fsetname2="#{fsetname}.#{idx}"
             form.elements[fsetname2].hidden=!(obj.visible ruleobj,ruleobj)
             checkrule form,ruleobj,obj.rules,fsetname2
+    # ルールが変更されたときはチェックを元に戻す
+    resetplayersinput=(room, form)->
+        rule = form.elements["jobrule"].value
+        if rule != "特殊ルール.一部闇鍋"
+            checks = form.querySelectorAll 'input.jobs-job-controls-check[name^="job_use_"]'
+            for check in checks
+                check.checked = true
+    # フォームに応じてプレイヤーの人数inputの表示を調整
+    setplayersinput=(room, form)->
+        divs = document.querySelectorAll "div.jobs-job"
+        for div in divs
+            job = div.dataset.job
+            if job?
+                e = form.elements[job]
+                chk = form.elements["job_use_#{job}"]
+                if e?
+                    v = Number e.value
+                    if chk? && chk.type=="checkbox" && !chk.checked
+                        # 無効化されている
+                        div.classList.remove "jobs-job-active"
+                        div.classList.add "jobs-job-inactive"
+                        div.classList.remove "jobs-job-error"
+                    else if v > 0
+                        div.classList.add "jobs-job-active"
+                        div.classList.remove "jobs-job-inactive"
+                        div.classList.remove "jobs-job-error"
+                    else if v < 0
+                        div.classList.remove "jobs-job-active"
+                        div.classList.remove "jobs-job-inactive"
+                        div.classList.add "jobs-job-error"
+                    else
+                        div.classList.remove "jobs-job-active"
+                        div.classList.remove "jobs-job-inactive"
+                        div.classList.remove "jobs-job-error"
             
             
     # 配役をテキストで書いてあげる

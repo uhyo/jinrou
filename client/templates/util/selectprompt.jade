@@ -1,11 +1,13 @@
 section.window
   h1
     = title
-    input.closer(type="button",value="×",name="cancel")
+    button.closer(type="button",name="cancel")
+      i.fa.fa-times
   form(name="askform",action="/")
-    p= message
-    p
-      select.prompt.getfocus
+    div.window-content
+      p= message
+      p
+        select.prompt.getfocus
     p
       input(type="submit",name="ok",value="OK")
       input(type="button",name="cancel",value="キャンセル")
