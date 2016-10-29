@@ -8253,8 +8253,6 @@ module.exports.actions=(req,res,ss)->
             if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
-            if query.yaminabe_hidejobs!="" && query.jobrule=="特殊ルール.一部闇鍋"
-                ruleinfo_str = "一部闇鍋"
             if query.chemical == "on"
                 # ケミカル人狼の場合は表示
                 ruleinfo_str = "ケミカル人狼　" + (ruleinfo_str ? "")
