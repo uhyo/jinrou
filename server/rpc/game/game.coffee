@@ -1203,7 +1203,7 @@ class Game
         deads.forEach (x)=>
             situation=switch x.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty"
                     "無惨な姿で発見されました"
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -6275,7 +6275,86 @@ class Hypnotist extends Madman
 
         return null
 
+class CraftyWolf extends Werewolf
+    type:"CraftyWolf"
+    jobname:"狡猾な狼"
+    jobdone:(game)->super && @flag == "going"
+    deadJobdone:(game)->@flag != "revivable"
+    midnightSort:100
+    isReviver:->!@dead || (@flag in ["reviving","revivable"])
+    sunset:(game)->
+        super
+        # 生存状態で昼になったら死んだふり能力初期化
+        @setFlag ""
+    job:(game,playerid,query)->
+        if query.jobtype!="CraftyWolf"
+            return super
+        if @dead
+            # 死亡時
+            if @flag != "revivable"
+                return "能力を使用できません"
+            @setFlag "reviving"
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は死んだふりをやめました。"
+            splashlog game.id,game,log
+            return null
+        else
+            # 生存時
+            if @flag != ""
+                return "既に能力を使用しています"
+            # 生存フラグを残しつつ死ぬ
+            @setFlag "going"
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}は死んだふりをしました。"
+            splashlog game.id,game,log
+            return null
+    midnight:(game)->
+        if @flag=="going"
+            @die game, "crafty"
+            @addGamelog game,"craftydie"
+            @setFlag "revivable"
+    deadnight:(game)->
+        if @flag=="reviving"
+            # 生存していた
+            pl = game.getPlayer @id
+            if pl?
+                pl.setFlag ""
+                pl.revive game
+                pl.addGamelog game,"craftyrevive"
+        else
+            # 生存フラグが消えた
+            @setFlag ""
+    makejobinfo:(game,result)->
+        super
+        result.open ?= []
+        if @dead && @flag=="revivable"
+            # 死に戻り
+            result.open = result.open.filter (x)->!(x in ["CraftyWolf","_Werewolf"])
+            result.open.push "CraftyWolf2"
+        return result
+    makeJobSelection:(game)->
+        if game.night && @dead && @flag=="revivable"
+            # 死んだふりやめるときは選択肢がない
+            []
+        else if game.night && game.werewolf_target_remain==0
+            # もう襲撃対象を選択しない
+            []
+        else super
+    checkJobValidity:(game,query)->
+        if query.jobtype in ["CraftyWolf","CraftyWolf2"]
+            # 対象選択は不要
+            return true
+        return super
 
+
+
+
+
+# ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
@@ -7416,6 +7495,7 @@ jobs=
     GotChocolate:GotChocolate
     MadDog:MadDog
     Hypnotist:Hypnotist
+    CraftyWolf:CraftyWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
