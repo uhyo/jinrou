@@ -6542,9 +6542,9 @@ class Complex
             query={}
         unless query.jobtype?
             query.jobtype=@main.type
-        if @main.isJobType(query.jobtype) && !@main.jobdone(game)
+        if @main.isJobType(query.jobtype) && ((@main.dead && !@main.deadJobdone(game)) || (!@main.dead && !@main.jobdone(game)))
             @mcall game,@main.job,game,playerid,query
-        else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
+        else if @sub?.isJobType?(query.jobtype) && ((@sub.dead && !@sub.deadJobdone(game)) || (!@sub.dead && !@sub?.jobdone?(game)))
             @sub.job? game,playerid,query
     # Am I Walking Dead?
     isDead:->
