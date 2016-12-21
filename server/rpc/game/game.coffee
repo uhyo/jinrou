@@ -935,6 +935,16 @@ class Game
                     werewolf_flag_result.push fl
             @werewolf_flag=werewolf_flag_result
             
+            # Fireworks should be lit at just before sunset.
+            x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
+            if x.length
+                # 全员花火の虜にしてしまう
+                for pl in @players
+                    newpl=Player.factory null,pl,null,WatchingFireworks
+                    pl.transProfile newpl
+                    newpl.cmplFlag=x[0].id
+                    pl.transform @,newpl,true
+
             alives=[]
             deads=[]
             for player in @players
@@ -2112,6 +2122,13 @@ class Player
 
     # jobtypeが合っているかどうか（夜）
     isJobType:(type)->type==@type
+    #An access to @flag, etc.
+    accessByJobType:(type)->
+        unless type
+            throw "there must be a JOBTYPE"
+        if @isJobType(type)
+            return @
+        null
     # complexのJobTypeを調べる
     isCmplType:(type)->false
     # 投票先決定
@@ -5740,12 +5757,6 @@ class Pyrotechnist extends Player
         splashlog game.id,game,log
         # 使用済
         @setFlag "using"
-        # 全員花火の虜にしてしまう
-        for pl in game.players
-            newpl=Player.factory null,pl,null,WatchingFireworks
-            pl.transProfile newpl
-            newpl.cmplFlag=@id
-            pl.transform game,newpl,true
         null
     sunset:(game)->
         if @flag=="using"
@@ -6561,6 +6572,19 @@ class Complex
         return {dead:@dead,found:@found}
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
+    #An access to @main.flag, etc.
+    accessByJobType:(type)->
+        unless type
+            throw "there must be a JOBTYPE"
+        unless @isJobType(type)
+            return null
+        if @main.isJobType(type)
+            return @main.accessByJobType(type)
+        else
+            unless @sub?
+                return null
+            return @sub.accessByJobType(type)
+        null
     sunset:(game)->
         @mcall game,@main.sunset,game
         @sub?.sunset? game
@@ -7068,6 +7092,7 @@ class WatchingFireworks extends Complex
         if pl?
             #pl.sunset game
             pl.sunrise game
+    deadsunrise:(game)->@sunrise game
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
