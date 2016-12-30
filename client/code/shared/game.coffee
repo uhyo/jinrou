@@ -27,7 +27,9 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BadLady", # 蒼汁天国、人狼天国
 "Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
 # その他
-"RedHood","Baker","MadDog","CraftyWolf",
+"RedHood","Baker",
+# 人狼放浪記
+"MadDog","CraftyWolf",
 # アプリの役職
 "PsychoKiller",
 # わんないと人狼
@@ -68,7 +70,7 @@ exports.teams=teams=
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere"]
     Vampire:["Vampire"]
-    Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer"],
+    Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -79,7 +81,7 @@ exports.categories=
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
-    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
 
 exports.categoryNames=
     Human:"村人系"
@@ -980,6 +982,9 @@ exports.jobinfo=
         QuantumPlayer:
             name:"量子人間"
             color:"#eeeeee"
+        Shishimai:
+            name:"獅子舞"
+            color:"#2c8c3e"
     Neet:
         name:"ニート"
         color:"#aaaaaa"

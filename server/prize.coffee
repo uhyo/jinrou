@@ -69,7 +69,7 @@ module.exports=exports=
                             else
                                 gotprizes.push "wincount_#{job}_#{numstr}"
                 for job,prs of prize.losecountprize
-                    for numstr of prs
+                    for numstr,name of prs
                         num=+numstr
                         if losecount[job]>=num
                             if Array.isArray name
@@ -82,20 +82,40 @@ module.exports=exports=
                             else
                                 gotprizes.push "losecount_#{job}_#{numstr}"
                 for team,prs of prize.winteamcountprize
-                    for numstr of prs
+                    for numstr,name of prs
                         num=+numstr
                         if winteamcount[team]>=num
-                            gotprizes.push "winteamcount_#{team}_#{numstr}"
+                            if Array.isArray name
+                                for _,i in name
+                                    if i==0
+                                        gotprizes.push "winteamcount_#{team}_#{numstr}"
+                                    else
+                                        gotprizes.push "winteamcount_#{team}_#{numstr}:#{i}"
+                            else
+                                gotprizes.push "winteamcount_#{team}_#{numstr}"
                 for type,obj of prize.counterprize
-                    for numstr of obj.names
+                    for numstr,name of obj.names
                         num=+numstr
                         if counter[type]>=num
-                            gotprizes.push "#{type}_#{num}"
+                            if Array.isArray name
+                                for _,i in name
+                                    if i==0
+                                        gotprizes.push "#{type}_#{numstr}"
+                                    else
+                                        gotprizes.push "#{type}_#{numstr}:#{i}"
+
                 for type,obj of prize.ownprizesprize
-                    for numstr of obj.names
+                    for numstr,name of obj.names
                         num=+numstr
                         if obj.func(gotprizes)>=num
-                            gotprizes.push "#{type}_#{num}"
+                            if Array.isArray name
+                                for _,i in name
+                                    if i==0
+                                        gotprizes.push "#{type}_#{num}"
+                                    else
+                                        gotprizes.push "#{type}_#{num}:#{i}"
+                            else
+                                gotprizes.push "#{type}_#{num}"
                 result[doc.userid]=gotprizes
                 onecall()
 

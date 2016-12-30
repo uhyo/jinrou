@@ -1875,8 +1875,8 @@ class VotingBox
         table=[]
         gots={}
         #for obj in @votes
-        for pl in @game.players
-            continue if pl.dead
+        alives = @game.players.filter (x)->!x.dead
+        for pl in alives
             obj=@getHisVote pl
             o=pl.publicinfo()
             if obj?
@@ -1891,6 +1891,13 @@ class VotingBox
                 tos[obj.to.id]=go.votes
                 o.voteto=obj.to.id  # 投票先情報を付け加える
             table.push o
+        for pl in alives
+            vote = gots[pl.id]
+            if vote?
+                vote = pl.modifyMyVote @game, vote
+                gots[pl.id] = vote
+                tos[pl.id] = vote.votes
+
         # 獲得票数が少ない順に並べる
         cands=Object.keys(gots).sort (a,b)=>
             @compareGots gots[a],gots[b]
@@ -2294,6 +2301,8 @@ class Player
     # 夜の発言の選択肢を得る
     getSpeakChoice:(game)->
         ["monologue"]
+    # 自分宛の投票を書き換えられる
+    modifyMyVote:(game, vote)-> vote
     # Complexから抜ける
     uncomplex:(game,flag=false)->
         #flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
@@ -6361,6 +6370,65 @@ class CraftyWolf extends Werewolf
             return true
         return super
 
+class Shishimai extends Player
+    type:"Shishimai"
+    jobname:"獅子舞"
+    team:""
+    sleeping:->true
+    jobdone:(game)->@target?
+    isWinner:(game,team)->
+        # 生存者（自身を除く）を全員噛んだら勝利
+        alives = game.players.filter (x)->!x.dead
+        bitten = JSON.parse (@flag || "[]")
+        flg = true
+        for pl in alives
+            if pl.id == @id
+                continue
+            unless pl.id in bitten
+                flg = false
+                break
+        return flg
+    sunset:(game)->
+        alives = game.players.filter (x)->!x.dead
+        if alives.length > 0
+            @setTarget null
+            if @scapegoat
+                r = Math.floor Math.random()*alives.length
+                @job game, alives[r].id, {}
+        else
+            @setTarget ""
+    job:(game,playerid)->
+        pl = game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません。"
+        bitten = JSON.parse (@flag || "[]")
+        if playerid in bitten
+            return "そのプレイヤーは既に噛みました。"
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{pl.name}を噛みました。"
+        splashlog game.id, game, log
+        @setTarget playerid
+        null
+    midnight:(game)->
+        pl = game.getPlayer @target
+        unless pl?
+            return
+        # 票数が減る祝いをかける
+        newpl = Player.factory null, pl, null, VoteGuarded
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+        newpl.touched game,@id
+
+        # 噛んだ記録
+        arr = JSON.parse (@flag || "[]")
+        arr.push newpl.id
+        @setFlag (JSON.stringify arr)
+
+        # かみかみ
+        @addGamelog game, "shishimaibit", newpl.type, newpl.id
+        null
 
 
 
@@ -6608,6 +6676,10 @@ class Complex
     voteafter:(game,target)->
         @mcall game,@main.voteafter,game,target
         @sub?.voteafter game,target
+    modifyMyVote:(game, vote)->
+        if @sub?
+            vote = @sub.modifyMyVote game, vote
+        @mcall game, @main.modifyMyVote, game, vote
     
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
@@ -7245,6 +7317,19 @@ class UnderHypnosis extends Complex
     touched:(game,from)->
     divined:(game,player)->
     voteafter:(game,target)->
+# 獅子舞の加護
+class VoteGuarded extends Complex
+    cmplType:"VoteGuarded"
+    modifyMyVote:(game, vote)->
+        if @sub?
+            vote = @sub.modifyMyVote game, vote
+        vote = @mcall game, @main.modifyMyVote, game, vote
+
+        # 自分への投票を1票減らす
+        if vote.votes > 0
+            vote.votes--
+        vote
+
 
 
 # 決定者
@@ -7521,6 +7606,7 @@ jobs=
     MadDog:MadDog
     Hypnotist:Hypnotist
     CraftyWolf:CraftyWolf
+    Shishimai:Shishimai
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -7557,6 +7643,7 @@ complexes=
     Whited:Whited
     VampireBlooded:VampireBlooded
     UnderHypnosis:UnderHypnosis
+    VoteGuarded:VoteGuarded
     Chemical:Chemical
 
     # 役職ごとの強さ
@@ -7649,6 +7736,11 @@ jobStrength=
     Bomber:23
     Blasphemy:10
     Ushinotokimairi:19
+    Patissiere:10
+    MadDog:19
+    Hypnotist:17
+    CraftyWolf:48
+    Shishimai:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -7996,7 +8088,7 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push "Patissiere"
                     if month==0 && d<=3
                         # 正月は巫女がでやすい
-                        if Math.random()<0.5 && frees>0
+                        if Math.random()<0.35 && frees>0
                             joblist.Miko ?= 0
                             joblist.Miko++
                             frees--
@@ -8009,6 +8101,22 @@ module.exports.actions=(req,res,ss)->
                                 frees--
                                 if Math.random()<0.75
                                     break
+                    if month==11 && d==31 || month==0 && 4<=d<=7
+                        # 獅子舞の季節
+                        if Math.random()<0.5 && frees>0
+                            joblist.Shishimai ?= 0
+                            joblist.Shishimai++
+                            frees--
+                    else if month==0 && 1<=d<=3
+                        # 獅子舞の季節（真）
+                        if Math.random()<0.7 && frees>0
+                            joblist.Shishimai ?= 0
+                            joblist.Shishimai++
+                            frees--
+                    else
+                        # 獅子舞がでにくい季節
+                        if Math.random()<0.8
+                            exceptions.push "Shishimai"
 
                 )(new Date)
                 

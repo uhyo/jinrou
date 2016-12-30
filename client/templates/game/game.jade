@@ -288,6 +288,10 @@
     #form_GotChocolate(hidden).jobformarea
       p
         input(type="submit",value="チョコを食べる",data-job="GotChocolate")
+    #form_Shishimai(hidden).jobformarea
+      p
+        | 獅子舞で噛む相手を選択してください（非強制）：
+        input(type="submit",value="噛む",data-job="Shishimai")
   form#speakform
     p
       input(size="50",name="comment",required,autocomplete="off")

@@ -15,30 +15,33 @@ makePrize=(cb)->
         names: {}
         phonetics: {}
     }
+    cb2 = (result)->
+        # 残り
+        makeOtherPrize result
+        # 称号IDと名前の対応表を作る
+        makeNames result
+        cb result
+
     dir=path.normalize __dirname+"/../prizedata"
     fs.readFile path.join(dir,"win.csv"),{encoding:"utf8"}, (err,data)->
         if err?
-            cb result
+            cb2 result
             return
         csv.parse data,(err,arr)->
             if err?
-                cb result
+                cb2 result
                 return
             result.wincountprize = loadTable arr
             fs.readFile path.join(dir,"lose.csv"),{encoding:"utf8"}, (err,data)->
                 if err?
-                    cb result
+                    cb2 result
                     return
                 csv.parse data,(err,arr)->
                     if err?
-                        cb result
+                        cb2 result
                         return
                     result.losecountprize = loadTable arr
-                    # 残り
-                    makeOtherPrize result
-                    # 称号IDと名前の対応表を作る
-                    makeNames result
-                    cb result
+                    cb2 result
 exports.makePrize=makePrize
 
 # win.csv,lose.csvを読み込む
@@ -91,12 +94,14 @@ makeNames=(result)->
             [name,phonetic]=namevalue.split "/"
             names[key]=name
             phonetics[key]=phonetic
-    for job,obj of result.wincountprize
-        for num,name of obj
-            mset "wincount_#{job}_#{num}",name
-    for job,obj of result.losecountprize
-        for num,name of obj
-            mset "losecount_#{job}_#{num}",name
+    if result.wincountprize?
+        for job,obj of result.wincountprize
+            for num,name of obj
+                mset "wincount_#{job}_#{num}",name
+    if result.losecountprize?
+        for job,obj of result.losecountprize
+            for num,name of obj
+                mset "losecount_#{job}_#{num}",name
     for job,obj of result.winteamcountprize
         for num,name of obj
             mset "winteamcount_#{job}_#{num}",name
@@ -276,6 +281,29 @@ makeOtherPrize=(result)->
             names:{}
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="found" && x.flag in ["gone-day","gone-night"]).length
+        # 獅子舞に噛まれる
+        shishimaibit:
+            names:
+                1: [
+                    "一/いち"
+                    "富士/ふじ"
+                    "富士山/ふじさん"
+                ]
+                2: [
+                    "二/に"
+                    "鷹/たか"
+                ]
+                3: [
+                    "三/さん"
+                    "茄子/なすび"
+                ]
+                5: [
+                    "福男/ふくおとこ"
+                    "福女/ふくおんな"
+                ]
+                10:"お年玉/おとしだま"
+            func:(game,pl)->
+                game.gamelogs.filter((x)->x.target==pl.id && x.event=="shishimaibit").length
     result.ownprizesprize=
         prizecount:
             names:
