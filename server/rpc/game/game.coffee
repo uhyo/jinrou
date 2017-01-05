@@ -962,7 +962,10 @@ class Game
                     newpl=Player.factory null,pl,null,WatchingFireworks
                     pl.transProfile newpl
                     newpl.cmplFlag=x[0].id
-                    pl.transform @,newpl,true
+                    pl.transform this,newpl,true
+                # Pyrotechnist should break the blockade of Threatened.sunset
+                for pyr in x
+                    pyr.accessByJobType("Pyrotechnist").sunset this
 
             alives=[]
             deads=[]
