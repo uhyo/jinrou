@@ -103,7 +103,8 @@ module.exports=exports=
                                         gotprizes.push "#{type}_#{numstr}"
                                     else
                                         gotprizes.push "#{type}_#{numstr}:#{i}"
-
+                            else
+                                gotprizes.push "#{type}_#{numstr}"
                 for type,obj of prize.ownprizesprize
                     for numstr,name of obj.names
                         num=+numstr
