@@ -1131,24 +1131,30 @@ class Game
         alives=[]
         deads=[]
         pids=[]
+        mids=[]
         for player in @players
             pids.push player.id
+            # gather all midnightSort
+            mids = mids.concat player.gatherMidnightSort()
             if player.dead
                 deads.push player.id
             else
                 alives.push player.id
+        # unique
+        mids.sort (a, b)=>
+            return a - b
+        midsu=[mids[0]]
+        for mid in mids
+            if midsu[midsu.length-1] != mid then midsu.push mid
         # 処理順はmidnightSortでソート
         pids = shuffle pids
-        pids.sort (a, b)=>
-            ap = @getPlayer a
-            bp = @getPlayer b
-            return ap.midnightSort - bp.midnightSort
-        for pid in pids
-            player=@getPlayer pid
-            if player.id in alives
-                player.midnight this
-            else
-                player.deadnight this
+        for mid in midsu
+            for pid in pids
+                player=@getPlayer pid
+                if player.id in alives
+                    player.midnight this,mid
+                else
+                    player.deadnight this,mid
             
         # 狼の処理
         for target in @werewolf_target
@@ -2156,8 +2162,10 @@ class Player
         unless type
             throw "there must be a JOBTYPE"
         if @isJobType(type)
-            return @
+            return this
         null
+    gatherMidnightSort:->
+        return [@midnightSort]
     # complexのJobTypeを調べる
     isCmplType:(type)->false
     # 投票先決定
@@ -2200,9 +2208,12 @@ class Player
         @setTarget playerid
         null
     # 夜の仕事を行う
-    midnight:(game)->
+    # night skill should act exactly as midnightSort
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
     # 夜死んでいたときにmidnightの代わりに呼ばれる
-    deadnight:(game)->
+    deadnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
     # 対象
     job_target:1    # ビットフラグ
     # 対象用の値
@@ -2591,8 +2602,8 @@ class Diviner extends Player
         unless game.rule.divineresult=="immediate"
             @showdivineresult game
                 
-    midnight:(game)->
-        super
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         unless game.rule.divineresult=="immediate"
             @dodivine game
         @divineeffect game
@@ -2685,7 +2696,8 @@ class Guard extends Player
                 comment:"#{@name}は#{pl.name}を護衛しました。"
             splashlog game.id,game,log
             null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl = game.getPlayer @target
         unless pl?
             return
@@ -2799,8 +2811,9 @@ class TinyFox extends Diviner
         unless game.rule.divineresult=="immediate"
             @showdivineresult game
                 
-    midnight:(game)->
+    midnight:(game,midnightSort)->
         super
+        if midnightSort != @midnightSort then return
         unless game.rule.divineresult=="immediate"
             @dodivine game
     dodivine:(game)->
@@ -2891,7 +2904,8 @@ class Magician extends Player
         splashlog game.id,game,log
         null
     sleeping:(game)->game.day<3 || @target?
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
@@ -2929,7 +2943,8 @@ class Spy extends Player
             comment:"#{@name}は村を去ることに決めました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         if !@dead && @flag=="spygone"
             # 村を去る
             @setFlag "spygone"
@@ -2989,8 +3004,9 @@ class WolfDiviner extends Werewolf
         super
         unless game.rule.divineresult=="immediate"
             @showdivineresult game
-    midnight:(game)->
+    midnight:(game,midnightSort)->
         super
+        if midnightSort != @midnightSort then return
         @divineeffect game
         unless game.rule.divineresult=="immediate"
             @dodivine game
@@ -3090,7 +3106,8 @@ class Fugitive extends Player
         else
             super
         
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
@@ -3210,7 +3227,8 @@ class Liar extends Player
             to:@id
             comment:"あんまり自信ないけど、霊能占いの結果、#{@results[@results.length-1].player.name}は#{@results[@results.length-1].result}だと思う。たぶん。"
         splashlog game.id,game,log
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         p=game.getPlayer @target
         if p?
             @addGamelog game,"liardivine",null,p.id
@@ -3320,7 +3338,8 @@ class Light extends Player
             comment:"#{@name}が#{pl.name}の名前を死神の手帳に書きました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         t=game.getPlayer @target
         return unless t?
         return if t.dead
@@ -3632,7 +3651,8 @@ class Spellcaster extends Player
         arr.push playerid
         @setFlag JSON.stringify arr
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         t=game.getPlayer @target
         return unless t?
         return if t.dead
@@ -3679,7 +3699,8 @@ class Priest extends Player
             comment:"#{@name}が#{pl.name}を聖なる力で守りました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -3893,7 +3914,8 @@ class CultLeader extends Player
         splashlog game.id,game,log
         @addGamelog game,"brainwash",null,playerid
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         t=game.getPlayer @target
         return unless t?
         return if t.dead
@@ -3944,7 +3966,8 @@ class Vampire extends Player
             comment:"#{@name}が#{pl.name}を襲撃しました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         t=game.getPlayer @target
         return unless t?
         return if t.dead
@@ -3993,7 +4016,8 @@ class Cat extends Poisoner
         null
     jobdone:->@target?
     sleeping:->true
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
@@ -4017,7 +4041,8 @@ class Cat extends Poisoner
             @addGamelog game,"catraise",true,@target
         # 蘇生 目を覚まさせる
         pl.revive game
-    deadnight:(game)->
+    deadnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         @setTarget @id
         @midnight game
         
@@ -4099,7 +4124,8 @@ class Witch extends Player
                 comment:"#{@name}は#{pl.name}に蘇生薬を使いました。"
             splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
@@ -4118,7 +4144,8 @@ class Witch extends Player
 class Oldman extends Player
     type:"Oldman"
     jobname:"老人"
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 夜の終わり
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
         if wolves.length*2<=game.day
@@ -4164,7 +4191,8 @@ class OccultMania extends Player
             comment:"#{@name}は#{pl.name}を指定しました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         p=game.getPlayer @target
         return unless p?
         # 変化先決定
@@ -4421,7 +4449,8 @@ class Dog extends Player
                 comment:"#{@name}が#{pl.name}を襲撃しました。"
             splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
@@ -4525,7 +4554,8 @@ class Trapper extends Player
             null
         else
             "自分を護衛することはできません"
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -4558,7 +4588,8 @@ class WolfBoy extends Madman
             comment:"#{@name}は#{pl.name}を人狼に仕立てました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -4703,7 +4734,8 @@ class QuantumPlayer extends Player
         @setTarget JSON.stringify tarobj
 
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # ここで処理
         tarobj=JSON.parse(@target||"{}")
         if tarobj.Diviner
@@ -4866,7 +4898,8 @@ class Counselor extends Player
             comment:"#{@name}が#{pl.name}をカウンセリングしました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         t=game.getPlayer @target
         return unless t?
         return if t.dead
@@ -4912,7 +4945,8 @@ class Miko extends Player
         splashlog game.id,game,log
         @setFlag "using"
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         if @flag=="using"
             pl = game.getPlayer @id
@@ -5191,7 +5225,8 @@ class WanderingGuard extends Player
             comment:"#{@name}は#{pl.name}を護衛しました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -5250,7 +5285,8 @@ class ObstructiveMad extends Madman
             comment:"#{@name}が#{pl.name}を邪魔しました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -5280,7 +5316,8 @@ class TroubleMaker extends Player
             comment:"#{@name}は村でトラブルを起こしました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # ここが無効化されたら発動しないように
         if @flag=="using"
             @setFlag "using2"
@@ -5384,7 +5421,8 @@ class BloodyMary extends Player
         @setTarget playerid
         null
     # 呪い殺す!!!!!!!!!
-    deadnight:(game)->
+    deadnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl=game.getPlayer @target
         unless pl?
             return
@@ -5440,7 +5478,8 @@ class PsychoKiller extends Madman
         @setFlag JSON.stringify fl
     sunset:(game)->
         @setFlag "[]"
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         fl=try
                JSON.parse @flag || "[]"
            catch e
@@ -5450,8 +5489,8 @@ class PsychoKiller extends Madman
             if pl? && !pl.dead
                 pl.die game,"psycho",@id
         @setFlag "[]"
-    deadnight:(game)->
-        @midnight game
+    deadnight:(game,midnightSort)->
+        @midnight game,midnightSort
 class SantaClaus extends Player
     type:"SantaClaus"
     jobname:"サンタクロース"
@@ -5504,7 +5543,8 @@ class SantaClaus extends Player
         fl.push playerid
         @setFlag JSON.stringify fl
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         return unless @target?
         pl=game.getPlayer @target
         return unless pl?
@@ -5862,7 +5902,8 @@ class Bomber extends Madman
             comment:"#{@name}は#{pl.name}に爆弾を仕掛けました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl = game.getPlayer @target
         unless pl?
             return
@@ -5919,7 +5960,8 @@ class Blasphemy extends Player
 
         @addGamelog game,"blasphemy",pl.type,playerid
         return null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl=game.getPlayer @target
         return unless pl?
 
@@ -5964,7 +6006,8 @@ class Ushinotokimairi extends Madman
             comment:"#{@name}が#{pl.name}に呪いをかけました。"
         splashlog game.id,game,log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         # 複合させる
         pl = game.getPlayer @target
         unless pl?
@@ -6019,7 +6062,8 @@ class Patissiere extends Player
             comment: "#{@name}は#{pl.name}を本命に選びました。"
         splashlog game.id, game, log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl = game.getPlayer @target
         unless pl?
             return
@@ -6145,7 +6189,8 @@ class GotChocolate extends Player
                 comment: "#{@name}はチョコレートを食べましたが、何も起こりませんでした。"
             splashlog game.id, game, log
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         re = @flag?.match /^selected:(.+)$/
         if re?
             @setFlag "done"
@@ -6262,7 +6307,8 @@ class MadDog extends Madman
             comment:"#{@name}が#{pl.name}を襲撃しました。"
         splashlog game.id,game,log
         return null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl=game.getPlayer @target
         return unless pl?
 
@@ -6306,7 +6352,8 @@ class Hypnotist extends Madman
 
         @setFlag true
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl = game.getPlayer @target
         unless pl?
             return
@@ -6361,12 +6408,14 @@ class CraftyWolf extends Werewolf
                 comment:"#{@name}は死んだふりをしました。"
             splashlog game.id,game,log
             return null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         if @flag=="going"
             @die game, "crafty"
             @addGamelog game,"craftydie"
             @setFlag "revivable"
-    deadnight:(game)->
+    deadnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         if @flag=="reviving"
             # 生存していた
             pl = game.getPlayer @id
@@ -6440,7 +6489,8 @@ class Shishimai extends Player
         splashlog game.id, game, log
         @setTarget playerid
         null
-    midnight:(game)->
+    midnight:(game,midnightSort)->
+        if midnightSort != @midnightSort then return
         pl = game.getPlayer @target
         unless pl?
             return
@@ -6682,12 +6732,23 @@ class Complex
                 return null
             return @sub.accessByJobType(type)
         null
+    gatherMidnightSort:->
+        mids=[@midnightSort]
+        mids=mids.concat @main.gatherMidnightSort()
+        if @sub?
+            mids=mids.concat @sub.gatherMidnightSort()
+        return mids
     sunset:(game)->
         @mcall game,@main.sunset,game
         @sub?.sunset? game
-    midnight:(game)->
-        @mcall game,@main.midnight,game
-        @sub?.midnight? game
+    midnight:(game,midnightSort)->
+        if @main.isComplex() || @main.midnightSort == midnightSort
+            @mcall game,@main.midnight,game,midnightSort
+        if @sub?.isComplex() || @sub?.midnightSort == midnightSort
+            @sub.midnight game,midnightSort
+    deadnight:(game,midnightSort)->
+        @mcall game,@main.deadnight,game
+        @sub?.deadnight? game
     deadsunset:(game)->
         @mcall game,@main.deadsunset,game
         @sub?.deadsunset? game
@@ -6952,11 +7013,12 @@ class Drunk extends Complex
 class TrapGuarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"TrapGuarded"
-    midnight:(game)->
-        @mcall game,@main.midnight,game
-        @sub?.midnight? game
+    midnight:(game,midnightSort)->
+        @mcall game,@main.midnight,game,midnightSort
+        @sub?.midnight? game,midnightSort
         # 狩人とかぶったら狩人が死んでしまう!!!!!
         # midnight: 狼の襲撃よりも前に行われることが保証されている処理
+        if midnightSort != @midnightSort then return
         wholepl=game.getPlayer @id  # 一番表から見る
         result=@checkGuard game,wholepl
         if result
@@ -7077,7 +7139,7 @@ class Threatened extends Complex
             #pl.sunset game
             pl.sunrise game
     sunset:(game)->
-    midnight:(game)->
+    midnight:(game,midnightSort)->
     job:(game,playerid,query)->
         null
     dying:(game,found,from)->
@@ -7201,11 +7263,12 @@ class WatchingFireworks extends Complex
 class BombTrapped extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"BombTrapped"
-    midnight:(game)->
-        @mcall game,@main.midnight,game
-        @sub?.midnight? game
+    midnight:(game,midnightSort)->
+        @mcall game,@main.midnight,game,midnightSort
+        @sub?.midnight? game,midnightSort
         # 狩人とかぶったら狩人が死んでしまう!!!!!
         # midnight: 狼の襲撃よりも前に行われることが保証されている処理
+        if midnightSort != @midnightSort then return
         wholepl=game.getPlayer @id  # 一番表から見る
         result=@checkGuard game,wholepl
         if result
@@ -7338,7 +7401,7 @@ class UnderHypnosis extends Complex
         pl=game.getPlayer @id
         if pl?
             pl.sunrise game
-    midnight:(game)->
+    midnight:(game,midnightSort)->
     die:(game,found,from)->
         Human.prototype.die.call @,game,found,from
     dying:(game,found,from)->
