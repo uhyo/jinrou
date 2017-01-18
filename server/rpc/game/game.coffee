@@ -6745,7 +6745,7 @@ class Complex
         if @main.isComplex() || @main.midnightSort == midnightSort
             @mcall game,@main.midnight,game,midnightSort
         if @sub?.isComplex() || @sub?.midnightSort == midnightSort
-            @sub.midnight game,midnightSort
+            @sub?.midnight? game,midnightSort
     deadnight:(game,midnightSort)->
         @mcall game,@main.deadnight,game
         @sub?.deadnight? game
