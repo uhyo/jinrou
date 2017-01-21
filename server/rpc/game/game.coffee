@@ -6668,6 +6668,7 @@ class Complex
     isComplex:->true
     getJobname:->@main.getJobname()
     getJobDisp:->@main.getJobDisp()
+    midnightSort: 100
 
     #@mainのやつを呼ぶ
     mcall:(game,method,args...)->
