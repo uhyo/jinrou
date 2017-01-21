@@ -5883,7 +5883,7 @@ class Baker extends Player
 class Bomber extends Madman
     type:"Bomber"
     jobname:"爆弾魔"
-    midnightSort:100
+    midnightSort:81
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
@@ -7275,6 +7275,10 @@ class BombTrapped extends Complex
         if result
             # 狩人がいた!（罠も無効）
             @uncomplex game
+    # bomb would explode for only once
+    deadsunrise:(game)->
+        super
+        @uncomplex game
     # midnight処理用
     checkGuard:(game,pl)->
         return false unless pl.isComplex()
