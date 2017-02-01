@@ -8008,6 +8008,8 @@ module.exports.actions=(req,res,ss)->
                         if joblist.category_Werewolf>0
                             frees+=joblist.category_Werewolf
                         joblist.category_Werewolf=wolf_number
+                        frees -= wolf_number
+
                         if joblist.Fox>0
                             frees+=joblist.Fox
                         if joblist.TinyFox>0
@@ -8018,22 +8020,41 @@ module.exports.actions=(req,res,ss)->
                         joblist.TinyFox=0
                         joblist.Blasphemy=0
 
+                        # 除外役職を入れないように気をつける
+                        nonavs = {}
+                        for job in exceptions
+                            nonavs[job] = true
                         # 狐を振分け
                         for i in [0...fox_number]
+                            if frees <= 0
+                                break
                             r = Math.random()
-                            if r<0.55
+                            if r<0.55 && !nonavs.Fox
                                 joblist.Fox++
-                            else if r<0.85
+                                frees--
+                            else if r<0.85 && !nonavs.TinyFox
                                 joblist.TinyFox++
-                            else
+                                frees--
+                            else if !nonavs.Blasphemy
                                 joblist.Blasphemy++
+                                frees--
                         if joblist.Vampire>0
                             frees+=joblist.Vampire
-                        joblist.Vampire=vampire_number
+                        if vampire_number <= frees
+                            joblist.Vampire = vampire_number
+                            frees -= vampire_number
+                        else
+                            joblist.Vampire = frees
+                            frees = 0
+
                         if joblist.Devil>0
                             frees+=joblist.Devil
-                        joblist.Devil=devil_number
-                        frees-= wolf_number+fox_number+vampire_number+devil_number
+                        if devil_number <= frees
+                            joblist.Devil = devil_number
+                            frees -= devil_number
+                        else
+                            joblist.Devil = frees
+                            frees = 0
                         # 人外は選んだのでもう選ばれなくする
                         exceptions=exceptions.concat Shared.game.nonhumans
                         exceptions.push "Blasphemy"
@@ -8047,39 +8068,42 @@ module.exports.actions=(req,res,ss)->
                         exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
                     
 
+                nonavs = {}
+                for job in exceptions
+                    nonavs[job] = true
+
                 if safety.teams
                     # 陣営調整もする
                     # 恋人陣営
                     if frees>0
                         if 17>=playersnumber>=12
-                            if Math.random()<0.15
+                            if Math.random()<0.15 && !nonavs.Cupid
                                 joblist.Cupid++
                                 frees--
-                            else if Math.random()<0.12
+                            else if Math.random()<0.12 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.1
+                            else if Math.random()<0.1 && !nonavs.BadLady
                                 joblist.BadLady++
                                 frees--
                         else if playersnumber>=8
-                            if Math.random()<0.15
+                            if Math.random()<0.15 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.1
+                            else if Math.random()<0.1 && !nonavs.Cupid
                                 joblist.Cupid++
                                 frees--
-                    exceptions.push "Cupid","Lover","BadLady"
                     # 妖狐陣営
                     if frees>0 && joblist.Fox>0
                         if joblist.Fox==1
                             if playersnumber>=14
                                 # 1人くらいは…
-                                if Math.random()<0.3
+                                if Math.random()<0.3 && !nonavs.Immoral
                                     joblist.Immoral++
                                     frees--
                             else
                                 # サプライズ的に…
-                                if Math.random()<0.1
+                                if Math.random()<0.1 && !nonavs.Immoral
                                     joblist.Immoral++
                                     frees--
                             exceptions.push "Immoral"
@@ -8096,20 +8120,20 @@ module.exports.actions=(req,res,ss)->
                     # 村人陣営
                     if frees>0
                         # 占い師いてほしい
-                        if Math.random()<0.8
+                        if Math.random()<0.8 && !nonavs.Diviner
                             joblist.Diviner++
                             frees--
-                        else if !safety.jobs && Math.random()<0.3
+                        else if !safety.jobs && Math.random()<0.3 && !nonavs.ApprenticeSeer
                             joblist.ApprenticeSeer++
                             frees--
                 if safety.teams
                     # できれば狩人も
                     if frees>0
                         if joblist.Diviner>0
-                            if Math.random()<0.5
+                            if Math.random()<0.5 && !nonavs.Guard
                                 joblist.Guard++
                                 frees--
-                        else if Math.random()<0.2
+                        else if Math.random()<0.2 && !nonavs.Guard
                             joblist.Guard++
                             frees--
                 ((date)->
@@ -8117,7 +8141,7 @@ module.exports.actions=(req,res,ss)->
                     d=date.getDate()
                     if month==11 && 24<=d<=25
                         # 12/24〜12/25はサンタがよくでる
-                        if Math.random()<0.5 && frees>0
+                        if Math.random()<0.5 && frees>0 && !nonavs.SantaClaus
                             joblist.SantaClaus ?= 0
                             joblist.SantaClaus++
                             frees--
@@ -8131,19 +8155,19 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push "Pyrotechnist"
                     else
                         # ちょっと出やすい
-                        if Math.random()<0.11 && frees>0
+                        if Math.random()<0.11 && frees>0 && !nonavs.Pyrotechnist
                             joblist.Pyrotechnist ?= 0
                             joblist.Pyrotechnist++
                             frees--
                     if month==11 && 24<=d<=25 || month==1 && d==14
                         # 爆弾魔がでやすい
-                        if Math.random()<0.5 && frees>0
+                        if Math.random()<0.5 && frees>0 && !nonavs.Bomber
                             joblist.Bomber ?= 0
                             joblist.Bomber++
                             frees--
                     if month==1 && 13<=d<=14
                         # パティシエールが出やすい
-                        if Math.random()<0.4 && frees>0
+                        if Math.random()<0.4 && frees>0 && !nonavs.Patissiere
                             joblist.Patissiere ?= 0
                             joblist.Patissiere++
                             frees--
@@ -8153,13 +8177,13 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push "Patissiere"
                     if month==0 && d<=3
                         # 正月は巫女がでやすい
-                        if Math.random()<0.35 && frees>0
+                        if Math.random()<0.35 && frees>0 && !nonavs.Miko
                             joblist.Miko ?= 0
                             joblist.Miko++
                             frees--
                     if month==3 && d==1
                         # 4月1日は嘘つきがでやすい
-                        if Math.random()<0.5
+                        if Math.random()<0.5 && !nonavs.Liar
                             while frees>0
                                 joblist.Liar ?= 0
                                 joblist.Liar++
@@ -8168,13 +8192,13 @@ module.exports.actions=(req,res,ss)->
                                     break
                     if month==11 && d==31 || month==0 && 4<=d<=7
                         # 獅子舞の季節
-                        if Math.random()<0.5 && frees>0
+                        if Math.random()<0.5 && frees>0 && !nonavs.Shishimai
                             joblist.Shishimai ?= 0
                             joblist.Shishimai++
                             frees--
                     else if month==0 && 1<=d<=3
                         # 獅子舞の季節（真）
-                        if Math.random()<0.7 && frees>0
+                        if Math.random()<0.7 && frees>0 && !nonavs.Shishimai
                             joblist.Shishimai ?= 0
                             joblist.Shishimai++
                             frees--
