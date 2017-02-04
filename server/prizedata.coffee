@@ -27,7 +27,9 @@ makePrize=(cb)->
         if err?
             cb2 result
             return
-        csv.parse data,(err,arr)->
+        csv.parse data, {
+            relax_column_count: true,
+        }, (err,arr)->
             if err?
                 cb2 result
                 return
@@ -36,7 +38,9 @@ makePrize=(cb)->
                 if err?
                     cb2 result
                     return
-                csv.parse data,(err,arr)->
+                csv.parse data, {
+                    relax_column_count: true,
+                }, (err,arr)->
                     if err?
                         cb2 result
                         return

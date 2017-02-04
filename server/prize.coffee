@@ -7,6 +7,8 @@ prize={}
 prizedata.makePrize (r)->
     prize=r
 
+    console.log prize
+
 # 内部用
 module.exports=exports=
     checkPrize:(game,cb)->
