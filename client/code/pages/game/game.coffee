@@ -313,17 +313,29 @@ exports.start=(roomid)->
                                 input.attr "value",String obj.defaultValue.minute
                                 label.append input
                                 label.append document.createTextNode "分"
+                                input.change ()->
+                                    if(Number($(this).val()) < 0)
+                                        $(this).val(0)
 
                                 input=$ "<input>"
                                 input.attr "type","number"
                                 input.attr "name",obj.name.second
-                                input.attr "min","0"
-                                input.attr "max","59"
+                                input.attr "min","-1"
+                                input.attr "max","60"
                                 input.attr "step","1"
                                 input.attr "size","5"
                                 input.attr "value",String obj.defaultValue.second
                                 label.append input
                                 label.append document.createTextNode "秒"
+                                input.change ()->
+                                    if(Number($(this).val()) >= 60)
+                                        $(this).val(0)
+                                        $(this).prev().val(Number($(this).prev().val())+1)
+                                        $(this).prev().change()
+                                    else if(Number($(this).val()) < 0)
+                                        $(this).val(59)
+                                        $(this).prev().val(Number($(this).prev().val())-1)
+                                        $(this).prev().change()
                             when "hidden"
                                 input=$ "<input>"
                                 input.attr "type","hidden"
