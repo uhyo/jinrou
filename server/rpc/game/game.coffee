@@ -2788,26 +2788,6 @@ class TinyFox extends Diviner
         # 子狐は妖狐が分かる
         result.foxes=game.players.filter((x)->x.isFoxVisible()).map (x)->
             x.publicinfo()
-
-    job:(game,playerid)->
-        super
-        pl=game.getPlayer playerid
-        unless pl?
-            return "そのプレイヤーは存在しません。"
-        pl.touched game,@id
-        log=
-            mode:"skill"
-            to:@id
-            comment:"#{@name}が#{pl.name}を占いました。"
-        splashlog game.id,game,log
-        if game.rule.divineresult=="immediate"
-            @dodivine game
-            @showdivineresult game
-        null
-    sunrise:(game)->
-        super
-        unless game.rule.divineresult=="immediate"
-            @showdivineresult game
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
