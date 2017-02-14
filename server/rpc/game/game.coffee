@@ -2808,11 +2808,6 @@ class TinyFox extends Diviner
         super
         unless game.rule.divineresult=="immediate"
             @showdivineresult game
-                
-    midnight:(game,midnightSort)->
-        super
-        unless game.rule.divineresult=="immediate"
-            @dodivine game
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
