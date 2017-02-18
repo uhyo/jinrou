@@ -38,6 +38,15 @@ exports.start=(user)->
                         Index.util.message "エラー",result.error
                     else
                         app.page "user-profile",result,Index.user.profile,result
+                if q.mail?
+                    ss.rpc "user.sendConfirmMail", q,(result)->
+                        if result.error?
+                            Index.util.message "エラー",result.error
+                        else
+                            app.page "user-profile",result,Index.user.profile,result
+                        if result.info?
+                            Index.util.message "通知",result.info
+                    
     .get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
         $("#changepassword").get(0).hidden=false
         $("#changepassword").submit (je)->

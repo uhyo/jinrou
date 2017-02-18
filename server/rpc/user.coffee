@@ -6,7 +6,9 @@ Server=
     user:module.exports
     prize:require '../prize.coffee'
     oauth:require '../oauth.coffee'
-crypto=require('crypto')
+mailer=require '../mailer.coffee'
+crypto=require 'crypto'
+url=require 'url'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
@@ -114,6 +116,15 @@ exports.actions =(req,res,ss)->
             u.prize ?= []
             u.prizenames=u.prize.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? null}
             delete u.prize
+            if !u.mail?
+                u.mail=
+                    address:""
+                    verified:false
+            else 
+                mail=
+                    address:u.mail.address
+                    verified:u.mail.verified
+                u.mail = mail
             res u
         else
             res null
@@ -145,8 +156,6 @@ exports.actions =(req,res,ss)->
                     return
                     
                 record.name=query.name
-            if query.email?
-                record.email=query.email
             if query.comment? && query.comment.length<=200
                 record.comment=query.comment
             if query.icon? && query.icon.length<=300
@@ -159,6 +168,72 @@ exports.actions =(req,res,ss)->
                 req.session.user=record
                 req.session.save ->
                 res record
+    sendConfirmMail:(query)->
+        mailer.sendConfirmMail(query,req,res,ss)
+    confirmMail:(query)->
+        if query.match /\/my\?token\=(\w){128}\&timestamp\=(\d){13}$/
+            query = url.parse(query,true).query
+            # console.log query
+            M.users.findOne {"mail.token":query.token,"mail.timestamp":Number(query.timestamp)},(err,doc)->
+                # 有效时间：1小时
+                if err?
+                    res {error:"The link is invalid or out of date."}
+                    return
+                unless doc?.mail? && Date.now() < Number(doc.mail.timestamp) + 3600*1000
+                    res {error:"The link is invalid or out of date."}
+                    return
+                strfor=doc.mail.for
+                switch doc.mail.for
+                    when "confirm"
+                        doc.mail=
+                            address:doc.mail.address
+                            verified:true
+                    when "change"
+                        doc.mail=
+                            address:doc.mail.new
+                            verified:true
+                    when "remove"
+                        delete doc.mail
+                    when "reset"
+                        doc.password = doc.mail.newpass
+                        doc.mail=
+                            address:doc.mail.address
+                            verified:true
+                M.users.update {"userid":doc.userid}, doc, {safe:true},(err,count)=>
+                    if err?
+                        res {error:"メールの認証に失敗しました。"}
+                        return
+                    if strfor in ["confirm","change"]
+                        doc.info="Email Address 「#{doc.mail.address}」is Confirmed"
+                    else if strfor == "remove"
+                        doc.mail=
+                            address:""
+                            verified:false
+                        doc.info="Email Address is Removed"
+                    else if strfor == "reset"
+                        doc.info="Password was reset, please login again."
+                        doc.reset=true
+                    res doc
+            return
+        res null
+    resetPassword:(query)->
+        unless /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test query.mail
+            res {info:"有効なメールアドレスを入力してください"}
+        query.userid = query.userid.trim()
+        query.mail = query.mail.trim()
+        if query.newpass!=query.newpass2
+            res {error:"パスワードが一致しません"}
+            return
+        M.users.findOne {"userid":query.userid,"mail.address":query.mail,"mail.verified":true},(err,record)=>
+            if err?
+                res {error:"DB err:#{err}"}
+                return
+            if !record?
+                res {error:"UserID or mailbox is incorrect, or the mailbox is not Confirmed."}
+                return
+            else
+                mailer.sendResetMail(query,req,res,ss)
+                return
     changePassword:(query)->
         M.users.findOne {"userid":req.session.userId,"password":Server.user.crpassword(query.password)},(err,record)=>
             if err?
