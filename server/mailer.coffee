@@ -40,12 +40,12 @@ sendConfirmMail=(query,req,res,ss)->
 
         # mail address
         if record.mail.address == query.mail
-            res {error:"メールアドレスは変更されません。"}
+            res {nochange: true}
             return
         # new
         # when the last mail was not confirmed, take it as new
         else if (!record.mail.address || !record.mail.verified) && query.mail
-            mail.address = query.mail
+            mail.new = query.mail
             mail.verified = false
             mail.for="confirm"
             mailOptions.subject = "月下人狼：メールアドレスの確認"
@@ -71,15 +71,13 @@ sendConfirmMail=(query,req,res,ss)->
             mailOptions.to = Config.smtpConfig.auth.user
             mailOptions.text = "query:\n#{JSON.stringify(query)}\n\nrecord.mail:\n#{JSON.stringify(record.mail)}\n"
             mailOptions.html = mailOptions.text
-            console.log mailOptions
             transporter.sendMail mailOptions, (error, info) ->
                 return console.error("nodemailer:",error) if error
                 console.log "Message sent: " + info.response
             res {error:"メールアドレス変更に失敗しました。"}
             return
             
-        # 限制邮箱绑定数
-        M.users.find({"mail.address":mail.address}).toArray (err,count)->
+        dochange = (err,count)->
             if err?
                 res {error:"プロフィール変更に失敗しました"}
                 return
@@ -87,10 +85,13 @@ sendConfirmMail=(query,req,res,ss)->
                 res {error:"The same mailbox could confirm up to 3 accounts."}
                 return
             # write a mail
-            mailOptions.to = mail.address
+            if mail.for == 'remove'
+                mailOptions.to = mail.address
+            else
+                mailOptions.to = mail.new
             console.log mail
             mailOptions.text = """#{req.session.userId} 様
-このメールアドレス「#{if mail.for=='change' then mail.new else mail.address}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。
+このメールアドレス「#{if mail.for=='remove' then mail.address else mail.new}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。
 #{if mail.for=='remove' then '削除' else '登録'}を完了するには、以下のURLにアクセスしてください。URLは1時間の間有効です。
 #{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}
 
@@ -98,7 +99,7 @@ sendConfirmMail=(query,req,res,ss)->
 このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。
 """
             mailOptions.html = """<p>#{req.session.userId} 様</p>
-<p>このメールアドレス「#{if mail.for=='change' then mail.new else mail.address}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。</p>
+<p>このメールアドレス「#{if mail.for=='remove' then mail.address else mail.new}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。</p>
 <p>#{if mail.for=='remove' then '削除' else '登録'}を完了するには、以下のURLにアクセスしてください。URLは1時間の間有効です。</p>
 <p><a href="#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p>
 
@@ -107,6 +108,7 @@ sendConfirmMail=(query,req,res,ss)->
 <p>このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。</p>
 """
             
+            console.log mailOptions
             transporter.sendMail mailOptions, (error, info) ->
                 return console.error("nodemailer:",error) if error
                 console.log "Message sent: " + info.response
@@ -117,12 +119,21 @@ sendConfirmMail=(query,req,res,ss)->
                     res {error:"プロフィール変更に失敗しました"}
                     return
                 delete record.password
-                record.info="確認のメールが 「#{mail.address}」に送信されました。メールに記載されたURLから処理を完了してください。"
                 record.mail=
                     address:mail.address
+                    new:mail.new
                     verified:mail.verified
-                res record
+                req.session.user = record
+                req.session.save ->
+                    record.info="メールアドレス#{if mail.for == 'remove' then '削除' else '変更'}のためのメールが 「#{if mail.for=='remove' then mail.address else mail.new}」に送信されました。メールに記載されたURLから処理を完了してください。"
+                    res record
             return
+
+        if mail.new?
+            # 限制邮箱绑定数
+            M.users.find({"mail.address": mail.new}).toArray dochange
+        else
+            dochange null, []
         return
     return
 

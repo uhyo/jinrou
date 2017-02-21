@@ -10,7 +10,13 @@ section.profile
     p.edit(data-pname="comment",data-type="text",data-maxlength="100")=comment
     h2 メールアドレス
     p.edit(data-pname="mail",data-type="text",data-maxlength="50")=mail.address
-    if !mail.address
+    if mail.new
+      p
+        | 変更中 (
+        = mail.new
+        | )
+        i.fa.fa-question-circle-o(data-helpicon, title="メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。")
+    else if !mail.address
       p
         | 未登録
         i.fa.fa-question-circle-o(data-helpicon, title="メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。")

@@ -100,22 +100,28 @@ exports.showUrl=showUrl=(url,nohistory=false)->
     switch url
         when "/my"
             # プロフィールとか
-            ss.rpc "user.myProfile", (user)->
-                unless user?
-                    # ログインしていない
-                    showUrl "/",nohistory
-                    return
-                user[x]?="" for x in ["userid","name","comment"]
-                page "user-profile",user,Index.user.profile,user
+            pf = ()=>
+                ss.rpc "user.myProfile", (user)->
+                    unless user?
+                        # ログインしていない
+                        showUrl "/",nohistory
+                        return
+                    user[x]?="" for x in ["userid","name","comment"]
+                    page "user-profile",user,Index.user.profile,user
+
             if location.href.match /\/my\?token\=(\w){128}\&timestamp\=(\d){13}$/
                 ss.rpc "user.confirmMail",location.href, (result)->
                     if result?.error?
                         Index.util.message "エラー",result.error
+                        return
                     if result?.info?
                         Index.util.message "通知",result.info
-                        app.page "user-profile",result,Index.user.profile,result
                     if result?.reset
                         showUrl "/",nohistory
+                    else
+                        pf()
+            else
+                pf()
         when "/reset"
             # 找回密码
             page "reset",null,Index.reset, null
