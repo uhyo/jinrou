@@ -31,29 +31,39 @@ sendConfirmMail=(query,req,res,ss)->
         mail=
             token:crypto.randomBytes(64).toString('hex')
             timestamp:Date.now()
-        # mail address
-        # new
+
+        # to avoid TypeError: Cannot read property 'address' of undefined
         if !record.mail?
+            record.mail = 
+                address = ""
+                verified = false
+
+        # mail address
+        if record.mail.address == query.mail
+            res {error:"メールアドレスは変更されません。"}
+            return
+        # new
+        # when the last mail was not confirmed, take it as new
+        else if (!record.mail.address || !record.mail.verified) && query.mail
             mail.address = query.mail
             mail.verified = false
             mail.for="confirm"
             mailOptions.subject = "月下人狼：Confirm Your Email Address"
         # remove
-        else if query.mail == ""
+        else if !query.mail
             # mail address
             mail.address = record.mail.address
+            mail.verified = record.mail.verified
             mail.for="remove"
             mailOptions.subject = "月下人狼：Remove Your Email Address"
         # change
-        else if record.mail.address != query.mail
+        else if record.mail.address != query.mail && record.mail.verified
             # mail address
             mail.address = record.mail.address
             mail.new = query.mail
+            mail.verified = record.mail.verified
             mail.for="change"
             mailOptions.subject = "月下人狼：Change Your Email Address"
-        else if record.mail.address == query.mail
-            res {error:"メールアドレスは変更されません。"}
-            return
             
         console.log mail
         # 限制邮箱绑定数
