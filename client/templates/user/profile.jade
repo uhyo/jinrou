@@ -10,10 +10,16 @@ section.profile
     p.edit(data-pname="comment",data-type="text",data-maxlength="100")=comment
     h2 メールアドレス
     p.edit(data-pname="mail",data-type="text",data-maxlength="50")=mail.address
-      if mail.verified
-        p Verified
-      else
-        p Not Verified
+    if !mail.address
+      p
+        | 未登録
+        i.fa.fa-question-circle-o(data-helpicon, title="メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。")
+    else if mail.verified
+      p 確認済
+    else
+      p
+        | 未確認
+        i.fa.fa-question-circle-o(data-helpicon, title="入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。")
     h2 アイコン
     p
       input(type="hidden",name="icon",value="")

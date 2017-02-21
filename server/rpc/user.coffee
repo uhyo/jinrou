@@ -120,7 +120,7 @@ exports.actions =(req,res,ss)->
                 u.mail=
                     address:""
                     verified:false
-            else 
+            else
                 mail=
                     address:u.mail.address
                     verified:u.mail.verified
@@ -177,10 +177,10 @@ exports.actions =(req,res,ss)->
             M.users.findOne {"mail.token":query.token,"mail.timestamp":Number(query.timestamp)},(err,doc)->
                 # 有效时间：1小时
                 if err?
-                    res {error:"The link is invalid or out of date."}
+                    res {error:"このリンクは無効か、有効期限が切れています。"}
                     return
                 unless doc?.mail? && Date.now() < Number(doc.mail.timestamp) + 3600*1000
-                    res {error:"The link is invalid or out of date."}
+                    res {error:"このリンクは無効か、有効期限が切れています。"}
                     return
                 strfor=doc.mail.for
                 switch doc.mail.for
@@ -204,14 +204,14 @@ exports.actions =(req,res,ss)->
                         res {error:"メールの認証に失敗しました。"}
                         return
                     if strfor in ["confirm","change"]
-                        doc.info="Email Address 「#{doc.mail.address}」is Confirmed"
+                        doc.info="メールアドレス 「#{doc.mail.address}」が確認されました。"
                     else if strfor == "remove"
                         doc.mail=
                             address:""
                             verified:false
-                        doc.info="Email Address is Removed"
+                        doc.info="メールアドレスの削除に成功しました。"
                     else if strfor == "reset"
-                        doc.info="Password was reset, please login again."
+                        doc.info="パスワードを再設定しました。新しいパスワードでログインしてください。"
                         doc.reset=true
                     res doc
             return
@@ -229,7 +229,7 @@ exports.actions =(req,res,ss)->
                 res {error:"DB err:#{err}"}
                 return
             if !record?
-                res {error:"UserID or mailbox is incorrect, or the mailbox is not Confirmed."}
+                res {error:"ユーザーIDかメールアドレスが間違っています。"}
                 return
             else
                 mailer.sendResetMail(query,req,res,ss)

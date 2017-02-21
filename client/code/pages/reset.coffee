@@ -9,6 +9,6 @@ exports.start=->
             newpass2: form.elements["newpass2"].value
         ss.rpc "user.resetPassword", q,(result)->
             if result?.error?
-                $("#resetinfo").text result.error
+                $("#resetinfo").addClass("error").text result.error
             if result?.info?
-                $("#resetinfo").text result.info
+                $("#resetinfo").removeClass("error").text result.info

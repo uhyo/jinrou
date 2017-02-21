@@ -26,6 +26,10 @@ exports.init = ->
 
         app.showUrl t.href
         return
+    # ヘルプアイコン
+    $("i[data-helpicon]").live "click", (je)->
+        t = je.currentTarget
+        util.message "ヘルプ", t.title
 
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->

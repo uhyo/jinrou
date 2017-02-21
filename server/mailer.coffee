@@ -25,7 +25,7 @@ sendConfirmMail=(query,req,res,ss)->
             res {error:"有効なメールアドレスを入力してください"}
             return
         if record.mail?.timestamp? && Date.now() < record.mail.timestamp + 5*60*1000
-            res {error:"後で5分をお試しください。"}
+            res {error:"まだメールアドレスを設定できません。5分以上後に再度お試しください。"}
             return
         # defaults
         mail=
@@ -34,7 +34,7 @@ sendConfirmMail=(query,req,res,ss)->
 
         # to avoid TypeError: Cannot read property 'address' of undefined
         if !record.mail?
-            record.mail = 
+            record.mail =
                 address : ""
                 verified : false
 
@@ -48,14 +48,14 @@ sendConfirmMail=(query,req,res,ss)->
             mail.address = query.mail
             mail.verified = false
             mail.for="confirm"
-            mailOptions.subject = "月下人狼：Confirm Your Email Address"
+            mailOptions.subject = "月下人狼：メールアドレスの確認"
         # remove
         else if !query.mail
             # mail address
             mail.address = record.mail.address
             mail.verified = record.mail.verified
             mail.for="remove"
-            mailOptions.subject = "月下人狼：Remove Your Email Address"
+            mailOptions.subject = "月下人狼：メールアドレス削除の確認"
         # change
         else if record.mail.address != query.mail && record.mail.verified
             # mail address
@@ -63,7 +63,7 @@ sendConfirmMail=(query,req,res,ss)->
             mail.new = query.mail
             mail.verified = record.mail.verified
             mail.for="change"
-            mailOptions.subject = "月下人狼：Change Your Email Address"
+            mailOptions.subject = "月下人狼：メールアドレス変更の確認"
         # why didn't stop? what happened?
         # report bug automatically
         else
@@ -71,27 +71,41 @@ sendConfirmMail=(query,req,res,ss)->
             mailOptions.to = Config.smtpConfig.auth.user
             mailOptions.text = "query:\n#{JSON.stringify(query)}\n\nrecord.mail:\n#{JSON.stringify(record.mail)}\n"
             mailOptions.html = mailOptions.text
+            console.log mailOptions
             transporter.sendMail mailOptions, (error, info) ->
                 return console.error("nodemailer:",error) if error
                 console.log "Message sent: " + info.response
             res {error:"メールアドレス変更に失敗しました。"}
             return
             
-        console.log mail
         # 限制邮箱绑定数
         M.users.find({"mail.address":mail.address}).toArray (err,count)->
             if err?
                 res {error:"プロフィール変更に失敗しました"}
                 return
-            console.log count.length
             if count.length>=3 && mail.for in ["confirm","change"]
                 res {error:"The same mailbox could confirm up to 3 accounts."}
                 return
             # write a mail
             mailOptions.to = mail.address
             console.log mail
-            mailOptions.text = "Hi #{req.session.userId}, \nYou are #{if mail.for=='remove' then 'removing' else 'confirming'} 「#{if mail.for=='change' then mail.new else mail.address}」 for your 「月下人狼」Account.\nClick the link below to confirm/remove your Email Address, this link will be available in 1 hour:\n#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}\n\nIf you did not request this, you can ignore this email and your nothing will be changed.\nこのメールは送信専用のため返信いただいても対応いたしかねます。ご了承ください。"
-            mailOptions.html = "<h1>月下人狼：Confirm Your Email Address</h1><p>Hi #{req.session.userId}, </p><p>You are #{if mail.for=='remove' then 'removing' else 'confirming'} 「#{if mail.for=='change' then mail.new else mail.address}」 for your 「月下人狼」Account.</p><p>Click the link below to confirm/remove your Email Address, this link will be available in 1 hour:</p><p><a href=\"#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}\">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p><p></p><p>If you did not request this, you can ignore this email and your nothing will be changed.</p><p>このメールは送信専用のため返信いただいても対応いたしかねます。ご了承ください。</p>"
+            mailOptions.text = """#{req.session.userId} 様
+このメールアドレス「#{if mail.for=='change' then mail.new else mail.address}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。
+#{if mail.for=='remove' then '削除' else '登録'}を完了するには、以下のURLにアクセスしてください。URLは1時間の間有効です。
+#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}
+
+このメールに心当たりがない場合、このメールを無視し、URLにアクセスしないでください。
+このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。
+"""
+            mailOptions.html = """<p>#{req.session.userId} 様</p>
+<p>このメールアドレス「#{if mail.for=='change' then mail.new else mail.address}」は、「月下人狼」のアカウント#{if mail.for=='remove' then 'から削除' else 'に登録'}されました。</p>
+<p>#{if mail.for=='remove' then '削除' else '登録'}を完了するには、以下のURLにアクセスしてください。URLは1時間の間有効です。</p>
+<p><a href="#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p>
+
+<p>このメールに心当たりがない場合、このメールを無視し、URLにアクセスしないでください。</p>
+<hr>
+<p>このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。</p>
+"""
             
             transporter.sendMail mailOptions, (error, info) ->
                 return console.error("nodemailer:",error) if error
@@ -103,7 +117,7 @@ sendConfirmMail=(query,req,res,ss)->
                     res {error:"プロフィール変更に失敗しました"}
                     return
                 delete record.password
-                record.info="The confirm mail was sent to 「#{mail.address}」, please check your mailbox."
+                record.info="確認のメールが 「#{mail.address}」に送信されました。メールに記載されたURLから処理を完了してください。"
                 record.mail=
                     address:mail.address
                     verified:mail.verified
@@ -119,7 +133,7 @@ sendResetMail=(query,req,res,ss)->
             res {error:"DB err:#{err}"}
             return
         if !record?
-            res {error:"UserID or mailbox is incorrect, or the mailbox is not Confirmed."}
+            res {error:"ユーザーIDかメードアドレスが間違っています。"}
             return
         if /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test(query.mail) || query.mail == ""
             mailOptions.to = query.mail
@@ -127,7 +141,7 @@ sendResetMail=(query,req,res,ss)->
             res {error:"有効なメールアドレスを入力してください"}
             return
         if record.mail?.timestamp? && Date.now() < record.mail.timestamp + 5*60*1000
-            res {error:"後で5分をお試しください。"}
+            res {error:"まだパスワードの再設定ができません。5分以上後に再度お試しください。"}
             return
         # defaults
         mail=
@@ -139,13 +153,34 @@ sendResetMail=(query,req,res,ss)->
         mail.verified = record.mail.verified
         mail.for="reset"
         mail.newpass=user.crpassword(query.newpass)
-        mailOptions.subject = "月下人狼：Reset Your Password"
+        mailOptions.subject = "月下人狼：パスワード再設定"
         # write a mail
         mailOptions.to = mail.address
-        mailOptions.text = "Hi #{query.userid}, \nYou are reseting the password of your 「月下人狼」 Account by #{query.mail}.\nClick the link below to reset the password, this link will be available in 1 hour:\n<a href=\"#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}\">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a><\n\nIf you did not request this, you can ignore this email and your nothing will be changed.\nこのメールは送信専用のため返信いただいても対応いたしかねます。ご了承ください。\n"
+        mailOptions.text = """#{query.userid} 様
 
-        mailOptions.html = "<h1>月下人狼：Reset Your Password</h1><p>Hi #{query.userid}, </p><p>You are reseting the password of your 「月下人狼」 Account by #{query.mail}.</p><p>Click the link below to reset the password, this link will be available in 1 hour:</p><p><a href=\"#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}\">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p><p></p><p>If you did not request this, you can ignore this email and your nothing will be changed.</p><p>このメールは送信専用のため返信いただいても対応いたしかねます。ご了承ください。</p>"
+「月下人狼」のアカウントのパスワード再設定がリクエストされました。
+以下のURLにアクセスして再設定を完了してください。
+#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}
+
+このメールに心当たりがない場合、このメールは無視してください。
+URLにアクセスしなければ設定は変更されません。
+
+このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。
+"""
+
+        mailOptions.html = """<p>#{query.userid} 様</p>
+
+<p>「月下人狼」のアカウントのパスワード再設定がリクエストされました。</p>
+<p>以下のURLにアクセスして再設定を完了してください。</p>
+<p><a href="#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p>
+
+<p>このメールに心当たりがない場合、このメールは無視してください。</p>
+<p>URLにアクセスしなければ設定は変更されません。</p>
+<hr>
+<p>このメールは送信専用アドレスから送信されているため、返信いただいても対応いたしかねます。ご了承ください。</p>
+"""
             
+        console.log mailOptions
         transporter.sendMail mailOptions, (error, info) ->
             return console.error(error) if error
             console.log "Message sent: " + info.response
@@ -156,7 +191,7 @@ sendResetMail=(query,req,res,ss)->
                 res {error:"プロフィール変更に失敗しました"}
                 return
             delete record.password
-            record.info="The reset mail was sent to 「#{query.mail}」 , please check your mailbox."
+            record.info="「#{query.mail}」にパスワード再設定用のメールを送信しました。メールの指示に従って再設定を完了してください。"
             record.mail=
                 address:mail.address
                 verified:mail.verified
