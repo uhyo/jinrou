@@ -64,6 +64,18 @@ sendConfirmMail=(query,req,res,ss)->
             mail.verified = record.mail.verified
             mail.for="change"
             mailOptions.subject = "月下人狼：Change Your Email Address"
+        # why didn't stop? what happened?
+        # report bug automatically
+        else
+            mailOptions.subject = "月下人狼：Bug report"
+            mailOptions.to = Config.smtpConfig.auth.user
+            mailOptions.text = "query:\n#{JSON.stringify(query)}\n\nrecord.mail:\n#{JSON.stringify(record.mail)}\n"
+            mailOptions.html = mailOptions.text
+            transporter.sendMail mailOptions, (error, info) ->
+                return console.error("nodemailer:",error) if error
+                console.log "Message sent: " + info.response
+            res {error:"メールアドレス変更に失敗しました。"}
+            return
             
         console.log mail
         # 限制邮箱绑定数
@@ -82,7 +94,7 @@ sendConfirmMail=(query,req,res,ss)->
             mailOptions.html = "<h1>月下人狼：Confirm Your Email Address</h1><p>Hi #{req.session.userId}, </p><p>You are #{if mail.for=='remove' then 'removing' else 'confirming'} 「#{if mail.for=='change' then mail.new else mail.address}」 for your 「月下人狼」Account.</p><p>Click the link below to confirm/remove your Email Address, this link will be available in 1 hour:</p><p><a href=\"#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}\">#{Config.application.url}my?token=#{mail.token}&timestamp=#{mail.timestamp}</a></p><p></p><p>If you did not request this, you can ignore this email and your nothing will be changed.</p><p>このメールは送信専用のため返信いただいても対応いたしかねます。ご了承ください。</p>"
             
             transporter.sendMail mailOptions, (error, info) ->
-                return console.error(error) if error
+                return console.error("nodemailer:",error) if error
                 console.log "Message sent: " + info.response
 
             # save to database
