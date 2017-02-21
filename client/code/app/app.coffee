@@ -26,7 +26,7 @@ exports.init = ->
 
         app.showUrl t.href
         return
-        
+
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
             if result
@@ -103,6 +103,18 @@ exports.showUrl=showUrl=(url,nohistory=false)->
                     return
                 user[x]?="" for x in ["userid","name","comment"]
                 page "user-profile",user,Index.user.profile,user
+            if location.href.match /\/my\?token\=(\w){128}\&timestamp\=(\d){13}$/
+                ss.rpc "user.confirmMail",location.href, (result)->
+                    if result?.error?
+                        Index.util.message "エラー",result.error
+                    if result?.info?
+                        Index.util.message "通知",result.info
+                        app.page "user-profile",result,Index.user.profile,result
+                    if result?.reset
+                        showUrl "/",nohistory
+        when "/reset"
+            # 找回密码
+            page "reset",null,Index.reset, null
         when "/rooms"
             # 部屋一覧
             page "game-rooms",null,Index.game.rooms, null
