@@ -35,8 +35,8 @@ sendConfirmMail=(query,req,res,ss)->
         # to avoid TypeError: Cannot read property 'address' of undefined
         if !record.mail?
             record.mail = 
-                address = ""
-                verified = false
+                address : ""
+                verified : false
 
         # mail address
         if record.mail.address == query.mail
