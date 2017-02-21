@@ -7,7 +7,7 @@ prize={}
 prizedata.makePrize (r)->
     prize=r
 
-    console.log prize
+    # console.log prize
 
 # 内部用
 module.exports=exports=

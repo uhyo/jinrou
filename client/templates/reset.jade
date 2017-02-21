@@ -1,0 +1,23 @@
+section
+  h1 パスワード再設定
+  p パスワードを再設定するには、事前にアカウントにメールアドレスを登録している必要があります。
+  form(aciton="/")#resetform
+    p
+      label
+        | ユーザーID
+        input(type="text",size="30",name="userid",pattern="\\\\w+",title="ユーザーIDは半角英数字のみ可能です",required)
+    p
+      label
+        | メールアドレス
+        input(type="email",size="30",name="mail",required)
+    p
+      label
+        | 新しいパスワード
+        input(name="newpass",type="password",size="20",required)
+    p
+      label
+        | 再入力
+        input(name="newpass2",type="password",size="20",required)
+    p
+      input(type="submit",value="次へ")
+    p#resetinfo.error

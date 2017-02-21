@@ -16,6 +16,9 @@ section
       label
         | ログイン状態を記憶
         input(type="checkbox",name="remember_me",checked)
+      br
+      a(href="/reset")パスワードの再設定
+
     p#loginerror.error
   h2 新規登録
   form(aciton="/")#newentryform

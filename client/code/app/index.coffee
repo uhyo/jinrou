@@ -13,6 +13,7 @@ module.exports=
     manual:require '/manual'
     admin:require '/admin'
     logs:require '/logs'
+    reset:require '/reset'
     pages:
         casting:require '/pages/casting'
         castlist:require '/pages/castlist'
