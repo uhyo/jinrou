@@ -4856,16 +4856,17 @@ class Counselor extends Player
         t=game.getPlayer @target
         return unless t?
         return if t.dead
-        if t.isWerewolf() && t.team in ["Werewolf","LoneWolf"]
+        tteam = if t.getMyChemicalTeam then t.getMyChemicalTeam() else t.team
+        if t.isWerewolf() && tteam in ["Werewolf","LoneWolf"]
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if t.isVampire() && t.team=="Vampire"
+        if t.isVampire() && tteam=="Vampire"
             @die game,"vampire2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if t.team!="Human"
+        if tteam!="Human"
             log=
                 mode:"skill"
                 to:t.id
