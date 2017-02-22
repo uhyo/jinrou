@@ -51,6 +51,7 @@ module.exports =
     host: "smtp.yourserver.com"
     port: 465 # use SSL, port without SSL is often 25
     secure: true # use SSL
+    from: "noreply@yourserver.com" # from address
     auth:
       user: "noreply@yourserver.com"
       pass: "yourpass"

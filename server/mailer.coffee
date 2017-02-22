@@ -7,7 +7,7 @@ transporter = nodemailer.createTransport(Config.smtpConfig)
 
 # setup e-mail data with unicode symbols
 mailOptions =
-    from: "\"月下人狼\" <#{Config.smtpConfig.auth.user}>" # sender address
+    from: "\"月下人狼\" <#{Config.smtpConfig.from ? Config.smtpConfig.auth.user}>" # sender address
 
 
 sendConfirmMail=(query,req,res,ss)->
