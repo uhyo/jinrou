@@ -292,6 +292,14 @@
       p
         | 獅子舞で噛む相手を選択してください（非強制）：
         input(type="submit",value="噛む",data-job="Shishimai")
+    #form_Pumpkin(hidden).jobformarea
+      p
+        | かぼちゃにする相手を選択してください：
+        input(type="submit",value="選ぶ",data-job="Pumpkin")
+    #form_MadScientist(hidden).jobformarea
+      p
+        | 蘇生する対象を選択してください（非強制/一度のみ）：
+        input(type="submit",value="蘇生する",data-job="MadScientist")
   form#speakform
     p
       input(size="50",name="comment",required,autocomplete="off")

@@ -6446,6 +6446,91 @@ class Shishimai extends Player
         @addGamelog game, "shishimaibit", newpl.type, newpl.id
         null
 
+class Pumpkin extends Madman
+    type: "Pumpkin"
+    jobname: "かぼちゃ魔"
+    midnightSort: 90
+    sleeping:->@target?
+    sunset:(game)->
+        super
+        @setTarget null
+        if @scapegoat
+            alives = game.players.filter (x)->!x.dead
+            if alives.length == 0
+                @setTarget ""
+            else
+                r=Math.floor Math.random()*alives.length
+                @job game,alives[r].id ,{}
+    job:(game,playerid)->
+        @setTarget playerid
+        pl=game.getPlayer playerid
+        return unless pl?
+
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}が#{pl.name}をかぼちゃにしました。"
+        splashlog game.id,game,log
+        @addGamelog game,"pumpkin",null,playerid
+        null
+    midnight:(game,midnightSort)->
+        t=game.getPlayer @target
+        return unless t?
+        return if t.dead
+
+        splashlog game.id,game,log
+        newpl=Player.factory null, t,null, PumpkinCostumed
+        t.transProfile newpl
+        t.transform game,newpl,true
+class MadScientist extends Madman
+    type:"MadScientist"
+    jobname:"マッドサイエンティスト"
+    midnightSort:100
+    isReviver:->!@dead && @flag!="done"
+    sleeping:->true
+    jobdone:->@flag=="done" || @target?
+    subset:(game)->
+        @setTarget (if game.dat<2 then "" else null)
+        if game.players.every((x)->!x.dead)
+            @setTarget ""  # 誰も死んでいないなら能力発動しない
+    job:(game,playerid)->
+        if game.day<2
+            return "まだ能力を発動できません"
+        if @flag == "done"
+            return "もう能力を発動できません"
+
+        @setFlag "done"
+        @setTarget playerid
+        pl=game.getPlayer playerid
+
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}に蘇生措置を施しました。"
+        splashlog game.id,game,log
+        null
+    midnight:(game,midnightSort)->
+        return unless @target?
+        pl=game.getPlayer @target
+        return unless pl?
+        return unless pl.dead
+
+        # 蘇生
+        @addGamelog game,"raise",true,pl.id
+        pl.revive game
+
+        pl = game.getPlayer @target
+        return if pl.dead
+        # 蘇生に成功したら勝利条件を変える
+        newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
+        pl.transProfile newpl
+        pl.transform game,newpl,true
+        log=
+            mode:"skill"
+            to:newpl.id
+            comment:"#{newpl.name}は狼の子分になりました。"
+        splashlog game.id,game,log
 
 
 
@@ -7372,6 +7457,10 @@ class VoteGuarded extends Complex
             vote.votes--
         vote
 
+# かぼちゃ魔の呪い
+class PumpkinCostumed extends Complex
+    cmplType:"PumpkinCostumed"
+    fortuneResult: "かぼちゃ"
 
 
 # 決定者
@@ -7649,6 +7738,8 @@ jobs=
     Hypnotist:Hypnotist
     CraftyWolf:CraftyWolf
     Shishimai:Shishimai
+    Pumpkin:Pumpkin
+    MadScientist:MadScientist
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -7687,6 +7778,8 @@ complexes=
     UnderHypnosis:UnderHypnosis
     VoteGuarded:VoteGuarded
     Chemical:Chemical
+    PumpkinCostumed:PumpkinCostumed
+
 
     # 役職ごとの強さ
 jobStrength=
@@ -7783,6 +7876,8 @@ jobStrength=
     Hypnotist:17
     CraftyWolf:48
     Shishimai:10
+    Pumpkin:17
+    MadScientist:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -8183,6 +8278,16 @@ module.exports.actions=(req,res,ss)->
                         # 獅子舞がでにくい季節
                         if Math.random()<0.8
                             exceptions.push "Shishimai"
+
+                    if month==9 && 30<=d<=31
+                        # ハロウィンなのでかぼちゃ
+                        if Math.random()<0.4 && frees>0 && !nonavs.Pumpkin
+                            joblist.Pumpkin ?= 0
+                            joblist.Pumpkin++
+                            frees--
+                    else
+                        if Math.random()<0.2
+                            exceptions.push "Pumpkin"
 
                 )(new Date)
                 
