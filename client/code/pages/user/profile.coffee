@@ -47,6 +47,8 @@ exports.start=(user)->
                             pf()
                         if result.info?
                             Index.util.message "通知",result.info
+                else
+                    pf()
                     
     .get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
         $("#changepassword").get(0).hidden=false
