@@ -8970,6 +8970,7 @@ makelogsFor=(game,player,log)->
                 comment: log.comment
                 name: log.possess_name
                 time: log.time
+                size: log.size
             return [log, otherslog]
 
         return [log]
@@ -8997,6 +8998,7 @@ makelogsFor=(game,player,log)->
             comment: log.comment
             name:log.possess_name
             time:log.time
+            size:log.size
         return [otherslog]
     
     return []
