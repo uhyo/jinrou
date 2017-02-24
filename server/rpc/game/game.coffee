@@ -1726,28 +1726,11 @@ class Game
         timeout()
     # プレイヤーごとに　見せてもよいログをリストにする
     makelogs:(logs,player)->
-        logs.map (x)=>
-            if islogOK this,player,x
-                x
-            else
-                # 見られなかったけど見たい人用
-                if x.mode=="werewolf" && @rule.wolfsound=="aloud"
-                    {
-                        mode: "werewolf"
-                        name: "狼の遠吠え"
-                        comment: "アオォーーン・・・"
-                        time: x.time
-                    }
-                else if x.mode=="couple" && @rule.couplesound=="aloud"
-                    {
-                        mode: "couple"
-                        name: "共有者の小声"
-                        comment: "ヒソヒソ・・・"
-                        time: x.time
-                    }
-                else
-                    null
-        .filter (x)->x?
+        result = []
+        for x in logs
+            ls = makelogsFor this, player, x
+            result.push ls...
+        return result
     prize_check:->
         Server.prize.checkPrize @,(obj)=>
             # obj: {(userid):[prize]}
@@ -6479,7 +6462,6 @@ class Pumpkin extends Madman
         return unless t?
         return if t.dead
 
-        splashlog game.id,game,log
         newpl=Player.factory null, t,null, PumpkinCostumed
         t.transProfile newpl
         t.transform game,newpl,true
@@ -6490,8 +6472,9 @@ class MadScientist extends Madman
     isReviver:->!@dead && @flag!="done"
     sleeping:->true
     jobdone:->@flag=="done" || @target?
+    job_target: Player.JOB_T_DEAD
     subset:(game)->
-        @setTarget (if game.dat<2 then "" else null)
+        @setTarget (if game.day<2 then "" else null)
         if game.players.every((x)->!x.dead)
             @setTarget ""  # 誰も死んでいないなら能力発動しない
     job:(game,playerid)->
@@ -6500,9 +6483,14 @@ class MadScientist extends Madman
         if @flag == "done"
             return "もう能力を発動できません"
 
+        pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        unless pl.dead
+            return "そのプレイヤーは選択できません"
+
         @setFlag "done"
         @setTarget playerid
-        pl=game.getPlayer playerid
 
         log=
             mode:"skill"
@@ -6531,6 +6519,10 @@ class MadScientist extends Madman
             to:newpl.id
             comment:"#{newpl.name}は狼の子分になりました。"
         splashlog game.id,game,log
+class SpiritPossessed extends Player
+    type:"SpiritPossessed"
+    jobname:"悪霊憑き"
+    isReviver:->!@dead
 
 
 
@@ -7740,6 +7732,7 @@ jobs=
     Shishimai:Shishimai
     Pumpkin:Pumpkin
     MadScientist:MadScientist
+    SpiritPossessed:SpiritPossessed
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -7878,6 +7871,7 @@ jobStrength=
     Shishimai:10
     Pumpkin:17
     MadScientist:20
+    SpiritPossessed:4
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -8441,6 +8435,10 @@ module.exports.actions=(req,res,ss)->
                                     # 女王とは共存できない
                                     if joblist.QueenSpectator>0
                                         continue
+                                when "SpiritPossessed"
+                                    # 2人いるとうるさい
+                                    if joblist.SpiritPossessed > 0
+                                        continue
 
                         joblist[job]++
                         # ひとつ追加
@@ -8752,6 +8750,17 @@ module.exports.actions=(req,res,ss)->
                 when "monologue","helperwhisper"
                     # helperwhisper:守り先が決まっていないヘルパー
                     log.to=player.id
+                when "heaven"
+                    # 霊界の発言は悪霊憑きの発言になるかも
+                    if !game.night && !game.voting
+                        possessions = game.players.filter (x)-> !x.dead && x.isJobType "SpiritPossessed"
+                        if possessions.length > 0
+                            # 悪魔憑き
+                            r = Math.floor (Math.random()*possessions.length)
+                            pl = possessions[r]
+                            # 悪魔憑きのプロパティ
+                            log.possess_name = pl.name
+                            log.possess_id = pl.id
                 when "gm"
                     log.name="ゲームマスター"
                 when "gmheaven"
@@ -8934,23 +8943,37 @@ splashlog=(roomid,game,log)->
     log.time=Date.now() # 時間を付加
     #DBに追加
     M.games.update {id:roomid},{$push:{logs:log}}
-    flash=(log,rev=false)-> #rev: 逆な感じで配信
+    flash=(log)->
         # まず観戦者
-        log.roomid=roomid
-        au=islogOK game,null,log
-        if (au&&!rev) || (!au&&rev)
-            game.ss.publish.channel "room#{roomid}_audience","log",log
+        aulogs = makelogsFor game, null, log
+        for x in aulogs
+            x.roomid = roomid
+            game.ss.publish.channel "room#{roomid}_audience","log",x
         # GM
         #if game.gm&&!rev
         #   game.ss.publish.channel "room#{roomid}_gamemaster","log",log
         # その他
         game.participants.forEach (pl)->
-            p=islogOK game,pl,log
-            if (p&&!rev) || (!p&&rev)
-                game.ss.publish.user pl.realid,"log",log
+            ls = makelogsFor game, pl, log
+            for x in ls
+                x.roomid = roomid
+                game.ss.publish.user pl.realid,"log",x
     flash log
-    
-    # 他の人へ送る
+            
+# ある人に見せたいログ
+makelogsFor=(game,player,log)->
+    if islogOK game, player, log
+        if log.mode=="heaven" && log.possess_name?
+            # 両方見える感じで
+            otherslog=
+                mode:"half-day"
+                comment: log.comment
+                name: log.possess_name
+                time: log.time
+            return [log, otherslog]
+
+        return [log]
+
     if log.mode=="werewolf" && game.rule.wolfsound=="aloud"
         # 狼の遠吠えが聞こえる
         otherslog=
@@ -8958,20 +8981,25 @@ splashlog=(roomid,game,log)->
             comment:"アオォーーン・・・"
             name:"狼の遠吠え"
             time:log.time
-        flash otherslog,true
-    else if log.mode=="couple" && game.rule.couplesound=="aloud"
+        return [otherslog]
+    if log.mode=="couple" && game.rule.couplesound=="aloud"
         # 共有者の小声が聞こえる
         otherslog=
             mode:"couple"
             comment:"ヒソヒソ・・・"
             name:"共有者の小声"
             time:log.time
-        flash otherslog,true
+        return [otherslog]
+    if log.mode=="heaven" && log.possess_name?
+        # 昼の霊界発言 with 悪魔憑き
+        otherslog =
+            mode:"day"
+            comment: log.comment
+            name:log.possess_name
+            time:log.time
+        return [otherslog]
     
-    
-            
-    
-    
+    return []
 
 # プレイヤーにログを見せてもよいか          
 islogOK=(game,player,log)->
@@ -8991,6 +9019,9 @@ islogOK=(game,player,log)->
         false
     else if player.dead && game.heavenview
         true
+    else if log.mode=="heaven" && log.possess_name?
+        # 悪霊憑きについている霊界発言
+        false
     else if log.to? && log.to!=player.id
         # 個人宛
         if player.isJobType "Helper"
