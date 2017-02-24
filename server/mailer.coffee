@@ -85,7 +85,7 @@ sendConfirmMail=(query,req,res,ss)->
                 res {error:"The same mailbox could confirm up to 3 accounts."}
                 return
             # write a mail
-            if mail.for == 'remove'
+            if mail.for in ['remove','change']
                 mailOptions.to = mail.address
             else
                 mailOptions.to = mail.new
@@ -125,7 +125,7 @@ sendConfirmMail=(query,req,res,ss)->
                     verified:mail.verified
                 req.session.user = record
                 req.session.save ->
-                    record.info="メールアドレス#{if mail.for == 'remove' then '削除' else '変更'}のためのメールが 「#{if mail.for=='remove' then mail.address else mail.new}」に送信されました。メールに記載されたURLから処理を完了してください。"
+                    record.info="メールアドレス#{if mail.for == 'remove' then '削除' else '変更'}のためのメールが 「#{if mail.for in ['remove','change'] then mail.address else mail.new}」に送信されました。メールに記載されたURLから処理を完了してください。"
                     res record
             return
 
