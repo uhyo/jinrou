@@ -8491,7 +8491,7 @@ module.exports.actions=(req,res,ss)->
                     # セーフティ超
                     joblist=best_list
 
-                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0) && query.divineresult=="immediate"
+                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0 || joblist.Pumpkin>0) && query.divineresult=="immediate"
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
