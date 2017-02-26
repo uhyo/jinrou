@@ -6473,8 +6473,8 @@ class MadScientist extends Madman
     sleeping:->true
     jobdone:->@flag=="done" || @target?
     job_target: Player.JOB_T_DEAD
-    subset:(game)->
-        @setTarget (if game.day<2 then "" else null)
+    sunset:(game)->
+        @setTarget (if game.day<2 || @flag=="done" then "" else null)
         if game.players.every((x)->!x.dead)
             @setTarget ""  # 誰も死んでいないなら能力発動しない
     job:(game,playerid)->
