@@ -8018,6 +8018,9 @@ module.exports.actions=(req,res,ss)->
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
+                # 悪霊憑き（人気がないので出ない）
+                if safety.jingais || safety.jobs
+                    exceptions.push "SpiritPossessed"
                 unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
                     #人外の数
                     if safety.jingais
