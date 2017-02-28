@@ -1299,7 +1299,7 @@ exports.start=(roomid)->
             
             if log.name?
                 div.textContent=switch log.mode
-                    when "monologue"
+                    when "monologue", "heavenmonologue"
                         "#{log.name}の独り言:"
                     when "will"
                         "#{log.name}の遺言:"
