@@ -7040,12 +7040,13 @@ class TrapGuarded extends Complex
 
         # 狩人とかぶったら狩人が死んでしまう!!!!!
         # midnight: 狼の襲撃よりも前に行われることが保証されている処理
-        if midnightSort != @midnightSort then return
+        return if midnightSort != @midnightSort
         wholepl=game.getPlayer @id  # 一番表から見る
         result=@checkGuard game,wholepl
         if result
             # 狩人がいた!（罠も無効）
-            @uncomplex game
+            wholepl = game.getPlayer @id
+            @checkTrap game, wholepl
     # midnight処理用
     checkGuard:(game,pl)->
         return false unless pl.isComplex()
@@ -7072,6 +7073,16 @@ class TrapGuarded extends Complex
             # 子の調査を継続
             @checkGuard game,pl.main
             return true
+    checkTrap:(game,pl)->
+        # TrapGuardedも消す
+        return unless pl.isComplex()
+        if pl.cmplType=="TrapGuarded"
+            pl.uncomplex game
+            @checkTrap game, pl.main
+        else
+            @checkTrap game, pl.main
+            if pl.sub?
+                @checkTrap game, pl.sub
 
     die:(game,found,from)->
         unless found in ["werewolf","vampire"]
