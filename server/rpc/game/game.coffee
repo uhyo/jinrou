@@ -5282,7 +5282,7 @@ class FrankensteinsMonster extends Player
             game.votingbox.addPunishedNumber 1
     beforebury:(game)->
         # 新しく死んだひとたちで村人陣営ひとたち
-        founds=game.players.filter (x)->x.dead && x.found && x.getTeam()=="Human"
+        founds=game.players.filter (x)->x.dead && x.found && x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
         # 吸収する
         thispl=this
         for pl in founds
