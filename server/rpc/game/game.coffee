@@ -2991,7 +2991,18 @@ class WolfDiviner extends Werewolf
             if p.getTeam()=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
-                newjob=jobnames[Math.floor Math.random()*jobnames.length]
+
+                #avoid jobs in exceptions
+                loop
+                    newjob = jobnames[Math.floor(Math.random() * jobnames.length)]
+                    if ((nj) ->
+                        exceptions=["MinionSelector","Thief","Helper","GameMaster","QuantumPlayer","Waiting","Watching"]
+                        for job_denied in exceptions
+                            return false  if nj is job_denied
+                        true
+                    )(newjob)
+                        break
+
                 plobj=p.serialize()
                 plobj.type=newjob
                 newpl=Player.unserialize plobj  # 新生狂人
