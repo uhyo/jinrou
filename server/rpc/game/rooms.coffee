@@ -232,6 +232,10 @@ module.exports.actions=(req,res,ss)->
                     return
                 ###
                 
+                # please no, link of data:image/jpeg;base64 would be a disaster
+                if user.icon?.length>512
+                    res error:"Link for Icon is too long.（#{user.icon.length}）"
+                    return
                 if room.blind
                     unless opt?.name
                         res error:"名前を入力して下さい"
