@@ -30,6 +30,7 @@ exports.start=(user)->
         je.preventDefault()
         q=Index.util.formQuery je.target
         q.userid=$("p.userid").get(0).textContent
+
         Index.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
             if result
                 q.password=result
@@ -50,7 +51,18 @@ exports.start=(user)->
                 else
                     pf()
                     
-    .get(0).elements["changepasswordbutton"].addEventListener "click",((e)->
+    $("#mailconfirmsecuritybutton").click (je)->
+        je.preventDefault()
+        ss.rpc "user.changeMailconfirmsecurity", {
+            mailconfirmsecurity: je.target.form.elements["mailconfirmsecurity"].checked
+        }, (result)->
+            if result?.error?
+                Index.util.message "エラー",result.error
+            else
+                Index.util.message "通知", result.info
+                app.page "user-profile", result, Index.user.profile, result
+
+    $("#changepasswordbutton").click (je)->
         $("#changepassword").get(0).hidden=false
         $("#changepassword").submit (je)->
             je.preventDefault()
@@ -58,10 +70,10 @@ exports.start=(user)->
                 if result?.error?
                     Index.util.message "エラー",result.error
                 else
+                    Index.util.message "通知", "パスワードを変更しました。"
                     $("#changepassword").get(0).hidden=true
-                    app.page "user-profile",result,Index.user.profile
+                    app.page "user-profile",result,Index.user.profile,result
                     
-    ),false
     $("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
         Index.util.iconSelectWindow $("#myicon").attr("src"),(url)->
             seticon url

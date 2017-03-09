@@ -33,10 +33,21 @@ section.profile
       input(type="button",value="アイコン選択",name="twittericonbutton")
     p
       input(type="submit",value="変更を保存",title="名前・コメント・アイコン·メールアドレス を変更したら保存ボタンで反映して下さい")
-      input(type="button",name="changepasswordbutton",value="パスワードを変更")
       input(type="button",name="colorsettingbutton",value="色設定")
+  h2 セキュリティ設定
+  form
+    p
+      label
+        | パスワード・メールアドレスをロック
+        input(type="checkbox",name="mailconfirmsecurity", value="on", checked=mailconfirmsecurity)
+      i.fa.fa-question-circle-o(data-helpicon, title="このオプションがONの間、パスワード・メールアドレスを変更できません。このオプションを解除するには登録メールアドレスの確認が必要です。")
+    p
+      input#mailconfirmsecuritybutton(type="button",value="変更を保存")
+  hr
+  p
+    input#changepasswordbutton(type="button",name="changepasswordbutton",value="パスワードを変更")
   form#changepassword(hidden)
-    h2 パスワード変更
+    h3 パスワード変更
     p: label
       | 新しいパスワード
       input(name="newpass",type="password",size="20",required)
