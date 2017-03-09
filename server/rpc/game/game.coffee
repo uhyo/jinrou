@@ -5282,7 +5282,7 @@ class FrankensteinsMonster extends Player
             game.votingbox.addPunishedNumber 1
     beforebury:(game)->
         # 新しく死んだひとたちで村人陣営ひとたち
-        founds=game.players.filter (x)->x.dead && x.found && x.getTeam()=="Human"
+        founds=game.players.filter (x)->x.dead && x.found && x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
         # 吸収する
         thispl=this
         for pl in founds
@@ -6736,7 +6736,8 @@ class Complex
         return {dead:@dead,found:@found}
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
-    getTeam:-> @main.getTeam()
+    # Those like Friend return their own @team, these like Guarded return @main.getTeam()
+    getTeam:-> if @team then @team else @main.getTeam()
     #An access to @main.flag, etc.
     accessByJobType:(type)->
         unless type
