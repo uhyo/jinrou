@@ -48,7 +48,11 @@ sendMail=(userquery, makemailobj, callback)->
         mail = obj.mail
         options = obj.options
         for key, value of mailOptions
-            options[key] = value
+            try
+                options[key] = value
+            catch(e)
+                options={}
+                options[key] = value
 
         if !mail?
             # 送る必要がない
@@ -121,8 +125,7 @@ sendConfirmMail=(query, req, res, ss)->
             }
         if record.mail.address == query.mail
             return {
-                mail: null
-                options: null
+                error: "メールアドレスは変更されていません。"
             }
         else if (!record.mail.address || !record.mail.verified) && query.mail
             mail.new = query.mail
