@@ -50,7 +50,7 @@ sendMail=(userquery, makemailobj, callback)->
         for key, value of mailOptions
             try
                 options[key] = value
-            catch(e)
+            catch e
                 options={}
                 options[key] = value
 
