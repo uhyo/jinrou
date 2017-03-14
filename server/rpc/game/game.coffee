@@ -7584,7 +7584,7 @@ class Chemical extends Complex
         myt = @getTeam()
         win = false
         maint = @main.getTeam()
-        sunt = @sub?.getTeam()
+        subt = @sub?.getTeam()
         if maint == myt || maint == "" || maint == "Devil"
             win = win || @main.isWinner(game,team)
         if subt == myt || subt == "" || subt == "Devil"
