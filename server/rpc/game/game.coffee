@@ -2319,6 +2319,9 @@ class Player
     # 夜の発言の選択肢を得る
     getSpeakChoice:(game)->
         ["monologue"]
+    # 霊界発言
+    getSpeakChoiceHeaven:(game)->
+        ["day","monologue"]
     # 自分宛の投票を書き換えられる
     modifyMyVote:(game, vote)-> vote
     # Complexから抜ける
@@ -9107,7 +9110,9 @@ makejobinfo = (game,player,result={})->
             result.sleeping=if game.night then player.jobdone(game) else true
         result.jobname=player.getJobDisp()
         result.winner=player.winner
-        if game.night || game.day==0
+        if player.dead
+            result.speak =player.getSpeakChoiceHeaven game
+        else if game.night || game.day==0
             result.speak =player.getSpeakChoice game
         else
             result.speak =player.getSpeakChoiceDay game
