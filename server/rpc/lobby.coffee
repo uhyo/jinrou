@@ -47,7 +47,7 @@ exports.actions =(req,res,ss)->
             heartbeat req.session.userId,ss
 
         req.session.channel.subscribe 'lobby'
-        M.lobby.find().sort({time:-1}).limit(100).toArray (err,docs)->
+        M.lobby.find({}, {name:1, comment:1, time:1}).sort({time:-1}).limit(100).toArray (err,docs)->
             if err?
                 console.log err
                 throw err
@@ -58,6 +58,7 @@ exports.actions =(req,res,ss)->
         unless comment
             return
         log=
+            userid:req.session.userId
             name:req.session.user.name
             comment:comment
             time:Date.now()
