@@ -8679,9 +8679,9 @@ module.exports.actions=(req,res,ss)->
         M.games.findOne {id:roomid}, (err,doc)=>
             if err?
                 console.error err
-                callback err,null
+                res {error: err}
             else if !doc?
-                callback "そのゲームは存在しません",null
+                res {error: "そのゲームは存在しません"}
             else
                 unless games[roomid]?
                     games[roomid] = Game.unserialize doc,ss
