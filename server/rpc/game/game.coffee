@@ -1223,13 +1223,16 @@ class Game
 
         deads=[]
         loop
-            deads=@players.filter (x)->x.dead && x.found
-            deadsl=deads.length
+            newdeads=@players.filter (x)->
+                x.dead && x.found && deads.every((y)-> x.id != y.id)
+            deads.push newdeads...
+
             alives=@players.filter (x)->!x.dead
             alives.forEach (x)=>
-                x.beforebury this,type
-            deads=@players.filter (x)->x.dead && x.found
-            if deadsl>=deads.length
+                x.beforebury this,type,newdeads
+            newdeads=@players.filter (x)->
+                x.dead && x.found && deads.every((y)-> x.id != y.id)
+            if newdeads.length == 0
                 # もう新しく死んだ人はいない
                 break
         # 霊界で役職表示してよいかどうか更新
@@ -2246,7 +2249,7 @@ class Player
             game.ss.publish.user @id,"refresh",{id:game.id}
 
     # 埋葬するまえに全員呼ばれる（foundが見られる状況で）
-    beforebury: (game,type)->
+    beforebury: (game,type,deads)->
     # 占われたとき（結果は別にとられる player:占い元）
     divined:(game,player)->
     # ちょっかいを出されたとき(jobのとき)
@@ -2643,9 +2646,9 @@ class Psychic extends Player
         @setFlag ""
     
     # 処刑で死んだ人を調べる
-    beforebury:(game,type)->
+    beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
-        game.players.filter((x)->x.dead && x.found=="punish").forEach (x)=>
+        deads.filter((x)-> x.found=="punish").forEach (x)=>
             @setFlag @flag+"#{@name}の霊能の結果、前日処刑された#{x.name}は#{x.getPsychicResult()}でした。\n"
 
 class Madman extends Player
@@ -3314,7 +3317,7 @@ class Immoral extends Player
     type:"Immoral"
     jobname:"背徳者"
     team:"Fox"
-    beforebury:(game,type)->
+    beforebury:(game)->
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game,"foxsuicide"
@@ -3547,7 +3550,7 @@ class Cursed extends Player
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     jobname:"見習い占い師"
-    beforebury:(game,type)->
+    beforebury:(game)->
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner"
@@ -3804,10 +3807,9 @@ class Doppleganger extends Player
         splashlog game.id,game,log
         @setFlag playerid  # ドッペルゲンガー先
         null
-    beforebury:(game,type)->
-        founds=game.players.filter (x)->x.dead && x.found
+    beforebury:(game,type,deads)->
         # 対象が死んだら移る
-        if founds.some((x)=>x.id==@flag)
+        if deads.some((x)=>x.id==@flag)
             p=game.getPlayer @flag  # その人
 
             newplmain=Player.factory p.type
@@ -5283,9 +5285,9 @@ class FrankensteinsMonster extends Player
         if found=="punish"
             # 処刑で死んだらもうひとり処刑できる
             game.votingbox.addPunishedNumber 1
-    beforebury:(game)->
+    beforebury:(game,type,deads)->
         # 新しく死んだひとたちで村人陣営ひとたち
-        founds=game.players.filter (x)->x.dead && x.found && x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
+        founds=deads.filter (x)->x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
         # 吸収する
         thispl=this
         for pl in founds
@@ -5869,7 +5871,7 @@ class Blasphemy extends Player
                 r=Math.floor Math.random()*alives.length
                 if @job game,alives[r].id,{}
                     @setTarget ""
-    beforebury:(game,type)->
+    beforebury:(game)->
         if @flag
             # まだ狐を作ってないときは耐える
             # 狐が全員死んでいたら自殺
@@ -6798,9 +6800,9 @@ class Complex
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @mcall game,@main.makejobinfo,game,result,@main.getJobDisp()
-    beforebury:(game,type)->
-        @mcall game,@main.beforebury,game,type
-        @sub?.beforebury? game,type
+    beforebury:(game,type,deads)->
+        @mcall game,@main.beforebury,game,type,deads
+        @sub?.beforebury? game,type,deads
         # deal with Walking Dead
         unless @dead
             isPlDead = @isDead()
@@ -6883,9 +6885,9 @@ class Friend extends Complex    # 恋人
     getJobname:->"恋人（#{@main.getJobname()}）"
     getJobDisp:->"恋人（#{@main.getJobDisp()}）"
     
-    beforebury:(game,type)->
-        @mcall game,@main.beforebury,game,type
-        @sub?.beforebury? game,type
+    beforebury:(game,type,deads)->
+        @mcall game,@main.beforebury,game,type,deads
+        @sub?.beforebury? game,type,deads
         ato=false
         if game.rule.friendssplit=="split"
             # 独立
