@@ -1434,7 +1434,7 @@ exports.rules=[
         label:null
         visible:(rule,jobs)->
             return true if isYaminabe rule
-            for job in ["Diviner","WolfDiviner","TinyFox"]
+            for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
                 if jobs[job]>0
                     return true
             return false
@@ -1452,6 +1452,23 @@ exports.rules=[
                     {
                         value:"sunrise"
                         label:"翌朝分かる"
+                        selected:true
+                    }
+                ]
+            }
+            {
+                name:"firstnightdivine"
+                label:"占いの初日白通知"
+                title:"ありにすると、初日の占い先は占い結果が「村人」の人の中からランダムに選択されます。"
+                type:"select"
+                values:[
+                    {
+                        value:"auto"
+                        label:"あり"
+                    }
+                    {
+                        value:"manual"
+                        label:"なし"
                         selected:true
                     }
                 ]

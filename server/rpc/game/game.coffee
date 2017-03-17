@@ -2576,16 +2576,36 @@ class Diviner extends Player
     sunset:(game)->
         super
         @setTarget null
+        # 占い対象
+        targets = game.players.filter (x)->!x.dead
+
+        if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
+            # 自動白通知
+            targets2 = targets.filter (x)-> x.fortuneResult == "村人"
+            if targets2.length > 0
+                # ランダムに決定
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:"#{@name}の今日の占い先は自動的に決定されます。"
+                splashlog game.id,game,log
+
+
+                r=Math.floor Math.random()*targets2.length
+                @job game,targets2[r].id,{}
+                return
+
         if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            @job game,game.players[r].id,{}
+            r=Math.floor Math.random()*targets.length
+            @job game,targets[r].id,{}
     sleeping:->@target?
     job:(game,playerid)->
-        super
         pl=game.getPlayer playerid
         unless pl?
             return "そのプレイヤーは存在しません。"
+
+        @setTarget playerid
         pl.touched game,@id
         log=
             mode:"skill"
@@ -8729,7 +8749,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","chemical",
-            "consecutiveguard",
+            "firstnightdivine","consecutiveguard",
             "poisonwolf",
             "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
