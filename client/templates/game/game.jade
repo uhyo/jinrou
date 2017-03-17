@@ -45,6 +45,10 @@
           | 死亡/蘇生：
           input(name="kill",type="submit",value="死亡させる",data-job="GameMaster")
           input(name="revive",type="submit",value="蘇生させる",data-job="GameMaster")
+        p
+          | 時間延長/短縮:
+          input(name="longer",type="submit",value="30秒延長",data-job="GameMaster")
+          input(name="shorter",type="submit",value="30秒短縮",data-job="GameMaster")
     #form__Werewolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい：

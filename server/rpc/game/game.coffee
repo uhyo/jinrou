@@ -1616,7 +1616,7 @@ class Game
             return true
         else
             return false
-    timer:->
+    timer:(settime)->
         return if @finished
         func=null
         time=null
@@ -1731,6 +1731,9 @@ class Game
                         @execute()
                 else
                     return
+        if settime?
+            # 時間を強制設定
+            time = settime
         timeout()
     # プレイヤーごとに　見せてもよいログをリストにする
     makelogs:(logs,player)->
@@ -6579,6 +6582,20 @@ class GameMaster extends Player
                 else
                     return "プレイヤーを蘇生できませんでした"
                 return null
+            when "longer"
+                # 時間延長
+                remains = game.timer_start + game.timer_remain - Date.now()/1000
+                clearTimeout game.timerid
+                game.timer remains+30
+                return null
+            when "shorter"
+                # 時間短縮
+                remains = game.timer_start + game.timer_remain - Date.now()/1000
+                if remains <= 30
+                    return "残り時間が短いため短縮できません"
+                clearTimeout game.timerid
+                game.timer remains-30
+                return null
         return null
     isListener:(game,log)->true # 全て見える
     getSpeakChoice:(game)->
@@ -6593,6 +6610,14 @@ class GameMaster extends Player
             name: pl.name
             value: pl.id
         })
+    checkJobValidity:(game,query)->
+        switch query?.commandname
+            when "longer", "shorter"
+                return true
+            when "kill", "revive"
+                return super
+            else
+                return false
 
 # ヘルパー
 class Helper extends Player
@@ -8737,7 +8762,7 @@ module.exports.actions=(req,res,ss)->
                     game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
                 else
                     null
-                    result.timer_mode=game.timer_mode
+                result.timer_mode=game.timer_mode
                 if game.day==0
                     # 開始前はプレイヤー情報配信しない
                     delete result.game.players
