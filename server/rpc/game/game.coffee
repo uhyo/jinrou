@@ -1352,6 +1352,7 @@ class Game
                 splashlog @id,this,log
 
                 # 再び投票する処理(下と同じ… なんとかならないか?)
+                @votingbox.setCandidates @players.filter (x)-> !x.dead
                 @votingbox.start()
                 @players.forEach (player)=>
                     return if player.dead
@@ -1385,6 +1386,10 @@ class Game
             if isFinite remains
                 log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
         splashlog @id,this,log
+        # 必要がある場合は候補者を再設定
+        if @votingbox.candidates.some((x)=> @getPlayer(x.id).dead)
+            @votingbox.setCandidates @players.filter ((x)->!x.dead)
+            
         @votingbox.start()
         @players.forEach (player)=>
             return if player.dead
