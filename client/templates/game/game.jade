@@ -39,9 +39,12 @@
         | 希望する役職を選択して下さい:
         input(type="submit",value="選択",data-job="Waiting")
     #form_GameMaster(hidden).jobformarea
-      p
-        | 死亡させる人を選んで下さい:
-        input(type="submit",value="死亡させる",data-job="GameMaster")
+      fieldset
+        legend GM用コマンド
+        p
+          | 死亡/蘇生：
+          input(name="kill",type="submit",value="死亡させる",data-job="GameMaster")
+          input(name="revive",type="submit",value="蘇生させる",data-job="GameMaster")
     #form__Werewolf(hidden).jobformarea
       p
         | 殺す人を一人選んで下さい：

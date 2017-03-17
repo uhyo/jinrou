@@ -6546,15 +6546,40 @@ class GameMaster extends Player
     team:""
     jobdone:->false
     sleeping:->true
+    job_target: Player.JOB_T_ALIVE | Player.JOB_T_DEAD
     isWinner:(game,team)->null
     # 例外的に昼でも発動する可能性がある
     job:(game,playerid,query)->
-        pl=game.getPlayer playerid
-        unless pl?
-            return "その対象は不正です"
-        pl.die game,"gmpunish"
-        game.bury("other")
-        null
+        switch query?.commandname
+            when "kill"
+                # 死亡させる
+                pl=game.getPlayer playerid
+                unless pl?
+                    return "その対象は不正です"
+                if pl.dead
+                    return "そのプレイヤーは既に死亡しています"
+                pl.die game,"gmpunish"
+                game.bury("other")
+                return null
+            when "revive"
+                # 蘇生させる
+                pl=game.getPlayer playerid
+                unless pl?
+                    return "その対象は不正です"
+                if !pl.dead
+                    return "そのプレイヤーは死亡していません"
+                pl.revive game
+                if !pl.dead
+                    if game.night
+                        # 夜のときは夜開始時の処理をしてあげる
+                        pl.sunset game
+                    else
+                        # 昼のときは投票可能に
+                        pl.votestart game
+                else
+                    return "プレイヤーを蘇生できませんでした"
+                return null
+        return null
     isListener:(game,log)->true # 全て見える
     getSpeakChoice:(game)->
         pls=for pl in game.players
@@ -6562,6 +6587,12 @@ class GameMaster extends Player
         ["gm","gmheaven","gmaudience","gmmonologue"].concat pls
     getSpeakChoiceDay:(game)->@getSpeakChoice game
     chooseJobDay:(game)->true   # 昼でも対象選択
+    makeJobSelection:(game)->
+        # 常に全員
+        return game.players.map((pl)-> {
+            name: pl.name
+            value: pl.id
+        })
 
 # ヘルパー
 class Helper extends Player
@@ -9114,7 +9145,7 @@ makejobinfo = (game,player,result={})->
                     result.sleeping &&= player.jobdone game
         else
             # それ以外（participants）
-            result.sleeping=if game.night then player.jobdone(game) else true
+            result.sleeping=if game.night || player.chooseJobDay(game) then player.jobdone(game) else true
         result.jobname=player.getJobDisp()
         result.winner=player.winner
         if player.dead
