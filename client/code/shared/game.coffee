@@ -1535,7 +1535,7 @@ exports.rules=[
             {
                 name:"gjmessage"
                 label:"護衛成功が分かる"
-                title:"ありにすると、狩人が護衛成功したときに狩人にメッセージが表示されます。"
+                title:"ありにすると、狩人・風来狩人が護衛成功したときに狩人にメッセージが表示されます。"
                 type:"checkbox"
                 value:{
                     value:"on"
@@ -1546,6 +1546,23 @@ exports.rules=[
                         label:"護衛成功通知"
                         value:if value=="on" then "あり" else "なし"
                     }
+            }
+            {
+                name:"consecutiveguard"
+                label:"連続護衛"
+                title:"狩人・風来狩人が連続して同じ人を守れるかどうか設定します。"
+                type:"select"
+                values:[
+                    {
+                        value:"yes"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                ]
             }
         ]
     }

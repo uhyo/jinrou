@@ -2673,20 +2673,38 @@ class Guard extends Player
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
+
         if game.day==1
             # 狩人は一日目護衛しない
             @setTarget ""  # 誰も守らない
-        else if @scapegoat
+            return
+        # 護衛可能対象
+        pls = game.players.filter (pl)=>
+            if game.rule.guardmyself!="ok" && pl.id == @id
+                return false
+            if game.rule.consecutiveguard=="no" && pl.id == @flag
+                return false
+            return true
+
+        if pls.length == 0
+            @setTarget ""
+            return
+
+        if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
+            r=Math.floor Math.random()*pls.length
+            if @job game,pls[r].id,{}
                 # 失敗した
                 @setTarget ""
     job:(game,playerid)->
         if playerid==@id && game.rule.guardmyself!="ok"
             return "自分を護衛することはできません"
+        else if playerid==@flag && game.rule.consecutiveguard=="no"
+            return "同じ人を連続で護衛することはできません"
         else
             @setTarget playerid
+            @setFlag playerid
+
             pl=game.getPlayer(playerid)
             log=
                 mode:"skill"
@@ -5147,26 +5165,40 @@ class WanderingGuard extends Player
         if game.day==1
             # 狩人は一日目護衛しない
             @setTarget ""  # 誰も守らない
-        else
-            fl=JSON.parse(@flag ? "[]")
-            alives=game.players.filter (x)->!x.dead
-            if alives.every((pl)=>(pl.id in fl) || (game.rule.guardmyself!="ok" && pl.id==@id))
-                # もう護衛対象がいない
+            return
+
+        fl=JSON.parse(@flag ? "[null]")
+        # 前回の護衛
+        alives=game.players.filter (x)=>
+            if x.dead
+                return false
+            if x.id == @id && game.rule.guardmyself!="ok"
+                return false
+            if x.id in fl
+                return false
+            return true
+        if alives.length == 0
+            # もう護衛対象がいない
+            @setTarget ""
+            return
+
+        if @scapegoat
+            # 身代わり君の自動占い
+            r=Math.floor Math.random()*alives.length
+            if @job game,alives[r].id,{}
                 @setTarget ""
-            else if @scapegoat
-                # 身代わり君の自動占い
-                r=Math.floor Math.random()*game.players.length
-                if @job game,game.players[r].id,{}
-                    @sunset game
     job:(game,playerid)->
-        fl=JSON.parse(@flag ? "[]")
+        fl=JSON.parse(@flag ? "[null]")
         if playerid==@id && game.rule.guardmyself!="ok"
             return "自分を護衛することはできません"
         
-        fl=JSON.parse(@flag ? "[]")
         if playerid in fl
-            return "その人はもう護衛できません"
+            return "その人は護衛できません"
         @setTarget playerid
+        if game.rule.consecutiveguard == "no"
+            fl[0] = playerid
+            @setFlag JSON.stringify fl
+
         # OK!
         pl=game.getPlayer(playerid)
         pl.touched game,@id
@@ -5198,12 +5230,12 @@ class WanderingGuard extends Player
                         to:@id
                         comment:"#{@name}は#{pl.name}をもう護衛できません。"
                     splashlog game.id,game,log
-                    fl=JSON.parse(@flag ? "[]")
+                    fl=JSON.parse(@flag ? "[null]")
                     fl.push pl.id
                     @setFlag JSON.stringify fl
     makeJobSelection:(game)->
         if game.night
-            fl=JSON.parse(@flag ? "[]")
+            fl=JSON.parse(@flag ? "[null]")
             a=super
             return a.filter (obj)->!(obj.value in fl)
         else
@@ -8697,6 +8729,7 @@ module.exports.actions=(req,res,ss)->
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","chemical",
+            "consecutiveguard",
             "poisonwolf",
             "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
