@@ -1054,10 +1054,6 @@ class Game
                         splashlog @id,@,log
                         @ss.publish.user newpl.id,"refresh",{id:@id}
 
-
-            # 投票リセット処理
-            @votingbox.init()
-            @votingbox.setCandidates @players.filter (x)->!x.dead
             alives=[]
             deads=[]
             for player in @players
@@ -1074,6 +1070,10 @@ class Game
             for pl in @players
                 if !pl.dead
                     pl.votestart this
+
+            # 投票リセット処理
+            @votingbox.init()
+            @votingbox.setCandidates @players.filter (x)->!x.dead
             @revote_num=0   # 再投票の回数は0にリセット
 
         #死体処理
