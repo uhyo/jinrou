@@ -2613,7 +2613,7 @@ class Diviner extends Player
 
         if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)-> x.fortuneResult == "村人"
+            targets2 = targets.filter (x)=> x.id != @id && x.fortuneResult == "村人"
             if targets2.length > 0
                 # ランダムに決定
                 log=
