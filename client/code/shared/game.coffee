@@ -1324,6 +1324,31 @@ exports.rules=[
                 ]
             }
             {
+                name:"drawvote"
+                label:"投票同数時の処理"
+                title:"投票で同数になった場合の処理を設定します。"
+                type:"select"
+                values:[
+                    {
+                        value:"revote"
+                        label:"再投票"
+                        selected:true
+                    }
+                    {
+                        value:"random"
+                        label:"ランダムに処刑"
+                    }
+                    {
+                        value:"none"
+                        label:"誰も処刑しない"
+                    }
+                    {
+                        value:"all"
+                        label:"全員処刑"
+                    }
+                ]
+            }
+            {
                 type: "separator"
             }
             {
@@ -1346,7 +1371,7 @@ exports.rules=[
                         title:"各陣営の数のみ公開されます。"
                     }
                     {
-                        value:"1"
+                        value:"2"
                         label:"非公開"
                         title:"出現役職の一覧は分からなくなります。"
                     }

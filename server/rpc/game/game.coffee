@@ -1305,7 +1305,7 @@ class Game
     # 返り値意味ないんじゃないの?
     execute:->
         return false unless @votingbox.isVoteAllFinished()
-        [mode,player,tos,table]=@votingbox.check()
+        [mode,players,tos,table]=@votingbox.check()
         if mode=="novote"
             # 誰も投票していない・・・
             @revote_num=Infinity
@@ -1326,19 +1326,28 @@ class Game
             # 再投票になった
             @dorevote "revote"
             return false
+        else if mode=="none"
+            # 処刑しない
+            log=
+                mode:"system"
+                comment:"誰も処刑されませんでした。"
+            splashlog @id,this,log
+            @nextturn()
+            return true
         else if mode=="punish"
             # 投票
             # 結果が出た 死んだ!
             # だれが投票したか調べる
-            follower=table.filter((obj)-> obj.voteto==player.id).map (obj)->obj.id
-            player.die this,"punish",follower
-            
-            if player.dead && @rule.GMpsychic=="on"
-                # GM霊能
-                log=
-                    mode:"system"
-                    comment:"処刑された#{player.name}の霊能結果は#{player.getPsychicResult()}でした。"
-                splashlog @id,this,log
+            for player in players
+                follower=table.filter((obj)-> obj.voteto==player.id).map (obj)->obj.id
+                player.die this,"punish",follower
+                
+                if player.dead && @rule.GMpsychic=="on"
+                    # GM霊能
+                    log=
+                        mode:"system"
+                        comment:"処刑された#{player.name}の霊能結果は#{player.getPsychicResult()}でした。"
+                    splashlog @id,this,log
                 
             @votingbox.remains--
             if @votingbox.remains>0
@@ -1893,7 +1902,7 @@ class VotingBox
         else
             return 0
     check:->
-        # return [mode,result,tos,table]
+        # return [mode,results,tos,table]
         # 投票が終わったのでアレする
         # 投票表を作る
         tos={}
@@ -1940,13 +1949,33 @@ class VotingBox
             # 誰も投票していない
             return ["novote",null,tos,table]
         if tops.length>1
-            # 決まらない! 再投票になった
-            if @game.rule.runoff!="no" && !@runoffmode
-                @setCandidates @game.players.filter (x)->x.id in tops
-                @runoffmode=true
-                return ["runoff",null,tos,table]
-            else
-                return ["revote",null,tos,table]
+            # 決まらない
+            if @game.rule.runoff!="yes" || @runoffmode
+                # 投票同数時の処理
+                switch @game.rule.drawvote
+                    when "random"
+                        # ランダムに1人処刑
+                        r = Math.floor Math.random()*tops.length
+                        return ["punish", [@game.getPlayer(tops[r])], tos, table]
+                    when "none"
+                        # 処刑しない
+                        return ["none",null,tos,table]
+                    when "all"
+                        # 全員処刑
+                        return [
+                            "punish",
+                            tops.map((id)=> @game.getPlayer id),
+                            tos,
+                            table
+                        ]
+                    else
+                        # デフォルト（再投票）
+                        if @game.rule.runoff!="no" && !@runoffmode
+                            @setCandidates @game.players.filter (x)->x.id in tops
+                            @runoffmode=true
+                            return ["runoff",null,tos,table]
+                        else
+                            return ["revote",null,tos,table]
         if @game.rule.runoff=="yes" && !@runoffmode
             # 候補は1人だけど決選投票をしないといけない
             if tops.length<=1
@@ -1974,7 +2003,7 @@ class VotingBox
                     @runoffmode=true
                     return ["runoff",null,tos,table]
         # 結果を教える
-        return ["punish",@game.getPlayer(tops[0]),tos,table]
+        return ["punish",[@game.getPlayer(tops[0])],tos,table]
 
 class Player
     constructor:->
@@ -8748,7 +8777,7 @@ module.exports.actions=(req,res,ss)->
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","chemical",
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
             "firstnightdivine","consecutiveguard",
             "poisonwolf",
             "friendssplit",
