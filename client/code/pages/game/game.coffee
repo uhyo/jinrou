@@ -817,12 +817,15 @@ exports.start=(roomid)->
             win=Index.util.blankWindow()
             win.append $ "<h1>ルール</h1>"
             p=document.createElement "p"
+            jobcountobj = {}
             Object.keys(this_rule.jobscount).forEach (x)->
                 a=document.createElement "a"
                 a.href="/manual/job/#{x}"
                 a.textContent="#{this_rule.jobscount[x].name}#{this_rule.jobscount[x].number}"
                 p.appendChild a
                 p.appendChild document.createTextNode " "
+
+                jobcountobj[x] = Number this_rule.jobscount[x].number
             win.append p
             chkrule=(ruleobj,jobscount,rules)->
                 for obj in rules
@@ -872,7 +875,7 @@ exports.start=(roomid)->
                                     continue
                         p.text val
                         win.append p
-            chkrule this_rule.rule, this_rule.jobscount,Shared.game.rules
+            chkrule this_rule.rule, jobcountobj,Shared.game.rules
             
         $("#willform").submit (je)->
             form=je.target
