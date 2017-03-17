@@ -1057,7 +1057,6 @@ class Game
 
             # 投票リセット処理
             @votingbox.init()
-            @votingbox.setCandidates @players.filter (x)->!x.dead
             alives=[]
             deads=[]
             for player in @players
@@ -1065,15 +1064,19 @@ class Game
                     deads.push player.id
                 else
                     alives.push player.id
+
             for i in (shuffle [0...(@players.length)])
                 player=@players[i]
                 if player.id in alives
                     player.sunrise this
                 else
                     player.deadsunrise this
-            for pl in @players
-                if !pl.dead
-                    pl.votestart this
+
+            alives = @players.filter (x)->!x.dead
+
+            @votingbox.setCandidates alives
+            for pl in alives
+                pl.votestart this
             @revote_num=0   # 再投票の回数は0にリセット
 
         #死体処理
