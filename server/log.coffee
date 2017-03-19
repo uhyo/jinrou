@@ -42,6 +42,8 @@ saveInLogs = (log)->
 # speak in room log
 exports.speakInRoom = (roomid, log, user)->
     return unless Config.logging
+    return unless log?
+    return unless user?
     log =
         type: "speak"
         roomid: roomid
@@ -57,6 +59,8 @@ exports.speakInRoom = (roomid, log, user)->
 # speak in lobby
 exports.speakInLobby = (user, log)->
     return unless Config.logging
+    return unless user?
+    return unless log?
     log =
         type: "lobby"
         userid: user.userid
@@ -70,6 +74,7 @@ exports.speakInLobby = (user, log)->
 # login
 exports.login = (user)->
     return unless Config.logging
+    return unless user?
     log =
         type: "login"
         userid: user.userid
@@ -81,6 +86,8 @@ exports.login = (user)->
 # make room
 exports.makeroom = (user, room)->
     return unless Config.logging
+    return unless user?
+    return unless room?
     log =
         type: "makeroom"
         userid: user.userid
