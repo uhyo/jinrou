@@ -6,6 +6,7 @@ Server=
     user:module.exports
     prize:require '../prize.coffee'
     oauth:require '../oauth.coffee'
+    log:require '../log.coffee'
 mailer=require '../mailer.coffee'
 crypto=require 'crypto'
 url=require 'url'
@@ -32,6 +33,9 @@ login= (query,req,cb,ss)->
                     }
                 # IPアドレスを記録してあげる
                 M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
+
+            # log
+            Server.log.login req.session.user
         else
             cb {
                 login:false

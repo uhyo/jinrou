@@ -59,4 +59,6 @@ module.exports =
   rooms:
     # 古い部屋に入るまでの時間(hours)
     fresh:24*3
+  # Experimental feature: logging (boolean)
+  logging: false
 	

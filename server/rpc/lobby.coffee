@@ -1,5 +1,8 @@
 # Server-side Code
 
+Server=
+    log:require '../log.coffee'
+
 players=[]  # ロビーにいる人たち
 heartbeat_time=10
 
@@ -64,6 +67,8 @@ exports.actions =(req,res,ss)->
             time:Date.now()
         M.lobby.insert log
         ss.publish.channel "lobby","log",log
+
+        Server.log.speakInLobby req.session.user, log
     bye:->
         req.session.channel.unsubscribe 'lobby'
         if req.session.userId
