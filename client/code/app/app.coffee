@@ -49,7 +49,7 @@ exports.init = ->
     cp=useColorProfile getCurrentColorProfile()
     window.addEventListener "popstate",((e)->
         # location.pathname
-        showUrl location.pathname, {}, true
+        showUrl location.pathname, util.searchHash(location.search), true
     ),false
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
@@ -92,7 +92,6 @@ manualpage=(pagename)->
 
 
 exports.showUrl=showUrl=(url,query={},nohistory=false)->
-    console.log 'URL', url, query
     try
         u = new URL url
         if u.origin == location.origin
@@ -155,16 +154,27 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             page "reset",null,Index.reset, null
         when "/rooms"
             # 部屋一覧
-            page "game-rooms",null,Index.game.rooms, null
+            page "game-rooms",null,Index.game.rooms, {
+                page: Number query.page || 0
+            }
         when "/rooms/old"
             # 古い部屋
-            page "game-rooms",null,Index.game.rooms,"old"
+            page "game-rooms",null,Index.game.rooms, {
+                mode: "old"
+                page: Number query.page || 0
+            }
         when "/rooms/log"
             # 終わった部屋
-            page "game-rooms",null,Index.game.rooms,"log"
+            page "game-rooms",null,Index.game.rooms, {
+                mode: "log"
+                page: Number query.page || 0
+            }
         when "/rooms/my"
             # ぼくの部屋
-            page "game-rooms",null,Index.game.rooms,"my"
+            page "game-rooms",null,Index.game.rooms, {
+                mode: "my"
+                page: Number query.page || 0
+            }
         when "/newroom"
             # 新しい部屋
             page "game-newroom",null,Index.game.newroom,null
@@ -218,7 +228,10 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             else
                 page "top",null,Index.top,null
     unless nohistory
-        history.pushState null,null,url
+        pushState url, query
+
+exports.pushState=pushState=(url, query)->
+    history.pushState null, null, "#{url}#{util.hashSearch query}"
                     
                     
 exports.refresh=->showUrl location.pathname, util.searchHash(location.search), true

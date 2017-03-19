@@ -250,6 +250,15 @@ exports.searchHash=(search)->
     result = {}
     arr = search.slice(1).split '&'
     for chunk in arr
+        continue unless chunk
         [key, value] = chunk.split '='
         result[decodeURIComponent key] = decodeURIComponent(value ? 'on')
     return result
+exports.hashSearch=(hash)->
+    arr = []
+    for key, value of hash
+        arr.push "#{encodeURIComponent key}=#{encodeURIComponent value}"
+    if arr.length == 0
+        return ''
+    else
+        return "?#{arr.join '&'}"
