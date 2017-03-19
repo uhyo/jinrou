@@ -244,3 +244,12 @@ exports.timeFromDate=(date)->
     time.datetime="#{dat}T#{tim}+09:00"
     time.textContent="#{dat} #{tim}"
     time
+
+# search文字列をdictに
+exports.searchHash=(search)->
+    result = {}
+    arr = search.slice(1).split '&'
+    for chunk in arr
+        [key, value] = chunk.split '='
+        result[decodeURIComponent key] = decodeURIComponent(value ? 'on')
+    return result

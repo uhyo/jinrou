@@ -156,63 +156,61 @@ exports.actions =(req,res,ss)->
     sendConfirmMail:(query)->
         mailer.sendConfirmMail(query,req,res,ss)
     confirmMail:(query)->
-        if query.match /\/my\?token\=(\w){128}\&timestamp\=(\d){13}$/
-            query = url.parse(query,true).query
-            # console.log query
-            M.users.findOne {"mail.token":query.token,"mail.timestamp":Number(query.timestamp)},(err,doc)->
-                # 有效时间：1小时
+        token = query.token
+        timestamp = Number query.timestamp
+        # console.log query
+        M.users.findOne {"mail.token":token,"mail.timestamp":timestamp},(err,doc)->
+            # 有效时间：1小时
+            if err?
+                res {error:"このリンクは無効か、有効期限が切れています。"}
+                return
+            unless doc?.mail? && Date.now() < Number(doc.mail.timestamp) + 3600*1000
+                res {error:"このリンクは無効か、有効期限が切れています。"}
+                return
+            strfor=doc.mail.for
+            switch doc.mail.for
+                when "confirm"
+                    doc.mail=
+                        address:doc.mail.new
+                        verified:true
+                when "change"
+                    doc.mail=
+                        address:doc.mail.new
+                        verified:true
+                when "remove"
+                    delete doc.mail
+                    # 事故をふせぐ
+                    doc.mailconfirmsecurity = false
+                when "reset"
+                    doc.password = doc.mail.newpass
+                    doc.mail=
+                        address:doc.mail.address
+                        verified:true
+                when "mailconfirmsecurity-off"
+                    doc.mail=
+                        address:doc.mail.address
+                        verified:doc.mail.verified
+                    doc.mailconfirmsecurity = false
+            M.users.update {"userid":doc.userid}, doc, {safe:true},(err,count)=>
                 if err?
-                    res {error:"このリンクは無効か、有効期限が切れています。"}
+                    res {error:"メールの認証に失敗しました。"}
                     return
-                unless doc?.mail? && Date.now() < Number(doc.mail.timestamp) + 3600*1000
-                    res {error:"このリンクは無効か、有効期限が切れています。"}
-                    return
-                strfor=doc.mail.for
-                switch doc.mail.for
-                    when "confirm"
+                delete doc.password
+                req.session.user = doc
+                req.session.save ->
+                    if strfor in ["confirm","change"]
+                        doc.info="メールアドレス 「#{doc.mail.address}」が確認されました。"
+                    else if strfor == "remove"
                         doc.mail=
-                            address:doc.mail.new
-                            verified:true
-                    when "change"
-                        doc.mail=
-                            address:doc.mail.new
-                            verified:true
-                    when "remove"
-                        delete doc.mail
-                        # 事故をふせぐ
-                        doc.mailconfirmsecurity = false
-                    when "reset"
-                        doc.password = doc.mail.newpass
-                        doc.mail=
-                            address:doc.mail.address
-                            verified:true
-                    when "mailconfirmsecurity-off"
-                        doc.mail=
-                            address:doc.mail.address
-                            verified:doc.mail.verified
-                        doc.mailconfirmsecurity = false
-                M.users.update {"userid":doc.userid}, doc, {safe:true},(err,count)=>
-                    if err?
-                        res {error:"メールの認証に失敗しました。"}
-                        return
-                    delete doc.password
-                    req.session.user = doc
-                    req.session.save ->
-                        if strfor in ["confirm","change"]
-                            doc.info="メールアドレス 「#{doc.mail.address}」が確認されました。"
-                        else if strfor == "remove"
-                            doc.mail=
-                                address:""
-                                verified:false
-                            doc.info="メールアドレスの削除に成功しました。"
-                        else if strfor == "reset"
-                            doc.info="パスワードを再設定しました。新しいパスワードでログインしてください。"
-                            doc.reset=true
-                        else if strfor == "mailconfirmsecurity-off"
-                            doc.info="設定を変更しました。"
-                        res doc
-            return
-        res null
+                            address:""
+                            verified:false
+                        doc.info="メールアドレスの削除に成功しました。"
+                    else if strfor == "reset"
+                        doc.info="パスワードを再設定しました。新しいパスワードでログインしてください。"
+                        doc.reset=true
+                    else if strfor == "mailconfirmsecurity-off"
+                        doc.info="設定を変更しました。"
+                    res doc
     resetPassword:(query)->
         unless /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test query.mail
             res {info:"有効なメールアドレスを入力してください"}

@@ -33,22 +33,23 @@ exports.init = ->
 
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
+            p = location.href
             if result
-                p = location.pathname
-                if p=="/" then p="/my"
+                p = location.href
+                if location.pathname == "/" then p = "/my"
             else
                 #p="/"
                 # 無効
                 localStorage.removeItem "userid"
                 localStorage.removeItem "password"
-            showUrl decodeURIComponent p
+            showUrl p
     else
-        showUrl decodeURIComponent location.pathname
+        showUrl location.href
     # ユーザーCSS指定
     cp=useColorProfile getCurrentColorProfile()
     window.addEventListener "popstate",((e)->
         # location.pathname
-        showUrl location.pathname,true
+        showUrl location.pathname, {}, true
     ),false
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
@@ -90,12 +91,36 @@ manualpage=(pagename)->
 
 
 
-exports.showUrl=showUrl=(url,nohistory=false)->
-    if result=url.match /(https?:\/\/.+?)(\/.+)$/
-        if result[1]=="#{location.protocol}//#{location.host}" #location.origin
-            url=result[2]
+exports.showUrl=showUrl=(url,query={},nohistory=false)->
+    console.log 'URL', url, query
+    try
+        u = new URL url
+        if u.origin == location.origin
+            url = u.pathname
+            # urlSearchParams
+            query = util.searchHash u.search
         else
-            location.href=url
+            location.href = url
+    catch e
+        # fallback
+        if result=url.match /(https?:\/\/.+?)(\/.+)$/
+            if result[1]=="#{location.protocol}//#{location.host}" #location.origin
+                # no query support!
+                body = result[2]
+                # search部分を探す
+                idx = body.indexOf '?'
+                if idx >= 0
+                    url = body.slice 0, idx
+                    idx2 = body.indexOf '#', idx
+                    query = url.searchHash url.slice(idx, idx2)
+                else
+                    idx2 = body.indexOf '#'
+                    if idx2 >= 0
+                        url = body.slice 0, idx2
+                    else
+                        url = body
+            else
+                location.href=url
     
     switch url
         when "/my"
@@ -104,20 +129,23 @@ exports.showUrl=showUrl=(url,nohistory=false)->
                 ss.rpc "user.myProfile", (user)->
                     unless user?
                         # ログインしていない
-                        showUrl "/",nohistory
+                        showUrl "/", {}, nohistory
                         return
                     user[x]?="" for x in ["userid","name","comment"]
                     page "user-profile",user,Index.user.profile,user
 
-            if location.href.match /\/my\?token\=(\w){128}\&timestamp\=(\d){13}$/
-                ss.rpc "user.confirmMail",location.href, (result)->
+            if query.token?.match?(/^\w{128}$/) && query.timestamp?.match?(/^\d{13}$/)
+                ss.rpc "user.confirmMail", {
+                    token: query.token
+                    timestamp: query.timestamp
+                }, (result)->
                     if result?.error?
                         Index.util.message "エラー",result.error
                         return
                     if result?.info?
                         Index.util.message "通知",result.info
                     if result?.reset
-                        showUrl "/",nohistory
+                        showUrl "/", {}, nohistory
                     else
                         pf()
             else
@@ -157,7 +185,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
                 localStorage.removeItem "userid"
                 localStorage.removeItem "password"
                 $("#username").empty()
-                showUrl "/",nohistory
+                showUrl "/", {}, nohistory
         when "/logs"
             # ログ検索
             page "logs",null,Index.logs,null
@@ -193,7 +221,7 @@ exports.showUrl=showUrl=(url,nohistory=false)->
         history.pushState null,null,url
                     
                     
-exports.refresh=->showUrl location.pathname,true
+exports.refresh=->showUrl location.pathname, util.searchHash(location.search), true
 
 exports.login=login=(uid,ups,cb)->
     ss.rpc "user.login", {userid:uid,password:ups},(result)->

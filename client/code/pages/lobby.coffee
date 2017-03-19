@@ -28,7 +28,6 @@ exports.start=->
 
         $("#logs").prepend p
     appenduser=(user)->
-        console.log 'APP', user
         li=document.createElement "li"
         a=document.createElement "a"
         a.href="/user/#{user.userid}"
