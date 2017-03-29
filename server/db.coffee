@@ -1,4 +1,4 @@
-dbinit= ->
+dbinit= (loaded)->
     c=Config.mongo
     mongodb=require 'mongodb'
     mongodb.MongoClient.connect "mongodb://#{c.user}:#{c.pass}@#{c.host}:#{c.port}/#{c.database}?w=0",(err,db)->
@@ -15,6 +15,7 @@ dbinit= ->
               console.log "Mongodb Connected"
               # ゲームデータ読み込みをしてもらう
               #SS.server.game.game.loadDB()
+              loaded()
         )()
 
         DB.collection "users", (err,col)->
