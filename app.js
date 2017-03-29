@@ -47,11 +47,9 @@ ss.ws.transport.use("engineio",{
 
 //----
 var server=http.Server(ss.http.middleware);
-server.listen(Config.http.port);
-
-ss.start(server);
 
 db=require('./server/db.coffee');
-db.dbinit()
-
-
+db.dbinit(function () {
+    server.listen(Config.http.port);
+    ss.start(server);
+})
