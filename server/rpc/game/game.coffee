@@ -6148,7 +6148,7 @@ class Patissiere extends Player
 class GotChocolate extends Player
     type: "GotChocolate"
     jobname: "チョコレート"
-    midnightSort:100
+    midnightSort:90
     sleeping:->true
     jobdone:(game)-> @flag!="unselected"
     job_target:0
@@ -8668,7 +8668,7 @@ module.exports.actions=(req,res,ss)->
                     # セーフティ超
                     joblist=best_list
 
-                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0 || joblist.Pumpkin>0) && query.divineresult=="immediate"
+                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0 || joblist.Pumpkin>0 || joblist.Patissiere>0) && query.divineresult=="immediate"
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
