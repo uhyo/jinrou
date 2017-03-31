@@ -7,15 +7,15 @@ Server=
     prize:require '../prize.coffee'
     oauth:require '../oauth.coffee'
     log:require '../log.coffee'
+    auth:require '../auth.coffee'
 mailer=require '../mailer.coffee'
 crypto=require 'crypto'
 url=require 'url'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
-    auth=require('./../auth.coffee')
     #req.session.authenticate './session_storage/internal.coffee', query, (response)=>
-    auth.authenticate query,(response)=>
+    Server.auth.authenticate query,(response)=>
         if response.success
             req.session.setUserId response.userid
             #console.log "login."
@@ -101,8 +101,6 @@ exports.actions =(req,res,ss)->
                 return
             delete record.password
             delete record.prize
-            #unless password && record.password==SS.server.user.crpassword(password)
-            #   delete record.email
             res record
     myProfile: ->
         unless req.session.userId
@@ -128,11 +126,14 @@ exports.actions =(req,res,ss)->
                 
 # プロフィール変更 返り値=変更後 {"error":"message"}
     changeProfile: (query)->
-        M.users.findOne {"userid":req.session.userId,"password":Server.user.crpassword(query.password)},(err,record)=>
+        M.users.findOne {"userid":req.session.userId},(err,record)=>
             if err?
                 res {error:"DB err:#{err}"}
                 return
             if !record?
+                res {error:"ユーザー認証に失敗しました"}
+                return
+            unless Server.auth.check query.password, record.password, record.salt
                 res {error:"ユーザー認証に失敗しました"}
                 return
             if query.name?
@@ -182,6 +183,7 @@ exports.actions =(req,res,ss)->
                     # 事故をふせぐ
                     doc.mailconfirmsecurity = false
                 when "reset"
+                    doc.salt = doc.mail.newsalt
                     doc.password = doc.mail.newpass
                     doc.mail=
                         address:doc.mail.address
@@ -233,16 +235,28 @@ exports.actions =(req,res,ss)->
         if query.newpass!=query.newpass2
             res {error:"パスワードが一致しません"}
             return
-        M.users.findOne {"userid":req.session.userId,"password":Server.user.crpassword(query.password)},(err,record)=>
+        M.users.findOne {"userid":req.session.userId}, (err,record)=>
             if err?
                 res {error:"DB err:#{err}"}
                 return
             if !record?
                 res {error:"ユーザー認証に失敗しました"}
                 return
+            unless Server.auth.check query.password, record.password, record.salt
+                res {error:"ユーザー認証に失敗しました"}
+                return
+                
             if record.mailconfirmsecurity
                 res {error:"パスワードがロックされているため、変更できません。"}
-            M.users.update {"userid":req.session.userId}, {$set:{password:Server.user.crpassword(query.newpass)}},{safe:true},(err,count)=>
+                return
+            # saltを新しく生成
+            newsalt = Server.auth.gensalt()
+            M.users.update {"userid":req.session.userId}, {
+                $set:{
+                    password: Server.auth.crpassword query.newpass, newsalt
+                    salt: newsalt
+                }
+            }, {safe:true}, (err,count)=>
                 if err?
                     res {error:"プロフィール変更に失敗しました"}
                     return
@@ -288,11 +302,14 @@ exports.actions =(req,res,ss)->
 
     usePrize: (query)->
         # 表示する称号を変える query.prize
-        M.users.findOne {"userid":req.session.userId,"password":Server.user.crpassword(query.password)},(err,record)=>
+        M.users.findOne {"userid":req.session.userId},(err,record)=>
             if err?
                 res {error:"DB err:#{err}"}
                 return
             if !record?
+                res {error:"ユーザー認証に失敗しました"}
+                return
+            unless Server.auth.check query.password, record.password, record.salt
                 res {error:"ユーザー認証に失敗しました"}
                 return
             if typeof query.prize?.every=="function"
@@ -342,20 +359,14 @@ exports.actions =(req,res,ss)->
             
 
 
-#パスワードハッシュ化
-#   crpassword: (raw)-> raw && hashlib.sha256(raw+hashlib.md5(raw))
-exports.crpassword= (raw)->
-        return "" unless raw
-        sha256=crypto.createHash "sha256"
-        md5=crypto.createHash "md5"
-        md5.update raw  # md5でハッシュ化
-        sha256.update raw+md5.digest 'hex'  # sha256でさらにハッシュ化
-        sha256.digest 'hex' # 結果を返す
+exports.crpassword = Server.auth.crpassword
 #ユーザーデータ作る
 makeuserdata=(query)->
+    salt = Server.auth.gensalt()
     {
         userid: query.userid
-        password: Server.user.crpassword(query.password)
+        password: Server.auth.crpassword(query.password, salt)
+        salt: salt
         name: query.userid
         icon:"" # iconのURL
         comment: ""

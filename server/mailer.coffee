@@ -1,6 +1,7 @@
 nodemailer = require("nodemailer")
 crypto = require('crypto')
 user=require './rpc/user.coffee'
+auth=require './auth.coffee'
 
 # create reusable transporter object using the default SMTP transport
 transporter = nodemailer.createTransport(Config.smtpConfig)
@@ -116,7 +117,6 @@ sendConfirmMail=(query, req, res, ss)->
 
     userquery =
         userid: req.session.userId
-        password: user.crpassword query.password
     makemailobj = (record, mail)->
         options = {}
         if record.mailconfirmsecurity
@@ -203,7 +203,8 @@ sendResetMail = (query, req, res, ss)->
         mail.address = record.mail.address
         mail.verified = record.mail.verified
         mail.for = "reset"
-        mail.newpass = user.crpassword(query.newpass)
+        mail.newsalt = auth.gensalt()
+        mail.newpass = auth.crpassword query.newpass, mail.newsalt
         options =
             to: mail.address
             subject: "月下人狼: パスワード再設定"
