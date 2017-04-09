@@ -5870,14 +5870,12 @@ class Pyrotechnist extends Player
         @setFlag "using"
         null
     sunset:(game)->
-        console.log @id,@type,@flag
         if @flag=="using"
             log=
                 mode:"system"
                 comment:"きれいな花火が打ち上がりました。今夜は能力を使用できません。"
             splashlog game.id,game,log
             @setFlag "done"
-        console.log @id,@type,@flag
     deadsunset:(game)->
         @sunset game
     checkJobValidity:(game,query)->
