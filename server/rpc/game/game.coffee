@@ -959,15 +959,17 @@ class Game
             # Fireworks should be lit at just before sunset.
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
+                # Pyrotechnist should break the blockade of Threatened.sunset
+                for pyr in x
+                    # avoid duplicate call .sunset()
+                    if pyr.cmplType=="Threatened"
+                        pyr.accessByJobType("Pyrotechnist").sunset this
                 # 全员花火の虜にしてしまう
                 for pl in @players
                     newpl=Player.factory null,pl,null,WatchingFireworks
                     pl.transProfile newpl
                     newpl.cmplFlag=x[0].id
                     pl.transform this,newpl,true
-                # Pyrotechnist should break the blockade of Threatened.sunset
-                for pyr in x
-                    pyr.accessByJobType("Pyrotechnist").sunset this
 
             alives=[]
             deads=[]
@@ -5868,12 +5870,14 @@ class Pyrotechnist extends Player
         @setFlag "using"
         null
     sunset:(game)->
+        console.log @id,@type,@flag
         if @flag=="using"
             log=
                 mode:"system"
                 comment:"きれいな花火が打ち上がりました。今夜は能力を使用できません。"
             splashlog game.id,game,log
             @setFlag "done"
+        console.log @id,@type,@flag
     deadsunset:(game)->
         @sunset game
     checkJobValidity:(game,query)->
