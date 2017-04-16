@@ -1819,4 +1819,4 @@ exports.jobinfos=[
 ]
 
 # 判定
-isYaminabe=(rule)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"]
+isYaminabe=(rule)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
