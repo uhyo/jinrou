@@ -140,11 +140,22 @@ exports.actions =(req,res,ss)->
                 if query.name==""
                     res {error:"ニックネームを入力して下さい"}
                     return
+                if query.name.length > Config.maxlength.user.name
+                    res {error:"ニックネームが長すぎます"}
+                    return
                     
                 record.name=query.name
-            if query.comment? && query.comment.length<=200
+            if query.comment?
+                if query.comment.length > Config.maxlength.user.comment
+                    res {error:"コメントが長すぎます"}
+                    return
+
                 record.comment=query.comment
-            if query.icon? && query.icon.length<=300
+            if query.icon?
+                if query.icon.length > Config.maxlength.user.icon
+                    res {error:"アイコンURLが長すぎます"}
+                    return
+
                 record.icon=query.icon
             M.users.update {"userid":req.session.userId}, record, {safe:true},(err,count)=>
                 if err?
@@ -155,6 +166,9 @@ exports.actions =(req,res,ss)->
                 req.session.save ->
                 res userProfile(record)
     sendConfirmMail:(query)->
+        if query.mail && query.mail.length > Config.maxlength.user.mail
+            res {error:"メールアドレスが長すぎます"}
+            return
         mailer.sendConfirmMail(query,req,res,ss)
     confirmMail:(query)->
         token = query.token

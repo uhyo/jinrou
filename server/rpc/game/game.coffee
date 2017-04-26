@@ -8876,6 +8876,9 @@ module.exports.actions=(req,res,ss)->
         unless comment
             res "コメントがありません"
             return
+        if comment.length > Config.maxlength.game.comment
+            res "コメントが長すぎます"
+            return
         player=game.getPlayerReal req.session.userId
         #console.log query,player
         log =

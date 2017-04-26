@@ -136,6 +136,16 @@ module.exports.actions=(req,res,ss)->
         unless req.session.userId
             res {error: "ログインしていません"}
             return
+        unless query.name
+            res {error: "部屋名を入力してください"}
+            return
+        if query.name.length > Config.maxlength.room.name
+            res {error: "部屋名が長すぎます"}
+            return
+        if query.comment && query.comment.length > Config.maxlength.room.comment
+            res {error: "コメントが長すぎます"}
+            return
+
         M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
             id=if doc? then doc.id+1 else 1
             room=
@@ -236,12 +246,15 @@ module.exports.actions=(req,res,ss)->
                 ###
                 
                 # please no, link of data:image/jpeg;base64 would be a disaster
-                if user.icon?.length>300
+                if user.icon?.length > Config.maxlength.user.icon
                     res error:"Link for Icon is too long.（#{user.icon.length}）"
                     return
                 if room.blind
                     unless opt?.name
                         res error:"名前を入力して下さい"
+                        return
+                    if opt.name.length > Config.maxlength.user.name
+                        res {error: "名前が長すぎます"}
                         return
                     # 覆面
                     makeid=->   # ID生成
