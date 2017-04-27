@@ -136,7 +136,7 @@ module.exports.actions=(req,res,ss)->
         unless req.session.userId
             res {error: "ログインしていません"}
             return
-        unless query.name
+        unless query.name?.trim?()
             res {error: "部屋名を入力してください"}
             return
         if query.name.length > Config.maxlength.room.name
