@@ -6,14 +6,14 @@ tabs=
                 je.preventDefault()
                 query=Index.util.formQuery je.target
                 ss.rpc "admin.addBlacklist", query,->
-                    inittable()
+                    initblisttable()
             $("#blacklisttable").click (je)->
                 target=je.target
                 if target.dataset.userid
                     query=
                         userid:target.dataset.userid
                     ss.rpc "admin.removeBlacklist", query,->
-                        inittable()
+                        initblisttable()
     grandalert:
         init:->
             $("#alertform").submit (je)->
@@ -100,7 +100,7 @@ initblisttable=->
             cell.textContent=doc.ip
             
             cell=row.insertCell 2
-            cell.textContent=doc.expires?.toLocaleString() ? "無期限"
+            cell.textContent=(if doc.expires? then new Date(doc.expires).toLocaleString() else "無期限")
             
             cell=row.insertCell 3
             input=document.createElement "input"
