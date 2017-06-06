@@ -23,7 +23,7 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.users=col
-          col.ensureIndex {"userid":1},(err,idxname)->
+          col.ensureIndex {"userid":1}, {unique: true}, (err,idxname)->
             col.ensureIndex {"mail.token":1, "mail.timestamp":1}, (err)->
               col.ensureIndex {"mail.address":1}, (err)->
                 cols_count()
@@ -32,7 +32,7 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.rooms=col
-          col.ensureIndex {"id": 1},(err,idxname)->
+          col.ensureIndex {"id": 1}, {unique: true}, (err,idxname)->
             col.ensureIndex {"mode": 1},(err,idxname)->
               col.ensureIndex {"mode": 1, "made": -1}, (err,idxname)->
                 col.ensureIndex {"players.realid": 1,"mode": 1, "made": -1}, (err,idxname)->
@@ -43,7 +43,7 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.games=col
-          col.ensureIndex {"id":1},(err,idxname)->
+          col.ensureIndex {"id":1}, {unique: true}, (err,idxname)->
             col.ensureIndex {"finished":1, "id":1}, (err,idxname)->
               cols_count()
         DB.collection "lobby",(err,col)->	# ロビーのログ
@@ -74,7 +74,7 @@ dbinit= (loaded)->
               console.log err
               throw err
           M.userlogs=col
-          col.ensureIndex {"userid":1},(err,idxname)->
+          col.ensureIndex {"userid":1}, {unique: true}, (err,idxname)->
             cols_count()
         DB.collection "logs", (err,col)->
           if err?
