@@ -1182,7 +1182,7 @@ class Game
                 # 死んだ
                 t.die this,"werewolf",target.from
             # 逃亡者を探す
-            runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==target.to
+            runners=@players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.accessByJobType("Fugitive")?.target==target.to
             runners.forEach (x)=>
                 x.die this,"werewolf2",target.from   # その家に逃げていたら逃亡者も死ぬ
 
@@ -4008,7 +4008,7 @@ class Vampire extends Player
         return if t.dead
         t.die game,"vampire",@id
         # 逃亡者を探す
-        runners=game.players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.target==t.id
+        runners=game.players.filter (x)=>!x.dead && x.isJobType("Fugitive") && x.accessByJobType("Fugitive")?.target==t.id
         runners.forEach (x)=>
             x.die game,"vampire2",@id   # その家に逃げていたら逃亡者も死ぬ
     makejobinfo:(game,result)->
