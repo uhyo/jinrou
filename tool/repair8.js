@@ -111,7 +111,6 @@ function handleUsers(users){
     function handleDuplicate(docs){
         logs.users.push(docs);
         console.log('duplicate %s %d', docs[0].userid, docs.length);
-        console.log(docs);
 
         // determine which one is latest, based on `win`, `lose`, `gone`.
         let max = -1;
