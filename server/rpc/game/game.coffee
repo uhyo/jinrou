@@ -1425,6 +1425,7 @@ class Game
         humans=aliveps.map((x)->x.humanCount()).reduce(((a,b)->a+b), 0)
         wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
         vampires=aliveps.map((x)->x.vampireCount()).reduce(((a,b)->a+b), 0)
+        friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
 
         team=null
         friends_count=null
@@ -1478,6 +1479,9 @@ class Game
             else if humans<=vampires && wolves==0
                 # ヴァンパイア勝利
                 team="Vampire"
+            else if alives==friendsn
+                # 恋人勝利
+                team="Friend"
                 
             if team=="Werewolf" && wolves==1
                 # 一匹狼判定
@@ -1492,20 +1496,21 @@ class Game
                 # 恋人判定
                 if @players.some((x)->x.isFriend())
                     # 終了時に恋人生存
-                    friends=@players.filter (x)->x.isFriend() && !x.dead
+                    friends=aliveps.filter (x)->x.isFriend()
                     gid=0
                     friends_count=0
                     friends_table={}
                     for pl in friends
+                        pt=pl.getPartner()
                         unless friends_table[pl.id]?
-                            pt=pl.getPartner()
                             unless friends_table[pt]?
+                                # 新しいグループを発見
                                 friends_count++
                                 gid++
                                 friends_table[pl.id]=gid
                                 friends_table[pt]=gid
                             else
-                                # 合併
+                                # 既存のグループに合流
                                 friends_table[pl.id]=friends_table[pt]
                         else
                             unless friends_table[pt]?
@@ -1528,7 +1533,7 @@ class Game
                         else if friends.length==alives
                             team="Friend"
                     else if friends_count>1
-                        if alives==friends.length
+                        if alives==friendsn
                             team="Friend"
                         else
                             # 恋人バトル
