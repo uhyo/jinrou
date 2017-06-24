@@ -56,7 +56,7 @@ module.exports=exports=
                 wincount=doc.wincount ? {}
                 losecount=doc.losecount ? {}
                 winteamcount=doc.winteamcount ? {}
-                counter=doc.counter
+                counter=doc.counter ? {}
                 for job,prs of prize.wincountprize
                     for numstr,name of prs
                         num=+numstr
