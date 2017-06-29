@@ -1,7 +1,9 @@
 socids=null
 exports.start=->
     # ロビーに入る
-    getlog=(log)->
+    getlog=(log,channel)->
+        unless(channel=="lobby" || typeof(channel) == "number")
+            return
         p=document.createElement "div"
         div=document.createElement "div"
         div.classList.add "icon"
