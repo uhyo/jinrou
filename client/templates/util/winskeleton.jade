@@ -1,0 +1,11 @@
+section.window
+  h1
+    span.window-icon
+      block icon
+        != icon
+    block title
+      = title
+    block closebutton
+      button.closer(type="button",name="ok")
+        i.fa.fa-times
+  block wincontent

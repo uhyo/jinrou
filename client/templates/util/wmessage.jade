@@ -1,8 +1,5 @@
-section.window
-  h1
-    = title
-    button.closer(type="button",name="ok")
-      i.fa.fa-times
+extends winskeleton
+block wincontent
   form(name="messageform",action="/")
     div.window-content
       p= message

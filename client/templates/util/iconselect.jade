@@ -1,8 +1,12 @@
-section.window
-  h1
-    | アイコン選択
-    button.closer(type="button",name="cancel")
-      i.fa.fa-times
+extends winskeleton
+block icon
+  i.fa.fa-user-circle-o
+block title
+  | アイコン選択
+block closebutton
+  button.closer(type="button",name="cancel")
+    i.fa.fa-times
+block wincontent
   form(aciton="/")#iconform
     div.window-content
       p （URLが空の場合アイコン無しになります）

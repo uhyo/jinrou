@@ -15,6 +15,7 @@ room: {
   players:[PlayerObject,PlayerObject,...]
   gm: Booelan(trueならオーナーGM)
   jobrule: String   //開始後はなんの配役か（エンドレス闇鍋用）
+  ban: [String]  // kicked userid
 }
 PlayerObject.start=Boolean
 PlayerObject.mode="player" / "gm" / "helper"

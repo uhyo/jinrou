@@ -8,9 +8,31 @@ exports.showWindow=showWindow=(templatename,tmpl)->
     x=Math.max 50,sclf+Math.floor(Math.random()*100-200+document.documentElement.clientWidth/2)
     y=Math.max 50,sctp+Math.floor(Math.random()*100-200+document.documentElement.clientHeight/2)
 
+    # iconはspecialにhandleする
+    unless tmpl?
+        tmpl = {}
+    tmpl.icon = makeIconHTML tmpl.icon
+
     win=$(JT["#{templatename}"](tmpl)).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn().draggable()
     $(".getfocus",win.get(0)).focus()
     win
+
+makeIconHTML = (icon)->
+    unless icon?
+        return ''
+    if 'string' == typeof icon
+        return "<i class='fa fa-#{icon}'></i>"
+    if icon instanceof Array
+        result = "<span class='fa-stack'>"
+        for name in icon
+            result += "<i class='fa fa-#{name}'></i>"
+        result += "</span>"
+        return result
+    return ''
+
+
+
+
 #編集域を返す
 exports.blankWindow=(title)->
     win=showWindow "util-blank", {title: title}
@@ -85,8 +107,19 @@ exports.prompt=(title,message,opt,cb)->
             t = t.parentNode
 
 #arr: [{name:"aaa",value:"foo"}, ...]
-exports.selectprompt=(title,message,arr,cb)->
-    win = showWindow "util-selectprompt",{title:title,message:message}
+exports.selectprompt=(options,cb)->
+    {
+        title,
+        message,
+        options: arr,
+        icon,
+    } = options
+
+    win = showWindow "util-selectprompt",{
+        title: title
+        message: message
+        icon: icon
+    }
     sel=win.find("select.prompt").get(0)
     for obj in arr
         opt=document.createElement "option"

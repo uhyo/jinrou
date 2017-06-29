@@ -1,8 +1,5 @@
-section.window
-  h1
-    = typeof title!=="undefined" ? title : ""
-    button.closer(type="button",name="ok")
-      i.fa.fa-times
+extends winskeleton
+block wincontent
   form(name="okform",action="/")
     p
       input(type="submit",name="ok",value="OK")

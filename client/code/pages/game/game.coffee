@@ -462,7 +462,12 @@ exports.start=(roomid)->
             b=makebutton "ヘルパー","ヘルパーになると、ゲームに参加せずに助言役になります。"
             # ヘルパーになる/やめるボタン
             $(b).click (je)->
-                Index.util.selectprompt "ヘルパー","誰のヘルパーになりますか?",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+                Index.util.selectprompt {
+                    title: "ヘルパー"
+                    message: "誰のヘルパーになりますか?"
+                    options: room.players.map((x)-> {name: x.name, value: x.userid})
+                    icon: 'user'
+                }, (id)->
                     ss.rpc "game.rooms.helper",roomid, id,(result)->
                         if result?
                             Index.util.message "エラー",result
@@ -478,7 +483,12 @@ exports.start=(roomid)->
                 b=makebutton "参加者を追い出す"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.selectprompt "追い出す","追い出す人を選択して下さい",room.players.map((x)->{name:x.name,value:x.userid}),(id)->
+                    Index.util.selectprompt {
+                        title: "追い出す"
+                        message: "追い出す人を選択して下さい"
+                        options: room.players.map((x)->{name:x.name,value:x.userid})
+                        icon: 'user-times'
+                    }, (id)->
                         if id
                             ss.rpc "game.rooms.kick", roomid,id,(result)->
                                 if result?
