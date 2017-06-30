@@ -31,7 +31,7 @@ exports.start=(user)->
         q=Index.util.formQuery je.target
         q.userid=$("p.userid").get(0).textContent
 
-        Index.util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+        Index.util.prompt "プロフィール","パスワードを入力してください",{type:"password"},(result)->
             if result
                 q.password=result
                 pf = ()=>
@@ -276,7 +276,7 @@ exports.start=(user)->
         $("#prizearea").submit (je)->
             je.preventDefault()
             que=util.formQuery je.target
-            util.prompt "プロフィール","パスワードを入力して下さい",{type:"password"},(result)->
+            util.prompt "プロフィール","パスワードを入力してください",{type:"password"},(result)->
                 if result
                     query=
                         password:result

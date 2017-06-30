@@ -55,7 +55,7 @@ exports.start=(roomid)->
         else if result.require?
             if result.require=="password"
                 #パスワード入力
-                Index.util.prompt "ルーム","パスワードを入力して下さい",{type:"password"},(pass)->
+                Index.util.prompt "ルーム","パスワードを入力してください",{type:"password"},(pass)->
                     unless pass?
                         Index.app.showUrl "/rooms"
                         return
@@ -421,13 +421,6 @@ exports.start=(roomid)->
 
             if room.blind
                 # 参加者名
-                ###
-                Index.util.prompt "ゲームに参加","名前を入力して下さい",null,(name)->
-                    if name
-                        opt.name=name
-                        into()
-                ###
-                # ここ書いてないよ!
                 Index.util.blindName null,(obj)->
                     if obj?
                         opt.name=obj.name
@@ -485,7 +478,7 @@ exports.start=(roomid)->
                 $(b).click (je)->
                     Index.util.selectprompt {
                         title: "追い出す"
-                        message: "追い出す人を選択して下さい"
+                        message: "追い出す人を選択してください"
                         options: room.players.map((x)->{name:x.name,value:x.userid})
                         icon: 'user-times'
                     }, (id)->
@@ -694,7 +687,7 @@ exports.start=(roomid)->
                 b=makebutton "この部屋を廃村にする"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.ask "部屋削除","本当に部屋を削除しますか?",(cb)->
+                    Index.util.ask "廃村","本当に部屋を廃村にしますか?",(cb)->
                         if cb
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?

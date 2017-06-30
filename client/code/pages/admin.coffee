@@ -64,7 +64,7 @@ tabs=
 
 
 exports.start=->
-    Index.util.prompt "管理ページ","管理パスワードを入力して下さい",{type:"password"},(pass)->
+    Index.util.prompt "管理ページ","管理パスワードを入力してください",{type:"password"},(pass)->
         ss.rpc "admin.register", {password:pass},(err)->
             if err?
                 Index.util.message "管理ページ",err

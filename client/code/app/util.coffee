@@ -189,7 +189,7 @@ exports.loginWindow=(cb=->app.refresh())->
                 localStorage.setItem "password", q.password
                 closeWindow win
                 # 初期情報を入力してもらう
-                util.blindName {title:"情報入力",message:"ユーザー名を設定して下さい"},(obj)->
+                util.blindName {title:"情報入力",message:"ユーザー名を設定してください"},(obj)->
                     # 登録する感じの
                     ss.rpc "user.changeProfile", {
                         password:q.password
@@ -221,11 +221,11 @@ exports.iconSelectWindow=(def,cb)->
                 cb def  # 変わっていない
                 break
             else if t.name=="urliconbutton"
-                util.prompt "アイコン","アイコンのURLを入力して下さい",null,(url)->
+                util.prompt "アイコン","アイコンのURLを入力してください",null,(url)->
                     okicon url ? ""
                 break
             else if t.name=="twittericonbutton"
-                util.prompt "アイコン","twitterIDを入力して下さい",null,(id)->
+                util.prompt "アイコン","twitterIDを入力してください",null,(id)->
                     if id
                         # It's 1.0!
                         # okicon "http://api.twitter.com/1/users/profile_image/#{id}"
@@ -245,7 +245,11 @@ exports.iconSelectWindow=(def,cb)->
         closeWindow win
         cb def  #結果通知
 exports.blindName=(opt={},cb)->
-    win = showWindow "util-blindname",{title:opt.title ? "ゲームに参加", message:opt.message ? "名前を入力して下さい"}
+    win = showWindow "util-blindname",{
+        title:opt.title ? "ゲームに参加"
+        message:opt.message ? "名前を入力してください"
+        icon: "user-secret"
+    }
     def=null
     win.click (je)->
         t=je.target

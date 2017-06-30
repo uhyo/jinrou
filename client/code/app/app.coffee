@@ -6,7 +6,7 @@ util=require '/util'
 ss.server.on 'disconnect', ->
     util.message "サーバー","接続が切断されました。"
 ss.server.on 'reconnect', ->
-    util.message "サーバー","接続が回復しました。ページの更新を行って下さい。"
+    util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
     
 # 全体告知
 ss.event.on 'grandalert', (msg)->
