@@ -476,14 +476,14 @@ exports.start=(roomid)->
                 b=makebutton "参加者を追い出す"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.selectprompt {
-                        title: "追い出す"
-                        message: "追い出す人を選択してください"
+                    Index.util.kickprompt {
                         options: room.players.map((x)->{name:x.name,value:x.userid})
-                        icon: 'user-times'
-                    }, (id)->
-                        if id
-                            ss.rpc "game.rooms.kick", roomid,id,(result)->
+                    }, (obj)->
+                        if obj
+                            id = obj.value
+                            ban = obj.ban
+                            console.log id, ban
+                            ss.rpc "game.rooms.kick", roomid,id,ban,(result)->
                                 if result?
                                     Index.util.message "エラー",result
                 b=makebutton "[ready]を初期化する"

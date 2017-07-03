@@ -139,7 +139,41 @@ exports.selectprompt=(options,cb)->
                 closeWindow t
                 break
             t = t.parentNode
-        
+exports.kickprompt=(options,cb)->
+    {
+        title,
+        message,
+        options: arr,
+        icon,
+    } = options
+
+    win = showWindow "util-kick",{
+        title: title ? "追い出す"
+        message: message ? "追い出す人を選択してください"
+        icon: icon ? 'user-times'
+    }
+    sel=win.find("select.prompt").get(0)
+    for obj in arr
+        opt=document.createElement "option"
+        opt.textContent=obj.name
+        opt.value=obj.value
+        sel.add opt
+    win.submit (je)-> je.preventDefault()
+    win.click (je)->
+        t=je.target
+        while t?
+            if t.name=="ok"
+                cb? {
+                    value: sel.value
+                    ban: win.find('input[name="noentry"]').get(0).checked
+                }
+                closeWindow t
+                break
+            else if t.name=="cancel"
+                cb? null
+                closeWindow t
+                break
+            t = t.parentNode
 
 
 exports.message=(title,message,cb)->

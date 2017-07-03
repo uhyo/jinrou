@@ -208,6 +208,10 @@ module.exports.actions=(req,res,ss)->
                 if req.session.userId in (room.players.map (x)->x.realid)
                     res error:"すでに参加しています"
                     return
+                console.log req.session.userId, room.ban
+                if Array.isArray(room.ban) && (req.session.userId in room.ban)
+                    res error:"この部屋への参加は禁止されています"
+                    return
                 if opt.name in (room.players.map (x)->x.name)
                     res error:"名前 #{opt.name} は既に存在します"
                     return
@@ -355,7 +359,7 @@ module.exports.actions=(req,res,ss)->
                             ss.publish.channel "room#{roomid}", "ready", {userid:x.userid,start:!x.start}
 
     # 部屋から追い出す
-    kick:(roomid,id)->
+    kick:(roomid,id,ban)->
         unless req.session.userId
             res "ログインして下さい"
             return
@@ -377,7 +381,15 @@ module.exports.actions=(req,res,ss)->
             if pl.mode=="gm"
                 res "GMはkickできません"
                 return
-            M.rooms.update {id:roomid},{$pull: {players:{userid:id}}},(err)=>
+            update =
+                $pull:
+                    players:
+                        userid: id
+            if ban
+                # add to banned list
+                update.$addToSet =
+                    ban: id
+            M.rooms.update {id:roomid}, update, (err)=>
                 if err?
                     res "エラー:#{err}"
                 else
