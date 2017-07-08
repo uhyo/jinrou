@@ -466,24 +466,29 @@ exports.start=(roomid)->
                             Index.util.message "エラー",result
             $("#playersinfo").append b
 
+
         userid=Index.app.userid()
         if room.mode=="waiting"
             if room.owner.userid==Index.app.userid()
-                # 自分
+                # オーナー用ボタン
                 b=makebutton "ゲーム開始画面を開く"
                 $("#playersinfo").append b
                 $(b).click newgamebutton
                 b=makebutton "参加者を追い出す"
                 $("#playersinfo").append b
                 $(b).click (je)->
-                    Index.util.selectprompt {
-                        title: "追い出す"
-                        message: "追い出す人を選択してください"
+                    Index.util.kickprompt {
                         options: room.players.map((x)->{name:x.name,value:x.userid})
-                        icon: 'user-times'
-                    }, (id)->
-                        if id
-                            ss.rpc "game.rooms.kick", roomid,id,(result)->
+                    }, (obj)->
+                        if obj?.list
+                            # list 管理
+                            kicklistmanage roomid
+
+                        else if obj?
+                            id = obj.value
+                            ban = obj.ban
+                            console.log id, ban
+                            ss.rpc "game.rooms.kick", roomid,id,ban,(result)->
                                 if result?
                                     Index.util.message "エラー",result
                 b=makebutton "[ready]を初期化する"
@@ -1626,3 +1631,47 @@ speakValueToStr=(game,value)->
                 "→#{pl.name}"
             else if result=value.match /^helperwhisper_(.+)$/
                 "助言"
+
+
+# オーナーが追い出し管理をクリックしたときの処理
+kicklistmanage = (roomid)->
+    ss.rpc "game.rooms.getbanlist", roomid, (result)->
+        if !result? || result.error
+            Index.util.message "エラー", result.error
+            return
+        ban = result.result
+        win = Index.util.blankWindow {
+            title: "追い出し管理"
+            icon: "user-times"
+        }, ()->
+            inputs = win.find("input[type=\"checkbox\"]")
+
+            query = []
+
+            for input in inputs
+                if input.checked
+                    query.push input.name.slice(4)
+
+            if query.length > 0
+                ss.rpc "game.rooms.cancelban", roomid, query, (result)->
+                    if result?
+                        Index.util.message "エラー", result
+                    else
+                        Index.util.message "追い出し管理", "#{query.length}人の参加禁止を解除しました"
+
+
+        win.append "<p>参加禁止を解除したい人にチェックを入れて「OK」を押してください。</p>"
+        # kick一覧
+        for id in ban
+            p = document.createElement "p"
+            l = document.createElement "label"
+            input = document.createElement "input"
+            input.type = "checkbox"
+            input.name = "ban-#{id}"
+            l.appendChild input
+
+            txt = document.createTextNode id
+            l.appendChild txt
+            p.appendChild l
+
+            win.append p

@@ -1,0 +1,14 @@
+extends selectprompt
+block formcontent 
+  p= message
+  p
+    select.prompt.getfocus
+  p
+    label
+      input(type="checkbox",name="noentry")
+      i.fa.fa-ban
+      | 再入室を禁止
+block footercontent
+  p.window-aside
+    button.link-like(type="submit",name="list")
+      追い出しの管理…

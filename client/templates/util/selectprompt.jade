@@ -5,12 +5,14 @@ block closebutton
 block wincontent
   form(name="askform",action="/")
     div.window-content
-      p= message
-      p
-        select.prompt.getfocus
+      block formcontent
+        p= message
+        p
+          select.prompt.getfocus
     p
       input(type="submit",name="ok",value="OK")
       input(type="button",name="cancel",value="キャンセル")
+    block footercontent
 
 
 

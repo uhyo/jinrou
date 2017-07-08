@@ -34,8 +34,8 @@ makeIconHTML = (icon)->
 
 
 #編集域を返す
-exports.blankWindow=(title)->
-    win=showWindow "util-blank", {title: title}
+exports.blankWindow=(options, onclose)->
+    win=showWindow "util-blank", options
     div=document.createElement "div"
     div.classList.add "window-content"
     $("form[name='okform']",win).before div
@@ -45,6 +45,7 @@ exports.blankWindow=(title)->
         while t?
             if t.name=="ok"
                 closeWindow t
+                onclose?()
                 break
             t = t.parentNode
     $(div)
@@ -139,8 +140,47 @@ exports.selectprompt=(options,cb)->
                 closeWindow t
                 break
             t = t.parentNode
-        
+exports.kickprompt=(options,cb)->
+    {
+        title,
+        message,
+        options: arr,
+        icon,
+    } = options
 
+    win = showWindow "util-kick",{
+        title: title ? "追い出す"
+        message: message ? "追い出す人を選択してください"
+        icon: icon ? 'user-times'
+    }
+    sel=win.find("select.prompt").get(0)
+    for obj in arr
+        opt=document.createElement "option"
+        opt.textContent=obj.name
+        opt.value=obj.value
+        sel.add opt
+    win.submit (je)-> je.preventDefault()
+    win.click (je)->
+        t=je.target
+        while t?
+            if t.name=="ok"
+                cb? {
+                    value: sel.value
+                    ban: win.find('input[name="noentry"]').get(0).checked
+                }
+                closeWindow t
+                break
+            else if t.name=="cancel"
+                cb? null
+                closeWindow t
+                break
+            else if t.name=="list"
+                cb? {
+                    list: true
+                }
+                closeWindow t
+                break
+            t = t.parentNode
 
 exports.message=(title,message,cb)->
     win = showWindow "util-wmessage",{title:title,message:message}
