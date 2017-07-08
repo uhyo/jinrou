@@ -34,8 +34,8 @@ makeIconHTML = (icon)->
 
 
 #編集域を返す
-exports.blankWindow=(title)->
-    win=showWindow "util-blank", {title: title}
+exports.blankWindow=(options, onclose)->
+    win=showWindow "util-blank", options
     div=document.createElement "div"
     div.classList.add "window-content"
     $("form[name='okform']",win).before div
@@ -45,6 +45,7 @@ exports.blankWindow=(title)->
         while t?
             if t.name=="ok"
                 closeWindow t
+                onclose?()
                 break
             t = t.parentNode
     $(div)
@@ -173,8 +174,13 @@ exports.kickprompt=(options,cb)->
                 cb? null
                 closeWindow t
                 break
+            else if t.name=="list"
+                cb? {
+                    list: true
+                }
+                closeWindow t
+                break
             t = t.parentNode
-
 
 exports.message=(title,message,cb)->
     win = showWindow "util-wmessage",{title:title,message:message}

@@ -208,7 +208,6 @@ module.exports.actions=(req,res,ss)->
                 if req.session.userId in (room.players.map (x)->x.realid)
                     res error:"すでに参加しています"
                     return
-                console.log req.session.userId, room.ban
                 if Array.isArray(room.ban) && (req.session.userId in room.ban)
                     res error:"この部屋への参加は禁止されています"
                     return
@@ -444,6 +443,46 @@ module.exports.actions=(req,res,ss)->
                     res null
                     # readyを初期化する系
                     ss.publish.channel "room#{roomid}", "unreadyall",id
+    # 追い出しリストを取得
+    getbanlist:(roomid)->
+        unless req.session.userId
+            res {error: "ログインしてください"}
+            return
+        Server.game.rooms.oneRoomS roomid,(room)=>
+            if !room || room.error?
+                res {error: "その部屋はありません"}
+                return
+            if room.owner.userid != req.session.userId
+                res {error:"オーナーしかできません"}
+                return
+            res {result: room.ban}
+    # 追い出しリストを編集
+    cancelban:(roomid, ids)->
+        unless req.session.userId
+            res "ログインしてください"
+            return
+        unless Array.isArray ids
+            res "不正な入力です"
+            return
+        Server.game.rooms.oneRoomS roomid, (room)->
+            if !room || room.error?
+                res "その部屋はありません"
+                return
+            if room.owner.userid != req.session.userId
+                res "オーナーしかできません"
+                return
+            M.rooms.update {
+                id: roomid
+            }, {
+                $pullAll: {
+                    ban: ids
+                }
+            }, (err)->
+                if err?
+                    res "エラー:#{err}"
+                else
+                    res null
+
     
     
     # 成功ならjoined 失敗ならエラーメッセージ

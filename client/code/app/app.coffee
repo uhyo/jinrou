@@ -208,7 +208,9 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                 page "user-view",null,Index.user.view,result[1]
             else if result=url.match /^\/manual\/job\/(\w+)$/
                 # ジョブ情報
-                win=util.blankWindow "役職説明"
+                win=util.blankWindow {
+                    title: "役職説明"
+                }
                 $(JT["jobs-#{result[1]}"]()).appendTo win
                 return
             else if result=url.match /^\/manual\/casting\/(.*)$/
