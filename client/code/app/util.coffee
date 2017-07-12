@@ -11,6 +11,7 @@ exports.showWindow=showWindow=(templatename,tmpl)->
     # iconはspecialにhandleする
     unless tmpl?
         tmpl = {}
+    tmpl.title ?= ""
     tmpl.icon = makeIconHTML tmpl.icon
 
     win=$(JT["#{templatename}"](tmpl)).hide().css({left:"#{x}px",top:"#{y}px",}).appendTo("body").fadeIn().draggable()
