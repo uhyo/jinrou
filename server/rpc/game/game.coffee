@@ -8332,7 +8332,11 @@ module.exports.actions=(req,res,ss)->
                     # 人狼陣営
                     if frees>0
                         # 望ましい人狼陣営の人数は30〜40%くらい
-                        wolfteam_n = Math.round (playersnumber*(0.3 + Math.random()*0.12))
+                        wolfteam_n = Math.round (playersnumber*(0.3 + Math.random()*0.1))
+                        # ただし半数を超えない
+                        plsh = Math.ceil(players_number/2)
+                        if wolfteam_n >= plsh
+                            wolfteam_n = plsh-1
                         wolf_number = countCategory "Werewolf"
                         # 残りは狂人系
                         if wolf_number <= wolfteam_n
@@ -8343,7 +8347,7 @@ module.exports.actions=(req,res,ss)->
                     # 村人陣営
                     if frees>0
                         # 50%〜60%くらい
-                        humanteam_n = Math.round (playersnumber*(0.5 + Math.random()*0.1))
+                        humanteam_n = Math.round (playersnumber*(0.48 + Math.random()*0.12))
                         joblist.category_Human = Math.min(frees, humanteam_n)
                         frees -= joblist.category_Human
 
@@ -8403,8 +8407,15 @@ module.exports.actions=(req,res,ss)->
                 # 占い確定
                 if safety.teams || safety.jobs
                     # 村人陣営
-                    if frees>0
-                        # 占い師いてほしい
+                    # 占い師いてほしい
+                    if joblist.category_Human > 0
+                        if Math.random()<0.75 && !nonavs.Diviner
+                            joblist.Diviner++
+                            joblist.category_Human--
+                        else if !safety.jobs && Math.random()<0.2 && !nonavs.ApprenticeSeer
+                            joblist.ApprenticeSeer++
+                            joblist.category_Human--
+                    else if frees>0
                         if Math.random()<0.75 && !nonavs.Diviner
                             joblist.Diviner++
                             frees--
@@ -8413,7 +8424,18 @@ module.exports.actions=(req,res,ss)->
                             frees--
                 if safety.teams
                     # できれば狩人も
-                    if frees>0
+                    if joblist.category_Human > 0
+                        if joblist.Diviner>0
+                            if Math.random()<0.4 && !nonavs.Guard
+                                joblist.Guard++
+                                joblist.category_Human--
+                            else if Math.random()<0.17 && !nonavs.WanderingGuard
+                                joblist.WanderingGuard++
+                                joblist.category_Human--
+                        else if Math.random()<0.4 && !nonavs.Guard
+                            joblist.Guard++
+                            joblist.category_Human--
+                    else if frees>0
                         if joblist.Diviner>0
                             if Math.random()<0.4 && !nonavs.Guard
                                 joblist.Guard++
