@@ -4,6 +4,17 @@ module.exports =
   # HTTP server
   http:
     port: 8800
+    secure: null
+    # if not null, serve HTTPS.
+    # Note: you may not need to config HTTPS server
+    # if it is behind a reverse proxy.
+    # (instead, config your proxy server to serve HTTPS.)
+    ###
+    #secure:
+    #  key: ...
+    #  cert: ...
+    #  (options passed to https.createServer())
+    ###
   ws:
     ###
     connect:

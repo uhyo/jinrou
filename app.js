@@ -1,4 +1,6 @@
-var http=require('http'), ss=require('socketstream');
+var http = require('http');
+var https = require('https');
+var ss = require('socketstream');
 
 ss.client.define('main',{
 	view:'app.jade',
@@ -30,7 +32,7 @@ try{
 	console.error("Failed to load config file.");
 	console.error("Copy config.default/app.coffee to config/app.coffee, edit app.coffee, and retry.");
 	console.error(e.trace || e);
-	process.exit(0);
+	process.exit(1);
 }
 
 //---- Middleware
@@ -42,11 +44,15 @@ ss.http.middleware.prepend(middleware.images);
 //リッスン先設定
 ss.ws.transport.use("engineio",{
 	client:Config.ws.connect,
-
 });
 
-//----
-var server=http.Server(ss.http.middleware);
+//---- init HTTP server
+var server;
+if (Config.http.secure != null){
+    server = https.createServer(Config.http.secure, ss.http.middleware);
+}else{
+    server = http.createServer(ss.http.middleware);
+}
 
 db=require('./server/db.coffee');
 db.dbinit(function () {
