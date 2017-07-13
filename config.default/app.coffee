@@ -48,7 +48,22 @@ module.exports =
     home: "http://uhyohyo.net/"
   application:
     # アプリケーション情報
+    # Note: content of this object will be exposed to clients.
+    # url: for backward compatibility.
     url: "http://jinrou.uhyohyo.net/"
+    # provided mode of application.
+    modes: [
+      {
+        url: "http://jinrou.uhyohyo.net/"
+        name: "HTTP版"
+      }
+      {
+        url: "https://jinrou.uhyohyo.net/"
+        name: "HTTPS版"
+      }
+    ]
+    defaultMode: 0
+    
   twitter:
     # twitter提携用
     oauth:
