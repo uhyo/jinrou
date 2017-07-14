@@ -9,13 +9,12 @@ html
     != SocketStream
   body
     header
-      h1 月下人狼
+      h1
+        a(href="/") 月下人狼
       #userinfo
         span#username
       nav
         ul
-          li
-            a(href="/") トップ
           li
             a(href="/my") マイページ
           li
@@ -24,7 +23,7 @@ html
             a(href="/logout") ログアウト
           li
             a(href="/rooms") ルーム一覧
-          li
+          //li
             a(href="/logs") ログ検索
           li
             a(href="/manual") マニュアル
@@ -32,6 +31,8 @@ html
             a(href="/backdoor/home") ホームに戻る
           li
             a(href="/manual/about") 月下人狼について
+      #toolbar
+
     script(type="text/javascript")
       if((("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)||(!document.body.dataset))&&(navigator.userAgent.indexOf("Googlebot")<0)){
         //要件を満たさない

@@ -76,13 +76,20 @@ body > header
   vertical-gradient #565656,#131313
   border-bottom 1px solid #aaaaaa
   color #ffffff
+  display flex
+  flex-flow row wrap
+  align-items center
   h1
     // 月下人狼
+    flex auto 0 0
     display inline-block
     margin 0
     font-family 'Takao明朝',serif
     font-size 2em
     text-shadow  1px 1px 1px rgba(200,200,200,0.4)
+    a
+      text-decoration none
+      color inherit
   #userinfo,nav
     display inline-block
     vertical-align 40%
@@ -90,6 +97,7 @@ body > header
     padding 0 5px
   nav ul li
     display inline-block
+    white-space nowrap
     margin-right 1em
     a
       color #ffffff !important
@@ -97,6 +105,16 @@ body > header
     a:hover
       background-color rgba(0,0,0,.4)
       box-shadow 0 0 5px 5px rgba(0,0,0,.4)
+  #toolbar
+    margin-left auto
+    text-align right
+    span.tool-button
+      display inline-block
+      margin 0 0.7em
+      a
+        color #ffffff !important
+    span.tool-button.tool-disabled
+      color #999999
 //おしらせ
 body > .notice
   margin-left -20px

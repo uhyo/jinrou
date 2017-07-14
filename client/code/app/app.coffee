@@ -356,3 +356,27 @@ exports.getApplicationConfig = ()-> application_config
 loadApplicationConfig = ()->
     ss.rpc "app.applicationconfig", (conf)->
         application_config = conf
+        # HTTP/HTTPS切り替えのための
+        # ツールバーを設定
+        modes = application_config.modes
+        if modes?
+            for m in modes
+                if location.href.indexOf(m.url) != 0
+                    span = document.createElement "span"
+                    span.classList.add "tool-button"
+                    if m.icon
+                        icon = document.createElement "i"
+                        icon.classList.add "fa"
+                        icon.classList.add "fa-#{m.icon}"
+                        span.appendChild icon
+                    a = document.createElement "a"
+                    a.href = m.url
+                    a.classList.add "mode-change-link"
+                    a.appendChild(document.createTextNode "#{m.name}へ移動")
+                    span.appendChild a
+                    $("#toolbar").append span
+                ###
+                else
+                    span.classList.add "tool-disabled"
+                    span.appendChild(document.createTextNode "現在#{m.name}です")
+                ###
