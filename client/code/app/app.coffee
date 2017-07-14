@@ -14,23 +14,44 @@ ss.event.on 'grandalert', (msg)->
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
+# cached values
 my_userid=null
+application_config=null
 
 exports.init = ->
     # 固定リンク
     $("a").live "click", (je)->
         t=je.currentTarget
         return if je.isDefaultPrevented()
+        href = t.href
+        unless t.classList.contains "mode-change-link"
+            if application_config?.modes?
+                curidx = -1
+                hrefidx = -1
+                modes = application_config.modes
+                for mode, i in modes
+                    if location.href.indexOf(mode.url) == 0
+                        curidx = i
+                    if href.indexOf(mode.url) == 0
+                        hrefidx = i
+                if hrefidx >= 0 && hrefidx != curidx
+                    # hrefを書き換え
+                    href = modes[curidx].url + href.slice(modes[hrefidx].url.length)
+        if href != t.href
+            t.href = href
+
         return if t.target=="_blank"
         je.preventDefault()
 
-        app.showUrl t.href
+
+        app.showUrl href
         return
     # ヘルプアイコン
     $("i[data-helpicon]").live "click", (je)->
         t = je.currentTarget
         util.message "ヘルプ", t.title
 
+    # 自動ログイン
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
             p = location.href
@@ -47,10 +68,14 @@ exports.init = ->
         showUrl location.href
     # ユーザーCSS指定
     cp=useColorProfile getCurrentColorProfile()
+
+    # 履歴の移動
     window.addEventListener "popstate",((e)->
         # location.pathname
         showUrl location.pathname, util.searchHash(location.search), true
     ),false
+    # application configを取得
+    loadApplicationConfig()
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
@@ -100,6 +125,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             query = util.searchHash u.search
         else
             location.href = url
+            return
     catch e
         # fallback
         if result=url.match /(https?:\/\/.+?)(\/.+)$/
@@ -120,6 +146,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                         url = body
             else
                 location.href=url
+                return
     
     switch url
         when "/my"
@@ -324,3 +351,32 @@ body.heaven, #logs .heaven, #logs .prepare {
 }""",3
     return
 
+exports.getApplicationConfig = ()-> application_config
+
+loadApplicationConfig = ()->
+    ss.rpc "app.applicationconfig", (conf)->
+        application_config = conf
+        # HTTP/HTTPS切り替えのための
+        # ツールバーを設定
+        modes = application_config.modes
+        if modes?
+            for m in modes
+                if location.href.indexOf(m.url) != 0
+                    span = document.createElement "span"
+                    span.classList.add "tool-button"
+                    if m.icon
+                        icon = document.createElement "i"
+                        icon.classList.add "fa"
+                        icon.classList.add "fa-#{m.icon}"
+                        span.appendChild icon
+                    a = document.createElement "a"
+                    a.href = m.url
+                    a.classList.add "mode-change-link"
+                    a.appendChild(document.createTextNode "#{m.name}へ移動")
+                    span.appendChild a
+                    $("#toolbar").append span
+                ###
+                else
+                    span.classList.add "tool-disabled"
+                    span.appendChild(document.createTextNode "現在#{m.name}です")
+                ###

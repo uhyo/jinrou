@@ -4,6 +4,17 @@ module.exports =
   # HTTP server
   http:
     port: 8800
+    secure: null
+    # if not null, serve HTTPS.
+    # Note: you may not need to config HTTPS server
+    # if it is behind a reverse proxy.
+    # (instead, config your proxy server to serve HTTPS.)
+    ###
+    #secure:
+    #  key: ...
+    #  cert: ...
+    #  (options passed to https.createServer())
+    ###
   ws:
     ###
     connect:
@@ -37,7 +48,26 @@ module.exports =
     home: "http://uhyohyo.net/"
   application:
     # アプリケーション情報
+    # Note: content of this object will be exposed to clients.
+    # application url
     url: "http://jinrou.uhyohyo.net/"
+    # provided mode of application.
+    modes: [
+      {
+        # URL of this mode.
+        url: "http://jinrou.uhyohyo.net/"
+        # name of this mode.
+        name: "HTTP版"
+        # (optional) icon of this mode.
+        icon: "unlock-alt"
+      }
+      {
+        url: "https://jinrou.uhyohyo.net/"
+        name: "HTTPS版"
+        icon: "lock"
+      }
+    ]
+    
   twitter:
     # twitter提携用
     oauth:
