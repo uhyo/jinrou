@@ -8186,7 +8186,10 @@ module.exports.actions=(req,res,ss)->
 
 
                 # 闇鍋のときは入れないのがある
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
+                exceptions=[]
+                # 闇鍋で出してはいけない役職
+                special_exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
+                exceptions.push special_exceptions...
                 # ユーザーが指定した入れないの
                 excluded_exceptions=[]
                 # カテゴリをまとめてexceptionに追加する関数
@@ -8204,9 +8207,15 @@ module.exports.actions=(req,res,ss)->
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || !safety.jobs
                     exceptions.push "BloodyMary"
+                    special_exceptions.push "BloodyMary"
+                # スパイ2（人気がないので出ない）
+                if safety.jingais || safety.jobs
+                    exceptions.push "Spy2"
+                    special_exceptions.push "Spy2"
                 # 悪霊憑き（人気がないので出ない）
                 if safety.jingais || safety.jobs
                     exceptions.push "SpiritPossessed"
+                    special_exceptions.push "SpiritPossessed"
                 unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
                     #人外の数
                     if safety.jingais
@@ -8583,7 +8592,7 @@ module.exports.actions=(req,res,ss)->
                         for type,arr of Shared.game.categories
                             if joblist["category_#{type}"]>0
                                 # カテゴリの中から候補をしぼる
-                                arr2 = arr.filter (x)->!(x in excluded_exceptions)
+                                arr2 = arr.filter (x)->!(x in excluded_exceptions) && !(x in special_exceptions)
                                 if arr2.length > 0
                                     r=Math.floor Math.random()*arr2.length
                                     job=arr2[r]
