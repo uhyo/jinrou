@@ -8334,7 +8334,7 @@ module.exports.actions=(req,res,ss)->
                         # 望ましい人狼陣営の人数は30〜40%くらい
                         wolfteam_n = Math.round (playersnumber*(0.3 + Math.random()*0.1))
                         # ただし半数を超えない
-                        plsh = Math.ceil(players_number/2)
+                        plsh = Math.ceil(playersnumber/2)
                         if wolfteam_n >= plsh
                             wolfteam_n = plsh-1
                         wolf_number = countCategory "Werewolf"
