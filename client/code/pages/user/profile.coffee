@@ -321,6 +321,30 @@ exports.start=(user)->
             # みたのでお知らせを除去
             $("#newNewsNotice").remove()
 
+    # HTTP/HTTPS切り替えのための
+    # ツールバーを設定
+    application_config = Index.app.getApplicationConfig()
+    if application_config?
+        modes = application_config.modes
+        for m in modes
+            span = document.createElement "span"
+            span.classList.add "tool-button"
+            if m.icon
+                icon = document.createElement "i"
+                icon.classList.add "fa"
+                icon.classList.add "fa-#{m.icon}"
+                span.appendChild icon
+            if location.href.indexOf(m.url) == 0
+                # 今はこれなのであれしない
+                span.classList.add "tool-disabled"
+                span.appendChild(document.createTextNode "現在#{m.name}です")
+            else
+                a = document.createElement "a"
+                a.href = m.url
+                a.appendChild(document.createTextNode "#{m.name}へ移動")
+                span.appendChild a
+            $("#toolbar").append span
+
 exports.end=->
 
 #Object2つをマージ（obj1ベース）

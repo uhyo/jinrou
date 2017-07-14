@@ -14,7 +14,9 @@ ss.event.on 'grandalert', (msg)->
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
+# cached values
 my_userid=null
+application_config=null
 
 exports.init = ->
     # 固定リンク
@@ -31,6 +33,7 @@ exports.init = ->
         t = je.currentTarget
         util.message "ヘルプ", t.title
 
+    # 自動ログイン
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
             p = location.href
@@ -47,10 +50,14 @@ exports.init = ->
         showUrl location.href
     # ユーザーCSS指定
     cp=useColorProfile getCurrentColorProfile()
+
+    # 履歴の移動
     window.addEventListener "popstate",((e)->
         # location.pathname
         showUrl location.pathname, util.searchHash(location.search), true
     ),false
+    # application configを取得
+    loadApplicationConfig()
   
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
@@ -324,3 +331,8 @@ body.heaven, #logs .heaven, #logs .prepare {
 }""",3
     return
 
+exports.getApplicationConfig = ()-> application_config
+
+loadApplicationConfig = ()->
+    ss.rpc "app.applicationconfig", (conf)->
+        application_config = conf

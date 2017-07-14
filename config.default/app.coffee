@@ -49,20 +49,24 @@ module.exports =
   application:
     # アプリケーション情報
     # Note: content of this object will be exposed to clients.
-    # url: for backward compatibility.
+    # application url
     url: "http://jinrou.uhyohyo.net/"
     # provided mode of application.
     modes: [
       {
+        # URL of this mode.
         url: "http://jinrou.uhyohyo.net/"
+        # name of this mode.
         name: "HTTP版"
+        # (optional) icon of this mode.
+        icon: "unlock-alt"
       }
       {
         url: "https://jinrou.uhyohyo.net/"
         name: "HTTPS版"
+        icon: "lock"
       }
     ]
-    defaultMode: 0
     
   twitter:
     # twitter提携用
