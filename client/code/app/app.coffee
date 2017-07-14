@@ -23,10 +23,28 @@ exports.init = ->
     $("a").live "click", (je)->
         t=je.currentTarget
         return if je.isDefaultPrevented()
+        href = t.href
+        unless t.classList.contains "mode-change-link"
+            if application_config?.modes?
+                curidx = -1
+                hrefidx = -1
+                modes = application_config.modes
+                for mode, i in modes
+                    if location.href.indexOf(mode.url) == 0
+                        curidx = i
+                    if href.indexOf(mode.url) == 0
+                        hrefidx = i
+                if hrefidx >= 0 && hrefidx != curidx
+                    # hrefを書き換え
+                    href = modes[curidx].url + href.slice(modes[hrefidx].url.length)
+        if href != t.href
+            t.href = href
+
         return if t.target=="_blank"
         je.preventDefault()
 
-        app.showUrl t.href
+
+        app.showUrl href
         return
     # ヘルプアイコン
     $("i[data-helpicon]").live "click", (je)->
@@ -107,6 +125,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             query = util.searchHash u.search
         else
             location.href = url
+            return
     catch e
         # fallback
         if result=url.match /(https?:\/\/.+?)(\/.+)$/
@@ -127,6 +146,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                         url = body
             else
                 location.href=url
+                return
     
     switch url
         when "/my"
