@@ -3228,6 +3228,7 @@ class MadWolf extends Werewolf
     type:"MadWolf"
     jobname:"狂人狼"
     team:"Human"
+    isAttacker:->false
     sleeping:->true
 class Neet extends Player
     type:"Neet"
