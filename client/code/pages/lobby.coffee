@@ -48,6 +48,8 @@ exports.start=->
     
 
     ss.rpc "lobby.enter", (obj)->
+        if obj.error?
+            return
         users=$("#users")
         users.empty()
         console.log 'PL', obj.players
@@ -57,8 +59,8 @@ exports.start=->
     $("#lobbyform").submit (je)->
         je.preventDefault()
         ss.rpc "lobby.say", je.target.elements["comment"].value,(result)->
-            if result?
-                ss.rpc "util.message", "エラー",result
+            if result?.error?
+                Index.util.message "エラー", result.error
         je.target.reset()
     socids=[
         Index.socket.on "log",null,getlog

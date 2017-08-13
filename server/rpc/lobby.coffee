@@ -55,14 +55,18 @@ exports.actions =(req,res,ss)->
         M.lobby.find({}, {name:1, comment:1, time:1}).sort({time:-1}).limit(100).toArray (err,docs)->
             if err?
                 console.log err
-                throw err
+                res {error: err}
+                return
             res {logs:docs,players:players}
     say:(comment)->
         unless req.session.userId?
+            res {error: "ログインしていません"}
             return
         unless comment
+            res {error: "コメントを入力してください"}
             return
         unless libblacklist.checkPermission "lobby_say", req.session.ban
+            res {error: "アクセス制限により、発言できません。"}
             return
         log=
             userid:req.session.userId
@@ -71,6 +75,7 @@ exports.actions =(req,res,ss)->
             time:Date.now()
         M.lobby.insert log
         ss.publish.channel "lobby","log",log
+        res null
 
         Server.log.speakInLobby req.session.user, log
     bye:->
