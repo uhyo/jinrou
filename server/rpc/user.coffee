@@ -40,6 +40,7 @@ login= (query,req,cb,ss)->
                         cb {
                             login:true
                             lastNews:doc?.time
+                            banid: ban?.id
                         }
                     # IPアドレスを記録してあげる
                     M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
@@ -47,9 +48,19 @@ login= (query,req,cb,ss)->
                 # log
                 Server.log.login req.session.user
         else
-            cb {
-                login:false
-            }
+            # ログイン失敗してるじゃん
+            libblacklist.handleHello null, ip, (ban)->
+                if ban?.error?
+                    cb {
+                        error: ban.error
+                    }
+                    return
+                req.session.ban = ban
+                req.session.save ()->
+                    cb {
+                        login:false
+                        banid: ban?.id
+                    }
 
 exports.actions =(req,res,ss)->
     req.use 'user.fire.wall'
@@ -65,6 +76,9 @@ exports.actions =(req,res,ss)->
                 }
                 return
             req.session.ban = ban
+            res {
+                banid: ban?.id
+            }
             req.session.save ()->
 # ログイン
 # cb: 失敗なら真
