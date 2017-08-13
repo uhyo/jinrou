@@ -12,15 +12,7 @@ mailer=require '../mailer.coffee'
 crypto=require 'crypto'
 url=require 'url'
 
-###
-# blacklist:
-#   id: "id of ban"
-#   userid: "userid"
-#   ip: ["ip", ...]
-#   expires: Date
-#   types: [...]
-#   reason: "reason"
-###
+libblacklist = require '../libs/blacklist.coffee'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
@@ -34,18 +26,26 @@ login= (query,req,cb,ss)->
             req.session.user=response
             #req.session.room=null  # 今入っている部屋
             req.session.channel.reset()
-            req.session.save (err)->
-                # お知らせ情報をとってきてあげる
-                M.news.find().sort({time:-1}).nextObject (err,doc)->
+            # BAN情報を取ってくる
+            libblacklist.handleLogin response.userid, response.ip, (ban)->
+                if ban?.error?
                     cb {
-                        login:true
-                        lastNews:doc?.time
+                        error: ban.error
                     }
-                # IPアドレスを記録してあげる
-                M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
+                    return
+                req.session.ban = ban
+                req.session.save (err)->
+                    # お知らせ情報をとってきてあげる
+                    M.news.find().sort({time:-1}).nextObject (err,doc)->
+                        cb {
+                            login:true
+                            lastNews:doc?.time
+                        }
+                    # IPアドレスを記録してあげる
+                    M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
 
-            # log
-            Server.log.login req.session.user
+                # log
+                Server.log.login req.session.user
         else
             cb {
                 login:false
@@ -55,6 +55,17 @@ exports.actions =(req,res,ss)->
     req.use 'user.fire.wall'
     req.use 'session'
 
+    # 非ログインユーザー
+    hello: (data)->
+        ip = req.clientIp
+        libblacklist.handleHello data, ip, (ban)->
+            if ban?.error?
+                cb {
+                    error: ban.error
+                }
+                return
+            req.session.ban = ban
+            req.session.save ()->
 # ログイン
 # cb: 失敗なら真
     login: (query)->

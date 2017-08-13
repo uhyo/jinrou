@@ -58,7 +58,7 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.blacklist=col
-          col.ensureIndex "id",(err,idxname)->
+          col.ensureIndex "id", {unique: true}, (err,idxname)->
             col.ensureIndex "userid",(err,idxname)->
               col.ensureIndex "ip",(err,idxname)->
                 col.ensureIndex "expires",(err,idxname)->

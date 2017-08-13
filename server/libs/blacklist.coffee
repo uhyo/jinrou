@@ -56,3 +56,79 @@ exports.addBlacklist = (query, cb)->
             else
                 cb null
 
+# ユーザーのログインをハンドル
+exports.handleLogin = (userid, ip, cb)->
+    # このユーザーはアク禁されているか?
+    M.blacklist.findOne {
+        $or: [
+            {userid: userid},
+            {ip: ip}
+        ]
+    }, (err, doc)->
+        if err?
+            cb {
+                error: err
+            }
+            return
+        unless doc?
+            # アク禁ではない
+            cb null
+            return
+        if doc.expires? && doc.expires.getTime() < Date.now()
+            # 期限が過ぎている
+            cb null
+            return
+        cb doc
+        # IPアドレスで判定
+        updateq = addIpQuery ip, doc
+        if updateq?
+            M.blacklist.update {
+                userid: doc.userid
+            }, updateq
+
+# docにIPアドレスを追加するクエリ
+addIpQuery = (ip, doc)->
+    if Array.isArray doc.ip
+        if ip in doc.ip
+            null
+        else
+            {
+                $push: {
+                    ip: ip
+                }
+            }
+    else
+        if ip == doc.ip
+            null
+        else
+            {
+                $set: {
+                    ip: [doc.ip, ip]
+                }
+            }
+
+# 非ログインユーザーが登場
+exports.handleHello = (data, ip, cb)->
+    query = {
+        ip: ip
+    }
+    M.blacklist.findOne query, (err, doc)->
+        if err?
+            cb {
+                error: err
+            }
+            return
+        unless doc?
+            cb null
+            return
+        if doc.expires? && doc.expires.getTime() < Date.now()
+            # 期限が過ぎている
+            cb null
+            return
+        # アク禁されていた
+        cb doc
+        updateq = addIpQuery ip, doc
+        if updateq?
+            M.blacklist.update {
+                userid: doc.userid
+            }, updateq

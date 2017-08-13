@@ -65,6 +65,7 @@ exports.init = ->
                 localStorage.removeItem "password"
             showUrl p
     else
+        ss.rpc "user.hello", {}
         showUrl location.href
     # ユーザーCSS指定
     cp=useColorProfile getCurrentColorProfile()
