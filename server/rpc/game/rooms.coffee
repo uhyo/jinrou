@@ -1,3 +1,4 @@
+libblacklist = require '../../libs/blacklist.coffee'
 ###
 room: {
   id: Number
@@ -146,6 +147,9 @@ module.exports.actions=(req,res,ss)->
         if query.comment && query.comment.length > Config.maxlength.room.comment
             res {error: "コメントが長すぎます"}
             return
+        if libblacklist.checkPermission "play", req.session.ban
+            res {error: "アクセス制限により、部屋を作成できません。"}
+            return
 
         M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
             id=if doc? then doc.id+1 else 1
@@ -195,97 +199,97 @@ module.exports.actions=(req,res,ss)->
         unless req.session.userId
             res {error:"ログインして下さい",require:"login"}    # ログインが必要
             return
-        M.blacklist.findOne {$or:[{userid:req.session.userId},{ip:req.session.user.ip}]},(err,doc)=>
-            if doc?
-                if !doc.expires || doc.expires.getTime()>=Date.now()
-                    res error:"参加は禁止されています"
-                    return
-            
-            Server.game.rooms.oneRoomS roomid,(room)=>
-                if !room || room.error?
-                    res error:"その部屋はありません"
-                    return
-                if req.session.userId in (room.players.map (x)->x.realid)
-                    res error:"すでに参加しています"
-                    return
-                if Array.isArray(room.ban) && (req.session.userId in room.ban)
-                    res error:"この部屋への参加は禁止されています"
-                    return
-                if opt.name in (room.players.map (x)->x.name)
-                    res error:"名前 #{opt.name} は既に存在します"
-                    return
-                if room.gm && room.owner.userid==req.session.userId
-                    res error:"ゲームマスターは参加できません"
-                    return
-                unless room.mode=="waiting" || (room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋")
-                    res error:"既に参加は締めきられています"
-                    return
-                if room.mode=="waiting" && room.players.length >= room.number
+        unless libblacklist.checkPermission "play", req.session.ban
+            # アクセス制限
+            res {
+                error: "アクセス制限により、部屋に参加できません。"
+            }
+            return
+        Server.game.rooms.oneRoomS roomid,(room)=>
+            if !room || room.error?
+                res error:"その部屋はありません"
+                return
+            if req.session.userId in (room.players.map (x)->x.realid)
+                res error:"すでに参加しています"
+                return
+            if Array.isArray(room.ban) && (req.session.userId in room.ban)
+                res error:"この部屋への参加は禁止されています"
+                return
+            if opt.name in (room.players.map (x)->x.name)
+                res error:"名前 #{opt.name} は既に存在します"
+                return
+            if room.gm && room.owner.userid==req.session.userId
+                res error:"ゲームマスターは参加できません"
+                return
+            unless room.mode=="waiting" || (room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋")
+                res error:"既に参加は締めきられています"
+                return
+            if room.mode=="waiting" && room.players.length >= room.number
+                # 満員
+                res error:"これ以上入れません"
+                return
+            if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
+                # エンドレス闇鍋の場合はゲーム内人数による人数判定を行う
+                if Server.game.game.endlessPlayersNumber(roomid) >= room.number
                     # 満員
                     res error:"これ以上入れません"
                     return
-                if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
-                    # エンドレス闇鍋の場合はゲーム内人数による人数判定を行う
-                    if Server.game.game.endlessPlayersNumber(roomid) >= room.number
-                        # 満員
-                        res error:"これ以上入れません"
-                        return
-                #room.players.push req.session.user
-                su=req.session.user
-                user=
-                    userid:req.session.userId
-                    realid:req.session.userId
-                    name:su.name
-                    ip:su.ip
-                    icon:su.icon
-                    start:false
-                    mode:"player"
-                    nowprize:su.nowprize
-                
-                # 同IP制限
-                ###
-                if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
-                    res error:"重複参加はできません #{su.ip}"
+            #room.players.push req.session.user
+            su=req.session.user
+            user=
+                userid:req.session.userId
+                realid:req.session.userId
+                name:su.name
+                ip:su.ip
+                icon:su.icon
+                start:false
+                mode:"player"
+                nowprize:su.nowprize
+            
+            # 同IP制限
+            ###
+            if room.players.some((x)->x.ip==su.ip) && su.ip!="127.0.0.1"
+                res error:"重複参加はできません #{su.ip}"
+                return
+            ###
+            
+            # please no, link of data:image/jpeg;base64 would be a disaster
+            if user.icon?.length > Config.maxlength.user.icon
+                res error:"Link for Icon is too long.（#{user.icon.length}）"
+                return
+            if room.blind
+                unless opt?.name
+                    res error:"名前を入力して下さい"
                     return
-                ###
-                
-                # please no, link of data:image/jpeg;base64 would be a disaster
-                if user.icon?.length > Config.maxlength.user.icon
-                    res error:"Link for Icon is too long.（#{user.icon.length}）"
+                if opt.name.length > Config.maxlength.user.name
+                    res {error: "名前が長すぎます"}
                     return
-                if room.blind
-                    unless opt?.name
-                        res error:"名前を入力して下さい"
-                        return
-                    if opt.name.length > Config.maxlength.user.name
-                        res {error: "名前が長すぎます"}
-                        return
-                    # 覆面
-                    makeid=->   # ID生成
-                        re=""
-                        while !re
-                            i=0
-                            while i<20
-                                re+="0123456789abcdef"[Math.floor Math.random()*16]
-                                i++
-                            if room.players.some((x)->x.userid==re)
-                                re=""
-                        re
-                    user.name=opt.name
-                    user.userid=makeid()
-                    user.icon= opt.icon ? null
-                M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
-                    if err?
-                        res error:"エラー:#{err}"
-                    else
-                        res null
-                        # 入室通知
-                        delete user.ip
-                        Server.game.game.inlog room,user
-                        if room.blind
-                            delete user.realid
-                        if room.mode!="playing"
-                            ss.publish.channel "room#{roomid}", "join", user
+                # 覆面
+                makeid=->   # ID生成
+                    re=""
+                    while !re
+                        i=0
+                        while i<20
+                            re+="0123456789abcdef"[Math.floor Math.random()*16]
+                            i++
+                        if room.players.some((x)->x.userid==re)
+                            re=""
+                    re
+                user.name=opt.name
+                user.userid=makeid()
+                user.icon= opt.icon ? null
+            M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
+                if err?
+                    res error:"エラー:#{err}"
+                else
+                    res null
+                    # 入室通知
+                    delete user.ip
+                    Server.game.game.inlog room,user
+                    if room.blind
+                        delete user.realid
+                    if room.mode!="playing"
+                        ss.publish.channel "room#{roomid}", "join", user
     # 部屋から出る
     unjoin: (roomid)->
         unless req.session.userId

@@ -132,3 +132,15 @@ exports.handleHello = (data, ip, cb)->
             M.blacklist.update {
                 userid: doc.userid
             }, updateq
+
+# アクセス制限を確認
+exports.checkPermission = (action, ban)->
+    unless ban?
+        # BANじゃないじゃん
+        return true
+    unless Array.isArray ban.types
+        # とりあえず不可
+        return false
+    if action in ban.types
+        return false
+    return true
