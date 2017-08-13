@@ -19,7 +19,7 @@ exports.addBlacklist = (query, cb)->
 
     unless id
         # 新規なのでIDを作成
-        id = Math.random().toString(36).slice(2) + "_" + Date.now().toString(36)
+        id = makeBanId()
     # 当該ユーザーを検索
     M.users.findOne {userid: userid}, (err, doc)->
         unless doc?
@@ -56,6 +56,9 @@ exports.addBlacklist = (query, cb)->
             else
                 cb null
 
+# BANのIDを作成
+makeBanId = ()-> Math.random().toString(36).slice(2) + "_" + Date.now().toString(36)
+
 # ユーザーのログインをハンドル
 exports.handleLogin = (userid, ip, cb)->
     # このユーザーはアク禁されているか?
@@ -83,13 +86,19 @@ exports.handleLogin = (userid, ip, cb)->
         updateq = updateBanQuery userid, ip, doc
         if updateq?
             M.blacklist.update {
-                userid: doc.userid
+                _id: doc._id
             }, updateq
 
 # docに新しい情報を追加するクエリ
 updateBanQuery = (userid, ip, doc)->
     result = {}
     flag = false
+    # IDがなかったら付けてあげる
+    unless doc.id?
+        flag = true
+        result.$set = {
+            id: makeBanId()
+        }
     # IPアドレス
     if Array.isArray doc.ip
         unless ip in doc.ip
@@ -100,9 +109,12 @@ updateBanQuery = (userid, ip, doc)->
     else
         if ip != doc.ip
             flag = true
-            result.$set = {
-                ip: [doc.ip, ip]
-            }
+            if result.$set?
+                result.$set.ip = [doc.ip, ip]
+            else
+                result.$set = {
+                    ip: [doc.ip, ip]
+                }
     # ユーザーID
     if userid?
         if Array.isArray doc.userid
@@ -152,7 +164,7 @@ exports.handleHello = (data, ip, cb)->
         updateq = updateBanQuery null, ip, doc
         if updateq?
             M.blacklist.update {
-                userid: doc.userid
+                _id: doc._id
             }, updateq
 
 # アクセス制限を確認

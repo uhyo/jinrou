@@ -91,10 +91,10 @@ initblisttable=->
         result.docs.forEach (doc)->
             row=table.insertRow -1
             cell=row.insertCell 0
-            a=document.createElement "a"
-            a.href="/user/#{doc.userid}"
-            a.textContent=doc.userid
-            cell.appendChild a
+            if Array.isArray doc.userid
+                cell.textContent = doc.userid.join ","
+            else
+                cell.textContent = doc.userid
             
             cell=row.insertCell 1
             if Array.isArray doc.ip
