@@ -39,6 +39,8 @@ exports.actions =(req,res,ss)->
             res {error:"管理者ではありません"}
             return
         libblacklist.addBlacklist query, res
+        # 即時反映（居れば）
+        ss.publish.user query.userid, "forcereload"
     removeBlacklist:(query)->
         unless req.session.administer
             res {error:"管理者ではありません"}

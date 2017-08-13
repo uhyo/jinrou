@@ -13,6 +13,9 @@ libban = require '/ban'
 # 全体告知
 ss.event.on 'grandalert', (msg)->
     util.message msg.title,msg.message
+# 強制リロード
+ss.event.on 'forcereload', ()->
+    location.reload()
 
 # This method is called automatically when the websocket connection is established. Do not rename/delete
 
