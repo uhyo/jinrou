@@ -8341,8 +8341,8 @@ module.exports.actions=(req,res,ss)->
                     # 陣営調整もする
                     # 人狼陣営
                     if frees>0
-                        # 望ましい人狼陣営の人数は30〜40%くらい
-                        wolfteam_n = Math.round (playersnumber*(0.3 + Math.random()*0.1))
+                        # 望ましい人狼陣営の人数は25〜350%くらい
+                        wolfteam_n = Math.round (playersnumber*(0.25 + Math.random()*0.1))
                         # ただし半数を超えない
                         plsh = Math.ceil(playersnumber/2)
                         if wolfteam_n >= plsh
@@ -8666,7 +8666,7 @@ module.exports.actions=(req,res,ss)->
                                     if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
-                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructirveMad"
+                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructiveMad"
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
