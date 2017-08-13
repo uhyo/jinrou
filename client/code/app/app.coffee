@@ -7,7 +7,9 @@ ss.server.on 'disconnect', ->
     util.message "サーバー","接続が切断されました。"
 ss.server.on 'reconnect', ->
     util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
+libban = require '/ban'
     
+
 # 全体告知
 ss.event.on 'grandalert', (msg)->
     util.message msg.title,msg.message
@@ -65,6 +67,16 @@ exports.init = ->
                 localStorage.removeItem "password"
             showUrl p
     else
+        ss.rpc "user.hello", {}, (e)->
+            if e.banid
+                libban.saveBanData e.banid
+            else
+                libban.loadBanData (data)->
+                    if data?
+                        ss.rpc "user.requestban", data, (result)->
+                            if result.banid
+                                libban.saveBanData result.banid
+
         showUrl location.href
     # ユーザーCSS指定
     cp=useColorProfile getCurrentColorProfile()
@@ -267,6 +279,8 @@ exports.refresh=->showUrl location.pathname, util.searchHash(location.search), t
 
 exports.login=login=(uid,ups,cb)->
     ss.rpc "user.login", {userid:uid,password:ups},(result)->
+        if result.banid
+            libban.saveBanData result.banid
         if result.login
             # OK
             my_userid=uid
@@ -287,6 +301,14 @@ exports.login=login=(uid,ups,cb)->
             cb? true
         else
             cb? false
+        unless result.banid
+            # banではない?
+            libban.loadBanData (data)->
+                if data?
+                    # BANか
+                    ss.rpc "user.requestban", data, (result)->
+                        if result.banid
+                            libban.saveBanData result.banid
 exports.userid=->my_userid
 exports.setUserid=(id)->my_userid=id
 

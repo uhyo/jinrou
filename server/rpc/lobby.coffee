@@ -3,6 +3,8 @@
 Server=
     log:require '../log.coffee'
 
+libblacklist = require '../libs/blacklist.coffee'
+
 players=[]  # ロビーにいる人たち
 heartbeat_time=10
 
@@ -59,6 +61,8 @@ exports.actions =(req,res,ss)->
         unless req.session.userId?
             return
         unless comment
+            return
+        unless libblacklist.checkPermission "lobby_say", req.session.ban
             return
         log=
             userid:req.session.userId

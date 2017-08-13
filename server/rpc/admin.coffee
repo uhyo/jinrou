@@ -3,6 +3,8 @@ crypto=require('crypto')
 child_process=require('child_process')
 settings=Config.mongo
 
+libblacklist = require '../libs/blacklist.coffee'
+
 # twitter系
 oauth=require './../oauth.coffee'
 exports.actions =(req,res,ss)->
@@ -36,20 +38,7 @@ exports.actions =(req,res,ss)->
         unless req.session.administer
             res {error:"管理者ではありません"}
             return
-        M.users.findOne {userid:query.userid},(err,doc)->
-            unless doc?
-                res {error:"そのユーザーは見つかりません"}
-                return
-            addquery=
-                userid:doc.userid
-                ip:doc.ip
-            if query.expire=="some"
-                d=new Date()
-                d.setMonth d.getMonth()+parseInt query.month
-                d.setDate d.getDate()+parseInt query.day
-                addquery.expires=d
-            M.blacklist.insert addquery,{safe:true},(err,doc)->
-                res null
+        libblacklist.addBlacklist query, res
     removeBlacklist:(query)->
         unless req.session.administer
             res {error:"管理者ではありません"}

@@ -12,6 +12,8 @@ mailer=require '../mailer.coffee'
 crypto=require 'crypto'
 url=require 'url'
 
+libblacklist = require '../libs/blacklist.coffee'
+
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
     #req.session.authenticate './session_storage/internal.coffee', query, (response)=>
@@ -24,27 +26,60 @@ login= (query,req,cb,ss)->
             req.session.user=response
             #req.session.room=null  # 今入っている部屋
             req.session.channel.reset()
-            req.session.save (err)->
-                # お知らせ情報をとってきてあげる
-                M.news.find().sort({time:-1}).nextObject (err,doc)->
+            # BAN情報を取ってくる
+            libblacklist.handleLogin response.userid, response.ip, (ban)->
+                if ban?.error?
                     cb {
-                        login:true
-                        lastNews:doc?.time
+                        error: ban.error
                     }
-                # IPアドレスを記録してあげる
-                M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
+                    return
+                req.session.ban = ban
+                req.session.save (err)->
+                    # お知らせ情報をとってきてあげる
+                    M.news.find().sort({time:-1}).nextObject (err,doc)->
+                        cb {
+                            login:true
+                            lastNews:doc?.time
+                            banid: ban?.id
+                        }
+                    # IPアドレスを記録してあげる
+                    M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
 
-            # log
-            Server.log.login req.session.user
+                # log
+                Server.log.login req.session.user
         else
-            cb {
-                login:false
-            }
+            # ログイン失敗してるじゃん
+            libblacklist.handleHello ip, (ban)->
+                if ban?.error?
+                    cb {
+                        error: ban.error
+                    }
+                    return
+                req.session.ban = ban
+                req.session.save ()->
+                    cb {
+                        login:false
+                        banid: ban?.id
+                    }
 
 exports.actions =(req,res,ss)->
     req.use 'user.fire.wall'
     req.use 'session'
 
+    # 非ログインユーザー
+    hello: ->
+        ip = req.clientIp
+        libblacklist.handleHello ip, (ban)->
+            if ban?.error?
+                cb {
+                    error: ban.error
+                }
+                return
+            req.session.ban = ban
+            res {
+                banid: ban?.id
+            }
+            req.session.save ()->
 # ログイン
 # cb: 失敗なら真
     login: (query)->
@@ -61,6 +96,12 @@ exports.actions =(req,res,ss)->
 # 新規登録
 # cb: エラーメッセージ（成功なら偽）
     newentry: (query)->
+        unless libblacklist.checkPermission "create_account", req.session.ban
+            res {
+                login: false
+                error: "アクセス制限により、アカウントを作成できません。"
+            }
+            return
         unless /^\w+$/.test(query.userid)
             res {
                 login:false
@@ -368,9 +409,15 @@ exports.actions =(req,res,ss)->
                 res null
                 return
             res doc
-    
-    ######
-            
+    # 私をBANしてください!!!!!!!!
+    requestban:(banid)->
+        libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
+            if result.error?
+                res {error: result.error}
+            else
+                req.session.ban = result
+                req.session.save ()->
+                    res {banid: result.id}
 
 
 exports.crpassword = Server.auth.crpassword
