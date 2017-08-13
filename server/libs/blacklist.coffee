@@ -3,7 +3,7 @@
 ###
 # blacklist:
 #   id: "blacklist id"
-#   userid: "user id"
+#   userid: ["userid", ...]
 #   ip: ["ip", ...]
 #   expires: Date
 #   types: [...]
@@ -28,9 +28,9 @@ exports.addBlacklist = (query, cb)->
         updateQuery = {
             $setOnInsert: {
                 id: id
-                userid: userid
             }
             $addToSet: {
+                userid: userid
                 ip: doc.ip
             }
             $set: {
@@ -80,32 +80,54 @@ exports.handleLogin = (userid, ip, cb)->
             return
         cb doc
         # IPアドレスで判定
-        updateq = addIpQuery ip, doc
+        updateq = updateBanQuery userid, ip, doc
         if updateq?
             M.blacklist.update {
                 userid: doc.userid
             }, updateq
 
-# docにIPアドレスを追加するクエリ
-addIpQuery = (ip, doc)->
+# docに新しい情報を追加するクエリ
+updateBanQuery = (userid, ip, doc)->
+    result = {}
+    flag = false
+    # IPアドレス
     if Array.isArray doc.ip
-        if ip in doc.ip
-            null
-        else
-            {
-                $push: {
-                    ip: ip
-                }
+        unless ip in doc.ip
+            flag = true
+            result.$push = {
+                ip: ip
             }
     else
-        if ip == doc.ip
-            null
-        else
-            {
-                $set: {
-                    ip: [doc.ip, ip]
-                }
+        if ip != doc.ip
+            flag = true
+            result.$set = {
+                ip: [doc.ip, ip]
             }
+    # ユーザーID
+    if userid?
+        if Array.isArray doc.userid
+            unless userid in doc.userid
+                flag = true
+                if result.$push?
+                    result.$push.userid = userid
+                else
+                    result.$push = {
+                        userid: userid
+                    }
+        else
+            if userid != doc.userid
+                flag = true
+                if result.$set?
+                    result.$set.userid = [doc.userid, userid]
+                else
+                    result.$set = {
+                        userid: [doc.userid, userid]
+                    }
+
+    if flag
+        return result
+    else
+        return null
 
 # 非ログインユーザーが登場
 exports.handleHello = (data, ip, cb)->
@@ -127,7 +149,7 @@ exports.handleHello = (data, ip, cb)->
             return
         # アク禁されていた
         cb doc
-        updateq = addIpQuery ip, doc
+        updateq = updateBanQuery null, ip, doc
         if updateq?
             M.blacklist.update {
                 userid: doc.userid
