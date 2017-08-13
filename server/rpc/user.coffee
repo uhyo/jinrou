@@ -82,6 +82,12 @@ exports.actions =(req,res,ss)->
 # 新規登録
 # cb: エラーメッセージ（成功なら偽）
     newentry: (query)->
+        unless libblacklist.checkPermission "create_account", req.session.ban
+            res {
+                login: false
+                error: "アクセス制限により、アカウントを作成できません。"
+            }
+            return
         unless /^\w+$/.test(query.userid)
             res {
                 login:false
