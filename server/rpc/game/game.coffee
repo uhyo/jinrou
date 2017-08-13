@@ -3990,8 +3990,9 @@ class Vampire extends Player
     sunset:(game)->
         @setTarget null
         if game.day>1 && @scapegoat
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
+            targets=game.players.filter (x)->!x.dead
+            r=Math.floor Math.random()*targets.length
+            if @job game,targets[r].id,{}
                 @setTarget ""
     job:(game,playerid,query)->
         # 襲う先
