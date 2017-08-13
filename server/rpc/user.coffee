@@ -49,7 +49,7 @@ login= (query,req,cb,ss)->
                 Server.log.login req.session.user
         else
             # ログイン失敗してるじゃん
-            libblacklist.handleHello null, ip, (ban)->
+            libblacklist.handleHello ip, (ban)->
                 if ban?.error?
                     cb {
                         error: ban.error
@@ -67,9 +67,9 @@ exports.actions =(req,res,ss)->
     req.use 'session'
 
     # 非ログインユーザー
-    hello: (data)->
+    hello: ->
         ip = req.clientIp
-        libblacklist.handleHello data, ip, (ban)->
+        libblacklist.handleHello ip, (ban)->
             if ban?.error?
                 cb {
                     error: ban.error
@@ -409,9 +409,15 @@ exports.actions =(req,res,ss)->
                 res null
                 return
             res doc
-    
-    ######
-            
+    # 私をBANしてください!!!!!!!!
+    requestban:(banid)->
+        libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
+            if result.error?
+                res {error: result.error}
+            else
+                req.session.ban = result
+                req.session.save ()->
+                    res {banid: result.id}
 
 
 exports.crpassword = Server.auth.crpassword

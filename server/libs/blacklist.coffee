@@ -10,11 +10,13 @@
 #   reason: "reason"
 ###
 
+BANTYPES = ["create_account", "lobby_say", "watch_say", "play"]
+
 # ユーザーをBANに追加
 exports.addBlacklist = (query, cb)->
     id = query.id
     userid = query.userid
-    types = (type for type in ["create_account", "lobby_say", "watch_say", "play"] when query[type] == "on")
+    types = (type for type in BANTYPES when query[type] == "on")
     reason = query.reason ? ""
 
     unless id
@@ -142,7 +144,7 @@ updateBanQuery = (userid, ip, doc)->
         return null
 
 # 非ログインユーザーが登場
-exports.handleHello = (data, ip, cb)->
+exports.handleHello = (ip, cb)->
     query = {
         ip: ip
     }
@@ -166,6 +168,67 @@ exports.handleHello = (data, ip, cb)->
             M.blacklist.update {
                 _id: doc._id
             }, updateq
+# 自分をBANしてほしいひとがきた
+exports.handleBanRequest = (banid, userid, ip, cb)->
+    M.blacklist.findOne {
+        id: banid
+    }, (err, doc)->
+        if err?
+            cb {error: err}
+            return
+        if doc?
+            # BANがちゃんとあったので追加
+            updateq = updateBanQuery userid, ip, doc
+            if updateq?
+                M.blacklist.update {
+                    _id: doc._id
+                }, updateq, {w: 1}, (err)->
+                    if err?
+                        cb {error: err}
+                        return
+                    cb doc
+            else
+                cb doc
+            return
+        # 既存のBANから探す
+        fq = if userid? then {
+            $or: [
+                {userid: userid},
+                {ip: ip}
+            ]
+        } else {ip: ip}
+        M.blacklist.findOne fq, (err, doc)->
+            if err?
+                cb {error: err}
+                return
+            if doc?
+                # これに追加
+                updateq = updateBanQuery userid, ip, doc
+                if updateq?
+                    M.blacklist.update {
+                        _id: doc._id
+                    }, updateq, {w: 1}, (err)->
+                        if err?
+                            cb {error: err}
+                            return
+                        cb doc
+                else
+                    cb doc
+                return
+            # 既存のBAN履歴がない
+            newid = makeBanId()
+            newdoc = {
+                id: newid
+                userid: if userid? then [userid] else []
+                ip: [ip]
+                types: BANTYPES
+                reason: "Ban Request"
+            }
+            M.blacklist.insert newdoc, {w: 1}, (err)->
+                if err?
+                    cb {error: err}
+                else
+                    cb newdoc
 
 # アクセス制限を確認
 exports.checkPermission = (action, ban)->

@@ -70,6 +70,12 @@ exports.init = ->
         ss.rpc "user.hello", {}, (e)->
             if e.banid
                 libban.saveBanData e.banid
+            else
+                libban.loadBanData (data)->
+                    if data?
+                        ss.rpc "user.requestban", data, (result)->
+                            if result.banid
+                                libban.saveBanData result.banid
 
         showUrl location.href
     # ユーザーCSS指定
@@ -295,6 +301,14 @@ exports.login=login=(uid,ups,cb)->
             cb? true
         else
             cb? false
+        unless result.banid
+            # banではない?
+            libban.loadBanData (data)->
+                if data?
+                    # BANか
+                    ss.rpc "user.requestban", data, (result)->
+                        if result.banid
+                            libban.saveBanData result.banid
 exports.userid=->my_userid
 exports.setUserid=(id)->my_userid=id
 
