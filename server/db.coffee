@@ -58,10 +58,11 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.blacklist=col
-          col.ensureIndex "userid",(err,idxname)->
-            col.ensureIndex "ip",(err,idxname)->
-              col.ensureIndex "expires",(err,idxname)->
-                cols_count()
+          col.ensureIndex "id",(err,idxname)->
+            col.ensureIndex "userid",(err,idxname)->
+              col.ensureIndex "ip",(err,idxname)->
+                col.ensureIndex "expires",(err,idxname)->
+                  cols_count()
         DB.collection "news",(err,col)->
           if err?
             console.log err

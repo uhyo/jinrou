@@ -12,6 +12,16 @@ mailer=require '../mailer.coffee'
 crypto=require 'crypto'
 url=require 'url'
 
+###
+# blacklist:
+#   id: "id of ban"
+#   userid: "userid"
+#   ip: ["ip", ...]
+#   expires: Date
+#   types: [...]
+#   reason: "reason"
+###
+
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
     #req.session.authenticate './session_storage/internal.coffee', query, (response)=>

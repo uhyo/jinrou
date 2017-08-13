@@ -97,12 +97,21 @@ initblisttable=->
             cell.appendChild a
             
             cell=row.insertCell 1
-            cell.textContent=doc.ip
+            if Array.isArray doc.ip
+                cell.textContent = doc.ip.join ","
+            else
+                cell.textContent = doc.ip
             
             cell=row.insertCell 2
             cell.textContent=(if doc.expires? then new Date(doc.expires).toLocaleString() else "無期限")
             
             cell=row.insertCell 3
+            cell.textContent= doc.types?.join(",")
+
+            cell=row.insertCell 4
+            cell.textContent= doc.reason
+
+            cell=row.insertCell 5
             input=document.createElement "input"
             input.type="button"
             input.dataset.userid=doc.userid

@@ -15,26 +15,52 @@ section.admin#admin
           th ユーザーID
           th IPアドレス
           th 期限
+          th 禁止項目
+          th 理由
           th 解除
       tbody#blacklisttable
     h2 新規アク禁
     form#newbanform
-      p
-        | アク禁にするユーザーID:
-        input(name="userid",size="20",required)
-      p
-        | 期間:
-        label
-          input(type="radio",name="expire",value="forever",checked)
-          無期限
-        | |
-        input(type="radio",name="expire",value="some")
-        input(name="month",type="number",step="1",value="0",min="0")
-        | ヶ月
-        input(name="day",type="number",step="1",value="0",min="0")
-        | 日
-      p
-        input(type="submit",value="OK")
+      fieldset
+        dl
+          dt ユーザーID
+          dd
+            input(name="userid",size="20",required)
+          dt 期間
+          dd
+            label
+              input(type="radio",name="expire",value="forever",checked)
+              無期限
+            | |
+            input(type="radio",name="expire",value="some")
+            input(name="month",type="number",step="1",value="0",min="0")
+            | ヶ月
+            input(name="day",type="number",step="1",value="0",min="0")
+            | 日
+          dt 禁止項目
+          dd
+            ul
+              li
+                label
+                  input(type="checkbox",name="create_account",value="on",checked)
+                  | アカウント作成
+              li
+                label
+                  input(type="checkbox",name="lobby_say",value="on",checked)
+                  | ロビー発言
+              li
+                label
+                  input(type="checkbox",name="watch_say",value="on",checked)
+                  | 観戦発言
+              li
+                label
+                  input(type="checkbox",name="play",value="on",checked)
+                  | 参加
+          dt 理由
+          dd
+            input(name="reason",type="text")
+        p
+          input(type="submit",value="OK")
   section#grandalert(hidden)
     h1 全体告知
     form#alertform
