@@ -3,6 +3,8 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
+libblacklist = require '../../libs/blacklist.coffee'
+
 cron=require 'cron'
 
 # 浅いコピー
@@ -8956,6 +8958,13 @@ module.exports.actions=(req,res,ss)->
             res "コメントが長すぎます"
             return
         player=game.getPlayerReal req.session.userId
+
+        unless player?
+            # 観戦発言に対するチェック
+            unless libblacklist.checkPermission "watch_say", req.session.ban
+                res "アクセス制限により、発言できません。"
+                return
+
         #console.log query,player
         log =
             comment:comment
