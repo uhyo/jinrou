@@ -9,9 +9,9 @@ tabs=
                     initblisttable()
             $("#blacklisttable").click (je)->
                 target=je.target
-                if target.dataset.userid
+                if target.dataset.banid
                     query=
-                        userid:target.dataset.userid
+                        id:target.dataset.banid
                     ss.rpc "admin.removeBlacklist", query,->
                         initblisttable()
     grandalert:
@@ -112,11 +112,16 @@ initblisttable=->
             cell.textContent= doc.reason
 
             cell=row.insertCell 5
-            input=document.createElement "input"
-            input.type="button"
-            input.dataset.userid=doc.userid
-            input.value="解除"
-            cell.appendChild input
+            if doc.forgiveDate?
+                cell.textContent = "解除済"
+            else if not doc.id?
+                cell.textContent = "解除不可"
+            else
+                input=document.createElement "input"
+                input.type="button"
+                input.dataset.banid=doc.id
+                input.value="解除"
+                cell.appendChild input
     
 initnewstable=->
     table=$("#newstable").get 0

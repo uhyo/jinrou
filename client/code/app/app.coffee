@@ -73,12 +73,10 @@ exports.init = ->
         ss.rpc "user.hello", {}, (e)->
             if e.banid
                 libban.saveBanData e.banid
+            else if e.forgive
+                libban.removeBanData()
             else
-                libban.loadBanData (data)->
-                    if data?
-                        ss.rpc "user.requestban", data, (result)->
-                            if result.banid
-                                libban.saveBanData result.banid
+                checkBanData()
 
         showUrl location.href
     # ユーザーCSS指定
@@ -284,6 +282,8 @@ exports.login=login=(uid,ups,cb)->
     ss.rpc "user.login", {userid:uid,password:ups},(result)->
         if result.banid
             libban.saveBanData result.banid
+        else if result.forgive
+            libban.removeBanData()
         if result.login
             # OK
             my_userid=uid
@@ -306,12 +306,7 @@ exports.login=login=(uid,ups,cb)->
             cb? false
         unless result.banid
             # banではない?
-            libban.loadBanData (data)->
-                if data?
-                    # BANか
-                    ss.rpc "user.requestban", data, (result)->
-                        if result.banid
-                            libban.saveBanData result.banid
+            checkBanData()
 exports.userid=->my_userid
 exports.setUserid=(id)->my_userid=id
 
@@ -405,3 +400,13 @@ loadApplicationConfig = ()->
                     span.classList.add "tool-disabled"
                     span.appendChild(document.createTextNode "現在#{m.name}です")
                 ###
+
+checkBanData = ()->
+    libban.loadBanData (data)->
+        if data?
+            console.log "bay", data
+            ss.rpc "user.requestban", data, (result)->
+                if result.banid
+                    libban.saveBanData result.banid
+                else if result.forgive
+                    libban.removeBanData()

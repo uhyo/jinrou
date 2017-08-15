@@ -62,7 +62,8 @@ dbinit= (loaded)->
             col.ensureIndex "userid",(err,idxname)->
               col.ensureIndex "ip",(err,idxname)->
                 col.ensureIndex "expires",(err,idxname)->
-                  cols_count()
+                  col.ensureIndex "forgiveDate", {expireAfterSeconds: 365*24*60*60}, (err,idxname)->
+                    cols_count()
         DB.collection "news",(err,col)->
           if err?
             console.log err

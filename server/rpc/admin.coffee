@@ -45,8 +45,8 @@ exports.actions =(req,res,ss)->
         unless req.session.administer
             res {error:"管理者ではありません"}
             return
-        M.blacklist.remove {userid:query.userid},(err)->
-            res null
+        libblacklist.forgive query.id, (err)->
+            res err
     
     # -------------- grandalert関係
     spreadGrandalert:(query)->

@@ -8,6 +8,7 @@
 #   expires: Date
 #   types: [...]
 #   reason: "reason"
+#   forgiveDate?: Date
 ###
 
 BANTYPES = ["create_account", "lobby_say", "watch_say", "play"]
@@ -61,6 +62,20 @@ exports.addBlacklist = (query, cb)->
 # BANのIDを作成
 makeBanId = ()-> Math.random().toString(36).slice(2) + "_" + Date.now().toString(36)
 
+# このBANを解除
+exports.forgive = (id, cb)->
+    M.blacklist.update {
+        id: id
+    }, {
+        $set: {
+            forgiveDate: new Date
+        }
+    }, {w: 1}, (err)->
+        if err?
+            cb {error: err}
+        else
+            cb null
+
 # ユーザーのログインをハンドル
 exports.handleLogin = (userid, ip, cb)->
     # このユーザーはアク禁されているか?
@@ -78,6 +93,11 @@ exports.handleLogin = (userid, ip, cb)->
         unless doc?
             # アク禁ではない
             cb null
+            return
+        if doc.forgiveDate?
+            cb {
+                forgive: true
+            }
             return
         if doc.expires? && doc.expires.getTime() < Date.now()
             # 期限が過ぎている
@@ -157,6 +177,11 @@ exports.handleHello = (ip, cb)->
         unless doc?
             cb null
             return
+        if doc.forgiveDate?
+            cb {
+                forgive: true
+            }
+            return
         if doc.expires? && doc.expires.getTime() < Date.now()
             # 期限が過ぎている
             cb null
@@ -177,18 +202,24 @@ exports.handleBanRequest = (banid, userid, ip, cb)->
             cb {error: err}
             return
         if doc?
-            # BANがちゃんとあったので追加
-            updateq = updateBanQuery userid, ip, doc
-            if updateq?
-                M.blacklist.update {
-                    _id: doc._id
-                }, updateq, {w: 1}, (err)->
-                    if err?
-                        cb {error: err}
-                        return
-                    cb doc
+            # BANがちゃんとあった
+            if doc.forgiveDate?
+                # 解除済なので赦す
+                cb {
+                    forgive: true
+                }
             else
-                cb doc
+                updateq = updateBanQuery userid, ip, doc
+                if updateq?
+                    M.blacklist.update {
+                        _id: doc._id
+                    }, updateq, {w: 1}, (err)->
+                        if err?
+                            cb {error: err}
+                            return
+                        cb doc
+                else
+                    cb doc
             return
         # 既存のBANから探す
         fq = if userid? then {

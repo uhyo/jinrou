@@ -33,7 +33,12 @@ login= (query,req,cb,ss)->
                         error: ban.error
                     }
                     return
-                req.session.ban = ban
+                forgive = false
+                if ban?.forgive
+                    forgive = true
+                    req.session.ban = null
+                else
+                    req.session.ban = ban
                 req.session.save (err)->
                     # お知らせ情報をとってきてあげる
                     M.news.find().sort({time:-1}).nextObject (err,doc)->
@@ -41,6 +46,7 @@ login= (query,req,cb,ss)->
                             login:true
                             lastNews:doc?.time
                             banid: ban?.id
+                            forgive: forgive
                         }
                     # IPアドレスを記録してあげる
                     M.users.update {"userid":response.userid},{$set:{ip:response.ip}}
@@ -55,11 +61,17 @@ login= (query,req,cb,ss)->
                         error: ban.error
                     }
                     return
-                req.session.ban = ban
+                forgive = false
+                if ban?.forgive
+                    forgive = true
+                    req.session.ban = null
+                else
+                    req.session.ban = ban
                 req.session.save ()->
                     cb {
                         login:false
                         banid: ban?.id
+                        forgive: forgive
                     }
 
 exports.actions =(req,res,ss)->
@@ -75,9 +87,15 @@ exports.actions =(req,res,ss)->
                     error: ban.error
                 }
                 return
-            req.session.ban = ban
+            forgive = false
+            if ban?.forgive
+                forgive = true
+                req.session.ban = null
+            else
+                req.session.ban = ban
             res {
                 banid: ban?.id
+                forgive: forgive
             }
             req.session.save ()->
 # ログイン
@@ -414,6 +432,9 @@ exports.actions =(req,res,ss)->
         libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
             if result.error?
                 res {error: result.error}
+            else if result.forgive
+                # 赦す
+                res {forgive: true}
             else
                 req.session.ban = result
                 req.session.save ()->

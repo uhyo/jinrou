@@ -92,7 +92,10 @@ load_from_indexeddb = (cb)->
             console.error req2.error
             cb null
         req2.onsuccess = ()->
-            cb req2.result.value
+            if req2.result
+                cb req2.result.value
+            else
+                cb null
         t.onerror = ()->
             console.error t.error
             cb null
@@ -108,3 +111,22 @@ read_data = (data)->
         console.error e
         return null
 
+# remove Ban data.
+exports.removeBanData = ()->
+    localStorage.removeItem "bclient_id"
+    document.cookie = "bclient_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    if "undefined" == typeof indexedDB
+        return
+    req = indexedDB.open "jinrou_session", 1
+    req.onerror = ()->
+        console.error req.error
+    req.onsuccess = ()->
+        db = req.result
+        t = db.transaction "client", "readwrite"
+        s = t.objectStore "client"
+        
+        req2 = s.delete "b"
+        req2.onerror = ()->
+            console.error req2.error
+        t.onerror = ()->
+            console.error t.error
