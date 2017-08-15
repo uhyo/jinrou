@@ -1213,6 +1213,21 @@ exports.rules=[
                     }
             }
             {
+                name:"voteresult"
+                label:"投票結果を隠す"
+                type:"checkbox"
+                value:{
+                    value:"hide"
+                    label:"隠す"
+                    nolabel:"隠さない"
+                }
+                getstr:(value)->
+                    {
+                        label:"投票結果"
+                        value:if value=="hide" then "隠す" else "隠さない"
+                    }
+            }
+            {
                 name:"waitingnight"
                 label:"夜は時間切れまで待つ"
                 type:"hidden"
