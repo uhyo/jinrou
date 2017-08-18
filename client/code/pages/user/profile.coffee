@@ -6,7 +6,7 @@ name_length_max=20
 
 exports.start=(user)->
     seticon=(url)->
-        $("#myicon").attr "src",url
+        util.setHTTPSicon $("#myicon").get(0), url
         $("#changeprofile").get(0).elements["icon"].value=url
     if user?.icon?
         seticon user.icon

@@ -44,4 +44,4 @@ exports.getTwitterIcon=(id,cb)->
         if err?
             cb null
             return
-        cb result?.profile_image_url
+        cb result?.profile_image_url_https

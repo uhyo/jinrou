@@ -396,10 +396,13 @@ exports.start=(roomid)->
         $("#roomname").text room.name
         if room.mode=="waiting"
             # 開始前のユーザー一覧は roomから取得する
-            console.log room.players
             room.players.forEach (x)->
                 li=makeplayerbox x,room.blind
                 $("#players").append li
+
+                # アイコンを取得
+                if x.icon
+                    this_icons[x.name] = x.icon
         # 未参加の場合は参加ボタン
         joinbutton=(je)->
             # 参加
@@ -1321,8 +1324,8 @@ exports.start=(roomid)->
                     img=document.createElement "img"
                     img.style.width="1em"
                     img.style.height="1em"
-                    img.src=this_icons[log.name]
                     img.alt=""  # 飾り
+                    Index.util.setHTTPSicon img, this_icons[log.name]
                     icondiv.appendChild img
             p.appendChild icondiv
             p.appendChild div
@@ -1524,9 +1527,9 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         figure=document.createElement "figure"
         figure.classList.add "icon"
         img=document.createElement "img"
-        img.src=obj.icon
         img.width=img.height=48
         img.alt=obj.name
+        Index.util.setHTTPSicon img, obj.icon
         figure.appendChild img
         df.appendChild figure
         df.classList.add "icon"
