@@ -250,7 +250,7 @@ exports.iconSelectWindow=(def,cb)->
     form=$("#iconform").get 0
     # アイコン決定
     okicon=(url)->
-        $("#selecticondisp").attr "src",url
+        setHTTPSicon $("#selecticondisp").get(0), url
         def=url # 書き換え
         
     okicon def  # さいしょ
@@ -340,3 +340,22 @@ exports.hashSearch=(hash)->
         return ''
     else
         return "?#{arr.join '&'}"
+
+# HTTPS優先iconを表示
+exports.setHTTPSicon = setHTTPSicon = (img, url)->
+    # HTTPSに直す
+    console.log "set", url
+    if /^http:/.test url
+        url = "https:" + url.slice 5
+        # HTTPSがエラーだったらHTTPになる
+        handler1 = (ev)->
+            img.removeEventListener "error", handler1, false
+            img.removeEventListener "load", handler2, false
+            img.src = "http:" + url.slice 6
+        handler2 = ()->
+            img.removeEventListener "error", handler1, false
+            img.removeEventListener "load", handler2, false
+        img.addEventListener "error", handler1, false
+        img.addEventListener "load", handler2, false
+    # URLをset
+    img.src = url

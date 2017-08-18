@@ -1324,8 +1324,8 @@ exports.start=(roomid)->
                     img=document.createElement "img"
                     img.style.width="1em"
                     img.style.height="1em"
-                    img.src=this_icons[log.name]
                     img.alt=""  # 飾り
+                    Index.util.setHTTPSicon img, this_icons[log.name]
                     icondiv.appendChild img
             p.appendChild icondiv
             p.appendChild div
@@ -1527,9 +1527,9 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         figure=document.createElement "figure"
         figure.classList.add "icon"
         img=document.createElement "img"
-        img.src=obj.icon
         img.width=img.height=48
         img.alt=obj.name
+        Index.util.setHTTPSicon img, obj.icon
         figure.appendChild img
         df.appendChild figure
         df.classList.add "icon"
