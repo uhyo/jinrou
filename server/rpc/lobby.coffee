@@ -40,7 +40,7 @@ exports.actions =(req,res,ss)->
     req.use 'session'
 
     enter:->
-        if req.session.userId
+        if req.session.userId && libblacklist.checkPermission "lobby_say", req.session.ban
             unless players.some((x)=>x.userid==req.session.userId)
                 plobj=
                     userid:req.session.userId
