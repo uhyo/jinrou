@@ -27,14 +27,15 @@ exports.actions =(req,res,ss)->
             req.session.save ->res null
 
     # ------------- blacklist関係
-    # blacklist一覧を得る
     getBlacklist:(query)->
+        # blacklist一覧を得る
         unless req.session.administer
             res {error:"管理者ではありません"}
             return
         M.blacklist.find().limit(100).skip(100*(query.page ? 0)).toArray (err,docs)->
             res {docs:docs}
     addBlacklist:(query)->
+        # blacklistに新しいのを追加
         unless req.session.administer
             res {error:"管理者ではありません"}
             return
@@ -42,12 +43,19 @@ exports.actions =(req,res,ss)->
         # 即時反映（居れば）
         ss.publish.user query.userid, "forcereload"
     removeBlacklist:(query)->
+        # blacklistを1つ解除
         unless req.session.administer
             res {error:"管理者ではありません"}
             return
         libblacklist.forgive query.id, (err)->
             res err
-    
+    restoreBlacklist:(query)->
+        # 解除されたblacklistをもどす
+        unless req.session.administer
+            res {error: "管理者ではありません"}
+            return
+        libblacklist.restore query.id, (err)->
+            res err
     # -------------- grandalert関係
     spreadGrandalert:(query)->
         unless req.session.administer

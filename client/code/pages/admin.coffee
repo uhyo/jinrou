@@ -11,8 +11,13 @@ tabs=
                 target=je.target
                 if target.dataset.banid
                     query=
-                        id:target.dataset.banid
+                        id: target.dataset.banid
                     ss.rpc "admin.removeBlacklist", query,->
+                        initblisttable()
+                else if target.dataset.setbanid
+                    query=
+                        id: target.dataset.setbanid
+                    ss.rpc "admin.restoreBlacklist", query, ->
                         initblisttable()
     grandalert:
         init:->
@@ -114,6 +119,11 @@ initblisttable=->
             cell=row.insertCell 5
             if doc.forgiveDate?
                 cell.textContent = "解除済"
+                input=document.createElement "input"
+                input.type="button"
+                input.dataset.setbanid=doc.id
+                input.value="再設定"
+                cell.appendChild input
             else if not doc.id?
                 cell.textContent = "解除不可"
             else

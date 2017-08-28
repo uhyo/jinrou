@@ -75,6 +75,19 @@ exports.forgive = (id, cb)->
             cb {error: err}
         else
             cb null
+# BANを再設定
+exports.restore = (id, cb)->
+    M.blacklist.update {
+        id: id
+    }, {
+        $unset: {
+            forgiveDate: 1
+        }
+    }, {w: 1}, (err)->
+        if err?
+            cb {error: err}
+        else
+            cb null
 
 # ユーザーのログインをハンドル
 exports.handleLogin = (userid, ip, cb)->
