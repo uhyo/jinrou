@@ -344,7 +344,6 @@ exports.hashSearch=(hash)->
 # HTTPS優先iconを表示
 exports.setHTTPSicon = setHTTPSicon = (img, url)->
     # HTTPSに直す
-    console.log "set", url
     if /^http:/.test url
         url = "https:" + url.slice 5
         # HTTPSがエラーだったらHTTPになる
