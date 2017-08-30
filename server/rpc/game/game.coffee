@@ -6636,6 +6636,25 @@ class SpiritPossessed extends Player
     jobname:"悪霊憑き"
     isReviver:->!@dead
 
+class Forensic extends Player
+    type:"Forensic"
+    jobname:"法医学者"
+    mdinightSort:100
+    sleeping:->@target?
+    sunset:(game)->
+        if game.day == 1
+            # 1日目
+            @setTarget ""
+            return
+        targets = game.players.filter (pl)-> pl.dead
+        if targets.length == 0
+            @setTarget null
+            return
+        if @scapegoat
+            # 身代わりくん
+            r = Math.floor Math.random()*targets.length
+            @setTarget targets[r].id
+
 
 
 # ============================
