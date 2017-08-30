@@ -19,20 +19,10 @@ save_in_indexeddb = (data, cb)->
     if "undefined" == typeof indexedDB
         cb {error: "No IndexedDB Support."}
         return
-    req = indexedDB.open "jinrou_session", 1
-    req.onerror = ()->
-        cb {error: req.error}
-    req.onupgradeneeded = (e)->
-        db = req.result
-        old = e.oldVersion
-        if old < 1
-            db.createObjectStore "client", {
-                keyPath: "id"
-                autoIncrement: false
-            }
-
-    req.onsuccess = ()->
-        db = req.result
+    openDb (db)->
+        unless db?
+            cb {error: "failed"}
+            return
         t = db.transaction "client", "readwrite"
         s = t.objectStore "client"
         req2 = s.put {
@@ -73,17 +63,10 @@ load_from_cookie = ()->
     return null
 
 load_from_indexeddb = (cb)->
-    if "undefined" == typeof indexedDB
-        cb null
-        return
-    req = indexedDB.open "jinrou_session", 1
-    req.onerror = ()->
-        console.error req.error
-        cb null
-    req.onupgradeneeded = (e)->
-        cb null
-    req.onsuccess = ()->
-        db = req.result
+    openDb (db)->
+        unless db?
+            cb {error: "failed"}
+            return
         t = db.transaction "client", "readonly"
         s = t.objectStore "client"
         
@@ -117,11 +100,10 @@ exports.removeBanData = ()->
     document.cookie = "bclient_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
     if "undefined" == typeof indexedDB
         return
-    req = indexedDB.open "jinrou_session", 1
-    req.onerror = ()->
-        console.error req.error
-    req.onsuccess = ()->
-        db = req.result
+    openDb (db)->
+        unless db?
+            cb {error: "failed"}
+            return
         t = db.transaction "client", "readwrite"
         s = t.objectStore "client"
         
@@ -130,3 +112,24 @@ exports.removeBanData = ()->
             console.error req2.error
         t.onerror = ()->
             console.error t.error
+
+# Open jinrou database.
+openDb = (cb)->
+    if "undefined" == typeof indexedDB
+        console.warn "No IndexedDB support."
+        cb null
+        return
+    req = indexedDB.open "jinrou_session", 1
+    req.onerror = ()->
+        console.error req.error
+        cb null
+    req.onupgradeneeded = (e)->
+        db = req.result
+        old = e.oldVersion
+        if old < 1
+            db.createObjectStore "client", {
+                keyPath: "id"
+                autoIncrement: false
+            }
+    req.onsuccess = ()->
+        cb req.result
