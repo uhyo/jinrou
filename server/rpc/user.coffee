@@ -55,7 +55,7 @@ login= (query,req,cb,ss)->
                 Server.log.login req.session.user
         else
             # ログイン失敗してるじゃん
-            libblacklist.handleHello ip, (ban)->
+            libblacklist.handleHello req.clientIp, (ban)->
                 if ban?.error?
                     cb {
                         error: ban.error
