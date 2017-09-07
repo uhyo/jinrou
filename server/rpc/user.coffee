@@ -83,7 +83,7 @@ exports.actions =(req,res,ss)->
         ip = req.clientIp
         libblacklist.handleHello ip, (ban)->
             if ban?.error?
-                cb {
+                res {
                     error: ban.error
                 }
                 return
