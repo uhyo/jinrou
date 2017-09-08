@@ -278,6 +278,9 @@ module.exports.actions=(req,res,ss)->
                 user.name=opt.name
                 user.userid=makeid()
                 user.icon= opt.icon ? null
+            if user.name.trim() == ''
+                res error:"名前は空白のみにすることはできません"
+                return
             M.rooms.update {id:roomid},{$push: {players:user}},(err)=>
                 if err?
                     res error:"エラー:#{err}"
