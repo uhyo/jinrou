@@ -65,7 +65,14 @@ sethelper=(ss,roomid,userid,id,res)->
             if x.realid==userid
                 query={$set:{}}
                 query.$set["players.#{i}.mode"]=mode
-                M.rooms.update {id:roomid},query, (err)=>
+                M.rooms.update {
+                    id: roomid
+                    "players.realid": x.realid
+                }, {
+                    $set: {
+                        "players.$.mode": mode
+                    }
+                }, (err)=>
                     if err?
                         res "エラー:#{err}"
                     else
@@ -354,9 +361,14 @@ module.exports.actions=(req,res,ss)->
                 return
             room.players.forEach (x,i)=>
                 if x.realid==req.session.userId
-                    query={$set:{}}
-                    query.$set["players.#{i}.start"]=!x.start
-                    M.rooms.update {id:roomid},query, (err)=>
+                    M.rooms.update {
+                        id: roomid
+                        "players.realid": x.realid
+                    }, {
+                        $set: {
+                            "players.$.start": !x.start
+                        }
+                    }, (err)=>
                         if err?
                             res "エラー:#{err}"
                         else
