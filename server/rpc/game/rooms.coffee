@@ -63,8 +63,6 @@ sethelper=(ss,roomid,userid,id,res)->
         mode= if topl? then "helper_#{id}" else "player"
         room.players.forEach (x,i)=>
             if x.realid==userid
-                query={$set:{}}
-                query.$set["players.#{i}.mode"]=mode
                 M.rooms.update {
                     id: roomid
                     "players.realid": x.realid
@@ -319,29 +317,24 @@ module.exports.actions=(req,res,ss)->
             unless room.mode=="waiting"
                 res "もう始まっています"
                 return
-            #room.players=room.players.filter (x)=>x!=req.session.userId
-            M.rooms.update {id:roomid},{$pull: {players:{realid:req.session.userId}}},(err)=>
+            # consistencyのためにplayersをまるごとアップデートする
+            room.players = room.players.filter (x)=> x.realid != req.session.userId
+            # ヘルパーになっている人は解除
+            for p, i in room.players
+                if p.mode == "helper_#{pl.userid}"
+                    ss.publish.channel "room#{roomid}", "mode", {userid: p.userid, mode: "player"}
+                    p.mode = "player"
+                    if p.start
+                        ss.publish.channel "room#{roomid}", "ready", {userid: p.userid, start: false}
+                        p.start = false
+            M.rooms.update {id:roomid},{$set: {players: room.players}},(err)=>
                 if err?
                     res "エラー:#{err}"
                 else
                     res null
                     # 退室通知
-                    user=room.players.filter((x)=>x.realid==req.session.userId)[0]
-                    room.players=room.players.filter (x)->x.realid!=req.session.userId
-                    Server.game.game.outlog room,user ? req.session.user
-                    ss.publish.channel "room#{roomid}", "unjoin", user?.userid
-                    # ヘルパーさがす
-                    query={$set:{}}
-                    for pl,i in room.players
-                        if pl.mode=="helper_#{user.userid}"
-                            sethelper ss,roomid,pl.realid,null,(->)
-
-                            if pl.start
-                                # unreadyクエリも投げてあげる
-                                query.$set["players.#{i}.start"]=false
-                                ss.publish.channel "room#{roomid}", "ready", {userid:pl.userid,start:false}
-                    if Object.keys(query.$set).length>0
-                        M.rooms.update {id:roomid},query
+                    Server.game.game.outlog room,pl ? req.session.user
+                    ss.publish.channel "room#{roomid}", "unjoin", pl?.userid
 
 
     ready:(roomid)->
@@ -399,10 +392,19 @@ module.exports.actions=(req,res,ss)->
             if pl.mode=="gm"
                 res "GMはkickできません"
                 return
-            update =
-                $pull:
-                    players:
-                        userid: id
+            room.players = room.players.filter (x)=> x.realid != pl.realid
+            for p, i in room.players
+                if p.mode == "helper_#{pl.userid}"
+                    ss.publish.channel "room#{roomid}", "mode", {userid: p.userid, mode: "player"}
+                    p.mode = "player"
+                    if p.start
+                        ss.publish.channel "room#{roomid}", "ready", {userid: p.userid, start: false}
+                        p.start = false
+            update = {
+                $set: {
+                    players: room.players
+                }
+            }
             if ban
                 # add to banned list
                 update.$addToSet =
@@ -412,23 +414,10 @@ module.exports.actions=(req,res,ss)->
                     res "エラー:#{err}"
                 else
                     res null
-                    # 退室通知
-                    user=room.players.filter((x)=>x.userid==id)[0]
-                    if user?
-                        Server.game.game.kicklog room,user
+                    if pl?
+                        Server.game.game.kicklog room, pl
                         ss.publish.channel "room#{roomid}", "unjoin",id
-                        ss.publish.user user.realid,"kicked",{id:roomid}
-                        # ヘルパーさがす
-                        query={$set:{}}
-                        for pl,i in room.players
-                            if pl.mode=="helper_#{user.userid}"
-                                sethelper ss,roomid,pl.realid,null,->
-                                if pl.start
-                                    # unreadyクエリも投げてあげる
-                                    query.$set["players.#{i}.start"]=false
-                                    ss.publish.channel "room#{roomid}", "ready", {userid:pl.userid,start:false}
-                        if Object.keys(query.$set).length>0
-                            M.rooms.update {id:roomid},query
+                        ss.publish.user pl.realid, "kicked",{id:roomid}
     # ヘルパーになる
     helper:(roomid,id)->
         unless req.session.userId
@@ -451,11 +440,13 @@ module.exports.actions=(req,res,ss)->
             unless room.mode=="waiting"
                 res "もう始まっています"
                 return
-            query={$set:{}}
-            for x,i in room.players
-                if x.start
-                    query.$set["players.#{i}.start"]=false
-            M.rooms.update {id:roomid},query,(err)=>
+            for p,i in room.players
+                p.start = false
+            M.rooms.update {id:roomid},{
+                $set: {
+                    players: room.players
+                }
+            },(err)=>
                 if err?
                     res "エラー:#{err}"
                 else
