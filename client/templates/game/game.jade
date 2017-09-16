@@ -311,6 +311,10 @@
       p
         | 調査する対象を選択してください（必須）：
         input(type="submit",value="調査する",data-job="Forensic")
+    #form_Cosplayer(hidden).jobformarea
+      p
+        | 護衛する人を一人選んでください（必須）:
+        input(type="submit",value="護衛する",data-job="Cosplayer")
   form#speakform
     p
       input(size="50",name="comment",required,autocomplete="off")

@@ -6710,6 +6710,10 @@ class Forensic extends Player
             comment:"#{@name}の調べによると、#{pl.name}は#{result}"
         splashlog game.id, game, log
 
+class Cosplayer extends Guard
+    type:"Cosplayer"
+    jobname:"コスプレイヤー"
+    fortuneResult:"人狼"
 
 
 # ============================
@@ -7994,6 +7998,7 @@ jobs=
     MadScientist:MadScientist
     SpiritPossessed:SpiritPossessed
     Forensic:Forensic
+    Cosplayer:Cosplayer
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
