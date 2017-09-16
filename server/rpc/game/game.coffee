@@ -2160,7 +2160,7 @@ class Player
     isHuman:->!@isWerewolf()
     # 人狼かどうか
     isWerewolf:->false
-    # 洋子かどうか
+    # 妖狐かどうか
     isFox:->false
     # 妖狐の仲間としてみえるか
     isFoxVisible:->false
@@ -2176,6 +2176,10 @@ class Player
     isDrunk:->false
     # 蘇生可能性を秘めているか
     isReviver:->false
+    # ----- 役職判定用
+    hasDeadResistance:->false
+    # -----
+
     # Am I Dead?
     isDead:->{dead:@dead,found:@found}
     # get my team
@@ -2575,6 +2579,7 @@ class Werewolf extends Player
                 
     isHuman:->false
     isWerewolf:->true
+    hasDeadResistance:->true
     # おおかみ専用メソッド：襲撃できるか
     isAttacker:->!@dead
     
@@ -2733,6 +2738,7 @@ class Guard extends Player
     type:"Guard"
     jobname:"狩人"
     midnightSort: 80
+    hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -2809,6 +2815,7 @@ class Fox extends Player
     isHuman:->false
     isFox:->true
     isFoxVisible:->true
+    hasDeadResistance:->true
     makejobinfo:(game,result)->
         super
         # 妖狐は仲間が分かる
@@ -2863,6 +2870,7 @@ class TinyFox extends Diviner
     midnightSort:100
     isHuman:->false
     isFox:->true
+    hasDeadResistance:->true
     makejobinfo:(game,result)->
         super
         # 子狐は妖狐が分かる
@@ -2898,6 +2906,9 @@ class Bat extends Player
 class Noble extends Player
     type:"Noble"
     jobname:"貴族"
+    hasDeadResistance:(game)->
+        slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
+        return slaves.length > 0
     die:(game,found)->
         if found=="werewolf"
             return if @dead
@@ -2947,6 +2958,8 @@ class Magician extends Player
             return "まだ能力を発動できません"
         @setTarget playerid
         pl=game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
         pl.touched game,@id
         
         log=
@@ -3116,6 +3129,7 @@ class Fugitive extends Player
     type:"Fugitive"
     jobname:"逃亡者"
     midnightSort:100
+    hasDeadResistance:->true
     sunset:(game)->
         @setTarget null
         if game.day<=1 && game.rule.scapegoat!="off"    # 一日目は逃げない
@@ -3421,6 +3435,7 @@ class Devil extends Player
     jobname:"悪魔くん"
     team:"Devil"
     psychicResult:"人狼"
+    hasDeadResistance:->true
     die:(game,found)->
         return if @dead
         if found=="werewolf"
@@ -3441,6 +3456,7 @@ class Devil extends Player
 class ToughGuy extends Player
     type:"ToughGuy"
     jobname:"タフガイ"
+    hasDeadResistance:->true
     die:(game,found)->
         if found=="werewolf"
             # 狼の襲撃に耐える
@@ -3587,6 +3603,7 @@ class Stalker extends Player
 class Cursed extends Player
     type:"Cursed"
     jobname:"呪われた者"
+    hasDeadResistance:->true
     die:(game,found)->
         return if @dead
         if found=="werewolf"
@@ -3722,6 +3739,7 @@ class Priest extends Player
     type:"Priest"
     jobname:"聖職者"
     midnightSort:70
+    hasDeadResistance:->true
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
@@ -3761,6 +3779,7 @@ class Priest extends Player
 class Prince extends Player
     type:"Prince"
     jobname:"プリンス"
+    hasDeadResistance:->true
     die:(game,found)->
         if found=="punish" && !@flag?
             # 処刑された
@@ -3989,6 +4008,7 @@ class Vampire extends Player
     sleeping:(game)->@target? || game.day==1
     isHuman:->false
     isVampire:->true
+    hasDeadResistance:->true
     sunset:(game)->
         @setTarget null
         if game.day>1 && @scapegoat
@@ -4431,6 +4451,7 @@ class Dog extends Player
     fortuneResult:"人狼"
     psychicResult:"人狼"
     midnightSort:100
+    hasDeadResistance:->true
     sunset:(game)->
         super
         @setTarget null    # 1日目:飼い主選択 選択後:かみ殺す人選択
@@ -4564,6 +4585,7 @@ class Trapper extends Player
     type:"Trapper"
     jobname:"罠師"
     midnightSort:81
+    hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -4967,6 +4989,7 @@ class Miko extends Player
     type:"Miko"
     jobname:"巫女"
     midnightSort:71
+    hasDeadResistance:->true
     sleeping:->true
     jobdone:->!!@flag
     job:(game,playerid,query)->
@@ -5224,6 +5247,7 @@ class WanderingGuard extends Player
     type:"WanderingGuard"
     jobname:"風来狩人"
     midnightSort:80
+    hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -6641,6 +6665,7 @@ class Forensic extends Player
     jobname:"法医学者"
     mdinightSort:100
     sleeping:->@target?
+    job_target: Player.JOB_T_DEAD
     sunset:(game)->
         if game.day == 1
             # 1日目
@@ -6648,12 +6673,42 @@ class Forensic extends Player
             return
         targets = game.players.filter (pl)-> pl.dead
         if targets.length == 0
-            @setTarget null
+            @setTarget ""
             return
+        @setTarget null
         if @scapegoat
             # 身代わりくん
             r = Math.floor Math.random()*targets.length
-            @setTarget targets[r].id
+            @setTarget ""
+            @job game, targets[r].id, {}
+    job:(game,playerid)->
+        if game.day < 2
+            return "まだ能力を発動できません"
+        pl = game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        unless pl.dead
+            return "そのプレイヤーは死亡していません"
+        @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}の死体を調べました。"
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer @target
+        return unless pl?
+        # 死亡耐性を調べる
+        fl = pl.hasDeadResistance game
+        result = if fl then "死亡耐性を持っていました。" else "死亡耐性を持っていませんでした。"
+
+        @addGamelog game,"forensic", fl, pl.id
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}の調べによると、#{pl.name}は#{result}"
+        splashlog game.id, game, log
 
 
 
@@ -7565,6 +7620,7 @@ class FoxMinion extends Complex
     isHuman:->false
     isFox:->true
     isFoxVisible:->true
+    hasDeadResistance:->true
     getJobname:->"狐憑き（#{@main.getJobname()}）"
     # 占われたら死ぬ
     divined:(game,player)->
@@ -7937,6 +7993,7 @@ jobs=
     Pumpkin:Pumpkin
     MadScientist:MadScientist
     SpiritPossessed:SpiritPossessed
+    Forensic:Forensic
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8076,6 +8133,7 @@ jobStrength=
     Pumpkin:17
     MadScientist:20
     SpiritPossessed:4
+    Forensic:13
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

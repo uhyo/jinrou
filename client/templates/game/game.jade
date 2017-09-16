@@ -307,6 +307,10 @@
       p
         | 蘇生する対象を選択してください（非強制/一度のみ）：
         input(type="submit",value="蘇生する",data-job="MadScientist")
+    #form_Forensic(hidden).jobformarea
+      p
+        | 調査する対象を選択してください（必須）：
+        input(type="submit",value="調査する",data-job="Forensic")
   form#speakform
     p
       input(size="50",name="comment",required,autocomplete="off")
