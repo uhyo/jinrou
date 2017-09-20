@@ -1528,7 +1528,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         figure.classList.add "icon"
         img=document.createElement "img"
         img.width=img.height=48
-        img.alt=obj.name
+        img.alt=""
         Index.util.setHTTPSicon img, obj.icon
         figure.appendChild img
         df.appendChild figure
@@ -1540,6 +1540,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         a=document.createElement "a"
         a.href="/user/#{obj.realid}"
         a.textContent=obj.name
+        a.classList.add "user-name"
         p.appendChild a
     else
         p.textContent=obj.name

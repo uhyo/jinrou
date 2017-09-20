@@ -83,6 +83,7 @@ exports.getroom=(mode,rooms)->
             a=document.createElement "a"
             a.href="/user/#{room.owner.userid}"
             a.textContent=room.owner.name
+            a.classList.add "user-name"
             td.appendChild a
         else
             td.textContent="???"
