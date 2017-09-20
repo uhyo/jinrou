@@ -1529,6 +1529,8 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         img=document.createElement "img"
         img.width=img.height=48
         img.alt=""
+        img.style.width = "48px"
+        img.style.height = "48px"
         Index.util.setHTTPSicon img, obj.icon
         figure.appendChild img
         df.appendChild figure
