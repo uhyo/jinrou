@@ -167,7 +167,7 @@ exports.actions =(req,res,ss)->
             return
         u=JSON.parse JSON.stringify req.session.user
         if u
-            res userProfile(u)
+            res userProfile(req.session.user, req.session.ban)
         else
             res null
 # お知らせをとってきてもらう
@@ -223,7 +223,7 @@ exports.actions =(req,res,ss)->
                 delete record.password
                 req.session.user=record
                 req.session.save ->
-                res userProfile(record)
+                res userProfile(record, req.session.ban)
     sendConfirmMail:(query)->
         if query.mail && query.mail.length > Config.maxlength.user.mail
             res {error:"メールアドレスが長すぎます"}
@@ -333,7 +333,7 @@ exports.actions =(req,res,ss)->
                 if err?
                     res {error:"プロフィール変更に失敗しました"}
                     return
-                res userProfile(record)
+                res userProfile(record, req.session.ban)
     changeMailconfirmsecurity:(query)->
         M.users.findOne {"userid":req.session.userId}, (err, record)->
             if err?
@@ -344,7 +344,7 @@ exports.actions =(req,res,ss)->
                 return
             if query.mailconfirmsecurity == record.mailconfirmsecurity
                 record.info = "保存しました。"
-                res userProfile(record)
+                res userProfile(record, req.session.ban)
                 return
             if query.mailconfirmsecurity == true
                 # 厳しい
@@ -360,14 +360,14 @@ exports.actions =(req,res,ss)->
                         req.session.save ->
                         record.mailconfirmsecurity = true
                         record.info = "保存しました。"
-                        res userProfile(record)
+                        res userProfile(record, req.session.ban)
                 else
                     # メールアドレスの登録が必要
                     res {error: "この設定を有効にするにはメールアドレスを登録する必要があります。"}
 
             else
                 # メール確認が必要
-                res2 = (record) -> res userProfile(record)
+                res2 = (record) -> res userProfile(record, req.session.ban)
                 mailer.sendMailconfirmsecurityMail {
                     userid: req.session.userId
                 }, req, res2, ss
@@ -464,7 +464,7 @@ makeuserdata=(query)->
     }
 
 # profileに表示する用のユーザーデータをdocから作る
-userProfile = (doc)->
+userProfile = (doc, ban)->
     doc.wp = unless doc.win? && doc.lose?
         "???"
     else if doc.win.length+doc.lose.length==0
@@ -485,6 +485,14 @@ userProfile = (doc)->
             address:doc.mail.address
             new:doc.mail.new
             verified:doc.mail.verified
+    # BAN info
+    if ban?
+        doc.ban =
+            ban: true
+            reason: ban.reason
+    else
+        doc.ban =
+            ban: false
     # backward compatibility
     doc.mailconfirmsecurity = !!doc.mailconfirmsecurity
     return doc
