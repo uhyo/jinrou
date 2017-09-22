@@ -8621,10 +8621,14 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push "Shishimai"
 
                     if month==9 && 30<=d<=31
-                        # ハロウィンなのでかぼちゃ
-                        if Math.random()<0.4 && frees>0 && !nonavs.Pumpkin
+                        # ハロウィンなのでかぼちゃとおばけ
+                        if Math.random()<0.2 && frees>0 && !nonavs.Pumpkin
                             joblist.Pumpkin ?= 0
                             joblist.Pumpkin++
+                            frees--
+                        else if Math.random()<0.25 && frees>0 && !nonavs.TinyGhost
+                            joblist.TinyGhost ?= 0
+                            joblist.TinyGhost++
                             frees--
                     else
                         if Math.random()<0.2
