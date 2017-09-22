@@ -6776,7 +6776,7 @@ class Ninja extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}の偵察の結果、#{pl.name}は夜に行動していました。"
+                comment:"#{@name}の偵察の結果、#{pl.name}は夜に行動可能でした。"
             splashlog game.id, game, log
         else
             log=
