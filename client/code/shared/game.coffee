@@ -27,12 +27,14 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
 "Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
+# 人狼パーティー
+"TinyGhost",
 # その他
 "RedHood","Baker",
 # 人狼放浪記
-"MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic","Cosplayer",
+"MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic"
 # アプリの役職
-"PsychoKiller",
+"PsychoKiller","Cosplayer",
 # わんないと人狼
 "Phantom",
 # 月夜の人狼
@@ -53,7 +55,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
@@ -822,6 +824,9 @@ exports.jobinfo=
         Cosplayer:
             name:"コスプレイヤー"
             color:"#69652b"
+        TinyGhost:
+            name:"おばけ"
+            color:"#999999"
         
     Werewolf:
         name:"人狼陣営"

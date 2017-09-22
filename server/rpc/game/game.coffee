@@ -6715,6 +6715,11 @@ class Cosplayer extends Guard
     jobname:"コスプレイヤー"
     fortuneResult:"人狼"
 
+class TinyGhost extends Player
+    type:"TinyGhost"
+    jobname:"おばけ"
+    humanCount:-> 0
+
 
 # ============================
 # 処理上便宜的に使用
@@ -7999,6 +8004,7 @@ jobs=
     SpiritPossessed:SpiritPossessed
     Forensic:Forensic
     Cosplayer:Cosplayer
+    TinyGhost:TinyGhost
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8139,6 +8145,8 @@ jobStrength=
     MadScientist:20
     SpiritPossessed:4
     Forensic:13
+    Cosplayer:20
+    TinyGhost:5
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
