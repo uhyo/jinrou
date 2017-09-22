@@ -986,6 +986,19 @@ class Game
                     player.sunset this
                 else
                     player.deadsunset this
+            # 忍者のデータを作る
+            ninjadata = {}
+            for player in @players
+                unless player.dead
+                    # 夜に行動していたらtrue
+                    ninjadata[player.id] = !player.jobdone(this)
+
+                    if @rule.scapegoat=="on" && @day==1 && player.isWerewolf() && player.isAttacker()
+                        # 身代わり襲撃は例外的にtrue
+                        ninjadata[player.id] = true
+            # 忍者に配布
+            for player in @players
+                player.accessByJobType("Ninja")?.flag = JSON.stringify ninjadata
         else
             # 誤爆防止
             @werewolf_target_remain=0
@@ -6720,6 +6733,61 @@ class TinyGhost extends Player
     jobname:"おばけ"
     humanCount:-> 0
 
+class Ninja extends Player
+    type:"Ninja"
+    jobname:"忍者"
+    sleeping:->@target?
+    sunset:(game)->
+        @setFlag null
+        targets = game.players.filter (pl)-> !pl.dead && pl.id != "身代わりくん"
+        if targets.length == 0
+            @setTarget ""
+            return
+        @setTarget null
+        if @scapegoat
+            # 身代わりくん
+            r = Math.floor Math.random()*targets.length
+            @setTarget ""
+            @job game, targets[r].id, {}
+    job:(game,playerid)->
+        pl = game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        if pl.dead
+            return "そのプレイヤーは死亡しています"
+        if pl.id == "身代わりくん"
+            return "身代わりくんは選べません"
+        @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment:"#{@name}は#{pl.name}を偵察しました。"
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer @target
+        return unless pl?
+        return unless @flag?
+        # flagに忍者用データが入っている
+        obj = JSON.parse @flag
+        result = !!obj?[pl.id]
+        # trueなら夜行動あり
+        if result
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}の偵察の結果、#{pl.name}は夜に行動していました。"
+            splashlog game.id, game, log
+        else
+            log=
+                mode:"skill"
+                to:@id
+                comment:"#{@name}の偵察の結果、#{pl.name}は夜に行動していませんでした。"
+            splashlog game.id, game, log
+        @addGamelog game,"ninjaresult", result, pl.id
+
+
+
 
 # ============================
 # 処理上便宜的に使用
@@ -8005,6 +8073,7 @@ jobs=
     Forensic:Forensic
     Cosplayer:Cosplayer
     TinyGhost:TinyGhost
+    Ninja:Ninja
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8147,6 +8216,7 @@ jobStrength=
     Forensic:13
     Cosplayer:20
     TinyGhost:5
+    Ninja:18
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
