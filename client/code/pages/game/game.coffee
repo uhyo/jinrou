@@ -394,6 +394,31 @@ exports.start=(roomid)->
             forminfo()
 
         $("#roomname").text room.name
+        iconlist = document.createElement 'span'
+        iconlist.classList.add 'roomname-icons'
+        # ルーム情報
+        if room.password
+            icon = document.createElement 'i'
+            icon.classList.add 'fa'
+            icon.classList.add 'fa-fw'
+            icon.classList.add 'fa-lock'
+            icon.title = 'パスワードあり'
+            iconlist.appendChild icon
+        if room.blind
+            icon = document.createElement 'i'
+            icon.classList.add 'fa'
+            icon.classList.add 'fa-fw'
+            icon.classList.add 'fa-user-secret'
+            icon.title = if room.blind == 'hide' then '覆面（終了後に公開）' else '覆面（最後まで非公開）'
+            iconlist.appendChild icon
+        if room.comment
+            icon = document.createElement 'i'
+            icon.classList.add 'fa'
+            icon.classList.add 'fa-fw'
+            icon.classList.add 'fa-info-circle'
+            icon.title = room.comment
+            iconlist.appendChild icon
+        $("#roomname").append iconlist
         if room.mode=="waiting"
             # 開始前のユーザー一覧は roomから取得する
             room.players.forEach (x)->

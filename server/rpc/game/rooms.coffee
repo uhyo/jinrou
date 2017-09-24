@@ -135,6 +135,8 @@ module.exports.actions=(req,res,ss)->
             # ふるいかどうか
             if result.made < Date.now()-Config.rooms.fresh*3600000
                 result.old=true
+            # パスワードをアレする
+            result.password = !!result.password
             res result
 
     # 成功: {id: roomid}
