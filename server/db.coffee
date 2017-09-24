@@ -11,7 +11,7 @@ dbinit= (loaded)->
         cols_count= (->
           count=0
           return (cb)->
-            if ++count>=8
+            if ++count>=9
               console.log "Mongodb Connected"
               # ゲームデータ読み込みをしてもらう
               #SS.server.game.game.loadDB()
@@ -89,6 +89,14 @@ dbinit= (loaded)->
                 col.ensureIndex {"type":1, "timestamp":1},(err,idxname)->
                   col.ensureIndex {"ip":1, "type":1, "timestamp":1}, (err,idxname)->
                     cols_count()
+        DB.collection "userrawlogs", (err,col)->
+          if err?
+            console.log err
+            throw err
+          M.userrawlogs = col
+          col.ensureIndex {"userid": 1, "type": 1, "subtype": 1, "timestamp": 1}, (err, idxname)->
+            cols_count()
+
 
 exports.dbinit=dbinit
 
