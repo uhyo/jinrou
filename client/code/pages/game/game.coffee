@@ -134,6 +134,8 @@ exports.start=(roomid)->
                 $("#jobinfo").append pp "あなたの飼い主は#{obj.dogOwner.name}です"
             if obj.quantumwerewolf_number?
                 $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
+            if obj.twins?
+                $("#jobinfo").append pp "双子は#{obj.twins.map((x)->x.name).join(',')}"
             
             if obj.winner?
                 # 勝敗

@@ -466,7 +466,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -1282,7 +1282,9 @@ class Game
                     "村を去りました"
                 when "deathnote"
                     "死体で発見されました"
-                when "foxsuicide", "friendsuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide"
+                    "誰かの後を追って自ら死を選びました"
+                when "friendsuicide"
                     "誰かの後を追って自ら死を選びました"
                 when "infirm"
                     "老衰で死亡しました"
@@ -6784,6 +6786,17 @@ class Ninja extends Player
             splashlog game.id, game, log
         @addGamelog game,"ninjaresult", result, pl.id
 
+class Twin extends Player
+    type:"Twin"
+    jobname:"双子"
+    beforebury:(game)->
+        # 死亡状態の双子がいたら死亡
+        if game.players.some((x)-> x.dead && x.isJobType "Twin")
+            @die game, "twinsuicide"
+    makejobinfo:(game, result)->
+        super
+        # 双子が分かる
+        result.twins = game.players.filter((x)-> x.isJobType "Twin").map (x)-> x.publicinfo()
 
 
 
@@ -8072,6 +8085,7 @@ jobs=
     Cosplayer:Cosplayer
     TinyGhost:TinyGhost
     Ninja:Ninja
+    Twin:Twin
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8215,6 +8229,7 @@ jobStrength=
     Cosplayer:20
     TinyGhost:5
     Ninja:18
+    Twin:16
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -8792,6 +8807,11 @@ module.exports.actions=(req,res,ss)->
                                     if joblist.Couple==0
                                         unless init "Couple","Human"
                                             #共有者が入る隙間はない
+                                            continue
+                                when "Twin"
+                                    # 双子も
+                                    if joblist.Twin==0
+                                        unless init "Twin","Human"
                                             continue
                                 when "Noble"
                                     # 貴族は奴隷がほしい
