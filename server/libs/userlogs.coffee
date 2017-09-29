@@ -15,46 +15,45 @@ DataTypes =
 ###
 
 # ユーザーのログを追加
-# query:
-#   userid: "userid"
-#   result: "win" | "lose" | "draw"
-#   gameid: Number
-#   job: String
 
-exports.addGameLog = (query, cb)->
-    log =
-        userid: query.userid
-        type: DateTypes.game
-        subtype: query.result
-        gameid: query.gameid
-        job: query.job
-        timestamp: new Date
+exports.addGameLogs = (game, cb)->
+    logs = []
+    timestamp = new Date
+    # まずユーザーの勝敗ログ
+    for pl in game.players
+        subtype =
+            if game.winner=="Draw"
+                "draw"
+            else if pl.winner
+                "win"
+            else
+                "lose"
+        log =
+            userid: pl.realid
+            type: DataTypes.game
+            subtype: subtype
+            gameid: game.id
+            job: pl.originalType
+            timestamp: timestamp
+        logs.push log
+    # 突然死ログも
+    for l in game.gamelogs
+        if l.event == "found" && l.flag in ["gone-day", "gone-night"]
+            pl = game.getPlayer log.id
+            if pl?
+                log =
+                    userid: pl.realid
+                    type: DataTypes.gone
+                    subtype: null
+                    gameid: game.id
+                    job: pl.originalType
+                    timestamp: timestamp
+                logs.push log
 
-    M.userrawlogs.insert log, {w: 1}, (err)->
+    M.userrawlogs.insert logs, {w: 1}, (err)->
         if cb?
             if err?
                 cb err
             else
                 cb null
 
-# 突然死ログを追加
-# query:
-#   userid: "userid"
-#   gameid: Number
-#   job: String
-
-exports.addGomeLog = (query, cb)->
-    log =
-        userid: query.userid
-        type: DateTypes.gone
-        subtype: null
-        gameid: query.gameid
-        job: query.job
-        timestamp: new Date
-
-    M.userrawlogs.insert log, {w: 1}, (err)->
-        if cb?
-            if err?
-                cb err
-            else
-                cb null
