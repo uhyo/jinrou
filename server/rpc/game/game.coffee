@@ -386,6 +386,28 @@ class Game
         }
         
     setrule:(rule)->@rule=rule
+    # ゲーム開始時にプレイヤー数が合ってるかチェック
+    checkPlayerNumber:()->
+        joblist = @joblist
+        # number of required jobs
+        jallnum = @startplayers.length
+        # 身代わり君を入れる
+        if @rule.scapegoat == "on"
+            jallnum++
+        # ケミカル人狼は1人2つ
+        if @rule.chemical == "on"
+            jallnum *= 2
+        # sum up all numbers
+        jnumber = 0
+        for job, num of joblist
+            n = parseInt num, 10
+            if Number.isNaN n || n < 0
+                return "プレイヤー数が不正です（#{job}:#{num}）。このエラーは数回やり直せば直る場合があります。"
+            jnumber += n
+        if jnumber != jallnum
+            return "プレイヤー数が不正です（#{jnumber}/#{jallnum}/#{@players.length}）。このエラーは数回やり直せば直る場合があります。"
+        return null
+
     #成功:null
     #players: 参加者 supporters: その他
     setplayers:(res)->
@@ -9063,6 +9085,11 @@ module.exports.actions=(req,res,ss)->
             game.startoptions=options
             game.startplayers=players
             game.startsupporters=supporters
+            # プレイヤー人数をチェック
+            err = game.checkPlayerNumber()
+            if err?
+                res err
+                return
             
             if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼","特殊ルール.エンドレス闇鍋"])
                 # 希望役職制あり
