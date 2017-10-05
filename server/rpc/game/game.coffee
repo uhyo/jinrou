@@ -6757,6 +6757,7 @@ class Ninja extends Player
             return "そのプレイヤーは死亡しています"
         if pl.id == "身代わりくん"
             return "身代わりくんは選べません"
+        pl.touched game, @id
         @setTarget playerid
         log=
             mode:"skill"
