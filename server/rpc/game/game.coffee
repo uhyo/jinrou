@@ -250,6 +250,9 @@ class Game
         # New Year Messageのためだけの変数
         @currentyear = null
 
+        # 保存用の時間
+        @finish_time=null
+
         ###
         さまざまな出来事
         id: 動作した人
@@ -278,6 +281,7 @@ class Game
             werewolf_target:@werewolf_target
             werewolf_target_remain:@werewolf_target_remain
             #quantum_patterns:@quantum_patterns
+            finish_time:@finish_time
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
@@ -329,6 +333,7 @@ class Game
                 game.participants=game.players.concat []
 
         game.quantum_patterns=obj.quantum_patterns ? []
+        game.finish_time=obj.finish_time ? null
         unless game.finished
             if game.rule
                 game.timer()
@@ -1599,7 +1604,8 @@ class Game
         if team?
             # 勝敗決定
             @finished=true
-            @last_time=Date.now()
+            @finish_time=new Date
+            @last_time=@finish_time.getTime()
             @winner=team
             if team!="Draw"
                 @players.forEach (x)=>

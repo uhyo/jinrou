@@ -95,7 +95,9 @@ dbinit= (loaded)->
             throw err
           M.userrawlogs = col
           col.ensureIndex {"userid": 1, "type": 1, "subtype": 1, "timestamp": 1}, (err, idxname)->
-            cols_count()
+            col.ensureIndex {"userid": 1, "type": 1, "gameid": 1}, {unique: true}, (err, idxname)->
+              col.ensureIndex {"userid": 1, "timestamp": 1, "type": 1, "subtype": 1}, (err, idxname)->
+                cols_count()
 
 
 exports.dbinit=dbinit
