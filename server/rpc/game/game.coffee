@@ -8504,21 +8504,25 @@ module.exports.actions=(req,res,ss)->
                                 frees--
                         if joblist.Vampire>0
                             frees+=joblist.Vampire
-                        if vampire_number <= frees
-                            joblist.Vampire = vampire_number
-                            frees -= vampire_number
-                        else
-                            joblist.Vampire = frees
-                            frees = 0
+                        joblist.Vampire = 0
+                        if !nonavs.Vampire
+                            if vampire_number <= frees
+                                joblist.Vampire = vampire_number
+                                frees -= vampire_number
+                            else
+                                joblist.Vampire = frees
+                                frees = 0
 
                         if joblist.Devil>0
                             frees+=joblist.Devil
-                        if devil_number <= frees
-                            joblist.Devil = devil_number
-                            frees -= devil_number
-                        else
-                            joblist.Devil = frees
-                            frees = 0
+                        joblist.Devil = 0
+                        if !nonavs.Devil
+                            if devil_number <= frees
+                                joblist.Devil = devil_number
+                                frees -= devil_number
+                            else
+                                joblist.Devil = frees
+                                frees = 0
                         # 人外は選んだのでもう選ばれなくする
                         exceptions=exceptions.concat Shared.game.nonhumans
                         exceptions.push "Blasphemy"
