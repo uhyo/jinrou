@@ -6724,6 +6724,7 @@ class Forensic extends Player
             return "そのプレイヤーは存在しません"
         unless pl.dead
             return "そのプレイヤーは死亡していません"
+        pl.touched game, @id
         @setTarget playerid
         log=
             mode:"skill"
