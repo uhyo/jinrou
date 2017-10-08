@@ -430,6 +430,7 @@ exports.actions =(req,res,ss)->
                     usersummary: usersummary
                     data_open_recent: !!req.session.user?.data_open_recent
                     data_open_all: !!req.session.user?.data_open_all
+                    dataOpenBarrier: Config.user.dataOpenBarrier
                 }
         M.userlogs.findOne {userid:myid},(err,doc)->
             if err?
@@ -469,14 +470,24 @@ exports.actions =(req,res,ss)->
             else
                 res {error: 'パラメータが不正です'}
                 return
-        
-        M.users.update {
+        # 対戦数をチェック
+        M.userlogs.findOne {
             userid: req.session.userId
-        }, updatequery, (err)->
-            if err?
+        }, {'counter.allgamecount': 1}, (err, doc)->
+            if err? || !doc?
                 res {error: String err}
                 return
-            res {value: value}
+            # 30戦以上に制限
+            if isNaN(doc.counter?.allgamecount) || doc.counter?.allgamecount < Config.user.dataOpenBarrier
+                res {error: '戦績が足りません'}
+                return
+            M.users.update {
+                userid: req.session.userId
+            }, updatequery, (err, num)->
+                if err?
+                    res {error: String err}
+                    return
+                res {value: value}
 
 
     # 私をBANしてください!!!!!!!!

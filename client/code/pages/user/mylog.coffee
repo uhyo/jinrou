@@ -16,14 +16,24 @@ exports.start=->
             $("#open-recent").prop "checked", true
         if result.data_open_all
             $("#open-all").prop "checked", true
-        $("#open-recent")
-            .prop "disabled", false
-            .change (je)->
-                changeOpenSetting 'open-recent', je.target
-        $("#open-all")
-            .prop "disabled", false
-            .change (je)->
-                changeOpenSetting 'open-all', je.target
+
+        # 戦績が少ないとアレだ
+        for i in document.querySelectorAll 'i.mylog-desc-of-open'
+            i.title += "戦績を公開するには総対戦数#{result.dataOpenBarrier}以上が必要です。"
+        unless userlog.counter?.allgamecount >= result.dataOpenBarrier
+            # 戦績が足りない
+            for elm in document.querySelectorAll 'label.mylog-open'
+                elm.classList.add 'mylog-open-disabled'
+        else
+            # 戦績足りてる
+            $("#open-recent")
+                .prop "disabled", false
+                .change (je)->
+                    changeOpenSetting 'open-recent', je.target
+            $("#open-all")
+                .prop "disabled", false
+                .change (je)->
+                    changeOpenSetting 'open-all', je.target
 
 exports.end=->
 
@@ -38,6 +48,7 @@ showUserlog = (userlog)->
             敗北数：<b>#{userlog.losecount?.all ? 0}</b>）</p>""")
         .append(grapharea)
 
+    # グラフも表示
     makeGraph userlog, grapharea
 
 showUserSummary = (usersummary)->

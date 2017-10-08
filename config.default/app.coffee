@@ -89,6 +89,10 @@ module.exports =
   rooms:
     # 古い部屋に入るまでの時間(hours)
     fresh:24*3
+  # ユーザーについて
+  user:
+    # The number of games required to publish a user's 戦績.
+    dataOpenBarrier: 30
   # maximum length of data that mey be saved in DB
   maxlength:
     user:
