@@ -12,6 +12,19 @@ exports.start=->
         showUserlog userlog
         showUserSummary usersummary
 
+        if result.data_open_recent
+            $("#open-recent").prop "checked", true
+        if result.data_open_all
+            $("#open-all").prop "checked", true
+        $("#open-recent")
+            .prop "disabled", false
+            .change (je)->
+                changeOpenSetting 'open-recent', je.target
+        $("#open-all")
+            .prop "disabled", false
+            .change (je)->
+                changeOpenSetting 'open-all', je.target
+
 exports.end=->
 
 
@@ -38,6 +51,29 @@ showUserSummary = (usersummary)->
         <p>敗北数：<b>#{usersummary.lose}</b> (#{(usersummary.lose/usersummary.game_total*100).toFixed(1)}%)</p>
         <p>突然死数：<b>#{usersummary.gone}</b> (#{(usersummary.gone/usersummary.game_total*100).toFixed(1)}%)</p>
             """)
+
+# 戦績公開設定を変更
+changeOpenSetting = (mode, input)->
+    input.disabled = true
+    value = input.checked
+    l = new util.LoadingIcon document.getElementById "#{mode}-icon"
+    l.start()
+    # 変換
+    m = switch mode
+        when 'open-recent' then 'recent'
+        when 'open-all' then 'all'
+    ss.rpc 'user.changeDataOpenSetting', {
+        mode: m
+        value: value
+    }, (result)->
+        if result.error?
+            util.message 'エラー', result.error
+        # 演出
+        setTimeout (()->
+            input.disabled = false
+            input.checked = result.value
+            l.stop()
+        ), 200
 
 
 # 戦績グラフを作る
@@ -105,9 +141,6 @@ makeGraph = (userlog, grapharea)->
                 lose:losecount[type] ? 0
     graph2.setData gs,names
     graph2.openAnimate 0.6
-
-
-
 
 #Object2つをマージ（obj1ベース）
 #なにこの実装

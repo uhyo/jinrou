@@ -412,7 +412,7 @@ exports.actions =(req,res,ss)->
                 console.log "invalid3",query.prize
                 res {error:"肩書きが不正です"}
         
-# 成績をくわしく見る
+    # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
             res {error:"ログインしてください"}
@@ -428,6 +428,8 @@ exports.actions =(req,res,ss)->
                 res {
                     userlog: userlog
                     usersummary: usersummary
+                    data_open_recent: !!req.session.user?.data_open_recent
+                    data_open_all: !!req.session.user?.data_open_all
                 }
         M.userlogs.findOne {userid:myid},(err,doc)->
             if err?
@@ -446,6 +448,37 @@ exports.actions =(req,res,ss)->
             if doc?
                 usersummary = doc
                 next()
+    # 戦績公開設定を変更
+    changeDataOpenSetting:(query)->
+        unless req.session.userId
+            res {error:"ログインしてください"}
+            return
+        mode = query.mode
+        value = !!query.value
+
+        updatequery = {}
+        switch mode
+            when 'recent'
+                updatequery.$set = {
+                    data_open_recent: value
+                }
+            when 'all'
+                updatequery.$set = {
+                    data_open_all: value
+                }
+            else
+                res {error: 'パラメータが不正です'}
+                return
+        
+        M.users.update {
+            userid: req.session.userId
+        }, updatequery, (err)->
+            if err?
+                res {error: String err}
+                return
+            res {value: value}
+
+
     # 私をBANしてください!!!!!!!!
     requestban:(banid)->
         libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
@@ -480,6 +513,8 @@ makeuserdata=(query)->
         ownprize:[] # 何かで与えられた称号（prizeに含まれる）
         nowprize:null   # 現在設定している肩書き
                 # [{type:"prize",value:(prizeid)},{type:"conjunction",value:"が"},...]
+        data_open_recent: false # 最近の戦績を公開するかどうか
+        data_open_all: false # 全期間の戦績を公開するかどうか
     }
 
 # profileに表示する用のユーザーデータをdocから作る

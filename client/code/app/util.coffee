@@ -358,3 +358,23 @@ exports.setHTTPSicon = setHTTPSicon = (img, url)->
         img.addEventListener "load", handler2, false
     # URLをset
     img.src = url
+
+# Font Awesomeアイコンを一時的にloadingに変える
+exports.LoadingIcon = class LoadingIcon
+    constructor:(@icon)->
+        @iconclasses = []
+        # fa-系アイコンを列挙
+        for cl in @icon.classList
+            if (/^fa-/.test cl) && cl != 'fa-fw'
+                @iconclasses.push cl
+    start:()->
+        # アイコンを変更
+        for cl in @iconclasses
+            @icon.classList.remove cl
+        @icon.classList.add 'fa-pulse'
+        @icon.classList.add 'fa-spinner'
+    stop:()->
+        @icon.classList.remove 'fa-pulse'
+        @icon.classList.remove 'fa-spinner'
+        for cl in @iconclasses
+            @icon.classList.add cl
