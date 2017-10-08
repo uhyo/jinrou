@@ -7,12 +7,25 @@ section.mylog
       a(href="/rooms/my") 自分が参加した部屋の一覧
 
     h2 最近の戦績
+    p
+      label.mylog-open
+        i.fa.fa-id-card-o
+        | 最近の戦績を他のユーザーに公開
+        input#open-recent(type="checkbox")
+      i.fa.fa-question-circle-o(data-helpicon, title="オンにすると、ユーザーページで最近の戦績を公開します。ただし、非公開に設定した場合でも突然死率のみ公開されます。")
+
     #recentdata
       p
         i.fa.fa-spinner.fa-pulse
         | 読み込み中……
 
     h2 全期間の戦績
+    p
+      label.mylog-open
+        i.fa.fa-id-card-o
+        | 全期間の戦績を他のユーザーに公開
+        input#open-all(type="checkbox")
+      i.fa.fa-question-circle-o(data-helpicon, title="オンにすると、ユーザーページで全期間の対戦数・勝利数・敗北数を公開します。")
     #alldata
       p
         i.fa.fa-spinner.fa-pulse
