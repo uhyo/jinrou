@@ -189,6 +189,10 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                         pf()
             else
                 pf()
+        when "/my/log"
+            page "user-mylog", {
+                loggedin: my_userid?
+            }, Index.user.mylog, null
         when "/reset"
             # 找回密码
             page "reset",null,Index.reset, null

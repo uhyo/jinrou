@@ -88,9 +88,10 @@ exports.getUserSummary = (userid, cb)->
         days = 30
         # 開始時刻と終了時刻を求める
         end_day = new Date
-        end_day.setHours -1
+        end_day.setHours 0
         end_day.setMinutes 0
         end_day.setSeconds 0
+        end_day.setMilliseconds 0
         start_day = new Date end_day
         start_day.setDate(start_day.getDate() - days)
 
@@ -103,7 +104,7 @@ exports.getUserSummary = (userid, cb)->
                 timestamp: {$lt: end_day}
             }]
         }, {}, {
-            sort: ['timestamp', 1]
+            sort: [['timestamp', 1]]
         }
         # 集計オブジェクト
         result = {
@@ -120,7 +121,7 @@ exports.getUserSummary = (userid, cb)->
             win_each: []
             lose_each: []
             draw_each: []
-            gone_eacyh: []
+            gone_each: []
         }
         sub_game = 0
         sub_win = 0
@@ -160,6 +161,7 @@ exports.getUserSummary = (userid, cb)->
                 return
 
             sub_game += 1
+            result.game_total += 1
             switch doc.type
                 when DataTypes.game
                     switch doc.subtype

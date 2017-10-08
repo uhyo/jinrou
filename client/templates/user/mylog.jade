@@ -1,0 +1,20 @@
+section.mylog
+  h1 戦績
+  if !loggedin
+    p 自分の戦績を表示するにはログインしてください。
+  else
+    p
+      a(href="/rooms/my") 自分が参加した部屋の一覧
+
+    h2 最近の戦績
+    #recentdata
+      p
+        i.fa.fa-spinner.fa-pulse
+        | 読み込み中……
+
+    h2 全期間の戦績
+    #alldata
+      p
+        i.fa.fa-spinner.fa-pulse
+        | 読み込み中……
+

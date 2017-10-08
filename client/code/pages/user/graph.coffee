@@ -2,12 +2,15 @@
 class Graph
     margin:10
     constructor:(@size)->
-        @canvas=document.createElement "canvas"
+        @area = document.createElement 'div'
+        @area.classList.add 'graph-area'
+        @canvas=document.createElement 'canvas'
         @canvas.height=@size+@margin*2
         @canvas.width=@size+@margin*2
         @ctx=@canvas.getContext '2d'
         @canvas.style.float="left"
-        @canvas.style.clear="both"
+        @area.style.clear="both"
+        @area.appendChild @canvas
         
         @data=null
     setData:(@data)->
@@ -17,7 +20,28 @@ class CircleGraph extends Graph
         super
         @circ=1 #0～1で円の完成度
         @table=null
+        @_makeUI()
     hide:->@circ=0
+    _makeUI:->
+        # クリックイベント
+        @area.addEventListener 'click', (e)=>
+            t = e.target
+            # liにたどり着くまで
+            while t? && t.tagName != "LI" && t != @area
+                t = t.parentNode
+            unless t.classList.contains 'graph-has-child'
+                return
+            closed = t.classList.toggle 'graph-item-closed'
+            # アイコンも変える
+            icon = t.querySelector 'i.fa'
+            if closed
+                icon.classList.add 'fa-plus-square'
+                icon.classList.remove 'fa-minus-square'
+            else
+                icon.classList.add 'fa-minus-square'
+                icon.classList.remove 'fa-plus-square'
+
+
     setData:(@data,@names)->    #names: 値の名前と実際のアレの対応
         #@names={ Human:{name:"村人",color:"#FF0000"}...}
         chk=(d,vals)->  # 合計算出 valsも一緒に作る
@@ -51,41 +75,51 @@ class CircleGraph extends Graph
         #table作成
         if @table?.parentNode
             @table.parentNode.removeChild @table
-        @table=document.createElement "table"
-        datatable= (data,vals,names,dp=0)=>
+        datatable= (data, vals, names)=>
+            ul = document.createElement 'ul'
             for name in vals
-                _name=name
-                if typeof name=="object" then _name=name.name
-                thissum=chk data[_name]
+                _name = name
+                if typeof name == "object" then _name = name.name
+                thissum = chk data[_name]
                 continue unless thissum
-                tr=@table.insertRow -1
-                td=tr.insertCell -1
-                td.style.color=names[_name].color ? "#cccccc"
-                i=0
-                spaces= ("　" while i++<dp).join ""
-                td.textContent="#{spaces}■"
-                td=tr.insertCell -1
-                if typeof data[_name]=="object"
+                li = document.createElement 'li'
+                title = document.createElement 'div'
+                title.classList.add 'graph-item-title'
+                square = document.createElement 'i'
+                square.classList.add 'fa'
+                square.classList.add 'fa-fw'
+                if typeof data[_name] == "object"
                     # 子がある
-                    td.textContent="#{names[_name].name} #{thissum}(#{(thissum/@sum*100).toPrecision(2)}%)"
-                    datatable data[_name],name,names[_name],dp+1
+                    li.classList.add 'graph-has-child'
+                    li.classList.add 'graph-item-closed'
+                    square.classList.add 'fa-plus-square'
                 else
-                    td.textContent="#{names[_name].name} #{data[_name]}(#{(data[_name]/@sum*100).toPrecision(2)}%)"
-        datatable @data,@vals,@names
+                    square.classList.add 'fa-square'
+                square.style.color = names[_name].color ? "#cccccc"
+                title.appendChild square
+                title.appendChild document.createTextNode "#{names[_name].name} #{thissum} (#{(thissum/@sum*100).toPrecision(2)}%)"
+                li.appendChild title
+                child = datatable data[_name], name, names[_name]
+                li.appendChild child
+                ul.appendChild li
+            ul
+
+        @table = datatable @data,@vals,@names
         if @canvas.parentNode
             @canvas.parentNode.insertBefore @table,@canvas.nextSibling
         @draw()
-    openAnimate:(sec,step=0.02)->
+    openAnimate:(sec)->
         # sec[s]かけてオープン
-        step=Math.max step,sec/60   #60fps以上は出したくない
+        sec *= 1000 # msにする
         @circ=0
+        startTime = Date.now()
         ss= =>
-            @circ+=step
-            if @circ>1 then @circ=1
+            suc = Date.now() - startTime
+            @circ = Math.min 1, (suc / sec)
             @draw()
             if @circ<1
-                setTimeout ss,sec/step
-        ss()
+                requestAnimationFrame ss
+        requestAnimationFrame ss
     draw:->
         ctx=@ctx
         ctx.save()

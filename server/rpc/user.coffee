@@ -13,6 +13,7 @@ crypto=require 'crypto'
 url=require 'url'
 
 libblacklist = require '../libs/blacklist.coffee'
+libuserlogs  = require '../libs/userlogs.coffee'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
@@ -414,19 +415,37 @@ exports.actions =(req,res,ss)->
 # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
-            res {error:"ログインして下さい"}
+            res {error:"ログインしてください"}
             return
         myid=req.session.userId
         # DBから自分のやつを引っ張ってくる
-        results=[]
+        cnt = 0
+        userlog = null
+        usersummary = null
+        next=()->
+            cnt += 1
+            if cnt >= 2
+                res {
+                    userlog: userlog
+                    usersummary: usersummary
+                }
         M.userlogs.findOne {userid:myid},(err,doc)->
             if err?
                 console.error err
-            unless doc?
-                # 戦績データがない
-                res null
+                res {error: String err}
                 return
-            res doc
+            if doc?
+                # 戦績データがない
+                userlog = doc
+                next()
+        libuserlogs.getUserSummary myid, (err,doc)->
+            if err?
+                console.error err
+                res {error: String err}
+                return
+            if doc?
+                usersummary = doc
+                next()
     # 私をBANしてください!!!!!!!!
     requestban:(banid)->
         libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
