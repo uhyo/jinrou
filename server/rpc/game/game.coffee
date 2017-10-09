@@ -1669,9 +1669,10 @@ class Game
             # ルームを終了状態にする
             M.rooms.update {id:@id},{$set:{mode:"end"}}
             @ss.publish.channel "room#{@id}","refresh",{id:@id}
-            @save()
-            @prize_check()
             clearTimeout @timerid
+            @save()
+            @saveUserRawLogs()
+            @prize_check()
             
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)->
@@ -1831,11 +1832,10 @@ class Game
                     splashlog @id,this,log
     # ユーザーのゲームログを保存
     saveUserRawLogs:->
-        libuserlogs.addGameLogs game, (err)->
+        libuserlogs.addGameLogs this, (err)->
             if err?
                 console.error err
                 return
-            # TODO
 ###
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)

@@ -38,9 +38,13 @@ exports.addGameLogs = (game, cb)->
     logs = []
     timestamp = new Date
     # まずユーザーの勝敗ログ
-    for pl in game.players
+    for pl in game.participants
         subtype =
-            if game.winner=="Draw"
+            if pl.originalType == "GameMaster"
+                "gm"
+            else if pl.originalType == "Helper"
+                "helper"
+            else if game.winner=="Draw"
                 "draw"
             else if pl.winner
                 "win"
@@ -54,30 +58,11 @@ exports.addGameLogs = (game, cb)->
             job: pl.originalType
             timestamp: timestamp
         logs.push log
-    # 参加者以外
-    for pl in game.additionalParticipants
-        unless pl.originalType in ["GameMaster", "Helper"]
-            continue
-        subtype =
-            if pl.originalType == "GameMaster"
-                "gm"
-            else if pl.originalType == "Helper"
-                "helper"
-            else
-                ""
-        log =
-            userid: pl.realid
-            type: DataTypes.game
-            subtype: subtype
-            gameid: game.id
-            job: pl.originalType
-            timestamp: timestamp
-        logs.push log
 
     # 突然死ログも
     for l in game.gamelogs
         if l.event == "found" && l.flag in ["gone-day", "gone-night"]
-            pl = game.getPlayer log.id
+            pl = game.getPlayer l.id
             if pl?
                 log =
                     userid: pl.realid
