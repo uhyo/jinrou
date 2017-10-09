@@ -154,6 +154,9 @@ module.exports.actions=(req,res,ss)->
         if query.comment && query.comment.length > Config.maxlength.room.comment
             res {error: "コメントが長すぎます"}
             return
+        unless query.blind in ['', 'yes', 'complete']
+            res {error: "パラメータが不正です"}
+            return
         unless libblacklist.checkPermission "play", req.session.ban
             res {error: "アクセス制限により、部屋を作成できません。"}
             return

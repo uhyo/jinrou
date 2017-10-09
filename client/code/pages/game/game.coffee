@@ -411,7 +411,7 @@ exports.start=(roomid)->
             icon.classList.add 'fa'
             icon.classList.add 'fa-fw'
             icon.classList.add 'fa-user-secret'
-            icon.title = if room.blind == 'hide' then '覆面（終了後に公開）' else '覆面（最後まで非公開）'
+            icon.title = if room.blind == 'complete' then '覆面（最後まで非公開）' else '覆面（終了後に公開）'
             iconlist.appendChild icon
         if room.comment
             icon = document.createElement 'i'
