@@ -3601,7 +3601,10 @@ class Stalker extends Player
         @setFlag playerid  # ストーキング対象プレイヤー
         null
     isWinner:(game,team)->
-        @isWinnerStalk game,team,[]
+        if @isWinnerStalk?
+            @isWinnerStalk game,team,[]
+        else
+            false
     # ストーカー連鎖対応版
     isWinnerStalk:(game,team,ids)->
         if @id in ids
@@ -3611,7 +3614,7 @@ class Stalker extends Player
         return false unless pl?
         if team==pl.getTeam()
             return true
-        if pl.isJobType "Stalker"
+        if pl.isJobType("Stalker") && pl.isWinnerStalk?
             # ストーカーを追跡
             return pl.isWinnerStalk game,team,ids.concat @id
         else
