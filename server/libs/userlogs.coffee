@@ -8,7 +8,7 @@ DataTypes =
 # userrawlogs:
 #   userid: "userid"
 #   type: DataTypes.game | DataTypes.gone
-#   subtype: "win" | "lose" | "draw" | null
+#   subtype: "win" | "lose" | "draw" | "gm" | "helper" | null
 #   gameid: Number
 #   job: String
 #   timestamp: Date
@@ -23,6 +23,8 @@ DataTypes =
 #   lose: Number // 期間中の敗北数
 #   draw: Number // 期間中の引き分け数
 #   gone: Number // 期間中の突然死数
+#   gm: Number // 期間中のGM数
+#   helper: Number // 期間中のヘルパー数
 #   game_each: [Number] // 1日ごとの記録
 #   win_each: [Number]
 #   lose_each: [Number]
@@ -52,6 +54,26 @@ exports.addGameLogs = (game, cb)->
             job: pl.originalType
             timestamp: timestamp
         logs.push log
+    # 参加者以外
+    for pl in game.additionalParticipants
+        unless pl.originalType in ["GameMaster", "Helper"]
+            continue
+        subtype =
+            if pl.originalType == "GameMaster"
+                "gm"
+            else if pl.originalType == "Helper"
+                "helper"
+            else
+                ""
+        log =
+            userid: pl.realid
+            type: DataTypes.game
+            subtype: subtype
+            gameid: game.id
+            job: pl.originalType
+            timestamp: timestamp
+        logs.push log
+
     # 突然死ログも
     for l in game.gamelogs
         if l.event == "found" && l.flag in ["gone-day", "gone-night"]
@@ -117,6 +139,8 @@ exports.getUserSummary = (userid, cb)->
             lose: 0
             draw: 0
             gone: 0
+            gm: 0
+            helper: 0
             game_each: []
             win_each: []
             lose_each: []
@@ -160,20 +184,28 @@ exports.getUserSummary = (userid, cb)->
                         cb null, result
                 return
 
-            sub_game += 1
-            result.game_total += 1
             switch doc.type
                 when DataTypes.game
                     switch doc.subtype
                         when "win"
+                            result.game_total += 1
+                            sub_game += 1
                             result.win += 1
                             sub_win += 1
                         when "lose"
+                            result.game_total += 1
+                            sub_game += 1
                             result.lose += 1
                             sub_lose += 1
                         when "draw"
+                            result.game_total += 1
+                            sub_game += 1
                             result.draw += 1
                             sub_draw += 1
+                        when "gm"
+                            result.gm += 1
+                        when "helper"
+                            result.helper += 1
                 when DataTypes.gone
                     result.gone += 1
                     sub_gone += 1

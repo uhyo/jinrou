@@ -61,6 +61,8 @@ showUserSummary = (usersummary)->
         <p>勝利数：<b>#{usersummary.win}</b> (#{(usersummary.win/usersummary.game_total*100).toFixed(1)}%)</p>
         <p>敗北数：<b>#{usersummary.lose}</b> (#{(usersummary.lose/usersummary.game_total*100).toFixed(1)}%)</p>
         <p>突然死数：<b>#{usersummary.gone}</b> (#{(usersummary.gone/usersummary.game_total*100).toFixed(1)}%)</p>
+        <p>GM数：<b>#{usersummary.gm}</b></p>
+        <p>ヘルパー数：<b>#{usersummary.helper}</b></p>
             """)
 
 # 戦績公開設定を変更

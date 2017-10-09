@@ -107,6 +107,7 @@ function handleColls(games, userrawlogs){
         }, {
             id: true,
             players: true,
+            additionalParticipants: true,
             gamelogs: true,
             winner: true,
             finish_time: true,
@@ -127,6 +128,7 @@ function handleColls(games, userrawlogs){
                 const {
                     id,
                     players,
+                    additionalParticipants,
                     gamelogs,
                     winner: gwinner,
                     finish_time,
@@ -163,6 +165,31 @@ function handleColls(games, userrawlogs){
                         });
                     }
                 }
+                for (const {
+                    realid,
+                    originalType,
+                } of additionalParticipants){
+                    if (originalType === 'GameMaster'){
+                        insert_docs.push({
+                            userid: realid,
+                            type: 1,
+                            subtype: 'gm',
+                            gameid: id,
+                            job: originalType,
+                            timestamp: finish_time,
+                        });
+                    } else if (originalType === 'Helper'){
+                        insert_docs.push({
+                            userid: realid,
+                            type: 1,
+                            subtype: 'gm',
+                            gameid: id,
+                            job: originalType,
+                            timestamp: finish_time,
+                        });
+                    }
+                }
+
                 // gamelogs
                 for (const {
                     id: plid,
