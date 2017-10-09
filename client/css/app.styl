@@ -185,12 +185,16 @@ button.link-like
   
 //user-profile
 section.profile
+  p
+    margin 0.6em 0
   p.edit
     background-color #bbbbbb
     padding 2px
     border-radius 3px
   p.edit:empty
     height 1em
+  form#changeprofile > fieldset
+    width 100%
   form input[type="text"],form input[type="url"]
     width 100%
   table
@@ -215,6 +219,31 @@ section.profile
 table.roomstable
   td,th
     border 1px solid currentColor !important
+//user mylog
+section.mylog
+  p
+    margin 0.6em 0
+  label.mylog-open
+    cursor pointer
+    &.mylog-open-disabled
+      color #999999
+      cursor default
+
+// graph area
+div.graph-area
+  display flex
+  align-items flex-start
+  li > ul
+    margin-left 1em
+  li.graph-has-child > div.graph-item-title
+    cursor pointer
+    &:hover
+      color #666666
+  li.graph-has-child.graph-item-closed > ul
+    display none
+  div.graph-item-title
+    margin-bottom 0.2em
+
 //roomlist
 #roomlist td
   img

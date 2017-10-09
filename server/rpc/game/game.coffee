@@ -4,6 +4,7 @@ Shared=
     prize:require '../../../client/code/shared/prize.coffee'
 
 libblacklist = require '../../libs/blacklist.coffee'
+libuserlogs  = require '../../libs/userlogs.coffee'
 
 cron=require 'cron'
 
@@ -249,6 +250,9 @@ class Game
         # New Year Messageのためだけの変数
         @currentyear = null
 
+        # 保存用の時間
+        @finish_time=null
+
         ###
         さまざまな出来事
         id: 動作した人
@@ -277,6 +281,7 @@ class Game
             werewolf_target:@werewolf_target
             werewolf_target_remain:@werewolf_target_remain
             #quantum_patterns:@quantum_patterns
+            finish_time:@finish_time
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
@@ -328,6 +333,7 @@ class Game
                 game.participants=game.players.concat []
 
         game.quantum_patterns=obj.quantum_patterns ? []
+        game.finish_time=obj.finish_time ? null
         unless game.finished
             if game.rule
                 game.timer()
@@ -1598,7 +1604,8 @@ class Game
         if team?
             # 勝敗決定
             @finished=true
-            @last_time=Date.now()
+            @finish_time=new Date
+            @last_time=@finish_time.getTime()
             @winner=team
             if team!="Draw"
                 @players.forEach (x)=>
@@ -1662,9 +1669,10 @@ class Game
             # ルームを終了状態にする
             M.rooms.update {id:@id},{$set:{mode:"end"}}
             @ss.publish.channel "room#{@id}","refresh",{id:@id}
-            @save()
-            @prize_check()
             clearTimeout @timerid
+            @save()
+            @saveUserRawLogs()
+            @prize_check()
             
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)->
@@ -1800,6 +1808,7 @@ class Game
             ls = makelogsFor this, player, x
             result.push ls...
         return result
+    # 終了時の称号処理
     prize_check:->
         Server.prize.checkPrize @,(obj)=>
             # obj: {(userid):[prize]}
@@ -1821,33 +1830,12 @@ class Game
                         mode:"system"
                         comment:"#{pl.name}は称号#{pnames.join ''}を獲得しました。"
                     splashlog @id,this,log
-
-        ###
-        M.users.find(query).each (err,doc)=>
-            return unless doc?
-            oldprize=doc.prize  # 賞の一覧
-            
-            # 賞を算出しなおしてもらう
-            Server.prize.checkPrize doc.userid,(prize)=>
-                prize=prize.concat doc.ownprize if doc.ownprize?
-                # 新規に獲得した賞を探す
-                newprizes= prize.filter (x)->!(x in oldprize)
-                if newprizes.length>0
-                    M.users.update {userid:doc.userid},{$set:{prize:prize}}
-                    pl=@getPlayerReal doc.userid
-                    newprizes.forEach (x)=>
-                        log=
-                            mode:"system"
-                            comment:"#{pl.name}は#{Server.prize.prizeQuote Server.prize.prizeName x}を獲得しました。"
-                        splashlog @id,this,log
-                        @addGamelog {
-                            id: pl.id
-                            type:pl.type
-                            event:"getprize"
-                            flag:x
-                            target:null
-                        }
-        ###
+    # ユーザーのゲームログを保存
+    saveUserRawLogs:->
+        libuserlogs.addGameLogs this, (err)->
+            if err?
+                console.error err
+                return
 ###
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)

@@ -5,6 +5,7 @@ module.exports=
         view:require '/user/view'
         graph:require '/user/graph'
         color:require '/user/color'
+        mylog:require '/user/mylog'
     game:
         rooms:require '/game/rooms'
         newroom:require '/game/newroom'

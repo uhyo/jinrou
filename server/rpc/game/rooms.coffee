@@ -28,7 +28,7 @@ module.exports=
     oneRoomS:(roomid,cb)->
         M.rooms.findOne {id:roomid},(err,result)=>
             if err?
-                res {error:err}
+                cb {error:err}
                 return
             unless result?
                 cb result

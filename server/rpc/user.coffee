@@ -13,6 +13,7 @@ crypto=require 'crypto'
 url=require 'url'
 
 libblacklist = require '../libs/blacklist.coffee'
+libuserlogs  = require '../libs/userlogs.coffee'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
@@ -160,7 +161,47 @@ exports.actions =(req,res,ss)->
                 return
             delete record.password
             delete record.prize
-            res record
+            libuserlogs.getUserData userid, true, record.data_open_all, (err, obj)->
+                if err?
+                    res null
+                    return
+                # データを整理
+                userlog = if obj.userlog? && record.data_open_all
+                    {
+                        game: obj.userlog.counter?.allgamecount ? 0
+                        win: obj.userlog.wincount?.all ? 0
+                        lose: obj.userlog.losecount?.all ? 0
+                    }
+                else
+                    null
+                usersummary = if obj.usersummary?
+                    if record.data_open_recent
+                        {
+                            open: true
+                            days: obj.usersummary.days
+                            game_total: obj.usersummary.game_total
+                            win: obj.usersummary.win
+                            lose: obj.usersummary.lose
+                            draw: obj.usersummary.draw
+                            gone: obj.usersummary.gone
+                            gm: obj.usersummary.gm
+                            helper: obj.usersummary.helper
+                        }
+                    else
+                        {
+                            open: false
+                            days: obj.usersummary.days
+                            game_total: obj.usersummary.game_total
+                            gone: obj.usersummary.gone
+                        }
+                else
+                    null
+
+                res {
+                    user: record
+                    userlog: userlog
+                    usersummary: usersummary
+                }
     myProfile: ->
         unless req.session.userId
             res null
@@ -411,22 +452,84 @@ exports.actions =(req,res,ss)->
                 console.log "invalid3",query.prize
                 res {error:"肩書きが不正です"}
         
-# 成績をくわしく見る
+    # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
-            res {error:"ログインして下さい"}
+            res {error:"ログインしてください"}
             return
         myid=req.session.userId
         # DBから自分のやつを引っ張ってくる
-        results=[]
+        cnt = 0
+        userlog = null
+        usersummary = null
+        next=()->
+            cnt += 1
+            if cnt >= 2
+                res {
+                    userlog: userlog
+                    usersummary: usersummary
+                    data_open_recent: !!req.session.user?.data_open_recent
+                    data_open_all: !!req.session.user?.data_open_all
+                    dataOpenBarrier: Config.user.dataOpenBarrier
+                }
         M.userlogs.findOne {userid:myid},(err,doc)->
             if err?
                 console.error err
-            unless doc?
-                # 戦績データがない
-                res null
+                res {error: String err}
                 return
-            res doc
+            if doc?
+                # 戦績データがない
+                userlog = doc
+                next()
+        libuserlogs.getUserSummary myid, (err,doc)->
+            if err?
+                console.error err
+                res {error: String err}
+                return
+            if doc?
+                usersummary = doc
+                next()
+    # 戦績公開設定を変更
+    changeDataOpenSetting:(query)->
+        unless req.session.userId
+            res {error:"ログインしてください"}
+            return
+        mode = query.mode
+        value = !!query.value
+
+        updatequery = {}
+        switch mode
+            when 'recent'
+                updatequery.$set = {
+                    data_open_recent: value
+                }
+            when 'all'
+                updatequery.$set = {
+                    data_open_all: value
+                }
+            else
+                res {error: 'パラメータが不正です'}
+                return
+        # 対戦数をチェック
+        M.userlogs.findOne {
+            userid: req.session.userId
+        }, {'counter.allgamecount': 1}, (err, doc)->
+            if err? || !doc?
+                res {error: String err}
+                return
+            # 30戦以上に制限
+            if isNaN(doc.counter?.allgamecount) || doc.counter?.allgamecount < Config.user.dataOpenBarrier
+                res {error: '戦績が足りません'}
+                return
+            M.users.update {
+                userid: req.session.userId
+            }, updatequery, (err, num)->
+                if err?
+                    res {error: String err}
+                    return
+                res {value: value}
+
+
     # 私をBANしてください!!!!!!!!
     requestban:(banid)->
         libblacklist.handleBanRequest banid, req.session.userId, req.clientIp, (result)->
@@ -461,6 +564,8 @@ makeuserdata=(query)->
         ownprize:[] # 何かで与えられた称号（prizeに含まれる）
         nowprize:null   # 現在設定している肩書き
                 # [{type:"prize",value:(prizeid)},{type:"conjunction",value:"が"},...]
+        data_open_recent: false # 最近の戦績を公開するかどうか
+        data_open_all: false # 全期間の戦績を公開するかどうか
     }
 
 # profileに表示する用のユーザーデータをdocから作る
