@@ -96,7 +96,7 @@ exports.addGameLogs = (game, cb)->
                 cb null
 
 # ユーザーのサマリーを取得
-exports.getUserSummary = (userid, cb)->
+exports.getUserSummary = getUserSummary = (userid, cb)->
     M.usersummary.findOne {
         userid: userid
     }, (err, doc)->
@@ -211,3 +211,37 @@ exports.getUserSummary = (userid, cb)->
                     sub_gone += 1
 
 
+# ユーザーの戦績を全て取得
+exports.getUserData=(userid, recent, all, cb)->
+    if !recent && !all
+        # データがないじゃん
+        cb null, {}
+        return
+    total = (if recent then 1 else 0) + (if all then 1 else 0)
+    cnt = 0
+    userlog = null
+    usersummary = null
+    next = ()->
+        cnt += 1
+        if cnt >= total
+            cb null, {
+                userlog: userlog
+                usersummary: usersummary
+            }
+    # DBにリクエスト
+    if recent
+        getUserSummary userid, (err, doc)->
+            if err?
+                console.error err
+                cb err, null
+                return
+            usersummary = doc
+            next()
+    if all
+        M.userlogs.findOne {userid: userid}, (err, doc)->
+            if err?
+                console.error err
+                cb err, null
+                return
+            userlog = doc
+            next()

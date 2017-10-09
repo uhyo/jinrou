@@ -161,7 +161,47 @@ exports.actions =(req,res,ss)->
                 return
             delete record.password
             delete record.prize
-            res record
+            libuserlogs.getUserData userid, true, record.data_open_all, (err, obj)->
+                if err?
+                    res null
+                    return
+                # データを整理
+                userlog = if obj.userlog? && record.data_open_all
+                    {
+                        game: obj.userlog.counter?.allgamecount ? 0
+                        win: obj.userlog.wincount?.all ? 0
+                        lose: obj.userlog.losecount?.all ? 0
+                    }
+                else
+                    null
+                usersummary = if obj.usersummary?
+                    if record.data_open_recent
+                        {
+                            open: true
+                            days: obj.usersummary.days
+                            game_total: obj.usersummary.game_total
+                            win: obj.usersummary.win
+                            lose: obj.usersummary.lose
+                            draw: obj.usersummary.draw
+                            gone: obj.usersummary.gone
+                            gm: obj.usersummary.gm
+                            helper: obj.usersummary.helper
+                        }
+                    else
+                        {
+                            open: false
+                            days: obj.usersummary.days
+                            game_total: obj.usersummary.game_total
+                            gone: obj.usersummary.gone
+                        }
+                else
+                    null
+
+                res {
+                    user: record
+                    userlog: userlog
+                    usersummary: usersummary
+                }
     myProfile: ->
         unless req.session.userId
             res null
