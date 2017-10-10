@@ -20,7 +20,7 @@ exports.start=->
         # 戦績が少ないとアレだ
         for i in document.querySelectorAll 'i.mylog-desc-of-open'
             i.title += "戦績を公開するには総対戦数#{result.dataOpenBarrier}以上が必要です。"
-        unless userlog.counter?.allgamecount >= result.dataOpenBarrier
+        unless userlog?.counter?.allgamecount >= result.dataOpenBarrier
             # 戦績が足りない
             for elm in document.querySelectorAll 'label.mylog-open'
                 elm.classList.add 'mylog-open-disabled'
@@ -40,6 +40,11 @@ exports.end=->
 
 showUserlog = (userlog)->
     # 全期間データを表示
+    unless userlog?
+        $("#alldata")
+            .empty()
+            .append("<p>戦績データがありません。</p>")
+        return
     grapharea = document.createElement 'div'
     $("#alldata")
         .empty()
@@ -58,9 +63,9 @@ showUserSummary = (usersummary)->
         .append("""
         <p>直近<b>#{usersummary.days}</b>日の戦績です。このデータは1日1回再集計されます。</p>
         <p>対戦数：<b>#{usersummary.game_total}</b></p>
-        <p>勝利数：<b>#{usersummary.win}</b> (#{(usersummary.win/usersummary.game_total*100).toFixed(1)}%)</p>
-        <p>敗北数：<b>#{usersummary.lose}</b> (#{(usersummary.lose/usersummary.game_total*100).toFixed(1)}%)</p>
-        <p>突然死数：<b>#{usersummary.gone}</b> (#{(usersummary.gone/usersummary.game_total*100).toFixed(1)}%)</p>
+        <p>勝利数：<b>#{usersummary.win}</b> (#{(if usersummary.game_total>0 then usersummary.win/usersummary.game_total*100 else 0).toFixed(1)}%)</p>
+        <p>敗北数：<b>#{usersummary.lose}</b> (#{(if usersummary.game_total>0 then usersummary.lose/usersummary.game_total*100 else 0).toFixed(1)}%)</p>
+        <p>突然死数：<b>#{usersummary.gone}</b> (#{(if usersummary.game_total>0 then usersummary.gone/usersummary.game_total*100 else 0).toFixed(1)}%)</p>
         <p>GM数：<b>#{usersummary.gm}</b></p>
         <p>ヘルパー数：<b>#{usersummary.helper}</b></p>
             """)

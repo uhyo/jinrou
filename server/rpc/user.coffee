@@ -477,18 +477,15 @@ exports.actions =(req,res,ss)->
                 console.error err
                 res {error: String err}
                 return
-            if doc?
-                # 戦績データがない
-                userlog = doc
-                next()
+            userlog = doc
+            next()
         libuserlogs.getUserSummary myid, (err,doc)->
             if err?
                 console.error err
                 res {error: String err}
                 return
-            if doc?
-                usersummary = doc
-                next()
+            usersummary = doc
+            next()
     # 戦績公開設定を変更
     changeDataOpenSetting:(query)->
         unless req.session.userId
