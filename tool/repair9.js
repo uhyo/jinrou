@@ -111,7 +111,9 @@ function handleColls(games, userrawlogs){
             gamelogs: true,
             winner: true,
             finish_time: true,
-        });
+        }, {
+		sort: [['id', 1]],
+	});
 
         const step = ()=>{
             cur.nextObject((err, doc)=>{
@@ -136,6 +138,7 @@ function handleColls(games, userrawlogs){
 
                 // 各Playerのログ
                 const insert_docs = [];
+		let dups={};
                 // 同時にid-realid対応表
                 const realids={};
                 for (const {
@@ -145,6 +148,8 @@ function handleColls(games, userrawlogs){
                     winner,
                 } of players){
                     realids[plid]=realid;
+		    if (dups[realid]) continue;
+			dups[realid]=true;
                     if (gwinner === 'Draw'){
                         insert_docs.push({
                             userid: realid,
@@ -165,32 +170,38 @@ function handleColls(games, userrawlogs){
                         });
                     }
                 }
-                for (const {
-                    realid,
-                    originalType,
-                } of additionalParticipants){
-                    if (originalType === 'GameMaster'){
-                        insert_docs.push({
-                            userid: realid,
-                            type: 1,
-                            subtype: 'gm',
-                            gameid: id,
-                            job: originalType,
-                            timestamp: finish_time,
-                        });
-                    } else if (originalType === 'Helper'){
-                        insert_docs.push({
-                            userid: realid,
-                            type: 1,
-                            subtype: 'gm',
-                            gameid: id,
-                            job: originalType,
-                            timestamp: finish_time,
-                        });
-                    }
-                }
-
+		if (additionalParticipants){
+			for (const {
+				id: plid,
+			    realid,
+			    originalType,
+			} of additionalParticipants){
+				realids[plid]=realid;
+				if(dups[realid]) continue;
+				dups[realid]=true;
+			    if (originalType === 'GameMaster'){
+				insert_docs.push({
+				    userid: realid,
+				    type: 1,
+				    subtype: 'gm',
+				    gameid: id,
+				    job: originalType,
+				    timestamp: finish_time,
+				});
+			    } else if (originalType === 'Helper'){
+				insert_docs.push({
+				    userid: realid,
+				    type: 1,
+				    subtype: 'gm',
+				    gameid: id,
+				    job: originalType,
+				    timestamp: finish_time,
+				});
+			    }
+			}
+		}
                 // gamelogs
+		dups={};
                 for (const {
                     id: plid,
                     type,
@@ -198,6 +209,8 @@ function handleColls(games, userrawlogs){
                     flag,
                 } of gamelogs){
                     if (event === 'found' && (flag === 'gone-day' || flag === 'gone-night')){
+			if(dups[realids[plid]])continue;
+dups[realids[plid]]=true;
                         insert_docs.push({
                             userid: realids[plid],
                             type: 2, //DataTypes.gone
@@ -213,11 +226,13 @@ function handleColls(games, userrawlogs){
 
                 userrawlogs.insert(insert_docs, (err)=>{
                     if (err){
+			console.error('err!');
+			console.error(insert_docs);
                         reject(err);
                         return;
                     }
                     if (game_count % 100 === 0){
-                        console.log(`${game_count} games processed, ${insert_docs} docs inserted`);
+                        console.log(`${game_count} games processed, ${insert_docs.length} docs inserted`);
                     }
                     step();
                 });
