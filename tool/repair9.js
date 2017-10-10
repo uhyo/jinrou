@@ -192,7 +192,7 @@ function handleColls(games, userrawlogs){
 				insert_docs.push({
 				    userid: realid,
 				    type: 1,
-				    subtype: 'gm',
+				    subtype: 'helper',
 				    gameid: id,
 				    job: originalType,
 				    timestamp: finish_time,
