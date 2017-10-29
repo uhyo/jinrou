@@ -2766,7 +2766,7 @@ class Guard extends Player
     sunset:(game)->
         @setTarget null
 
-        if game.day==1
+        if game.day==1 && game.rule.scapegoat != "off"
             # 狩人は一日目護衛しない
             @setTarget ""  # 誰も守らない
             return
