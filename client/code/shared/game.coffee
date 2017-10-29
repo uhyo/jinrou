@@ -1576,7 +1576,7 @@ exports.rules=[
         label:null
         visible:(rule,jobs)->
             return true if isYaminabe rule
-            for job in ["Guard","Trapper","WanderingGuard"]
+            for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
                 if jobs[job]>0
                     return true
             return false
@@ -1584,6 +1584,7 @@ exports.rules=[
             {
                 name:"guardmyself"
                 label:"狩人は自分を守れる"
+                title:"ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
                 type:"checkbox"
                 value:{
                     value:"ok"
@@ -1598,7 +1599,7 @@ exports.rules=[
             {
                 name:"gjmessage"
                 label:"護衛成功が分かる"
-                title:"ありにすると、狩人・風来狩人が護衛成功したときに狩人にメッセージが表示されます。"
+                title:"ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
                 type:"checkbox"
                 value:{
                     value:"on"
@@ -1613,7 +1614,7 @@ exports.rules=[
             {
                 name:"consecutiveguard"
                 label:"連続護衛"
-                title:"狩人・風来狩人が連続して同じ人を守れるかどうか設定します。"
+                title:"狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
                 type:"select"
                 values:[
                     {
