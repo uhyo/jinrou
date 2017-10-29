@@ -5735,7 +5735,8 @@ class Phantom extends Player
             splashlog game.id,game,log
             return
         pl=game.getPlayer playerid
-        pl.touched game,@id
+        # 怪盗はサイコキラーを盗むことができる
+        # pl.touched game,@id
         log=
             mode:"skill"
             to:@id
