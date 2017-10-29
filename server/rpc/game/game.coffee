@@ -4159,6 +4159,8 @@ class Witch extends Player
                 @setFlag @flag^8
             if @flag & 16
                 @setFlag @flag^16
+        if game.day == 1
+            @setTarget ""
     job:(game,playerid,query)->
         # query.Witch_drug
         pl=game.getPlayer playerid
