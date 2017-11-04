@@ -152,15 +152,13 @@ exports.actions =(req,res,ss)->
                 
 # ユーザーデータが欲しい
     userData: (userid,password)->
-        M.users.findOne {"userid":userid},(err,record)->
+        getUserOpenData userid, (err, record)->
             if err?
                 res null
                 return
             if !record?
                 res null
                 return
-            delete record.password
-            delete record.prize
             libuserlogs.getUserData userid, true, record.data_open_all, (err, obj)->
                 if err?
                     res null
@@ -598,3 +596,27 @@ userProfile = (doc, ban)->
     # backward compatibility
     doc.mailconfirmsecurity = !!doc.mailconfirmsecurity
     return doc
+
+# 一般人に表示する用のデータを取得（身代わりくん対応）
+getUserOpenData = (userid, cb)->
+    if userid == "身代わりくん"
+        cb null, {
+            userid: "身代わりくん"
+            name: "身代わりくん"
+            icon: ""
+            comment: ""
+            data_open_all: true
+            data_open_recent: true
+        }
+    else
+        M.users.findOne {"userid": userid}, {
+            fields: {
+                userid: true
+                name: true
+                icon: true
+                comment: true
+                data_open_all: true
+                data_open_recent: true
+            }
+        }, cb
+

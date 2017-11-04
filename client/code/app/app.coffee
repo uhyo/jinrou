@@ -247,9 +247,12 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             if result=url.match /^\/room\/-?(\d+)$/
                 # ルーム
                 page "game-game",null,Index.game.game,parseInt result[1]
-            else if result=url.match /^\/user\/(\w+)$/
+            else if result=url.match /^\/user\/(\w+|身代わりくん|%E8%BA%AB%E4%BB%A3%E3%82%8F%E3%82%8A%E3%81%8F%E3%82%93)$/
+                userid = result[1]
+                if userid == "%E8%BA%AB%E4%BB%A3%E3%82%8F%E3%82%8A%E3%81%8F%E3%82%93"
+                    userid = "身代わりくん"
                 # ユーザー
-                page "user-view",null,Index.user.view,result[1]
+                page "user-view",null,Index.user.view,userid
             else if result=url.match /^\/manual\/job\/(\w+)$/
                 # ジョブ情報
                 win=util.blankWindow {
