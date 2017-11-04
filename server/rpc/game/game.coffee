@@ -1026,7 +1026,8 @@ class Game
                         ninjadata[player.id] = true
             # 忍者に配布
             for player in @players
-                player.accessByJobType("Ninja")?.flag = JSON.stringify ninjadata
+                for p in player.accessByJobTypeAll("Ninja")
+                    p.setFlag(JSON.stringify ninjadata)
         else
             # 誤爆防止
             @werewolf_target_remain=0
@@ -2233,6 +2234,15 @@ class Player
         if @isJobType(type)
             return this
         null
+    # access all sub-jobs by jobtype.
+    # Returns array.
+    accessByJobTypeAll:(type, subonly)->
+        unless type
+            throw "there must be a JOBTYPE"
+        if @isJobType type
+            return [this]
+        else
+            return []
     gatherMidnightSort:->
         return [@midnightSort]
     # complexのJobTypeを調べる
@@ -7098,6 +7108,16 @@ class Complex
                 return null
             return @sub.accessByJobType(type)
         null
+    accessByJobTypeAll:(type, subonly)->
+        unless type
+            throw "there must be a JOBTYPE"
+        ret = []
+        if @main.isJobType(type)
+            if !subonly
+                ret.push this
+            ret.push (@main.accessByJobTypeAll(type, true))...
+        ret.push (@sub.isJobType(type))...
+        return ret
     gatherMidnightSort:->
         mids=[@midnightSort]
         mids=mids.concat @main.gatherMidnightSort()
