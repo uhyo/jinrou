@@ -1821,6 +1821,7 @@ class Game
                 return unless doc?
                 oldprize=doc.prize  # いままでの賞の一覧
                 # 差分をとる
+                console.log obj, doc
                 newprize=obj[doc.userid].filter (x)->!(x in oldprize)
                 if newprize.length>0
                     M.users.update {userid:doc.userid},{$set:{prize:obj[doc.userid]}}
@@ -7116,7 +7117,8 @@ class Complex
             if !subonly
                 ret.push this
             ret.push (@main.accessByJobTypeAll(type, true))...
-        ret.push (@sub.isJobType(type))...
+        if @sub?
+            ret.push (@sub.accessByJobTypeAll(type))...
         return ret
     gatherMidnightSort:->
         mids=[@midnightSort]
