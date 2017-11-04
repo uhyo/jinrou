@@ -7116,7 +7116,8 @@ class Complex
             if !subonly
                 ret.push this
             ret.push (@main.accessByJobTypeAll(type, true))...
-        ret.push (@sub.isJobType(type))...
+        if @sub?
+            ret.push (@sub.accessByJobTypeAll(type))...
         return ret
     gatherMidnightSort:->
         mids=[@midnightSort]
