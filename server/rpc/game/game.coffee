@@ -228,6 +228,8 @@ class Game
         @werewolf_target_remain=0   #襲撃先をあと何人設定できるか
         @werewolf_flag=[] # 人狼襲撃に関するフラグ
 
+        @revive_log = [] # 蘇生した人の記録
+
         @slientexpires=0    # 静かにしてろ！（この時間まで）
         @heavenview=false   # 霊界表示がどうなっているか
 
@@ -1350,7 +1352,14 @@ class Game
                     name:x.name
                     comment:x.will
                 splashlog @id,this,log
-        deads.length
+        # 蘇生のログも表示
+        for n in @revive_log
+            log=
+                mode: "system"
+                comment: "#{n}は蘇生しました。"
+            splashlog @id, this, log
+        @revive_log = []
+        return deads.length
                 
     # 投票終わりチェック
     # 返り値意味ないんじゃないの?
@@ -2330,10 +2339,7 @@ class Player
         p=@getParent game
         unless p?.sub==this
             # サブのときはいいや・・・
-            log=
-                mode:"system"
-                comment:"#{@name}は蘇生しました。"
-            splashlog game.id,game,log
+            game.revive_log.push @name
             @addGamelog game,"revive",null,null
             game.ss.publish.user @id,"refresh",{id:game.id}
 
