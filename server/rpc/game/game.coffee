@@ -7237,6 +7237,12 @@ class Complex
     isFox:->@main.isFox()
     isVampire:->@main.isVampire()
     isWinner:(game,team)->@main.isWinner game, team
+    hasDeadResistance:(game)->
+        if @mcall game, @main.hasDeadResistance, game
+            return true
+        if @sub?.hasDeadResistance game
+            return true
+        return false
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
