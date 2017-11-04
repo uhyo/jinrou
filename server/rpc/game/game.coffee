@@ -1821,6 +1821,7 @@ class Game
                 return unless doc?
                 oldprize=doc.prize  # いままでの賞の一覧
                 # 差分をとる
+                console.log obj, doc
                 newprize=obj[doc.userid].filter (x)->!(x in oldprize)
                 if newprize.length>0
                     M.users.update {userid:doc.userid},{$set:{prize:obj[doc.userid]}}
