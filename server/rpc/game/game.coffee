@@ -5,6 +5,7 @@ Shared=
 
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
+libsavelogs  = require '../../libs/savelogs.coffee'
 
 cron=require 'cron'
 
@@ -254,6 +255,9 @@ class Game
 
         # 保存用の時間
         @finish_time=null
+
+        # ログ保存用のオブジェクト
+        @logsaver = new libsavelogs.LogSaver this
 
         ###
         さまざまな出来事
@@ -9459,7 +9463,8 @@ module.exports.actions=(req,res,ss)->
 splashlog=(roomid,game,log)->
     log.time=Date.now() # 時間を付加
     #DBに追加
-    M.games.update {id:roomid},{$push:{logs:log}}
+    game.logsaver.saveLog log
+    #みんなに送信
     flash=(log)->
         # まず観戦者
         aulogs = makelogsFor game, null, log
