@@ -102,7 +102,7 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
         start_day = new Date end_day
         start_day.setDate(start_day.getDate() - days)
 
-        cur = M.userrawlogs.find {
+        cur = M.userrawlogs.find({
             $and: [{
                 userid: userid
             }, {
@@ -110,9 +110,7 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
             }, {
                 timestamp: {$lt: end_day}
             }]
-        }, {}, {
-            sort: [['timestamp', 1]]
-        }
+        }).sort({timestamp: 1})
         # 集計オブジェクト
         result = {
             userid: userid
