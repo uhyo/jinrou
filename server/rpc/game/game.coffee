@@ -24,6 +24,7 @@ Phase =
     # フェイズ判定メソッド
     isDay: (phase)-> phase in [Phase.day, Phase.day_remain]
     isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
+    isRemain: (phase)-> phase in [Phase.day_remain, Phase.night_remain]
 
 # 浅いコピー
 copyObject=(obj)->
@@ -235,7 +236,6 @@ class Game
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
         # DBには現れない
         @timerid=null
-        @voting=false   # 投票猶予時間
         @timer_start=null   # 残り時間のカウント開始時間（秒）
         @timer_remain=null  # 残り時間全体（秒）
         @timer_mode=null    # タイマーの名前
@@ -972,7 +972,6 @@ class Game
     
             return if @judge()
 
-        @voting=false
         if @night
             # jobデータを作る
             # 人狼の襲い先
@@ -1181,7 +1180,7 @@ class Game
     #全員寝たかチェック 寝たなら処理してtrue
     #timeoutがtrueならば時間切れなので時間でも待たない
     checkjobs:(timeout)->
-        if @day==0
+        if @phase == Phase.rolerequesting
             # 開始前（希望役職制）
             if timeout || @players.every((x)=>@rolerequesttable[x.id]?)
                 # 全員できたぞ
@@ -1194,7 +1193,7 @@ class Game
                 false
 
         else if @players.every( (x)=>x.dead || x.sleeping(@))
-            if @voting || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
+            if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
                 @midnight()
                 @nextturn()
                 true
@@ -1452,7 +1451,7 @@ class Game
                     player.votestart this
                     @ss.publish.channel "room#{@id}","voteform",true
                     @splashjobinfo()
-                if @voting
+                if @phase == Phase.day_remain
                     # 投票猶予の場合初期化
                     clearTimeout @timerid
                     @timer()
@@ -1489,7 +1488,7 @@ class Game
             player.votestart this
         @ss.publish.channel "room#{@id}","voteform",true
         @splashjobinfo()
-        if @voting
+        if @phase == Phase.day_remain
             # 投票猶予の場合初期化
             clearTimeout @timerid
             @timer()
@@ -1743,7 +1742,7 @@ class Game
             func= =>
                 # 強制開始
                 @checkjobs true
-        else if @night && !@voting
+        else if @phase == Phase.night
             # 夜
             time=@rule.night
             mode="夜"
@@ -1753,7 +1752,7 @@ class Game
                 unless @checkjobs true
                     if @rule.remain
                         # 猶予時間があるよ
-                        @voting=true
+                        @phase = Phase.night_remain
                         @timer()
                     else
                         @players.forEach (x)=>
@@ -1766,7 +1765,7 @@ class Game
                         @checkjobs true
                 else
                     return
-        else if @night
+        else if @phase == Phase.night_remain
             # 夜の猶予
             time=@rule.remain
             mode="猶予"
@@ -1780,7 +1779,7 @@ class Game
                     M.users.update {userid:x.realid},{$push:{gone:@id}}
                 @bury("other")
                 @checkjobs true
-        else if !@voting
+        else if @phase == Phase.day
             # 昼
             time=@rule.day
             mode="昼"
@@ -1789,7 +1788,7 @@ class Game
                 unless @execute()
                     if @rule.remain
                         # 猶予があるよ
-                        @voting=true
+                        @phase = Phase.day_remain
                         log=
                             mode:"system"
                             comment:"昼の討論時間が終了しました。投票して下さい。"
@@ -1812,6 +1811,7 @@ class Game
                 else
                     return
         else
+            # @phase == Phase.day_remain
             # 猶予時間も過ぎたよ!
             time=@rule.remain
             mode="猶予"
@@ -2391,7 +2391,7 @@ class Player
         else
             # 昼の投票
             result=[]
-            if game?.votingbox
+            if game.votingbox
                 for pl in game.votingbox.candidates
                     result.push {
                         name:pl.name
@@ -9234,6 +9234,11 @@ module.exports.actions=(req,res,ss)->
             unless libblacklist.checkPermission "watch_say", req.session.ban
                 res "アクセス制限により、発言できません。"
                 return
+        # 発言できない時間帯
+        if !game.finished  && Phase.isRemain(game.phase)   # 投票猶予時間は発言できない
+            if player && !player.dead && !player.isJobType("GameMaster")
+                res null
+                return  #まだ死んでいないプレイヤーの場合は発言できないよ!
 
         #console.log query,player
         log =
@@ -9245,10 +9250,6 @@ module.exports.actions=(req,res,ss)->
             log.size=query.size
         # ログを流す
         dosp=->
-            
-            if !game.finished  && game.voting   # 投票猶予時間は発言できない
-                if player && !player.dead && !player.isJobType("GameMaster")
-                    return  #まだ死んでいないプレイヤーの場合は発言できないよ!
             if game.day<=0 || game.finished #準備中
                 unless log.mode=="audience"
                     log.mode="prepare"
@@ -9275,10 +9276,12 @@ module.exports.actions=(req,res,ss)->
                 else if !game.night
                     # 昼
                     unless query.mode in player.getSpeakChoiceDay game
+                        res null
                         return
                     log.mode=query.mode
                     if game.silentexpires && game.silentexpires>=Date.now()
                         # まだ発言できない（15秒ルール）
+                        res null
                         return
                     
                 else
@@ -9293,7 +9296,7 @@ module.exports.actions=(req,res,ss)->
                     log.to=player.id
                 when "heaven"
                     # 霊界の発言は悪霊憑きの発言になるかも
-                    if !game.night && !game.voting && !(game.silentexpires && game.silentexpires >= Date.now())
+                    if game.phase == Phase.day && !(game.silentexpires && game.silentexpires >= Date.now())
                         possessions = game.players.filter (x)-> !x.dead && x.isJobType "SpiritPossessed"
                         if possessions.length > 0
                             # 悪魔憑き
@@ -9317,6 +9320,7 @@ module.exports.actions=(req,res,ss)->
                         log.mode="gmreply"
                         pl=game.getPlayer result[1]
                         unless pl?
+                            res null
                             return
                         log.to=pl.id
                         log.name="GM→#{pl.name}"
