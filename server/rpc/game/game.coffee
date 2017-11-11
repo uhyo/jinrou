@@ -9,6 +9,22 @@ libsavelogs  = require '../../libs/savelogs.coffee'
 
 cron=require 'cron'
 
+# フェイズの一覧
+Phase =
+    # 希望役職制
+    rolerequesting: 'rolerequesting'
+    # 昼の議論時間
+    day: 'day'
+    # 昼の猶予
+    day_remain: 'day_remain'
+    # 夜の議論時間
+    night: 'night'
+    # 夜の猶予
+    night_remain: 'night_remain'
+    # フェイズ判定メソッド
+    isDay: (phase)-> phase in [Phase.day, Phase.day_remain]
+    isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
+
 # 浅いコピー
 copyObject=(obj)->
     result=Object.create Object.getPrototypeOf obj
@@ -213,6 +229,7 @@ class Game
         @finished=false #終了したかどうか
         @day=0  #何日目か(0=準備中)
         @night=false # false:昼 true:夜
+        @phase = null
         
         @winner=null    # 勝ったチーム名
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
@@ -243,8 +260,7 @@ class Game
         @startplayers=null
         @startsupporters=null
 
-        # 希望役職制のときに開始前に役職選択するフェーズ
-        @rolerequestingphase=false
+        # 希望役職制の選択一覧
         @rolerequesttable={}    # 一覧{(id):(jobtype)}
         
         # 投票箱を用意しておく
@@ -278,6 +294,7 @@ class Game
             finished:@finished
             day:@day
             night:@night
+            phase:@phase
             winner:@winner
             jobscount:@jobscount
             gamelogs:@gamelogs
@@ -306,6 +323,7 @@ class Game
         game.finished=obj.finished
         game.day=obj.day
         game.night=obj.night
+        game.phase=obj.phase
         game.winner=obj.winner
         game.jobscount=obj.jobscount
         game.gamelogs=obj.gamelogs ? {}
@@ -815,13 +833,16 @@ class Game
             # はじまる前
             @day=1
             @night=true
+            @phase = Phase.night
             # ゲーム開始時の年を記録
             @currentyear = (new Date).getFullYear()
         else if @night==true
             @day++
             @night=false
+            @phase = Phase.day
         else
             @night=true
+            @phase = Phase.night
 
         if @night==false && @currentyear+1 == (new Date).getFullYear()
             # 新年メッセージ
@@ -1166,7 +1187,6 @@ class Game
                 # 全員できたぞ
                 @setplayers (result)=>
                     unless result?
-                        @rolerequestingphase=false
                         @nextturn()
                         @ss.publish.channel "room#{@id}","refresh",{id:@id}
                 true
@@ -1716,7 +1736,7 @@ class Game
             else
                 # 時間切れ
                 func()
-        if @rolerequestingphase
+        if @phase == Phase.rolerequesting
             # 希望役職制
             time=60
             mode="希望選択"
@@ -6983,7 +7003,7 @@ class Waiting extends Player
     type:"Waiting"
     jobname:"待機中"
     team:""
-    sleeping:(game)->!game.rolerequestingphase || game.rolerequesttable[@id]?
+    sleeping:(game)->game.phase != Phase.rolerequesting || game.rolerequesttable[@id]?
     isListener:(game,log)->
        if log.mode=="audience"
            true
@@ -6995,7 +7015,7 @@ class Waiting extends Player
         # 自分で追加する
         result.open.push "Waiting"
     makeJobSelection:(game)->
-        if game.day==0 && game.rolerequestingphase
+        if game.day==0 && game.phase == Phase.rolerequesting
             # 開始前
             result=[{
                 name:"おまかせ"
@@ -8322,9 +8342,14 @@ module.exports.actions=(req,res,ss)->
                 day: parseInt(query.day_minute)*60+parseInt(query.day_second)
                 night: parseInt(query.night_minute)*60+parseInt(query.night_second)
                 remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
+                voting: parseInt(query.voting_minute)*60+parseInt(query.voting_second)
                 # (n=15)秒ルール
                 silentrule: parseInt(query.silentrule) ? 0
             }
+            # 不正なアレははじく
+            unless Number.isFinite(ruleobj.day) && Number.isFinite(ruleobj.night) && Number.isFinite(ruleobj.remain) && Number.isFinite(ruleobj.voting)
+                res "時間の選択が不正です"
+                return
             
             options={}  # オプションズ
             for opt in ["decider","authority","yaminabe_hidejobs"]
@@ -9132,8 +9157,7 @@ module.exports.actions=(req,res,ss)->
                 # とりあえず入れなくする
                 M.rooms.update {id:roomid},{$set:{mode:"playing"}}
                 # 役職選択中
-                game.rolerequestingphase=true
-                # ここ書いてないよ!
+                game.phase = Phase.rolerequesting
                 game.rolerequesttable={}
                 res null
                 log=
