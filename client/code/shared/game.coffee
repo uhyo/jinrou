@@ -1175,6 +1175,25 @@ exports.rules=[
                 getstr:->null
             }
             {
+                type:"time"
+                name:
+                    minute:"voting_minute"
+                    second:"voting_second"
+                label:"投票専用時間"
+                title:"投票専用時間を設定すると、昼間の議論中には投票できなくなり、投票専用時間に投票することになります。"
+                defaultValue:
+                    minute:0
+                    second:0
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.voting) > 0
+                        {
+                            label: "投票専用時間"
+                            value: "あり（#{ruleobj.voting}秒）"
+                        }
+                    else
+                        null
+            }
+            {
                 type:"separator"
             }
             {
