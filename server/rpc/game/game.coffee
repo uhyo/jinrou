@@ -2479,7 +2479,10 @@ class Player
     getjob_target:->@job_target
     # 昼の発言の選択肢
     getSpeakChoiceDay:(game)->
-        ["day","monologue"]
+        if game.phase == Phase.day
+            ["day","monologue"]
+        else
+            ["monologue"]
     # 夜の発言の選択肢を得る
     getSpeakChoice:(game)->
         ["monologue"]
@@ -9662,8 +9665,11 @@ makejobinfo = (game,player,result={})->
             result.speak =player.getSpeakChoiceHeaven game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
             result.speak =player.getSpeakChoice game
-        else
+        else if Phase.isDay(game.phase)
             result.speak =player.getSpeakChoiceDay game
+        else
+            # 開始前
+            result.speak = ["day"]
         if game.rule?.will=="die"
             result.will=player.will
 
