@@ -19,12 +19,14 @@ Phase =
     day: 'day'
     # 昼の猶予
     day_remain: 'day_remain'
+    # 昼の投票専用時間
+    day_voting: 'day_voting'
     # 夜の議論時間
     night: 'night'
     # 夜の猶予
     night_remain: 'night_remain'
     # フェイズ判定メソッド
-    isDay: (phase)-> phase in [Phase.day, Phase.day_remain]
+    isDay: (phase)-> phase in [Phase.day, Phase.day_remain, Phase.day_voting]
     isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
     isRemain: (phase)-> phase in [Phase.day_remain, Phase.night_remain]
 
@@ -1384,7 +1386,7 @@ class Game
         return deads.length
                 
     # 投票終わりチェック
-    # 返り値意味ないんじゃないの?
+    # 返り値: 処刑が終了したらtrue
     execute:->
         return false unless @votingbox.isVoteAllFinished()
         [mode,players,tos,table]=@votingbox.check()
@@ -1785,19 +1787,30 @@ class Game
             return unless time
             func= =>
                 unless @execute()
-                    if @rule.remain
+                    if @rule.voting
+                        # 投票専用時間がある
+                        @phase = Phase.day_voting
+                        log=
+                            mode:"system"
+                            comment:"昼の議論時間が終了しました。投票してください。"
+                        splashlog @id, this, log
+                        # 投票箱が開くので通知
+                        @splashjobinfo()
+                        @timer()
+                    else if @rule.remain
                         # 猶予があるよ
                         @phase = Phase.day_remain
                         log=
                             mode:"system"
-                            comment:"昼の討論時間が終了しました。投票して下さい。"
+                            comment:"昼の議論時間が終了しました。投票してください。"
                         splashlog @id,this,log
                         @timer()
                     else
                         # 突然死
                         revoting=false
-                        @players.forEach (x)=>
-                            return if x.dead || x.voted(this,@votingbox)
+                        for x in @players
+                            if x.dead || x.voted(this,@votingbox)
+                                continue
                             x.die this,"gone-day"
                             x.setNorevive true
                             revoting=true
@@ -1809,6 +1822,36 @@ class Game
                             @execute()
                 else
                     return
+        else if @phase == Phase.day_voting
+            # 投票専用時間
+            time=@rule.voting
+            mode="投票"
+            return unless time
+            func= =>
+                unless @execute()
+                    # まだ決まらない
+                    if @rule.remain
+                        # 猶予時間
+                        @phase = Phase.day_remain
+                        @timer()
+                    else
+                        # 突然死
+                        revoting=false
+                        for x in @players
+                            if x.dead || x.voted(this, @votingbox)
+                                continue
+                            x.die this, "gone-day"
+                            x.setNorevive true
+                            revoting = true
+                        @bury("other")
+                        @judge()
+                        if revoting
+                            @dorevote "gone"
+                        else
+                            @execute()
+                else
+                    return
+                        
         else
             # @phase == Phase.day_remain
             # 猶予時間も過ぎたよ!
@@ -1817,8 +1860,9 @@ class Game
             func= =>
                 unless @execute()
                     revoting=false
-                    @players.forEach (x)=>
-                        return if x.dead || x.voted(this,@votingbox)
+                    for x in @players
+                        if x.dead || x.voted(this,@votingbox)
+                            continue
                         x.die this,"gone-day"
                         x.setNorevive true
                         revoting=true
@@ -9401,7 +9445,11 @@ module.exports.actions=(req,res,ss)->
         else
             # 投票
             unless player.checkJobValidity game,query
-                res {error:"対象を選択して下さい"}
+                res {error:"対象を選択してください"}
+                return
+            if game.rule.voting > 0 && game.phase == Phase.day
+                # 投票専用時間ではない
+                res {error: "まだ投票できません"}
                 return
             err=player.dovote game,query.target
             if err?
@@ -9595,7 +9643,7 @@ makejobinfo = (game,player,result={})->
             else if Phase.isDay(game.phase)
                 # 昼
                 result.sleeping=true
-                unless player.dead || game.votingbox.isVoteFinished player
+                unless player.dead || (game.rule.voting > 0 && game.phase == Phase.day) || game.votingbox.isVoteFinished player
                     # 投票ボックスオープン!!!
                     result.voteopen=true
                     result.sleeping=false

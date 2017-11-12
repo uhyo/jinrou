@@ -370,12 +370,15 @@ exports.start=(roomid)->
                 daysec=rule.day-0
                 nightsec=rule.night-0
                 remainsec=rule.remain-0
+                votingsec=rule.voting|0
                 form.elements["day_minute"].value=parseInt daysec/60
                 form.elements["day_second"].value=daysec%60
                 form.elements["night_minute"].value=parseInt nightsec/60
                 form.elements["night_second"].value=nightsec%60
                 form.elements["remain_minute"].value=parseInt remainsec/60
                 form.elements["remain_second"].value=remainsec%60
+                form.elements["voting_minute"].value=parseInt votingsec/60
+                form.elements["voting_second"].value=votingsec%60
                 # その他
                 delete rule.number  # 人数は違うかも
                 for key of rule
@@ -878,7 +881,7 @@ exports.start=(roomid)->
                         if obj.type=="separator"
                             continue
                         if obj.getstr?
-                            valobj=obj.getstr ruleobj[obj.name]
+                            valobj=obj.getstr ruleobj[obj.name], ruleobj
                             unless valobj?
                                 continue
                             val="#{valobj.label ? ''}:#{valobj.value ? ''}"
@@ -913,6 +916,7 @@ exports.start=(roomid)->
                                     continue
                         p.text val
                         win.append p
+            console.log "rule!", this_rule.rule
             chkrule this_rule.rule, jobcountobj,Shared.game.rules
             
         $("#willform").submit (je)->

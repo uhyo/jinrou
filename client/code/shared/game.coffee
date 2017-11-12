@@ -1184,7 +1184,14 @@ exports.rules=[
                 defaultValue:
                     minute:0
                     second:0
-                getstr:->null
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.voting) > 0
+                        {
+                            label: "投票専用時間"
+                            value: "あり（#{ruleobj.voting}秒）"
+                        }
+                    else
+                        null
             }
             {
                 type:"separator"
