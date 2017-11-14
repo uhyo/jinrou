@@ -285,3 +285,60 @@ exports.checkPermission = (action, ban)->
     if action in ban.types
         return false
     return true
+
+# ユーザーをBANに延長
+exports.extendBlacklist = (query, cb)->
+    userid = query.userid
+    types = query.types
+    reason = query.reason
+    banMinutes = query.banMinutes
+
+    # 当該ユーザーを検索
+    M.users.findOne {userid: userid}, (err, doc)->
+        if err?
+            cb {error: err}
+            return
+        unless doc?
+            cb {error: "そのユーザーは見つかりません"}
+            return
+        updateQuery = {
+            $addToSet: {
+                userid: userid
+                ip: doc.ip
+                types: {
+                    $each:types
+                }
+            }
+            $set: {
+                reason: reason
+            }
+        }
+
+        M.blacklist.findOne {userid: userid}, (err, doc)->
+            if err?
+                cb {error: err}
+                return
+            # If the Target has been banning, extend the expiry.
+            if doc? && doc.forgiveDate==undefined
+                id = doc.id
+                if doc.expires? && doc.expires.getTime() > Date.now()
+                    d=doc.expires
+                else if doc.expires?
+                    d=new Date()
+                if d?
+                    d.setMinutes d.getMinutes()+banMinutes
+                    updateQuery.$set.expires=d
+            # If not, create a new blacklist line.
+            else
+                id = makeBanId()
+                d=new Date()
+                d.setMinutes d.getMinutes()+banMinutes
+                updateQuery.$set.expires=d
+            
+            M.blacklist.update {
+                id: id
+            }, updateQuery, {w: 1, upsert: true}, (err)->
+                if err?
+                    cb {error: err}
+                else
+                    cb null

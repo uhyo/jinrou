@@ -1,0 +1,10 @@
+section.window
+  h1
+    = title
+    input.closer(type="button",value="×",name="cancel")
+  p これらの参加者はこのゲームで突然死亡しました。 処罰すべきだと考える参加者に投票してください。各投票は#{time}分間の禁止に相当します。
+  form(name="punish",aciton="/")#punishform
+    div(id="prePunishUser")
+    p
+      input(type="submit",name="ok",value="OK")
+      input(type="button",name="cancel",value="キャンセル")

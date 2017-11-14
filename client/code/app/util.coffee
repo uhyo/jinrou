@@ -378,3 +378,36 @@ exports.LoadingIcon = class LoadingIcon
         @icon.classList.remove 'fa-spinner'
         for cl in @iconclasses
             @icon.classList.add cl
+
+#突然死の罰
+exports.punish=(title,message,cb)->
+    win = showWindow "util-punish",{title:title,time:message.time}
+    for user in message.userlist
+        a = document.createElement "input"
+        a.type="checkbox"
+        a.name="userList"
+        a.class="punish"
+        a.value=user.userid
+        b = document.createElement "label"
+        $(b).append(a).append(user.name)
+        $("#prePunishUser").append(b).append("<br>")
+
+    ipt =->
+        user=document.punish.userList;
+        userChecked=[];
+        if !user[0]
+            a=[]
+            a.push user
+            user=a
+        for pl in user
+            if pl.checked then userChecked.push pl.value
+        userChecked
+    win.submit (je)-> je.preventDefault()
+    win.click (je)->
+        t=je.target
+        if t.name=="ok"
+            cb? ipt()
+            closeWindow t
+        else if t.name=="cancel"
+            # cb? null
+            closeWindow t
