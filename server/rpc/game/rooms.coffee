@@ -619,7 +619,7 @@ module.exports.actions=(req,res,ss)->
                 banpl=room.players.filter((pl)->pl.userid==banID).pop()
                 banMinutes = parseInt(Config.rooms.suddenDeathBAN/room.players.length)
 
-                query = 
+                query =
                     userid:banpl.realid
                     types:["play"]
                     reason:"突然死の罰"

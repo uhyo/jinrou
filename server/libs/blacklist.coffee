@@ -314,12 +314,15 @@ exports.extendBlacklist = (query, cb)->
             }
         }
 
-        M.blacklist.findOne {userid: userid}, (err, doc)->
+        M.blacklist.findOne {
+            userid: userid
+            forgiveDate: {$exists: false}
+        }, (err, doc)->
             if err?
                 cb {error: err}
                 return
             # If the Target has been banning, extend the expiry.
-            if doc? && doc.forgiveDate==undefined
+            if doc?
                 id = doc.id
                 if doc.expires? && doc.expires.getTime() > Date.now()
                     d=doc.expires
@@ -333,7 +336,9 @@ exports.extendBlacklist = (query, cb)->
                 id = makeBanId()
                 d=new Date()
                 d.setMinutes d.getMinutes()+banMinutes
+                updateQuery.$set.id = id
                 updateQuery.$set.expires=d
+            console.log updateQuery
             
             M.blacklist.update {
                 id: id
