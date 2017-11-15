@@ -25,6 +25,8 @@ Phase =
     night: 'night'
     # 夜の猶予
     night_remain: 'night_remain'
+    # ハンター選択中
+    hunter: 'hunter'
     # フェイズ判定メソッド
     isDay: (phase)-> phase in [Phase.day, Phase.day_remain, Phase.day_voting]
     isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
@@ -6973,6 +6975,15 @@ class Twin extends Player
         # 双子が分かる
         result.twins = game.players.filter((x)-> x.isJobType "Twin").map (x)-> x.publicinfo()
 
+class Hunter extends Player
+    type:"Hunter"
+    jobname:"ハンター"
+    sleeping:(game)-> @target? || game.phase != Phase.hunter
+    dying:(game)->
+        super
+        @setFlag "hunting"
+
+
 
 
 # ============================
@@ -8278,6 +8289,7 @@ jobs=
     TinyGhost:TinyGhost
     Ninja:Ninja
     Twin:Twin
+    Hunter:Hunter
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8422,6 +8434,7 @@ jobStrength=
     TinyGhost:5
     Ninja:18
     Twin:16
+    Hunter:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
