@@ -1711,7 +1711,7 @@ class Game
             # generate the list of Sudden Dead Player
             norevivers=@gamelogs.filter((x)->x.event=="found" && x.flag in ["gone-day","gone-night"]).map((x)->x.id)
             if norevivers.length
-                message = 
+                message =
                     id:@id
                     userlist:[]
                     time:parseInt(Config.rooms.suddenDeathBAN/@players.length)
@@ -9644,6 +9644,7 @@ makejobinfo = (game,player,result={})->
         # 参加者としての（perticipantsは除く）
         plpl=game.getPlayer player.id
         player.makejobinfo game,result
+        result.playerid = player.id
         result.dead=player.dead
         result.voteopen=false
         result.sleeping=true
