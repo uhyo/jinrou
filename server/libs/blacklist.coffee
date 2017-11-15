@@ -97,6 +97,9 @@ exports.handleLogin = (userid, ip, cb)->
             {userid: userid},
             {ip: ip}
         ]
+    }, {
+        # non-forgiven document comes before forgiven document
+        sort: [['forgiveDate', 1]]
     }, (err, doc)->
         if err?
             cb {
