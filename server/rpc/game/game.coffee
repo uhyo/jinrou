@@ -1707,7 +1707,19 @@ class Game
             @save()
             @saveUserRawLogs()
             @prize_check()
-            
+
+            # generate the list of Sudden Dead Player
+            norevivers=@gamelogs.filter((x)->x.event=="found" && x.flag in ["gone-day","gone-night"]).map((x)->x.id)
+            if norevivers.length
+                message =
+                    id:@id
+                    userlist:[]
+                    time:parseInt(Config.rooms.suddenDeathBAN/@players.length)
+                for x in norevivers
+                    pl = @getPlayer x
+                    message.userlist.push {"userid":pl.id,"name":pl.name}
+                @ss.publish.channel "room#{@id}",'punishalert',message
+
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)->
                 return unless doc?
@@ -9632,6 +9644,7 @@ makejobinfo = (game,player,result={})->
         # 参加者としての（perticipantsは除く）
         plpl=game.getPlayer player.id
         player.makejobinfo game,result
+        result.playerid = player.id
         result.dead=player.dead
         result.voteopen=false
         result.sleeping=true

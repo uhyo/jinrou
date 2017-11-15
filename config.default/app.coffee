@@ -89,6 +89,8 @@ module.exports =
   rooms:
     # 古い部屋に入るまでの時間(hours)
     fresh:24*3
+    # uplimit for Sudden Death Punishment(minutes).
+    suddenDeathBAN:360
   # ユーザーについて
   user:
     # The number of games required to publish a user's 戦績.

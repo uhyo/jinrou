@@ -597,7 +597,37 @@ module.exports.actions=(req,res,ss)->
                         x.players.forEach (p)->
                             delete p.realid
                 res docs
-            
+    suddenDeathPunish:(roomid,banIDs)->
+        # banIDs = ["someID","someID"]
+        unless banIDs.length
+            res null
+            return
+        unless req.session.userId
+            res {error:"ログインして下さい",require:"login"}    # ログインが必要
+            return
+        Server.game.rooms.oneRoomS roomid,(room)=>
+            if !room || room.error?
+                res error:"その部屋はありません"
+                return
+            unless req.session.userId in (room.players.map (x)->x.realid)
+                res error:"参加していません"
+                return
+            for banID in banIDs
+                unless banID in (room.players.map (x)->x.userid)
+                    res error:"そのユーザーは参加していません"
+                    return
+                banpl=room.players.filter((pl)->pl.userid==banID).pop()
+                banMinutes = parseInt(Config.rooms.suddenDeathBAN/room.players.length)
+
+                query =
+                    userid:banpl.realid
+                    types:["play"]
+                    reason:"突然死の罰"
+                    banMinutes:banMinutes
+
+                libblacklist.extendBlacklist query,(result)->
+                    ss.publish.channel "room#{roomid}", "punishresult", {id:roomid,name:banpl.name}
+                    res result
 
 #res: (err)->
 setRoom=(roomid,room)->
