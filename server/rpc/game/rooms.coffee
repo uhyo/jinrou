@@ -628,6 +628,8 @@ module.exports.actions=(req,res,ss)->
                 libblacklist.extendBlacklist query,(result)->
                     ss.publish.channel "room#{roomid}", "punishresult", {id:roomid,name:banpl.name}
                     res result
+                    # 即時反映
+                    ss.publish.user banpl.realid, "forcereload"
 
 #res: (err)->
 setRoom=(roomid,room)->
