@@ -196,12 +196,19 @@ module.exports.actions=(req,res,ss)->
                     mode:"gm"
                     nowprize:null
                 }
-            M.rooms.insert room
-            Server.game.game.newGame room,ss
-            res {id: room.id}
-            Server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.password then '・🔒パスワードあり' else ''}#{if room.blind then '・👤覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",Config.admin.password
+            M.rooms.insertOne room, {w: 1}, (err)->
+                if err?
+                    res {error: err}
+                    return
+                Server.game.game.newGame room,ss, (err)->
+                    if err?
+                        # TODO: revert?
+                        res {error: err}
+                        return
+                    res {id: room.id}
+                    Server.oauth.template room.id,"「#{room.name}」（#{room.id}番#{if room.password then '・🔒パスワードあり' else ''}#{if room.blind then '・👤覆面' else ''}#{if room.gm then '・GMあり' else ''}）が建てられました。 #月下人狼",Config.admin.password
 
-            Server.log.makeroom req.session.user, room
+                    Server.log.makeroom req.session.user, room
 
     # 部屋に入る
     # 成功ならnull 失敗ならエラーメッセージ

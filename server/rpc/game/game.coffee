@@ -53,10 +53,10 @@ loadGame = (roomid, ss, callback)->
                 callback null, games[roomid]
 #内部用
 module.exports=
-    newGame: (room,ss)->
+    newGame: (room,ss, cb)->
         game=new Game ss,room
         games[room.id]=game
-        M.games.insert game.serialize()
+        M.games.insertOne game.serialize(), {w: 1}, cb
     # ゲームオブジェクトを読み込んで使用可能にする
     ###
     loadDB:(roomid,ss,cb)->
