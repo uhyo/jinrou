@@ -1593,7 +1593,7 @@ class Game
                 userNames.push pl.name
                 # 権限の関係でいったん生存状態に戻す
                 plpl = @getPlayer pl.id
-                plpl?.dead = false
+                plpl?.setDead false
         log=
             mode: "system"
             comment: "#{userNames.join '，'}はハンターでした。ハンターは能力の対象を選択してください。"
@@ -1611,9 +1611,9 @@ class Game
             hunters.push (pl.accessByJobTypeAll "Hunter")...
         for pl in hunters
             if pl.flag == "hunting"
-                pl.flag = null
+                pl.setFlag null
                 plpl = @getPlayer pl.id
-                plpl?.dead = true
+                plpl?.setDead true, ""
                 if pl.target?
                     t = @getPlayer pl.target
                     if t? && !t.dead
@@ -7375,10 +7375,27 @@ class Complex
             query={}
         unless query.jobtype?
             query.jobtype=@main.type
-        if @main.isJobType(query.jobtype) && ((@main.dead && !@main.deadJobdone(game)) || (!@main.dead && !@main.jobdone(game)))
-            @mcall game,@main.job,game,playerid,query
-        else if @sub?.isJobType?(query.jobtype) && ((@sub.dead && !@sub.deadJobdone(game)) || (!@sub.dead && !@sub?.jobdone?(game)))
-            @sub.job? game,playerid,query
+        if @main.isJobType(query.jobtype)
+            jdone =
+                if game.phase == Phase.hunter
+                    @main.hunterJobdone(game)
+                else if @main.dead
+                    @main.deadJobdone(game)
+                else
+                    @main.jobdone(game)
+            unless jdone
+                return @mcall game,@main.job,game,playerid,query
+        if @sub?.isJobType?(query.jobtype)
+            jdone =
+                if game.phase == Phase.hunter
+                    @sub.hunterJobdone(game)
+                else if @sub.dead
+                    @sub.deadJobdone(game)
+                else
+                    @sub.jobdone(game)
+            unless jdone
+                return @sub.job game,playerid,query
+        return null
     # Am I Walking Dead?
     isDead:->
         isMainDead = @main.isDead()
