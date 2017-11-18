@@ -1335,7 +1335,11 @@ class Game
             return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
 
     # 死んだ人を処理する type: タイミング
-    # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
+    # type:
+    #   "day": 夜が明けたタイミング
+    #   "punish": 処刑後
+    #   "night": 夜になったタイミング
+    #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
 
         deads=[]
@@ -1417,12 +1421,13 @@ class Game
                     comment:x.will
                 splashlog @id,this,log
         # 蘇生のログも表示
-        for n in @revive_log
-            log=
-                mode: "system"
-                comment: "#{n}は蘇生しました。"
-            splashlog @id, this, log
-        @revive_log = []
+        if type != "punish"
+            for n in @revive_log
+                log=
+                    mode: "system"
+                    comment: "#{n}は蘇生しました。"
+                splashlog @id, this, log
+            @revive_log = []
         return deads.length
                 
     # 投票終わりチェック
@@ -1497,6 +1502,8 @@ class Game
                     clearTimeout @timerid
                     @timer()
                 return false
+            # ターン移る前に死体処理
+            @bury "punish"
             @nextturn()
         return true
     # 再投票
