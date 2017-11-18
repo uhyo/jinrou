@@ -1484,23 +1484,7 @@ class Game
                 @bury "other"
                 return false if @judge()
 
-                log=
-                    mode:"system"
-                    comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
-                splashlog @id,this,log
-
-                # 再び投票する処理(下と同じ… なんとかならないか?)
-                @votingbox.setCandidates @players.filter (x)-> !x.dead
-                @votingbox.start()
-                @players.forEach (player)=>
-                    return if player.dead
-                    player.votestart this
-                    @ss.publish.channel "room#{@id}","voteform",true
-                    @splashjobinfo()
-                if @phase == Phase.day_remain
-                    # 投票猶予の場合初期化
-                    clearTimeout @timerid
-                    @timer()
+                @dorevote "onemore"
                 return false
             # ターン移る前に死体処理
             @bury "punish"
@@ -1508,8 +1492,12 @@ class Game
         return true
     # 再投票
     dorevote:(mode)->
-        # mode: "runoff" - 決選投票による再投票 "revote" - 同数による再投票 "gone" - 突然死による再投票
-        if mode!="runoff"
+        # mode:
+        #   "runoff" - 決選投票による再投票
+        #   "revote" - 同数による再投票
+        #   "gone" - 突然死による再投票
+        #   "onemore" - まだ処刑するひとがいる場合
+        if mode in ["revote", "gone"]
             @revote_num++
         if @revote_num>=4   # 4回再投票
             @judge()
@@ -1519,21 +1507,25 @@ class Game
             log=
                 mode:"system"
                 comment:"決選投票になりました。"
-        else
+        else if mode in ["revote", "gone"]
             log=
                 mode:"system"
                 comment:"再投票になりました。"
             if isFinite remains
                 log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
-        splashlog @id,this,log
+        else if mode == "onemore"
+            log=
+                mode:"system"
+                comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
+        if log?
+            splashlog @id,this,log
         # 必要がある場合は候補者を再設定
-        if @votingbox.candidates.some((x)=> @getPlayer(x.id).dead)
-            @votingbox.setCandidates @players.filter ((x)->!x.dead)
+        @votingbox.setCandidates @players.filter ((x)->!x.dead)
             
         @votingbox.start()
-        @players.forEach (player)=>
-            return if player.dead
-            player.votestart this
+        for player in @players
+            unless player.dead
+                player.votestart this
         @ss.publish.channel "room#{@id}","voteform",true
         @splashjobinfo()
         if @phase == Phase.day_remain
