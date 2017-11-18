@@ -408,6 +408,9 @@ class Game
             if game.day>0 && Phase.isDay(game.phase)
                 # 昼の場合投票箱をつくる
                 game.votingbox.setCandidates game.players.filter (x)->!x.dead
+            if game.phase == Phase.hunter
+                # XXX hunterの場合あれを捏造
+                game.nextScene = "nextturn"
         game
     # 公開情報
     publicinfo:(obj)->  #obj:オプション
@@ -563,7 +566,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin","Hunter"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -1242,14 +1245,27 @@ class Game
                 true
             else
                 false
-
-        else if @players.every( (x)=>x.dead || x.sleeping(@))
-            if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
-                @midnight()
-                @nextturn()
-                true
+        else if Phase.isNight(@phase)
+            # 夜時間
+            if @players.every( (x)=>x.dead || x.sleeping(@))
+                # 全員寝たが……
+                if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
+                    @midnight()
+                    @nextturn()
+                    true
+                else
+                    false
             else
                 false
+        else if @phase == Phase.hunter
+            # ハンターの時間だ
+            for pl in @players
+                hunters = pl.accessByJobTypeAll "Hunter"
+                if hunters.some((x)-> x.flag == "hunting" && !x.target?)
+                    # まだ選択していないハンターだ
+                    return false
+            @hunterDo()
+            true
         else
             false
 
@@ -1532,7 +1548,7 @@ class Game
         else if mode == "onemore"
             log=
                 mode:"system"
-                comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
+                comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票してください。"
         if log?
             splashlog @id,this,log
         # 必要がある場合は候補者を再設定
@@ -1544,7 +1560,7 @@ class Game
                 player.votestart this
         @ss.publish.channel "room#{@id}","voteform",true
         @splashjobinfo()
-        if @phase == Phase.day_remain
+        if @phase in [Phase.day_voting, Phase.day_remain]
             # 投票猶予の場合初期化
             clearTimeout @timerid
             @timer()
@@ -1552,7 +1568,7 @@ class Game
     # 戻り値: true (ハンターフェイズあり) / false (ハンターフェイズなし)
     # nextScene:
     #   "nextturn": 次のターンへ
-    #   "beginturn": ターン開始処理
+    #   "day": 昼のターン開始処理
     #   "vote": 次の投票へ
     hunterCheck:(nextScene)->
         # まずハンターを列挙
@@ -1589,6 +1605,7 @@ class Game
         return true
     # ハンターの能力実行
     hunterDo:->
+        clearTimeout @timerid
         hunters = []
         for pl in @players
             hunters.push (pl.accessByJobTypeAll "Hunter")...
@@ -1605,13 +1622,17 @@ class Game
 
         @bury "other"
         return if @judge()
+        if @hunterCheck @nextScene
+            return
         # 次のフェイズへ
         switch @nextScene
             when "nextturn"
                 @nextturn()
-            when "beginturn"
+            when "day"
+                @phase = Phase.day
                 @beginturn()
             when "vote"
+                @phase = Phase.day_voting
                 @dorevote "onemore"
             else
                 console.error "unknown nextScene: #{@nextScene}"
@@ -1979,7 +2000,7 @@ class Game
                     return
         else if @phase == Phase.day_voting
             # 投票専用時間
-            time=@rule.voting
+            time=@rule.voting || @rule.remain || 120
             mode="投票"
             return unless time
             func= =>
@@ -9414,7 +9435,7 @@ module.exports.actions=(req,res,ss)->
                 res null
                 log=
                     mode:"system"
-                    comment:"このゲームは希望役職制です。希望の役職を選択して下さい。"
+                    comment:"このゲームは希望役職制です。希望の役職を選択してください。"
                 splashlog game.id,game,log
                 game.timer()
                 ss.publish.channel "room#{roomid}","refresh",{id:roomid}
@@ -9535,12 +9556,15 @@ module.exports.actions=(req,res,ss)->
                         # まだ発言できない（15秒ルール）
                         res null
                         return
-                    
-                else
+                else if Phase.isNight(game.phase) || player.isJobType("GameMaster")
                     # 夜
                     unless query.mode in player.getSpeakChoice game
                         query.mode="monologue"
                     log.mode=query.mode
+                else
+                    # ハンター時間
+                    log.mode = "monologue"
+
 
             switch log.mode
                 when "monologue","heavenmonologue","helperwhisper"
@@ -9656,7 +9680,7 @@ module.exports.actions=(req,res,ss)->
             # 能力をすべて発動したかどうかチェック
             #res {sleeping:player.jobdone(game)}
             res makejobinfo game,player
-            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase)
+            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter
                 game.checkjobs()
         else
             # 投票
@@ -9881,10 +9905,14 @@ makejobinfo = (game,player,result={})->
         result.winner=player.winner
         if player.dead
             result.speak =player.getSpeakChoiceHeaven game
+        else if is_gm
+            result.speak =player.getSpeakChoice game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
             result.speak =player.getSpeakChoice game
         else if Phase.isDay(game.phase)
             result.speak =player.getSpeakChoiceDay game
+        else if game.phase == Phase.hunter
+            result.speak = ["monologue"]
         else
             # 開始前
             result.speak = ["day"]
