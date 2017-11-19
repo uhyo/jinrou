@@ -1456,7 +1456,7 @@ exports.rules=[
     }
     # 人狼系
     {
-        label:null
+        label: "人狼系の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in exports.categories.Werewolf
@@ -1501,7 +1501,7 @@ exports.rules=[
     }
     # 占い系
     {
-        label:null
+        label: "占い師の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
@@ -1547,7 +1547,7 @@ exports.rules=[
     }
     # 霊能
     {
-        label:null
+        label: "霊能者の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Psychic>0
@@ -1573,7 +1573,7 @@ exports.rules=[
     }
     # 共有者
     {
-        label:null
+        label: "共有者の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Couple>0
@@ -1597,7 +1597,7 @@ exports.rules=[
     }
     # 護衛役職
     {
-        label:null
+        label: "狩人などの設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
@@ -1656,7 +1656,7 @@ exports.rules=[
     }
     # 妖狐
     {
-        label:null
+        label: "妖狐の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Fox>0
@@ -1675,6 +1675,32 @@ exports.rules=[
                         label:"呪殺ログと襲撃ログの区別"
                         value:if value=="on" then "あり" else "なし"
                     }
+            }
+        ]
+    }
+    # ハンター
+    {
+        label: "ハンターの設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Hunter > 0
+        rules:[
+            {
+                name:"hunter_lastattack"
+                label: "ラス撃ち"
+                title: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
+                type: "select"
+                values:[
+                    {
+                        value:"yes"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                ]
             }
         ]
     }

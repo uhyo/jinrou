@@ -916,8 +916,10 @@ class Game
         #死体処理
         @bury(if night then "night" else "day")
 
+        return if @rule.hunter_lastattack == "no" && @judge()
         unless @hunterCheck "beginturn"
             # ハンターフェイズの割り込みがなければターン開始
+
             @beginturn()
 
     beginturn:->
@@ -1510,9 +1512,10 @@ class Game
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
                 @bury "other"
-                return false if @judge()
+                return false if @rule.hunter_lastattack == "no" && @judge()
 
                 unless @hunterCheck("vote")
+                    return false if @rule.hunter_lastattack == "yes" && @judge()
                     @dorevote "onemore"
                 return false
             # ターン移る前に死体処理
@@ -1621,9 +1624,11 @@ class Game
                         t.die this, "hunter"
 
         @bury "other"
-        return if @judge()
+        return if @rule.hunter_lastattack == "no" && @judge()
         if @hunterCheck @nextScene
+            return if @rule.hunter_lastattack == "yes" && @judge()
             return
+        return if @judge()
         # 次のフェイズへ
         switch @nextScene
             when "nextturn"
@@ -9424,6 +9429,7 @@ module.exports.actions=(req,res,ss)->
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
             "firstnightdivine","consecutiveguard",
+            "hunter_lastattack",
             "poisonwolf",
             "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
