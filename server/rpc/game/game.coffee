@@ -566,7 +566,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin","Hunter"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin","Hunter","MadHunter"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -1262,7 +1262,10 @@ class Game
         else if @phase == Phase.hunter
             # ハンターの時間だ
             for pl in @players
-                hunters = pl.accessByJobTypeAll "Hunter"
+                hunters = [
+                    pl.accessByJobTypeAll("Hunter")...,
+                    pl.accessByJobTypeAll("MadHunter")...,
+                ]
                 if hunters.some((x)-> x.flag == "hunting" && !x.target?)
                     # まだ選択していないハンターだ
                     return false
@@ -1577,7 +1580,7 @@ class Game
         # まずハンターを列挙
         hunters = []
         for pl in @players
-            hunters.push (pl.accessByJobTypeAll "Hunter")...
+            hunters.push (pl.accessByJobTypeAll "Hunter")..., (pl.accessByJobTypeAll "MadHunter")...
         # 能力発動中のもののみ残す
         hunters = hunters.filter (x)-> x.flag == "hunting"
         if hunters.length == 0
@@ -1611,7 +1614,7 @@ class Game
         clearTimeout @timerid
         hunters = []
         for pl in @players
-            hunters.push (pl.accessByJobTypeAll "Hunter")...
+            hunters.push (pl.accessByJobTypeAll "Hunter")..., (pl.accessByJobTypeAll "MadHunter")...
         for pl in hunters
             if pl.flag == "hunting"
                 pl.setFlag null
@@ -1625,7 +1628,9 @@ class Game
                         targets = pl.makeJobSelection this
                         if targets.length > 0
                             r = Math.floor(Math.random() * targets.length)
-                            targets[r].value
+                            @getPlayer targets[r].value
+                        else
+                            null
                 if t? && !t.dead
                     # ハンターの攻撃対象
                     t.die this, "hunter"
@@ -7134,11 +7139,19 @@ class Hunter extends Player
             # 選択中のハンターは除く
             result = result.filter (x)->
                 pl = game.getPlayer x.value
-                hunters = pl.accessByJobTypeAll "Hunter"
+                hunters = [
+                    (pl.accessByJobTypeAll "Hunter")...,
+                    (pl.accessByJobTypeAll "MadHunter")...,
+                ]
                 return hunters.every (y)-> y.flag != "hunting"
             return result
         else
             return super
+
+class MadHunter extends Hunter
+    type:"MadHunter"
+    jobname:"復讐人"
+    team:"Werewolf"
 
 
 # ============================
@@ -8463,6 +8476,7 @@ jobs=
     Ninja:Ninja
     Twin:Twin
     Hunter:Hunter
+    MadHunter:MadHunter
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8608,6 +8622,7 @@ jobStrength=
     Ninja:18
     Twin:16
     Hunter:20
+    MadHunter:17
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

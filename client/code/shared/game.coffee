@@ -29,6 +29,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
 "Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
+# えけけ鯖
+"MadHunter",
 # 人狼パーティー
 "TinyGhost","Ninja","Twin",
 # その他
@@ -58,7 +60,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere"]
@@ -71,7 +73,7 @@ exports.categories=
     Human: teams.Human.filter((x)-> x != "GotChocolate")
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf"]
     Fox:["Fox","TinyFox"]
-    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
@@ -926,6 +928,9 @@ exports.jobinfo=
         MadScientist:
             name:"マッドサイエンティスト"
             color:"#14e051"
+        MadHunter:
+            name:"復讐人"
+            color:"#511e0f"
         
         
     Fox:
@@ -1683,7 +1688,7 @@ exports.rules=[
         label: "ハンターの設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
-            return jobs.Hunter > 0
+            return jobs.Hunter > 0 || jobs.MadHunter > 0
         rules:[
             {
                 name:"hunter_lastattack"
