@@ -917,7 +917,7 @@ class Game
         @bury(if night then "night" else "day")
 
         return if @rule.hunter_lastattack == "no" && @judge()
-        unless @hunterCheck "beginturn"
+        unless @hunterCheck "day"
             # ハンターフェイズの割り込みがなければターン開始
 
             @beginturn()
@@ -1639,10 +1639,8 @@ class Game
         @bury "other"
         return if @rule.hunter_lastattack == "no" && @judge()
         if @hunterCheck @nextScene
-            if @rule.hunter_lastattack == "yes"
-                @judge()
             return
-        return if @judge()
+        return if @rule.hunter_lastattack == "yes" && @judge()
         # 次のフェイズへ
         switch @nextScene
             when "nextturn"
