@@ -1523,10 +1523,12 @@ class Game
                 return false
             # ターン移る前に死体処理
             @bury "punish"
-            return true if @judge()
+            return true if @rule.hunter_lastcheck == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
                 @nextturn()
+            if @rule.hunter_lastcheck == "yes"
+                @judge()
         return true
     # 再投票
     dorevote:(mode)->
@@ -1599,10 +1601,11 @@ class Game
                 userNames.push pl.name
                 # 権限の関係でいったん生存状態に戻す
                 plpl = @getPlayer pl.id
-                plpl?.setDead false
+                if plpl?
+                    plpl.setDead false
         log=
             mode: "system"
-            comment: "#{userNames.join '，'}はハンターでした。ハンターは能力の対象を選択してください。"
+            comment: "#{userNames.join '，'}は最期の力で銃を構えました。銃撃対象を選択してください。"
         splashlog @id, this, log
 
         @splashjobinfo()
@@ -1615,6 +1618,7 @@ class Game
         hunters = []
         for pl in @players
             hunters.push (pl.accessByJobTypeAll "Hunter")..., (pl.accessByJobTypeAll "MadHunter")...
+        diers = []
         for pl in hunters
             if pl.flag == "hunting"
                 pl.setFlag null
@@ -1633,7 +1637,11 @@ class Game
                             null
                 if t? && !t.dead
                     # ハンターの攻撃対象
-                    t.die this, "hunter"
+                    diers.push t
+        # ハンターのターゲットになった人は死ぬ！！！！！！！
+        for t in diers
+            if !t.dead
+                t.die this, "hunter"
 
 
         @bury "other"
@@ -2069,7 +2077,7 @@ class Game
         else if @phase == Phase.hunter
             # ハンター選択中
             time = 45 # it's hard-coded!
-            mode = "ハンター"
+            mode = "対象選択中"
             func = =>
                 @hunterDo()
         else
@@ -7112,8 +7120,8 @@ class Twin extends Player
 class Hunter extends Player
     type:"Hunter"
     jobname:"ハンター"
-    sleeping:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
-    hunterJobdone:(game)->@sleeping(game)
+    sleeping:(game)-> true
+    hunterJobDone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     dying:(game)->
         super
         @target = null
