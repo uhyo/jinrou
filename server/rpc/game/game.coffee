@@ -7122,10 +7122,11 @@ class Hunter extends Player
     jobname:"ハンター"
     sleeping:(game)-> true
     hunterJobDone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
-    dying:(game)->
+    dying:(game, found)->
         super
-        @target = null
-        @setFlag "hunting"
+        unless found in ["gone-day", "gone-night"]
+            @target = null
+            @setFlag "hunting"
     job:(game, playerid)->
         pl = game.getPlayer playerid
         unless pl?
