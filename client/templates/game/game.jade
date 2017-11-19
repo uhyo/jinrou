@@ -319,6 +319,14 @@
       p
         | 偵察する対象を一人選んでください（必須）:
         input(type="submit",value="偵察する",data-job="Ninja")
+    #form_Hunter(hidden).jobformarea
+      p
+        | 襲撃する対象を一人選んでください（必須）:
+        input(type="submit",value="襲撃する",data-job="Hunter")
+    #form_MadHunter(hidden).jobformarea
+      p
+        | 襲撃する対象を一人選んでください（必須）:
+        input(type="submit",value="襲撃する",data-job="MadHunter")
   form#speakform
     p
       input(size="50",name="comment",required,autocomplete="off")

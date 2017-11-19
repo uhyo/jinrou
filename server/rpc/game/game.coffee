@@ -25,6 +25,8 @@ Phase =
     night: 'night'
     # 夜の猶予
     night_remain: 'night_remain'
+    # ハンター選択中
+    hunter: 'hunter'
     # フェイズ判定メソッド
     isDay: (phase)-> phase in [Phase.day, Phase.day_remain, Phase.day_voting]
     isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
@@ -316,6 +318,9 @@ class Game
         # 突然死の罰用のデータ
         @suddenDeathPunishment = null
 
+        # ハンター割り込み処理用の次の処理フラグ
+        @nextScene = null
+
         ###
         さまざまな出来事
         id: 動作した人
@@ -403,6 +408,9 @@ class Game
             if game.day>0 && Phase.isDay(game.phase)
                 # 昼の場合投票箱をつくる
                 game.votingbox.setCandidates game.players.filter (x)->!x.dead
+            if game.phase == Phase.hunter
+                # XXX hunterの場合あれを捏造
+                game.nextScene = "nextturn"
         game
     # 公開情報
     publicinfo:(obj)->  #obj:オプション
@@ -558,7 +566,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin","Hunter","MadHunter"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -881,7 +889,7 @@ class Game
         else
             @phase = Phase.night
 
-        night = Phase.isNight(@phase)
+        night = Phase.isNight @phase
 
         if @phase == Phase.day && @currentyear+1 == (new Date).getFullYear()
             # 新年メッセージ
@@ -907,6 +915,15 @@ class Game
 
         #死体処理
         @bury(if night then "night" else "day")
+
+        return if @rule.hunter_lastattack == "no" && @judge()
+        unless @hunterCheck "beginturn"
+            # ハンターフェイズの割り込みがなければターン開始
+
+            @beginturn()
+
+    beginturn:->
+        night = Phase.isNight @phase
 
         if @rule.jobrule=="特殊ルール.量子人狼"
             # 量子人狼
@@ -1230,14 +1247,30 @@ class Game
                 true
             else
                 false
-
-        else if @players.every( (x)=>x.dead || x.sleeping(@))
-            if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
-                @midnight()
-                @nextturn()
-                true
+        else if Phase.isNight(@phase)
+            # 夜時間
+            if @players.every( (x)=>x.dead || x.sleeping(@))
+                # 全員寝たが……
+                if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
+                    @midnight()
+                    @nextturn()
+                    true
+                else
+                    false
             else
                 false
+        else if @phase == Phase.hunter
+            # ハンターの時間だ
+            for pl in @players
+                hunters = [
+                    pl.accessByJobTypeAll("Hunter")...,
+                    pl.accessByJobTypeAll("MadHunter")...,
+                ]
+                if hunters.some((x)-> x.flag == "hunting" && !x.target?)
+                    # まだ選択していないハンターだ
+                    return false
+            @hunterDo()
+            true
         else
             false
 
@@ -1333,7 +1366,11 @@ class Game
             return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
 
     # 死んだ人を処理する type: タイミング
-    # type: "day": 夜が明けたタイミング "night": 処刑後 "other":その他(ターン変わり時の能力で死んだやつなど）
+    # type:
+    #   "day": 夜が明けたタイミング
+    #   "punish": 処刑後
+    #   "night": 夜になったタイミング
+    #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
 
         deads=[]
@@ -1381,6 +1418,8 @@ class Game
                     "誰かの後を追って自ら死を選びました"
                 when "infirm"
                     "老衰で死亡しました"
+                when "hunter"
+                    "ハンターの銃弾を受けて死亡しました"
                 when "gmpunish"
                     "GMによって死亡しました"
                 when "gone-day"
@@ -1415,12 +1454,13 @@ class Game
                     comment:x.will
                 splashlog @id,this,log
         # 蘇生のログも表示
-        for n in @revive_log
-            log=
-                mode: "system"
-                comment: "#{n}は蘇生しました。"
-            splashlog @id, this, log
-        @revive_log = []
+        if type != "punish"
+            for n in @revive_log
+                log=
+                    mode: "system"
+                    comment: "#{n}は蘇生しました。"
+                splashlog @id, this, log
+            @revive_log = []
         return deads.length
                 
     # 投票終わりチェック
@@ -1475,32 +1515,27 @@ class Game
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
                 @bury "other"
-                return false if @judge()
+                return false if @rule.hunter_lastattack == "no" && @judge()
 
-                log=
-                    mode:"system"
-                    comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票して下さい。"
-                splashlog @id,this,log
-
-                # 再び投票する処理(下と同じ… なんとかならないか?)
-                @votingbox.setCandidates @players.filter (x)-> !x.dead
-                @votingbox.start()
-                @players.forEach (player)=>
-                    return if player.dead
-                    player.votestart this
-                    @ss.publish.channel "room#{@id}","voteform",true
-                    @splashjobinfo()
-                if @phase == Phase.day_remain
-                    # 投票猶予の場合初期化
-                    clearTimeout @timerid
-                    @timer()
+                unless @hunterCheck("vote")
+                    return false if @rule.hunter_lastattack == "yes" && @judge()
+                    @dorevote "onemore"
                 return false
-            @nextturn()
+            # ターン移る前に死体処理
+            @bury "punish"
+            return true if @judge()
+            # ハンターフェイズ割り込みがあるかもしれない
+            unless @hunterCheck("nextturn")
+                @nextturn()
         return true
     # 再投票
     dorevote:(mode)->
-        # mode: "runoff" - 決選投票による再投票 "revote" - 同数による再投票 "gone" - 突然死による再投票
-        if mode!="runoff"
+        # mode:
+        #   "runoff" - 決選投票による再投票
+        #   "revote" - 同数による再投票
+        #   "gone" - 突然死による再投票
+        #   "onemore" - まだ処刑するひとがいる場合
+        if mode in ["revote", "gone"]
             @revote_num++
         if @revote_num>=4   # 4回再投票
             @judge()
@@ -1510,28 +1545,116 @@ class Game
             log=
                 mode:"system"
                 comment:"決選投票になりました。"
-        else
+        else if mode in ["revote", "gone"]
             log=
                 mode:"system"
                 comment:"再投票になりました。"
             if isFinite remains
                 log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
-        splashlog @id,this,log
+        else if mode == "onemore"
+            log=
+                mode:"system"
+                comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票してください。"
+        if log?
+            splashlog @id,this,log
         # 必要がある場合は候補者を再設定
-        if @votingbox.candidates.some((x)=> @getPlayer(x.id).dead)
-            @votingbox.setCandidates @players.filter ((x)->!x.dead)
+        @votingbox.setCandidates @players.filter ((x)->!x.dead)
             
         @votingbox.start()
-        @players.forEach (player)=>
-            return if player.dead
-            player.votestart this
+        for player in @players
+            unless player.dead
+                player.votestart this
         @ss.publish.channel "room#{@id}","voteform",true
         @splashjobinfo()
-        if @phase == Phase.day_remain
+        if @phase in [Phase.day_voting, Phase.day_remain]
             # 投票猶予の場合初期化
             clearTimeout @timerid
             @timer()
-    
+    # ハンターの能力による割り込みチェック
+    # 戻り値: true (ハンターフェイズあり) / false (ハンターフェイズなし)
+    # nextScene:
+    #   "nextturn": 次のターンへ
+    #   "day": 昼のターン開始処理
+    #   "vote": 次の投票へ
+    hunterCheck:(nextScene)->
+        # まずハンターを列挙
+        hunters = []
+        for pl in @players
+            hunters.push (pl.accessByJobTypeAll "Hunter")..., (pl.accessByJobTypeAll "MadHunter")...
+        # 能力発動中のもののみ残す
+        hunters = hunters.filter (x)-> x.flag == "hunting"
+        if hunters.length == 0
+            # 能力は発動しない
+            return false
+        clearTimeout @timerid
+        # ハンターフェイズ突入！！！
+        @nextScene = nextScene
+        @phase = Phase.hunter
+        # ユーザー名を列挙（重複除く）
+        userTable = {}
+        userNames = []
+        for pl in hunters
+            unless userTable[pl.id]
+                userTable[pl.id] = true
+                userNames.push pl.name
+                # 権限の関係でいったん生存状態に戻す
+                plpl = @getPlayer pl.id
+                plpl?.setDead false
+        log=
+            mode: "system"
+            comment: "#{userNames.join '，'}はハンターでした。ハンターは能力の対象を選択してください。"
+        splashlog @id, this, log
+
+        @splashjobinfo()
+        @save()
+        @timer()
+        return true
+    # ハンターの能力実行
+    hunterDo:->
+        clearTimeout @timerid
+        hunters = []
+        for pl in @players
+            hunters.push (pl.accessByJobTypeAll "Hunter")..., (pl.accessByJobTypeAll "MadHunter")...
+        for pl in hunters
+            if pl.flag == "hunting"
+                pl.setFlag null
+                plpl = @getPlayer pl.id
+                plpl?.setDead true, ""
+                t =
+                    if pl.target?
+                        @getPlayer pl.target
+                    else
+                        # 仕方ないからランダムに設定
+                        targets = pl.makeJobSelection this
+                        if targets.length > 0
+                            r = Math.floor(Math.random() * targets.length)
+                            @getPlayer targets[r].value
+                        else
+                            null
+                if t? && !t.dead
+                    # ハンターの攻撃対象
+                    t.die this, "hunter"
+
+
+        @bury "other"
+        return if @rule.hunter_lastattack == "no" && @judge()
+        if @hunterCheck @nextScene
+            return if @rule.hunter_lastattack == "yes" && @judge()
+            return
+        return if @judge()
+        # 次のフェイズへ
+        switch @nextScene
+            when "nextturn"
+                @nextturn()
+            when "day"
+                @phase = Phase.day
+                @beginturn()
+            when "vote"
+                @phase = Phase.day_voting
+                @dorevote "onemore"
+            else
+                console.error "unknown nextScene: #{@nextScene}"
+
     # 勝敗決定
     judge:->
         aliveps=@players.filter (x)->!x.dead    # 生きている人を集める
@@ -1895,7 +2018,7 @@ class Game
                     return
         else if @phase == Phase.day_voting
             # 投票専用時間
-            time=@rule.voting
+            time=@rule.voting || @rule.remain || 120
             mode="投票"
             return unless time
             func= =>
@@ -1923,8 +2046,7 @@ class Game
                 else
                     return
                         
-        else
-            # @phase == Phase.day_remain
+        else if @phase == Phase.day_remain
             # 猶予時間も過ぎたよ!
             time=@rule.remain
             mode="猶予"
@@ -1945,6 +2067,15 @@ class Game
                         @execute()
                 else
                     return
+        else if @phase == Phase.hunter
+            # ハンター選択中
+            time = 45 # it's hard-coded!
+            mode = "ハンター"
+            func = =>
+                @hunterDo()
+        else
+            console.error "unknown phase #{@phase}"
+
         if settime?
             # 時間を強制設定
             time = settime
@@ -2427,6 +2558,8 @@ class Player
     jobdone:(game)->@sleeping game
     # 死んだ後でも仕事があるとfalse
     deadJobdone:(game)->true
+    # ハンターフェイズに仕事があるか?
+    hunterJobdone:(game)->true
     # 昼に投票を終えたか
     voted:(game,votingbox)->game.votingbox.isVoteFinished this
     # 夜の仕事
@@ -2488,7 +2621,7 @@ class Player
     touched:(game,from)->
     # 選択肢を返す
     makeJobSelection:(game)->
-        if Phase.isNight(game.phase)
+        if Phase.isNight(game.phase) || game.phase == Phase.hunter
             # 夜の能力
             jt=@job_target
             if jt>0
@@ -2520,8 +2653,12 @@ class Player
     makejobinfo:(game,obj,jobdisp)->
         # 開くべきフォームを配列で（生きている場合）
         obj.open ?=[]
-        if !@jobdone(game) && (Phase.isNight(game.phase) || @chooseJobDay(game))
-            obj.open.push @type
+        if Phase.isNight(game.phase) || @chooseJobDay(game)
+            unless @jobdone(game)
+                obj.open.push @type
+        else if game.phase == Phase.hunter
+            unless @hunterJobdone(game)
+                obj.open.push @type
         # 役職解説のアレ
         obj.desc ?= []
         type = @getTypeDisp()
@@ -6973,6 +7110,48 @@ class Twin extends Player
         # 双子が分かる
         result.twins = game.players.filter((x)-> x.isJobType "Twin").map (x)-> x.publicinfo()
 
+class Hunter extends Player
+    type:"Hunter"
+    jobname:"ハンター"
+    sleeping:(game)-> @target? || game.phase != Phase.hunter
+    hunterJobdone:(game)->@sleeping(game)
+    dying:(game)->
+        super
+        @target = null
+        @setFlag "hunting"
+    job:(game, playerid)->
+        pl = game.getPlayer playerid
+        unless pl?
+            return "そのプレイヤーは存在しません"
+        if pl.dead
+            return "そのプレイヤーは死亡しています"
+        pl.touched game, @id
+        @setTarget playerid
+        log=
+            mode: "skill"
+            to: @id
+            comment: "#{@name}は#{pl.name}を襲撃しました。"
+        splashlog game.id, game, log
+        null
+    makeJobSelection:(game)->
+        if game.phase == Phase.hunter
+            result = super
+            # 選択中のハンターは除く
+            result = result.filter (x)->
+                pl = game.getPlayer x.value
+                hunters = [
+                    (pl.accessByJobTypeAll "Hunter")...,
+                    (pl.accessByJobTypeAll "MadHunter")...,
+                ]
+                return hunters.every (y)-> y.flag != "hunting"
+            return result
+        else
+            return super
+
+class MadHunter extends Hunter
+    type:"MadHunter"
+    jobname:"復讐人"
+    team:"Werewolf"
 
 
 # ============================
@@ -7214,6 +7393,7 @@ class Complex
 
     
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
+    hunterJobdone:(game)-> @mcall(game,@main.hunterJobdone,game) && (!@sub?.hunterJobdone? || @sub.hunterJobdone(game))
     job:(game,playerid,query)-> # どちらの
         # query.jobtypeがない場合は内部処理なのでmainとして処理する?
 
@@ -7221,10 +7401,27 @@ class Complex
             query={}
         unless query.jobtype?
             query.jobtype=@main.type
-        if @main.isJobType(query.jobtype) && ((@main.dead && !@main.deadJobdone(game)) || (!@main.dead && !@main.jobdone(game)))
-            @mcall game,@main.job,game,playerid,query
-        else if @sub?.isJobType?(query.jobtype) && ((@sub.dead && !@sub.deadJobdone(game)) || (!@sub.dead && !@sub?.jobdone?(game)))
-            @sub.job? game,playerid,query
+        if @main.isJobType(query.jobtype)
+            jdone =
+                if game.phase == Phase.hunter
+                    @main.hunterJobdone(game)
+                else if @main.dead
+                    @main.deadJobdone(game)
+                else
+                    @main.jobdone(game)
+            unless jdone
+                return @mcall game,@main.job,game,playerid,query
+        if @sub?.isJobType?(query.jobtype)
+            jdone =
+                if game.phase == Phase.hunter
+                    @sub.hunterJobdone(game)
+                else if @sub.dead
+                    @sub.deadJobdone(game)
+                else
+                    @sub.jobdone(game)
+            unless jdone
+                return @sub.job game,playerid,query
+        return null
     # Am I Walking Dead?
     isDead:->
         isMainDead = @main.isDead()
@@ -8278,6 +8475,8 @@ jobs=
     TinyGhost:TinyGhost
     Ninja:Ninja
     Twin:Twin
+    Hunter:Hunter
+    MadHunter:MadHunter
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8422,6 +8621,8 @@ jobStrength=
     TinyGhost:5
     Ninja:18
     Twin:16
+    Hunter:20
+    MadHunter:17
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -9251,6 +9452,7 @@ module.exports.actions=(req,res,ss)->
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
             "firstnightdivine","consecutiveguard",
+            "hunter_lastattack",
             "poisonwolf",
             "friendssplit",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
@@ -9279,7 +9481,7 @@ module.exports.actions=(req,res,ss)->
                 res null
                 log=
                     mode:"system"
-                    comment:"このゲームは希望役職制です。希望の役職を選択して下さい。"
+                    comment:"このゲームは希望役職制です。希望の役職を選択してください。"
                 splashlog game.id,game,log
                 game.timer()
                 ss.publish.channel "room#{roomid}","refresh",{id:roomid}
@@ -9400,12 +9602,15 @@ module.exports.actions=(req,res,ss)->
                         # まだ発言できない（15秒ルール）
                         res null
                         return
-                    
-                else
+                else if Phase.isNight(game.phase) || player.isJobType("GameMaster")
                     # 夜
                     unless query.mode in player.getSpeakChoice game
                         query.mode="monologue"
                     log.mode=query.mode
+                else
+                    # ハンター時間
+                    log.mode = "monologue"
+
 
             switch log.mode
                 when "monologue","heavenmonologue","helperwhisper"
@@ -9490,9 +9695,16 @@ module.exports.actions=(req,res,ss)->
         unless player.checkJobValidity game,query
             res {error:"対象選択が不正です"}
             return
-        if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || query.jobtype!="_day"  # 昼の投票
+        if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
             # 夜
-            if (player.dead && player.deadJobdone(game)) || (!player.dead && player.jobdone(game))
+            jdone =
+                if game.phase == Phase.hunter
+                    player.hunterJobdone(game)
+                else if player.dead
+                    player.deadJobdone(game)
+                else
+                    player.jobdone(game)
+            if jdone
                 res {error:"既に能力を行使しています"}
                 return
             unless player.isJobType query.jobtype
@@ -9514,7 +9726,7 @@ module.exports.actions=(req,res,ss)->
             # 能力をすべて発動したかどうかチェック
             #res {sleeping:player.jobdone(game)}
             res makejobinfo game,player
-            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase)
+            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter
                 game.checkjobs()
         else
             # 投票
@@ -9715,6 +9927,8 @@ makejobinfo = (game,player,result={})->
                     result.sleeping=player.deadJobdone game
                 else
                     result.sleeping=player.jobdone game
+            else if game.phase == Phase.hunter
+                result.sleeping = player.hunterJobdone game
             else if Phase.isDay(game.phase)
                 # 昼
                 result.sleeping=true
@@ -9727,18 +9941,24 @@ makejobinfo = (game,player,result={})->
                     result.sleeping &&= player.jobdone game
         else
             # それ以外（participants）
-            if Phase.isNight(game.phase) || player.chooseJobDay(game)
+            if Phase.isNight(game.phase) || Phase.isDay(game.phase) && player.chooseJobDay(game)
                 result.sleeping = player.jobdone(game)
+            else if game.phase == Phase.hunter
+                result.sleeping = player.hunterJobdone(game)
             else
                 result.sleeping = true
         result.jobname=player.getJobDisp()
         result.winner=player.winner
         if player.dead
             result.speak =player.getSpeakChoiceHeaven game
+        else if is_gm
+            result.speak =player.getSpeakChoice game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
             result.speak =player.getSpeakChoice game
         else if Phase.isDay(game.phase)
             result.speak =player.getSpeakChoiceDay game
+        else if game.phase == Phase.hunter
+            result.speak = ["monologue"]
         else
             # 開始前
             result.speak = ["day"]

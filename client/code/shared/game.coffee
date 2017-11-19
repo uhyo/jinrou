@@ -3,12 +3,14 @@ Shared=
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
+# ミラーズホロウの人狼
+"Hunter","Cupid",
 # 特殊役職?
 "Poisoner","BigWolf","TinyFox","Cat",
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 特殊役職2
-"Devil","ToughGuy","Cupid","Stalker","OccultMania","WhisperingMad","Lover","Dog",
+"Devil","ToughGuy","Stalker","OccultMania","WhisperingMad","Lover","Dog",
 # 桃栗基本特殊役職
 "Bat","Noble","Slave","Magician","Spy","WolfDiviner",
 # 桃栗期間限定役職
@@ -27,6 +29,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
 "Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
+# えけけ鯖
+"MadHunter",
 # 人狼パーティー
 "TinyGhost","Ninja","Twin",
 # その他
@@ -55,8 +59,8 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere"]
@@ -69,7 +73,7 @@ exports.categories=
     Human: teams.Human.filter((x)-> x != "GotChocolate")
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf"]
     Fox:["Fox","TinyFox"]
-    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
@@ -833,6 +837,9 @@ exports.jobinfo=
         Twin:
             name:"双子"
             color:"#dbfcff"
+        Hunter:
+            name:"ハンター"
+            color:"#d11f1f"
         
     Werewolf:
         name:"人狼陣営"
@@ -921,6 +928,9 @@ exports.jobinfo=
         MadScientist:
             name:"マッドサイエンティスト"
             color:"#14e051"
+        MadHunter:
+            name:"復讐人"
+            color:"#511e0f"
         
         
     Fox:
@@ -1451,7 +1461,7 @@ exports.rules=[
     }
     # 人狼系
     {
-        label:null
+        label: "人狼系の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in exports.categories.Werewolf
@@ -1496,7 +1506,7 @@ exports.rules=[
     }
     # 占い系
     {
-        label:null
+        label: "占い師の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
@@ -1542,7 +1552,7 @@ exports.rules=[
     }
     # 霊能
     {
-        label:null
+        label: "霊能者の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Psychic>0
@@ -1568,7 +1578,7 @@ exports.rules=[
     }
     # 共有者
     {
-        label:null
+        label: "共有者の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Couple>0
@@ -1592,7 +1602,7 @@ exports.rules=[
     }
     # 護衛役職
     {
-        label:null
+        label: "狩人などの設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
@@ -1651,7 +1661,7 @@ exports.rules=[
     }
     # 妖狐
     {
-        label:null
+        label: "妖狐の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
             return jobs.Fox>0
@@ -1670,6 +1680,32 @@ exports.rules=[
                         label:"呪殺ログと襲撃ログの区別"
                         value:if value=="on" then "あり" else "なし"
                     }
+            }
+        ]
+    }
+    # ハンター
+    {
+        label: "ハンターの設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Hunter > 0 || jobs.MadHunter > 0
+        rules:[
+            {
+                name:"hunter_lastattack"
+                label: "ラス撃ち"
+                title: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
+                type: "select"
+                values:[
+                    {
+                        value:"yes"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                ]
             }
         ]
     }
