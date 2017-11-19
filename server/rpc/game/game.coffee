@@ -7124,7 +7124,7 @@ class Hunter extends Player
             return "そのプレイヤーは存在しません"
         if pl.dead
             return "そのプレイヤーは死亡しています"
-        unless pl.flag == "hunting"
+        unless @flag == "hunting"
             return "今は能力を発動できません"
         pl.touched game, @id
         @setTarget playerid
