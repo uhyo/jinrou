@@ -1617,11 +1617,19 @@ class Game
                 pl.setFlag null
                 plpl = @getPlayer pl.id
                 plpl?.setDead true, ""
-                if pl.target?
-                    t = @getPlayer pl.target
-                    if t? && !t.dead
-                        # ハンターの攻撃対象
-                        t.die this, "hunter"
+                t =
+                    if pl.target?
+                        @getPlayer pl.target
+                    else
+                        # 仕方ないからランダムに設定
+                        targets = pl.makeJobSelection this
+                        if targets.length > 0
+                            r = Math.floor(Math.random() * targets.length)
+                            targets[r].value
+                if t? && !t.dead
+                    # ハンターの攻撃対象
+                    t.die this, "hunter"
+
 
         @bury "other"
         return if @rule.hunter_lastattack == "no" && @judge()
