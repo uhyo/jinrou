@@ -1639,7 +1639,8 @@ class Game
         @bury "other"
         return if @rule.hunter_lastattack == "no" && @judge()
         if @hunterCheck @nextScene
-            return if @rule.hunter_lastattack == "yes" && @judge()
+            if @rule.hunter_lastattack == "yes"
+                @judge()
             return
         return if @judge()
         # 次のフェイズへ
@@ -7113,7 +7114,7 @@ class Twin extends Player
 class Hunter extends Player
     type:"Hunter"
     jobname:"ハンター"
-    sleeping:(game)-> @target? || game.phase != Phase.hunter
+    sleeping:(game)-> @flag == "huting" && (@target? || game.phase != Phase.hunter)
     hunterJobdone:(game)->@sleeping(game)
     dying:(game)->
         super
@@ -7125,6 +7126,8 @@ class Hunter extends Player
             return "そのプレイヤーは存在しません"
         if pl.dead
             return "そのプレイヤーは死亡しています"
+        unless pl.flag == "hunting"
+            return "今は能力を発動できません"
         pl.touched game, @id
         @setTarget playerid
         log=
