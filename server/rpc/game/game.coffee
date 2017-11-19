@@ -7114,7 +7114,7 @@ class Twin extends Player
 class Hunter extends Player
     type:"Hunter"
     jobname:"ハンター"
-    sleeping:(game)-> @flag == "huting" && (@target? || game.phase != Phase.hunter)
+    sleeping:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     hunterJobdone:(game)->@sleeping(game)
     dying:(game)->
         super
