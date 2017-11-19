@@ -7121,7 +7121,7 @@ class Hunter extends Player
     type:"Hunter"
     jobname:"ハンター"
     sleeping:(game)-> true
-    hunterJobDone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
+    hunterJobdone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     dying:(game, found)->
         super
         unless found in ["gone-day", "gone-night"]
@@ -7140,7 +7140,7 @@ class Hunter extends Player
         log=
             mode: "skill"
             to: @id
-            comment: "#{@name}は#{pl.name}を襲撃しました。"
+            comment: "#{@name}は#{pl.name}を銃撃しました。"
         splashlog game.id, game, log
         null
     makeJobSelection:(game)->
