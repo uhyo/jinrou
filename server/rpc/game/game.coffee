@@ -9611,7 +9611,7 @@ module.exports.actions=(req,res,ss)->
                         # まだ発言できない（15秒ルール）
                         res null
                         return
-                else if Phase.isNight(game.phase) || player.isJobType("GameMaster")
+                else if Phase.isNight(game.phase) || player.isJobType("GameMaster") || player.isJobType("Helper")
                     # 夜
                     unless query.mode in player.getSpeakChoice game
                         query.mode="monologue"
