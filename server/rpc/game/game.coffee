@@ -1419,7 +1419,7 @@ class Game
                 when "infirm"
                     "老衰で死亡しました"
                 when "hunter"
-                    "ハンターの銃弾を受けて死亡しました"
+                    "銃弾を受けて死亡しました"
                 when "gmpunish"
                     "GMによって死亡しました"
                 when "gone-day"
