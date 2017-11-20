@@ -116,4 +116,10 @@ module.exports =
       comment: 4096
   # Experimental feature: logging (boolean)
   logging: false
+  # Language Settings
+  language:
+    # Language that your server use
+    value: "ja"
+    # Fallback language: should be fixed to "ja"
+    fallback: "ja"
 

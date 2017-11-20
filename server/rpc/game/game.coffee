@@ -8,6 +8,22 @@ libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
 
 cron=require 'cron'
+path = require 'path'
+i18n = require 'i18next'
+i18n
+    .use(require 'i18next-node-fs-backend')
+    .init {
+        backend:
+            loadPath: path.join __dirname, '../../../language/{{lng}}/{{ns}}.yaml'
+            addPath: path.join __dirname, '../../../language/{{lng}}/{{ns}}.missing.json'
+            jsonIndent: 2
+        interpolation:
+            escapeValue: false
+        lng: Config.language.value
+        fallbackLng: Config.language.fallback
+        ns: ["game"]
+        defaultNS: "game"
+    }
 
 # フェイズの一覧
 Phase =
@@ -100,7 +116,7 @@ module.exports=
         if room.mode=="waiting"
             # 開始前（ふつう）
             log=
-                comment:"#{name}さんが訪れました。"
+                comment: i18n.t "system.rooms.enter", {name: name}
                 userid:-1
                 name:null
                 mode:"system"
@@ -121,7 +137,7 @@ module.exports=
             if games[room.id]
                 game=games[room.id]
                 log=
-                    comment:"#{name}さんが参加しようとしています。"
+                    comment: i18n.t "system.rooms.entering", {name: name}
                     mode:"inlog"
                     to:player.userid
                 splashlog room.id,game,log
@@ -139,7 +155,7 @@ module.exports=
                 games[room.id].participants.push newpl
     outlog:(room,player)->
         log=
-            comment:"#{player.name}さんが去りました。"
+            comment: i18n.t "system.rooms.leave", {name: player.name}
             userid:-1
             name:null
             mode:"system"
@@ -149,7 +165,7 @@ module.exports=
             games[room.id].participants=games[room.id].participants.filter (pl)->pl.realid!=player.realid
     kicklog:(room,player)->
         log=
-            comment:"#{player.name}さんが追い出されました。"
+            comment: i18n.t "system.rooms.kicked", {name: player.name}
             userid:-1
             name:null
             mode:"system"
@@ -162,13 +178,13 @@ module.exports=
             log=null
             if topl?
                 log=
-                    comment:"#{player.name}さんが#{topl.name}さんのヘルパーになりました。"
+                    comment: i18n.t "system.rooms.helper", {helper: player.name, target: topl.name}
                     userid:-1
                     name:null
                     mode:"system"
             else
                 log=
-                    comment:"#{player.name}さんがヘルパーをやめました。"
+                    comment: i18n.t "system.rooms.stophelper", {name: player.name}
                     userid:-1
                     name:null
                     mode:"system"
@@ -179,7 +195,7 @@ module.exports=
         loadGame room.id, ss, (err,game)->
             if game?
                 log=
-                    comment:"この部屋は廃村になりました。"
+                    comment: i18n.t "system.rooms.abandoned"
                     userid:-1
                     name:null
                     mode:"system"
@@ -259,6 +275,8 @@ Server=
 
 class Game
     constructor:(@ss,room)->
+        @i18n = i18n
+
         # @ss: ss
         if room?
             @id=room.id
@@ -480,10 +498,10 @@ class Game
         for job, num of joblist
             n = parseInt num, 10
             if Number.isNaN n || n < 0
-                return "プレイヤー数が不正です（#{job}:#{num}）。このエラーは数回やり直せば直る場合があります。"
+                return @i18n.t "error.gamestart.playerNumberInvalid1", {job: job, num: num}
             jnumber += n
         if jnumber != jallnum
-            return "プレイヤー数が不正です（#{jnumber}/#{jallnum}/#{@players.length}）。このエラーは数回やり直せば直る場合があります。"
+            return @i18n.t "error.gamestart.playerNumberInvalid2", {request: jnumber, jallnum: jallnum, players: @players.length}
         return null
 
     #成功:null
@@ -508,12 +526,12 @@ class Game
             unless isNaN num
                 jnumber+=parseInt num
             if parseInt(num)<0
-                res "プレイヤー数が不正です（#{job}:#{num})。このエラーは数回やり直せば直る場合があります。"
+                res @i18n.t("error.gamestart.playerNumberInvalid1", {job: job, num: num})
                 return
 
         if jnumber!=jallnum
             # 数が合わない
-            res "プレイヤー数が不正です(#{jnumber}/#{jallnum}/#{players.length})。このエラーは数回やり直せば直る場合があります。"
+            res @i18n.t("error.gamestart.playerNumberInvalid2", {request: jnumber, jallnum: jallnum, players: players.length})
             return
 
         # 名前と数を出したやつ
@@ -546,7 +564,7 @@ class Game
                 # これは抜ける
                 if keys.length==0
                     # もう無い
-                    res "盗人の処理に失敗しました"
+                    res @i18n.t "error.gamestart.thiefFailed"
                     return
                 thief_jobs.push keys[0]
                 joblist[keys[0]]--
@@ -587,13 +605,13 @@ class Game
 
             if gotjs.length < jobperpl
                 # 決まっていない
-                res "配役に失敗しました"
+                res @i18n.t "error.gamestart.castingFailed"
                 return
             # 身代わりくんのプロフィール
             profile = {
                 id:"身代わりくん"
                 realid:"身代わりくん"
-                name:"身代わりくん"
+                name: @i18n.t "common.scapegoat"
             }
             if @rule.chemical == "on"
                 # ケミカル人狼なので合体役職にする
@@ -772,6 +790,7 @@ class Game
                 # ヘルパーだ
                 ppl=@players.filter((x)->x.id==result[1])[0]
                 unless ppl?
+                    # This is a bug!
                     res "#{pl.name}さんのヘルパー対象が存在しませんでした"
                     return
                 helper=Player.factory "Helper"
@@ -900,7 +919,7 @@ class Game
                 night:night
                 userid:-1
                 name:null
-                comment:"#{@currentyear}年になりました。"
+                comment: @i18n.t "system.phase.newyear", {year: @currentyear}
             splashlog @id,this,log
         else
             # 普通メッセージ
@@ -910,7 +929,7 @@ class Game
                 night:night
                 userid:-1
                 name:null
-                comment:"#{@day}日目の#{if night then '夜' else '昼'}になりました。"
+                comment: @i18n.t "system.phase.#{if night then 'night' else 'day'}", {day: @day}
             splashlog @id,this,log
 
         #死体処理
@@ -1006,7 +1025,7 @@ class Game
                 if @rule.quantumwerewolf_table=="anonymous"
                     # 番号を表示
                     numberref_table[pflag.number]=x
-                    probability_table[x.id].name="プレイヤー#{pflag.number}"
+                    probability_table[x.id].name= @i18n.t "quantum.player", {num: pflag.number}
             if @rule.quantumwerewolf_table=="anonymous"
                 # ソートしなおしてあげて痕跡を消す
                 probability_table=((probability_table,numberref_table)->
@@ -1055,14 +1074,14 @@ class Game
                     @werewolf_target_remain=0
                     log=
                         mode:"wolfskill"
-                        comment:"人狼たちは病気になりました。今日は襲撃できません。"
+                        comment: @i18n.t "system.werewolf.diseased"
                     splashlog @id,this,log
                 else if fl=="WolfCub"
                     # 狼の子フラグが立っている（2回襲撃できる）
                     @werewolf_target_remain=2
                     log=
                         mode:"wolfskill"
-                        comment:"狼の子の力で、今日は2人襲撃できます。"
+                        comment: @i18n.t "system.werewolf.wolfcub"
                     splashlog @id,this,log
                 else
                     werewolf_flag_result.push fl
@@ -1154,7 +1173,7 @@ class Game
                             # ログをだす
                             log=
                                 mode:"system"
-                                comment:"#{newpl.name}さんが参加しました。"
+                                comment: @i18n.t "system.rooms.join", {name: newpl.name}
                             splashlog @id,@,log
                             join_count++
                 # たまに転生
@@ -1180,7 +1199,7 @@ class Game
                         pl.transform @,newpl,true
                         log=
                             mode:"system"
-                            comment:"#{pl.name}は転生しました。"
+                            comment:@i18n.t "system.rooms.rebirth", {name: pl.name}
                         splashlog @id,@,log
                         @ss.publish.user newpl.id,"refresh",{id:@id}
 
@@ -1317,7 +1336,7 @@ class Game
                 log=
                     mode:"skill"
                     to:t.id
-                    comment:"#{t.name}は人狼に襲われました。"
+                    comment: @i18n.t "system.werewolf.attacked", {name: t.name}
                 splashlog @id,this,log
             if !t.dead
                 # 死んだ
@@ -1400,37 +1419,37 @@ class Game
             situation=switch x.found
                 #死因
                 when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty"
-                    "無惨な姿で発見されました"
+                    @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
-                        "呪殺されました"
+                        @i18n.t "found.curse", {name: x.name}
                     else
-                        "無惨な姿で発見されました"
+                        @i18n.t "found.normal", {name: x.name}
                 when "punish"
-                    "処刑されました"
+                    @i18n.t "found.punish", {name: x.name}
                 when "spygone"
-                    "村を去りました"
+                    @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
-                    "死体で発見されました"
+                    @i18n.t "found.body", {name: x.name}
                 when "foxsuicide", "friendsuicide", "twinsuicide"
-                    "誰かの後を追って自ら死を選びました"
+                    @i18n.t "found.suicide", {name: x.name}
                 when "friendsuicide"
-                    "誰かの後を追って自ら死を選びました"
+                    @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
-                    "老衰で死亡しました"
+                    @i18n.t "found.infirm", {name: x.name}
                 when "hunter"
-                    "銃弾を受けて死亡しました"
+                    @i18n.t "found.hunter", {name: x.name}
                 when "gmpunish"
-                    "GMによって死亡しました"
+                    @i18n.t "found.gm", {name: x.name}
                 when "gone-day"
-                    "投票しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
+                    @i18n.t "found.goneDay", {name: x.name}
                 when "gone-night"
-                    "夜に能力を発動しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
+                    @i18n.t "found.goneNight", {name: x.name}
                 else
-                    "死にました"
+                    @i18n.t "found.fallback", {name: x.name}
             log=
                 mode:"system"
-                comment:"#{x.name}は#{situation}"
+                comment:situation
             splashlog @id,this,log
 #           if x.found=="punish"
 #               # 処刑→霊能
@@ -1458,7 +1477,7 @@ class Game
             for n in @revive_log
                 log=
                     mode: "system"
-                    comment: "#{n}は蘇生しました。"
+                    comment: @i18n.t "system.revive", {name: n}
                 splashlog @id, this, log
             @revive_log = []
         return deads.length
@@ -1492,7 +1511,7 @@ class Game
             # 処刑しない
             log=
                 mode:"system"
-                comment:"誰も処刑されませんでした。"
+                comment: @i18n.t "system.voting.nopunish"
             splashlog @id,this,log
             @nextturn()
             return true
@@ -1508,7 +1527,7 @@ class Game
                     # GM霊能
                     log=
                         mode:"system"
-                        comment:"処刑された#{player.name}の霊能結果は#{player.getPsychicResult()}でした。"
+                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: player.getPsychicResult()}
                     splashlog @id,this,log
                 
             @votingbox.remains--
@@ -1546,17 +1565,15 @@ class Game
         if mode=="runoff"
             log=
                 mode:"system"
-                comment:"決選投票になりました。"
+                comment: @i18n.t "system.voting.runoff"
         else if mode in ["revote", "gone"]
             log=
                 mode:"system"
-                comment:"再投票になりました。"
-            if isFinite remains
-                log.comment += "あと#{remains}回の投票で結論が出なければ引き分けになります。"
+                comment: @i18n.t "system.voting.revote", {count: remains | 0}
         else if mode == "onemore"
             log=
                 mode:"system"
-                comment:"今日はあと#{@votingbox.remains}人処刑します。もう一度投票してください。"
+                comment: @i18n.t "system.voting.more", {count: @votingbox.remains}
         if log?
             splashlog @id,this,log
         # 必要がある場合は候補者を再設定
@@ -1605,7 +1622,7 @@ class Game
                     plpl.setDead false
         log=
             mode: "system"
-            comment: "#{userNames.join '，'}は最期の力で銃を構えました。銃撃対象を選択してください。"
+            comment: @i18n.t "system.hunterPrepare", {names: userNames.join ', '}
         splashlog @id, this, log
 
         @splashjobinfo()
@@ -1707,7 +1724,7 @@ class Game
                 # もうひとつもないんだ・・・
                 log=
                     mode:"system"
-                    comment:"世界が崩壊し、確率が定義できなくなりました。"
+                    comment: @i18n.t "system.quantum.breakdown"
                 splashlog @id,this,log
                 team="Draw"
         else
@@ -1837,34 +1854,37 @@ class Game
             [resultstring,teamstring]=switch team
                 when "Human"
                     if alives>0 && aliveps.every((x)->x.isJobType "Neet")
-                        ["村はニートの楽園になりました。","村人勝利"]
+                        [@i18n.t("judge.neet"),@i18n.t("judge.short.human")]
                     else
-                        ["村から人狼がいなくなりました。","村人勝利"]
+                        [@i18n.t("judge.human"),@i18n.t("judge.short.human")]
                 when "Werewolf"
-                    ["人狼は最後の村人を喰い殺すと次の獲物を求めて去って行った…","人狼勝利"]
+                    [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
                 when "Fox"
-                    ["村は妖狐のものとなりました。","妖狐勝利"]
+                    [@i18n.t("judge.fox"),@i18n.t("judge.short.fox")]
                 when "Devil"
-                    ["村は悪魔くんのものとなりました。","悪魔くん勝利"]
+                    [@i18n.t("judge.devil"),@i18n.t("judge.short.devil")]
                 when "Friend"
                     if friends_count>1
                         # みんなで勝利（珍しい）
-                        ["村は恋人たちに支配されました。","恋人勝利"]
+                        [@i18n.t("judge.friendsAll"),@i18n.t("judge.short.friends")]
                     else
                         friends=@players.filter (x)->x.isFriend()
                         if friends.length==2 && friends.some((x)->x.isJobType "Noble") && friends.some((x)->x.isJobType "Slave")
-                            ["2人の禁断の愛の力には何者も敵わないのでした。","恋人勝利"]
+                            [@i18n.t("judge.friendsSpecial", {count: 2}),@i18n.t("judge.short.friends")]
                         else
-                            ["#{@players.filter((x)->x.isFriend() && !x.dead).length}人の愛の力には何者も敵わないのでした。","恋人勝利"]
+                            [@i18n.t("judge.friendsNormal", {count: @players.filter((x)->x.isFriend() && !x.dead).length}),@i18n.t("judge.short.friends")]
                 when "Cult"
-                    ["村はカルトに支配されました。","カルトリーダー勝利"]
+                    [@i18n.t("judge.cult"),@i18n.t("judge.short.cult")]
                 when "Vampire"
-                    ["ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去って行った…","ヴァンパイア陣営勝利"]
+                    [@i18n.t("judge.vampire"),@i18n.t("judge.short.vampire")]
                 when "LoneWolf"
-                    ["人狼は最後の村人を喰い殺すと次の獲物を求めて独り去って行くのだった…","一匹狼勝利"]
+                    [@i18n.t("judge.lonewolf"),@i18n.t("judge.short.lonewolf")]
                 when "Draw"
-                    ["引き分けになりました。",""]
-            log.comment="#{if teamstring then "【#{teamstring}】" else ""}#{resultstring}"
+                    [@i18n.t("judge.draw"),""]
+            if teamstring
+                log.comment = @i18n.t "system.judge", {short: teamstring, result: resultstring}
+            else
+                log.comment = resultstring
             splashlog @id,this,log
             
             
@@ -1940,14 +1960,14 @@ class Game
         if @phase == Phase.rolerequesting
             # 希望役職制
             time=60
-            mode="希望選択"
+            mode=@i18n.t "phase.rolerequesting"
             func= =>
                 # 強制開始
                 @checkjobs true
         else if @phase == Phase.night
             # 夜
             time=@rule.night
-            mode="夜"
+            mode=@i18n.t "phase.night"
             return unless time
             func= =>
                 # ね な い こ だ れ だ
@@ -1970,7 +1990,7 @@ class Game
         else if @phase == Phase.night_remain
             # 夜の猶予
             time=@rule.remain
-            mode="猶予"
+            mode=@i18n.t "phase.additional"
             func= =>
                 # ね な い こ だ れ だ
                 @players.forEach (x)=>
@@ -1984,7 +2004,7 @@ class Game
         else if @phase == Phase.day
             # 昼
             time=@rule.day
-            mode="昼"
+            mode=@i18n.t "phase.day"
             return unless time
             func= =>
                 unless @execute()
@@ -1993,7 +2013,7 @@ class Game
                         @phase = Phase.day_voting
                         log=
                             mode:"system"
-                            comment:"昼の議論時間が終了しました。投票してください。"
+                            comment:@i18n.t "system.phase.debateEnd"
                         splashlog @id, this, log
                         # 投票箱が開くので通知
                         @splashjobinfo()
@@ -2003,7 +2023,7 @@ class Game
                         @phase = Phase.day_remain
                         log=
                             mode:"system"
-                            comment:"昼の議論時間が終了しました。投票してください。"
+                            comment:@i18n.t "system.phase.debateEnd"
                         splashlog @id,this,log
                         @timer()
                     else
@@ -2026,7 +2046,7 @@ class Game
         else if @phase == Phase.day_voting
             # 投票専用時間
             time=@rule.voting || @rule.remain || 120
-            mode="投票"
+            mode=@i18n.t "phase.voting"
             return unless time
             func= =>
                 unless @execute()
@@ -2056,7 +2076,7 @@ class Game
         else if @phase == Phase.day_remain
             # 猶予時間も過ぎたよ!
             time=@rule.remain
-            mode="猶予"
+            mode=@i18n.t "phase.additional"
             func= =>
                 unless @execute()
                     revoting=false
@@ -2077,7 +2097,7 @@ class Game
         else if @phase == Phase.hunter
             # ハンター選択中
             time = 45 # it's hard-coded!
-            mode = "対象選択中"
+            mode = @i18n.t "phase.skill"
             func = =>
                 @hunterDo()
         else
@@ -2114,7 +2134,7 @@ class Game
                         Server.prize.prizeQuote Server.prize.prizeName plzid
                     log=
                         mode:"system"
-                        comment:"#{pl.name}は称号#{pnames.join ''}を獲得しました。"
+                        comment:@i18n.t "system.prize", {name: pl.name, prize: pnames.join ''}
                     splashlog @id,this,log
     # ユーザーのゲームログを保存
     saveUserRawLogs:->

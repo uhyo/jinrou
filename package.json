@@ -10,6 +10,8 @@
   "dependencies": {
     "cron": "^1.0.9",
     "csv": "^1.1.1",
+    "i18next": "^10.0.7",
+    "i18next-node-fs-backend": "^1.0.0",
     "jade": "^0.26.2",
     "mongodb": "^2.2.33",
     "nodemailer": "^2.7.2",
