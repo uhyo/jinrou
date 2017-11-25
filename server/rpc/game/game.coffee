@@ -250,6 +250,8 @@ module.exports=
         # 投票を実行
         sdp.voters[voter] = false
 
+        console.log "hey!", sdp
+
         for id in targets
             banpl = sdp.targets[id]
             query =
@@ -2179,16 +2181,16 @@ class VotingBox
         # power: 票数
         pl=@game.getPlayer voteto
         unless pl?
-            return "そのプレイヤーは存在しません"
+            return @game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
-            return "その人は既に死んでいます"
+            return @game.i18n.t "error.common.alreadyDead"
         me=@game.getPlayer player.id
         unless me?
-            return "あなたは参加していません"
+            return @game.i18n.t "error.common.notPlayer"
         if @isVoteFinished player
-            return "あなたは既に投票しています"
+            return @game.i18n.t "error.voting.voted"
         if pl.id==player.id && @game.rule.votemyself!="ok"
-            return "自分には投票できません"
+            return @game.i18n.t "error.voting.self"
         @votes.push {
             player:@game.getPlayer player.id
             to:pl
@@ -2198,7 +2200,7 @@ class VotingBox
         log=
             mode:"voteto"
             to:player.id
-            comment:"#{player.name}は#{pl.name}に投票しました"
+            comment: @game.i18n.t "system.votingbox.voted", {name: player.name, target: pl.name}
         splashlog @game.id,@game,log
         null
     # その人の投票オブジェクトを得る

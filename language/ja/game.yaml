@@ -4,6 +4,14 @@ common:
   scapegoat: "身代わりくん"
 # Error messages
 error:
+  # Common error message
+  common:
+    # That player does not exist
+    nonexistentPlayer: "そのプレイヤーは存在しません。"
+    # That player is already dead
+    alreadyDead: "そのプレイヤーは既に死亡しています。"
+    # You are not a player
+    notPlayer: "あなたは参加していません。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)
@@ -15,11 +23,18 @@ error:
     # Casting is failed
     castingFailed: "配役に失敗しました"
   # Error during sudden death punishment
-    suddenDeathPunish:
-      # You are not a valid voter
-      notvoter: "投票できません"
-      # Invalid voting target
-      invalid: "投票先が不正です"
+  suddenDeathPunish:
+    # You are not a valid voter
+    notvoter: "投票できません"
+    # Invalid voting target
+    invalid: "投票先が不正です"
+  # Error of Votingbox
+  voting:
+    # You have already voted
+    voted: "あなたは既に投票しています。"
+    # You are voting to yourself
+    self: "自分には投票できません。"
+
 # System Logs
 system:
   # Room state changed logs
@@ -68,6 +83,9 @@ system:
     revote: "再投票になりました。あと{{count}}回の投票で結論が出なければ引き分けになります。"
     # We have more chances of punishment
     more: "今日はあと{{count}}人処刑します。もう一度投票してください。"
+  # Logs related to voting box
+  votingbox:
+    voted: "{{name}}は{{target}}に投票しました。"
   # Quantum werewolf logs
   quantum:
     breakdown: "世界が崩壊し、確率が定義できなくなりました。"
