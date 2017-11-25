@@ -1,0 +1,77 @@
+# Terms for each role.
+
+# Diviner
+diviner:
+  # Divine result
+  result:
+    human: "村人"
+  # Today's target is automatically chosen.
+  auto: "{{name}}の今日の占い先は自動的に決定されます。"
+  # Selected a target.
+  select: "{{name}}は{{target}}を占いました。"
+  # Divining result.
+  resultlog: "{{name}}が{{target}}を占ったところ、{{result}}でした。"
+
+# Psychic
+psychic:
+  result:
+    human: "村人"
+  # Psychi result.
+  resultlog: "{{name}}の霊能の結果、前日処刑された{{target}}は{{result}}でした。"
+
+# Werewolf
+werewolf:
+  # Error: Werewolves cannot eat each other
+  noWolfAttack: "人狼は人狼を襲撃できません。"
+  # Selected a target.
+  select: "{{name}}たち人狼は{{target}}に狙いを定めました。"
+
+# Guard
+guard:
+  # Error: a Guard cannot guard oneself
+  noGuardSelf: "自分を護衛することはできません。"
+  # Error: a Guard cannot guard a same player twice in a row
+  noGuardSame: "同じ人を連続で護衛することはできません。"
+  # Selected a target.
+  select: "{{name}}は{{target}}を護衛しました。"
+
+# TinyFox
+tinyfox:
+  # Successful result of divine by TinyFOx.
+  resultlog_success: "{{name}}の占いの結果、{{target}}は{{result}}ぽい人かな？"
+  # Failure
+  resultlog_fail: "{{name}}の占いの結果、{{target}}はなんだかとても怪しい人かな？"
+
+
+# Magician
+magician:
+  select: "{{name}}は{{target}}に死者蘇生術をかけました。"
+
+# Spy
+spy:
+  select: "{{name}}は村を去ることに決めました。"
+
+# WolfDiviner
+wolfdiviner:
+  select: "{{name}}は{{target}}を人狼占いで占いました。"
+  resultlog: "{{name}}が{{target}}を人狼占いで占ったところ、{{result}}でした。"
+
+# Fugitive
+fugitive:
+  noSelf: "自分の家へは逃げられません。"
+  select: "{{name}}は{{target}}の家の近くへ逃亡しました。"
+
+
+# Merchant
+merchant:
+  # Name of kits.
+  kit:
+    Diviner: "占いセット"
+    Psychic: "霊能セット"
+    Guard: "狩人セット"
+  # Error: cannot send a kit to oneself.
+  noSelf: "自分には発送できません。"
+  select: "{{name}}は{{target}}へ{{kit}}を発送しました。"
+  # A kit is delivered to a player.
+  delivered: "{{name}}に{{kit}}が到着しました。"
+

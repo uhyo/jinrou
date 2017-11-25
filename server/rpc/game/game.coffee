@@ -21,7 +21,7 @@ i18n
             escapeValue: false
         lng: Config.language.value
         fallbackLng: Config.language.fallback
-        ns: ["game"]
+        ns: ["game", "roles"]
         defaultNS: "game"
     }
 
@@ -2605,10 +2605,10 @@ class Player
     #人狼に食われて死ぬかどうか
     willDieWerewolf:true
     #占いの結果
-    fortuneResult:"村人"
+    fortuneResult: "村人"
     getFortuneResult:->@fortuneResult
     #霊能の結果
-    psychicResult:"村人"
+    psychicResult: "村人"
     getPsychicResult:->@psychicResult
     #チーム Human/Werewolf
     team: "Human"
@@ -2901,10 +2901,10 @@ class Werewolf extends Player
     job:(game,playerid)->
         tp = game.getPlayer playerid
         if game.werewolf_target_remain<=0
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         if game.rule.wolfattack!="ok" && tp?.isWerewolf()
             # 人狼は人狼に攻撃できない
-            return "人狼は人狼を殺せません"
+            return game.i18n.t "roles:werewolf.noWolfAttack"
         game.werewolf_target.push {
             from:@id
             to:playerid
@@ -2913,7 +2913,7 @@ class Werewolf extends Player
         tp.touched game,@id
         log=
             mode:"wolfskill"
-            comment:"#{@name}たち人狼は#{tp.name}に狙いを定めました。"
+            comment: game.i18n.t "roles:werewolf.select", {name: @name, target: tp.name}
         if @isJobType "SolitudeWolf"
             # 孤独な狼なら自分だけ…
             log.to=@id
@@ -2979,9 +2979,8 @@ class Diviner extends Player
                 log=
                     mode:"skill"
                     to:@id
-                    comment:"#{@name}の今日の占い先は自動的に決定されます。"
+                    comment:game.i18n.t "roles:diviner.auto", {name: @name}
                 splashlog game.id,game,log
-
 
                 r=Math.floor Math.random()*targets2.length
                 @job game,targets2[r].id,{}
@@ -2995,14 +2994,14 @@ class Diviner extends Player
     job:(game,playerid)->
         pl=game.getPlayer playerid
         unless pl?
-            return "そのプレイヤーは存在しません。"
+            return game.i18n.t "error.common.nonexistentPlayer"
 
         @setTarget playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を占いました。"
+            comment: game.i18n.t "roles:diviner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3028,7 +3027,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: "#{@name}が#{p.name}を占ったところ、#{p.getFortuneResult()}でした。"
+                result: game.i18n.t "roles:diviner.resultlog", {name: @name, target: p.name, result: p.getFortuneResult()}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
@@ -3069,7 +3068,7 @@ class Psychic extends Player
     beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
-            @setFlag @flag+"#{@name}の霊能の結果、前日処刑された#{x.name}は#{x.getPsychicResult()}でした。\n"
+            @setFlag @flag+"#{game.i18n.t "roles:psychic.resultlog", {name: @name, target: x.name, result: x.getPsychicResult()}}\n"
 
 class Madman extends Player
     type:"Madman"
@@ -3111,9 +3110,9 @@ class Guard extends Player
                 @setTarget ""
     job:(game,playerid)->
         if playerid==@id && game.rule.guardmyself!="ok"
-            return "自分を護衛することはできません"
+            return game.i18n.t "roles:guard.noGuardSelf"
         else if playerid==@flag && game.rule.consecutiveguard=="no"
-            return "同じ人を連続で護衛することはできません"
+            return game.i18n.t "roles:guard.noGuardSame"
         else
             @setTarget playerid
             @setFlag playerid
@@ -3122,7 +3121,7 @@ class Guard extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}を護衛しました。"
+                comment: game.i18n.t "roles:guard.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             null
     midnight:(game,midnightSort)->
@@ -3224,10 +3223,11 @@ class TinyFox extends Diviner
         p=game.getPlayer @target
         if p?
             success= Math.random()<0.5  # 成功したかどうか
-            re=if success then "#{p.getFortuneResult()}ぽい人" else "なんだかとても怪しい人"
+            key = if success then "roles:tinyfox.resultlog_success" else "roles:tinyfox.resultlog_fail"
+            re = game.i18n.t key, {name: @name, target: p.name, result: p.getFortuneResult()}
             @results.push {
                 player: p.publicinfo()
-                result: "#{@name}の占いの結果、#{p.name}は#{re}かな？"
+                result: re
             }
             @addGamelog game,"foxdivine",success,p.id
     showdivineresult:(game)->
@@ -3299,17 +3299,17 @@ class Magician extends Player
     job:(game,playerid)->
         if game.day<3
             # まだ発動できない
-            return "まだ能力を発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
-            return "そのプレイヤーは存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}に死者蘇生術をかけました。"
+            comment: game.i18n.t "roles:magician.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sleeping:(game)->game.day<3 || @target?
@@ -3343,12 +3343,12 @@ class Spy extends Player
         else
             @setFlag null
     job:(game,playerid)->
-        return "既に能力を発動しています" if @flag=="spygone"
+        return game.i18n.t "error.common.alreadyUsed" if @flag=="spygone"
         @setFlag "spygone"
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は村を去ることに決めました。"
+            comment: game.i18n.t "roles:spy.select", {name: @name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -3390,10 +3390,10 @@ class WolfDiviner extends Werewolf
             return super
         # 占い
         if @flag?
-            return "既に占い対象を決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
         pl=game.getPlayer playerid
         unless pl?
-            return "そのプレイヤーは存在しません。"
+            return game.i18n.t "error.common.nonexistentPlayer"
         @setFlag playerid
         unless pl.getTeam()=="Werewolf" && pl.isHuman()
             # 狂人は変化するので
@@ -3401,7 +3401,7 @@ class WolfDiviner extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を人狼占いで占いました。"
+            comment: game.i18n.t "roles:wolfdiviner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3437,7 +3437,7 @@ class WolfDiviner extends Werewolf
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: "#{@name}が#{p.name}を人狼占いで占ったところ、#{p.jobname}でした。"
+                result: game.i18n.t "roles:wolfdiviner.resultlog", {name: @name, target: p.name, result: p.jobname}
             }
             @addGamelog game,"wolfdivine",null,@flag  # 占った
             if p.getTeam()=="Werewolf" && p.isHuman()
@@ -3455,7 +3455,7 @@ class WolfDiviner extends Werewolf
                 log=
                     mode:"skill"
                     to:p.id
-                    comment:"#{p.name}は#{newpl.getJobDisp()}になりました。"
+                    comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
                 splashlog game.id,game,log
                 game.splashjobinfo [game.getPlayer newpl.id]
     makejobinfo:(game,result)->
@@ -3465,9 +3465,6 @@ class WolfDiviner extends Werewolf
                 # もう占いは終わった
                 result.open = result.open?.filter (x)=>x!="WolfDiviner"
 
-        
-    
-        
 
 class Fugitive extends Player
     type:"Fugitive"
@@ -3492,15 +3489,15 @@ class Fugitive extends Player
         # 逃亡先
         pl=game.getPlayer playerid
         if pl?.dead
-            return "死者の家には逃げられません"
+            return game.i18n.t "error.common.alreadyDead"
         if playerid==@id
-            return "自分の家へは逃げられません"
+            return game.i18n.t "roles:fugitive.noSelf"
         @setTarget playerid
         pl?.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}の家の近くへ逃亡しました。"
+            comment: game.i18n.t "roles:fugitive.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @addGamelog game,"runto",null,pl.id
         null
@@ -3535,21 +3532,20 @@ class Merchant extends Player
     jobdone:(game)->game.day<=1 || @flag?
     job:(game,playerid,query)->
         if @flag?
-            return "既に商品を発送しています"
+            return game.i18n.t "error.common.alreadyUsed"
         # 即時発送
         unless query.Merchant_kit in ["Diviner","Psychic","Guard"]
-            return "発送する商品が不正です"
-        kit_names=
-            "Diviner":"占いセット"
-            "Psychic":"霊能セット"
-            "Guard":"狩人セット"
+            return game.i18n.t "error.common.invalidSelection"
+
+        kit_name = game.i18n.t "roles:merchant.kit.#{query.Merchant_kit}"
+
         pl=game.getPlayer playerid
         unless pl?
-            return "発送先が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
-            return "発送先は既に死んでいます"
+            return game.i18n.t "error.common.alreadyDead"
         if pl.id==@id
-            return "自分には発送できません"
+            return game.i18n.t "roles:merchant.noSelf"
         pl.touched game,@id
         # 複合させる
         sub=Player.factory query.Merchant_kit   # 副を作る
@@ -3562,13 +3558,13 @@ class Merchant extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{newpl.name}へ#{kit_names[query.Merchant_kit]}を発送しました。"
+            comment: game.i18n.t "roles:merchant.select", {name: @name, target: newpl.name, kit: kit_name}
         splashlog game.id,game,log
         # 入れ替え先は気づいてもらう
         log=
             mode:"skill"
             to:newpl.id
-            comment:"#{newpl.name}へ#{kit_names[query.Merchant_kit]}が到着しました。"
+            comment: game.i18n.t "roles:merchant.delivered", {name: newpl.name, kit: kit_name}
         splashlog game.id,game,log
         game.ss.publish.user newpl.id,"refresh",{id:game.id}
         @setFlag query.Merchant_kit    # 発送済み

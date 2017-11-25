@@ -12,6 +12,12 @@ error:
     alreadyDead: "そのプレイヤーは既に死亡しています。"
     # You are not a player
     notPlayer: "あなたは参加していません。"
+    # Cannot use a skill now
+    cannotUseSkillNow: "今は能力を使用できません。"
+    # Skill is already used
+    alreadyUsed: "既に能力を使用しています。"
+    # Selection is invalid
+    invalidSelection: "選択が不正です。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)
@@ -91,6 +97,8 @@ system:
     breakdown: "世界が崩壊し、確率が定義できなくなりました。"
   # Revival of a user
   revive: "{{name}}は蘇生しました。"
+  # Role of a player changed
+  changeRole: "{{name}}は{{result}}になりました。"
   # GM霊能
   gmPsychic: "処刑された{{name}}の霊能結果は{{result}}でした。"
   # A Hunter is preparing a last attack.
@@ -153,4 +161,3 @@ judge:
 quantum:
   # Player called by a number
   player: "プレイヤー{{num}}"
-
