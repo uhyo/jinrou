@@ -14,6 +14,12 @@ error:
     thiefFailed: "盗人の処理に失敗しました"
     # Casting is failed
     castingFailed: "配役に失敗しました"
+  # Error during sudden death punishment
+    suddenDeathPunish:
+      # You are not a valid voter
+      notvoter: "投票できません"
+      # Invalid voting target
+      invalid: "投票先が不正です"
 # System Logs
 system:
   # Room state changed logs

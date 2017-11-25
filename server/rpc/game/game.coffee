@@ -243,14 +243,12 @@ module.exports=
             return null
         # Am I a valid voter?
         unless sdp.voters[voter] == true
-            return "投票できません"
+            return game.i18n.t "error.suddenDeathPunish.notvoter"
         # Are all the targets valid?
         unless targets.every((id)-> sdp.targets[id]?)
-            return "投票先が不正です"
+            return game.i18n.t "error.suddenDeathPunish.invalid"
         # 投票を実行
         sdp.voters[voter] = false
-
-        console.log "hey!", sdp
 
         for id in targets
             banpl = sdp.targets[id]
