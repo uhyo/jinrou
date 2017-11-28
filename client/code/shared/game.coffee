@@ -671,12 +671,14 @@ exports.getrulestr=(rule,jobs={})->
         if num>0
             text+="#{name}#{num} "
     return text
-# 職の名前
-exports.getjobname=(job)->
+# 職の情報
+exports.getjobobj = getjobobj = (job)->
     for name,team of Shared.game.jobinfo
         if team[job]?
-            return team[job].name
+            return team[job]
     return null
+# 職の名前
+exports.getjobname = (job)-> getjobobj(job)?.name
 exports.jobinfo=
     Human:
         name:"村人陣営"

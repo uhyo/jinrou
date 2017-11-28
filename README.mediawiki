@@ -6,10 +6,8 @@ Are you a werewolf?
 1.12.3
 
 == requirements ==
-* SocketStream
-* mongodb
-* twitter
-and others...
+* Redis
+* MongoDB >= 3.2
 
 == usage ==
 # git clone git://github.com/uhyo/jinrou.git
