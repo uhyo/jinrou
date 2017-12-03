@@ -99,6 +99,8 @@ system:
   revive: "{{name}}は蘇生しました。"
   # Role of a player changed
   changeRole: "{{name}}は{{result}}になりました。"
+  # Role of a player changed (with old job)
+  changeRoleFrom: "{{name}}は{{old}}から{{result}}になりました。"
   # GM霊能
   gmPsychic: "処刑された{{name}}の霊能結果は{{result}}でした。"
   # A Hunter is preparing a last attack.

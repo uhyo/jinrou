@@ -75,3 +75,59 @@ merchant:
   # A kit is delivered to a player.
   delivered: "{{name}}に{{kit}}が到着しました。"
 
+# Liar
+liar:
+  # Select a target.
+  select: "$t(diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  # Result.
+  resultlog: "あんまり自信ないけど、霊能占いの結果、{{target}}は{{result}}}だと思う。たぶん。"
+
+# Spy2
+spy2:
+  # His report is found.
+  found: "{{name}}の調査報告書が発見されました。"
+
+# Copier
+copier:
+  # Selected a target.
+  select: "{{name}}が{{target}}の能力をコピーしました。"
+
+# Light
+light:
+  # Selected a target.
+  select: "{{name}}が{{target}}の名前を死神の手帳に書きました。"
+
+# Cupid
+cupid:
+  # First select.
+  select1: "{{name}}は恋人の1人目に{{target}}を選びました。"
+  # Error: select another player
+  noSelectTwice: "もう一人別の人を選んでください。"
+  # Select a target.
+  select: "{{name}}は{{target}}へ恋の矢を放ちました。"
+  # Became a lover.
+  become: "{{name}}は恋人になりました。"
+
+# Stalker
+stalker:
+  # Selected a target.
+  select: "{{name}}は{{target}}（{{job}}）のストーカーになりました。"
+
+# Cursed
+cursed:
+  # became a werewolf.
+  becomeWerewolf: "{{name}}は呪われて人狼になりました。"
+  # became a vampire.
+  becomeVampire: "{{name}}は呪われてヴァンパイアになりました。"
+
+# Spellcaster
+spellcaster:
+  # Error: this player is already cursed
+  noSelectTwice: "その対称には既に呪いをかけています。"
+  # Selected a target.
+  select: "{{name}}が{{target}}に呪いをかけました。"
+  # A player is cursed.
+  cursed: "{{name}}は呪いをかけられました。昼に発言できません。"
+
+
+

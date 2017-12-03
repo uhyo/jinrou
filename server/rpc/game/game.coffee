@@ -3611,16 +3611,16 @@ class Liar extends Player
     job:(game,playerid,query)->
         # 占い
         if @target?
-            return "既に占い対象を決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を占いました。"
+            comment: game.i18n.t "roles:liar.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sunrise:(game)->
@@ -3629,7 +3629,7 @@ class Liar extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"あんまり自信ないけど、霊能占いの結果、#{@results[@results.length-1].player.name}は#{@results[@results.length-1].result}だと思う。たぶん。"
+            comment: game.i18n.t "roles:liar.resultlog", {target: @results[@results.length-1].player.name, result: @results[@results.length-1].result}
         splashlog game.id,game,log
     midnight:(game,midnightSort)->
         p=game.getPlayer @target
@@ -3672,7 +3672,7 @@ class Spy2 extends Player
         .join " "
         log=
             mode:"system"
-            comment:"#{@name}の調査報告書が発見されました。"
+            comment: game.i18n.t "roles:spy2.found", {name: @name}
         splashlog game.id,game,log
         log2=
             mode:"will"
@@ -3698,14 +3698,14 @@ class Copier extends Player
     job:(game,playerid,query)->
         # コピー先
         if @target?
-            return "既にコピーしています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}の能力をコピーしました。"
+            comment: game.i18n.t "roles:copier.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type
@@ -3731,14 +3731,14 @@ class Light extends Player
     job:(game,playerid,query)->
         # コピー先
         if @target?
-            return "既に対象を選択しています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}の名前を死神の手帳に書きました。"
+            comment: game.i18n.t "roles:light.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -3840,22 +3840,22 @@ class Cupid extends Player
     sleeping:->@flag? && @target?
     job:(game,playerid,query)->
         if @flag? && @target?
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
     
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         
         unless @flag?
             @setFlag playerid
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は恋人の1人目に#{pl.name}を選びました。"
+                comment: game.i18n.t "roles:cupid.select1", {name: @name, target: pl.name}
             splashlog game.id,game,log
             return null
         if @flag==playerid
-            return "もう一人別の人を選んで下さい"
+            return game.i18n.t "roles:cupid.noSelectTwice"
             
         @setTarget playerid
         # 恋人二人が決定した
@@ -3872,12 +3872,12 @@ class Cupid extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{newpl.name}へ恋の矢を放ちました。"
+                comment: game.i18n.t "roles:cupid.select", {name: @name, target: newpl.name}
             splashlog game.id,game,log
             log=
                 mode:"skill"
                 to:newpl.id
-                comment:"#{newpl.name}は恋人になりました。"
+                comment: game.i18n.t "roles:cupid.become", {name: newpl.name}
             splashlog game.id,game,log
         # 2人とも更新する
         for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
@@ -3903,17 +3903,17 @@ class Stalker extends Player
     sleeping:->@flag?
     job:(game,playerid,query)->
         if @target? || @flag?
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
     
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         @setTarget playerid
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}（#{pl.jobname}）のストーカーになりました。"
+            comment: game.i18n.t "roles:stalker.select", {name: @name, target: pl.name, job: pl.jobname}
         splashlog game.id,game,log
         @setFlag playerid  # ストーキング対象プレイヤー
         null
@@ -3970,14 +3970,14 @@ class Cursed extends Player
                 log=
                     mode:"skill"
                     to:@id
-                    comment:"#{@name}は呪われて人狼になりました。"
+                    comment: game.i18n.t "roles:cursed.becomeWerewolf", {name: @name}
             
                 newpl=Player.factory "Werewolf"
             else
                 log=
                     mode:"skill"
                     to:@id
-                    comment:"#{@name}は呪われてヴァンパイアになりました。"
+                    comment: game.i18n.t "roles:cursed.becomeVampire", {name: @name}
             
                 newpl=Player.factory "Vampire"
 
@@ -4009,7 +4009,7 @@ class ApprenticeSeer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{@jobname}から#{newpl.jobname}になりました。"
+                comment: game.i18n.t "system.changeRoleFrom", {name: @name, old: @jobname, result: newpl.jobname}
             splashlog game.id,game,log
             
             @transform game,newpl,false
@@ -4037,7 +4037,7 @@ class Spellcaster extends Player
             @setTarget ""
     job:(game,playerid,query)->
         if @target?
-            return "既に対象を選択しています"
+            return game.i18n.t "error.common.alreadyUsed"
         arr=[]
         try
           arr=JSON.parse @flag
@@ -4047,14 +4047,14 @@ class Spellcaster extends Player
             arr=[]
         if playerid in arr
             # 既に呪いをかけたことがある
-            return "その対象には既に呪いをかけています"
+            return game.i18n.t "roles:spellcaster.noSelectTwice"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}に呪いをかけました。"
+            comment: game.i18n.t "roles:spellcaster.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         arr.push playerid
         @setFlag JSON.stringify arr
@@ -4066,7 +4066,7 @@ class Spellcaster extends Player
         log=
             mode:"skill"
             to:t.id
-            comment:"#{t.name}は呪いをかけられました。昼に発言できません。"
+            comment: game.i18n.t "roles:spellcaster.cursed", {name: t.name}
         splashlog game.id,game,log
         
         # 複合させる
