@@ -1,4 +1,5 @@
 libblacklist = require '../../libs/blacklist.coffee'
+libuserlogs = require '../../libs/userlogs.coffee'
 ###
 room: {
   id: Number
@@ -121,6 +122,49 @@ module.exports.actions=(req,res,ss)->
                     x.players.forEach (p)->
                         delete p.realid
             res results
+    getMyRooms:(page)->
+        # extract user's play logs from userrawlogs
+        M.userrawlogs.aggregate [
+            {
+                $match:
+                    userid: req.session.userId
+                    type: libuserlogs.DataTypes.game
+            }, {
+                $sort:
+                    gameid: -1
+            }, {
+                $skip: page * page_number
+            }, {
+                $limit: page_number
+            }, {
+            # join with room object
+                $lookup:
+                    from: "rooms"
+                    localField: "gameid"
+                    foreignField: "id"
+                    as: "room"
+            }, {
+                $unwind: "$room"
+            },
+        ], (err, results)->
+            if err?
+                res {error: String err}
+                return
+            for x in results
+                if x.room?
+                    if x.room.password?
+                        x.room.needpassword = true
+                        x.room.password = undefined
+                    if x.room.blind
+                        x.room.owner = undefined
+                    for p in x.room.players
+                        # find my player
+                        if p.realid == req.session.userId
+                            p.me = true
+                        p.realid = undefined
+            res results
+
+
     oneRoom:(roomid)->
         M.rooms.findOne {id:roomid},(err,result)=>
             if err?

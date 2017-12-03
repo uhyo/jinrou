@@ -4,6 +4,8 @@ DataTypes =
     game: 1
     gone: 2
 
+exports.DataTypes = DataTypes
+
 ###
 # userrawlogs:
 #   userid: "userid"

@@ -4,7 +4,11 @@ section.rooms
     thead
       tr
         th ルーム名
-        th 状態
+        if my
+          th 役職
+          th 結果
+        else
+          th 状態
         th オーナー
         th 最大人数
         th 日時

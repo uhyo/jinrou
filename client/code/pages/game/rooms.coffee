@@ -6,19 +6,26 @@ exports.start=(query={})->
     getroom=Index.game.rooms.getroom
     gr=(rooms)->
         getroom mode,rooms
-    ss.rpc "game.rooms.getRooms", mode,page,gr
+
+    reqRpc = ()->
+        if mode == "my"
+            ss.rpc "game.rooms.getMyRooms", page, gr
+        else
+            ss.rpc "game.rooms.getRooms", mode, page, gr
+    reqRpc()
+
     $("#pager").click (je)->
         t=je.target
         if t.name=="prev"
             page--
             if page<0 then page=0
-            ss.rpc "game.rooms.getRooms", mode,page,gr
+            reqRpc()
             Index.app.pushState location.pathname, {
                 page: page
             }
         else if t.name=="next"
             page++
-            ss.rpc "game.rooms.getRooms", mode,page,gr
+            reqRpc()
             Index.app.pushState location.pathname, {
                 page: page
             }
@@ -27,12 +34,20 @@ exports.start=(query={})->
 exports.getroom=(mode,rooms)->
     tb=$("#roomlist").get(0)
     if rooms.error?
+        console.error rooms.error
         Index.util.message "エラー","ルーム一覧を取得できませんでした。"
         return
     while tb.rows.length>0
         tb.deleteRow 0
         
-    rooms.forEach (room)->
+    rooms.forEach (obj)->
+        # TODO myのときとそれ以外で構造が違う
+        room =
+            if mode == "my"
+                obj.room
+            else
+                obj
+
         tr=tb.insertRow -1
         if room.needpassword
             tr.classList.add "lock"
@@ -64,18 +79,55 @@ exports.getroom=(mode,rooms)->
             img.width=img.height=16
             img.alt="GMあり"
             td.insertBefore img,td.firstChild
-        
-        #状態
-        td=tr.insertCell -1
-        td.textContent= switch room.mode
-            when "waiting"
-                "募集中"
-            when "playing"
-                "対戦中"
-            when "end"
-                "終了"
+
+        if mode == "my"
+            # 自分の戦績情報を入れる
+            td = tr.insertCell -1
+            job = Shared.game.getjobobj obj.job
+            if job?
+                sq = document.createElement "span"
+                sq.style.color = job.color
+                sq.textContent = "■"
+                td.appendChild sq
+                td.appendChild document.createTextNode job.name
+            else if obj.job == "Helper"
+                td.textContent = "ヘルパー"
+            else if obj.job == "GameMaster"
+                td.textContent = "ゲームマスター"
             else
-                "不明"
+                td.textContent = obj.job
+            # 自分の名前を探してあれする
+            for p in room.players
+                if p.me
+                    td.title = p.name
+                    break
+
+            td = tr.insertCell -1
+            switch obj.subtype
+                when "win"
+                    span = document.createElement "span"
+                    span.classList.add "rooms-td-win"
+                    span.textContent = "勝ち"
+                    td.appendChild span
+                when "lose"
+                    span = document.createElement "span"
+                    span.classList.add "rooms-td-lose"
+                    span.textContent = "負け"
+                    td.appendChild span
+                when "lose"
+                    td.textContent = "引き分け"
+        else
+            #状態
+            td=tr.insertCell -1
+            td.textContent= switch room.mode
+                when "waiting"
+                    "募集中"
+                when "playing"
+                    "対戦中"
+                when "end"
+                    "終了"
+                else
+                    "不明"
         
         #owner
         td=tr.insertCell -1

@@ -198,24 +198,32 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             page "reset",null,Index.reset, null
         when "/rooms"
             # 部屋一覧
-            page "game-rooms",null,Index.game.rooms, {
+            page "game-rooms", {
+                my: false
+            }, Index.game.rooms, {
                 page: Number query.page || 0
             }
         when "/rooms/old"
             # 古い部屋
-            page "game-rooms",null,Index.game.rooms, {
+            page "game-rooms", {
+                my: false
+            }, Index.game.rooms, {
                 mode: "old"
                 page: Number query.page || 0
             }
         when "/rooms/log"
             # 終わった部屋
-            page "game-rooms",null,Index.game.rooms, {
+            page "game-rooms", {
+                my: false
+            },Index.game.rooms, {
                 mode: "log"
                 page: Number query.page || 0
             }
         when "/rooms/my"
             # ぼくの部屋
-            page "game-rooms",null,Index.game.rooms, {
+            page "game-rooms", {
+                my: true
+            }, Index.game.rooms, {
                 mode: "my"
                 page: Number query.page || 0
             }

@@ -401,6 +401,9 @@ exports.start=(roomid)->
             forminfo()
 
         $("#roomname").text room.name
+        roomnumber = document.createElement 'span'
+        roomnumber.classList.add 'roomname-number'
+        roomnumber.textContent = "##{roomid}"
         iconlist = document.createElement 'span'
         iconlist.classList.add 'roomname-icons'
         # ルーム情報
@@ -425,7 +428,7 @@ exports.start=(roomid)->
             icon.classList.add 'fa-info-circle'
             icon.title = room.comment
             iconlist.appendChild icon
-        $("#roomname").append iconlist
+        $("#roomname").append roomnumber, iconlist
         if room.mode=="waiting"
             # 開始前のユーザー一覧は roomから取得する
             room.players.forEach (x)->
