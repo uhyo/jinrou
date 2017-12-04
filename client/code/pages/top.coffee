@@ -14,12 +14,17 @@ exports.start=->
     $("#newentryform").submit (je)->
         je.preventDefault()
         form=je.target
+        uid = form.elements["userid"].value
+        pass = form.elements["password"].value
         q=
-            userid: form.elements["userid"].value
-            password: form.elements["password"].value
+            userid: uid
+            password: pass
         ss.rpc "user.newentry", q,(result)->
-            if result?.login
-                Index.app.setUserid q.userid
-                Index.app.showUrl "/my"
-            else if result?.error?
+            if result?.error?
                 $("#newentryerror").text result.error
+                return
+            Index.app.processLoginResult uid, result, (success)->
+                if success
+                    localStorage.setItem "userid", uid
+                    localStorage.setItem "password", pass
+                    Index.app.showUrl "/my"
