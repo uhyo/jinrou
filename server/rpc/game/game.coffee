@@ -9342,7 +9342,7 @@ module.exports.actions=(req,res,ss)->
                     # セーフティ超
                     joblist=best_list
 
-                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0 || joblist.Pumpkin>0 || joblist.Patissiere>0) && query.divineresult=="immediate"
+                if query.divineresult=="immediate" && ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist"].some((job)-> joblist[job] > 0)
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
