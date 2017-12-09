@@ -5289,12 +5289,12 @@ class Counselor extends Player
         return unless t?
         return if t.dead
         tteam = t.getTeam()
-        if t.isWerewolf() && tteam in ["Werewolf","LoneWolf"]
+        if t.isWerewolf() && tteam != "Human"
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if t.isVampire() && tteam=="Vampire"
+        if t.isVampire() && tteam != "Human"
             @die game,"vampire2"
             @addGamelog game,"counselKilled",t.type,@target
             return
