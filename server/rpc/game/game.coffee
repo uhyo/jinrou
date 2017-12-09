@@ -1457,7 +1457,7 @@ class Game
                         if @rule.deadfox=="obvious"
                             null
                         else
-                            "人狼の餌食になったようです。"
+                            "呪殺されたようです。"
                     when "foxsuisicde"
                         "狐の後を追って死亡したようです。"
                     when "friendsuicide"
