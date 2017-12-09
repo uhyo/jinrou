@@ -1391,6 +1391,8 @@ class Game
     #   "night": 夜になったタイミング
     #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
+        # 閻魔が生存しているフラグ
+        emma_flag = @players.some (x)-> !x.dead && x.isJobType("Emma")
 
         deads=[]
         loop
@@ -1433,8 +1435,6 @@ class Game
                     @i18n.t "found.body", {name: x.name}
                 when "foxsuicide", "friendsuicide", "twinsuicide"
                     @i18n.t "found.suicide", {name: x.name}
-                when "friendsuicide"
-                    @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
                 when "hunter"
@@ -1451,6 +1451,46 @@ class Game
                 mode:"system"
                 comment:situation
             splashlog @id,this,log
+            if emma_flag
+                # 閻魔用のログも出す
+                emma_log=switch x.found
+                    when "werewolf","werewolf2","crafty"
+                        "人狼の餌食になったようです。"
+                    when "poison"
+                        "毒に冒されたようです。"
+                    when "hinamizawa"
+                        "感染症により死亡したようです。"
+                    when "vampire","vampire2"
+                        "ヴァンパイアの餌食になったようです。"
+                    when "witch"
+                        "毒を盛られたようです。"
+                    when "dog"
+                        "犬の餌食になったようです。"
+                    when "trap"
+                        "罠にかかって死亡したようです。"
+                    when "marycurse"
+                        "呪殺されたようです。"
+                    when "psycho"
+                        "サイコキラーに殺されたようです。"
+                    when "curse"
+                        if @rule.deadfox=="obvious"
+                            null
+                        else
+                            "呪殺されたようです。"
+                    when "foxsuisicde"
+                        "狐の後を追って死亡したようです。"
+                    when "friendsuicide"
+                        "恋人の後を追って死亡したようです。"
+                    when "twinsuicide"
+                        "双子の後を追って死亡したようです。"
+                    else
+                        null
+                if emma_log?
+                    log=
+                        mode:"emmaskill"
+                        comment:"#{x.name}は#{emma_log}"
+                    splashlog @id,this,log
+
 #           if x.found=="punish"
 #               # 処刑→霊能
 #               @players.forEach (y)=>
@@ -2144,7 +2184,8 @@ class Game
                 return
 ###
 logs:[{
-    mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
+    mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
+    "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える)
     comment: String
     userid:Userid
     name?:String
@@ -3515,9 +3556,9 @@ class Fugitive extends Player
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
-        if !pl.dead && pl.isWerewolf() && pl.getTeam() in ["Werewolf","LoneWolf"]
+        if !pl.dead && pl.isWerewolf() && pl.getTeam() != "Human"
             @die game,"werewolf2"
-        else if !pl.dead && pl.isVampire() && pl.getTeam()=="Vampire"
+        else if !pl.dead && pl.isVampire() && pl.getTeam() != "Human"
             @die game,"vampire2"
         
     isWinner:(game,team)->
@@ -5305,12 +5346,12 @@ class Counselor extends Player
         return unless t?
         return if t.dead
         tteam = t.getTeam()
-        if t.isWerewolf() && tteam in ["Werewolf","LoneWolf"]
+        if t.isWerewolf() && tteam != "Human"
             # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if t.isVampire() && tteam=="Vampire"
+        if t.isVampire() && tteam != "Human"
             @die game,"vampire2"
             @addGamelog game,"counselKilled",t.type,@target
             return
@@ -7179,6 +7220,30 @@ class MadHunter extends Hunter
     jobname:"復讐人"
     team:"Werewolf"
 
+class MadCouple extends Player
+    type:"MadCouple"
+    jobname:"叫迷狂人"
+    team:"Werewolf"
+    makejobinfo:(game,result)->
+        super
+        result.madpeers = game.players.filter((x)-> x.isJobType "MadCouple").map (x)-> x.publicinfo()
+    isListener:(game, log)->
+        if log.mode == "madcouple"
+            true
+        else
+            super
+    getSpeakChoice:(game)->
+        ["madcouple"].concat super
+
+class Emma extends Player
+    type:"Emma"
+    jobname:"閻魔"
+    isListener:(game, log)->
+        if log.mode == "emmaskill"
+            true
+        else
+            super
+
 
 # ============================
 # 処理上便宜的に使用
@@ -8503,6 +8568,8 @@ jobs=
     Twin:Twin
     Hunter:Hunter
     MadHunter:MadHunter
+    MadCouple:MadCouple
+    Emma:Emma
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8649,6 +8716,8 @@ jobStrength=
     Twin:16
     Hunter:20
     MadHunter:17
+    MadCouple:19
+    Emma:17
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -9241,6 +9310,12 @@ module.exports.actions=(req,res,ss)->
                                     if joblist.Twin==0
                                         unless init "Twin","Human"
                                             continue
+                                when "MadCouple"
+                                    # 叫迷も
+                                    if joblist.MadCouple==0
+                                        unless init "MadCouple","Madman"
+                                            #共有者が入る隙間はない
+                                            continue
                                 when "Noble"
                                     # 貴族は奴隷がほしい
                                     if joblist.Slave==0
@@ -9358,7 +9433,7 @@ module.exports.actions=(req,res,ss)->
                     # セーフティ超
                     joblist=best_list
 
-                if (joblist.WolfBoy>0 || joblist.ObstructiveMad>0 || joblist.Pumpkin>0 || joblist.Patissiere>0) && query.divineresult=="immediate"
+                if query.divineresult=="immediate" && ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist"].some((job)-> joblist[job] > 0)
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
@@ -9484,6 +9559,13 @@ module.exports.actions=(req,res,ss)->
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
+            # add query job info to rule obj
+            ruleobj._jobquery = {}
+            for job in Shared.game.jobs
+                ruleobj._jobquery["job_use_#{job}"] = query["job_use_#{job}"]
+                ruleobj._jobquery[job] = query[job]
+            for type of Shared.game.categoryNames
+                ruleobj._jobquery["category_#{type}"] = query["category_#{type}"]
 
             game.setrule ruleobj
             # 配役リストをセット
@@ -9867,7 +9949,7 @@ makelogsFor=(game,player,log)->
             name:"狼の遠吠え"
             time:log.time
         return [otherslog]
-    if log.mode=="couple" && game.rule.couplesound=="aloud"
+    if log.mode in ["couple", "madcouple"] && game.rule.couplesound=="aloud"
         # 共有者の小声が聞こえる
         otherslog=
             mode:"couple"

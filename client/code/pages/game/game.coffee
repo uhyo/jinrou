@@ -114,6 +114,8 @@ exports.start=(roomid)->
                 $("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
             if obj.peers?
                 $("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+            if obj.madpeers?
+                $("#jobinfo").append pp "仲間の叫迷狂人は#{obj.madpeers.map((x)->x.name).join(',')}"
             if obj.foxes?
                 $("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
             if obj.nobles?
@@ -230,6 +232,7 @@ exports.start=(roomid)->
                     $(b).click (je)->
                         # ルールを保存
                         localStorage.savedRule=JSON.stringify result.game.rule
+                        # savedJobs is for backward compatibility
                         localStorage.savedJobs=JSON.stringify result.game.jobscount
                         #Index.app.showUrl "/newroom"
                         # 新しいタブで開く
@@ -365,7 +368,15 @@ exports.start=(roomid)->
             buildrules Shared.game.rules,$("#rules")
             if localStorage.savedRule
                 rule=JSON.parse localStorage.savedRule
-                jobs=JSON.parse localStorage.savedJobs
+                jobs = rule._jobquery
+                unless jobs?
+                    # backward compatibility
+                    savedJobs = JSON.parse localStorage.savedJobs
+                    if savedJobs?
+                        jobs = {}
+                        for job in Shared.game.jobs
+                            jobs[job] = savedJobs[job]?.number ? 0
+                            jobs["job_use_#{job}"] = "on"
                 delete localStorage.savedRule
                 delete localStorage.savedJobs
                 # 時間設定
@@ -391,10 +402,14 @@ exports.start=(roomid)->
                         else
                             e.value=rule[key]
                 # 配役も再現
-                for job in Shared.game.jobs
-                    e=form.elements[job]    # 役職
-                    if e?
-                        e.value=jobs[job]?.number ? 0
+                if jobs?
+                    for job in Shared.game.jobs
+                        e=form.elements[job]    # 役職
+                        if e?
+                            e.value = String jobs[job]
+                        e = form.elements["job_use_#{job}"]
+                        if e?
+                            e.checked = jobs["job_use_#{job}"] == "on"
 
             $("#gamestartsec").removeAttr "hidden"
 
@@ -1671,6 +1686,8 @@ speakValueToStr=(game,value)->
             "人狼の会話"
         when "couple"
             "共有者の会話"
+        when "madcouple"
+            "叫迷狂人の会話"
         when "fox"
             "妖狐の会話"
         when "gm"
@@ -1690,6 +1707,8 @@ speakValueToStr=(game,value)->
                 "→#{pl.name}"
             else if result=value.match /^helperwhisper_(.+)$/
                 "助言"
+            else
+                "???"
 
 
 # オーナーが追い出し管理をクリックしたときの処理

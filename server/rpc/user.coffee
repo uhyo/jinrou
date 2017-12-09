@@ -141,7 +141,7 @@ exports.actions =(req,res,ss)->
                 }
                 return
             userobj = makeuserdata(query)
-            M.users.insert userobj,{safe:true},(err,records)->
+            M.users.insertOne userobj,{w:1},(err,records)->
                 if err?
                     res {
                         login:false
