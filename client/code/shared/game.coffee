@@ -24,6 +24,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Dictator","SeersMama","Trapper","WolfBoy","King",
 # Twitter人狼の役職
 "Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
+# 人狼物語（瓜科国）
+"MadCouple",
 # 天国系の役職
 "ObstructiveMad", # 人狼天国
 "WanderingGuard", # 錠前天国
@@ -60,7 +62,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere"]
@@ -73,7 +75,7 @@ exports.categories=
     Human: teams.Human.filter((x)-> x != "GotChocolate")
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf"]
     Fox:["Fox","TinyFox"]
-    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
@@ -933,6 +935,9 @@ exports.jobinfo=
         MadHunter:
             name:"復讐人"
             color:"#511e0f"
+        MadCouple:
+            name:"叫迷狂人"
+            color:"#f2d5bc"
         
         
     Fox:
@@ -1583,11 +1588,12 @@ exports.rules=[
         label: "共有者の設定"
         visible:(rule,jobs)->
             return true if isYaminabe rule
-            return jobs.Couple>0
+            return jobs.Couple>0 || jobs.MadCouple>0
         rules:[
             {
                 name:"couplesound"
                 label:"共有者の小声が聞こえる"
+                title:"ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
                 type:"checkbox"
                 value:{
                     value:"aloud"
@@ -1847,6 +1853,11 @@ exports.jobinfos=[
     {
         name:"peers"
         prefix:"共有者は"
+        type:"pubinfo-array"
+    }
+    {
+        name:"madpeers"
+        prefix:"仲間の叫迷狂人は"
         type:"pubinfo-array"
     }
     {

@@ -2124,7 +2124,7 @@ class Game
                 return
 ###
 logs:[{
-    mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言)
+    mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
     comment: String
     userid:Userid
     name?:String
@@ -7163,6 +7163,22 @@ class MadHunter extends Hunter
     jobname:"復讐人"
     team:"Werewolf"
 
+class MadCouple extends Player
+    type:"MadCouple"
+    jobname:"叫迷狂人"
+    team:"Werewolf"
+    makejobinfo:(game,result)->
+        super
+        result.madpeers = game.players.filter((x)-> x.isJobType "MadCouple").map (x)-> x.publicinfo()
+    isListener:(game, log)->
+        if log.mode == "madcouple"
+            true
+        else
+            super
+    getSpeakChoice:(game)->
+        ["madcouple"].concat super
+
+
 
 # ============================
 # 処理上便宜的に使用
@@ -8487,6 +8503,7 @@ jobs=
     Twin:Twin
     Hunter:Hunter
     MadHunter:MadHunter
+    MadCouple:MadCouple
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8633,6 +8650,7 @@ jobStrength=
     Twin:16
     Hunter:20
     MadHunter:17
+    MadCouple:19
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -9224,6 +9242,12 @@ module.exports.actions=(req,res,ss)->
                                     # 双子も
                                     if joblist.Twin==0
                                         unless init "Twin","Human"
+                                            continue
+                                when "MadCouple"
+                                    # 叫迷も
+                                    if joblist.MadCouple==0
+                                        unless init "MadCouple","Madman"
+                                            #共有者が入る隙間はない
                                             continue
                                 when "Noble"
                                     # 貴族は奴隷がほしい
@@ -9851,7 +9875,7 @@ makelogsFor=(game,player,log)->
             name:"狼の遠吠え"
             time:log.time
         return [otherslog]
-    if log.mode=="couple" && game.rule.couplesound=="aloud"
+    if log.mode in ["couple", "madcouple"] && game.rule.couplesound=="aloud"
         # 共有者の小声が聞こえる
         otherslog=
             mode:"couple"

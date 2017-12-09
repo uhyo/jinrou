@@ -114,6 +114,8 @@ exports.start=(roomid)->
                 $("#jobinfo").append pp "仲間の人狼は#{obj.wolves.map((x)->x.name).join(",")}"
             if obj.peers?
                 $("#jobinfo").append pp "共有者は#{obj.peers.map((x)->x.name).join(',')}"
+            if obj.madpeers?
+                $("#jobinfo").append pp "仲間の叫迷狂人は#{obj.madpeers.map((x)->x.name).join(',')}"
             if obj.foxes?
                 $("#jobinfo").append pp "仲間の妖狐は#{obj.foxes.map((x)->x.name).join(',')}"
             if obj.nobles?
@@ -1671,6 +1673,8 @@ speakValueToStr=(game,value)->
             "人狼の会話"
         when "couple"
             "共有者の会話"
+        when "madcouple"
+            "叫迷狂人の会話"
         when "fox"
             "妖狐の会話"
         when "gm"
@@ -1690,6 +1694,8 @@ speakValueToStr=(game,value)->
                 "→#{pl.name}"
             else if result=value.match /^helperwhisper_(.+)$/
                 "助言"
+            else
+                "???"
 
 
 # オーナーが追い出し管理をクリックしたときの処理
