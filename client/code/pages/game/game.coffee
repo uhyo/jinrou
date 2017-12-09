@@ -232,6 +232,7 @@ exports.start=(roomid)->
                     $(b).click (je)->
                         # ルールを保存
                         localStorage.savedRule=JSON.stringify result.game.rule
+                        # savedJobs is for backward compatibility
                         localStorage.savedJobs=JSON.stringify result.game.jobscount
                         #Index.app.showUrl "/newroom"
                         # 新しいタブで開く
@@ -367,7 +368,15 @@ exports.start=(roomid)->
             buildrules Shared.game.rules,$("#rules")
             if localStorage.savedRule
                 rule=JSON.parse localStorage.savedRule
-                jobs=JSON.parse localStorage.savedJobs
+                jobs = rule._jobquery
+                unless jobs?
+                    # backward compatibility
+                    savedJobs = JSON.parse localStorage.savedJobs
+                    if savedJobs?
+                        jobs = {}
+                        for job in Shared.game.jobs
+                            jobs[job] = savedJobs[job]?.number ? 0
+                            jobs["job_use_#{job}"] = "on"
                 delete localStorage.savedRule
                 delete localStorage.savedJobs
                 # 時間設定
@@ -393,10 +402,14 @@ exports.start=(roomid)->
                         else
                             e.value=rule[key]
                 # 配役も再現
-                for job in Shared.game.jobs
-                    e=form.elements[job]    # 役職
-                    if e?
-                        e.value=jobs[job]?.number ? 0
+                if jobs?
+                    for job in Shared.game.jobs
+                        e=form.elements[job]    # 役職
+                        if e?
+                            e.value = String jobs[job]
+                        e = form.elements["job_use_#{job}"]
+                        if e?
+                            e.checked = jobs["job_use_#{job}"] == "on"
 
             $("#gamestartsec").removeAttr "hidden"
 

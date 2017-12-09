@@ -9492,6 +9492,13 @@ module.exports.actions=(req,res,ss)->
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
             
                 ruleobj[x]=query[x] ? null
+            # add query job info to rule obj
+            ruleobj._jobquery = {}
+            for job in Shared.game.jobs
+                ruleobj._jobquery["job_use_#{job}"] = query["job_use_#{job}"]
+                ruleobj._jobquery[job] = query[job]
+            for type of Shared.game.categoryNames
+                ruleobj._jobquery["category_#{type}"] = query["category_#{type}"]
 
             game.setrule ruleobj
             # 配役リストをセット
