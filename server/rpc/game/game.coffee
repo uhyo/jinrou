@@ -1372,6 +1372,8 @@ class Game
     #   "night": 夜になったタイミング
     #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
+        # 閻魔が生存しているフラグ
+        emma_flag = @players.some (x)-> !x.dead && x.isJobType("Emma")
 
         deads=[]
         loop
@@ -1414,8 +1416,6 @@ class Game
                     "死体で発見されました"
                 when "foxsuicide", "friendsuicide", "twinsuicide"
                     "誰かの後を追って自ら死を選びました"
-                when "friendsuicide"
-                    "誰かの後を追って自ら死を選びました"
                 when "infirm"
                     "老衰で死亡しました"
                 when "hunter"
@@ -1432,6 +1432,46 @@ class Game
                 mode:"system"
                 comment:"#{x.name}は#{situation}"
             splashlog @id,this,log
+            if emma_flag
+                # 閻魔用のログも出す
+                emma_log=switch x.found
+                    when "werewolf","werewolf2","crafty"
+                        "人狼の餌食になったようです。"
+                    when "poison"
+                        "毒に冒されたようです。"
+                    when "hinamizawa"
+                        "感染症により死亡したようです。"
+                    when "vampire","vampire2"
+                        "ヴァンパイアの餌食になったようです。"
+                    when "witch"
+                        "毒を盛られたようです。"
+                    when "dog"
+                        "犬の餌食になったようです。"
+                    when "trap"
+                        "罠にかかって死亡したようです。"
+                    when "marycurse"
+                        "呪殺されたようです。"
+                    when "psycho"
+                        "サイコキラーに殺されたようです。"
+                    when "curse"
+                        if @rule.deadfox=="obvious"
+                            null
+                        else
+                            "人狼の餌食になったようです。"
+                    when "foxsuisicde"
+                        "狐の後を追って死亡したようです。"
+                    when "friendsuicide"
+                        "恋人の後を追って死亡したようです。"
+                    when "twinsuicide"
+                        "双子の後を追って死亡したようです。"
+                    else
+                        null
+                if emma_log?
+                    log=
+                        mode:"emmaskill"
+                        comment:"#{x.name}は#{emma_log}"
+                    splashlog @id,this,log
+
 #           if x.found=="punish"
 #               # 処刑→霊能
 #               @players.forEach (y)=>
@@ -2125,6 +2165,7 @@ class Game
 ###
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
+    "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える)
     comment: String
     userid:Userid
     name?:String
@@ -7178,6 +7219,14 @@ class MadCouple extends Player
     getSpeakChoice:(game)->
         ["madcouple"].concat super
 
+class Emma extends Player
+    type:"Emma"
+    jobname:"閻魔"
+    isListener:(game, log)->
+        if log.mode == "emmaskill"
+            true
+        else
+            super
 
 
 # ============================
@@ -8504,6 +8553,7 @@ jobs=
     Hunter:Hunter
     MadHunter:MadHunter
     MadCouple:MadCouple
+    Emma:Emma
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8651,6 +8701,7 @@ jobStrength=
     Hunter:20
     MadHunter:17
     MadCouple:19
+    Emma:17
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

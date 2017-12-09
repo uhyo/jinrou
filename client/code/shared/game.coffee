@@ -31,6 +31,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
 "Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
+# 人狼式
+"Emma",
 # えけけ鯖
 "MadHunter",
 # 人狼パーティー
@@ -61,7 +63,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy"]
     Devil:["Devil"]
@@ -844,6 +846,9 @@ exports.jobinfo=
         Hunter:
             name:"ハンター"
             color:"#d11f1f"
+        Emma:
+            name:"閻魔"
+            color:"#dd2211"
         
     Werewolf:
         name:"人狼陣営"
