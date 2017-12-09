@@ -1167,7 +1167,14 @@ exports.rules=[
                 defaultValue:
                     minute:5
                     second:30
-                getstr:->null
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.day) > 0
+                        {
+                            label: "昼の議論時間"
+                            value: secondsStr ruleobj.day
+                        }
+                    else
+                        null
             }
             {
                 type:"time"
@@ -1178,7 +1185,14 @@ exports.rules=[
                 defaultValue:
                     minute:2
                     second:30
-                getstr:->null
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.day) > 0
+                        {
+                            label: "夜時間"
+                            value: secondsStr ruleobj.night
+                        }
+                    else
+                        null
             }
             {
                 type:"time"
@@ -1189,7 +1203,14 @@ exports.rules=[
                 defaultValue:
                     minute:2
                     second:0
-                getstr:->null
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.remain) > 0
+                        {
+                            label: "猶予時間"
+                            value: secondsStr ruleobj.remain
+                        }
+                    else
+                        null
             }
             {
                 type:"time"
@@ -1205,7 +1226,7 @@ exports.rules=[
                     if Number(ruleobj.voting) > 0
                         {
                             label: "投票専用時間"
-                            value: "あり（#{ruleobj.voting}秒）"
+                            value: "あり（#{secondsStr ruleobj.voting}）"
                         }
                     else
                         null
@@ -1926,3 +1947,9 @@ exports.jobinfos=[
 
 # 判定
 isYaminabe=(rule)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+# 秒数を分と秒に
+secondsStr=(sec)->
+    if sec >= 60
+        "#{Math.floor(sec/60)}分#{sec % 60}秒"
+    else
+        "#{sec}秒"
