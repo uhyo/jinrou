@@ -3498,9 +3498,9 @@ class Fugitive extends Player
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
-        if !pl.dead && pl.isWerewolf() && pl.getTeam() in ["Werewolf","LoneWolf"]
+        if !pl.dead && pl.isWerewolf() && pl.getTeam() != "Human"
             @die game,"werewolf2"
-        else if !pl.dead && pl.isVampire() && pl.getTeam()=="Vampire"
+        else if !pl.dead && pl.isVampire() && pl.getTeam() != "Human"
             @die game,"vampire2"
         
     isWinner:(game,team)->
