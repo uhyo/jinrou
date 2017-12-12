@@ -240,7 +240,7 @@ module.exports=
             banpl = sdp.targets[id]
             query =
                 userid:banpl.realid
-                types:["play"]
+                types:["create_account", "play"]
                 reason:"突然死の罰"
                 banMinutes:sdp.banMinutes
             libblacklist.extendBlacklist query,(result)->
