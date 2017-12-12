@@ -1712,7 +1712,7 @@ exports.rules=[
                 getstr:(value)->
                     {
                         label:"呪殺ログと襲撃ログの区別"
-                        value:if value=="on" then "あり" else "なし"
+                        value:if value=="obvious" then "あり" else "なし"
                     }
             }
         ]
