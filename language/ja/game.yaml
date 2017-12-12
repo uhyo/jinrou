@@ -18,6 +18,8 @@ error:
     alreadyUsed: "既に能力を使用しています。"
     # Selection is invalid
     invalidSelection: "選択が不正です。"
+    # Cannot target myself
+    noSelectSelf: "自分を対象に選択することはできません。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)

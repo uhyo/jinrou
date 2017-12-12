@@ -3149,7 +3149,7 @@ class Guard extends Player
                 @setTarget ""
     job:(game,playerid)->
         if playerid==@id && game.rule.guardmyself!="ok"
-            return game.i18n.t "roles:guard.noGuardSelf"
+            return game.i18n.t "error.common.noSelectSelf"
         else if playerid==@flag && game.rule.consecutiveguard=="no"
             return game.i18n.t "roles:guard.noGuardSame"
         else
@@ -4128,14 +4128,14 @@ class Priest extends Player
         @setTarget null
     job:(game,playerid,query)->
         if @flag?
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         if @target?
-            return "既に対象を選択しています"
+            return game.i18n.t "error.common.alreadyUsed"
         pl=game.getPlayer playerid
         unless pl?
-            return "その対象は存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if playerid==@id
-            return "自分を対象にはできません"
+            return game.i18n.t "error.common.noSelectSelf"
         pl.touched game,@id
 
         @setTarget playerid
@@ -4143,7 +4143,7 @@ class Priest extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を聖なる力で守りました。"
+            comment: game.i18n.t "roles:priest.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4168,7 +4168,7 @@ class Prince extends Player
             @setFlag "used"    # 能力使用済
             log=
                 mode:"system"
-                comment:"#{@name}は#{@jobname}でした。処刑は行われませんでした。"
+                comment: game.i18n.t "roles:prince.cancel", {name: @name, kjobname: @jobname}
             splashlog game.id,game,log
             @addGamelog game,"princeCO"
         else
@@ -4186,7 +4186,7 @@ class PI extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}とその両隣を調査しました。"
+            comment: game.i18n.t "roles:pi.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -4219,15 +4219,17 @@ class PI extends Diviner
                 if rs.indexOf(x,i+1)<0
                     nrs.push x
             tpl=game.getPlayer @target
+
             resultstring=if nrs.length>0
                 @addGamelog game,"PIdivine",true,tpl.id
-                "#{nrs.join ","}が発見されました"
+                game.i18n.t "roles:pi.found", {name: @name, target: tpl.name, result: nrs.join ","}
             else
                 @addGamelog game,"PIdivine",false,tpl.id
-                "全員村人でした"
+                game.i18n.t "roles:pi.notfound", {name: @name, target: tpl.name}
+
             @results.push {
                 player:game.getPlayer(@target).publicinfo()
-                result:"#{@name}が#{tpl.name}とその両隣を調査したところ、#{resultstring}。"
+                result:resultstring
             }
     showdivineresult:(game)->
         r=@results[@results.length-1]
@@ -4249,7 +4251,7 @@ class Sorcerer extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を調べました。"
+            comment: game.i18n.t "roles:sorcerer", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -4260,12 +4262,12 @@ class Sorcerer extends Diviner
         pl=game.getPlayer @target
         if pl?
             resultstring=if pl.isJobType "Diviner"
-                "占い師でした"
+                game.i18n.t "roles:sorcerer.found", {name: @name, target: pl.name}
             else
-                "占い師ではありませんでした"
+                game.i18n.t "roles:sorcerer.notfound", {name: @name, target: pl.name}
             @results.push {
                 player: game.getPlayer(@target).publicinfo()
-                result: "#{@name}が#{pl.name}を調べたところ、#{resultstring}。"
+                result: resultstring
             }
     showdivineresult:(game)->
         r=@results[@results.length-1]
@@ -4285,16 +4287,16 @@ class Doppleganger extends Player
     job:(game,playerid)->
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if pl.id==@id
-            return "自分を対象にできません"
+            return game.i18n.t "error.common.noSelectSelf"
         if pl.dead
-            return "対象は既に死んでいます"
+            return game.i18n.t "error.common.alreadyDead"
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{game.getPlayer(playerid).name}のドッペルゲンガーになりました。"
+            comment: game.i18n.t "roles:doppleganger.select", {name: @name, target: game.getPlayer(playerid).name}
         splashlog game.id,game,log
         @setFlag playerid  # ドッペルゲンガー先
         null
@@ -4330,7 +4332,7 @@ class Doppleganger extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
+                comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
             splashlog game.id,game,log
             @addGamelog game,"dopplemove",newpl.type,newpl.id
 
@@ -4356,7 +4358,7 @@ class CultLeader extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を信者にしました。"
+            comment: game.i18n.t "roles:cultleader.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @addGamelog game,"brainwash",null,playerid
         null
@@ -4367,7 +4369,7 @@ class CultLeader extends Player
         log=
             mode:"skill"
             to:t.id
-            comment:"#{t.name}はカルトの信者になりました。"
+            comment: game.i18n.t "roles:cultleader.become", {name: t.name}
 
         # 信者
         splashlog game.id,game,log

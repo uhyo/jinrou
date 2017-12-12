@@ -28,8 +28,6 @@ werewolf:
 
 # Guard
 guard:
-  # Error: a Guard cannot guard oneself
-  noGuardSelf: "自分を護衛することはできません。"
   # Error: a Guard cannot guard a same player twice in a row
   noGuardSame: "同じ人を連続で護衛することはできません。"
   # Selected a target.
@@ -129,5 +127,42 @@ spellcaster:
   # A player is cursed.
   cursed: "{{name}}は呪いをかけられました。昼に発言できません。"
 
+# Priest
+priest:
+  # Selected a target.
+  select: "{{name}}が{{target}}を聖なる力で守りました。"
 
+# Prince
+prince:
+  # Canceled a punishment.
+  cancel: "{{name}}は{{jobname}}でした。処刑は行われませんでした。"
 
+# PI
+pi:
+  # selected a target.
+  select: "{{name}}が{{target}}とその両隣を調査しました。"
+  # result (something found)
+  found: "{{name}}が{{target}}とその両隣を調査したところ、{{result}}が発見されました。"
+  # result (everyone human)
+  notfound: "{{name}}が{{target}}とその両隣を調査したところ、全員村人でした。"
+
+# Sorcerer
+sorcerer:
+  # Select a target.
+  select: "{{name}}が{{target}}を調べました。"
+  # Result (diviner found)
+  found: "{{name}}が{{target}}を調べたところ、占い師でした。"
+  # Result (diviner not found)
+  notfound: "{{name}}が{{target}}を調べたところ、占い師ではありませんでした。"
+
+# Doppleganger
+doppleganger:
+  # Select a target.
+  select: "{{name}}が{{target}}のドッペルゲンガーになりました。"
+
+# CultLeader
+cultleader:
+  # Select a target.
+  select: "{{name}}が{{target}}を信者にしました。"
+  # Became a cult member.
+  become: "{{name}}はカルトの信者になりました。"
