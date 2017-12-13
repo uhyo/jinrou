@@ -219,7 +219,7 @@ exports.handleBanRequest = (banid, userid, ip, cb)->
             return
         if doc?
             # BANがちゃんとあった
-            if doc.forgiveDate?
+            if doc.forgiveDate? || (doc.expires? && doc.expires.getTime() < Date.now())
                 # 解除済なので赦す
                 cb {
                     forgive: true
@@ -341,7 +341,6 @@ exports.extendBlacklist = (query, cb)->
                 d.setMinutes d.getMinutes()+banMinutes
                 updateQuery.$set.id = id
                 updateQuery.$set.expires=d
-            console.log updateQuery
             
             M.blacklist.update {
                 id: id
