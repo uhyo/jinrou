@@ -166,3 +166,135 @@ cultleader:
   select: "{{name}}が{{target}}を信者にしました。"
   # Became a cult member.
   become: "{{name}}はカルトの信者になりました。"
+
+# Vampire
+vampire:
+  # Select a target.
+  select: "{{name}}が{{target}}を襲撃しました。"
+
+# Cat
+cat:
+  # Select a target.
+  select: "{{name}}は{{target}}に死者蘇生術をかけました。"
+
+# Witch
+witch:
+  # Select a target of poison.
+  selectPoison: "{{name}}は{{target}}に毒薬を使いました。"
+  # Select a target of revival.
+  selectRevival: "{{name}}は{{target}}に蘇生薬を使いました。"
+
+# OccultMania
+occultmania:
+  # Select a target.
+  select: "{{name}}は{{target}}を指定しました。"
+
+# Lover
+lover:
+  # Select a target.
+  select: "{{name}}は{{target}}に求愛しました。"
+  # Become a lover.
+  become: "{{name}}は求愛されて恋人になりました。"
+
+# MinionSelector
+minionselector:
+  # Select a target.
+  select: "{{name}}は{{target}}（{{jobname}}）を狼の子分に指定しました。"
+  # Become a wolfminion.
+  become: "{{name}}は狼の子分になりました。"
+
+# Theif
+thief:
+  # Candidates are shown.
+  candidates: "{{name}}が選択可能な役職は{{jobnames}}です。"
+
+# Dog
+dog:
+  # Select an owner.
+  select: "{{name}}は{{target}}を飼い主に選びました。"
+  # Attack the owner.
+  attack: "{{name}}が{{target}}を襲撃しました。"
+
+# Dictator
+dictator:
+  # Select a punishment target.
+  select: "独裁者の{{name}}により、{{target}}の処刑が宣言されました。"
+
+# SeersMama
+seersmama:
+  # There is no seer.
+  resultNone: "{{name}}は占い師のママです。占い師はいません。"
+  # There are one or more seer. (number is given as count)
+  result: "{{name}}は占い師のママです。占い師は{{results}}です。"
+
+# Trapper
+trapper:
+  noGuardSame: "$t(guard.noGuardSame)"
+  # Select a target.
+  select: "{{name}}は{{target}}を罠で護衛しました。"
+
+# WolfBoy
+wolfboy:
+  # Select a target.
+  select: "{{name}}は{{target}}を人狼に仕立てました。"
+
+
+# Hoodlum
+hoodlum:
+  # Error: this player is already selected
+  alreadySelected: "{{name}}は既に対象に選択しています。"
+  # Select a target.
+  select: "{{name}}は{{target}}を恨んでいます。"
+
+# QuantumPlayer
+quantumplayer:
+  # Select a target of divine.
+  divine: "$t(diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  # Select a target of werewolf attack.
+  attack: "$t(werewolf.select, {'name': {{name}}, 'target': {{target}} })"
+  # Result of divine
+  divineResult: "$t(diviner.resultlog, {'name': {{name}}, 'target': {{target}}, 'result': {{result}} })"
+  # Cannot divine.
+  cannotDivine: "{{name}}が生存中の占い師である可能性が無くなったので、占えませんでした。"
+
+# Counselor
+counselor:
+  # Select a target.
+  select: "{{name}}が{{target}}をカウンセリングしました。"
+  # Rehabilitated
+  rehabilitate: "{{name}}はカウンセリングされて更生しました。"
+
+# Miko
+miko:
+  # Select a self protection.
+  select: "{{name}}が聖なる力で自身を守りました。"
+
+# GreedyWolf
+greedywolf:
+  # Select a greed.
+  select: "{{name}}は欲張りました。人狼たちはもう1人襲撃できます。"
+
+# FascinatingWolf
+fascinatingwolf:
+  # Select a target.
+  select: "{{name}}は{{target}}を誘惑しようとしています。"
+  # Affected by her.
+  affected: "{{name}}は狼に誘惑されました。"
+
+# SolitudeWolf
+solitudewolf:
+  # A turn of solitudewolf comes
+  turn: "{{name}}は襲撃できるようになりました。"
+  # Another wolf's turn!
+  noturn: "他にも人狼がいるようです。{{name}}は襲撃できなくなりました。"
+
+# ToughWolf
+toughwolf:
+  # Select a tough attack
+  select: "{{name}}は捨て身の覚悟で{{target}}を狙っています。"
+# ThreateningWolf
+threateningwolf:
+  # Select a threatening.
+  select: "{{name}}は{{target}}を威嚇しました。"
+  # Affected by threatening.
+  affected: "{{name}}は威嚇されました。今夜は能力が無効化されます。"

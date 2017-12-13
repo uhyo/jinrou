@@ -4403,16 +4403,16 @@ class Vampire extends Player
     job:(game,playerid,query)->
         # 襲う先
         if @target?
-            return "既に対象を選択しています"
+            return game.i18n.t "error.common.alreadyUsed"
         if game.day==1
-            return "今日は襲えません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を襲撃しました。"
+            comment: game.i18n.t "roles:vampire.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4451,7 +4451,7 @@ class Cat extends Poisoner
     job:(game,playerid)->
         if game.day<2
             # まだ発動できない
-            return "まだ能力を発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
@@ -4459,7 +4459,7 @@ class Cat extends Poisoner
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}に死者蘇生術をかけました。"
+            comment: game.i18n.t "roles:cat.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     jobdone:->@target?
@@ -4523,23 +4523,23 @@ class Witch extends Player
         # query.Witch_drug
         pl=game.getPlayer playerid
         unless pl?
-            return "薬の使用先が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if pl.id==@id
-            return "自分には使用できません"
+            return game.i18n.t "error.common.noSelectSelf"
 
         if query.Witch_drug=="kill"
             # 毒薬
             if game.day==1
-                return "今日は使用できません"
+                return game.i18n.t "error.common.cannotUseSkillNow"
             if (@flag&3)==3
                 # 蘇生薬は使い切った
-                return "もう薬は使えません"
+                return game.i18n.t "error.common.alreadyUsed"
             else if (@flag&4) && (@flag&3)
                 # すでに薬は2つ使っている
-                return "もう薬は使えません"
+                return game.i18n.t "error.common.alreadyUsed"
             
             if pl.dead
-                return "使用先は既に死んでいます"
+                return game.i18n.t "error.common.alreadyDead"
             
             # 薬を使用
             pl.touched game,@id
@@ -4552,15 +4552,15 @@ class Witch extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}に毒薬を使いました。"
+                comment: game.i18n.t "roles:witch.selectPoison", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else
             # 蘇生薬
             if (@flag&3)==3 || (@flag&4)
-                return "もう蘇生薬は使えません"
+                return game.i18n.t "error.common.alreadyUsed"
             
             if !pl.dead
-                return "使用先はまだ生きています"
+                return game.i18n.t "error.common.invalidSelection"
             
             # 薬を使用
             pl.touched game,@id
@@ -4569,7 +4569,7 @@ class Witch extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}に蘇生薬を使いました。"
+                comment: game.i18n.t "roles:witch.selectRevival", {name: @name, target: pl.name}
             splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4622,19 +4622,19 @@ class OccultMania extends Player
     job:(game,playerid)->
         if game.day<2
             # まだ発動できない
-            return "今は能力を発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
-            return "その対象は存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
-            return "対象は既に死亡しています"
+            return game.i18n.t "error.common.alreadyDead"
         pl.touched game,@id
         
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を指定しました。"
+            comment: game.i18n.t "roles:occultmania.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4656,9 +4656,8 @@ class OccultMania extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
+            comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
         splashlog game.id,game,log
-
         
         game.ss.publish.user newpl.realid,"refresh",{id:game.id}
         null
@@ -4699,15 +4698,15 @@ class Lover extends Player
     sleeping:(game)->@flag || @target?
     job:(game,playerid,query)->
         if @target?
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
         if @flag
-            return "もう恋の矢を放てません"
+            return game.i18n.t "error.common.alreadyUsed"
     
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if playerid==@id
-            return "自分以外を選択して下さい"
+            return game.i18n.t "error.common.noSelectSelf"
         pl.touched game,@id
 
         @setTarget playerid
@@ -4724,12 +4723,12 @@ class Lover extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}に求愛しました。"
+            comment: game.i18n.t "roles:lover.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         log=
             mode:"skill"
             to:newpl.id
-            comment:"#{pl.name}は求愛されて恋人になりました。"
+            comment: game.i18n.t "roles:lover.become", {name: pl.name}
         splashlog game.id,game,log
         # 2人とも更新する
         for pl in [this, pl]
@@ -4755,13 +4754,13 @@ class MinionSelector extends Player
     job:(game,playerid)->
         if game.day!=1
             # まだ発動できない
-            return "今は能力を発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
-            return "その対象は存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
-            return "対象は既に死亡しています"
+            return game.i18n.t "error.common.alreadyDead"
         
         # 複合させる
         newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
@@ -4769,13 +4768,13 @@ class MinionSelector extends Player
         pl.transform game,newpl,true
         log=
             mode:"wolfskill"
-            comment:"#{@name}は#{pl.name}（#{pl.jobname}）を狼の子分に指定しました。"
+            comment: game.i18n.t "roles:minionselector", {name: @name, target: pl.name, jobname: pl.jobname}
         splashlog game.id,game,log
 
         log=
             mode:"skill"
             to:pl.id
-            comment:"#{pl.name}は狼の子分になりました。"
+            comment: game.i18n.t "roles:minionselector.become", {name: pl.name}
         splashlog game.id,game,log
 
         null
@@ -4796,7 +4795,7 @@ class Thief extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が選択可能な役職は#{jobnames.join(",")}です。"
+                comment: game.i18n.t "roles:theif.candidates", {name: @name, jobnames: jobnames.join(",")}
             splashlog game.id,game,log
             if @scapegoat
                 # 身代わり君
@@ -4805,7 +4804,7 @@ class Thief extends Player
     job:(game,target)->
         @setTarget target
         unless jobs[target]?
-            return "その役職にはなれません"
+            return game.i18n.t "error.common.invalidSelection"
 
         newpl=Player.factory target
         @transProfile newpl
@@ -4815,7 +4814,7 @@ class Thief extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{newpl.getJobDisp()}になりました。"
+            comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
         splashlog game.id,game,log
         
         game.ss.publish.user newpl.id,"refresh",{id:game.id}
@@ -4868,20 +4867,20 @@ class Dog extends Player
     jobdone:->@target?
     job:(game,playerid,query)->
         if @target?
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
     
         unless @flag?
             pl=game.getPlayer playerid
             unless pl?
-                return "対象が不正です"
+                return game.i18n.t "error.common.invalidSelection"
             if pl.id==@id
-                return "自分を飼い主には選べません。"
+                return game.i18n.t "error.common.noSelectSelf"
             pl.touched game,@id
             # 飼い主を選択した
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}を飼い主に選びました。"
+                comment: game.i18n.t "roles:dog.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             @setFlag playerid  # 飼い主
             @setTarget ""  # 襲撃対象はなし
@@ -4892,7 +4891,7 @@ class Dog extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が#{pl.name}を襲撃しました。"
+                comment: game.i18n.t "roles:dog.attack", {name: @name, target: pl.name}
             splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4930,17 +4929,17 @@ class Dictator extends Player
     chooseJobDay:(game)->true
     job:(game,playerid,query)->
         if @flag?
-            return "もう能力を発動できません"
+            return game.i18n.t "error.common.alreadyUsed"
         unless Phase.isDay(game.phase)
-            return "夜には発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
-            comment:"独裁者の#{@name}により、#{pl.name}の処刑が宣言されました。"
+            comment: game.i18n.t "roles:dictator.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
@@ -4958,13 +4957,13 @@ class SeersMama extends Player
             # 占い師を探す
             divs = game.players.filter (pl)->pl.isJobType "Diviner"
             divsstr=if divs.length>0
-                "#{divs.map((x)->x.name).join ','}です"
+                game.i18n.t "roles:seersmama.result", {name: @name, results: divs.map((x)->x.name).join(','), count: divs.length}
             else
-                "いません"
+                game.i18n.t "roles:seersmama.resultNone", {name: @name}
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は占い師のママです。占い師は#{divsstr}。"
+                comment: divsstr
             splashlog game.id,game,log
             @setFlag true  #使用済
 class Trapper extends Player
@@ -4987,7 +4986,7 @@ class Trapper extends Player
         unless playerid==@id && game.rule.guardmyself!="ok"
             if playerid==@flag
                 # 前も護衛した
-                return "2日連続で同じ人は護衛できません"
+                return game.i18n.t "roles:trapper.noGuardSame"
             @setTarget playerid
             @setFlag playerid
             pl=game.getPlayer(playerid)
@@ -4995,11 +4994,11 @@ class Trapper extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}を罠で護衛しました。"
+                comment: game.i18n.t "roles:trapper.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             null
         else
-            "自分を護衛することはできません"
+            return game.i18n.t "error.common.noSelectSelf"
     midnight:(game,midnightSort)->
         # 複合させる
         pl = game.getPlayer @target
@@ -5030,7 +5029,7 @@ class WolfBoy extends Madman
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を人狼に仕立てました。"
+            comment: game.i18n.t "roles:wolfboy.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5066,20 +5065,20 @@ class Hoodlum extends Player
     sleeping:->@target?
     job:(game,playerid,query)->
         if @target?
-            return "既に対象は決定しています"
+            return game.i18n.t "error.common.alreadyUsed"
         pl=game.getPlayer playerid
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         plids=JSON.parse(@flag||"[]")
         if pl.id in plids
             # 既にいる
-            return "#{pl.name}は既に対象に選択しています"
+            return game.i18n.t "roles:hoodlum.alreadySelected", {name: pl.name}
         plids.push pl.id
         @setFlag JSON.stringify plids
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を恨んでいます。"
+            comment: game.i18n.t "roles:hoodlum.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if plids.length>=2
             @setTarget ""
@@ -5156,25 +5155,25 @@ class QuantumPlayer extends Player
         tarobj=JSON.parse(@target||"{}")
         pl=game.getPlayer playerid
         unless pl?
-            return "その対象は存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         if query.jobtype=="_Quantum_Diviner" && !tarobj.Diviner?
             tarobj.Diviner=playerid
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が#{pl.name}を占いました。"
+                comment: game.i18n.t "roles:quantumplayer.divine", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else if query.jobtype=="_Quantum_Werewolf" && !tarobj.Werewolf?
             if @id==playerid
-                return "自分を襲うことはできません。"
+                return game.i18n.t "error.common.noSelectSelf"
             tarobj.Werewolf=playerid
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{pl.name}に狙いを定めました。"
+                comment: game.i18n.t "roles:quantumplayer.attack", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else
-            return "対象選択が不正です"
+            return game.i18n.t "error.common.invalidSelection"
         @setTarget JSON.stringify tarobj
 
         null
@@ -5195,7 +5194,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment:"#{@name}が#{pl.name}を占ったところ、人狼でした。"
+                            comment: game.i18n.t "roles:quantumplayer.divineResult", {name: @name, target: pl.name, result: "人狼"}
                         splashlog game.id,game,log
                         # 人狼のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5207,7 +5206,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment:"#{@name}が#{pl.name}を占ったところ、村人でした。"
+                            comment: game.i18n.t "roles:quantumplayer.divineResult", {name: @name, target: pl.name, result: "村人"}
                         splashlog game.id,game,log
                         # 村人のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5220,7 +5219,7 @@ class QuantumPlayer extends Player
                     log=
                         mode:"skill"
                         to:@id
-                        comment:"#{@name}が生存中の占い師である可能性が無くなったので、占えませんでした。"
+                        comment: game.i18n.t "roles:quantumplayer.cannotDivine", {name: @name}
                     splashlog game.id,game,log
         if tarobj.Werewolf
             pl=game.getPlayer tarobj.Werewolf
@@ -5331,14 +5330,14 @@ class Counselor extends Player
             @setTarget ""
     job:(game,playerid,query)->
         if @target?
-            return "既に対象を選択しています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}をカウンセリングしました。"
+            comment: game.i18n.t "roles:counselor.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5359,7 +5358,7 @@ class Counselor extends Player
             log=
                 mode:"skill"
                 to:t.id
-                comment:"#{t.name}はカウンセリングされて更生しました。"
+                comment: game.i18n.t "roles:counselor.rehabilitate", {name: t.name}
             splashlog game.id,game,log
             
             @addGamelog game,"counselSuccess",t.type,@target
@@ -5380,12 +5379,12 @@ class Miko extends Player
     jobdone:->!!@flag
     job:(game,playerid,query)->
         if @flag
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setTarget playerid
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が聖なる力で自身を守りました。"
+            comment: game.i18n.t "roles:miko.select", {name: @name}
         splashlog game.id,game,log
         @setFlag "using"
         null
@@ -5413,13 +5412,13 @@ class GreedyWolf extends Werewolf
             # 人狼の仕事
             return super
         if @flag
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         @setFlag true
         if game.werewolf_target_remain+game.werewolf_target.length ==0
-            return "今夜は襲撃できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         log=
             mode:"wolfskill"
-            comment:"#{@name}は欲張りました。人狼たちはもう1人襲撃できます。"
+            comment: game.i18n.t "roles:greedywolf.select", {name: @name}
         splashlog game.id,game,log
         game.werewolf_target_remain++
         game.werewolf_flag.push "GreedyWolf_#{@id}"
@@ -5463,15 +5462,15 @@ class FascinatingWolf extends Werewolf
             # 人狼の仕事
             return super
         if @flag
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         pl=game.getPlayer playerid
         unless pl?
-            return "対象のプレイヤーは存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を誘惑しようとしています。"
+            comment: game.i18n.t "roles:fascinatingwolf.select", {name: @name, target: pl.name}
         @setFlag playerid
         splashlog game.id,game,log
         null
@@ -5498,7 +5497,7 @@ class FascinatingWolf extends Werewolf
         log=
             mode:"skill"
             to:pl.id
-            comment:"#{pl.name}は狼に誘惑されました。"
+            comment: game.i18n.t "roles:fascinatingwolf.affected", {name: pl.name}
         splashlog game.id,game,log
     makejobinfo:(game,result)->
         super
@@ -5517,7 +5516,7 @@ class SolitudeWolf extends Werewolf
         else super
     job:(game,playerid,query)->
         if !@flag
-            return "まだ襲えません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         super
     isAttacker:->!@dead && @flag
     sunset:(game)->
@@ -5529,7 +5528,7 @@ class SolitudeWolf extends Werewolf
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は襲撃できるようになりました。"
+                comment: game.i18n.t "roles:solitudewolf.turn", {name: @name}
             splashlog game.id,game,log
         else if @flag && attackers.length>1
             # 複数いるのでやめる
@@ -5537,7 +5536,7 @@ class SolitudeWolf extends Werewolf
             log=
                 mode:"skill"
                 to:@id
-                comment:"他にも人狼がいるようです。#{@name}は襲撃できなくなりました。"
+                comment: game.i18n.t "roles:solitudewolf.noturn", {name: @name}
             splashlog game.id,game,log
         super
     getSpeakChoice:(game)->
@@ -5555,7 +5554,7 @@ class ToughWolf extends Werewolf
             # 人狼の仕事
             return super
         if @flag
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         res=super
         if res?
             return res
@@ -5563,10 +5562,10 @@ class ToughWolf extends Werewolf
         game.werewolf_flag.push "ToughWolf_#{@id}"
         tp=game.getPlayer playerid
         unless tp?
-            return "その対象は存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         log=
             mode:"wolfskill"
-            comment:"#{@name}は捨て身の覚悟で#{tp.name}を狙っています。"
+            comment: game.i18n.t "roles:toughwolf.select", {name: @name, target: tp.name}
         splashlog game.id,game,log
         null
 class ThreateningWolf extends Werewolf
@@ -5586,19 +5585,19 @@ class ThreateningWolf extends Werewolf
             # 人狼の仕事
             return super
         if @flag
-            return "既に能力を使用しています"
+            return game.i18n.t "error.common.alreadyUsed"
         unless Phase.isDay(game.phase)
-            return "夜には発動できません"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         pl=game.getPlayer playerid
         pl.touched game,@id
         unless pl?
-            return "対象が不正です"
+            return game.i18n.t "error.common.nonexistentPlayer"
         @setTarget playerid
         @setFlag true
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を威嚇しました。"
+            comment: game.i18n.t "roles:threateningwolf.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sunset:(game)->
@@ -5613,7 +5612,7 @@ class ThreateningWolf extends Werewolf
         log=
             mode:"skill"
             to:t.id
-            comment:"#{t.name}は威嚇されました。今夜は能力が無効化されます。"
+            comment: game.i18n.t "roles:threateningwolf.affected", {name: t.name}
         splashlog game.id,game,log
 
         newpl=Player.factory null,t,null,Threatened  # カウンセリングされた
