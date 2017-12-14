@@ -5664,10 +5664,10 @@ class WanderingGuard extends Player
     job:(game,playerid)->
         fl=JSON.parse(@flag ? "[null]")
         if playerid==@id && game.rule.guardmyself!="ok"
-            return "自分を護衛することはできません"
+            return game.i18n.t "error.common.noSelectSelf"
         
         if playerid in fl
-            return "その人は護衛できません"
+            return game.i18n.t "error.common.invalidSelection"
         @setTarget playerid
         if game.rule.consecutiveguard == "no"
             fl[0] = playerid
@@ -5679,7 +5679,7 @@ class WanderingGuard extends Player
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は#{pl.name}を護衛しました。"
+            comment: game.i18n.t "roles:WanderingGuard.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5702,7 +5702,7 @@ class WanderingGuard extends Player
                     log=
                         mode:"skill"
                         to:@id
-                        comment:"#{@name}は#{pl.name}をもう護衛できません。"
+                        comment: game.i18n.t "roles:WanderingGuard.noGuardMode", {name: @name, target: pl.name}
                     splashlog game.id,game,log
                     fl=JSON.parse(@flag ? "[null]")
                     fl.push pl.id
@@ -5733,12 +5733,12 @@ class ObstructiveMad extends Madman
         @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
-            return "そのプレイヤーは存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}が#{pl.name}を邪魔しました。"
+            comment: game.i18n.t "roles:ObstructiveMad.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5763,12 +5763,13 @@ class TroubleMaker extends Player
             []
         else super
     job:(game,playerid)->
-        return "既に能力を使用しています" if @flag
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
         @setFlag "using"
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は村でトラブルを起こしました。"
+            comment: game.i18n.t "roles:TroubleMaker.select", {name: @name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5782,7 +5783,7 @@ class TroubleMaker extends Player
             # トラブルがおきた
             log=
                 mode:"system"
-                comment:"トラブルメーカーにより村が混乱しています。今日は#{game.votingbox.remains}人処刑されます。"
+                comment: game.i18n.t "roles:TroubleMaker.announce", {count: game.votingbox.remains}
             splashlog game.id,game,log
             @setFlag "done"
         else if @flag=="using"

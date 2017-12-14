@@ -298,3 +298,20 @@ ThreateningWolf:
   select: "{{name}}は{{target}}を威嚇しました。"
   # Affected by threatening.
   affected: "{{name}}は威嚇されました。今夜は能力が無効化されます。"
+
+WanderingGuard:
+  # Select a target.
+  select: "$t(Guard.select, {'name': {{name}}, 'target': {{target}} })"
+  # This player cannot be guarded anymore.
+  noGuardMore: "{{name}}は{{target}}をもう護衛できません。"
+
+ObstructiveMad:
+  # Select a target.
+  select: "{{name}}が{{target}}を邪魔しました。"
+
+TroubleMaker:
+  # Select to make a trouble.
+  select: "{{name}}は村でトラブルを起こしました。"
+  # System announce that a trouble has happened.
+  # A number of punished players is given as count.
+  announce: "トラブルメーカーにより村が混乱しています。今日は{{count}}人処刑されます。"
