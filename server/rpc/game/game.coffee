@@ -2943,7 +2943,7 @@ class Werewolf extends Player
             return game.i18n.t "error.common.cannotUseSkillNow"
         if game.rule.wolfattack!="ok" && tp?.isWerewolf()
             # 人狼は人狼に攻撃できない
-            return game.i18n.t "roles:werewolf.noWolfAttack"
+            return game.i18n.t "roles:Werewolf.noWolfAttack"
         game.werewolf_target.push {
             from:@id
             to:playerid
@@ -2952,7 +2952,7 @@ class Werewolf extends Player
         tp.touched game,@id
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:werewolf.select", {name: @name, target: tp.name}
+            comment: game.i18n.t "roles:Werewolf.select", {name: @name, target: tp.name}
         if @isJobType "SolitudeWolf"
             # 孤独な狼なら自分だけ…
             log.to=@id
@@ -3018,7 +3018,7 @@ class Diviner extends Player
                 log=
                     mode:"skill"
                     to:@id
-                    comment:game.i18n.t "roles:diviner.auto", {name: @name}
+                    comment:game.i18n.t "roles:Diviner.auto", {name: @name}
                 splashlog game.id,game,log
 
                 r=Math.floor Math.random()*targets2.length
@@ -3040,7 +3040,7 @@ class Diviner extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:diviner.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Diviner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3066,7 +3066,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:diviner.resultlog", {name: @name, target: p.name, result: p.getFortuneResult()}
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: p.getFortuneResult()}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
@@ -3107,7 +3107,7 @@ class Psychic extends Player
     beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
-            @setFlag @flag+"#{game.i18n.t "roles:psychic.resultlog", {name: @name, target: x.name, result: x.getPsychicResult()}}\n"
+            @setFlag @flag+"#{game.i18n.t "roles:Psychic.resultlog", {name: @name, target: x.name, result: x.getPsychicResult()}}\n"
 
 class Madman extends Player
     type:"Madman"
@@ -3151,7 +3151,7 @@ class Guard extends Player
         if playerid==@id && game.rule.guardmyself!="ok"
             return game.i18n.t "error.common.noSelectSelf"
         else if playerid==@flag && game.rule.consecutiveguard=="no"
-            return game.i18n.t "roles:guard.noGuardSame"
+            return game.i18n.t "roles:Guard.noGuardSame"
         else
             @setTarget playerid
             @setFlag playerid
@@ -3160,7 +3160,7 @@ class Guard extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:guard.select", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             null
     midnight:(game,midnightSort)->
@@ -3262,7 +3262,7 @@ class TinyFox extends Diviner
         p=game.getPlayer @target
         if p?
             success= Math.random()<0.5  # 成功したかどうか
-            key = if success then "roles:tinyfox.resultlog_success" else "roles:tinyfox.resultlog_fail"
+            key = if success then "roles:TinyFox.resultlog_success" else "roles:TinyFox.resultlog_fail"
             re = game.i18n.t key, {name: @name, target: p.name, result: p.getFortuneResult()}
             @results.push {
                 player: p.publicinfo()
@@ -3348,7 +3348,7 @@ class Magician extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:magician.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Magician.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sleeping:(game)->game.day<3 || @target?
@@ -3387,7 +3387,7 @@ class Spy extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:spy.select", {name: @name}
+            comment: game.i18n.t "roles:Spy.select", {name: @name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -3440,7 +3440,7 @@ class WolfDiviner extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:wolfdiviner.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:WolfDiviner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -3476,7 +3476,7 @@ class WolfDiviner extends Werewolf
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:wolfdiviner.resultlog", {name: @name, target: p.name, result: p.jobname}
+                result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.jobname}
             }
             @addGamelog game,"wolfdivine",null,@flag  # 占った
             if p.getTeam()=="Werewolf" && p.isHuman()
@@ -3530,13 +3530,13 @@ class Fugitive extends Player
         if pl?.dead
             return game.i18n.t "error.common.alreadyDead"
         if playerid==@id
-            return game.i18n.t "roles:fugitive.noSelf"
+            return game.i18n.t "roles:Fugitive.noSelf"
         @setTarget playerid
         pl?.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:fugitive.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Fugitive.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @addGamelog game,"runto",null,pl.id
         null
@@ -3576,7 +3576,7 @@ class Merchant extends Player
         unless query.Merchant_kit in ["Diviner","Psychic","Guard"]
             return game.i18n.t "error.common.invalidSelection"
 
-        kit_name = game.i18n.t "roles:merchant.kit.#{query.Merchant_kit}"
+        kit_name = game.i18n.t "roles:Merchant.kit.#{query.Merchant_kit}"
 
         pl=game.getPlayer playerid
         unless pl?
@@ -3584,7 +3584,7 @@ class Merchant extends Player
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
         if pl.id==@id
-            return game.i18n.t "roles:merchant.noSelf"
+            return game.i18n.t "roles:Merchant.noSelf"
         pl.touched game,@id
         # 複合させる
         sub=Player.factory query.Merchant_kit   # 副を作る
@@ -3597,13 +3597,13 @@ class Merchant extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:merchant.select", {name: @name, target: newpl.name, kit: kit_name}
+            comment: game.i18n.t "roles:Merchant.select", {name: @name, target: newpl.name, kit: kit_name}
         splashlog game.id,game,log
         # 入れ替え先は気づいてもらう
         log=
             mode:"skill"
             to:newpl.id
-            comment: game.i18n.t "roles:merchant.delivered", {name: newpl.name, kit: kit_name}
+            comment: game.i18n.t "roles:Merchant.delivered", {name: newpl.name, kit: kit_name}
         splashlog game.id,game,log
         game.ss.publish.user newpl.id,"refresh",{id:game.id}
         @setFlag query.Merchant_kit    # 発送済み
@@ -3659,7 +3659,7 @@ class Liar extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:liar.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Liar.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sunrise:(game)->
@@ -3668,7 +3668,7 @@ class Liar extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:liar.resultlog", {target: @results[@results.length-1].player.name, result: @results[@results.length-1].result}
+            comment: game.i18n.t "roles:Liar.resultlog", {target: @results[@results.length-1].player.name, result: @results[@results.length-1].result}
         splashlog game.id,game,log
     midnight:(game,midnightSort)->
         p=game.getPlayer @target
@@ -3711,7 +3711,7 @@ class Spy2 extends Player
         .join " "
         log=
             mode:"system"
-            comment: game.i18n.t "roles:spy2.found", {name: @name}
+            comment: game.i18n.t "roles:Spy2.found", {name: @name}
         splashlog game.id,game,log
         log2=
             mode:"will"
@@ -3744,7 +3744,7 @@ class Copier extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:copier.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Copier.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type
@@ -3777,7 +3777,7 @@ class Light extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:light.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Light.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -3890,11 +3890,11 @@ class Cupid extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:cupid.select1", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Cupid.select1", {name: @name, target: pl.name}
             splashlog game.id,game,log
             return null
         if @flag==playerid
-            return game.i18n.t "roles:cupid.noSelectTwice"
+            return game.i18n.t "roles:Cupid.noSelectTwice"
             
         @setTarget playerid
         # 恋人二人が決定した
@@ -3911,12 +3911,12 @@ class Cupid extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:cupid.select", {name: @name, target: newpl.name}
+                comment: game.i18n.t "roles:Cupid.select", {name: @name, target: newpl.name}
             splashlog game.id,game,log
             log=
                 mode:"skill"
                 to:newpl.id
-                comment: game.i18n.t "roles:cupid.become", {name: newpl.name}
+                comment: game.i18n.t "roles:Cupid.become", {name: newpl.name}
             splashlog game.id,game,log
         # 2人とも更新する
         for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
@@ -3952,7 +3952,7 @@ class Stalker extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:stalker.select", {name: @name, target: pl.name, job: pl.jobname}
+            comment: game.i18n.t "roles:Stalker.select", {name: @name, target: pl.name, job: pl.jobname}
         splashlog game.id,game,log
         @setFlag playerid  # ストーキング対象プレイヤー
         null
@@ -4009,14 +4009,14 @@ class Cursed extends Player
                 log=
                     mode:"skill"
                     to:@id
-                    comment: game.i18n.t "roles:cursed.becomeWerewolf", {name: @name}
+                    comment: game.i18n.t "roles:Cursed.becomeWerewolf", {name: @name}
             
                 newpl=Player.factory "Werewolf"
             else
                 log=
                     mode:"skill"
                     to:@id
-                    comment: game.i18n.t "roles:cursed.becomeVampire", {name: @name}
+                    comment: game.i18n.t "roles:Cursed.becomeVampire", {name: @name}
             
                 newpl=Player.factory "Vampire"
 
@@ -4086,14 +4086,14 @@ class Spellcaster extends Player
             arr=[]
         if playerid in arr
             # 既に呪いをかけたことがある
-            return game.i18n.t "roles:spellcaster.noSelectTwice"
+            return game.i18n.t "roles:Spellcaster.noSelectTwice"
         @setTarget playerid
         pl=game.getPlayer playerid
         pl.touched game,@id
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:spellcaster.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Spellcaster.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         arr.push playerid
         @setFlag JSON.stringify arr
@@ -4105,7 +4105,7 @@ class Spellcaster extends Player
         log=
             mode:"skill"
             to:t.id
-            comment: game.i18n.t "roles:spellcaster.cursed", {name: t.name}
+            comment: game.i18n.t "roles:Spellcaster.cursed", {name: t.name}
         splashlog game.id,game,log
         
         # 複合させる
@@ -4143,7 +4143,7 @@ class Priest extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:priest.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Priest.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4168,7 +4168,7 @@ class Prince extends Player
             @setFlag "used"    # 能力使用済
             log=
                 mode:"system"
-                comment: game.i18n.t "roles:prince.cancel", {name: @name, kjobname: @jobname}
+                comment: game.i18n.t "roles:Prince.cancel", {name: @name, kjobname: @jobname}
             splashlog game.id,game,log
             @addGamelog game,"princeCO"
         else
@@ -4186,7 +4186,7 @@ class PI extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:pi.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:PI.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -4222,10 +4222,10 @@ class PI extends Diviner
 
             resultstring=if nrs.length>0
                 @addGamelog game,"PIdivine",true,tpl.id
-                game.i18n.t "roles:pi.found", {name: @name, target: tpl.name, result: nrs.join ","}
+                game.i18n.t "roles:PI.found", {name: @name, target: tpl.name, result: nrs.join ","}
             else
                 @addGamelog game,"PIdivine",false,tpl.id
-                game.i18n.t "roles:pi.notfound", {name: @name, target: tpl.name}
+                game.i18n.t "roles:PI.notfound", {name: @name, target: tpl.name}
 
             @results.push {
                 player:game.getPlayer(@target).publicinfo()
@@ -4251,7 +4251,7 @@ class Sorcerer extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:sorcerer", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Sorcerer", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -4262,9 +4262,9 @@ class Sorcerer extends Diviner
         pl=game.getPlayer @target
         if pl?
             resultstring=if pl.isJobType "Diviner"
-                game.i18n.t "roles:sorcerer.found", {name: @name, target: pl.name}
+                game.i18n.t "roles:Sorcerer.found", {name: @name, target: pl.name}
             else
-                game.i18n.t "roles:sorcerer.notfound", {name: @name, target: pl.name}
+                game.i18n.t "roles:Sorcerer.notfound", {name: @name, target: pl.name}
             @results.push {
                 player: game.getPlayer(@target).publicinfo()
                 result: resultstring
@@ -4296,7 +4296,7 @@ class Doppleganger extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:doppleganger.select", {name: @name, target: game.getPlayer(playerid).name}
+            comment: game.i18n.t "roles:Doppleganger.select", {name: @name, target: game.getPlayer(playerid).name}
         splashlog game.id,game,log
         @setFlag playerid  # ドッペルゲンガー先
         null
@@ -4358,7 +4358,7 @@ class CultLeader extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:cultleader.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:CultLeader.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @addGamelog game,"brainwash",null,playerid
         null
@@ -4369,7 +4369,7 @@ class CultLeader extends Player
         log=
             mode:"skill"
             to:t.id
-            comment: game.i18n.t "roles:cultleader.become", {name: t.name}
+            comment: game.i18n.t "roles:CultLeader.become", {name: t.name}
 
         # 信者
         splashlog game.id,game,log
@@ -4412,7 +4412,7 @@ class Vampire extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:vampire.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Vampire.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4459,7 +4459,7 @@ class Cat extends Poisoner
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:cat.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Cat.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     jobdone:->@target?
@@ -4552,7 +4552,7 @@ class Witch extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:witch.selectPoison", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Witch.selectPoison", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else
             # 蘇生薬
@@ -4569,7 +4569,7 @@ class Witch extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:witch.selectRevival", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Witch.selectRevival", {name: @name, target: pl.name}
             splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4634,7 +4634,7 @@ class OccultMania extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:occultmania.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:OccultMania.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4723,12 +4723,12 @@ class Lover extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:lover.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Lover.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         log=
             mode:"skill"
             to:newpl.id
-            comment: game.i18n.t "roles:lover.become", {name: pl.name}
+            comment: game.i18n.t "roles:Lover.become", {name: pl.name}
         splashlog game.id,game,log
         # 2人とも更新する
         for pl in [this, pl]
@@ -4768,13 +4768,13 @@ class MinionSelector extends Player
         pl.transform game,newpl,true
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:minionselector", {name: @name, target: pl.name, jobname: pl.jobname}
+            comment: game.i18n.t "roles:MinionSelector", {name: @name, target: pl.name, jobname: pl.jobname}
         splashlog game.id,game,log
 
         log=
             mode:"skill"
             to:pl.id
-            comment: game.i18n.t "roles:minionselector.become", {name: pl.name}
+            comment: game.i18n.t "roles:MinionSelector.become", {name: pl.name}
         splashlog game.id,game,log
 
         null
@@ -4795,7 +4795,7 @@ class Thief extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:theif.candidates", {name: @name, jobnames: jobnames.join(",")}
+                comment: game.i18n.t "roles:Thief.candidates", {name: @name, jobnames: jobnames.join(",")}
             splashlog game.id,game,log
             if @scapegoat
                 # 身代わり君
@@ -4880,7 +4880,7 @@ class Dog extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:dog.select", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Dog.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             @setFlag playerid  # 飼い主
             @setTarget ""  # 襲撃対象はなし
@@ -4891,7 +4891,7 @@ class Dog extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:dog.attack", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Dog.attack", {name: @name, target: pl.name}
             splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -4939,7 +4939,7 @@ class Dictator extends Player
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
-            comment: game.i18n.t "roles:dictator.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Dictator.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
@@ -4957,9 +4957,9 @@ class SeersMama extends Player
             # 占い師を探す
             divs = game.players.filter (pl)->pl.isJobType "Diviner"
             divsstr=if divs.length>0
-                game.i18n.t "roles:seersmama.result", {name: @name, results: divs.map((x)->x.name).join(','), count: divs.length}
+                game.i18n.t "roles:SeesMama.result", {name: @name, results: divs.map((x)->x.name).join(','), count: divs.length}
             else
-                game.i18n.t "roles:seersmama.resultNone", {name: @name}
+                game.i18n.t "roles:SeesMama.resultNone", {name: @name}
             log=
                 mode:"skill"
                 to:@id
@@ -4986,7 +4986,7 @@ class Trapper extends Player
         unless playerid==@id && game.rule.guardmyself!="ok"
             if playerid==@flag
                 # 前も護衛した
-                return game.i18n.t "roles:trapper.noGuardSame"
+                return game.i18n.t "roles:Trapper.noGuardSame"
             @setTarget playerid
             @setFlag playerid
             pl=game.getPlayer(playerid)
@@ -4994,7 +4994,7 @@ class Trapper extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:trapper.select", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Trapper.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
             null
         else
@@ -5029,7 +5029,7 @@ class WolfBoy extends Madman
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:wolfboy.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:WolfBoy.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5072,13 +5072,13 @@ class Hoodlum extends Player
         plids=JSON.parse(@flag||"[]")
         if pl.id in plids
             # 既にいる
-            return game.i18n.t "roles:hoodlum.alreadySelected", {name: pl.name}
+            return game.i18n.t "roles:Hoodlum.alreadySelected", {name: pl.name}
         plids.push pl.id
         @setFlag JSON.stringify plids
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:hoodlum.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Hoodlum.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if plids.length>=2
             @setTarget ""
@@ -5161,7 +5161,7 @@ class QuantumPlayer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:quantumplayer.divine", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:QuantumPlayer.divine", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else if query.jobtype=="_Quantum_Werewolf" && !tarobj.Werewolf?
             if @id==playerid
@@ -5170,7 +5170,7 @@ class QuantumPlayer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:quantumplayer.attack", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:QuantumPlayer.attack", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else
             return game.i18n.t "error.common.invalidSelection"
@@ -5194,7 +5194,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment: game.i18n.t "roles:quantumplayer.divineResult", {name: @name, target: pl.name, result: "人狼"}
+                            comment: game.i18n.t "roles:QuantumPlayer.divineResult", {name: @name, target: pl.name, result: "人狼"}
                         splashlog game.id,game,log
                         # 人狼のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5206,7 +5206,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment: game.i18n.t "roles:quantumplayer.divineResult", {name: @name, target: pl.name, result: "村人"}
+                            comment: game.i18n.t "roles:QuantumPlayer.divineResult", {name: @name, target: pl.name, result: "村人"}
                         splashlog game.id,game,log
                         # 村人のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5219,7 +5219,7 @@ class QuantumPlayer extends Player
                     log=
                         mode:"skill"
                         to:@id
-                        comment: game.i18n.t "roles:quantumplayer.cannotDivine", {name: @name}
+                        comment: game.i18n.t "roles:QuantumPlayer.cannotDivine", {name: @name}
                     splashlog game.id,game,log
         if tarobj.Werewolf
             pl=game.getPlayer tarobj.Werewolf
@@ -5337,7 +5337,7 @@ class Counselor extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:counselor.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Counselor.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -5358,7 +5358,7 @@ class Counselor extends Player
             log=
                 mode:"skill"
                 to:t.id
-                comment: game.i18n.t "roles:counselor.rehabilitate", {name: t.name}
+                comment: game.i18n.t "roles:Counselor.rehabilitate", {name: t.name}
             splashlog game.id,game,log
             
             @addGamelog game,"counselSuccess",t.type,@target
@@ -5384,7 +5384,7 @@ class Miko extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:miko.select", {name: @name}
+            comment: game.i18n.t "roles:Miko.select", {name: @name}
         splashlog game.id,game,log
         @setFlag "using"
         null
@@ -5418,7 +5418,7 @@ class GreedyWolf extends Werewolf
             return game.i18n.t "error.common.cannotUseSkillNow"
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:greedywolf.select", {name: @name}
+            comment: game.i18n.t "roles:GreedyWolf.select", {name: @name}
         splashlog game.id,game,log
         game.werewolf_target_remain++
         game.werewolf_flag.push "GreedyWolf_#{@id}"
@@ -5470,7 +5470,7 @@ class FascinatingWolf extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:fascinatingwolf.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:FascinatingWolf.select", {name: @name, target: pl.name}
         @setFlag playerid
         splashlog game.id,game,log
         null
@@ -5497,7 +5497,7 @@ class FascinatingWolf extends Werewolf
         log=
             mode:"skill"
             to:pl.id
-            comment: game.i18n.t "roles:fascinatingwolf.affected", {name: pl.name}
+            comment: game.i18n.t "roles:FascinatingWolf.affected", {name: pl.name}
         splashlog game.id,game,log
     makejobinfo:(game,result)->
         super
@@ -5528,7 +5528,7 @@ class SolitudeWolf extends Werewolf
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:solitudewolf.turn", {name: @name}
+                comment: game.i18n.t "roles:SolitudeWolf.turn", {name: @name}
             splashlog game.id,game,log
         else if @flag && attackers.length>1
             # 複数いるのでやめる
@@ -5536,7 +5536,7 @@ class SolitudeWolf extends Werewolf
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:solitudewolf.noturn", {name: @name}
+                comment: game.i18n.t "roles:SolitudeWolf.noturn", {name: @name}
             splashlog game.id,game,log
         super
     getSpeakChoice:(game)->
@@ -5565,7 +5565,7 @@ class ToughWolf extends Werewolf
             return game.i18n.t "error.common.nonexistentPlayer"
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:toughwolf.select", {name: @name, target: tp.name}
+            comment: game.i18n.t "roles:ToughWolf.select", {name: @name, target: tp.name}
         splashlog game.id,game,log
         null
 class ThreateningWolf extends Werewolf
@@ -5597,7 +5597,7 @@ class ThreateningWolf extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:threateningwolf.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:ThreateningWolf.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sunset:(game)->
@@ -5612,7 +5612,7 @@ class ThreateningWolf extends Werewolf
         log=
             mode:"skill"
             to:t.id
-            comment: game.i18n.t "roles:threateningwolf.affected", {name: t.name}
+            comment: game.i18n.t "roles:ThreateningWolf.affected", {name: t.name}
         splashlog game.id,game,log
 
         newpl=Player.factory null,t,null,Threatened  # カウンセリングされた

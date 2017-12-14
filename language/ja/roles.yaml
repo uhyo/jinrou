@@ -1,7 +1,7 @@
 # Terms for each role.
 
 # Diviner
-diviner:
+Diviner:
   # Divine result
   result:
     human: "村人"
@@ -13,28 +13,28 @@ diviner:
   resultlog: "{{name}}が{{target}}を占ったところ、{{result}}でした。"
 
 # Psychic
-psychic:
+Psychic:
   result:
     human: "村人"
   # Psychi result.
   resultlog: "{{name}}の霊能の結果、前日処刑された{{target}}は{{result}}でした。"
 
 # Werewolf
-werewolf:
+Werewolf:
   # Error: Werewolves cannot eat each other
   noWolfAttack: "人狼は人狼を襲撃できません。"
   # Selected a target.
   select: "{{name}}たち人狼は{{target}}に狙いを定めました。"
 
 # Guard
-guard:
+Guard:
   # Error: a Guard cannot guard a same player twice in a row
   noGuardSame: "同じ人を連続で護衛することはできません。"
   # Selected a target.
   select: "{{name}}は{{target}}を護衛しました。"
 
 # TinyFox
-tinyfox:
+TinyFox:
   # Successful result of divine by TinyFOx.
   resultlog_success: "{{name}}の占いの結果、{{target}}は{{result}}ぽい人かな？"
   # Failure
@@ -42,26 +42,26 @@ tinyfox:
 
 
 # Magician
-magician:
+Magician:
   select: "{{name}}は{{target}}に死者蘇生術をかけました。"
 
 # Spy
-spy:
+Spy:
   select: "{{name}}は村を去ることに決めました。"
 
 # WolfDiviner
-wolfdiviner:
+WolfDiviner:
   select: "{{name}}は{{target}}を人狼占いで占いました。"
   resultlog: "{{name}}が{{target}}を人狼占いで占ったところ、{{result}}でした。"
 
 # Fugitive
-fugitive:
+Fugitive:
   noSelf: "自分の家へは逃げられません。"
   select: "{{name}}は{{target}}の家の近くへ逃亡しました。"
 
 
 # Merchant
-merchant:
+Merchant:
   # Name of kits.
   kit:
     Diviner: "占いセット"
@@ -74,29 +74,29 @@ merchant:
   delivered: "{{name}}に{{kit}}が到着しました。"
 
 # Liar
-liar:
+Liar:
   # Select a target.
-  select: "$t(diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  select: "$t(Diviner.select, {'name': {{name}}, 'target': {{target}} })"
   # Result.
   resultlog: "あんまり自信ないけど、霊能占いの結果、{{target}}は{{result}}}だと思う。たぶん。"
 
 # Spy2
-spy2:
+Spy2:
   # His report is found.
   found: "{{name}}の調査報告書が発見されました。"
 
 # Copier
-copier:
+Copier:
   # Selected a target.
   select: "{{name}}が{{target}}の能力をコピーしました。"
 
 # Light
-light:
+Light:
   # Selected a target.
   select: "{{name}}が{{target}}の名前を死神の手帳に書きました。"
 
 # Cupid
-cupid:
+Cupid:
   # First select.
   select1: "{{name}}は恋人の1人目に{{target}}を選びました。"
   # Error: select another player
@@ -107,19 +107,19 @@ cupid:
   become: "{{name}}は恋人になりました。"
 
 # Stalker
-stalker:
+Stalker:
   # Selected a target.
   select: "{{name}}は{{target}}（{{job}}）のストーカーになりました。"
 
 # Cursed
-cursed:
+Cursed:
   # became a werewolf.
   becomeWerewolf: "{{name}}は呪われて人狼になりました。"
   # became a vampire.
   becomeVampire: "{{name}}は呪われてヴァンパイアになりました。"
 
 # Spellcaster
-spellcaster:
+Spellcaster:
   # Error: this player is already cursed
   noSelectTwice: "その対称には既に呪いをかけています。"
   # Selected a target.
@@ -128,17 +128,17 @@ spellcaster:
   cursed: "{{name}}は呪いをかけられました。昼に発言できません。"
 
 # Priest
-priest:
+Priest:
   # Selected a target.
   select: "{{name}}が{{target}}を聖なる力で守りました。"
 
 # Prince
-prince:
+Prince:
   # Canceled a punishment.
   cancel: "{{name}}は{{jobname}}でした。処刑は行われませんでした。"
 
 # PI
-pi:
+PI:
   # selected a target.
   select: "{{name}}が{{target}}とその両隣を調査しました。"
   # result (something found)
@@ -147,7 +147,7 @@ pi:
   notfound: "{{name}}が{{target}}とその両隣を調査したところ、全員村人でした。"
 
 # Sorcerer
-sorcerer:
+Sorcerer:
   # Select a target.
   select: "{{name}}が{{target}}を調べました。"
   # Result (diviner found)
@@ -156,144 +156,144 @@ sorcerer:
   notfound: "{{name}}が{{target}}を調べたところ、占い師ではありませんでした。"
 
 # Doppleganger
-doppleganger:
+Doppleganger:
   # Select a target.
   select: "{{name}}が{{target}}のドッペルゲンガーになりました。"
 
 # CultLeader
-cultleader:
+CultLeader:
   # Select a target.
   select: "{{name}}が{{target}}を信者にしました。"
   # Became a cult member.
   become: "{{name}}はカルトの信者になりました。"
 
 # Vampire
-vampire:
+Vampire:
   # Select a target.
   select: "{{name}}が{{target}}を襲撃しました。"
 
 # Cat
-cat:
+Cat:
   # Select a target.
   select: "{{name}}は{{target}}に死者蘇生術をかけました。"
 
 # Witch
-witch:
+Witch:
   # Select a target of poison.
   selectPoison: "{{name}}は{{target}}に毒薬を使いました。"
   # Select a target of revival.
   selectRevival: "{{name}}は{{target}}に蘇生薬を使いました。"
 
 # OccultMania
-occultmania:
+OccultMania:
   # Select a target.
   select: "{{name}}は{{target}}を指定しました。"
 
 # Lover
-lover:
+Lover:
   # Select a target.
   select: "{{name}}は{{target}}に求愛しました。"
   # Become a lover.
   become: "{{name}}は求愛されて恋人になりました。"
 
 # MinionSelector
-minionselector:
+MinionSelector:
   # Select a target.
   select: "{{name}}は{{target}}（{{jobname}}）を狼の子分に指定しました。"
   # Become a wolfminion.
   become: "{{name}}は狼の子分になりました。"
 
 # Theif
-thief:
+Thief:
   # Candidates are shown.
   candidates: "{{name}}が選択可能な役職は{{jobnames}}です。"
 
 # Dog
-dog:
+Dog:
   # Select an owner.
   select: "{{name}}は{{target}}を飼い主に選びました。"
   # Attack the owner.
   attack: "{{name}}が{{target}}を襲撃しました。"
 
 # Dictator
-dictator:
+Dictator:
   # Select a punishment target.
   select: "独裁者の{{name}}により、{{target}}の処刑が宣言されました。"
 
 # SeersMama
-seersmama:
+SeersMama:
   # There is no seer.
   resultNone: "{{name}}は占い師のママです。占い師はいません。"
   # There are one or more seer. (number is given as count)
   result: "{{name}}は占い師のママです。占い師は{{results}}です。"
 
 # Trapper
-trapper:
-  noGuardSame: "$t(guard.noGuardSame)"
+Trapper:
+  noGuardSame: "$t(Guard.noGuardSame)"
   # Select a target.
   select: "{{name}}は{{target}}を罠で護衛しました。"
 
 # WolfBoy
-wolfboy:
+WolfBoy:
   # Select a target.
   select: "{{name}}は{{target}}を人狼に仕立てました。"
 
 
 # Hoodlum
-hoodlum:
+Hoodlum:
   # Error: this player is already selected
   alreadySelected: "{{name}}は既に対象に選択しています。"
   # Select a target.
   select: "{{name}}は{{target}}を恨んでいます。"
 
 # QuantumPlayer
-quantumplayer:
+QuantumPlayer:
   # Select a target of divine.
-  divine: "$t(diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  divine: "$t(Diviner.select, {'name': {{name}}, 'target': {{target}} })"
   # Select a target of werewolf attack.
-  attack: "$t(werewolf.select, {'name': {{name}}, 'target': {{target}} })"
+  attack: "$t(Werewolf.select, {'name': {{name}}, 'target': {{target}} })"
   # Result of divine
-  divineResult: "$t(diviner.resultlog, {'name': {{name}}, 'target': {{target}}, 'result': {{result}} })"
+  divineResult: "$t(Diviner.resultlog, {'name': {{name}}, 'target': {{target}}, 'result': {{result}} })"
   # Cannot divine.
   cannotDivine: "{{name}}が生存中の占い師である可能性が無くなったので、占えませんでした。"
 
 # Counselor
-counselor:
+Counselor:
   # Select a target.
   select: "{{name}}が{{target}}をカウンセリングしました。"
   # Rehabilitated
   rehabilitate: "{{name}}はカウンセリングされて更生しました。"
 
 # Miko
-miko:
+Miko:
   # Select a self protection.
   select: "{{name}}が聖なる力で自身を守りました。"
 
 # GreedyWolf
-greedywolf:
+GreedyWolf:
   # Select a greed.
   select: "{{name}}は欲張りました。人狼たちはもう1人襲撃できます。"
 
 # FascinatingWolf
-fascinatingwolf:
+FascinatingWolf:
   # Select a target.
   select: "{{name}}は{{target}}を誘惑しようとしています。"
   # Affected by her.
   affected: "{{name}}は狼に誘惑されました。"
 
 # SolitudeWolf
-solitudewolf:
+SolitudeWolf:
   # A turn of solitudewolf comes
   turn: "{{name}}は襲撃できるようになりました。"
   # Another wolf's turn!
   noturn: "他にも人狼がいるようです。{{name}}は襲撃できなくなりました。"
 
 # ToughWolf
-toughwolf:
+ToughWolf:
   # Select a tough attack
   select: "{{name}}は捨て身の覚悟で{{target}}を狙っています。"
 # ThreateningWolf
-threateningwolf:
+ThreateningWolf:
   # Select a threatening.
   select: "{{name}}は{{target}}を威嚇しました。"
   # Affected by threatening.
