@@ -315,3 +315,165 @@ TroubleMaker:
   # System announce that a trouble has happened.
   # A number of punished players is given as count.
   announce: "トラブルメーカーにより村が混乱しています。今日は{{count}}人処刑されます。"
+
+FrankensteinsMonster:
+  # Drained a role from a body.
+  drain: "{{name}}は{{target}}の死体から{{jobname}}の能力を吸収しました。"
+
+BloodyMary:
+  # Select a target.
+  select: "{{name}}は{{target}}を呪っています。"
+
+SantaClaus:
+  # Error: this player is already given a present.
+  noSelectTwice: "その人にはもうプレゼントを届けられません。"
+  # Select a target.
+  select: "{{name}}は{{target}}にプレゼントを届けました。"
+  # Log of delivered presents.
+  deliver:
+    # A poison present is delivered.
+    poison: "{{name}}に毒入りプレゼントが届きました。"
+    # internal: a template for present delivery.
+    _log: "{{name}}に{{thing}}が到着しました。"
+    # HolyMarked set
+    HolyMarked: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖痕者セット'})"
+    # Oldman set
+    Oldman: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '玉手箱'})"
+    # Priest set
+    Priest: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖職者セット'})"
+    # Miko set
+    Miko: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': 'コスプレセット（巫女）'})"
+    # Diviner set
+    Diviner: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '占いセット'})"
+    # Guard set
+    Guard: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '狩人セット'})"
+    # Psychic set
+    Psychic: "$t(SantaClaus.deliver._log, {'name': {{name}}, 'thing': '霊能セット'})"
+
+Phantom:
+  # Select not to seal a role.
+  selectNoSteal: "{{name}}は役職を盗みませんでした。"
+  # Select to steal.
+  select: "{{name}}が{{target}}の役職を盗みました。{{target}}は{{jobname}}でした。"
+
+BadLady:
+  # Select a main friend.
+  selectMain: "{{name}}は{{target}}を本命の相手に選びました。"
+  # Select a keep friend.
+  selectKeep: "{{name}}は{{target}}を手玉に取りました。"
+  # Become a lover to a BadLady.
+  become: "$t(Lover.become, {'name': {{name}} })"
+
+DrawGirl:
+  # Reveal that a player is a DrawGirl.
+  reveal: "{{name}}は看板娘でした。今日は{{count}}人処刑されます。"
+
+CautiousWolf:
+  # Select not to attack.
+  selectNoAttack: "{{name}}たち人狼は襲撃しませんでした。"
+
+Pyrotechnist:
+  # Select to launch fireworks.
+  select: "{{name}}は花火を打ち上げる準備をしています。"
+  # System log that fireworks is fired.
+  affect: "きれいな花火が打ち上がりました。今夜は能力を使用できません。"
+
+Baker:
+  # System log that a Baker is alive.
+  alive: "パン屋がおいしいパンを焼いてくれたそうです。"
+  # System log that a Baker has dead.
+  dead: "今日からはもうおいしいパンが食べられません。"
+
+Bomber:
+  # Select to set a bomb.
+  select: "{{name}}は{{target}}に爆弾を仕掛けました。"
+
+Blasphemy:
+  # Select to perform a blasphemy.
+  select: "{{name}}は{{target}}を冒涜しました。"
+
+Ushinotokimairi:
+  # Select to perform a curse.
+  select: "{{name}}が{{target}}に呪いをかけました。"
+
+Patissiere:
+  # select a main friend.
+  select: "{{name}}は{{target}}を本命に選びました。"
+  # Chocolate is delivered.
+  deliver: "{{name}}にチョコレートが届きました。"
+  # Become a lover with.
+  become: "{{name}}は{{target}}と恋人になりました。"
+
+GotChocolate:
+  # I'm a main friend!
+  main: "{{name}}が食べたチョコレートは本命でした。{{name}}は{{target}}と恋人になりました。"
+  # I'm not a main friend!
+  sub: "{{name}}が食べたチョコレートは義理でした。"
+  # Rare pattern: no lover.
+  noLover: "{{name}}はチョコレートを食べましたが、何も起こりませんでした。"
+  # Chocolate results
+  result:
+    # Cursed chocolate
+    cursed: "{{name}}が食べたチョコレートは呪いのチョコレートでした。次の昼は発言できません。"
+    # Black chocolate
+    black: "{{name}}が食べたチョコレートはブラックチョコレートでした。占い・霊能結果が人狼になりました。"
+    # White chocolate
+    white: "{{name}}が食べたチョコレートはホワイトチョコレートでした。占い・霊能結果が村人になりました。"
+    # Poison chocolate
+    poison: "{{name}}が食べたチョコレートは毒入りチョコでした。"
+    # Stalker
+    stalker: "{{name}}は執念でチョコレートの差出人を探し出しました。{{name}}は{{target}}のストーカーになりました。"
+    # Vampire chocolate
+    vampire: "{{name}}が食べたチョコレートはなんだか鉄の味がしました。占い結果がヴァンパイアになりました。"
+    # Priest
+    priest: "{{name}}が食べたチョコレートは聖なるチョコでした。聖職者の能力を1度使えます。"
+
+MadDog:
+  # Select a target of an attack.
+  select: "{{name}}が{{target}}を襲撃しました。"
+
+Hypnotist:
+  # Select a target of hypnosis.
+  select: "{{name}}が{{target}}に催眠術をかけました。"
+
+CraftyWolf:
+  # Select to craft a fake die
+  select: "{{name}}は死んだふりをしました。"
+  # Select to cancel a fake die
+  cancel: "{{name}}は死んだふりをやめました。"
+
+Shishimai:
+  # Error: that player is already bitten
+  noSelectTwice: "そのプレイヤーは既に噛みました。"
+  # Select a target.
+  select: "{{name}}が{{target}}を噛みました。"
+
+Pumpkin:
+  # Select a pumpkinize target.
+  select: "{{name}}が{{target}}をかぼちゃにしました。"
+
+MadScientist:
+  # Select a revival target.
+  select: "{{name}}は{{target}}に蘇生措置を施しました。"
+  # become a wolfminion.
+  become: "$t(MinionSelector.become, {'name': {{name}} })"
+
+Forensic:
+  # Select a target.
+  select: "{{name}}は{{target}}の死体を調べました。"
+  # The target had a death resistance.
+  resultYes: "{{name}}の調べによると、{{target}}は死亡耐性を持っていました。"
+  # The target did not have a death resistance.
+  resultNo: "{{name}}の調べによると、{{target}}は死亡耐性を持っていませんでした。"
+
+Ninja:
+  # Select a target.
+  select: "{{name}}は{{target}}を偵察しました。"
+  # Result (yes)
+  resultYes: "{{name}}の偵察の結果、{{target}}は夜に行動可能でした。"
+  # Result (no)
+  resultNo: "{{name}}の偵察の結果、{{target}}は夜に行動していませんでした。"
+
+Hunter:
+  # Select a hunting target.
+  select: "{{name}}は{{target}}を銃撃しました。"
