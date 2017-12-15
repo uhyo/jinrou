@@ -7254,9 +7254,9 @@ class GameMaster extends Player
                 # 死亡させる
                 pl=game.getPlayer playerid
                 unless pl?
-                    return "その対象は不正です"
+                    return game.i18n.t "error.common.nonexistentPlayer"
                 if pl.dead
-                    return "そのプレイヤーは既に死亡しています"
+                    return game.i18n.t "error.common.alreadyDead"
                 pl.die game,"gmpunish"
                 game.bury("other")
                 return null
@@ -7264,9 +7264,9 @@ class GameMaster extends Player
                 # 蘇生させる
                 pl=game.getPlayer playerid
                 unless pl?
-                    return "その対象は不正です"
+                    return game.i18n.t "error.common.nonexistentPlayer"
                 if !pl.dead
-                    return "そのプレイヤーは死亡していません"
+                    return game.i18n.t "error.common.notDead"
                 pl.revive game
                 if !pl.dead
                     if Phase.isNight(game.phase)
@@ -7276,7 +7276,7 @@ class GameMaster extends Player
                         # 昼のときは投票可能に
                         pl.votestart game
                 else
-                    return "プレイヤーを蘇生できませんでした"
+                    return game.i18n.t "roles:GameMaster.reviveFail"
                 return null
             when "longer"
                 # 時間延長
@@ -7288,7 +7288,7 @@ class GameMaster extends Player
                 # 時間短縮
                 remains = game.timer_start + game.timer_remain - Date.now()/1000
                 if remains <= 30
-                    return "残り時間が短いため短縮できません"
+                    return game.i18n.t "roles:GameMaster.shortenFail"
                 clearTimeout game.timerid
                 game.timer remains-30
                 return null
@@ -7349,15 +7349,15 @@ class Helper extends Player
     getSpeakChoiceDay:(game)->@getSpeakChoice game
     job:(game,playerid)->
         if @flag?
-            return "既にヘルプ先が決定しています"
+            return game.i18n.t "error.common.cannotUseSkillNow"
         pl=game.getPlayer playerid
         unless pl?
-            return "ヘルプ先が存在しません"
+            return game.i18n.t "error.common.nonexistentPlayer"
         @flag=playerid
         log=
             mode:"skill"
             to:playerid
-            comment:"#{@name}が#{pl.name}のヘルパーになりました。"
+            comment: game.i18n.t "roles:Helper.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         # 自分の表記を改める
         game.splashjobinfo [this]
@@ -7397,7 +7397,7 @@ class Waiting extends Player
         if game.day==0 && game.phase == Phase.rolerequesting
             # 開始前
             result=[{
-                name:"おまかせ"
+                name: game.i18n.t "roles:Waiting.none"
                 value:""
             }]
             for job,num of game.joblist
@@ -7415,12 +7415,12 @@ class Waiting extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は#{Shared.game.getjobname target}を希望しました。"
+                comment: game.i18n.t "roles:Waiting.select", {name: @name, jobname: Shared.game.getjobname target}
         else
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は希望役職をおまかせにしました。"
+                comment: game.i18n.t "roles:Waiting.selectNone", {name: @name}
         splashlog game.id,game,log
         null
 # エンドレス闇鍋でまだ入ってないやつ
@@ -7734,7 +7734,7 @@ class HolyProtected extends Complex
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は聖なる力で守られました。"
+            comment: game.i18n.t "roles:HolyProtected.guarded", {name: @name}
         splashlog game.id,game,log
         game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
         
@@ -7768,7 +7768,7 @@ class Guarded extends Complex
                     log=
                         mode:"skill"
                         to:guard.id
-                        comment:"#{guard.name}が#{@name}の護衛に成功しました。"
+                        comment: game.i18n.t "roles:Guard.gj", {guard: guard.name, name: @name}
                     splashlog game.id,game,log
 
     sunrise:(game)->
@@ -7821,7 +7821,7 @@ class Drunk extends Complex
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}は目が覚めました。"
+                comment: game.i18n.t "roles:Drunk.awake", {name: @name}
             splashlog game.id,game,log
             @uncomplex game
             game.ss.publish.user @realid,"refresh",{id:game.id}
@@ -7899,7 +7899,7 @@ class TrapGuarded extends Complex
                     log=
                         mode:"skill"
                         to:guard.id
-                        comment:"#{guard.name}の罠により#{@name}が襲撃から守られました。"
+                        comment: game.i18n.t "roles:Trapper.gj", {guard: guard.name, name: @name}
                     splashlog game.id,game,log
             # 反撃する
             canbedead=[]
@@ -8004,7 +8004,7 @@ class DivineObstructed extends Complex
             log=
                 mode:"skill"
                 to:@id
-                comment:"#{@name}が#{pl.name}を占いましたが、何者かに邪魔されました。"
+                comment: game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}
             splashlog game.id,game,log
     dodivine:(game)->
         # 占おうとした。邪魔成功
@@ -8028,7 +8028,7 @@ class PhantomStolen extends Complex
         log=
             mode:"skill"
             to:@id
-            comment:"#{@name}は役職を盗まれて#{newpl.getJobDisp()}になりました。"
+            comment: game.i18n.t "roles:Phantom.stolen", {name: @name, jobname: newpl.getJobDisp()}
         splashlog game.id,game,log
         # 夜の初期化
         pl=game.getPlayer @id
@@ -8720,7 +8720,7 @@ module.exports.actions=(req,res,ss)->
     gameStart:(roomid,query)->
         game=games[roomid]
         unless game?
-            res "そのゲームは存在しません"
+            res i18n.t "error.common.noSuchGame"
             return
         Server.game.rooms.oneRoomS roomid,(room)->
             if room.error?
@@ -8728,13 +8728,13 @@ module.exports.actions=(req,res,ss)->
                 return
             unless room.mode=="waiting"
                 # すでに開始している
-                res "そのゲームは既に開始しています"
+                res game.i18n.t "error.gamestart.alreadyStarted"
                 return
             if room.players.some((x)->!x.start)
-                res "まだ全員の準備ができていません"
+                res game.i18n.t "error.gamestart.notReady"
                 return
             if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
-                res "「配役公開」オプションは闇鍋またはGMありのときだけ利用できます"
+                res game.i18n.t "error.gamestart.noHiddenRole"
                 return
 
 
@@ -8753,7 +8753,7 @@ module.exports.actions=(req,res,ss)->
             }
             # 不正なアレははじく
             unless Number.isFinite(ruleobj.day) && Number.isFinite(ruleobj.night) && Number.isFinite(ruleobj.remain) && Number.isFinite(ruleobj.voting)
-                res "時間の選択が不正です"
+                res game.i18n.t "error.gamestart.invalidTime"
                 return
             
             options={}  # オプションズ
@@ -8778,17 +8778,17 @@ module.exports.actions=(req,res,ss)->
             playersnumber=frees
             # 人数の確認
             if frees<6
-                res "人数が少なすぎるので開始できません。身代わりくんを含めて6人必要です。"
+                res game.i18n.t "error.gamestart.playerNotEnough", {count: 6}
                 return
             if query.jobrule=="特殊ルール.量子人狼" && frees>=20
                 # 多すぎてたえられない
-                res "人数が多過ぎます。量子人狼では人数を19人以下にして下さい。"
+                res game.i18n.t "error.gamestart.tooManyQuantum", {count: 19}
                 return
             # ケミカル人狼の場合
             if query.chemical=="on"
                 # 闇鍋と量子人狼は無理
                 if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.量子人狼"]
-                    res "このルールでケミカル人狼はできません。"
+                    res game.i18n.t "error.gamestart.noChemical"
                     return
                 
             ruleinfo_str="" # 開始告知
@@ -9429,10 +9429,8 @@ module.exports.actions=(req,res,ss)->
                     query.divineresult="sunrise"
                     log=
                         mode:"system"
-                        comment:"占い結果に影響する役職が存在するので、占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。"
+                        comment: game.i18n.t "system.gamestart.divinerModeChanged"
                     splashlog game.id,game,log
-
-
 
             else if query.jobrule=="特殊ルール.量子人狼"
                 # 量子人狼のときは全員量子人間だけど役職はある
@@ -9466,7 +9464,7 @@ module.exports.actions=(req,res,ss)->
                 # 配役に従ってアレする
                 func=Shared.game.getrulefunc query.jobrule
                 unless func
-                    res "不明な配役です"
+                    res game.i18n.t "error.gamestart.unknownCasting"
                     return
                 joblist=func frees
                 sum=0   # 穴を埋めつつ合計数える
@@ -9504,7 +9502,7 @@ module.exports.actions=(req,res,ss)->
                 exclude_str = excluded_exceptions.map((job)-> Shared.game.getjobname job).join ", "
                 log=
                     mode:"system"
-                    comment:"除外役職：#{exclude_str}"
+                    comment: game.i18n.t "system.gamestart.excluded", {jobnames: exclude_str}
                 splashlog game.id,game,log
 
             
@@ -9581,7 +9579,7 @@ module.exports.actions=(req,res,ss)->
                 res null
                 log=
                     mode:"system"
-                    comment:"このゲームは希望役職制です。希望の役職を選択してください。"
+                    comment: game.i18n.t "system.gamestart.roleRequesting"
                 splashlog game.id,game,log
                 game.timer()
                 ss.publish.channel "room#{roomid}","refresh",{id:roomid}
@@ -9607,7 +9605,7 @@ module.exports.actions=(req,res,ss)->
                 console.error err
                 res {error: err}
             else if !doc?
-                res {error: "そのゲームは存在しません"}
+                res {error: i18n.t "error.common.noSuchGame"}
             else
                 unless games[roomid]?
                     games[roomid] = Game.unserialize doc,ss
@@ -9631,27 +9629,27 @@ module.exports.actions=(req,res,ss)->
     speak: (roomid,query)->
         game=games[roomid]
         unless game?
-            res "そのゲームは存在しません"
+            res i18n.t "error.common.noSuchGame"
             return
         unless req.session.userId
-            res "ログインして下さい"
+            res game.i18n.t "error.common.needLogin"
             return
         unless query?
-            res "不正な操作です"
+            res game.i18n.t "error.common.invalidQuery"
             return
         comment=query.comment
         unless comment
-            res "コメントがありません"
+            res game.i18n.t "error.common.invalidQuery"
             return
         if comment.length > Config.maxlength.game.comment
-            res "コメントが長すぎます"
+            res game.i18n.t "error.speak.tooLong"
             return
         player=game.getPlayerReal req.session.userId
 
         unless player?
             # 観戦発言に対するチェック
             unless libblacklist.checkPermission "watch_say", req.session.ban
-                res "アクセス制限により、発言できません。"
+                res game.i18n.t "error.speak.ban"
                 return
         # 発言できない時間帯
         if !game.finished  && Phase.isRemain(game.phase)   # 投票猶予時間は発言できない
@@ -9773,17 +9771,17 @@ module.exports.actions=(req,res,ss)->
     job:(roomid,query)->
         game=games[roomid]
         unless game?
-            res {error:"そのゲームは存在しません"}
+            res {error: i18n.t "error.common.noSuchGame"}
             return
         unless req.session.userId
-            res {error:"ログインして下さい"}
+            res {error: game.i18n.t "error.common.needLogin"}
             return
         player=game.getPlayerReal req.session.userId
         unless player?
-            res {error:"参加していません"}
+            res {error: game.i18n.t "error.common.notPlayer"}
             return
         unless player in game.participants
-            res {error:"参加していません"}
+            res {error: game.i18n.t "error.common.notPlayer"}
             return
         ###
         if player.dead && player.deadJobdone game
@@ -9793,7 +9791,7 @@ module.exports.actions=(req,res,ss)->
         jt=player.getjob_target()
         sl=player.makeJobSelection game
         unless player.checkJobValidity game,query
-            res {error:"対象選択が不正です"}
+            res {error: game.i18n.t "error.job.invalid"}
             return
         if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
             # 夜
@@ -9805,10 +9803,10 @@ module.exports.actions=(req,res,ss)->
                 else
                     player.jobdone(game)
             if jdone
-                res {error:"既に能力を行使しています"}
+                res {error: game.i18n.t "error.job.done"}
                 return
             unless player.isJobType query.jobtype
-                res {error:"役職が違います"}
+                res {error: game.i18n.t "error.job.invalid"}
                 return
             # エラーメッセージ
             if ret=player.job game,query.target,query
@@ -9831,11 +9829,11 @@ module.exports.actions=(req,res,ss)->
         else
             # 投票
             unless player.checkJobValidity game,query
-                res {error:"対象を選択してください"}
+                res {error: game.i18n.t "error.voting.noTarget"}
                 return
             if game.rule.voting > 0 && game.phase == Phase.day
                 # 投票専用時間ではない
-                res {error: "まだ投票できません"}
+                res {error: game.i18n.t "error.voting.notNow"}
                 return
             err=player.dovote game,query.target
             if err?
@@ -9855,20 +9853,20 @@ module.exports.actions=(req,res,ss)->
     will:(roomid,will)->
         game=games[roomid]
         unless game?
-            res "そのゲームは存在しません"
+            res i18n.t "error.common.noSuchGame"
             return
         unless req.session.userId
-            res "ログインして下さい"
+            res game.i18n.t "error.common.needLogin"
             return
         unless !game.rule || game.rule.will
-            res "遺言は使えません"
+            res game.i18n.t "error.will.noWill"
             return
         player=game.getPlayerReal req.session.userId
         unless player?
-            res "参加していません"
+            res game.i18n.t "error.common.notPlayer"
             return
         if player.dead
-            res "お前は既に死んでいる"
+            res game.i18n.t "error.will.alreadyDead"
             return
         player.setWill will
         res null
@@ -9876,18 +9874,18 @@ module.exports.actions=(req,res,ss)->
     norevive:(roomid)->
         game=games[roomid]
         unless game?
-            res "そのゲームは存在しません"
+            res i18n.t "error.common.noSuchGame"
             return
         unless req.session.userId
-            res "ログインして下さい"
+            res game.i18n.t "error.common.needLogin"
             return
         player=game.getPlayerReal req.session.userId
         unless player?
-            res "参加していません"
+            res game.i18n.t "error.common.notPlayer"
         player.setNorevive true
         log=
             mode:"userinfo"
-            comment:"#{player.name}は蘇生を辞退しました。"
+            comment: game.i18n.t "system.declineRevival", {name: player.name}
             to:player.id
         splashlog roomid,game,log
         # 全員に通知
@@ -9937,16 +9935,16 @@ makelogsFor=(game,player,log)->
         # 狼の遠吠えが聞こえる
         otherslog=
             mode:"werewolf"
-            comment:"アオォーーン・・・"
-            name:"狼の遠吠え"
+            comment: game.i18n.t "logs.werewolf.comment"
+            name: game.i18n.t "logs.werewolf.name"
             time:log.time
         return [otherslog]
     if log.mode in ["couple", "madcouple"] && game.rule.couplesound=="aloud"
         # 共有者の小声が聞こえる
         otherslog=
             mode:"couple"
-            comment:"ヒソヒソ・・・"
-            name:"共有者の小声"
+            comment: game.i18n.t "logs.couple.comment"
+            name: game.i18n.t "logs.couple.name"
             time:log.time
         return [otherslog]
     if log.mode=="heaven" && log.possess_name?

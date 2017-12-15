@@ -32,6 +32,8 @@ Guard:
   noGuardSame: "同じ人を連続で護衛することはできません。"
   # Selected a target.
   select: "{{name}}は{{target}}を護衛しました。"
+  # Log of GJ
+  gj: "{{guard}}が{{name}}の護衛に成功しました。"
 
 # TinyFox
 TinyFox:
@@ -232,6 +234,8 @@ Trapper:
   noGuardSame: "$t(Guard.noGuardSame)"
   # Select a target.
   select: "{{name}}は{{target}}を罠で護衛しました。"
+  # GJ log.
+  gj: "{{guard}}の罠により{{name}}が襲撃から守られました。"
 
 # WolfBoy
 WolfBoy:
@@ -308,6 +312,8 @@ WanderingGuard:
 ObstructiveMad:
   # Select a target.
   select: "{{name}}が{{target}}を邪魔しました。"
+  # a Diviner is blocked.
+  blocked: "{{name}}が{{target}}を占いましたが、何者かに邪魔されました。"
 
 TroubleMaker:
   # Select to make a trouble.
@@ -355,6 +361,8 @@ Phantom:
   selectNoSteal: "{{name}}は役職を盗みませんでした。"
   # Select to steal.
   select: "{{name}}が{{target}}の役職を盗みました。{{target}}は{{jobname}}でした。"
+  # A job is stolen.
+  stolen: "{{name}}は役職を盗まれて{{jobname}}になりました。"
 
 BadLady:
   # Select a main friend.
@@ -477,3 +485,30 @@ Ninja:
 Hunter:
   # Select a hunting target.
   select: "{{name}}は{{target}}を銃撃しました。"
+
+GameMaster:
+  # Failed to revive.
+  reviveFail: "プレイヤーを蘇生できませんでした。"
+  # Failed to shorten time.
+  shortenFail: "残り時間が短いため短縮できません。"
+
+Helper:
+  # Select a help target.
+  select: "{{name}}が{{target}}のヘルパーになりました。"
+
+Waiting:
+  # No preference.
+  none: "おまかせ"
+  # Select a preference of job.
+  select: "{{name}}は{{jobname}}を希望しました。"
+  # Select none.
+  selectNone: "{{name}}は希望役職をおまかせにしました。"
+
+##### Sub jobs!
+HolyProtected:
+  guarded: "{{name}}は聖なる力で守られました。"
+
+Drunk:
+  # Awake from drunk.
+  awake: "{{name}}は目が覚めました。"
+

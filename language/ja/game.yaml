@@ -6,6 +6,7 @@ common:
 error:
   # Common error message
   common:
+    ## game-related
     # That player does not exist
     nonexistentPlayer: "そのプレイヤーは存在しません。"
     # That player is already dead
@@ -24,6 +25,15 @@ error:
     notDead: "そのプレイヤーは死亡していません。"
     # Do not select scapegoat.
     noScapegoat: "$t(common.scapegoat)は選べません。"
+    ## others
+    # Such game does not exist.
+    noSuchGame: "そのゲームは存在しません。"
+    # Login is needed.
+    needLogin: "ログインしてください。"
+    # given query is invalid.
+    invalidQuery: "不正な操作です。"
+    # You are not a player.
+    notPlayer: "参加していません。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)
@@ -31,9 +41,25 @@ error:
     # Player number is invalid (sum of requested jobs is not the same as number of players)
     playerNumberInvalid2: "プレイヤー数が不正です（{{request}}/{{jallnum}}/{{players}}）。このエラーは数回やり直せば直る場合があります。"
     # Failed to process Thief
-    thiefFailed: "盗人の処理に失敗しました"
+    thiefFailed: "盗人の処理に失敗しました。"
     # Casting is failed
-    castingFailed: "配役に失敗しました"
+    castingFailed: "配役に失敗しました。"
+    # That game is already started.
+    alreadyStarted: "そのゲームは既に開始しています。"
+    # Not all players are ready
+    notReady: "まだ全員の準備ができていません。"
+    # Role-hiding rule is only for gm.
+    noHiddenRole: "「配役公開」オプションは闇鍋またはGMありのときだけ利用できます。"
+    # Time parameter is invalid.
+    invalidTime: "時間の選択が不正です。"
+    # Players number is not enough.
+    playerNotEnough: "人数が少なすぎるので開始できません。$t(common.scapegoat)を含めて{{count}}人必要です。"
+    # Too many for quantum werewolf.
+    tooManyQuantum: "人数が多すぎます。量子人狼では人数を{{count}}人以下にしてください。"
+    # Chemical werewolf is not available under this rule.
+    noChemical: "このルールでケミカル人狼はできません。"
+    # unknown casting name is given
+    unknownCasting: "不明な配役です。"
   # Error during sudden death punishment
   suddenDeathPunish:
     # You are not a valid voter
@@ -46,6 +72,29 @@ error:
     voted: "あなたは既に投票しています。"
     # You are voting to yourself
     self: "自分には投票できません。"
+    # Target is not selected.
+    noTarget: "投票の対象を選択してください。"
+    # Voting is not available yet.
+    notNow: "まだ投票できません。"
+  # Error during speaking
+  speak:
+    # no comment
+    tooLong: "発言が長すぎます。"
+    # Access restriction.
+    ban: "アクセス制限により、発言できません。"
+  # Error during job
+  job:
+    # Invalid target selection.
+    invalid: "対象選択が不正です。"
+    # Job is already done.
+    done: "既に能力を行使しています。"
+  # Will setting.
+  will:
+    # Will is not enabled in this game.
+    noWill: "遺言は使えません。"
+    # You are already dead.
+    alreadyDead: "お前は既に死んでいる"
+
 
 # System Logs
 system:
@@ -69,6 +118,14 @@ system:
     join: "{{name}}さんが参加しました。"
     # A rebirth of user.
     rebirth: "{{name}}は転生しました。"
+  # gameStart-related logs
+  gamestart:
+    # Diviner result mode is changed
+    divinerModeChanged: "占い結果に影響する役職が存在するので、占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。"
+    # Excluded jobs
+    excluded: "除外役職：{{jobnames}}"
+    # This game has the role requesting mode.
+    roleRequesting: "このゲームは希望役職制です。希望の役職を選択してください。"
   # Phase transitions
   phase:
     # Special new year message
@@ -111,6 +168,8 @@ system:
   gmPsychic: "処刑された{{name}}の霊能結果は{{result}}でした。"
   # A Hunter is preparing a last attack.
   hunterPrepare: "{{names}}は最期の力で銃を構えました。銃撃対象を選択してください。"
+  # A user declied to be revived.
+  declineRevival: "{{name}}は蘇生を辞退しました。"
   # Game result
   judge: "【{{short}}】{{result}}"
   # A user got prizes
@@ -169,3 +228,13 @@ judge:
 quantum:
   # Player called by a number
   player: "プレイヤー{{num}}"
+
+# Crafted logs.
+logs:
+  werewolf:
+    name: "狼の遠吠え"
+    comment: "アオォーーン・・・"
+  couple:
+    name: "共有者の小声"
+    comment: "ヒソヒソ・・・"
+
