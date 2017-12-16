@@ -120,29 +120,30 @@ module.exports=
                 userid:-1
                 name:null
                 mode:"system"
-            if games[room.id]
-                splashlog room.id,games[room.id], log
+            game = games[room.id]
+            if game
+                splashlog room.id, game, log
                 # プレイヤーを追加
-                newpl=Player.factory "Waiting"
+                newpl=Player.factory "Waiting", game
                 newpl.setProfile {
                     id:player.userid
                     realid:player.realid
                     name:player.name
                 }
                 newpl.setTarget null
-                games[room.id].players.push newpl
-                games[room.id].participants.push newpl
+                game.players.push newpl
+                game.participants.push newpl
         else if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
             # エンドレス闇鍋に途中参加
-            if games[room.id]
-                game=games[room.id]
+            game=games[room.id]
+            if game
                 log=
                     comment: i18n.t "system.rooms.entering", {name: name}
                     mode:"inlog"
                     to:player.userid
                 splashlog room.id,game,log
                 # プレイヤーを追加（まだ参加しない系のひと）
-                newpl=Player.factory "Watching"
+                newpl=Player.factory "Watching", game
                 newpl.setProfile {
                     id:player.userid
                     realid:player.realid
@@ -376,10 +377,10 @@ class Game
         game.gm=obj.gm
         #game.logs=obj.logs
         game.rule=obj.rule
-        game.players=obj.players.map (x)->Player.unserialize x
+        game.players=obj.players.map (x)=>Player.unserialize x, this
         # 追加する
         if obj.additionalParticipants
-            game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x
+            game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x, this
         else
             game.participants=game.players.concat []
 
@@ -408,7 +409,7 @@ class Game
                     return
                 game.players=[]
                 for plobj in room.players
-                    newpl=Player.factory "Waiting"
+                    newpl=Player.factory "Waiting", game
                     newpl.setProfile {
                         id:plobj.userid
                         realid:plobj.realid
@@ -459,7 +460,6 @@ class Game
     getPlayer:(id)->
         @players.filter((x)->x.id==id)[0]
     getPlayerReal:(realid)->
-        #@players.filter((x)->x.realid==realid)[0] || if @gm && @gm==realid then new GameMaster realid,realid,"ゲームマスター"
         @participants.filter((x)->x.realid==realid)[0]
     # DBにセーブ
     save:->
@@ -539,9 +539,8 @@ class Game
         unless options.yaminabe_hidejobs    # 公開モード
             for job,num of joblist
                 continue unless num>0
-                testpl=new jobs[job]
                 @jobscount[job]=
-                    name:testpl.jobname
+                    name: @i18n.t "roles:jobname.#{job}"
                     number:num
 
         # 盗賊の処理
@@ -615,21 +614,21 @@ class Game
             }
             if @rule.chemical == "on"
                 # ケミカル人狼なので合体役職にする
-                pl1 = Player.factory gotjs[0]
+                pl1 = Player.factory gotjs[0], this
                 pl1.setProfile profile
                 pl1.scapegoat = true
-                pl2 = Player.factory gotjs[1]
+                pl2 = Player.factory gotjs[1], this
                 pl2.setProfile profile
                 pl2.scapegoat = true
                 # ケミカル合体
-                newpl = Player.factory null, pl1, pl2, Chemical
+                newpl = Player.factory null, this, pl1, pl2, Chemical
                 newpl.setProfile profile
                 newpl.scapegoat = true
                 newpl.setOriginalJobname newpl.getJobname()
                 @players.push newpl
             else
                 # ふつーに
-                newpl=Player.factory gotjs[0]   #身代わりくん
+                newpl=Player.factory gotjs[0], this   #身代わりくん
                 newpl.setProfile profile
                 newpl.scapegoat = true
                 @players.push newpl
@@ -649,7 +648,7 @@ class Game
                     r=Math.floor Math.random()*conpls.length
                     pl=conpls[r]
                     players=players.filter (x)->x!=pl
-                    newpl=Player.factory job
+                    newpl=Player.factory job, this
                     newpl.setProfile {
                         id:pl.userid
                         realid:pl.realid
@@ -701,17 +700,17 @@ class Game
                     }
                     if @rule.chemical == "on"
                         # ケミカル人狼
-                        pl1 = Player.factory gotjs[r][0]
+                        pl1 = Player.factory gotjs[r][0], this
                         pl1.setProfile profile
-                        pl2 = Player.factory gotjs[r][1]
+                        pl2 = Player.factory gotjs[r][1], this
                         pl2.setProfile profile
-                        newpl = Player.factory null, pl1, pl2, Chemical
+                        newpl = Player.factory null, this, pl1, pl2, Chemical
                         newpl.setProfile profile
                         newpl.setOriginalJobname newpl.getJobname()
                         @players.push newpl
                     else
                         # ふつうの人狼
-                        newpl=Player.factory gotjs[r][0]
+                        newpl=Player.factory gotjs[r][0], this
                         newpl.setProfile profile
                         @players.push newpl
                     players.splice r,1
@@ -733,7 +732,7 @@ class Game
             r=Math.floor Math.random()*@players.length
             pl=@players[r]
         
-            newpl=Player.factory null,pl,null,Decider   # 酔っ払い
+            newpl=Player.factory null, this, pl,null,Decider   # 酔っ払い
             pl.transProfile newpl
             pl.transform @,newpl,true,true
         if options.authority
@@ -741,7 +740,7 @@ class Game
             r=Math.floor Math.random()*@players.length
             pl=@players[r]
         
-            newpl=Player.factory null,pl,null,Authority # 酔っ払い
+            newpl=Player.factory null, this, pl,null,Authority # 酔っ払い
             pl.transProfile newpl
             pl.transform @,newpl,true,true
         
@@ -752,10 +751,10 @@ class Game
                 r=Math.floor Math.random()*wolves.length
                 pl=wolves[r]
                 
-                sub=Player.factory "MinionSelector" # 子分決定者
+                sub=Player.factory "MinionSelector", this # 子分決定者
                 pl.transProfile sub
                 
-                newpl=Player.factory null,pl,sub,Complex
+                newpl=Player.factory null, this, pl, sub, Complex
                 pl.transProfile newpl
                 pl.transform @,newpl,true
         if @rule.drunk
@@ -767,7 +766,7 @@ class Game
                 r=Math.floor Math.random()*nonvillagers.length
                 pl=nonvillagers[r]
             
-                newpl=Player.factory null,pl,null,Drunk # 酔っ払い
+                newpl=Player.factory null, this, pl,null,Drunk # 酔っ払い
                 pl.transProfile newpl
                 pl.transform @,newpl,true,true
 
@@ -779,7 +778,7 @@ class Game
         for pl in supporters
             if pl.mode=="gm"
                 # ゲームマスターだ
-                gm=Player.factory "GameMaster"
+                gm=Player.factory "GameMaster", this
                 gm.setProfile {
                     id:pl.userid
                     realid:pl.realid
@@ -793,7 +792,7 @@ class Game
                     # This is a bug!
                     res "#{pl.name}さんのヘルパー対象が存在しませんでした"
                     return
-                helper=Player.factory "Helper"
+                helper=Player.factory "Helper", this
                 helper.setProfile {
                     id:pl.realid
                     realid:pl.realid
@@ -801,7 +800,6 @@ class Game
                 }
                 helper.setFlag ppl.id  # ヘルプ先
                 @participants.push helper
-            #@participants.push new GameMaster pl.userid,pl.realid,pl.name
         
         # 量子人狼の場合はここで可能性リストを作る
         if @rule.jobrule=="特殊ルール.量子人狼"
@@ -1097,7 +1095,7 @@ class Game
                         pyr.accessByJobType("Pyrotechnist").sunset this
                 # 全员花火の虜にしてしまう
                 for pl in @players
-                    newpl=Player.factory null,pl,null,WatchingFireworks
+                    newpl=Player.factory null, this, pl,null,WatchingFireworks
                     pl.transProfile newpl
                     newpl.cmplFlag=x[0].id
                     pl.transform this,newpl,true
@@ -1139,10 +1137,10 @@ class Game
                 if alives.length>0
                     r=Math.floor Math.random()*alives.length
                     pl=alives[r]
-                    sub=Player.factory "Light"  # 副を作る
+                    sub=Player.factory "Light", this  # 副を作る
                     pl.transProfile sub
                     sub.sunset this
-                    newpl=Player.factory null,pl,sub,Complex
+                    newpl=Player.factory null, this, pl,sub,Complex
                     pl.transProfile newpl
                     @players.forEach (x,i)=>    # 入れ替え
                         if x.id==newpl.id
@@ -1162,7 +1160,7 @@ class Game
                             # 本参加ではないのでOK
                             # 役職をランダムに決定
                             newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                            newpl=Player.factory newjob
+                            newpl=Player.factory newjob, this
                             player.transProfile newpl
                             player.transferData newpl
                             # 観戦者を除去
@@ -1191,7 +1189,7 @@ class Game
                             join_count--
                             continue
                         newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                        newpl=Player.factory newjob
+                        newpl=Player.factory newjob, this
                         pl.transProfile newpl
                         pl.transferData newpl
                         # 蘇生
@@ -2388,6 +2386,7 @@ class VotingBox
         return ["punish",[@game.getPlayer(tops[0])],tos,table]
 
 class Player
+    # `jobname` property should be set by Player.factory
     constructor:->
         # realid:本当のid id:仮のidかもしれない name:名前 icon:アイコンURL
         @dead=false
@@ -2399,12 +2398,11 @@ class Player
         @will=null  # 遺言
         # もとの役職
         @originalType=@type
-        @originalJobname=@getJobname()
         # 蘇生辞退
         @norevive=false
 
         
-    @factory:(type,main=null,sub=null,cmpl=null)->
+    @factory:(type,game,main=null,sub=null,cmpl=null)->
         p=null
         if cmpl?
             # 複合 mainとsubを使用
@@ -2426,6 +2424,9 @@ class Player
             p=new Player
         else
             p=new jobs[type]
+            # Add `jobname` property
+            p.jobname = game.i18n.t "roles:jobname.#{type}"
+            p.originalJobname = p.getJobname()
         p
     serialize:->
         r=
@@ -2448,17 +2449,17 @@ class Player
             r.Complex_type=@cmplType
             r.Complex_flag=@cmplFlag
         r
-    @unserialize:(obj)->
+    @unserialize:(obj, game)->
         unless obj?
             return null
 
         p=if obj.type=="Complex"
             # 複合
             cmplobj=complexes[obj.Complex_type ? "Complex"]
-            Player.factory null, Player.unserialize(obj.Complex_main), Player.unserialize(obj.Complex_sub),cmplobj
+            Player.factory null, game, Player.unserialize(obj.Complex_main, game), Player.unserialize(obj.Complex_sub, game),cmplobj
         else
             # 普通
-            Player.factory obj.type
+            Player.factory obj.type, game
         p.setProfile obj    #id,realid,name...
         p.dead=obj.dead
         p.scapegoat=obj.scapegoat
@@ -2472,9 +2473,9 @@ class Player
             p.cmplFlag=obj.Complex_flag
         p
     # 汎用関数: Complexを再構築する（chain:Complexの列（上から））
-    @reconstruct:(chain,base)->
+    @reconstruct:(chain, base, game)->
         for cmpl,i in chain by -1
-            newpl=Player.factory null,base,cmpl.sub,complexes[cmpl.cmplType]
+            newpl=Player.factory null, game, base,cmpl.sub,complexes[cmpl.cmplType]
             ###
             for ok in Object.keys cmpl
                 # 自分のプロパティのみ
@@ -2781,7 +2782,7 @@ class Player
                     # mainまたはsubである
                     if obj.main==callee || obj.sub==callee
                         # 自分は消える
-                        game.players[index]=Player.reconstruct chain,obj.main
+                        game.players[index]=Player.reconstruct chain, obj.main, game
                     else
                         chk obj.main,index,callee,chc
                         # TODO これはよくない
@@ -2789,7 +2790,7 @@ class Player
                 else
                     # 自分がComplexである
                     if obj==callee
-                        game.players[index]=Player.reconstruct chain,obj.main
+                        game.players[index]=Player.reconstruct chain, obj.main, game
                     else
                         chk obj.main,index,callee,chc
                         # TODO これはよくない
@@ -2837,7 +2838,7 @@ class Player
                 # 親がいた
                 if pa.main==this
                     # 親書き換え
-                    newparent=Player.factory null,newpl,pa.sub,complexes[pa.cmplType]
+                    newparent=Player.factory null, game, newpl,pa.sub,complexes[pa.cmplType]
                     newparent.cmplFlag=pa.cmplFlag
                     newpl.transProfile newparent
 
@@ -2854,7 +2855,7 @@ class Player
                 pa=pa.main
                 chain.push pa
             # pa.mainはComplexではない
-            toppl=Player.reconstruct chain,newpl
+            toppl=Player.reconstruct chain, newpl, game
             toppl.setOriginalJobname "#{orig_originalJobname}→#{toppl.getJobname()}"
             # 親なんていない
             game.players.forEach (x,i)=>
@@ -2907,10 +2908,8 @@ class Player
         
 class Human extends Player
     type:"Human"
-    jobname:"村人"
 class Werewolf extends Player
     type:"Werewolf"
-    jobname:"人狼"
     sunset:(game)->
         @setTarget null
         unless game.day==1 && game.rule.scapegoat!="off"
@@ -2998,7 +2997,6 @@ class Werewolf extends Player
         
 class Diviner extends Player
     type:"Diviner"
-    jobname:"占い師"
     midnightSort: 100
     constructor:->
         super
@@ -3079,7 +3077,6 @@ class Diviner extends Player
         splashlog game.id,game,log
 class Psychic extends Player
     type:"Psychic"
-    jobname:"霊能者"
     constructor:->
         super
         @setFlag ""    # ここにメッセージを入れよう
@@ -3111,14 +3108,12 @@ class Psychic extends Player
 
 class Madman extends Player
     type:"Madman"
-    jobname:"狂人"
     team:"Werewolf"
     makejobinfo:(game,result)->
         super
         delete result.queens
 class Guard extends Player
     type:"Guard"
-    jobname:"狩人"
     midnightSort: 80
     hasDeadResistance:->true
     sleeping:->@target?
@@ -3168,7 +3163,7 @@ class Guard extends Player
         unless pl?
             return
         # 複合させる
-        newpl=Player.factory null,pl,null,Guarded   # 守られた人
+        newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
@@ -3176,7 +3171,6 @@ class Guard extends Player
         null
 class Couple extends Player
     type:"Couple"
-    jobname:"共有者"
     makejobinfo:(game,result)->
         super
         # 共有者は仲間が分かる
@@ -3191,7 +3185,6 @@ class Couple extends Player
 
 class Fox extends Player
     type:"Fox"
-    jobname:"妖狐"
     team:"Fox"
     willDieWerewolf:false
     isHuman:->false
@@ -3218,7 +3211,6 @@ class Fox extends Player
 
 class Poisoner extends Player
     type:"Poisoner"
-    jobname:"埋毒者"
     dying:(game,found,from)->
         super
         # 埋毒者の逆襲
@@ -3240,12 +3232,10 @@ class Poisoner extends Player
 
 class BigWolf extends Werewolf
     type:"BigWolf"
-    jobname:"大狼"
     fortuneResult:"村人"
     psychicResult:"大狼"
 class TinyFox extends Diviner
     type:"TinyFox"
-    jobname:"子狐"
     fortuneResult:"村人"
     psychicResult:"子狐"
     team:"Fox"
@@ -3282,13 +3272,11 @@ class TinyFox extends Diviner
     
 class Bat extends Player
     type:"Bat"
-    jobname:"こうもり"
     team:""
     isWinner:(game,team)->
         !@dead  # 生きて入ればとにかく勝利
 class Noble extends Player
     type:"Noble"
-    jobname:"貴族"
     hasDeadResistance:(game)->
         slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
         return slaves.length > 0
@@ -3310,7 +3298,6 @@ class Noble extends Player
 
 class Slave extends Player
     type:"Slave"
-    jobname:"奴隷"
     isWinner:(game,team)->
         nobles=game.players.filter (x)->!x.dead && x.isJobType "Noble"
         if team==@team && nobles.length==0
@@ -3324,7 +3311,6 @@ class Slave extends Player
             x.publicinfo()
 class Magician extends Player
     type:"Magician"
-    jobname:"魔術師"
     midnightSort:100
     isReviver:->!@dead
     sunset:(game)->
@@ -3371,7 +3357,6 @@ class Magician extends Player
         super
 class Spy extends Player
     type:"Spy"
-    jobname:"スパイ"
     team:"Werewolf"
     midnightSort:100
     sleeping:->true # 能力使わなくてもいい
@@ -3410,7 +3395,6 @@ class Spy extends Player
         else super
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
-    jobname:"人狼占い"
     midnightSort:100
     constructor:->
         super
@@ -3485,7 +3469,7 @@ class WolfDiviner extends Werewolf
                 newjob=jobnames[Math.floor Math.random()*jobnames.length]
                 plobj=p.serialize()
                 plobj.type=newjob
-                newpl=Player.unserialize plobj  # 新生狂人
+                newpl=Player.unserialize plobj, game  # 新生狂人
                 newpl.setFlag null
                 p.transferData newpl
                 p.transform game,newpl,false
@@ -3507,7 +3491,6 @@ class WolfDiviner extends Werewolf
 
 class Fugitive extends Player
     type:"Fugitive"
-    jobname:"逃亡者"
     midnightSort:100
     hasDeadResistance:->true
     sunset:(game)->
@@ -3563,7 +3546,6 @@ class Fugitive extends Player
         team==@team && !@dead   # 村人勝利で生存
 class Merchant extends Player
     type:"Merchant"
-    jobname:"商人"
     constructor:->
         super
         @setFlag null  # 発送済みかどうか
@@ -3587,10 +3569,10 @@ class Merchant extends Player
             return game.i18n.t "roles:Merchant.noSelf"
         pl.touched game,@id
         # 複合させる
-        sub=Player.factory query.Merchant_kit   # 副を作る
+        sub=Player.factory query.Merchant_kit, game   # 副を作る
         pl.transProfile sub
         sub.sunset game
-        newpl=Player.factory null,pl,sub,Complex    # Complex
+        newpl=Player.factory null, game, pl,sub,Complex    # Complex
         pl.transProfile newpl
         pl.transform game,newpl,true
 
@@ -3611,7 +3593,6 @@ class Merchant extends Player
         null
 class QueenSpectator extends Player
     type:"QueenSpectator"
-    jobname:"女王観戦者"
     dying:(game,found)->
         super
         # 感染
@@ -3621,20 +3602,17 @@ class QueenSpectator extends Player
 
 class MadWolf extends Werewolf
     type:"MadWolf"
-    jobname:"狂人狼"
     team:"Human"
     isAttacker:->false
     sleeping:->true
 class Neet extends Player
     type:"Neet"
-    jobname:"ニート"
     team:""
     sleeping:->true
     voted:(game,votingbox)->true
     isWinner:->true
 class Liar extends Player
     type:"Liar"
-    jobname:"嘘つき"
     midnightSort:100
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     constructor:->
@@ -3693,7 +3671,6 @@ class Liar extends Player
     isWinner:(game,team)->team==@team && !@dead # 村人勝利で生存
 class Spy2 extends Player
     type:"Spy2"
-    jobname:"スパイⅡ"
     team:"Werewolf"
     makejobinfo:(game,result)->
         super
@@ -3721,7 +3698,6 @@ class Spy2 extends Player
     isWinner:(game,team)-> team==@team && !@dead
 class Copier extends Player
     type:"Copier"
-    jobname:"コピー"
     team:""
     isHuman:->false
     sleeping:->true
@@ -3747,7 +3723,7 @@ class Copier extends Player
             comment: game.i18n.t "roles:Copier.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         p=game.getPlayer playerid
-        newpl=Player.factory p.type
+        newpl=Player.factory p.type, game
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
@@ -3761,7 +3737,6 @@ class Copier extends Player
     isWinner:(game,team)->false # コピーしないと負け
 class Light extends Player
     type:"Light"
-    jobname:"デスノート"
     midnightSort:100
     sleeping:->true
     jobdone:(game)->@target? || game.day==1
@@ -3790,7 +3765,6 @@ class Light extends Player
         @uncomplex game,true    # 自分からは抜ける
 class Fanatic extends Madman
     type:"Fanatic"
-    jobname:"狂信者"
     makejobinfo:(game,result)->
         super
         # 狂信者は人狼が分かる
@@ -3798,7 +3772,6 @@ class Fanatic extends Madman
             x.publicinfo()
 class Immoral extends Player
     type:"Immoral"
-    jobname:"背徳者"
     team:"Fox"
     beforebury:(game)->
         # 狐が全員死んでいたら自殺
@@ -3811,7 +3784,6 @@ class Immoral extends Player
             x.publicinfo()
 class Devil extends Player
     type:"Devil"
-    jobname:"悪魔くん"
     team:"Devil"
     psychicResult:"人狼"
     hasDeadResistance:->true
@@ -3834,7 +3806,6 @@ class Devil extends Player
     isWinner:(game,team)->team==@team && @flag=="winner"
 class ToughGuy extends Player
     type:"ToughGuy"
-    jobname:"タフガイ"
     hasDeadResistance:->true
     die:(game,found)->
         if found=="werewolf"
@@ -3854,7 +3825,6 @@ class ToughGuy extends Player
             @setDead true,"werewolf"
 class Cupid extends Player
     type:"Cupid"
-    jobname:"キューピッド"
     team:"Friend"
     constructor:->
         super
@@ -3904,7 +3874,7 @@ class Cupid extends Player
             # 2人ぶん処理
         
             pl.touched game,@id
-            newpl=Player.factory null,pl,null,Friend    # 恋人だ！
+            newpl=Player.factory null, game, pl,null,Friend    # 恋人だ！
             newpl.cmplFlag=plpls[1-i].id
             pl.transProfile newpl
             pl.transform game,newpl,true # 入れ替え
@@ -3926,7 +3896,6 @@ class Cupid extends Player
 # ストーカー
 class Stalker extends Player
     type:"Stalker"
-    jobname:"ストーカー"
     team:""
     sunset:(game)->
         super
@@ -3984,7 +3953,6 @@ class Stalker extends Player
 # 呪われた者
 class Cursed extends Player
     type:"Cursed"
-    jobname:"呪われた者"
     hasDeadResistance:->true
     die:(game,found)->
         return if @dead
@@ -4011,14 +3979,14 @@ class Cursed extends Player
                     to:@id
                     comment: game.i18n.t "roles:Cursed.becomeWerewolf", {name: @name}
             
-                newpl=Player.factory "Werewolf"
+                newpl=Player.factory "Werewolf", game
             else
                 log=
                     mode:"skill"
                     to:@id
                     comment: game.i18n.t "roles:Cursed.becomeVampire", {name: @name}
             
-                newpl=Player.factory "Vampire"
+                newpl=Player.factory "Vampire", game
 
             @transProfile newpl
             @transferData newpl
@@ -4038,11 +4006,10 @@ class Cursed extends Player
             game.splashjobinfo [this]
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
-    jobname:"見習い占い師"
     beforebury:(game)->
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
-            newpl=Player.factory "Diviner"
+            newpl=Player.factory "Diviner", game
             @transProfile newpl
             @transferData newpl
             log=
@@ -4057,7 +4024,6 @@ class ApprenticeSeer extends Player
             game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 class Diseased extends Player
     type:"Diseased"
-    jobname:"病人"
     dying:(game,found)->
         super
         if found=="werewolf"
@@ -4065,7 +4031,6 @@ class Diseased extends Player
             game.werewolf_flag.push "Diseased"   # 病人フラグを立てる
 class Spellcaster extends Player
     type:"Spellcaster"
-    jobname:"呪いをかける者"
     midnightSort:100
     sleeping:->true
     jobdone:->@target?
@@ -4110,16 +4075,14 @@ class Spellcaster extends Player
         
         # 複合させる
 
-        newpl=Player.factory null,t,null,Muted  # 黙る人
+        newpl=Player.factory null, game, t,null,Muted  # 黙る人
         t.transProfile newpl
         t.transform game,newpl,true
 class Lycan extends Player
     type:"Lycan"
-    jobname:"狼憑き"
     fortuneResult:"人狼"
 class Priest extends Player
     type:"Priest"
-    jobname:"聖職者"
     midnightSort:70
     hasDeadResistance:->true
     sleeping:->true
@@ -4152,7 +4115,7 @@ class Priest extends Player
         unless pl?
             return
 
-        newpl=Player.factory null,pl,null,HolyProtected # 守られた人
+        newpl=Player.factory null, game, pl,null,HolyProtected # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id # 護衛元
         pl.transform game,newpl,true
@@ -4160,7 +4123,6 @@ class Priest extends Player
         null
 class Prince extends Player
     type:"Prince"
-    jobname:"プリンス"
     hasDeadResistance:->true
     die:(game,found)->
         if found=="punish" && !@flag?
@@ -4176,7 +4138,6 @@ class Prince extends Player
 # Paranormal Investigator
 class PI extends Diviner
     type:"PI"
-    jobname:"超常現象研究者"
     sleeping:->true
     jobdone:->@flag?
     job:(game,playerid)->
@@ -4241,7 +4202,6 @@ class PI extends Diviner
         splashlog game.id,game,log
 class Sorcerer extends Diviner
     type:"Sorcerer"
-    jobname:"妖術師"
     team:"Werewolf"
     sleeping:->@target?
     job:(game,playerid)->
@@ -4280,7 +4240,6 @@ class Sorcerer extends Diviner
     divineeffect:(game)->
 class Doppleganger extends Player
     type:"Doppleganger"
-    jobname:"ドッペルゲンガー"
     sleeping:->true
     jobdone:->@flag?
     team:"" # 最初はチームに属さない!
@@ -4305,16 +4264,16 @@ class Doppleganger extends Player
         if deads.some((x)=>x.id==@flag)
             p=game.getPlayer @flag  # その人
 
-            newplmain=Player.factory p.type
+            newplmain=Player.factory p.type, game
             @transProfile newplmain
             @transferData newplmain
             
             me=game.getPlayer @id
             # まだドッペルゲンガーできる
-            sub=Player.factory "Doppleganger"
+            sub=Player.factory "Doppleganger", game
             @transProfile sub
             
-            newpl=Player.factory null, newplmain,sub,Complex    # 合体
+            newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
             
             pa=@getParent game  # 親を得る
@@ -4340,7 +4299,6 @@ class Doppleganger extends Player
             game.ss.publish.user newpl.realid,"refresh",{id:game.id}
 class CultLeader extends Player
     type:"CultLeader"
-    jobname:"カルトリーダー"
     team:"Cult"
     midnightSort:100
     sleeping:->@target?
@@ -4373,7 +4331,7 @@ class CultLeader extends Player
 
         # 信者
         splashlog game.id,game,log
-        newpl=Player.factory null, t,null,CultMember    # 合体
+        newpl=Player.factory null, game, t,null,CultMember    # 合体
         t.transProfile newpl
         t.transform game,newpl,true
 
@@ -4384,7 +4342,6 @@ class CultLeader extends Player
             x.publicinfo()
 class Vampire extends Player
     type:"Vampire"
-    jobname:"ヴァンパイア"
     team:"Vampire"
     willDieWerewolf:false
     fortuneResult:"ヴァンパイア"
@@ -4431,12 +4388,10 @@ class Vampire extends Player
             x.publicinfo()
 class LoneWolf extends Werewolf
     type:"LoneWolf"
-    jobname:"一匹狼"
     team:"LoneWolf"
     isWinner:(game,team)->team==@team && !@dead
 class Cat extends Poisoner
     type:"Cat"
-    jobname:"猫又"
     midnightSort:100
     isReviver:->true
     sunset:(game)->
@@ -4497,7 +4452,6 @@ class Cat extends Poisoner
         super
 class Witch extends Player
     type:"Witch"
-    jobname:"魔女"
     midnightSort:100
     isReviver:->!@dead
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
@@ -4590,7 +4544,6 @@ class Witch extends Player
             pl.die game,"witch"
 class Oldman extends Player
     type:"Oldman"
-    jobname:"老人"
     midnight:(game,midnightSort)->
         # 夜の終わり
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
@@ -4599,7 +4552,6 @@ class Oldman extends Player
             @die game,"infirm"
 class Tanner extends Player
     type:"Tanner"
-    jobname:"皮なめし職人"
     team:""
     die:(game,found)->
         if found in ["gone-day","gone-night"]
@@ -4609,7 +4561,6 @@ class Tanner extends Player
     isWinner:(game,team)->@dead && @flag!="gone"
 class OccultMania extends Player
     type:"OccultMania"
-    jobname:"オカルトマニア"
     midnightSort:100
     sleeping:(game)->@target? || game.day<2
     sunset:(game)->
@@ -4647,7 +4598,7 @@ class OccultMania extends Player
         else if p.isWerewolf()
             type="Werewolf"
         
-        newpl=Player.factory type
+        newpl=Player.factory type, game
         @transProfile newpl
         @transferData newpl
         newpl.sunset game   # 初期化してあげる
@@ -4665,14 +4616,12 @@ class OccultMania extends Player
 # 狼の子
 class WolfCub extends Werewolf
     type:"WolfCub"
-    jobname:"狼の子"
     dying:(game,found)->
         super
         game.werewolf_flag.push "WolfCub"
 # 囁き狂人
 class WhisperingMad extends Fanatic
     type:"WhisperingMad"
-    jobname:"囁き狂人"
 
     getSpeakChoice:(game)->
         ["werewolf"].concat super
@@ -4682,7 +4631,6 @@ class WhisperingMad extends Fanatic
         else super
 class Lover extends Player
     type:"Lover"
-    jobname:"求愛者"
     team:"Friend"
     constructor:->
         super
@@ -4716,7 +4664,7 @@ class Lover extends Player
     
         plpls=[this,pl]
         for x,i in plpls
-            newpl=Player.factory null,x,null,Friend # 恋人だ！
+            newpl=Player.factory null, game, x,null,Friend # 恋人だ！
             x.transProfile newpl
             x.transform game,newpl,true  # 入れ替え
             newpl.cmplFlag=plpls[1-i].id
@@ -4740,7 +4688,6 @@ class Lover extends Player
 # 子分選択者
 class MinionSelector extends Player
     type:"MinionSelector"
-    jobname:"子分選択者"
     team:"Werewolf"
     sleeping:(game)->@target? || game.day>1 # 初日のみ
     sunset:(game)->
@@ -4763,7 +4710,7 @@ class MinionSelector extends Player
             return game.i18n.t "error.common.alreadyDead"
         
         # 複合させる
-        newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
+        newpl=Player.factory null, game, pl,null,WolfMinion    # WolfMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
         log=
@@ -4781,7 +4728,6 @@ class MinionSelector extends Player
 # 盗人
 class Thief extends Player
     type:"Thief"
-    jobname:"盗人"
     team:""
     sleeping:(game)->@target? || game.day>1
     sunset:(game)->
@@ -4790,7 +4736,7 @@ class Thief extends Player
         if !target?
             arr=JSON.parse(@flag ? '["Human"]')
             jobnames=arr.map (x)->
-                testpl=new jobs[x]
+                testpl = Player.factory x, game
                 testpl.getJobDisp()
             log=
                 mode:"skill"
@@ -4806,7 +4752,7 @@ class Thief extends Player
         unless jobs[target]?
             return game.i18n.t "error.common.invalidSelection"
 
-        newpl=Player.factory target
+        newpl=Player.factory target, game
         @transProfile newpl
         @transferData newpl
         newpl.sunset game
@@ -4824,7 +4770,7 @@ class Thief extends Player
             # 役職から選択
             arr=JSON.parse(@flag ? '["Human"]')
             arr.map (x)->
-                testpl=new jobs[x]
+                testpl = Player.factory x, game
                 {
                     name:testpl.getJobDisp()
                     value:x
@@ -4832,7 +4778,6 @@ class Thief extends Player
         else super
 class Dog extends Player
     type:"Dog"
-    jobname:"犬"
     fortuneResult:"人狼"
     psychicResult:"人狼"
     midnightSort:100
@@ -4858,7 +4803,7 @@ class Dog extends Player
                     # もう死んでるじゃん
                     @setTarget ""  # 洗濯済み
                 else
-                    newpl=Player.factory null,pl,null,Guarded   # 守られた人
+                    newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
                     pl.transProfile newpl
                     newpl.cmplFlag=@id  # 護衛元cmplFlag
                     pl.transform game,newpl,true
@@ -4923,7 +4868,6 @@ class Dog extends Player
         else super
 class Dictator extends Player
     type:"Dictator"
-    jobname:"独裁者"
     sleeping:->true
     jobdone:(game)->@flag? || !Phase.isDay(game.phase)
     chooseJobDay:(game)->true
@@ -4949,7 +4893,6 @@ class Dictator extends Player
         null
 class SeersMama extends Player
     type:"SeersMama"
-    jobname:"予言者のママ"
     sleeping:->true
     sunset:(game)->
         unless @flag
@@ -4968,7 +4911,6 @@ class SeersMama extends Player
             @setFlag true  #使用済
 class Trapper extends Player
     type:"Trapper"
-    jobname:"罠師"
     midnightSort:81
     hasDeadResistance:->true
     sleeping:->@target?
@@ -5004,14 +4946,13 @@ class Trapper extends Player
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null,pl,null,TrapGuarded   # 守られた人
+        newpl=Player.factory null, game, pl,null,TrapGuarded   # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
         null
 class WolfBoy extends Madman
     type:"WolfBoy"
-    jobname:"狼少年"
     midnightSort:90
     sleeping:->true
     jobdone:->@target?
@@ -5037,14 +4978,13 @@ class WolfBoy extends Madman
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null,pl,null,Lycanized
+        newpl=Player.factory null, game, pl,null,Lycanized
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
         null
 class Hoodlum extends Player
     type:"Hoodlum"
-    jobname:"ならず者"
     team:""
     constructor:->
         super
@@ -5095,7 +5035,6 @@ class Hoodlum extends Player
         return pls.every (pl)->pl?.dead==true
 class QuantumPlayer extends Player
     type:"QuantumPlayer"
-    jobname:"量子人間"
     midnightSort:100
     getJobname:->
         flag=JSON.parse(@flag||"{}")
@@ -5296,7 +5235,6 @@ class QuantumPlayer extends Player
 
 class RedHood extends Player
     type:"RedHood"
-    jobname:"赤ずきん"
     sleeping:->true
     isReviver:->!@dead || @flag?
     dying:(game,found,from)->
@@ -5319,7 +5257,6 @@ class RedHood extends Player
 
 class Counselor extends Player
     type:"Counselor"
-    jobname:"カウンセラー"
     midnightSort:100
     sleeping:->true
     jobdone:->@target?
@@ -5364,7 +5301,7 @@ class Counselor extends Player
             @addGamelog game,"counselSuccess",t.type,@target
             # 複合させる
 
-            newpl=Player.factory null,t,null,Counseled  # カウンセリングされた
+            newpl=Player.factory null, game, t,null,Counseled  # カウンセリングされた
             t.transProfile newpl
             t.transform game,newpl,true
         else
@@ -5372,7 +5309,6 @@ class Counselor extends Player
 # 巫女
 class Miko extends Player
     type:"Miko"
-    jobname:"巫女"
     midnightSort:71
     hasDeadResistance:->true
     sleeping:->true
@@ -5392,7 +5328,7 @@ class Miko extends Player
         # 複合させる
         if @flag=="using"
             pl = game.getPlayer @id
-            newpl=Player.factory null,pl,null,MikoProtected # 守られた人
+            newpl=Player.factory null, game, pl,null,MikoProtected # 守られた人
             pl.transProfile newpl
             pl.transform game,newpl,true
             @setFlag "done"
@@ -5404,7 +5340,6 @@ class Miko extends Player
         else super
 class GreedyWolf extends Werewolf
     type:"GreedyWolf"
-    jobname:"欲張りな狼"
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
     jobdone:(game)->game.werewolf_target_remain<=0 && (@flag || game.day==1)
     job:(game,playerid,query)->
@@ -5445,7 +5380,6 @@ class GreedyWolf extends Werewolf
         return super
 class FascinatingWolf extends Werewolf
     type:"FascinatingWolf"
-    jobname:"誘惑する女狼"
     sleeping:(game)->super && @flag?
     sunset:(game)->
         super
@@ -5491,7 +5425,7 @@ class FascinatingWolf extends Werewolf
             # 誘惑できない
             return
 
-        newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
+        newpl=Player.factory null, game, pl,null,WolfMinion    # WolfMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
         log=
@@ -5507,7 +5441,6 @@ class FascinatingWolf extends Werewolf
                 result.open = result.open?.filter (x)=>x!="FascinatingWolf"
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
-    jobname:"孤独な狼"
     sleeping:(game)-> !@flag || super
     isListener:(game,log)->
         if (log.mode in ["werewolf","wolfskill"]) && (log.to != @id)
@@ -5548,7 +5481,6 @@ class SolitudeWolf extends Werewolf
         delete result.spy2s
 class ToughWolf extends Werewolf
     type:"ToughWolf"
-    jobname:"一途な狼"
     job:(game,playerid,query)->
         if query.jobtype!="ToughWolf"
             # 人狼の仕事
@@ -5570,7 +5502,6 @@ class ToughWolf extends Werewolf
         null
 class ThreateningWolf extends Werewolf
     type:"ThreateningWolf"
-    jobname:"威嚇する狼"
     jobdone:(game)->
         if Phase.isDay(game.phase)
             @flag?
@@ -5615,7 +5546,7 @@ class ThreateningWolf extends Werewolf
             comment: game.i18n.t "roles:ThreateningWolf.affected", {name: t.name}
         splashlog game.id,game,log
 
-        newpl=Player.factory null,t,null,Threatened  # カウンセリングされた
+        newpl=Player.factory null, game, t,null,Threatened  # カウンセリングされた
         t.transProfile newpl
         t.transform game,newpl,true
 
@@ -5627,10 +5558,8 @@ class ThreateningWolf extends Werewolf
             result.open = result.open?.filter (x)=>x!="ThreateningWolf"
 class HolyMarked extends Human
     type:"HolyMarked"
-    jobname:"聖痕者"
 class WanderingGuard extends Player
     type:"WanderingGuard"
-    jobname:"風来狩人"
     midnightSort:80
     hasDeadResistance:->true
     sleeping:->@target?
@@ -5687,7 +5616,7 @@ class WanderingGuard extends Player
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null,pl,null,Guarded   # 守られた人
+        newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
@@ -5716,7 +5645,6 @@ class WanderingGuard extends Player
             return super
 class ObstructiveMad extends Madman
     type:"ObstructiveMad"
-    jobname:"邪魔狂人"
     midnightSort:90
     sleeping:->@target?
     sunset:(game)->
@@ -5746,14 +5674,13 @@ class ObstructiveMad extends Madman
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null,pl,null,DivineObstructed
+        newpl=Player.factory null, game, pl,null,DivineObstructed
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 邪魔元cmplFlag
         pl.transform game,newpl,true
         null
 class TroubleMaker extends Player
     type:"TroubleMaker"
-    jobname:"トラブルメーカー"
     midnightSort:100
     sleeping:->true
     jobdone:->!!@flag
@@ -5794,7 +5721,6 @@ class TroubleMaker extends Player
 
 class FrankensteinsMonster extends Player
     type:"FrankensteinsMonster"
-    jobname:"フランケンシュタインの怪物"
     die:(game,found)->
         super
         if found=="punish"
@@ -5813,10 +5739,10 @@ class FrankensteinsMonster extends Player
             splashlog game.id,game,log
 
             # 同じ能力を
-            subpl = Player.factory pl.type
+            subpl = Player.factory pl.type, game
             thispl.transProfile subpl
 
-            newpl=Player.factory null, thispl,subpl,Complex    # 合成する
+            newpl=Player.factory null, game, thispl,subpl,Complex    # 合成する
             thispl.transProfile newpl
 
             # 置き換える
@@ -5829,7 +5755,6 @@ class FrankensteinsMonster extends Player
             game.splashjobinfo [thispl]
 class BloodyMary extends Player
     type:"BloodyMary"
-    jobname:"血まみれのメアリー"
     isReviver:->true
     getJobname:->if @flag then @jobname else "メアリー"
     getJobDisp:->@getJobname()
@@ -5911,13 +5836,11 @@ class BloodyMary extends Player
 
 class King extends Player
     type:"King"
-    jobname:"王様"
     voteafter:(game,target)->
         super
         game.votingbox.votePower this,1
 class PsychoKiller extends Madman
     type:"PsychoKiller"
-    jobname:"サイコキラー"
     midnightSort:110
     constructor:->
         super
@@ -5946,7 +5869,6 @@ class PsychoKiller extends Madman
         @midnight game, midnightSort
 class SantaClaus extends Player
     type:"SantaClaus"
-    jobname:"サンタクロース"
     midnightSort:100
     sleeping:->@target?
     constructor:->
@@ -6038,16 +5960,15 @@ class SantaClaus extends Player
         splashlog game.id,game,log
         
         # 複合させる
-        sub=Player.factory settype   # 副を作る
+        sub=Player.factory settype, game   # 副を作る
         pl.transProfile sub
-        newpl=Player.factory null,pl,sub,Complex    # Complex
+        newpl=Player.factory null, game, pl,sub,Complex    # Complex
         pl.transProfile newpl
         pl.transform game,newpl,true
         @addGamelog game,"sendpresent",settype,pl.id
 #怪盗
 class Phantom extends Player
     type:"Phantom"
-    jobname:"怪盗"
     sleeping:->@target?
     sunset:(game)->
         if @flag==true
@@ -6110,7 +6031,7 @@ class Phantom extends Player
                 flagobj[value.name]=savedobj[value.name]
 
         # 自分はその役職に変化する
-        newpl=Player.factory pl.type
+        newpl=Player.factory pl.type, game
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
@@ -6121,13 +6042,12 @@ class Phantom extends Player
         splashlog game.id,game,log
 
         # 盗まれた側は怪盗予備軍のフラグを立てる
-        newpl2=Player.factory null,pl,null,PhantomStolen
+        newpl2=Player.factory null, game, pl,null,PhantomStolen
         newpl2.cmplFlag=flagobj
         pl.transProfile newpl2
         pl.transform game,newpl2,true
 class BadLady extends Player
     type:"BadLady"
-    jobname:"悪女"
     team:"Friend"
     sleeping:->@flag?.set
     sunset:(game)->
@@ -6180,17 +6100,17 @@ class BadLady extends Player
                         comment: game.i18n.t "roles:BadLady.become", {name: pll.name}
                     splashlog game.id,game,log
             # 自分恋人
-            newpl=Player.factory null,this,null,Friend # 恋人だ！
+            newpl=Player.factory null, game, this,null,Friend # 恋人だ！
             newpl.cmplFlag=fl.main
             @transProfile newpl
             @transform game,newpl,true  # 入れ替え
             # 相手恋人
-            newpl=Player.factory null,plm,null,Friend # 恋人だ！
+            newpl=Player.factory null, game, plm,null,Friend # 恋人だ！
             newpl.cmplFlag=@id
             plm.transProfile newpl
             plm.transform game,newpl,true  # 入れ替え
             # キープ
-            newpl=Player.factory null,pl,null,KeepedLover # 恋人か？
+            newpl=Player.factory null, game, pl,null,KeepedLover # 恋人か？
             newpl.cmplFlag=@id
             pl.transProfile newpl
             pl.transform game,newpl,true  # 入れ替え
@@ -6212,7 +6132,6 @@ class BadLady extends Player
 # 看板娘
 class DrawGirl extends Player
     type:"DrawGirl"
-    jobname:"看板娘"
     sleeping:->true
     dying:(game,found)->
         if found=="werewolf"
@@ -6235,7 +6154,6 @@ class DrawGirl extends Player
 # 慎重な狼
 class CautiousWolf extends Werewolf
     type:"CautiousWolf"
-    jobname:"慎重な狼"
     makeJobSelection:(game)->
         if Phase.isNight(game.phase)
             r=super
@@ -6264,7 +6182,6 @@ class CautiousWolf extends Werewolf
 # 花火師
 class Pyrotechnist extends Player
     type:"Pyrotechnist"
-    jobname:"花火師"
     sleeping:->true
     jobdone:(game)->@flag? || !Phase.isDay(game.phase)
     chooseJobDay:(game)->true
@@ -6299,7 +6216,6 @@ class Pyrotechnist extends Player
 # パン屋
 class Baker extends Player
     type:"Baker"
-    jobname:"パン屋"
     sleeping:->true
     sunrise:(game)->
         # 最初の1人がパン屋ログを管理
@@ -6327,7 +6243,6 @@ class Baker extends Player
         @sunrise game
 class Bomber extends Madman
     type:"Bomber"
-    jobname:"爆弾魔"
     midnightSort:81
     sleeping:->true
     jobdone:->@flag?
@@ -6351,7 +6266,7 @@ class Bomber extends Madman
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null,pl,null,BombTrapped
+        newpl=Player.factory null, game, pl,null,BombTrapped
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 護衛元cmplFlag
         pl.transform game,newpl,true
@@ -6361,7 +6276,6 @@ class Bomber extends Madman
 
 class Blasphemy extends Player
     type:"Blasphemy"
-    jobname:"冒涜者"
     team:"Fox"
     midnightSort:100
     sleeping:(game)->@target? || @flag
@@ -6415,13 +6329,12 @@ class Blasphemy extends Player
         @setFlag true
 
         # 狐憑きをつける
-        newpl=Player.factory null,pl,null,FoxMinion
+        newpl=Player.factory null, game, pl,null,FoxMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
 
 class Ushinotokimairi extends Madman
     type:"Ushinotokimairi"
-    jobname:"丑刻参"
     midnightSort:90
     sleeping:->true
     jobdone:->@target?
@@ -6455,7 +6368,7 @@ class Ushinotokimairi extends Madman
         unless pl?
             return
 
-        newpl=Player.factory null,pl,null,DivineCursed
+        newpl=Player.factory null, game, pl,null,DivineCursed
         pl.transProfile newpl
         newpl.cmplFlag=@id  # 邪魔元cmplFlag
         pl.transform game,newpl,true
@@ -6471,7 +6384,6 @@ class Ushinotokimairi extends Madman
 
 class Patissiere extends Player
     type: "Patissiere"
-    jobname: "パティシエール"
     team:"Friend"
     midnightSort:100
     sunset:(game)->
@@ -6515,10 +6427,10 @@ class Patissiere extends Player
             p = game.getPlayer pid
             if p.id == pl.id
                 # 本命
-                sub = Player.factory "GotChocolate"
+                sub = Player.factory "GotChocolate", game
                 p.transProfile sub
                 sub.sunset game
-                newpl = Player.factory null, p, sub, GotChocolateTrue
+                newpl = Player.factory null, game, p, sub, GotChocolateTrue
                 newpl.cmplFlag=@id
                 p.transProfile newpl
                 p.transferData newpl
@@ -6530,10 +6442,10 @@ class Patissiere extends Player
                 splashlog game.id,game,log
             else if p.id != @id
                 # 義理
-                sub = Player.factory "GotChocolate"
+                sub = Player.factory "GotChocolate", game
                 p.transProfile sub
                 sub.sunset game
-                newpl = Player.factory null, p, sub, GotChocolateFalse
+                newpl = Player.factory null, game, p, sub, GotChocolateFalse
                 newpl.cmplFlag=@id
                 p.transProfile newpl
                 p.transferData newpl
@@ -6545,7 +6457,7 @@ class Patissiere extends Player
                 splashlog game.id,game,log
         # 自分は本命と恋人になる
         top = game.getPlayer @id
-        newpl = Player.factory null, top, null, Friend
+        newpl = Player.factory null, game, top, null, Friend
         newpl.cmplFlag=pl.id
         top.transProfile newpl
         top.transferData newpl
@@ -6561,7 +6473,6 @@ class Patissiere extends Player
 # 内部処理用：チョコレートもらった
 class GotChocolate extends Player
     type: "GotChocolate"
-    jobname: "チョコレート"
     midnightSort:90
     sleeping:->true
     jobdone:(game)-> @flag!="unselected"
@@ -6603,7 +6514,7 @@ class GotChocolate extends Player
                     top.uncomplex game, false
                     # 恋人になる
                     top = game.getPlayer @id
-                    newpl = Player.factory null, top, null, Friend
+                    newpl = Player.factory null, game, top, null, Friend
                     newpl.cmplFlag = t.id
                     top.transProfile newpl
                     top.transform game,newpl,true
@@ -6645,7 +6556,7 @@ class GotChocolate extends Player
                     to: @id
                     comment: game.i18n.t "roles:GotChocolate.result.cursed", {name: @name}
                 splashlog game.id, game, log
-                newpl = Player.factory null, top, null, Muted
+                newpl = Player.factory null, game, top, null, Muted
                 top.transProfile newpl
                 top.transform game, newpl, true
             else if r < 0.30
@@ -6655,7 +6566,7 @@ class GotChocolate extends Player
                     to: @id
                     comment: game.i18n.t "roles:GotChocolate.result.black", {name: @name}
                 splashlog game.id, game, log
-                newpl = Player.factory null, top, null, Blacked
+                newpl = Player.factory null, game, top, null, Blacked
                 top.transProfile newpl
                 top.transform game, newpl, true
             else if r < 0.45
@@ -6665,7 +6576,7 @@ class GotChocolate extends Player
                     to: @id
                     comment: game.i18n.t "roles:GotChocolate.result.white", {name: @name}
                 splashlog game.id, game, log
-                newpl = Player.factory null, top, null, Whited
+                newpl = Player.factory null, game, top, null, Whited
                 top.transProfile newpl
                 top.transform game, newpl, true
             else if r < 0.50
@@ -6680,7 +6591,7 @@ class GotChocolate extends Player
                 # ストーカー化
                 topl = game.getPlayer re[1]
                 if topl?
-                    newpl = Player.factory "Stalker"
+                    newpl = Player.factory "Stalker", game
                     top.transProfile newpl
                     # ストーカー先
                     newpl.setFlag re[1]
@@ -6698,7 +6609,7 @@ class GotChocolate extends Player
                     to: @id
                     comment: game.i18n.t "roles:GotChocolate.result.vampire", {name: @name}
                 splashlog game.id, game, log
-                newpl = Player.factory null, top, null, VampireBlooded
+                newpl = Player.factory null, game, top, null, VampireBlooded
                 top.transProfile newpl
                 top.transform game, newpl, true
             else if r < 0.75
@@ -6708,15 +6619,14 @@ class GotChocolate extends Player
                     to: @id
                     comment: game.i18n.t "roles:GotChocolate.result.priest", {name: @name}
                 splashlog game.id, game, log
-                sub = Player.factory "Priest"
+                sub = Player.factory "Priest", game
                 top.transProfile sub
-                newpl = Player.factory null, top, sub, Complex
+                newpl = Player.factory null, game, top, sub, Complex
                 top.transProfile newpl
                 top.transform game, newpl, true
 
 class MadDog extends Madman
     type:"MadDog"
-    jobname:"狂犬"
     fortuneResult:"人狼"
     psychicResult:"人狼"
     midnightSort:100
@@ -6760,7 +6670,6 @@ class MadDog extends Madman
 
 class Hypnotist extends Madman
     type:"Hypnotist"
-    jobname:"催眠術師"
     midnightSort:50
     jobdone:(game)->@target? || @flag
     sleeping:->true
@@ -6803,7 +6712,7 @@ class Hypnotist extends Madman
 
         # 催眠術を付加する
         @addGamelog game,"hypnosis",pl.type,pl.id
-        newpl=Player.factory null,pl,null,UnderHypnosis
+        newpl=Player.factory null, game, pl,null,UnderHypnosis
         pl.transProfile newpl
         pl.transform game,newpl,true
 
@@ -6811,7 +6720,6 @@ class Hypnotist extends Madman
 
 class CraftyWolf extends Werewolf
     type:"CraftyWolf"
-    jobname:"狡猾な狼"
     jobdone:(game)->super && @flag == "going"
     deadJobdone:(game)->@flag != "revivable"
     midnightSort:100
@@ -6886,7 +6794,6 @@ class CraftyWolf extends Werewolf
 
 class Shishimai extends Player
     type:"Shishimai"
-    jobname:"獅子舞"
     team:""
     sleeping:->true
     jobdone:(game)->@target?
@@ -6930,7 +6837,7 @@ class Shishimai extends Player
         unless pl?
             return
         # 票数が減る祝いをかける
-        newpl = Player.factory null, pl, null, VoteGuarded
+        newpl = Player.factory null, game, pl, null, VoteGuarded
         pl.transProfile newpl
         pl.transform game, newpl, true
         newpl.touched game,@id
@@ -6946,7 +6853,6 @@ class Shishimai extends Player
 
 class Pumpkin extends Madman
     type: "Pumpkin"
-    jobname: "かぼちゃ魔"
     midnightSort: 90
     sleeping:->@target?
     sunset:(game)->
@@ -6977,12 +6883,11 @@ class Pumpkin extends Madman
         return unless t?
         return if t.dead
 
-        newpl=Player.factory null, t,null, PumpkinCostumed
+        newpl=Player.factory null, game, t,null, PumpkinCostumed
         t.transProfile newpl
         t.transform game,newpl,true
 class MadScientist extends Madman
     type:"MadScientist"
-    jobname:"マッドサイエンティスト"
     midnightSort:100
     isReviver:->!@dead && @flag!="done"
     sleeping:->true
@@ -7026,7 +6931,7 @@ class MadScientist extends Madman
         pl = game.getPlayer @target
         return if pl.dead
         # 蘇生に成功したら勝利条件を変える
-        newpl=Player.factory null,pl,null,WolfMinion    # WolfMinion
+        newpl=Player.factory null, game, pl,null,WolfMinion    # WolfMinion
         pl.transProfile newpl
         pl.transform game,newpl,true
         log=
@@ -7036,12 +6941,10 @@ class MadScientist extends Madman
         splashlog game.id,game,log
 class SpiritPossessed extends Player
     type:"SpiritPossessed"
-    jobname:"悪霊憑き"
     isReviver:->!@dead
 
 class Forensic extends Player
     type:"Forensic"
-    jobname:"法医学者"
     mdinightSort:100
     sleeping:->@target?
     job_target: Player.JOB_T_DEAD
@@ -7092,17 +6995,14 @@ class Forensic extends Player
 
 class Cosplayer extends Guard
     type:"Cosplayer"
-    jobname:"コスプレイヤー"
     fortuneResult:"人狼"
 
 class TinyGhost extends Player
     type:"TinyGhost"
-    jobname:"おばけ"
     humanCount:-> 0
 
 class Ninja extends Player
     type:"Ninja"
-    jobname:"忍者"
     sleeping:->@target?
     sunset:(game)->
         @setFlag null
@@ -7156,7 +7056,6 @@ class Ninja extends Player
 
 class Twin extends Player
     type:"Twin"
-    jobname:"双子"
     beforebury:(game)->
         # 死亡状態の双子がいたら死亡
         if game.players.some((x)-> x.dead && x.isJobType "Twin")
@@ -7168,7 +7067,6 @@ class Twin extends Player
 
 class Hunter extends Player
     type:"Hunter"
-    jobname:"ハンター"
     sleeping:(game)-> true
     hunterJobdone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     dying:(game, found)->
@@ -7209,12 +7107,10 @@ class Hunter extends Player
 
 class MadHunter extends Hunter
     type:"MadHunter"
-    jobname:"復讐人"
     team:"Werewolf"
 
 class MadCouple extends Player
     type:"MadCouple"
-    jobname:"叫迷狂人"
     team:"Werewolf"
     makejobinfo:(game,result)->
         super
@@ -7229,7 +7125,6 @@ class MadCouple extends Player
 
 class Emma extends Player
     type:"Emma"
-    jobname:"閻魔"
     isListener:(game, log)->
         if log.mode == "emmaskill"
             true
@@ -7241,7 +7136,6 @@ class Emma extends Player
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
-    jobname:"ゲームマスター"
     team:""
     jobdone:->false
     sleeping:->true
@@ -7322,7 +7216,6 @@ class GameMaster extends Player
 # ヘルパー
 class Helper extends Player
     type:"Helper"
-    jobname:"ヘルパー"
     team:""
     jobdone:->@flag?
     sleeping:->true
@@ -7380,7 +7273,6 @@ class Helper extends Player
 # 開始前のやつだ!!!!!!!!
 class Waiting extends Player
     type:"Waiting"
-    jobname:"待機中"
     team:""
     sleeping:(game)->game.phase != Phase.rolerequesting || game.rolerequesttable[@id]?
     isListener:(game,log)->
@@ -7403,7 +7295,7 @@ class Waiting extends Player
             for job,num of game.joblist
                 if num
                     result.push {
-                        name:Shared.game.getjobname job
+                        name: game.i18n.t "roles:jobname.#{job}"
                         value:job
                     }
             return result
@@ -7415,7 +7307,7 @@ class Waiting extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:Waiting.select", {name: @name, jobname: Shared.game.getjobname target}
+                comment: game.i18n.t "roles:Waiting.select", {name: @name, jobname: game.i18n.t "roles:jobname.#{target}"}
         else
             log=
                 mode:"skill"
@@ -7426,7 +7318,6 @@ class Waiting extends Player
 # エンドレス闇鍋でまだ入ってないやつ
 class Watching extends Player
     type:"Watching"
-    jobname:"観戦者"
     team:""
     sleeping:(game)->true
     isWinner:(game,team)->true
@@ -8017,7 +7908,7 @@ class PhantomStolen extends Complex
     sunset:(game)->
         # 夜になると怪盗になってしまう!!!!!!!!!!!!
         @sub?.sunrise? game
-        newpl=Player.factory "Phantom"
+        newpl=Player.factory "Phantom", game
         # アレがなぜか狂ってしまうので一時的に保存
         saved=@originalJobname
         @uncomplex game
@@ -9499,7 +9390,7 @@ module.exports.actions=(req,res,ss)->
                 splashlog game.id,game,log
             if query.jobrule == "特殊ルール.一部闇鍋" && excluded_exceptions.length > 0
                 # 除外役職の情報を表示する
-                exclude_str = excluded_exceptions.map((job)-> Shared.game.getjobname job).join ", "
+                exclude_str = excluded_exceptions.map((job)-> game.i18n.t "roles:jobname.#{job}").join ", "
                 log=
                     mode:"system"
                     comment: game.i18n.t "system.gamestart.excluded", {jobnames: exclude_str}
@@ -9531,7 +9422,7 @@ module.exports.actions=(req,res,ss)->
                     jobinfos=[]
                     for job,num of joblist
                         continue if num==0
-                        jobinfos.push "#{Shared.game.getjobname job}#{num}"
+                        jobinfos.push "#{game.i18n.t "roles:jobname.#{job}"}#{num}"
                     log=
                         mode:"system"
                         comment:"出現役職: "+jobinfos.join(" ")
