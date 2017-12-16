@@ -2,6 +2,10 @@
 common:
   # 身代わりくん
   scapegoat: "身代わりくん"
+  # Penalty for sudden death
+  suddenDeathPenalty: "突然死の罰"
+  # Chemical werewolf
+  chemicalWerewolf: "ケミカル人狼"
 # Error messages
 error:
   # Common error message
@@ -60,6 +64,8 @@ error:
     noChemical: "このルールでケミカル人狼はできません。"
     # unknown casting name is given
     unknownCasting: "不明な配役です。"
+    # Helper target does not exist
+    helperNotExist: "{{name}}さんのヘルパー対象が存在しませんでした。"
   # Error during sudden death punishment
   suddenDeathPunish:
     # You are not a valid voter
@@ -126,6 +132,12 @@ system:
     excluded: "除外役職：{{jobnames}}"
     # This game has the role requesting mode.
     roleRequesting: "このゲームは希望役職制です。希望の役職を選択してください。"
+    # Show casting
+    casting: "配役: {{casting}}"
+    # Show info of teams
+    teams: "出現陣営情報: {{info}}"
+    # Show info of roles
+    roles: "出現役職: {{info}}"
   # Phase transitions
   phase:
     # Special new year message
@@ -238,3 +250,7 @@ logs:
     name: "共有者の小声"
     comment: "ヒソヒソ・・・"
 
+# Tweet.
+tweet:
+  # Tweet when game ended
+  gameend: "「{{roomname}}」の結果：{{result}} #月下人狼"

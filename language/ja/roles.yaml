@@ -113,6 +113,22 @@ jobname:
   Waiting: "待機中"
   Watching: "観戦者"
 
+# Fortune result.
+fortune:
+  human: "村人"
+  werewolf: "人狼"
+  vampire: "ヴァンパイア"
+  pumpkin: "かぼちゃ"
+
+# Psychic result.
+psychic:
+  human: "村人"
+  werewolf: "人狼"
+  BigWolf: "大狼"
+  TinyFox: "子狐"
+
+
+
 # Diviner
 Diviner:
   # Divine result
@@ -442,6 +458,8 @@ FrankensteinsMonster:
 BloodyMary:
   # Select a target.
   select: "{{name}}は{{target}}を呪っています。"
+  # name of normal Mary.
+  mary: "メアリー"
 
 SantaClaus:
   # Error: this player is already given a present.
@@ -474,6 +492,8 @@ Phantom:
   selectNoSteal: "{{name}}は役職を盗みませんでした。"
   # Select to steal.
   select: "{{name}}が{{target}}の役職を盗みました。{{target}}は{{jobname}}でした。"
+  # option not to steal.
+  noStealOption: "盗まない"
   # A job is stolen.
   stolen: "{{name}}は役職を盗まれて{{jobname}}になりました。"
 
@@ -492,6 +512,8 @@ DrawGirl:
 CautiousWolf:
   # Select not to attack.
   selectNoAttack: "{{name}}たち人狼は襲撃しませんでした。"
+  # option not to attack.
+  noAttackOption: "襲撃しない"
 
 Pyrotechnist:
   # Select to launch fireworks.
@@ -599,11 +621,45 @@ Hunter:
   # Select a hunting target.
   select: "{{name}}は{{target}}を銃撃しました。"
 
+Emma:
+  # Emma result strings
+  result:
+    # killed by werewolf
+    werewolf: "{{name}}は人狼の餌食になったようです。"
+    # killed with poison
+    poison: "{{name}}は毒に冒されたようです。"
+    # Killed by QueenSpectator
+    hinamizawa: "{{name}}は感染症により死亡したようです。"
+    # Killed by a vampire
+    vampire: "{{name}}はヴァンパイアの餌食になったようです。"
+    # Killed by a dog
+    dog: "{{name}}は犬の餌食になったようです。"
+    # Killed with traps
+    trap: "{{name}}は罠にかかって死亡したようです。"
+    # Killed by a curse
+    curse: "{{name}}は呪殺されたようです。"
+    # Killed by a PsychoKiller
+    psycho: "{{name}}はサイコキラーに殺されたようです。"
+    # Suicided after fox
+    foxsuicide: "{{name}}は狐の後を追って死亡したようです。"
+    # Suicided after friend
+    friendsuicide: "{{name}}は恋人の後を追って死亡したようです。"
+    # Suicided after his twin
+    twinsuicide: "{{name}}は双子の後を追って死亡したようです。"
+
 GameMaster:
   # Failed to revive.
   reviveFail: "プレイヤーを蘇生できませんでした。"
   # Failed to shorten time.
   shortenFail: "残り時間が短いため短縮できません。"
+  # name of GM when appears at log
+  logName: "$t(jobname.GameMaster)"
+  # GM log to heaven.
+  heavenLog: "GM→霊界"
+  # GM log to audience.
+  audienceLog: "GM→観客"
+  # GM monologue name.
+  monologueLog: "GMの独り言"
 
 Helper:
   # Select a help target.
@@ -618,10 +674,50 @@ Waiting:
   selectNone: "{{name}}は希望役職をおまかせにしました。"
 
 ##### Sub jobs!
+Friend:
+  # name for desc
+  name: "恋人"
+  # jobname of Friend
+  jobname: "$t(Friend.name)（{{jobname}}）"
+
+CultMember:
+  # name for desc
+  name: "カルト信者"
+  # jobname
+  jobname: "$t(CultMember.name)（{{jobname}}）"
+
+WolfMinion:
+  # name for desc
+  name: "狼の子分"
+  # jobname
+  jobname: "$t(WolfMinion.name)（{{jobname}}）"
+
 HolyProtected:
   guarded: "{{name}}は聖なる力で守られました。"
 
 Drunk:
+  # jobname
+  jobname: "酔っ払い（{{jobname}}）"
   # Awake from drunk.
   awake: "{{name}}は目が覚めました。"
 
+Counseled:
+  name: "更生者"
+  jobname: "$t(Counseled.name)（{{jobname}}）"
+
+KeepedLover:
+  fakeName: "$t(Friend.name)"
+  jobname: "手玉（{{jobname}}）"
+  fakeJobname: "$t(Friend.jobname, {'jobname': {{jobname}} })"
+
+FoxMinion:
+  jobname: "狐憑き（{{jobname}}）"
+
+Decider:
+  jobname: "{{jobname}}（決定者）"
+
+Authority:
+  jobname: "{{jobname}}（権力者）"
+
+Chemical:
+  jobname: "{{left}}×{{right}}"
