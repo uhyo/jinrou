@@ -2387,7 +2387,8 @@ class VotingBox
 
 class Player
     # `jobname` property should be set by Player.factory
-    constructor:->
+    constructor:(@game)->
+        # game: a game to which this player is associated.
         # realid:本当のid id:仮のidかもしれない name:名前 icon:アイコンURL
         @dead=false
         @found=null # 死体の発見状況
@@ -2421,9 +2422,9 @@ class Player
             p.sub=sub
             p.cmplFlag=null
         else if !jobs[type]?
-            p=new Player
+            p=new Player game
         else
-            p=new jobs[type]
+            p=new jobs[type] game
             # Add `jobname` property
             p.jobname = game.i18n.t "roles:jobname.#{type}"
             p.originalJobname = p.getJobname()
