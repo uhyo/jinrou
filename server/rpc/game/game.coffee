@@ -400,7 +400,7 @@ class Game
         game.gm=obj.gm
         #game.logs=obj.logs
         game.rule=obj.rule
-        game.players=obj.players.map (x)=>Player.unserialize x, this
+        game.players=obj.players.map (x)=>Player.unserialize x, game
         # 追加する
         if obj.additionalParticipants
             game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x, this
@@ -1983,7 +1983,7 @@ class Game
                     @suddenDeathPunishment = null
 
             # DBからとってきて告知ツイート
-            M.rooms.findOne {id:@id},(err,doc)->
+            M.rooms.findOne {id:@id},(err,doc)=>
                 return unless doc?
                 tweet doc.id, @i18n.t("tweet.gameend", {roomname: doc.name, result: log.comment})
             
@@ -3082,7 +3082,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: "$t(roles:fortume.#{p.getFortuneResult()}"}
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: "$t(roles:fortume.#{p.getFortuneResult()})"}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
@@ -7592,8 +7592,8 @@ class Friend extends Complex    # 恋人
     cmplType:"Friend"
     isFriend:->true
     team:"Friend"
-    getJobname:-> @game.i18n.t "roles:Friend.jobname", {name: @main.getJobname()}
-    getJobDisp:-> @game.i18n.t "roles:Friend.jobname", {name: @main.getJobDisp()}
+    getJobname:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobDisp()}
     
     beforebury:(game,type,deads)->
         @mcall game,@main.beforebury,game,type,deads

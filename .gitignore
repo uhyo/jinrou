@@ -2,3 +2,4 @@ config/
 node_modules/
 /client/static/assets/main
 /server/themes
+/language/*/*.missing.json
