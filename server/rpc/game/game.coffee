@@ -23,7 +23,10 @@ i18n
         fallbackLng: Config.language.fallback
         ns: ["game", "roles"]
         defaultNS: "game"
-    }
+        saveMissing: true
+    }, (err)->
+        if err?
+            console.error 'i18next Error:', err
 
 # フェイズの一覧
 Phase =

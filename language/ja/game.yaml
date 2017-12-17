@@ -36,8 +36,6 @@ error:
     needLogin: "ログインしてください。"
     # given query is invalid.
     invalidQuery: "不正な操作です。"
-    # You are not a player.
-    notPlayer: "参加していません。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)
