@@ -3082,7 +3082,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: "$t(roles:fortume.#{p.getFortuneResult()})"}
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: "$t(roles:fortune.#{p.getFortuneResult()})"}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
