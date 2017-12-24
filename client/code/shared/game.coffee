@@ -1081,6 +1081,16 @@ exports.rules=[
                     }
                 ]
             }
+            {
+                name:"hide_singleton_teams"
+                label:"単独陣営を隠す"
+                title:"ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+            }
         ]
     }
     # 標準ルール
