@@ -5080,7 +5080,7 @@ class Hoodlum extends Player
         if @dead
             # 死んでたらだめ
             return false
-        pls=JSON.parse(@flag).map (id)->game.getPlayer id
+        pls=JSON.parse(@flag||"[]").map (id)->game.getPlayer id
         return pls.every (pl)->pl?.dead==true
 class QuantumPlayer extends Player
     type:"QuantumPlayer"
