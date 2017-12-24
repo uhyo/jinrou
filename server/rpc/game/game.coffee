@@ -1507,7 +1507,7 @@ class Game
                 if emma_log?
                     log=
                         mode:"emmaskill"
-                        comment: game.i18n.t "roles:Emma.result.#{emma_log}", {name: x.name}
+                        comment: @i18n.t "roles:Emma.result.#{emma_log}", {name: x.name}
                     splashlog @id,this,log
 
             @addGamelog {   # 死んだときと死因を記録
@@ -4909,9 +4909,15 @@ class Dictator extends Player
         @setFlag true  # 使用済
         # その場で殺す!!!
         pl.die game,"punish",[@id]
-        # 強制的に次のターンへ
-        game.nextturn()
-        null
+        # XXX executeの中と同じことが書いてある
+        game.bury "punish"
+        return if game.rule.hunter_lastcheck == "no" && game.judge()
+        # 次のターンへ移行
+        unless game.hunterCheck("nextturn")
+            game.nextturn()
+        if game.rule.hunter_lastcheck == "yes"
+            game.judge()
+        return null
 class SeersMama extends Player
     type:"SeersMama"
     sleeping:->true
@@ -4921,9 +4927,9 @@ class SeersMama extends Player
             # 占い師を探す
             divs = game.players.filter (pl)->pl.isJobType "Diviner"
             divsstr=if divs.length>0
-                game.i18n.t "roles:SeesMama.result", {name: @name, results: divs.map((x)->x.name).join(','), count: divs.length}
+                game.i18n.t "roles:SeersMama.result", {name: @name, results: divs.map((x)->x.name).join(','), count: divs.length}
             else
-                game.i18n.t "roles:SeesMama.resultNone", {name: @name}
+                game.i18n.t "roles:SeersMama.resultNone", {name: @name}
             log=
                 mode:"skill"
                 to:@id
@@ -9038,6 +9044,7 @@ module.exports.actions=(req,res,ss)->
                 ((date)->
                     month=date.getMonth()
                     d=date.getDate()
+                    # 期間機率提升
                     if month==11 && 24<=d<=25
                         # 12/24〜12/25はサンタがよくでる
                         if Math.random()<0.5 && frees>0 && !nonavs.SantaClaus
