@@ -4927,9 +4927,15 @@ class Dictator extends Player
         @setFlag true  # 使用済
         # その場で殺す!!!
         pl.die game,"punish",[@id]
-        # 強制的に次のターンへ
-        game.nextturn()
-        null
+        # XXX executeの中と同じことが書いてある
+        game.bury "punish"
+        return if game.rule.hunter_lastcheck == "no" && game.judge()
+        # 次のターンへ移行
+        unless game.hunterCheck("nextturn")
+            game.nextturn()
+        if game.rule.hunter_lastcheck == "yes"
+            game.judge()
+        return null
 class SeersMama extends Player
     type:"SeersMama"
     jobname:"予言者のママ"
