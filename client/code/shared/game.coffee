@@ -69,7 +69,8 @@ exports.teams=teams=
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere"]
     Vampire:["Vampire"]
-    Others:["Bat","Stalker","Doppleganger","CultLeader","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
+    Cult:["CultLeader"]
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -960,14 +961,6 @@ exports.jobinfo=
         Blasphemy:
             name:"冒涜者"
             color:"#802060"
-            
-        
-    Devil:
-        name:"悪魔くん"
-        color:"#735f9e"
-        Devil:
-            name:"悪魔くん"
-            color:"#735f9e"
     Friend:
         name:"恋人陣営"
         color:"#ffb5e5"
@@ -983,12 +976,24 @@ exports.jobinfo=
         Patissiere:
             name:"パティシエール"
             color:"#ab5f30"
+    Devil:
+        name:"悪魔くん"
+        color:"#735f9e"
+        Devil:
+            name:"悪魔くん"
+            color:"#735f9e"
     Vampire:
         name:"ヴァンパイア陣営"
         color:"#8f00bf"
         Vampire:
             name:"ヴァンパイア"
             color:"#8f00bf"
+    Cult:
+        name:"カルトリーダー陣営"
+        color: "#b09d87"
+        CultLeader:
+            name:"カルトリーダー"
+            color:"#b09d87"
     Others:
         name:"その他"
         color:"#cccccc"
@@ -1001,9 +1006,6 @@ exports.jobinfo=
         Doppleganger:
             name:"ドッペルゲンガー"
             color:"#bbbbbb"
-        CultLeader:
-            name:"カルトリーダー"
-            color:"#b09d87"
         Copier:
             name:"コピー"
             color:"#ffffff"
@@ -1078,6 +1080,16 @@ exports.rules=[
                         title:"クソゲーになりますが、人外数の調整は行われます。"
                     }
                 ]
+            }
+            {
+                name:"hide_singleton_teams"
+                label:"単独陣営を隠す"
+                title:"ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
             }
         ]
     }

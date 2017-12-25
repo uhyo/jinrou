@@ -9431,16 +9431,23 @@ module.exports.actions=(req,res,ss)->
                 # 陣営のみ公開モード
                 # 各陣営
                 teaminfos=[]
+                teamcount={}
+                for team of Shared.game.jobinfo
+                    teamcount[team] = 0
                 for team,obj of Shared.game.jobinfo
-                    teamcount=0
                     for job,num of joblist
                         #出現役職チェック
                         continue if num==0
                         if obj[job]?
                             # この陣営だ
-                            teamcount+=num
-                    if teamcount>0
-                        teaminfos.push "#{obj.name}#{teamcount}"    #陣営名
+                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult"]
+                                # count as その他
+                                teamcount["Others"] += num
+                            else
+                                teamcount[team] += num
+                for team,obj of Shared.game.jobinfo
+                    if teamcount[team]>0
+                        teaminfos.push "#{obj.name}#{teamcount[team]}"    #陣営名
 
                 log=
                     mode:"system"
@@ -9467,7 +9474,9 @@ module.exports.actions=(req,res,ss)->
             "hunter_lastattack",
             "poisonwolf",
             "friendssplit",
-            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety"]
+            "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety",
+            "hide_singleton_teams"
+            ]
             
                 ruleobj[x]=query[x] ? null
             # add query job info to rule obj
