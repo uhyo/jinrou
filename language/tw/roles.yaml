@@ -1,0 +1,734 @@
+# Terms for each role.
+
+# Name of all jobs.
+jobname:
+  Human: "村人"
+  Werewolf: "人狼"
+  Diviner: "占卜師"
+  Psychic: "靈能者"
+  Madman: "狂人"
+  Guard: "獵人"
+  Couple: "共有者"
+  Fox: "妖狐"
+  Poisoner: "埋毒者"
+  BigWolf: "大狼"
+  TinyFox: "子狐"
+  Bat: "蝙蝠"
+  Noble: "貴族"
+  Slave: "奴隷"
+  Magician: "魔術師"
+  Spy: "間諜"
+  WolfDiviner: "人狼占卜師"
+  Fugitive: "逃亡者"
+  Merchant: "商人"
+  QueenSpectator: "女王觀戰者"
+  MadWolf: "狂人狼"
+  Neet: "尼特"
+  Liar: "騙子"
+  Spy2: "間諜Ⅱ"
+  Copier: "模仿者"
+  Light: "死神的筆記"
+  Fanatic: "狂信者"
+  Immoral: "背德"
+  Devil: "惡魔"
+  ToughGuy: "硬漢"
+  Cupid: "邱比特"
+  Stalker: "跟蹤狂"
+  Cursed: "被詛咒者"
+  ApprenticeSeer: "見習占卜師"
+  Diseased: "病人"
+  Spellcaster: "言咒者"
+  Lycan: "狼憑"
+  Priest: "聖職者"
+  Prince: "王子"
+  PI: "超常現象研究者"
+  Sorcerer: "妖術師"
+  Doppleganger: "分身"
+  CultLeader: "邪教主"
+  Vampire: "吸血鬼"
+  LoneWolf: "一匹狼"
+  Cat: "貓又"
+  Witch: "魔女"
+  Oldman: "老人"
+  Tanner: "皮革匠"
+  Thief: "小偷"
+  OccultMania: "怪誕狂熱者"
+  WolfCub: "狼之子"
+  WhisperingMad: "私語狂人"
+  Lover: "求愛者"
+  MinionSelector: "部下選擇者"
+  Theif: "小偷"
+  Dog: "狗"
+  Dictator: "獨裁者"
+  SeersMama: "預言者的媽媽"
+  Trapper: "陷阱師"
+  WolfBoy: "狼少年"
+  Hoodlum: "流氓"
+  QuantumPlayer: "量子人類"
+  RedHood: "小紅帽"
+  Counselor: "輔導員"
+  Miko: "巫女"
+  GreedyWolf: "貪婪的狼"
+  FascinatingWolf: "誘惑的狼女"
+  SolitudeWolf: "孤獨的狼"
+  ToughWolf: "專注的狼"
+  ThreateningWolf: "威嚇的狼"
+  HolyMarked: "聖痕者"
+  WanderingGuard: "遊蕩獵人"
+  ObstructiveMad: "礙事狂人"
+  TroubleMaker: "鬧事者"
+  FrankensteinsMonster: "弗蘭肯斯坦的怪物"
+  BloodyMary: "血腥瑪麗"
+  King: "國王"
+  PsychoKiller: "變態殺人狂"
+  SantaClaus: "聖誕老人"
+  Phantom: "怪盗"
+  BadLady: "惡女"
+  DrawGirl: "看板娘"
+  CautiousWolf: "慎重的狼"
+  Pyrotechnist: "煙火師"
+  Baker: "麵包店"
+  Bomber: "炸彈魔"
+  Blasphemy: "褻瀆者"
+  Ushinotokimairi: "丑刻参"
+  Patissiere: "夢色蛋糕師"
+  GotChocolate: "巧克力"
+  MadDog: "狂犬"
+  Hypnotist: "催眠術師"
+  CraftyWolf: "狡猾的狼"
+  Shishimai: "獅子舞"
+  Pumpkin: "南瓜魔"
+  MadScientist: "瘋狂科學家"
+  SpiritPossessed: "惡靈憑依"
+  Forensic: "法醫學者"
+  Cosplayer: "角色扮演者"
+  TinyGhost: "鬼魂"
+  Ninja: "忍者"
+  Twin: "雙子"
+  Hunter: "獵師"
+  MadHunter: "復仇人"
+  MadCouple: "尖叫狂人"
+  Emma: "閻魔"
+  GameMaster: "遊戲GM"
+  Helper: "助手"
+  Waiting: "等待中"
+  Watching: "觀戰者"
+
+# Fortune result.
+fortune:
+  human: "村人"
+  werewolf: "人狼"
+  vampire: "吸血鬼"
+  pumpkin: "南瓜"
+
+# Psychic result.
+psychic:
+  human: "村人"
+  werewolf: "人狼"
+  BigWolf: "大狼"
+  TinyFox: "子狐"
+
+
+
+# Diviner
+Diviner:
+  # Divine result
+  result:
+    human: "村人"
+  # Today's target is automatically chosen.
+  auto: "{{name}} 今日的占卜對象由系統自動決定。"
+  # Selected a target.
+  select: "{{name}} 對 {{target}} 占卜。"
+  # Divining result.
+  resultlog: "{{name}} 對 {{target}} 占卜，是{{result}}。"
+
+# Psychic
+Psychic:
+  result:
+    human: "村人"
+  # Psychi result.
+  resultlog: "{{name}} 的靈能結果，前天處刑的 {{target}} 是{{result}}。"
+
+# Werewolf
+Werewolf:
+  # Error: Werewolves cannot eat each other
+  noWolfAttack: "人狼不能對人狼襲擊。"
+  # Selected a target.
+  select: "以 {{name}} 為首的人狼們決定襲擊 {{target}}。"
+
+# Guard
+Guard:
+  # Error: a Guard cannot guard a same player twice in a row
+  noGuardSame: "不能連續對同一人護衛。"
+  # Selected a target.
+  select: "{{name}} 對 {{target}} 護衛。"
+  # Log of GJ
+  gj: "{{guard}} 對 {{name}} 的護衛成功了。"
+
+# TinyFox
+TinyFox:
+  # Successful result of divine by TinyFOx.
+  resultlog_success: "{{name}} 的占卜結果， {{target}} 是{{result}}？"
+  # Failure
+  resultlog_fail: "{{name}} 的占卜結果， {{target}} 非常可疑？"
+
+
+# Magician
+Magician:
+  select: "{{name}} 對 {{target}} 施展死者復活術。"
+
+# Spy
+Spy:
+  select: "{{name}} 決定脫離村莊。"
+
+# WolfDiviner
+WolfDiviner:
+  select: "{{name}} 對 {{target}} 進行人狼占卜。"
+  resultlog: "{{name}} 對 {{target}} 進行人狼占卜，是{{result}}。"
+
+# Fugitive
+Fugitive:
+  noSelf: "不能逃往自己家。"
+  select: "{{name}} 往 {{target}} 的家附近逃亡。"
+
+
+# Merchant
+Merchant:
+  # Name of kits.
+  kit:
+    Diviner: "占卜組合"
+    Psychic: "靈能組合"
+    Guard: "獵人組合"
+  # Error: cannot send a kit to oneself.
+  noSelf: "不能發送給自己。"
+  select: "{{name}} 對 {{target}} 發送{{kit}}。"
+  # A kit is delivered to a player.
+  delivered: "{{name}} 收到了 {{kit}}。"
+
+# Liar
+Liar:
+  # Select a target.
+  select: "$t(roles:Diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  # Result.
+  resultlog: "雖然不是很自信，但根據騙子占卜的結果， {{target}} 應該是{{result}}吧。應該。"
+
+# Spy2
+Spy2:
+  # His report is found.
+  found: "發現了 {{name}} 的調查報告書。"
+
+# Copier
+Copier:
+  # Selected a target.
+  select: "{{name}} 試圖模仿 {{target}} 的能力。"
+
+# Light
+Light:
+  # Selected a target.
+  select: "{{name}} 在死神的筆記上寫下 {{target}} 的名稱。"
+
+# Cupid
+Cupid:
+  # First select.
+  select1: "{{name}} 選擇 {{target}} 作為戀人的第 1 人。"
+  # Error: select another player
+  noSelectTwice: "請再選擇另外一人。"
+  # Select a target.
+  select: "{{name}} 對 {{target}} 發射戀之箭。"
+  # Became a lover.
+  become: "{{name}} 成為了戀人。"
+
+# Stalker
+Stalker:
+  # Selected a target.
+  select: "{{name}} 開始跟蹤 {{target}} （{{job}}）。"
+
+# Cursed
+Cursed:
+  # became a werewolf.
+  becomeWerewolf: "{{name}} 因詛咒成為了人狼。"
+  # became a vampire.
+  becomeVampire: "{{name}} 因詛咒成為了吸血鬼。"
+
+# Spellcaster
+Spellcaster:
+  # Error: this player is already cursed
+  noSelectTwice: "這個玩家已經被言咒過。"
+  # Selected a target.
+  select: "{{name}} 對 {{target}} 施展言咒。"
+  # A player is cursed.
+  cursed: "{{name}} 被施展言咒，白天不能發言。"
+
+# Priest
+Priest:
+  # Selected a target.
+  select: "{{name}} 對 {{target}} 使用神聖之力守護。"
+
+# Prince
+Prince:
+  # Canceled a punishment.
+  cancel: "{{name}} 是{{jobname}}，處刑被中止了。"
+
+# PI
+PI:
+  # selected a target.
+  select: "{{name}} 對 {{target}} 與其兩邊調查。"
+  # result (something found)
+  found: "{{name}} 對 {{target}} 與其兩邊調查，發現有{{result}}。"
+  # result (everyone human)
+  notfound: "{{name}} 對 {{target}} 與其兩邊調查，大家都是村人。"
+
+# Sorcerer
+Sorcerer:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 調查。"
+  # Result (diviner found)
+  found: "{{name}} 對 {{target}} 調查，是占卜師。"
+  # Result (diviner not found)
+  notfound: "{{name}} 對 {{target}} 調查，不是占卜師。"
+
+# Doppleganger
+Doppleganger:
+  # Select a target.
+  select: "{{name}} 成為 {{target}} 的分身"
+
+# CultLeader
+CultLeader:
+  # Select a target.
+  select: "{{name}} 使 {{target}} 成為信徒。"
+  # Became a cult member.
+  become: "{{name}} 成為了教主的信徒。"
+
+# Vampire
+Vampire:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 襲擊。"
+
+# Cat
+Cat:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 施展死者復活術。"
+
+# Witch
+Witch:
+  # Select a target of poison.
+  selectPoison: "{{name}} 對 {{target}} 使用毒藥。"
+  # Select a target of revival.
+  selectRevival: "{{name}} 對 {{target}} 使用復活藥。"
+
+# OccultMania
+OccultMania:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 指定。"
+
+# Lover
+Lover:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 求愛。"
+  # Become a lover.
+  become: "{{name}} 被求愛成為了戀人。"
+
+# MinionSelector
+MinionSelector:
+  # Select a target.
+  select: "{{name}} 指定 {{target}} （{{jobname}}）成為狼的部下。"
+  # Become a wolfminion.
+  become: "{{name}} 成為了狼的部下。"
+
+# Theif
+Thief:
+  # Candidates are shown.
+  candidates: "{{name}} 可以選擇的職業有 {{jobnames}}。"
+
+# Dog
+Dog:
+  # Select an owner.
+  select: "{{name}} 選擇 {{target}} 為飼主。"
+  # Attack the owner.
+  attack: "{{name}} 對 {{target}} 襲擊。"
+
+# Dictator
+Dictator:
+  # Select a punishment target.
+  select: "身為獨裁者的 {{name}}  ，發出對 {{target}} 的處刑宣言。"
+
+# SeersMama
+SeersMama:
+  # There is no seer.
+  resultNone: "{{name}} 是預言者的媽媽，占卜師不存在。"
+  # There are one or more seer. (number is given as count)
+  result: "{{name}} 是預言者的媽媽，占卜師是 {{results}}。"
+
+# Trapper
+Trapper:
+  noGuardSame: "$t(roles:Guard.noGuardSame)"
+  # Select a target.
+  select: "{{name}} 對 {{target}} 設置陷阱。"
+  # GJ log.
+  gj: "{{guard}} 的陷阱將 {{name}} 從襲擊中守護。"
+
+# WolfBoy
+WolfBoy:
+  # Select a target.
+  select: "{{name}} 令 {{target}} 被當成人狼。"
+
+
+# Hoodlum
+Hoodlum:
+  # Error: this player is already selected
+  alreadySelected: "{{name}} 已經被選為對象。"
+  # Select a target.
+  select: "{{name}} 對 {{target}} 痛恨。"
+
+# QuantumPlayer
+QuantumPlayer:
+  # Select a target of divine.
+  divine: "$t(roles:Diviner.select, {'name': {{name}}, 'target': {{target}} })"
+  # Select a target of werewolf attack.
+  attack: "$t(roles:Werewolf.select, {'name': {{name}}, 'target': {{target}} })"
+  # Result of divine
+  divineResult: "$t(roles:Diviner.resultlog, {'name': {{name}}, 'target': {{target}}, 'result': {{result}} })"
+  # Cannot divine.
+  cannotDivine: "{{name}} 已經沒有身為占卜師的可能性，無法進行占卜。"
+
+# Counselor
+Counselor:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 諮詢更生。"
+  # Rehabilitated
+  rehabilitate: "{{name}} 被諮詢更生了。"
+
+# Miko
+Miko:
+  # Select a self protection.
+  select: "{{name}} 使用神聖之力守護自己。"
+
+# GreedyWolf
+GreedyWolf:
+  # Select a greed.
+  select: "為了滿足 {{name}} 的貪欲，今晚人狼們可以額外襲擊 1 人。"
+
+# FascinatingWolf
+FascinatingWolf:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 誘惑。"
+  # Affected by her.
+  affected: "{{name}} 被人狼誘惑。"
+
+# SolitudeWolf
+SolitudeWolf:
+  # A turn of solitudewolf comes
+  turn: "{{name}} 變得可以襲擊了。"
+  # Another wolf's turn!
+  noturn: "似乎還有其他人狼，{{name}} 還不能進行襲擊。"
+
+# ToughWolf
+ToughWolf:
+  # Select a tough attack
+  select: "{{name}} 抱持著捨身的覺悟襲擊了 {{target}}。"
+# ThreateningWolf
+ThreateningWolf:
+  # Select a threatening.
+  select: "{{name}} 對 {{target}} 威嚇。"
+  # Affected by threatening.
+  affected: "{{name}} 被威嚇了，今夜的能力無效化。"
+
+WanderingGuard:
+  # Select a target.
+  select: "$t(roles:Guard.select, {'name': {{name}}, 'target': {{target}} })"
+  # This player cannot be guarded anymore.
+  noGuardMore: "{{name}} 已經不能護衛 {{target}} 了。"
+
+ObstructiveMad:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 妨礙。"
+  # a Diviner is blocked.
+  blocked: "{{name}} 對 {{target}} 占卜，但是不知道被誰妨礙了。"
+
+TroubleMaker:
+  # Select to make a trouble.
+  select: "{{name}} 在村莊引起糾紛。"
+  # System announce that a trouble has happened.
+  # A number of punished players is given as count.
+  announce: "鬧事者讓村莊混亂了，今日將處刑 {{count}} 人。"
+
+FrankensteinsMonster:
+  # Drained a role from a body.
+  drain: "{{name}} 對 {{target}} 的屍體吸收了{{jobname}}的能力。"
+
+BloodyMary:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 咒殺。"
+  # name of normal Mary.
+  mary: "瑪麗"
+
+SantaClaus:
+  # Error: this player is already given a present.
+  noSelectTwice: "這個人已經收到過禮物。"
+  # Select a target.
+  select: "{{name}} 對 {{target}} 贈送禮物。"
+  # Name of thing.
+  thing:
+    HolyMarked: "聖痕者組合"
+    Oldman: "玉手箱（老人）"
+    Priest: "聖職者組合"
+    Miko: "角色扮演組合（巫女）"
+    Diviner: "占卜組合"
+    Guard: "獵人組合"
+    Psychic: "靈能組合"
+  # Log of delivered presents.
+  deliver:
+    # A poison present is delivered.
+    poison: "{{name}} 收到了有毒的禮物。"
+    # internal: a template for present delivery.
+    _log: "{{name}} 收到了{{thing}}。"
+    # thingが正しく表示されない、別の方法を使用して表示する
+    # HolyMarked set
+    # HolyMarked: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖痕者組合'})"
+    # Oldman set
+    # Oldman: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '玉手箱（老人）'})"
+    # Priest set
+    # Priest: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖職者組合'})"
+    # Miko set
+    # Miko: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '角色扮演組合（巫女）'})"
+    # Diviner set
+    # Diviner: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '占卜組合'})"
+    # Guard set
+    # Guard: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '獵人組合'})"
+    # Psychic set
+    # Psychic: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '靈能組合'})"
+
+Phantom:
+  # Select not to seal a role.
+  selectNoSteal: "{{name}} 放棄盜取職業。"
+  # Select to steal.
+  select: "{{name}} 對 {{target}} 盜取職業。{{target}} 是{{jobname}}。"
+  # option not to steal.
+  noStealOption: "不盜取"
+  # A job is stolen.
+  stolen: "{{name}} 的職業被盜取了，變成了{{jobname}}。"
+
+BadLady:
+  # Select a main friend.
+  selectMain: "{{name}} 對 {{target}} 選為本命對象。"
+  # Select a keep friend.
+  selectKeep: "{{name}} 對 {{target}} 選為玩弄對象。"
+  # Become a lover to a BadLady.
+  become: "$t(roles:Lover.become, {'name': {{name}} })"
+
+DrawGirl:
+  # Reveal that a player is a DrawGirl.
+  reveal: "{{name}} 是看板娘，今日將處刑 {{count}}人。"
+
+CautiousWolf:
+  # Select not to attack.
+  selectNoAttack: "以 {{name}} 為首的人狼們決定今晚不進行襲擊。"
+  # option not to attack.
+  noAttackOption: "不襲擊"
+
+Pyrotechnist:
+  # Select to launch fireworks.
+  select: "{{name}} 準備發射煙火。"
+  # System log that fireworks is fired.
+  affect: "漂亮的煙火綻放著。今夜您不能使用能力。"
+
+Baker:
+  # System log that a Baker is alive.
+  alive: "麵包店烤了好吃的麵包。"
+  # System log that a Baker has dead.
+  dead: "從今以後再也吃不到好吃的麵包了。"
+
+Bomber:
+  # Select to set a bomb.
+  select: "{{name}} 對 {{target}} 設置炸彈。"
+
+Blasphemy:
+  # Select to perform a blasphemy.
+  select: "{{name}} 對 {{target}} 褻瀆。"
+
+Ushinotokimairi:
+  # Select to perform a curse.
+  select: "{{name}} 對 {{target}} 詛咒。"
+
+Patissiere:
+  # select a main friend.
+  select: "{{name}} 將 {{target}} 選為本命對象。"
+  # Chocolate is delivered.
+  deliver: "{{name}} 收到了巧克力。"
+  # Become a lover with.
+  become: "{{name}} 和 {{target}} 成為了戀人。"
+
+GotChocolate:
+  # I'm a main friend!
+  main: "{{name}} 食用的巧克力是本命的。{{name}} 和 {{target}} 成為了戀人。"
+  # I'm not a main friend!
+  sub: "{{name}} 食用的巧克力是義理的。"
+  # Rare pattern: no lover.
+  noLover: "{{name}} 食用了巧克力，什麼都沒有發生。"
+  # Chocolate results
+  result:
+    # Cursed chocolate
+    cursed: "{{name}} 食用的巧克力是詛咒的巧克力，隔日白天不能發言。"
+    # Black chocolate
+    black: "{{name}} 食用的巧克力是黑巧克力，占卜・靈能結果變為人狼。"
+    # White chocolate
+    white: "{{name}} 食用的巧克力是白巧克力，占卜・靈能結果變為村人。"
+    # Poison chocolate
+    poison: "{{name}} 食用的巧克力是有毒的巧克力。"
+    # Stalker
+    stalker: "{{name}} 憑著執念找到了巧克力的發送者。{{name}} 變化為 {{target}} 的跟蹤狂。"
+    # Vampire chocolate
+    vampire: "{{name}} 食用的巧克力不知為何有鐵銹味，占卜結果變為吸血鬼。"
+    # Priest
+    priest: "{{name}} 食用的巧克力是神聖的巧克力，可以使用一次聖職者的能力。"
+
+MadDog:
+  # Select a target of an attack.
+  select: "{{name}} 對 {{target}} 襲擊。"
+
+Hypnotist:
+  # Select a target of hypnosis.
+  select: "{{name}} 對 {{target}} 施展催眠術。"
+
+CraftyWolf:
+  # Select to craft a fake die
+  select: "{{name}} 假死。"
+  # Select to cancel a fake die
+  cancel: "{{name}} 解除假死。"
+
+Shishimai:
+  # Error: that player is already bitten
+  noSelectTwice: "這名玩家已經被咀嚼過。"
+  # Select a target.
+  select: "{{name}} 對 {{target}} 咀嚼。"
+
+Pumpkin:
+  # Select a pumpkinize target.
+  select: "{{name}} 將 {{target}} 變成南瓜。"
+
+MadScientist:
+  # Select a revival target.
+  select: "{{name}} 對 {{target}} 實施復活手術。"
+  # become a wolfminion.
+  become: "$t(roles:MinionSelector.become, {'name': {{name}} })"
+
+Forensic:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 的屍體調查。"
+  # The target had a death resistance.
+  resultYes: "{{name}} 進行調查， {{target}} 擁有死亡耐性。"
+  # The target did not have a death resistance.
+  resultNo: "{{name}} 進行調查， {{target}} 沒有死亡耐性。"
+
+Ninja:
+  # Select a target.
+  select: "{{name}} 對 {{target}} 偵察。"
+  # Result (yes)
+  resultYes: "{{name}} 的偵察結果， {{target}} 夜晚有行動的可能性。"
+  # Result (no)
+  resultNo: "{{name}} 的偵察結果， {{target}} 夜晚不能行動。"
+
+Hunter:
+  # Select a hunting target.
+  select: "{{name}} 對 {{target}} 槍擊。"
+
+Emma:
+  # Emma result strings
+  result:
+    # killed by werewolf
+    werewolf: "{{name}} 成為了人狼的食物。"
+    # killed with poison
+    poison: "{{name}} 中毒死亡。"
+    # Killed by QueenSpectator
+    hinamizawa: "{{name}} 得到感染症而死。"
+    # Killed by a vampire
+    vampire: "{{name}} 成為了吸血鬼的食物。"
+    # Killed by a dog
+    dog: "{{name}} 成為了狗的食物。"
+    # Killed with traps
+    trap: "{{name}} 觸發陷阱而死。"
+    # Killed by a curse
+    curse: "{{name}} 被詛咒殺害。"
+    # Killed by a PsychoKiller
+    psycho: "{{name}} 被變態殺人狂殺害。"
+    # Suicided after fox
+    foxsuicide: "{{name}} 追隨妖狐之後自殺。"
+    # Suicided after friend
+    friendsuicide: "{{name}} 追隨戀人之後自殺。"
+    # Suicided after his twin
+    twinsuicide: "{{name}} 追隨雙子之後自殺。"
+
+GameMaster:
+  # Failed to revive.
+  reviveFail: "該玩家無法被復活。"
+  # Failed to shorten time.
+  shortenFail: "剩餘時間過短無法縮短。"
+  # name of GM when appears at log
+  logName: "$t(roles:jobname.GameMaster)"
+  # GM log to heaven.
+  heavenLog: "GM→靈界"
+  # GM log to audience.
+  audienceLog: "GM→觀戰"
+  # GM monologue name.
+  monologueLog: "GM的自言自語"
+
+Helper:
+  # Select a help target.
+  select: "{{name}} 成為 {{target}} 的助手。"
+
+Waiting:
+  # No preference.
+  none: "不指定"
+  # Select a preference of job.
+  select: "{{name}} 希望成為 {{jobname}}。"
+  # Select none.
+  selectNone: "{{name}} 不指定希望職業。"
+
+##### Sub jobs!
+Friend:
+  # name for desc
+  name: "戀人"
+  # jobname of Friend
+  jobname: "$t(roles:Friend.name)（{{jobname}}）"
+
+CultMember:
+  # name for desc
+  name: "教主信徒"
+  # jobname
+  jobname: "$t(roles:CultMember.name)（{{jobname}}）"
+
+WolfMinion:
+  # name for desc
+  name: "狼的部下"
+  # jobname
+  jobname: "$t(roles:WolfMinion.name)（{{jobname}}）"
+
+HolyProtected:
+  guarded: "{{name}} 被神聖之力守護了。"
+
+Drunk:
+  # jobname
+  jobname: "喝醉（{{jobname}}）"
+  # Awake from drunk.
+  awake: "{{name}} 醒酒了。"
+
+Counseled:
+  name: "更生者"
+  jobname: "$t(roles:Counseled.name)（{{jobname}}）"
+
+KeepedLover:
+  fakeName: "$t(roles:Friend.name)"
+  jobname: "玩弄（{{jobname}}）"
+  fakeJobname: "$t(roles:Friend.jobname, {'jobname': {{jobname}} })"
+
+FoxMinion:
+  jobname: "狐憑（{{jobname}}）"
+
+Decider:
+  jobname: "{{jobname}}（決定者）"
+
+Authority:
+  jobname: "{{jobname}}（權力者）"
+
+Chemical:
+  jobname: "{{left}}×{{right}}"

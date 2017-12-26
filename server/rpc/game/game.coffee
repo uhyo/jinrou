@@ -5982,10 +5982,11 @@ class SantaClaus extends Player
             settype="Psychic"
 
         # 複合させる
+        thing_name = game.i18n.t "roles:SantaClaus.thing.#{settype}"
         log=
             mode:"skill"
             to:pl.id
-            comment: game.i18n.t "roles:SantaClaus.deliver.#{settype}", {name: pl.name}
+            comment: game.i18n.t "roles:SantaClaus.deliver._log", {name: pl.name, thing:thing_name}
         splashlog game.id,game,log
         
         # 複合させる
