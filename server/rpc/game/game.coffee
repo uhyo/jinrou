@@ -4232,7 +4232,7 @@ class Sorcerer extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Sorcerer", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Sorcerer.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
