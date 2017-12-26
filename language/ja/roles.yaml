@@ -51,12 +51,12 @@ jobname:
   Witch: "魔女"
   Oldman: "老人"
   Tanner: "皮なめし職人"
+  Thief: "盗人"
   OccultMania: "オカルトマニア"
   WolfCub: "狼の子"
   WhisperingMad: "囁き狂人"
   Lover: "求愛者"
   MinionSelector: "子分選択者"
-  Thief: "盗人"
   Dog: "犬"
   Dictator: "独裁者"
   SeersMama: "予言者のママ"
@@ -466,26 +466,36 @@ SantaClaus:
   noSelectTwice: "その人にはもうプレゼントを届けられません。"
   # Select a target.
   select: "{{name}}は{{target}}にプレゼントを届けました。"
+  # Name of thing.
+  thing:
+    HolyMarked: "聖痕者セット"
+    Oldman: "玉手箱"
+    Priest: "聖職者セット"
+    Miko: "コスプレセット（巫女）"
+    Diviner: "占いセット"
+    Guard: "狩人セット"
+    Psychic: "霊能セット"
   # Log of delivered presents.
   deliver:
     # A poison present is delivered.
     poison: "{{name}}に毒入りプレゼントが届きました。"
     # internal: a template for present delivery.
     _log: "{{name}}に{{thing}}が到着しました。"
+    # thingが正しく表示されない、別の方法を使用して表示する
     # HolyMarked set
-    HolyMarked: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖痕者セット'})"
+    # HolyMarked: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖痕者セット'})"
     # Oldman set
-    Oldman: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '玉手箱'})"
+    # Oldman: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '玉手箱'})"
     # Priest set
-    Priest: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖職者セット'})"
+    # Priest: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖職者セット'})"
     # Miko set
-    Miko: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': 'コスプレセット（巫女）'})"
+    # Miko: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': 'コスプレセット（巫女）'})"
     # Diviner set
-    Diviner: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '占いセット'})"
+    # Diviner: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '占いセット'})"
     # Guard set
-    Guard: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '狩人セット'})"
+    # Guard: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '狩人セット'})"
     # Psychic set
-    Psychic: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '霊能セット'})"
+    # Psychic: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '霊能セット'})"
 
 Phantom:
   # Select not to seal a role.

@@ -4232,7 +4232,7 @@ class Sorcerer extends Diviner
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Sorcerer", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Sorcerer.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
@@ -5982,10 +5982,11 @@ class SantaClaus extends Player
             settype="Psychic"
 
         # 複合させる
+        thing_name = game.i18n.t "roles:SantaClaus.thing.#{settype}"
         log=
             mode:"skill"
             to:pl.id
-            comment: game.i18n.t "roles:SantaClaus.deliver.#{settype}", {name: pl.name}
+            comment: game.i18n.t "roles:SantaClaus.deliver._log", {name: pl.name, thing:thing_name}
         splashlog game.id,game,log
         
         # 複合させる
