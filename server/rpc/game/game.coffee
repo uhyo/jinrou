@@ -4149,7 +4149,7 @@ class Prince extends Player
             @setFlag "used"    # 能力使用済
             log=
                 mode:"system"
-                comment: game.i18n.t "roles:Prince.cancel", {name: @name, kjobname: @jobname}
+                comment: game.i18n.t "roles:Prince.cancel", {name: @name, jobname: @jobname}
             splashlog game.id,game,log
             @addGamelog game,"princeCO"
         else
