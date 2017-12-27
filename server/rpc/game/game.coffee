@@ -1456,27 +1456,9 @@ class Game
                 if obj.attack == AttackKind.werewolf
                     target = @getPlayer obj.guardedid
                     if target?
-                        comment =
-                            switch obj.reason
-                                when GuardReason.tolerance
-                                    "#{target.name}への襲撃は耐性に阻まれました。"
-                                when GuardReason.guard
-                                    "#{target.name}への襲撃は護衛に阻まれました。"
-                                when GuardReason.cover
-                                    "#{target.name}への襲撃は何者かが身代わりになり失敗しました。"
-                                when GuardReason.absent
-                                    "#{target.name}への襲撃は#{target.name}の逃亡により失敗しました。"
-                                when GuardReason.devil
-                                    "#{target.name}への襲撃は悪魔の力に阻まれました。"
-                                when GuardReason.cursed
-                                    "#{target.name}への襲撃は呪いの力に阻まれました。"
-                                when GuardReason.holy
-                                    "#{target.name}への襲撃は聖なる力に阻まれました。"
-                                when GuardReason.trap
-                                    "#{target.name}への襲撃は罠に阻まれました。"
                         log =
                             mode:"eyeswolfskill"
-                            comment:comment
+                            comment: @i18n.t "roles:EyesWolf.result.#{obj.reason}", {name: target.name}
                         splashlog @id, this, log
         @guard_log = []
 
