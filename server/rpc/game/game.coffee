@@ -73,6 +73,28 @@ PsychicResult =
     # TinyFox
     TinyFox: "TinyFox"
 
+# guard_logにおける襲撃の種類
+AttackKind =
+    werewolf: 'werewolf'
+# 襲撃失敗理由
+GuardReason =
+    # 耐性
+    tolerance: 'tolerance'
+    # 護衛
+    guard: 'guard'
+    # 何者かが身代わりになる
+    cover: 'cover'
+    # 逃亡者
+    absent: 'absent'
+    # 悪魔の力
+    devil: 'devil'
+    # 呪いの力
+    cursed: 'cursed'
+    # 聖職者・巫女
+    holy: 'holy'
+    # 罠
+    trap: 'trap'
+
 # 浅いコピー
 copyObject=(obj)->
     result=Object.create Object.getPrototypeOf obj
@@ -329,6 +351,7 @@ class Game
         @werewolf_flag=[] # 人狼襲撃に関するフラグ
 
         @revive_log = [] # 蘇生した人の記録
+        @guard_log = []  # 襲撃阻止の記録（for 瞳狼）
 
         @slientexpires=0    # 静かにしてろ！（この時間まで）
         @heavenview=false   # 霊界表示がどうなっているか
@@ -914,6 +937,16 @@ class Game
 
         res null
 #======== ゲーム進行の処理
+    # 護衛ログを追加
+    # guardedid: 守られた人のID
+    # attack: 襲撃の種類
+    # reason: 襲撃失敗理由
+    addGuardLog:(guardedid, attack, reason)->
+        @guard_log.push {
+            guardedid: guardedid
+            attack: attack
+            reason: reason
+        }
     #次のターンに進む
     nextturn:->
         clearTimeout @timerid
@@ -1414,6 +1447,39 @@ class Game
     bury:(type)->
         # 閻魔が生存しているフラグ
         emma_flag = @players.some (x)-> !x.dead && x.isJobType("Emma")
+        # 瞳狼が生存しているフラグ
+        eyes_flag = @players.some (x)-> !x.dead && x.isJobType("EyesWolf")
+
+        if eyes_flag
+            # 瞳狼用のログを表示
+            for obj in @guard_log
+                if obj.attack == AttackKind.werewolf
+                    target = @getPlayer obj.guardedid
+                    if target?
+                        comment =
+                            switch obj.reason
+                                when GuardReason.tolerance
+                                    "#{target.name}への襲撃は耐性に阻まれました。"
+                                when GuardReason.guard
+                                    "#{target.name}への襲撃は護衛に阻まれました。"
+                                when GuardReason.cover
+                                    "#{target.name}への襲撃は何者かが身代わりになり失敗しました。"
+                                when GuardReason.absent
+                                    "#{target.name}への襲撃は#{target.name}の逃亡により失敗しました。"
+                                when GuardReason.devil
+                                    "#{target.name}への襲撃は悪魔の力に阻まれました。"
+                                when GuardReason.cursed
+                                    "#{target.name}への襲撃は呪いの力に阻まれました。"
+                                when GuardReason.holy
+                                    "#{target.name}への襲撃は聖なる力に阻まれました。"
+                                when GuardReason.trap
+                                    "#{target.name}への襲撃は罠に阻まれました。"
+                        log =
+                            mode:"eyeswolfskill"
+                            comment:comment
+                        splashlog @id, this, log
+        @guard_log = []
+
 
         deads=[]
         loop
@@ -2198,7 +2264,7 @@ class Game
 ###
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
-    "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える)
+    "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える) / "eyeswolfskill"(瞳狼に見える)
     comment: String
     userid:Userid
     name?:String
@@ -2678,6 +2744,7 @@ class Player
         return if @dead
         if found=="werewolf" && !@willDieWerewolf
             # 襲撃耐性あり
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return
         pl=game.getPlayer @id
         pl.setDead true,found
@@ -2697,7 +2764,6 @@ class Player
             game.revive_log.push @name
             @addGamelog game,"revive",null,null
             game.ss.publish.user @id,"refresh",{id:game.id}
-
     # 埋葬するまえに全員呼ばれる（foundが見られる状況で）
     beforebury: (game,type,deads)->
     # 占われたとき（結果は別にとられる player:占い元）
@@ -3311,6 +3377,7 @@ class Noble extends Player
                     x.die game,"werewolf2"
                     x.addGamelog game,"slavevictim"
                 @addGamelog game,"nobleavoid"
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.cover
         else
             super
 
@@ -3545,6 +3612,8 @@ class Fugitive extends Player
         # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬は回避
         if found in ["werewolf","vampire","witch"]
             if @target!=""
+                if found == "werewolf"
+                    game.addGuardLog @id, AttackKind.werewolf, GuardReason.absent
                 return
             else
                 super
@@ -3813,6 +3882,7 @@ class Devil extends Player
             unless @flag
                 # まだ噛まれていない
                 @setFlag "bitten"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.devil
         else if found=="punish"
             # 処刑されたぞ！
             if @flag=="bitten"
@@ -3830,6 +3900,7 @@ class ToughGuy extends Player
         if found=="werewolf"
             # 狼の襲撃に耐える
             @setFlag "bitten"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
         else
             super
     sunrise:(game)->
@@ -3980,6 +4051,7 @@ class Cursed extends Player
             unless @flag
                 # まだ噛まれていない
                 @setFlag "bitten"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.cursed
         else if found=="vampire"
             # ヴァンパイアにもなる!!!
             unless @flag
@@ -7161,6 +7233,16 @@ class Emma extends Player
         else
             super
 
+class EyesWolf extends Werewolf
+    type:"EyesWolf"
+    jobname:"瞳狼"
+    isListener:(game, log)->
+        if log.mode == "eyeswolfskill"
+            true
+        else
+            super
+
+
 
 # ============================
 # 処理上便宜的に使用
@@ -7658,6 +7740,8 @@ class HolyProtected extends Complex
             comment: game.i18n.t "roles:HolyProtected.guarded", {name: @name}
         splashlog game.id,game,log
         game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
+        if found == "werewolf"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
         
         @uncomplex game
 # カルトの信者になった人
@@ -7691,6 +7775,9 @@ class Guarded extends Complex
                         to:guard.id
                         comment: game.i18n.t "roles:Guard.gj", {guard: guard.name, name: @name}
                     splashlog game.id,game,log
+            # 襲撃失敗ログを追加
+            if found == "werewolf"
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.guard
 
     sunrise:(game)->
         # 一日しか守られない
@@ -7834,6 +7921,9 @@ class TrapGuarded extends Complex
             pl=canbedead[r] # 被害者
             pl.die game,"trap"
             @addGamelog game,"trapkill",null,pl.id
+            # 襲撃失敗理由を保存
+            if found == "werewolf"
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.trap
 
 
     sunrise:(game)->
@@ -7874,6 +7964,9 @@ class MikoProtected extends Complex
     die:(game,found)->
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # 襲撃失敗理由を保存
+        if found == "werewolf"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
     sunset:(game)->
         # 一日しか効かない
         @sub?.sunset? game
@@ -8317,6 +8410,7 @@ class Chemical extends Complex
         return if @dead
         if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
             # 人狼に対する襲撃耐性
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return
         # main, subに対してdieをsimulateする（ただしdyingはdummyにする）
         d = Object.getOwnPropertyDescriptor(this, "dying")
@@ -8483,6 +8577,7 @@ jobs=
     MadHunter:MadHunter
     MadCouple:MadCouple
     Emma:Emma
+    EyesWolf:EyesWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8631,6 +8726,7 @@ jobStrength=
     MadHunter:17
     MadCouple:19
     Emma:17
+    EyesWolf:70
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
