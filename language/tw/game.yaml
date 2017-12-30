@@ -218,7 +218,7 @@ judge:
   friendsNormal: "{{count}} 人的愛之力是沒有何者能夠匹敵的。"
   friendsSpecial: "{{count}} 人的禁斷的愛之力是沒有何者能夠匹敵的。"
   friendsAll: "村莊被戀人支配了。"
-  cult: "村莊被吸血鬼支配了。"
+  cult: "村莊被邪教主支配了。"
   vampire: "吸血鬼享用完最後的村人後離去尋找下個獵物了…"
   lonewolf: "人狼享用完最後的村人後離去尋找下個獵物了…"
   draw: "平手。"
@@ -232,7 +232,7 @@ judge:
     cult: "邪教主勝利"
     vampire: "吸血鬼陣營勝利"
     lonewolf: "一匹狼勝利"
-
+    draw: "…"
 
 # Terms for quantum werewolf
 quantum:
