@@ -109,6 +109,7 @@ jobname:
   MadHunter: "復仇者"
   MadCouple: "尖叫狂人"
   Emma: "閻魔"
+  Owlman: "夜梟"
   EyesWolf: "瞳狼"
   GameMaster: "遊戲GM"
   Helper: "助手"
@@ -667,8 +668,8 @@ EyesWolf:
     tolerance: "{{name}} 的襲擊被耐性阻止了。"
     # Guard
     guard: "{{name}} 的襲擊被護衛阻止了。"
-    # Covered by someone
-    covered: "{{name}} 的襲擊被替身能力阻止了。"
+    # Cover by someone
+    cover: "{{name}} 的襲擊被替身能力阻止了。"
     # Target was absent
     absent: "{{name}} 的襲擊因 {{name}} 的逃亡失敗了。"
     # Devil's power
@@ -679,6 +680,7 @@ EyesWolf:
     holy: "{{name}} 的襲擊被神聖之力阻止了。"
     # Guard by a trap
     trap: "{{name}} 的襲擊被陷阱阻止了。"
+
 
 
 GameMaster:
