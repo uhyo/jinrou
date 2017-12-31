@@ -6962,7 +6962,13 @@ class Shishimai extends Player
     isWinner:(game,team)->
         # 生存者（自身を除く）を全員噛んだら勝利
         alives = game.players.filter (x)->!x.dead
-        bitten = JSON.parse (@flag || "[]")
+        # 獅子舞に噛まれた人を集計
+        bitten = []
+        for pl in game.players
+            for p in pl.accessByJobType("Shishimai")
+                b = JSON.parse(p.flag || "[]")
+                bitten.push b...
+        # 生存者が全員噛まれているか?
         flg = true
         for pl in alives
             if pl.id == @id
