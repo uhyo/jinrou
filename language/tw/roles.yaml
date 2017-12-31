@@ -106,9 +106,11 @@ jobname:
   Ninja: "忍者"
   Twin: "雙子"
   Hunter: "獵師"
-  MadHunter: "復仇人"
+  MadHunter: "復仇者"
   MadCouple: "尖叫狂人"
   Emma: "閻魔"
+  Owlman: "夜梟"
+  EyesWolf: "瞳狼"
   GameMaster: "遊戲GM"
   Helper: "助手"
   Waiting: "等待中"
@@ -657,6 +659,29 @@ Emma:
     friendsuicide: "{{name}} 追隨戀人之後自殺。"
     # Suicided after his twin
     twinsuicide: "{{name}} 追隨雙子之後自殺。"
+    
+EyesWolf:
+  # EyesWolf result strings
+  # Wolves' attack failed because ...
+  result:
+    # Has tolerance to wolf attack
+    tolerance: "{{name}} 的襲擊被耐性阻止了。"
+    # Guard
+    guard: "{{name}} 的襲擊被護衛阻止了。"
+    # Cover by someone
+    cover: "{{name}} 的襲擊被替身能力阻止了。"
+    # Target was absent
+    absent: "{{name}} 的襲擊因 {{name}} 的逃亡失敗了。"
+    # Devil's power
+    devil: "{{name}} 的襲擊被惡魔之力阻止了。"
+    # Curse power
+    cursed: "{{name}} 的襲擊被詛咒之力阻止了。"
+    # Holy power
+    holy: "{{name}} 的襲擊被神聖之力阻止了。"
+    # Guard by a trap
+    trap: "{{name}} 的襲擊被陷阱阻止了。"
+
+
 
 GameMaster:
   # Failed to revive.

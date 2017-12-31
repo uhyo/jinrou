@@ -108,6 +108,7 @@ jobname:
   MadHunter: "復讐人"
   MadCouple: "叫迷狂人"
   Emma: "閻魔"
+  EyesWolf: "瞳狼"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -663,10 +664,10 @@ EyesWolf:
   result:
     # Has tolerance to wolf attack
     tolerance: "{{name}}への襲撃は耐性に阻まれました。"
-    # Guarded
-    guarded: "{{name}}への襲撃は護衛に阻まれました。"
-    # Covered by someone
-    covered: "{{name}}への何者かが身代わりになり失敗しました。"
+    # Guard
+    guard: "{{name}}への襲撃は護衛に阻まれました。"
+    # Cover by someone
+    cover: "{{name}}への何者かが身代わりになり失敗しました。"
     # Target was absent
     absent: "{{name}}への襲撃は{{name}}の逃亡により失敗しました。"
     # Devil's power
@@ -675,7 +676,7 @@ EyesWolf:
     cursed: "{{name}}への襲撃は呪いの力に阻まれました。"
     # Holy power
     holy: "{{name}}への襲撃は聖なる力に阻まれました。"
-    # Guarded by a trap
+    # Guard by a trap
     trap: "{{name}}への襲撃は罠に阻まれました。"
 
 
