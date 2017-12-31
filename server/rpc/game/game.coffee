@@ -1303,7 +1303,7 @@ class Game
                         @currentyear++
                         log=
                             mode:"system"
-                            comment:"#{@currentyear}年になりました。"
+                            comment: @i18n.t "system.phase.newyear", {year: @currentyear}
                         splashlog @id,this,log
                 ), end_date.getTime() - Date.now()
 
