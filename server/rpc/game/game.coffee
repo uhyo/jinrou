@@ -1281,6 +1281,31 @@ class Game
             for pl in alives
                 pl.votestart this
             @revote_num=0   # 再投票の回数は0にリセット
+            # New year messageの処理
+            end_date = new Date
+            end_date.setTime(end_date.getTime() + @rule.day * 1000)
+            # debug
+            # end_date.setTime(end_date.getTime() + 145*60*1000)
+            if (new Date).getFullYear() == @currentyear && end_date.getFullYear() > @currentyear
+                # 昼時間中に変わるので専用タイマー
+                end_date.setMonth 0
+                end_date.setDate 1
+                end_date.setHours 0
+                end_date.setMinutes 0
+                end_date.setSeconds 0
+                end_date.setMilliseconds 0
+                # debug
+                # end_date.setTime(end_date.getTime() - 145*60*1000)
+                current_day = @day
+                setTimeout (()=>
+                    console.log 'time!', @finished, @phase
+                    if !@finished && @day == current_day && @phase in [Phase.day, Phase.day_remain, Phase.day_voting]
+                        @currentyear++
+                        log=
+                            mode:"system"
+                            comment:"#{@currentyear}年になりました。"
+                        splashlog @id,this,log
+                ), end_date.getTime() - Date.now()
 
         #死体処理
         @bury "other"
@@ -6884,7 +6909,16 @@ class Shishimai extends Player
     isWinner:(game,team)->
         # 生存者（自身を除く）を全員噛んだら勝利
         alives = game.players.filter (x)->!x.dead
-        bitten = JSON.parse (@flag || "[]")
+        # 獅子舞に噛まれた人を集計
+        bitten = []
+        for pl in game.players
+            ps = pl.accessByJobTypeAll("Shishimai")
+            if ps.length > 0
+                bitten.push pl.id
+            for p in ps
+                b = JSON.parse(p.flag || "[]")
+                bitten.push b...
+        # 生存者が全員噛まれているか?
         flg = true
         for pl in alives
             if pl.id == @id
