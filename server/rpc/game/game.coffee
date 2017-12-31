@@ -590,7 +590,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
