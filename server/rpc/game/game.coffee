@@ -4815,7 +4815,7 @@ class MinionSelector extends Player
         pl.transform game,newpl,true
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:MinionSelector", {name: @name, target: pl.name, jobname: pl.jobname}
+            comment: game.i18n.t "roles:MinionSelector.select", {name: @name, target: pl.name, jobname: pl.jobname}
         splashlog game.id,game,log
 
         log=
