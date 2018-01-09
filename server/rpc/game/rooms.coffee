@@ -291,7 +291,7 @@ module.exports.actions=(req,res,ss)->
                 return
             if room.mode=="playing" && room.jobrule=="特殊ルール.エンドレス闇鍋"
                 # エンドレス闇鍋の場合はゲーム内人数による人数判定を行う
-                if Server.game.game.endlessPlayersNumber(roomid) >= room.number
+                unless Server.game.game.endlessCanEnter(roomid, req.session.userId, room.number)
                     # 満員
                     res error:"これ以上入れません"
                     return
