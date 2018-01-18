@@ -60,7 +60,7 @@ FortuneResult =
     # Vampire
     vampire: "vampire"
     # pumpkin
-    pumkpin: "pumpkin"
+    pumpkin: "pumpkin"
 
 # Code of psychic result.
 PsychicResult =
