@@ -1659,7 +1659,7 @@ class Game
                     # GM霊能
                     log=
                         mode:"system"
-                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: "$t(roles:psychic.#{player.getPsychicResult()})"}
+                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: @i18n.t "roles:psychic.#{player.getPsychicResult()}"}
                     splashlog @id,this,log
                 
             @votingbox.remains--
@@ -3161,7 +3161,7 @@ class Diviner extends Player
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: "$t(roles:fortune.#{p.getFortuneResult()})"}
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
@@ -3201,7 +3201,7 @@ class Psychic extends Player
     beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
-            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {name: @name, target: x.name, result: "$t(roles:psychic.#{x.getPsychicResult()})"}) + "\n"
+            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {name: @name, target: x.name, result: game.i18n.t "roles:psychic.#{x.getPsychicResult()}"}) + "\n"
 
 class Madman extends Player
     type:"Madman"
@@ -3350,7 +3350,7 @@ class TinyFox extends Diviner
         if p?
             success= Math.random()<0.5  # 成功したかどうか
             key = if success then "roles:TinyFox.resultlog_success" else "roles:TinyFox.resultlog_fail"
-            re = game.i18n.t key, {name: @name, target: p.name, result: "$t(roles:fortune.#{p.getFortuneResult()})"}
+            re = game.i18n.t key, {name: @name, target: p.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
             @results.push {
                 player: p.publicinfo()
                 result: re
@@ -3767,7 +3767,7 @@ class Liar extends Player
                         fr
             @results.push {
                 player: p.publicinfo()
-                result: "$t(roles:fortune.#{result})"
+                result: game.i18n.t "roles:fortune.#{result}"
             }
     isWinner:(game,team)->team==@team && !@dead # 村人勝利で生存
 class Spy2 extends Player
@@ -4279,7 +4279,7 @@ class PI extends Diviner
         if pls.length>0
             rs=pls.map((x)->x?.getFortuneResult())
                 .filter((x)->x != FortuneResult.human)    # 村人以外
-                .map((x)-> "$t(roles:fortune.#{x})")
+                .map((x)-> game.i18n.t "roles:fortune.#{x}")
             # 重複をとりのぞく
             nrs=[]
             rs.forEach (x,i)->
