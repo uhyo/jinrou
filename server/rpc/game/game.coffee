@@ -19,6 +19,12 @@ i18n
             jsonIndent: 2
         interpolation:
             escapeValue: false
+            # disable nesting feature by passing never-matching patterns
+            nestingPrefix: undefined
+            nestingSuffix: undefined
+            # Actually it matches an empty string, but this is not a problem here.
+            nestingPrefixEscaped: '$^'
+            nestingSuffixEscaped: '$^'
         lng: Config.language.value
         fallbackLng: Config.language.fallback
         ns: ["game", "roles"]
