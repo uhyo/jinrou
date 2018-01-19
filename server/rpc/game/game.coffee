@@ -3737,7 +3737,7 @@ class Liar extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Liar.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Diviner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     sunrise:(game)->
@@ -5040,7 +5040,7 @@ class Trapper extends Player
         unless playerid==@id && game.rule.guardmyself!="ok"
             if playerid==@flag
                 # 前も護衛した
-                return game.i18n.t "roles:Trapper.noGuardSame"
+                return game.i18n.t "roles:Guard.noGuardSame"
             @setTarget playerid
             @setFlag playerid
             pl=game.getPlayer(playerid)
@@ -5212,7 +5212,7 @@ class QuantumPlayer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:QuantumPlayer.divine", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Diviner.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else if query.jobtype=="_Quantum_Werewolf" && !tarobj.Werewolf?
             if @id==playerid
@@ -5221,7 +5221,7 @@ class QuantumPlayer extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:QuantumPlayer.attack", {name: @name, target: pl.name}
+                comment: game.i18n.t "roles:Werewolf.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
         else
             return game.i18n.t "error.common.invalidSelection"
@@ -5245,7 +5245,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment: game.i18n.t "roles:QuantumPlayer.divineResult", {name: @name, target: pl.name, result: game.i18n.t "roles:fortune.werewolf"}
+                            comment: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: pl.name, result: game.i18n.t "roles:fortune.werewolf"}
                         splashlog game.id,game,log
                         # 人狼のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5257,7 +5257,7 @@ class QuantumPlayer extends Player
                         log=
                             mode:"skill"
                             to:@id
-                            comment: game.i18n.t "roles:QuantumPlayer.divineResult", {name: @name, target: pl.name, result: game.i18n.t "roles:fortune.human"}
+                            comment: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: pl.name, result: game.i18n.t "roles:fortune.human"}
                         splashlog game.id,game,log
                         # 村人のやつ以外排除
                         game.quantum_patterns=game.quantum_patterns.filter (obj)=>
@@ -5720,7 +5720,7 @@ class WanderingGuard extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:WanderingGuard.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
@@ -6212,7 +6212,7 @@ class BadLady extends Player
                     log=
                         mode:"skill"
                         to:pll.id
-                        comment: game.i18n.t "roles:BadLady.become", {name: pll.name}
+                        comment: game.i18n.t "roles:Lover.become", {name: pll.name}
                     splashlog game.id,game,log
             # 自分恋人
             newpl=Player.factory null, game, this,null,Friend # 恋人だ！
@@ -7061,7 +7061,7 @@ class MadScientist extends Madman
         log=
             mode:"skill"
             to:newpl.id
-            comment: game.i18n.t "roles:MadScientist.become", {name: newpl.name}
+            comment: game.i18n.t "roles:MinionSelector.become", {name: newpl.name}
         splashlog game.id,game,log
 class SpiritPossessed extends Player
     type:"SpiritPossessed"
@@ -9775,7 +9775,7 @@ module.exports.actions=(req,res,ss)->
                             log.possess_name = pl.name
                             log.possess_id = pl.id
                 when "gm"
-                    log.name= game.i18n.t "roles:GameMaster.logName"
+                    log.name= game.i18n.t "roles:jobname.GameMaster"
                 when "gmheaven"
                     log.name= game.i18n.t "roles:GameMaster.heavenLog"
                 when "gmaudience"

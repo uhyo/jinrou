@@ -207,8 +207,6 @@ Merchant:
 
 # Liar
 Liar:
-  # Select a target.
-  select: "$t(roles:Diviner.select, {'name': {{name}}, 'target': {{target}} })"
   # Result.
   resultlog: "あんまり自信ないけど、霊能占いの結果、{{target}}は{{result}}}だと思う。たぶん。"
 
@@ -361,7 +359,6 @@ SeersMama:
 
 # Trapper
 Trapper:
-  noGuardSame: "$t(roles:Guard.noGuardSame)"
   # Select a target.
   select: "{{name}}は{{target}}を罠で護衛しました。"
   # GJ log.
@@ -382,12 +379,6 @@ Hoodlum:
 
 # QuantumPlayer
 QuantumPlayer:
-  # Select a target of divine.
-  divine: "$t(roles:Diviner.select, {'name': {{name}}, 'target': {{target}} })"
-  # Select a target of werewolf attack.
-  attack: "$t(roles:Werewolf.select, {'name': {{name}}, 'target': {{target}} })"
-  # Result of divine
-  divineResult: "$t(roles:Diviner.resultlog, {'name': {{name}}, 'target': {{target}}, 'result': {{result}} })"
   # Cannot divine.
   cannotDivine: "{{name}}が生存中の占い師である可能性が無くなったので、占えませんでした。"
 
@@ -434,8 +425,6 @@ ThreateningWolf:
   affected: "{{name}}は威嚇されました。今夜は能力が無効化されます。"
 
 WanderingGuard:
-  # Select a target.
-  select: "$t(roles:Guard.select, {'name': {{name}}, 'target': {{target}} })"
   # This player cannot be guarded anymore.
   noGuardMore: "{{name}}は{{target}}をもう護衛できません。"
 
@@ -482,21 +471,6 @@ SantaClaus:
     poison: "{{name}}に毒入りプレゼントが届きました。"
     # internal: a template for present delivery.
     _log: "{{name}}に{{thing}}が到着しました。"
-    # thingが正しく表示されない、別の方法を使用して表示する
-    # HolyMarked set
-    # HolyMarked: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖痕者セット'})"
-    # Oldman set
-    # Oldman: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '玉手箱'})"
-    # Priest set
-    # Priest: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '聖職者セット'})"
-    # Miko set
-    # Miko: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': 'コスプレセット（巫女）'})"
-    # Diviner set
-    # Diviner: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '占いセット'})"
-    # Guard set
-    # Guard: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '狩人セット'})"
-    # Psychic set
-    # Psychic: "$t(roles:SantaClaus.deliver._log, {'name': {{name}}, 'thing': '霊能セット'})"
 
 Phantom:
   # Select not to seal a role.
@@ -513,8 +487,6 @@ BadLady:
   selectMain: "{{name}}は{{target}}を本命の相手に選びました。"
   # Select a keep friend.
   selectKeep: "{{name}}は{{target}}を手玉に取りました。"
-  # Become a lover to a BadLady.
-  become: "$t(roles:Lover.become, {'name': {{name}} })"
 
 DrawGirl:
   # Reveal that a player is a DrawGirl.
@@ -609,8 +581,6 @@ Pumpkin:
 MadScientist:
   # Select a revival target.
   select: "{{name}}は{{target}}に蘇生措置を施しました。"
-  # become a wolfminion.
-  become: "$t(roles:MinionSelector.become, {'name': {{name}} })"
 
 Forensic:
   # Select a target.
@@ -685,8 +655,6 @@ GameMaster:
   reviveFail: "プレイヤーを蘇生できませんでした。"
   # Failed to shorten time.
   shortenFail: "残り時間が短いため短縮できません。"
-  # name of GM when appears at log
-  logName: "$t(roles:jobname.GameMaster)"
   # GM log to heaven.
   heavenLog: "GM→霊界"
   # GM log to audience.
@@ -711,19 +679,19 @@ Friend:
   # name for desc
   name: "恋人"
   # jobname of Friend
-  jobname: "$t(roles:Friend.name)（{{jobname}}）"
+  jobname: "恋人（{{jobname}}）"
 
 CultMember:
   # name for desc
   name: "カルト信者"
   # jobname
-  jobname: "$t(roles:CultMember.name)（{{jobname}}）"
+  jobname: "カルト信者（{{jobname}}）"
 
 WolfMinion:
   # name for desc
   name: "狼の子分"
   # jobname
-  jobname: "$t(roles:WolfMinion.name)（{{jobname}}）"
+  jobname: "狼の子分（{{jobname}}）"
 
 HolyProtected:
   guarded: "{{name}}は聖なる力で守られました。"
@@ -736,12 +704,12 @@ Drunk:
 
 Counseled:
   name: "更生者"
-  jobname: "$t(roles:Counseled.name)（{{jobname}}）"
+  jobname: "更生者（{{jobname}}）"
 
 KeepedLover:
-  fakeName: "$t(roles:Friend.name)"
+  fakeName: "恋人"
   jobname: "手玉（{{jobname}}）"
-  fakeJobname: "$t(roles:Friend.jobname, {'jobname': {{jobname}} })"
+  fakeJobname: "恋人（{{jobname}}）"
 
 FoxMinion:
   jobname: "狐憑き（{{jobname}}）"
