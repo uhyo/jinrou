@@ -28,7 +28,7 @@ error:
     # That player is not dead
     notDead: "そのプレイヤーは死亡していません。"
     # Do not select scapegoat.
-    noScapegoat: "$t(common.scapegoat)は選べません。"
+    noScapegoat: "身代わりくんは選べません。"
     ## others
     # Such game does not exist.
     noSuchGame: "そのゲームは存在しません。"
@@ -55,7 +55,7 @@ error:
     # Time parameter is invalid.
     invalidTime: "時間の選択が不正です。"
     # Players number is not enough.
-    playerNotEnough: "人数が少なすぎるので開始できません。$t(common.scapegoat)を含めて{{count}}人必要です。"
+    playerNotEnough: "人数が少なすぎるので開始できません。身代わりくんを含めて{{count}}人必要です。"
     # Too many for quantum werewolf.
     tooManyQuantum: "人数が多すぎます。量子人狼では人数を{{count}}人以下にしてください。"
     # Chemical werewolf is not available under this rule.
