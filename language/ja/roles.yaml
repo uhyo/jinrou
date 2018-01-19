@@ -426,7 +426,7 @@ ThreateningWolf:
 
 WanderingGuard:
   # This player cannot be guarded anymore.
-  noGuardMore: "{{name}}は{{target}}をもう護衛できません。"
+  noGuardMode: "{{name}}は{{target}}をもう護衛できません。"
 
 ObstructiveMad:
   # Select a target.
