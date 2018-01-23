@@ -6,6 +6,8 @@ error:
   invalidMailAddress: "メールアドレスの形式が正しくありません。"
   # Two passwords does not match
   passwordInconsistent: "パスワードが一致しません。"
+  # no such user
+  noSuchUser: "そのユーザーは存在しません。"
 
   newentry:
     # Account creation is restricted
