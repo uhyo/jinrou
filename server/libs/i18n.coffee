@@ -20,7 +20,7 @@ i18next
             nestingSuffixEscaped: '$^'
         lng: Config.language.value
         fallbackLng: Config.language.fallback
-        ns: ["common", "user", "rooms", "game", "roles"]
+        ns: ["common", "lobby", "user", "rooms", "game", "roles"]
         defaultNS: "game"
         saveMissing: true
     }, (err)->
