@@ -1,3 +1,5 @@
+libi18n = require '../libs/i18n.coffee'
+i18n = libi18n.getWithDefaultNS 'user'
 # Blacklist Database
 
 ###
@@ -26,7 +28,7 @@ exports.addBlacklist = (query, cb)->
     # 当該ユーザーを検索
     M.users.findOne {userid: userid}, (err, doc)->
         unless doc?
-            cb {error: "そのユーザーは見つかりません"}
+            cb {error: i18n.t "error.noSuchUser"}
             return
         updateQuery = {
             $setOnInsert: {
@@ -302,7 +304,7 @@ exports.extendBlacklist = (query, cb)->
             cb {error: err}
             return
         unless doc?
-            cb {error: "そのユーザーは見つかりません"}
+            cb {error: i18n.t "error.noSuchUser"}
             return
         updateQuery = {
             $addToSet: {

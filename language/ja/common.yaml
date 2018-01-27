@@ -1,0 +1,6 @@
+# Common language fragments.
+error:
+  # You need to log in.
+  needLogin: "ログインしてください。"
+  # Input is invalid.
+  invalidInput: "入力が不正です。"

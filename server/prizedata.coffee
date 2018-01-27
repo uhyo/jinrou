@@ -2,6 +2,10 @@ csv=require 'csv'
 path=require 'path'
 fs=require 'fs'
 
+libi18n = require './libs/i18n.coffee'
+
+i18n = libi18n.getWithDefaultNS 'prizedata'
+
 Shared=
     game:require '../client/code/shared/game'
 
@@ -16,11 +20,12 @@ makePrize=(cb)->
         phonetics: {}
     }
     cb2 = (result)->
-        # 残り
-        makeOtherPrize result
-        # 称号IDと名前の対応表を作る
-        makeNames result
-        cb result
+        libi18n.addResourceLoadCallback ->
+            # 残り
+            makeOtherPrize result
+            # 称号IDと名前の対応表を作る
+            makeNames result
+            cb result
 
     dir=path.normalize __dirname+"/../prizedata"
     fs.readFile path.join(dir,"win.csv"),{encoding:"utf8"}, (err,data)->
@@ -121,55 +126,30 @@ makeNames=(result)->
 
 # 他のprize
 makeOtherPrize=(result)->
-    result.winteamcountprize=
-        Human:
-            10:"白/しろ"
-            50:"光/ひかり"
-        Werewlf:
-            5:"偽り/いつわり"
-            10:"黒/くろ"
-            50:"闇/やみ"
-    result.loseteamcountprize={}
+    prizedata = libi18n.getResource 'prizedata'
+    result.winteamcountprize = prizedata.winteamcount
+    result.loseteamcountprize = prizedata.loseteamcount
     result.counterprize=
         # 呪殺
         cursekill:
-            names:
-                1:"呪殺/じゅさつ"
-                5:"スナイパー/すないぱー"
-                10:"天敵/てんてき"
-                15:"FOXHOUND/ふぉっくすはうんど"
-                30:"ハンター/はんたー"
-                50:"奇跡/きせき"
+            names: prizedata.counter.cursekill
             func:(game,pl)->
                 # 呪殺を数える
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="cursekill").length
         # 初日黒
         divineblack2:
-            names:
-                5:"千里眼/せんりがん"
-                10:"心眼/しんがん"
+            names: prizedata.counter.divineblack2
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="divine" && x.flag in Shared.game.blacks).length
             
         # GJ判定
         GJ:
-            names:
-                1:"GJ/じーじぇー"
-                3:"護衛/ごえい"
-                5:"防衛/ぼうえい"
-                10:"鉄壁/てっぺき"
-                15:"救世主/きゅうせいしゅ"
-                30:"ガーディアン/がーでぃあん"
+            names: prizedata.counter.GJ
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="GJ").length
         # 恋人の勝利回数
         lovers_wincount:
-            names:
-                1:"両想い/りょうおもい"
-                5:"いちゃいちゃ/いちゃいちゃ"
-                10:"ラブラブ/らぶらぶ"
-                15:"結婚/けっこん"
-                30:"比翼連理/ひよくれんり"
+            names: prizedata.counter.lovers_wincount
             func:(game,pl)->
                 if pl.winner && pl.isFriend()
                     1
@@ -177,12 +157,7 @@ makeOtherPrize=(result)->
                     0
         # 恋人の敗北回数
         lovers_losecount:
-            names:
-                1:"倦怠期/けんたいき"
-                5:"浮気/うわき"
-                10:"失恋/しつれん"
-                15:"離婚/りこん"
-                30:"愛憎劇/あいぞうげき"
+            names: prizedata.counter.lovers_losecount
             func:(game,pl)->
                 if !pl.winner && pl.isFriend()
                     1
@@ -190,25 +165,17 @@ makeOtherPrize=(result)->
                     0
         # 商品を受け取った回数
         getkits_merchant:
-            names:
-                1:"受け取り/うけとり"
-                5:"取引先/とりひきさき"
-                10:"お得意様/おとくいさま"
+            names: prizedata.counter.getkits_merchant
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="sendkit").length
         # 商品を人狼側に送った回数
         sendkits_to_wolves:
-            names:
-                1:"誤送/ごそう"
-                10:"発注ミス/はっちゅうみす"
+            names: prizedata.counter.sendkits_to_wolves
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="sendkit" && getTeamByType(getTypeAtTime(game,x.target,x.day))=="Werewolf").length
         # コピーせずに終了
         nocopy:
-            names:
-                1:"優柔不断/ゆうじゅうふだん"
-                5:"null/なる"
-                10:"Undefined/あんでふぁいんど"
+            names: prizedata.counter.nocopy
             func:(game,pl)->
                 if pl.type=="Copier"
                     1
@@ -216,12 +183,7 @@ makeOtherPrize=(result)->
                     0
         # 2日目昼に吊られた
         day2hanged:
-            names:
-                1:"初日/しょにち"
-                5:"寡黙/かもく"
-                10:"おはステ/おはすて"
-                15:"怪しい人/あやしいひと"
-                30:"壁/かべ"
+            names: prizedata.counter.day2hanged
             func:(game,pl)->
                 game.gamelogs.filter((x)->
                     x.id==pl.id && x.event=="found" && x.flag=="punish" && x.day==2
@@ -229,34 +191,11 @@ makeOtherPrize=(result)->
             
         # 総試合数
         allgamecount:
-            names:
-                1:"はじめて/はじめて"
-                5:"ビギナー/びぎなー"
-                10:"ルーキー/るーきー"
-                15:"先輩/せんぱい"
-                30:"経験者/けいけんしゃ"
-                50:"エリート/えりーと"
-                75:"エース/えーす"
-                100:"キャプテン/きゃぷてん"
-                150:"ベテラン/べてらん"
-                200:"インペリアル/いんぺりある"
-                300:"絶対/ぜったい"
-                400:"カリスマ/かりすま"
-                500:"アルティメット/あるてぃめっと"
-                600:"進撃/しんげき"
-                750:"巨人/きょじん"
-                1000:"神話/しんわ"
-                1250:"永遠の旅人/えいえんのたびびと"
-                1500:"冥王/めいおう"
-                2000:"レジェンド/れじぇんど"
-                10000:"もうやめよう/もうやめよう"
+            names: prizedata.counter.allgamecount
             func:(game,pl)->1
         # 最終日に生存
         aliveatlast:
-            names:
-                1:"生存/せいぞん"
-                5:"生き残り/いきのこり"
-                30:"最終兵器/さいしゅうへいき"
+            names: prizedata.counter.aliveatlast
             func:(game,pl)->
                 if pl.dead
                     0
@@ -264,58 +203,27 @@ makeOtherPrize=(result)->
                     1
         # 蘇生
         revive:
-            names:
-                1:"蘇生/そせい"
-                5:"黄泉がえり/よみがえり"
-                10:"不死王/ふしおう"
-                15:"アンデッド/あんでっど"
-                30:"不死鳥/ふしちょう"
+            names: prizedata.counter.revive
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="revive").length
         # 信者になる
         brainwashed:
-            names:
-                1:"教/きょう"
-                5:"信/しん"
-                10:"徒/と"
+            names: prizedata.counter.brainwashed
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="brainwash").length
         # 突然死する
         gone:
-            names:{}
+            names: {}
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="found" && x.flag in ["gone-day","gone-night"]).length
         # 獅子舞に噛まれる
         shishimaibit:
-            names:
-                1: [
-                    "一/いち"
-                    "富士/ふじ"
-                    "富士山/ふじさん"
-                ]
-                2: [
-                    "二/に"
-                    "鷹/たか"
-                ]
-                3: [
-                    "三/さん"
-                    "茄子/なすび"
-                ]
-                5: [
-                    "福男/ふくおとこ"
-                    "福女/ふくおんな"
-                ]
-                10:"お年玉/おとしだま"
+            names: prizedata.counter.shishimaibit
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.target==pl.id && x.event=="shishimaibit").length
     result.ownprizesprize=
         prizecount:
-            names:
-                100:"天上天下/てんじょうてんげ"
-                200:"神の子/かみのこ"
-                300:"至高/しこう"
-                400:"究極/きゅうきょく"
-                500:"超越者/ちょうえつしゃ"
+            names: prizedata.ownprizes.prizecount
             func:(prizes)->prizes.length
 # 解析用ファンクション
 # gameからプレイヤーオブジェクトを拾う

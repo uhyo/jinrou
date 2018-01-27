@@ -1,0 +1,7 @@
+error:
+  # You are not an administrator
+  notAdmin: "管理者ではありません。"
+  # This feature is unavailable.
+  unavailable: "この機能は利用できません。"
+  # Masster password is incorrect.
+  wrongPassword: "パスワードが違います。"

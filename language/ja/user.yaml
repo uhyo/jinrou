@@ -1,0 +1,65 @@
+# Error messages
+error:
+  # User authentication has failed.
+  authFail: "ユーザー認証に失敗しました。"
+  # Mail address is invalid.
+  invalidMailAddress: "メールアドレスの形式が正しくありません。"
+  # Two passwords does not match
+  passwordInconsistent: "パスワードが一致しません。"
+  # no such user
+  noSuchUser: "そのユーザーは存在しません。"
+
+  newentry:
+    # Account creation is restricted
+    banned: "アクセス制限により、アカウントを作成できません。"
+    # User ID is invalid
+    useridInvalid: "ユーザーIDが不正です。"
+    # Password is invalid
+    passwordInvalid: "パスワードが不正です。"
+    # This user ID is already Used
+    alreadyUsed: "そのユーザーIDは既に使用されています。"
+
+  changeProfile:
+    # Name is empty
+    nameEmpty: "ニックネームを入力してください。"
+    # Name is too long
+    nameTooLong: "ニックネームが長すぎます。"
+    # Comment is too long
+    commentTooLong: "コメントが長すぎます。"
+    # Icon URL is too long
+    iconTooLong: "アイコンURLが長すぎます。"
+
+  confirmMail:
+    # Mail address is too long
+    mailAddressTooLong: "メールアドレスが長すぎます。"
+    # This link is expired
+    expired: "このリンクは無効か、有効期限が切れています。"
+
+  resetPassword:
+    # Userid or e-mail does not match
+    userNoExist: "ユーザーIDかメールアドレスが間違っています。"
+
+  changePassword:
+    # Password is locked
+    locked: "パスワードがロックされているため、変更できません。"
+
+  mailConfirmSecurity:
+    # Need to add e-mail address to enable this setting.
+    nomail: "この設定を有効にするにはメールアドレスを登録する必要があります。"
+  dataOpenSetting:
+    # You do not have enough history.
+    history: "戦績が足りません。"
+
+confirmMail:
+  # Mail address is confirmed
+  confirmed: "メールアドレス「{{address}}」が確認されました。"
+  # Mail address is deleted
+  deleted: "メールアドレスの削除に成功しました。"
+  # Password is reset
+  passwordReset: "パスワードを再設定しました。新しいパスワードでログインしてください。"
+  # Setting is changed
+  settingChanged: "設定を変更しました。"
+
+mailConfirmSecurity:
+  # Setting is saved.
+  saved: "保存しました。"

@@ -14,6 +14,9 @@ url=require 'url'
 
 libblacklist = require '../libs/blacklist.coffee'
 libuserlogs  = require '../libs/userlogs.coffee'
+libi18n      = require '../libs/i18n.coffee'
+
+i18n = libi18n.getWithDefaultNS 'user'
 
 # 内部関数的なログイン
 login= (query,req,cb,ss)->
@@ -118,26 +121,26 @@ exports.actions =(req,res,ss)->
         unless libblacklist.checkPermission "create_account", req.session.ban
             res {
                 login: false
-                error: "アクセス制限により、アカウントを作成できません。"
+                error: i18n.t "error.newentry.banned"
             }
             return
         unless /^\w+$/.test(query.userid)
             res {
                 login:false
-                error:"ユーザーIDが不正です"
+                error: i18n.t "error.newentry.useridInvalid"
             }
             return
         unless /^\w+$/.test(query.password)
             res {
                 login:false
-                error:"パスワードが不正です"
+                error: i18n.t "error.newentry.passwordInvalid"
             }
             return
         M.users.find({"userid":query.userid}).count (err,count)->
             if count>0
                 res {
                     login:false
-                    error:"そのユーザーIDは既に使用されています"
+                    error: i18n.t "error.newentry.alreadyUsed"
                 }
                 return
             userobj = makeuserdata(query)
@@ -145,7 +148,7 @@ exports.actions =(req,res,ss)->
                 if err?
                     res {
                         login:false
-                        error:"DB err:#{err}"
+                        error: String err
                     }
                     return
                 login query,req,res,ss
@@ -226,38 +229,38 @@ exports.actions =(req,res,ss)->
     changeProfile: (query)->
         M.users.findOne {"userid":req.session.userId},(err,record)=>
             if err?
-                res {error:"DB err:#{err}"}
+                res {error: String err}
                 return
             if !record?
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             unless Server.auth.check query.password, record.password, record.salt
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             if query.name?
                 if query.name==""
-                    res {error:"ニックネームを入力して下さい"}
+                    res {error: i18n.t "error.changeProfile.nameEmpty"}
                     return
                 if query.name.length > Config.maxlength.user.name
-                    res {error:"ニックネームが長すぎます"}
+                    res {error: i18n.t "error.changeProfile.nameTooLong"}
                     return
                     
                 record.name=query.name
             if query.comment?
                 if query.comment.length > Config.maxlength.user.comment
-                    res {error:"コメントが長すぎます"}
+                    res {error: i18n.t "error.changeProfile.commentTooLong"}
                     return
 
                 record.comment=query.comment
             if query.icon?
                 if query.icon.length > Config.maxlength.user.icon
-                    res {error:"アイコンURLが長すぎます"}
+                    res {error: i18n.t "error.changeProfile.iconTooLong"}
                     return
 
                 record.icon=query.icon
             M.users.update {"userid":req.session.userId}, record, {safe:true},(err,count)=>
                 if err?
-                    res {error:"プロフィール変更に失敗しました"}
+                    res {error: String errr}
                     return
                 delete record.password
                 req.session.user=record
@@ -265,7 +268,7 @@ exports.actions =(req,res,ss)->
                 res userProfile(record, req.session.ban)
     sendConfirmMail:(query)->
         if query.mail && query.mail.length > Config.maxlength.user.mail
-            res {error:"メールアドレスが長すぎます"}
+            res {error: i18n.t "error.confirmMail.mailAddressTooLong"}
             return
         mailer.sendConfirmMail(query,req,res,ss)
     confirmMail:(query)->
@@ -275,10 +278,10 @@ exports.actions =(req,res,ss)->
         M.users.findOne {"mail.token":token,"mail.timestamp":timestamp},(err,doc)->
             # 有效时间：1小时
             if err?
-                res {error:"このリンクは無効か、有効期限が切れています。"}
+                res {error: i18n.t "error.confirmMail.expired"}
                 return
             unless doc?.mail? && Date.now() < Number(doc.mail.timestamp) + 3600*1000
-                res {error:"このリンクは無効か、有効期限が切れています。"}
+                res {error: i18n.t "error.confirmMail.expired"}
                 return
             strfor=doc.mail.for
             switch doc.mail.for
@@ -307,59 +310,59 @@ exports.actions =(req,res,ss)->
                     doc.mailconfirmsecurity = false
             M.users.update {"userid":doc.userid}, doc, {safe:true},(err,count)=>
                 if err?
-                    res {error:"メールの認証に失敗しました。"}
+                    res {error: String err}
                     return
                 delete doc.password
                 req.session.user = doc
                 req.session.save ->
                     if strfor in ["confirm","change"]
-                        doc.info="メールアドレス 「#{doc.mail.address}」が確認されました。"
+                        doc.info= i18n.t "confirmMail.confirmed", {address: doc.mail.address}
                     else if strfor == "remove"
                         doc.mail=
                             address:""
                             verified:false
-                        doc.info="メールアドレスの削除に成功しました。"
+                        doc.info= i18n.t "confirmMail.deleted"
                     else if strfor == "reset"
-                        doc.info="パスワードを再設定しました。新しいパスワードでログインしてください。"
+                        doc.info= i18n.t "confirmMail.passwordReset"
                         doc.reset=true
                     else if strfor == "mailconfirmsecurity-off"
-                        doc.info="設定を変更しました。"
+                        doc.info= i18n.t "confirmMail.settingChanged"
                     res doc
     resetPassword:(query)->
         unless /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test query.mail
-            res {info:"有効なメールアドレスを入力してください"}
+            res {info: i18n.t "error.invalidMailAddress"}
         query.userid = query.userid.trim()
         query.mail = query.mail.trim()
         if query.newpass!=query.newpass2
-            res {error:"パスワードが一致しません"}
+            res {error: i18n.t "error.passwordInconsistent"}
             return
         M.users.findOne {"userid":query.userid,"mail.address":query.mail,"mail.verified":true},(err,record)=>
             if err?
-                res {error:"DB err:#{err}"}
+                res {error: String err}
                 return
             if !record?
-                res {error:"ユーザーIDかメールアドレスが間違っています。"}
+                res {error: i18n.t "error.resetPassword.userNoExist"}
                 return
             else
                 mailer.sendResetMail(query,req,res,ss)
                 return
     changePassword:(query)->
         if query.newpass!=query.newpass2
-            res {error:"パスワードが一致しません"}
+            res {error: i18n.t "error.passwordInconsistent"}
             return
         M.users.findOne {"userid":req.session.userId}, (err,record)=>
             if err?
-                res {error:"DB err:#{err}"}
+                res {error: String err}
                 return
             if !record?
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             unless Server.auth.check query.password, record.password, record.salt
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
                 
             if record.mailconfirmsecurity
-                res {error:"パスワードがロックされているため、変更できません。"}
+                res {error: i18n.t "error.changePassword.locked"}
                 return
             # saltを新しく生成
             newsalt = Server.auth.gensalt()
@@ -370,19 +373,19 @@ exports.actions =(req,res,ss)->
                 }
             }, {safe:true}, (err,count)=>
                 if err?
-                    res {error:"プロフィール変更に失敗しました"}
+                    res {error: String err}
                     return
                 res userProfile(record, req.session.ban)
     changeMailconfirmsecurity:(query)->
         M.users.findOne {"userid":req.session.userId}, (err, record)->
             if err?
-                res {error:"DB err:#{err}"}
+                res {error: String err}
                 return
             if !record?
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             if query.mailconfirmsecurity == record.mailconfirmsecurity
-                record.info = "保存しました。"
+                record.info = i18n.t "mailConfirmSecurity.saved"
                 res userProfile(record, req.session.ban)
                 return
             if query.mailconfirmsecurity == true
@@ -392,17 +395,17 @@ exports.actions =(req,res,ss)->
                         $set: {mailconfirmsecurity: true}
                     }, {safe: true}, (err,count)->
                         if err?
-                            res {error:"DB err:#{err}"}
+                            res {error: String err}
                             return
                         delete record.password
                         req.session.user=record
                         req.session.save ->
                         record.mailconfirmsecurity = true
-                        record.info = "保存しました。"
+                        record.info = i18n.t "mailConfirmSecurity.saved"
                         res userProfile(record, req.session.ban)
                 else
                     # メールアドレスの登録が必要
-                    res {error: "この設定を有効にするにはメールアドレスを登録する必要があります。"}
+                    res {error: i18n.t "error.mailConfirmSecurity.nomail"}
 
             else
                 # メール確認が必要
@@ -416,13 +419,13 @@ exports.actions =(req,res,ss)->
         # 表示する称号を変える query.prize
         M.users.findOne {"userid":req.session.userId},(err,record)=>
             if err?
-                res {error:"DB err:#{err}"}
+                res {error: String err}
                 return
             if !record?
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             unless Server.auth.check query.password, record.password, record.salt
-                res {error:"ユーザー認証に失敗しました"}
+                res {error: i18n.t "error.authFail"}
                 return
             if typeof query.prize?.every=="function"
                 # 称号構成を得る
@@ -442,18 +445,18 @@ exports.actions =(req,res,ss)->
                                 res null
                     else
                         console.log "invalid1 ",query.prize,record.prize
-                        res {error:"肩書きが不正です"}
+                        res {error: i18n.t "common:error.invalidInput"}
                 else
                     console.log "invalid2",query.prize,comp
-                    res {error:"肩書きが不正です"}
+                    res {error: i18n.t "common:error.invalidInput"}
             else
                 console.log "invalid3",query.prize
-                res {error:"肩書きが不正です"}
+                res {error: i18n.t "common:error.invalidInput"}
         
     # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
-            res {error:"ログインしてください"}
+            res {error: i18n.t "common:error.needLogin"}
             return
         myid=req.session.userId
         # DBから自分のやつを引っ張ってくる
@@ -487,7 +490,7 @@ exports.actions =(req,res,ss)->
     # 戦績公開設定を変更
     changeDataOpenSetting:(query)->
         unless req.session.userId
-            res {error:"ログインしてください"}
+            res {error: i18n.t "common:error.needLogin"}
             return
         mode = query.mode
         value = !!query.value
@@ -503,7 +506,7 @@ exports.actions =(req,res,ss)->
                     data_open_all: value
                 }
             else
-                res {error: 'パラメータが不正です'}
+                res {error: i18n.t "common:error.invalidInput"}
                 return
         # 対戦数をチェック
         M.userlogs.findOne {
@@ -514,7 +517,7 @@ exports.actions =(req,res,ss)->
                 return
             # 30戦以上に制限
             if isNaN(doc.counter?.allgamecount) || doc.counter?.allgamecount < Config.user.dataOpenBarrier
-                res {error: '戦績が足りません'}
+                res {error: i18n.t "error.dataOpenSetting.history"}
                 return
             M.users.update {
                 userid: req.session.userId
@@ -602,7 +605,7 @@ getUserOpenData = (userid, cb)->
     if userid == "身代わりくん"
         cb null, {
             userid: "身代わりくん"
-            name: "身代わりくん"
+            name: i18n.t "game:common.scapegoat"
             icon: ""
             comment: ""
             data_open_all: true

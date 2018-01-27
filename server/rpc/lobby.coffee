@@ -4,6 +4,9 @@ Server=
     log:require '../log.coffee'
 
 libblacklist = require '../libs/blacklist.coffee'
+libi18n      = require '../libs/i18n.coffee'
+
+i18n = libi18n.getWithDefaultNS 'lobby'
 
 players=[]  # ロビーにいる人たち
 heartbeat_time=10
@@ -60,13 +63,13 @@ exports.actions =(req,res,ss)->
             res {logs:docs,players:players}
     say:(comment)->
         unless req.session.userId?
-            res {error: "ログインしていません"}
+            res {error: i18n.t "common:error.needLogin"}
             return
         unless comment
-            res {error: "コメントを入力してください"}
+            res {error: i18n.t "error.say.needComment"}
             return
         unless libblacklist.checkPermission "lobby_say", req.session.ban
-            res {error: "アクセス制限により、発言できません。"}
+            res {error: i18n.t "error.say.banned"}
             return
         log=
             userid:req.session.userId

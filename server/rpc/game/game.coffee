@@ -6,33 +6,10 @@ Shared=
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
+libi18n      = require '../../libs/i18n.coffee'
 
 cron=require 'cron'
-path = require 'path'
-i18n = require 'i18next'
-i18n
-    .use(require 'i18next-node-fs-backend')
-    .init {
-        backend:
-            loadPath: path.join __dirname, '../../../language/{{lng}}/{{ns}}.yaml'
-            addPath: path.join __dirname, '../../../language/{{lng}}/{{ns}}.missing.json'
-            jsonIndent: 2
-        interpolation:
-            escapeValue: false
-            # disable nesting feature by passing never-matching patterns
-            nestingPrefix: undefined
-            nestingSuffix: undefined
-            # Actually it matches an empty string, but this is not a problem here.
-            nestingPrefixEscaped: '$^'
-            nestingSuffixEscaped: '$^'
-        lng: Config.language.value
-        fallbackLng: Config.language.fallback
-        ns: ["game", "roles"]
-        defaultNS: "game"
-        saveMissing: true
-    }, (err)->
-        if err?
-            console.error 'i18next Error:', err
+i18n = libi18n.getWithDefaultNS "game"
 
 # フェイズの一覧
 Phase =

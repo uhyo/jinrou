@@ -1,0 +1,6 @@
+error:
+  say:
+    # Comment is needed.
+    needComment: "コメントを入力してください。"
+    # Restricted as banned.
+    banned: "アクセス制限により、発言できません。"

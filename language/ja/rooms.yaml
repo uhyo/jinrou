@@ -1,0 +1,71 @@
+# Error messages
+error:
+  # nonexistent room id.
+  noSuchRoom: "その部屋はありません。"
+  # a GM cannot be a helper.
+  gmCannotBeHelper: "GMはヘルパーになれません。"
+  # a player cannot be a helper of oneself.
+  noSelfHelper: "自分のヘルパーにはなれません。"
+  # This room has already started.
+  alreadyStarted: "この部屋はもう始まっています。"
+  # You have not join this room.
+  notMember: "この部屋にはまだ参加してません。"
+
+  newRoom:
+    # A room name is required.
+    noName: "部屋名を入力してください。"
+    # Room name is too long.
+    nameTooLong: "部屋名が長すぎます。"
+    # Comment is too long.
+    commentTooLong: "コメントが長すぎます。"
+    # Other parameter is invalid.
+    invalidParameter: "パラメータが不正です。"
+    # Cannot make a room because banned
+    banned: "アクセス制限により、部屋を作成できません。"
+
+  join:
+    # Cannot join because banned
+    banned: "アクセス制限により、部屋に参加できません。"
+    # You are already in the room.
+    alreadyJoined: "すでに参加しています。"
+    # You are already kicked from this room
+    kicked: "この部屋への参加は禁止されています。"
+    # This name is already used.
+    nameUsed: "名前「{{name}}」は既に使用されています。"
+    # This room is full.
+    full: "この部屋にはこれ以上入れません。"
+    # Name is needed.
+    nameNeeded: "名前を入力してください。"
+    # Name is too long.
+    nameTooLong: "名前が長すぎます。"
+    # Icon URL is too long.
+    iconTooLong: "アイコンのURLが長すぎます。"
+    # Name cannot be only spaces.
+    nameOnlySpaces: "名前を空白のみにすることはできません。"
+  unjoin:
+    # a GM cannot leave.
+    noGMLeave: "ゲームマスターは退室できません。"
+
+  kick:
+    # a GM cannot be kicked.
+    noKickGM: "ゲームマスターは追いだせません。"
+
+  find:
+    # Find feature is disabled now.
+    disabled: "現在ログ検索は利用できません。"
+
+# Tweet
+tweet:
+  # A new room is made
+  newRoom:
+    # Tweet body
+    main: "「{{name}}」（{{id}}番{{options}}）が建てられました。"
+    # Password option
+    password: "🔒パスワードあり"
+    # Blind option
+    blind: "👤覆面"
+    # GM option
+    gm: "GMあり"
+    # delimiter between options
+    delimiter: "・"
+
