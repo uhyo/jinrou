@@ -239,7 +239,11 @@ exports.start=(roomid)->
                         a=document.createElement "a"
                         a.href="/newroom"
                         a.target="_blank"
+                        a.style.display = "none"
+                        a.hidden = true
+                        document.body.appendChild a
                         a.click()
+                        document.body.removeChild a
 
                 
                 result.logs.forEach getlog
