@@ -130,7 +130,7 @@ exports.actions =(req,res,ss)->
                 error: i18n.t "error.newentry.useridInvalid"
             }
             return
-        unless /^\w+$/.test(query.password)
+        unless /^[\x20-\x7e]+$/.test(query.password)
             res {
                 login:false
                 error: i18n.t "error.newentry.passwordInvalid"
