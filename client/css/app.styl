@@ -477,16 +477,16 @@ dl.jobs
   dd.jobs-cat
     display flex
     flex-flow row wrap
-    justify-content space-between
-    &::after
-      content ""
-      flex auto
+    justify-content flex-start
+    margin auto
   div.jobs-job
+    flex 8.6em 0 0
     background-color rgba(255,255,255,.3)
     margin 0.25em
     padding 0.3em
     display flex
     flex-flow column nowrap
+    justify-content space-between
 
     &.jobs-job-active
       background-color rgba(255,255,255,.82)
@@ -495,7 +495,7 @@ dl.jobs
       flex-flow row nowrap
       margin-bottom 0.25em
       span
-        flex 1 0 auto
+        flex 1 1 auto
         text-align center
       a
         flex 0 0 auto
@@ -515,8 +515,12 @@ dl.jobs
       display flex
       input.jobs-job-controls-check
         flex 0 0 auto
-      input.jobs-job-controls-number
+      span.jobs-job-controls-number-span
         flex 1 0 2.8em
+        padding 0 1ex
+        input
+          box-sizing border-box
+          width 100%
       button.jobs-job-controls-button
         border none
         padding 2px

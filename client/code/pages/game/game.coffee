@@ -626,6 +626,8 @@ exports.start=(roomid)->
                             check.title = "チェックを外すと、一部闇鍋で#{ji.name}が出現しなくなります。"
                             span.appendChild check
                             # 人数
+                            span2 = document.createElement "span"
+                            span2.classList.add "jobs-job-controls-number-span"
                             input = document.createElement "input"
                             input.type = "number"
                             input.min = 0
@@ -634,6 +636,8 @@ exports.start=(roomid)->
                             input.name = job
                             input.dataset.jobname = ji.name
                             input.classList.add "jobs-job-controls-number"
+                            span2.appendChild input
+
                             # plus / minus button
                             button1 = document.createElement "button"
                             button1.type = "button"
@@ -668,7 +672,7 @@ exports.start=(roomid)->
                                     jobsformvalidate room, form
                             )(job)
 
-                            span.appendChild input
+                            span.appendChild span2
                             span.appendChild button1
                             span.appendChild button2
                         div.appendChild b
