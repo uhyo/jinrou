@@ -64,13 +64,13 @@ section.profile
       h3 パスワード変更
       p: label
         | 新しいパスワード
-        input(name="newpass",type="password",size="20",required)
+        input(name="newpass",type="password",size="20",required,autocomplete="new-password")
       p: label
         | 再入力
-        input(name="newpass2",type="password",size="20",required)
+        input(name="newpass2",type="password",size="20",required,autocomplete="new-password")
       p: label
         | 現在のパスワード
-        input(name="password",type="password",size="20",required)
+        input(name="password",type="password",size="20",required,autocomplete="current-password")
       p: input(type="submit",value="変更")
   h1 お知らせ
   table.newstable

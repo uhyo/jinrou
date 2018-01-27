@@ -10,7 +10,7 @@ section
     p
       label
         | パスワード
-        input(type="password",size="30",name="password",pattern="\\\\w+",required)
+        input(type="password",size="30",name="password",pattern="[\\\\x20-\\\\x7e]+",required,autocomplete="current-password")
     p
       input(type="submit",value="ログイン")
       label
@@ -29,13 +29,13 @@ section
     p
       label
         | パスワード
-        input(type="password",size="30",name="password",required)
+        input(type="password",size="30",name="password",required,autocomplete="new-password")
     p
       input(type="submit",value="登録")
     p#newentryerror.error
   
   footer
     p: small
-      | &copy; 2011-2012 うひょ (
+      | &copy; 2011-2018 うひょ (
       a(href="http://github.com/uhyo/jinrou",target="_blank") Github
       | )

@@ -13,11 +13,11 @@ section
     p
       label
         | 新しいパスワード
-        input(name="newpass",type="password",size="20",required)
+        input(name="newpass",type="password",size="20",required,autocomplete="new-password")
     p
       label
         | 再入力
-        input(name="newpass2",type="password",size="20",required)
+        input(name="newpass2",type="password",size="20",required,autocomplete="new-password")
     p
       input(type="submit",value="次へ")
     p#resetinfo.error
