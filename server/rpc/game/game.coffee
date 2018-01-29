@@ -415,7 +415,7 @@ class Game
         game.players=obj.players.map (x)=>Player.unserialize x, game
         # 追加する
         if obj.additionalParticipants
-            game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x, this
+            game.participants=game.players.concat obj.additionalParticipants.map (x)->Player.unserialize x, game
         else
             game.participants=game.players.concat []
 
