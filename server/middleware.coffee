@@ -1,5 +1,7 @@
+path=require 'path'
 fs=require 'fs'
 jade=require 'jade'
+pug=require 'pug'
 
 # JSON APIs
 exports.jsonapi=(request, response, next)->
@@ -82,4 +84,39 @@ exports.images=(request, response, next)->
       response.end data
   else
     next()
+
+# Special handling of TwitterBot
+cardsView = pug.compileFile path.join(__dirname, '../client/views/cards.pug')
+exports.twitterbot=(request, response, next)->
+    r = null
+    if request.headers['user-agent']?.indexOf('TwitterBot') == 0 && (r=request.url.match /^\/room\/(\d+)$/)
+        # This is an access from TwitterBot!
+        # Render Twitter Cards.
+        M.rooms.findOne({
+            id: Number(r[1])
+        }, {
+            fields:
+                name: 1
+                comment: 1
+        }).then((doc)->
+            if doc?
+                res = cardsView {
+                    url: Config.application.url
+                    title: doc.name
+                    description: doc.comment
+                }
+                response.statusCode = 200
+                response.setHeader 'Content-Type', 'text/html'
+                response.end res
+            else
+                response.statusCode = 404
+                response.end "Not Found")
+        .catch((err)->
+            console.error err
+            response.statusCode = 500
+            response.setHeader 'Content-Type', 'text/html'
+            response.end "Internal Server Error")
+    else
+        next()
+
 
