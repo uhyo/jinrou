@@ -40,6 +40,7 @@ var middleware=require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);
 ss.http.middleware.prepend(middleware.manualxhr);
 ss.http.middleware.prepend(middleware.images);
+ss.http.middleware.prepend(middleware.twitterbot);
 
 //リッスン先設定
 ss.ws.transport.use("engineio",{
