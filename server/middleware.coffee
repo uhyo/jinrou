@@ -89,7 +89,7 @@ exports.images=(request, response, next)->
 cardsView = pug.compileFile path.join(__dirname, '../client/views/cards.pug')
 exports.twitterbot=(request, response, next)->
     r = null
-    if request.headers['user-agent']?.indexOf('TwitterBot') == 0 && (r=request.url.match /^\/room\/(\d+)$/)
+    if request.headers['user-agent']?.indexOf('Twitterbot') == 0 && (r=request.url.match /^\/room\/(\d+)$/)
         # This is an access from TwitterBot!
         # Render Twitter Cards.
         M.rooms.findOne({
