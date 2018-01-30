@@ -1,6 +1,9 @@
-var http = require('http');
-var https = require('https');
-var ss = require('socketstream');
+const http = require('http');
+const https = require('https');
+const path = require('path');
+
+const cpx = require('cpx');
+const ss = require('socketstream');
 
 ss.client.define('main',{
 	view:'app.jade',
@@ -36,7 +39,7 @@ try{
 }
 
 //---- Middleware
-var middleware=require('./server/middleware.coffee');
+const middleware=require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);
 ss.http.middleware.prepend(middleware.manualxhr);
 ss.http.middleware.prepend(middleware.images);
@@ -48,15 +51,36 @@ ss.ws.transport.use("engineio",{
 });
 
 //---- init HTTP server
-var server;
+let server;
 if (Config.http.secure != null){
     server = https.createServer(Config.http.secure, ss.http.middleware);
 }else{
     server = http.createServer(ss.http.middleware);
 }
 
-db=require('./server/db.coffee');
-db.dbinit(function () {
-    server.listen(Config.http.port);
-    ss.start(server);
-})
+//---- prepare client-side assets
+cpx.copy(
+    /* source */
+    path.join(__dirname, 'front/dist/**/*'),
+    /* dest */
+    path.join(__dirname, 'client/static/front-assets/'),
+    {
+        preserve: true,
+        update: true,
+    },
+    (err)=>{
+        if (err != null){
+            console.error(err);
+            process.exit(1);
+            return;
+        }
+        // Init connection to DB
+        const db=require('./server/db.coffee');
+        db.dbinit(function () {
+            // Start application
+            server.listen(Config.http.port);
+            ss.start(server);
+        })
+    },
+);
+
