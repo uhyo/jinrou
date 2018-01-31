@@ -26,7 +26,12 @@ ss.client.set({liveReload: false});
 ss.session.store.use('redis');
 ss.publish.transport.use('redis');
 
-if(ss.env=='production')ss.client.packAssets();
+/**
+ * Whether this run is in production mode.
+ */
+const isProduction = ss.env === 'production';
+
+if(isProduction)ss.client.packAssets();
 
 //pull時にはコンフィグファイルないので・・・
 try{
@@ -59,28 +64,57 @@ if (Config.http.secure != null){
 }
 
 //---- prepare client-side assets
-cpx.copy(
-    /* source */
-    path.join(__dirname, 'front/dist/**/*'),
-    /* dest */
-    path.join(__dirname, 'client/static/front-assets/'),
-    {
+{
+    // options for cpx.
+    const copySource = path.join(__dirname, 'front/dist/**/*');
+    const copyDest = path.join(__dirname, 'client/static/front-assets/');
+    const copyOptions = {
         preserve: true,
         update: true,
-    },
-    (err)=>{
-        if (err != null){
-            console.error(err);
-            process.exit(1);
-            return;
-        }
-        // Init connection to DB
-        const db=require('./server/db.coffee');
-        db.dbinit(function () {
-            // Start application
-            server.listen(Config.http.port);
-            ss.start(server);
-        })
-    },
-);
+    };
 
+    if (isProduction){
+        // Copy once and run.
+        cpx.copy(
+            copySource,
+            copyDest,
+            copyOptions,
+            (err)=>{
+                if (err != null){
+                    console.error(err);
+                    process.exit(1);
+                    return;
+                }
+                runService(server);
+            },
+        );
+    } else {
+        // Watch changes to copySource.
+        cpx.watch(
+            copySource,
+            copyDest,
+            copyOptions,
+        )
+        .on('watch-ready', ()=>{
+            // Initial copy is done.
+            runService(server);
+        })
+        .on('watch-error', (err)=>{
+            if (err != null){
+                console.error(err);
+            }
+        });
+    }
+}
+/**
+ * Function to start the service.
+ */
+function runService(server){
+    // Init connection to DB
+    const db = require('./server/db.coffee');
+    db.dbinit(()=>{
+        // Start application
+        server.listen(Config.http.port);
+        ss.start(server);
+    });
+}

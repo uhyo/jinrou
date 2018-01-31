@@ -18,6 +18,8 @@
     "webpack-cli": "^2.0.4"
   },
   "dependencies": {
+    "mobx": "^3.4.1",
+    "mobx-react": "^4.3.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "styled-components": "^3.1.4"

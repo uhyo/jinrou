@@ -1,3 +1,6 @@
+import {
+    observer,
+} from 'mobx-react';
 import * as React from 'react';
 
 import {
@@ -16,13 +19,14 @@ interface IPropCasting {
     /**
      * Number of jobs.
      */
-    jobNumbers: Record<string, number>;
+    jobNumbers: Map<string, number>;
     /**
      * Handler of setting new role state.
      */
-    onSetJob?(casting: string, jobNumbers: Record<string, number>): void;
+    onSetJob?(casting: string, jobUpdates: Record<string, number>): void;
 }
 
+@observer
 export class Casting extends React.Component<IPropCasting, {}> {
     render(){
         const {
