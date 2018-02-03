@@ -21,6 +21,8 @@ exports.start=(roomid)->
     my_job=null
     my_player_id=null
     this_room_id=null
+    # GameStartControlのインスタンス
+    game_start_control = null
 
     # 役職名一覧
     cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
@@ -254,6 +256,17 @@ exports.start=(roomid)->
         newgamebutton = (je)->
             unless $("#gamestartsec").attr("hidden") == "hidden"
                 return
+            # GameStartControlコンポーネントを設置
+            JinrouFront.loadGameStartControl()
+                .then((gsc)=>
+                    # roles情報を用意
+                    gsc.place {
+                        node: $("#gamestart-app").get 0
+                        roles: getLabeledGroupsOfJobrules()
+                    }
+                ).catch((err)->
+                    console.error err)
+
             form=$("#gamestart").get 0
             # ルール設定保存を参照する
             # ルール画面を構築するぞーーー(idx: グループのアレ)
@@ -1761,3 +1774,26 @@ kicklistmanage = (roomid)->
             p.appendChild l
 
             win.append p
+
+# Shared.game.jobrulesをLabeledGroup<CastingDefinition>に変換
+getLabeledGroupsOfJobrules = ()->
+    f = (arr, prefix)->
+        result =
+            for obj in arr
+                if Array.isArray obj.rule
+                    {
+                        type: 'group'
+                        label: obj.name
+                        items: f obj.rule, [prefix..., obj.name]
+                    }
+                else
+                    {
+                        type: 'item'
+                        value:
+                            id: [prefix..., obj.name].join '.'
+                            name: obj.name
+                            roleSelect: false
+                            preset: obj.rule
+                    }
+        return result
+    f Shared.game.jobrules, []

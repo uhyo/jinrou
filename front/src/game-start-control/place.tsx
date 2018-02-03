@@ -12,6 +12,7 @@ import {
 } from './component';
 import {
     CastingDefinition,
+    LabeledGroup,
 } from '../defs';
 
 /**
@@ -25,7 +26,7 @@ export interface IPlaceOptions {
     /**
      * Definition of roles.
      */
-    roles: CastingDefinition[];
+    roles: LabeledGroup<CastingDefinition, string>;
     /**
      * Initial selection of casting.
      */

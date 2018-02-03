@@ -5,13 +5,17 @@ import * as React from 'react';
 
 import {
     CastingDefinition,
+    LabeledGroup,
 } from '../defs';
+import {
+    Optgroups,
+} from '../util/labeled-group';
 
 interface IPropCasting {
     /**
      * Definition of roles.
      */
-    roles: CastingDefinition[];
+    roles: LabeledGroup<CastingDefinition, string>;
     /**
      * Current selection casting.
      */
@@ -39,8 +43,16 @@ export class Casting extends React.Component<IPropCasting, {}> {
                 <legend>役職</legend>
 
                 <select>{
-                    roles.map(obj=>{
-                        return <option key={obj.id}>{obj.name}</option>;
+                    Optgroups({
+                        items: roles,
+                        getGroupLabel: (x: string)=>({
+                            key: x,
+                            label: x,
+                        }),
+                        getOptionKey: ({id}: CastingDefinition)=>id,
+                        makeOption: (obj: CastingDefinition)=>{
+                            return <option value={obj.id}>{obj.name}</option>;
+                        },
                     })
                 }</select>
             </fieldset>

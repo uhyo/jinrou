@@ -4,6 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "run-s clean build:tsc build:bundle",
+    "build:tsc": "tsc",
+    "build:bundle": "webpack-cli",
+    "clean": "rimraf ../client/static/front-assets",
+    "watch": "run-p watch:tsc watch:bundle",
+    "watch:tsc": "tsc --watch",
+    "watch:bundle": "webpack-cli --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,6 +19,8 @@
   "devDependencies": {
     "@types/react": "^16.0.35",
     "@types/react-dom": "^16.0.3",
+    "npm-run-all": "^4.1.2",
+    "rimraf": "^2.6.2",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.6.2",
     "webpack": "^4.0.0-beta.0",

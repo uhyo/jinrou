@@ -31,7 +31,16 @@ ss.publish.transport.use('redis');
  */
 const isProduction = ss.env === 'production';
 
-if(isProduction)ss.client.packAssets();
+if(isProduction) {
+    ss.client.packAssets();
+} else {
+    // development
+    ss.http.set({
+        static: {
+            cacheControlHeader: 'no-cache',
+        },
+    });
+}
 
 //pull時にはコンフィグファイルないので・・・
 try{
@@ -72,7 +81,7 @@ if (Config.http.secure != null){
         preserve: true,
         update: true,
     };
-
+    /*
     if (isProduction){
         // Copy once and run.
         cpx.copy(
@@ -105,6 +114,8 @@ if (Config.http.secure != null){
             }
         });
     }
+   */
+    runService(server);
 }
 /**
  * Function to start the service.
