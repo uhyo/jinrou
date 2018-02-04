@@ -8,6 +8,7 @@ module.exports = {
         library: 'JinrouFront',
         path: path.join(__dirname, '..', 'client/static/front-assets/'),
         publicPath: '/front-assets/',
+        crossOriginLoading: 'anonymous',
         filename: 'bundle.js',
         chunkFilename: '[id].[chunkhash].bundle.js',
     },

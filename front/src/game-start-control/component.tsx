@@ -51,7 +51,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                         }),
                         getOptionKey: ({id}: CastingDefinition)=>id,
                         makeOption: (obj: CastingDefinition)=>{
-                            return <option value={obj.id}>{obj.name}</option>;
+                            return <option value={obj.id} title={obj.label}>{obj.name}</option>;
                         },
                     })
                 }</select>
