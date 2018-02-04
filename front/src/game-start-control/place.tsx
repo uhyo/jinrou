@@ -58,9 +58,8 @@ export function place({
 
     const com =
         <Casting
+            store={store}
             roles={roles}
-            currentCasting={store.currentCasting}
-            jobNumbers={store.jobNumbers}
             onSetJob={onSetJob}
         />;
 

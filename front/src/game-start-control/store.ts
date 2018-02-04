@@ -8,6 +8,11 @@ import {
  */
 export class CastingStore {
     /**
+     * Current number of players.
+     */
+    @observable
+    public playersNumber: number = 0;
+    /**
      * Current selected casting.
      */
     @observable
@@ -18,6 +23,13 @@ export class CastingStore {
     @observable
     public jobNumbers: Map<string, number> = new Map();
 
+    /**
+     * Set player number.
+     */
+    @action
+    public setPlayersNumber(num: number): void {
+        this.playersNumber = num;
+    }
     /**
      * Set current casting.
      */

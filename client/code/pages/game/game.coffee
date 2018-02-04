@@ -12,6 +12,8 @@ enter_result=null #enter
 this_icons={}   #名前とアイコンの対応表
 this_logdata={} # ログデータをアレする
 this_style=null #style要素（終わったら消したい）
+# GameStartControlのインスタンス
+game_start_control = null
 
 
 exports.start=(roomid)->
@@ -21,8 +23,6 @@ exports.start=(roomid)->
     my_job=null
     my_player_id=null
     this_room_id=null
-    # GameStartControlのインスタンス
-    game_start_control = null
 
     # 役職名一覧
     cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
@@ -260,10 +260,12 @@ exports.start=(roomid)->
             JinrouFront.loadGameStartControl()
                 .then((gsc)=>
                     # roles情報を用意
-                    gsc.place {
+                    game_start_control = gsc.place {
                         node: $("#gamestart-app").get 0
                         roles: getLabeledGroupsOfJobrules()
                     }
+                    # TODO: scapegoat is not counted at this point
+                    game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
                 ).catch((err)->
                     console.error err)
 
@@ -1181,6 +1183,7 @@ exports.start=(roomid)->
         jobrulename=form.elements["jobrule"].value
         if form.elements["scapegoat"]?.value=="on"
             number++    # 身代わりくん
+        game_start_control?.store.setPlayersNumber number
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
             j = $("#jobsfield").get 0
             j.hidden=false
@@ -1539,6 +1542,9 @@ exports.start=(roomid)->
         
             
 exports.end=->
+    # unmount react components.
+    game_start_control?.unmount()
+
     ss.rpc "game.rooms.exit", this_room_id,(result)->
         if result?
             Index.util.message "ルーム",result

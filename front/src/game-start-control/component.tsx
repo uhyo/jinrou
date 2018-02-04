@@ -11,19 +11,19 @@ import {
     Optgroups,
 } from '../util/labeled-group';
 
+import {
+    CastingStore,
+} from './store';
+
 interface IPropCasting {
+    /**
+     * store.
+     */
+    store: CastingStore;
     /**
      * Definition of roles.
      */
     roles: LabeledGroup<CastingDefinition, string>;
-    /**
-     * Current selection casting.
-     */
-    currentCasting: string;
-    /**
-     * Number of jobs.
-     */
-    jobNumbers: Map<string, number>;
     /**
      * Handler of setting new role state.
      */
@@ -34,11 +34,16 @@ interface IPropCasting {
 export class Casting extends React.Component<IPropCasting, {}> {
     render(){
         const {
+            store,
             roles,
-            currentCasting,
         } = this.props;
+        const {
+            playersNumber,
+            currentCasting,
+        } = store;
 
         return <div>
+            <p>現在の人数：{playersNumber}人</p>
             <fieldset>
                 <legend>役職</legend>
 
