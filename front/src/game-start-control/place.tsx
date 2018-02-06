@@ -24,9 +24,9 @@ export interface IPlaceOptions {
      */
     node: HTMLElement;
     /**
-     * Definition of roles.
+     * Definition of castings.
      */
-    roles: LabeledGroup<CastingDefinition, string>;
+    castings: LabeledGroup<CastingDefinition, string>;
     /**
      * Initial selection of casting.
      */
@@ -43,7 +43,7 @@ export interface IPlaceResult {
  */
 export function place({
     node,
-    roles,
+    castings,
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore();
@@ -59,7 +59,7 @@ export function place({
     const com =
         <Casting
             store={store}
-            roles={roles}
+            castings={castings}
             onSetJob={onSetJob}
         />;
 

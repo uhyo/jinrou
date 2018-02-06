@@ -21,9 +21,9 @@ interface IPropCasting {
      */
     store: CastingStore;
     /**
-     * Definition of roles.
+     * Definition of castings.
      */
-    roles: LabeledGroup<CastingDefinition, string>;
+    castings: LabeledGroup<CastingDefinition, string>;
     /**
      * Handler of setting new role state.
      */
@@ -35,7 +35,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
     render(){
         const {
             store,
-            roles,
+            castings,
         } = this.props;
         const {
             playersNumber,
@@ -49,7 +49,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
 
                 <select>{
                     Optgroups({
-                        items: roles,
+                        items: castings,
                         getGroupLabel: (x: string)=>({
                             key: x,
                             label: x,

@@ -262,7 +262,7 @@ exports.start=(roomid)->
                     # roles情報を用意
                     game_start_control = gsc.place {
                         node: $("#gamestart-app").get 0
-                        roles: getLabeledGroupsOfJobrules()
+                        castings: getLabeledGroupsOfJobrules()
                     }
                     # TODO: scapegoat is not counted at this point
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
@@ -1801,6 +1801,8 @@ getLabeledGroupsOfJobrules = ()->
                             label: obj.title
                             roleSelect: false
                             preset: obj.rule
+                            suggestedOptions: obj.suggestedOption
+
                     }
         return result
     res = f Shared.game.jobrules, []
@@ -1840,6 +1842,10 @@ getLabeledGroupsOfJobrules = ()->
                     name: '量子人狼'
                     label: '全員の役職などが確率で表現される人狼です。村人・人狼・占い師のみ。'
                     roleSelect: false
+                    suggestedOptions:
+                        night:
+                            type: 'range'
+                            max: 60
             }
             {
                 type: 'item'
