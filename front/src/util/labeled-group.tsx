@@ -5,7 +5,11 @@ import {
     GroupOrItem,
 } from '../defs/labeled-group';
 
-export interface IPropOptgroups<T, L> {
+import {
+    ReactCtor,
+} from './react-type';
+
+export interface IPropSelectLabeledGroup<T, L> {
     items: LabeledGroup<T, L>;
     getGroupLabel: (label: L)=> {
         key: string;
@@ -14,36 +18,126 @@ export interface IPropOptgroups<T, L> {
     getOptionKey: (value: T)=> string;
     makeOption: (value: T)=> React.ReactElement<HTMLOptionElement>;
 }
+
 /**
- * Generate a list of <option>s from given LabeledGroup.
+ * Genelate a selection of given LabeledGroup.
  */
-export function Optgroups<T, L>({
+export function SelectLabeledGroup<T, L>({
     items,
     getGroupLabel,
     getOptionKey,
     makeOption,
-}: IPropOptgroups<T, L>): React.ReactFragment {
-    return <>{
-        items.map(obj=>{
-            if (obj.type === 'group'){
-                const {
-                    key,
-                    label,
-                } = getGroupLabel(obj.label);
-                return (<optgroup key={`optgroup-${key}`} label={label}>{
-                    Optgroups({
-                        items: obj.items,
-                        getGroupLabel,
-                        getOptionKey,
-                        makeOption,
-                    })
-                }</optgroup>);
-            } else {
-                const key = getOptionKey(obj.value);
-                return (<React.Fragment key={`option-${key}`}>{
-                    makeOption(obj.value)
-                }</React.Fragment>);
-            }
-        })
-    }</>;
+}: IPropSelectLabeledGroup<T, L>) {
+    const tree = genTree({
+        items,
+        getGroupLabel,
+        getOptionKey,
+    });
+
+    const TOT: ReactCtor<IPropTreeOption<T>, {}> = TreeOption;
+
+    return (<select>{
+        tree.map((item)=> (
+            <TOT
+                key={item.key}
+                item={item}
+                makeOption={makeOption}
+            />))
+    }</select>);
 }
+
+interface IGentreeInput<T, L> {
+    items: LabeledGroup<T, L>;
+    getGroupLabel: (label: L)=> {
+        key: string;
+        label: string;
+    };
+    getOptionKey: (value: T)=> string;
+}
+
+function genTree<T, L>({
+    items,
+    getGroupLabel,
+    getOptionKey,
+}: IGentreeInput<T, L>): Array<IOptionTree<T>> {
+    const result: Array<IOptionTree<T>> = [];
+    for (const item of items) {
+        if (item.type === 'group') {
+            const {
+                key,
+                label,
+            } = getGroupLabel(item.label);
+            result.push({
+                type: 'group',
+                key: `group-${key}`,
+                label,
+                items: genTree({
+                    items: item.items,
+                    getGroupLabel,
+                    getOptionKey,
+                }),
+            });
+        } else {
+            const key = getOptionKey(item.value);
+            result.push({
+                type: 'option',
+                key: `option-${key}`,
+                value: item.value,
+            });
+        }
+    }
+    return result;
+}
+
+interface IOptionTreeOption<T> {
+    type: 'option';
+    key: string;
+    value: T;
+}
+interface IOptionTreeOptgroup<T> {
+    type: 'group';
+    key: string;
+    label: string;
+    items: Array<IOptionTree<T>>
+}
+type IOptionTree<T> = IOptionTreeOption<T> | IOptionTreeOptgroup<T>;
+
+interface IPropTreeOption<T> {
+    item: IOptionTree<T>;
+    makeOption: (value: T)=> React.ReactElement<HTMLOptionElement>;
+}
+
+/**
+ * Generate a list of <option>s from given LabeledGroup.
+ */
+class TreeOption<T> extends React.Component<IPropTreeOption<T>, {}> {
+    public render(): JSX.Element {
+        const {
+            item,
+            makeOption,
+        } = this.props;
+        if (item.type === 'group') {
+            const {
+                key,
+                label,
+                items,
+            } = item;
+            const TOT: ReactCtor<IPropTreeOption<T>, {}> = TreeOption;
+            return (<optgroup
+                label={label}>{
+                    items.map((item)=> (
+                        <TOT
+                            key={item.key}
+                            item={item}
+                            makeOption={makeOption}
+                        />))
+                }</optgroup>);
+        } else {
+            const {
+                value,
+            } = item;
+            return makeOption(value);
+        }
+    }
+}
+

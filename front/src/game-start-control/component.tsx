@@ -8,9 +8,12 @@ import {
     LabeledGroup,
 } from '../defs';
 import {
-    Optgroups,
+    SelectLabeledGroup,
 } from '../util/labeled-group';
 
+import {
+    makeJobsString,
+} from './jobs-string';
 import {
     CastingStore,
 } from './store';
@@ -42,24 +45,24 @@ export class Casting extends React.Component<IPropCasting, {}> {
             currentCasting,
         } = store;
 
+        const jobsString = makeJobsString(store.jobNumbers);
+
         return <div>
-            <p>現在の人数：{playersNumber}人</p>
+            <p>現在の人数：{playersNumber}人 - {jobsString}</p>
             <fieldset>
                 <legend>役職</legend>
 
-                <select>{
-                    Optgroups({
-                        items: castings,
-                        getGroupLabel: (x: string)=>({
-                            key: x,
-                            label: x,
-                        }),
-                        getOptionKey: ({id}: CastingDefinition)=>id,
-                        makeOption: (obj: CastingDefinition)=>{
-                            return <option value={obj.id} title={obj.label}>{obj.name}</option>;
-                        },
-                    })
-                }</select>
+                <SelectLabeledGroup
+                    items={castings}
+                    getGroupLabel={(x: string)=>({
+                        key: x,
+                        label: x,
+                    })}
+                    getOptionKey={({id}: CastingDefinition)=>id}
+                    makeOption={(obj: CastingDefinition)=>{
+                        return <option value={obj.id} title={obj.label}>{obj.name}</option>;
+                    }}
+                />
             </fieldset>
         </div>;
     }

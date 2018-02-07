@@ -9,7 +9,7 @@
     "build:bundle": "webpack-cli",
     "clean": "rimraf ../client/static/front-assets",
     "watch": "run-p watch:tsc watch:bundle",
-    "watch:tsc": "tsc --watch",
+    "watch:tsc": "tsc --watch --pretty",
     "watch:bundle": "webpack-cli --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
