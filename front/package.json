@@ -31,6 +31,10 @@
     "yaml-loader": "^0.5.0"
   },
   "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.3",
+    "@fortawesome/fontawesome-free-regular": "^5.0.6",
+    "@fortawesome/fontawesome-free-solid": "^5.0.6",
+    "@fortawesome/react-fontawesome": "^0.1.0-3",
     "i18next": "^10.3.0",
     "i18next-xhr-backend": "^1.5.1",
     "mobx": "^3.4.1",

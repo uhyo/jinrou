@@ -265,6 +265,12 @@ exports.start=(roomid)->
                         node: $("#gamestart-app").get 0
                         castings: castings
                         roles: Shared.game.jobs
+                        categories:
+                            Object.keys(Shared.game.categories)
+                                .map((key)-> {
+                                    id: key
+                                    roles: Shared.game.categories[key]
+                                })
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
                     }

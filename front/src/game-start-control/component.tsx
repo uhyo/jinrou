@@ -6,6 +6,7 @@ import * as React from 'react';
 import {
     CastingDefinition,
     LabeledGroup,
+    RoleCategoryDefinition,
 } from '../defs';
 import {
     SelectLabeledGroup,
@@ -15,6 +16,9 @@ import {
     JobsString,
     PlayerNumberError,
 } from './jobs-string';
+import {
+    SelectRoles,
+} from './select-roles';
 import {
     CastingStore,
 } from './store';
@@ -42,9 +46,9 @@ interface IPropCasting {
      */
     roles: string[];
     /**
-     * Handler of setting new role state.
+     * Definition of categories.
      */
-    onSetJob?(casting: CastingDefinition, jobUpdates: Record<string, number>): void;
+    categories: RoleCategoryDefinition[];
 }
 
 @observer
@@ -55,14 +59,19 @@ export class Casting extends React.Component<IPropCasting, {}> {
             store,
             castings,
             roles,
+            categories,
         } = this.props;
         const {
             playersNumber,
             currentCasting,
+            jobNumbers,
         } = store;
 
-        const handleChange = (value: CastingDefinition)=>{
+        const handleChange = (value: CastingDefinition)=> {
             store.setCurrentCasting(value);
+        };
+        const handleUpdate = (role: string, value: number)=> {
+            store.updateJobNumber(role, value);
         };
 
         // Check whether current number of players is admissible.
@@ -75,6 +84,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
 
         return (<I18n i18n={i18n} namespace='game_client'>{
             (t)=> {
+                // status line indicating jobs.
                 const jobsMonitor =
                     max && max < playersNumber ?
                     (<PlayerNumberError t={t} maxNumber={max} />) :
@@ -82,7 +92,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     (<PlayerNumberError t={t} minNumber={minReq} />) :
                     (<JobsString
                         i18n={i18n}
-                        jobNumbers={store.jobNumbers}
+                        jobNumbers={jobNumbers}
                         roles={roles}
                     />);
                 return (<div>
@@ -108,8 +118,18 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                 }}
                                 onChange={handleChange}
                             />
-                        </fieldset>
-                    </div>);
+                        {
+                            currentCasting.roleSelect ?
+                                <SelectRoles
+                                    categories={categories}
+                                    t={t}
+                                    jobNumbers={jobNumbers}
+                                    onUpdate={handleUpdate}
+                                /> :
+                                null
+                        }
+                    </fieldset>
+                </div>);
             }
         }</I18n>);
     }

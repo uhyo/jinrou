@@ -85,7 +85,7 @@ export class CastingStore {
      * Partially update jobNumbers by given object.
      */
     @action
-    public updateJobNumbers(obj: Record<string, number>): void {
-        Object.assign(this.userJobNumbers, obj);
+    public updateJobNumber(role: string, value: number): void {
+        this.userJobNumbers.set(role, value);
     }
 }

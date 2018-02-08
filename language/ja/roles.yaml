@@ -114,6 +114,16 @@ jobname:
   Waiting: "待機中"
   Watching: "観戦者"
 
+# Name of categories.
+categoryName:
+  Human: "村人系"
+  Werewolf: "人狼系"
+  Fox: "妖狐系"
+  Madman: "狂人系"
+  Immoral: "背徳者系"
+  Switching: "役職変化系"
+  Others: "第三陣営系"
+
 # Fortune result.
 fortune:
   human: "村人"

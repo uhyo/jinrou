@@ -13,6 +13,7 @@ import {
 import {
     CastingDefinition,
     LabeledGroup,
+    RoleCategoryDefinition,
 } from '../defs';
 import {
     forLanguage,
@@ -35,6 +36,10 @@ export interface IPlaceOptions {
      */
     roles: string[];
     /**
+     * Definition of categories.
+     */
+    categories: RoleCategoryDefinition[];
+    /**
      * Initial selection of casting.
      */
     initialCasting: CastingDefinition;
@@ -52,6 +57,7 @@ export function place({
     node,
     castings,
     roles,
+    categories,
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore(initialCasting);
@@ -60,20 +66,13 @@ export function place({
     // TODO language
     const i18n = forLanguage('ja');
 
-    const onSetJob = (casting: CastingDefinition, jobUpdates: Record<string, number>)=>{
-        runInAction(()=>{
-            store.setCurrentCasting(casting);
-            store.updateJobNumbers(jobUpdates);
-        });
-    };
-
     const com =
         <Casting
             i18n={i18n}
             store={store}
             castings={castings}
             roles={roles}
-            onSetJob={onSetJob}
+            categories={categories}
         />;
 
     ReactDOM.render(com, node);

@@ -45,7 +45,6 @@ export function forLanguage(lng: string): i18next.i18n {
  */
 async function ajax(url: string, options: any, callback: (data: any, status: any)=>void): Promise<void> {
     const [lng, ns] = url.split('.');
-    console.log('hi', lng, ns);
     try {
         const data = await import(`../../../language/${lng}/${ns}.yaml`);
         callback(data.default, {
