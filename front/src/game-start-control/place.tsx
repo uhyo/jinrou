@@ -34,7 +34,7 @@ export interface IPlaceOptions {
     /**
      * Initial selection of casting.
      */
-    initialCasting: string;
+    initialCasting: CastingDefinition;
 }
 export interface IPlaceResult {
     store: CastingStore;
@@ -51,10 +51,10 @@ export function place({
     roles,
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
-    const store = new CastingStore();
-    store.setCurrentCasting(initialCasting);
+    const store = new CastingStore(initialCasting);
+    store.setCurrentCasting(initialCasting, );
 
-    const onSetJob = (casting: string, jobUpdates: Record<string, number>)=>{
+    const onSetJob = (casting: CastingDefinition, jobUpdates: Record<string, number>)=>{
         runInAction(()=>{
             store.setCurrentCasting(casting);
             store.updateJobNumbers(jobUpdates);

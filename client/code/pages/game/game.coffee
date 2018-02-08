@@ -259,11 +259,14 @@ exports.start=(roomid)->
             # GameStartControlコンポーネントを設置
             JinrouFront.loadGameStartControl()
                 .then((gsc)=>
-                    # roles情報を用意
+                    # casting情報を用意
+                    castings = getLabeledGroupsOfJobrules()
                     game_start_control = gsc.place {
                         node: $("#gamestart-app").get 0
-                        castings: getLabeledGroupsOfJobrules()
+                        castings: castings
                         roles: Shared.game.jobs
+                        # XXX ad-hoc!
+                        initialCasting: castings[0].items[0].value
                     }
                     # TODO: scapegoat is not counted at this point
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length

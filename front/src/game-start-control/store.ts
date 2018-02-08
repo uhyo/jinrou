@@ -1,7 +1,13 @@
 import {
     action,
+    computed,
     observable,
 } from 'mobx';
+
+import {
+    CastingDefinition,
+    PresetFunction,
+} from '../defs/casting-definition';
 
 /**
  * Store of current selection of casting.
@@ -15,13 +21,36 @@ export class CastingStore {
     /**
      * Current selected casting.
      */
-    @observable
-    public currentCasting: string = '';
+    @observable.ref
+    public currentCasting: Readonly<CastingDefinition>;
     /**
-     * Number of jobs.
+     * User input of number of jobs.
      */
     @observable
-    public jobNumbers: Map<string, number> = new Map();
+    public userJobNumbers: Map<string, number> = new Map();
+
+    constructor(initialCasting: CastingDefinition) {
+        this.currentCasting = initialCasting;
+    }
+
+    /**
+     * Calculated number of jobs.
+     */
+    @computed
+    public get jobNumbers(): Record<string, number> {
+        const {
+            preset,
+        } = this.currentCasting;
+        if (preset != null) {
+            return preset(this.playersNumber);
+        } else {
+            const result: Record<string, number> = {};
+            for (const [key, value] of this.userJobNumbers) {
+                result[key] = value;
+            }
+            return result;
+        }
+    }
 
     /**
      * Set player number.
@@ -34,7 +63,7 @@ export class CastingStore {
      * Set current casting.
      */
     @action
-    public setCurrentCasting(casting: string): void {
+    public setCurrentCasting(casting: CastingDefinition): void {
         this.currentCasting = casting;
     }
     /**
@@ -42,8 +71,6 @@ export class CastingStore {
      */
     @action
     public updateJobNumbers(obj: Record<string, number>): void {
-        for (const key in obj) {
-            this.jobNumbers.set(key, obj[key]);
-        }
+        Object.assign(this.userJobNumbers, obj);
     }
 }

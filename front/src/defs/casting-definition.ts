@@ -21,12 +21,18 @@ export interface CastingDefinition {
     /**
      * Function to define this casting.
      */
-    preset?: (players: number)=> Record<string, number>;
+    preset?: PresetFunction
     /**
      * Options suggested to this rule.
      */
     suggestedOptions?: Record<string, OptionSuggestion>;
 }
+
+/**
+ * Preset jobs function.
+ * Absent field of return value should be considered as 0.
+ */
+export type PresetFunction = (players: number)=> Record<string, number>;
 
 /**
  * Suggestion of an option.

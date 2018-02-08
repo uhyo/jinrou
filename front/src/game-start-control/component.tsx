@@ -34,7 +34,7 @@ interface IPropCasting {
     /**
      * Handler of setting new role state.
      */
-    onSetJob?(casting: string, jobUpdates: Record<string, number>): void;
+    onSetJob?(casting: CastingDefinition, jobUpdates: Record<string, number>): void;
 }
 
 @observer
@@ -52,7 +52,11 @@ export class Casting extends React.Component<IPropCasting, {}> {
 
         const jobsString = makeJobsString(roles, store.jobNumbers);
 
-        return <div>
+        const handleChange = (value: CastingDefinition)=>{
+            store.setCurrentCasting(value);
+        };
+
+        return (<div>
             <p>現在の人数：{playersNumber}人 - {jobsString}</p>
             <fieldset>
                 <legend>役職</legend>
@@ -67,8 +71,9 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     makeOption={(obj: CastingDefinition)=>{
                         return <option value={obj.id} title={obj.label}>{obj.name}</option>;
                     }}
+                    onChange={handleChange}
                 />
             </fieldset>
-        </div>;
+        </div>);
     }
 }

@@ -10,6 +10,9 @@ import {
 } from './react-type';
 
 export interface IPropSelectLabeledGroup<T, L> {
+    /**
+     * Items of this select.
+     */
     items: LabeledGroup<T, L>;
     getGroupLabel: (label: L)=> {
         key: string;
@@ -17,6 +20,7 @@ export interface IPropSelectLabeledGroup<T, L> {
     };
     getOptionKey: (value: T)=> string;
     makeOption: (value: T)=> React.ReactElement<HTMLOptionElement>;
+    onChange?: (value: T)=> void;
 }
 
 /**
@@ -27,16 +31,30 @@ export function SelectLabeledGroup<T, L>({
     getGroupLabel,
     getOptionKey,
     makeOption,
+    onChange,
 }: IPropSelectLabeledGroup<T, L>) {
+    const itemMap = new Map();
     const tree = genTree({
         items,
         getGroupLabel,
         getOptionKey,
+        itemMap,
     });
 
     const TOT: ReactCtor<IPropTreeOption<T>, {}> = TreeOption;
 
-    return (<select>{
+    const changeHandler =
+        onChange != null ? ({currentTarget}: React.SyntheticEvent<HTMLSelectElement>)=> {
+            const {
+                value,
+            } = currentTarget;
+            const v = itemMap.get(value);
+            if (v != null) {
+                onChange(v);
+            }
+        } : undefined;
+
+    return (<select onChange={changeHandler}>{
         tree.map((item)=> (
             <TOT
                 key={item.key}
@@ -53,12 +71,17 @@ interface IGentreeInput<T, L> {
         label: string;
     };
     getOptionKey: (value: T)=> string;
+    /**
+     * Map from key to item.
+     */
+    itemMap: Map<string, T>;
 }
 
 function genTree<T, L>({
     items,
     getGroupLabel,
     getOptionKey,
+    itemMap,
 }: IGentreeInput<T, L>): Array<IOptionTree<T>> {
     const result: Array<IOptionTree<T>> = [];
     for (const item of items) {
@@ -75,14 +98,19 @@ function genTree<T, L>({
                     items: item.items,
                     getGroupLabel,
                     getOptionKey,
+                    itemMap,
                 }),
             });
         } else {
-            const key = getOptionKey(item.value);
+            const {
+                value,
+            } = item;
+            const key = getOptionKey(value);
+            itemMap.set(key, value);
             result.push({
                 type: 'option',
                 key: `option-${key}`,
-                value: item.value,
+                value,
             });
         }
     }
