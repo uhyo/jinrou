@@ -263,6 +263,7 @@ exports.start=(roomid)->
                     game_start_control = gsc.place {
                         node: $("#gamestart-app").get 0
                         castings: getLabeledGroupsOfJobrules()
+                        roles: Shared.game.jobs
                     }
                     # TODO: scapegoat is not counted at this point
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length

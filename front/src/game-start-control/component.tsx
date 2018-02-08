@@ -28,6 +28,10 @@ interface IPropCasting {
      */
     castings: LabeledGroup<CastingDefinition, string>;
     /**
+     * Id of roles.
+     */
+    roles: string[];
+    /**
      * Handler of setting new role state.
      */
     onSetJob?(casting: string, jobUpdates: Record<string, number>): void;
@@ -39,13 +43,14 @@ export class Casting extends React.Component<IPropCasting, {}> {
         const {
             store,
             castings,
+            roles,
         } = this.props;
         const {
             playersNumber,
             currentCasting,
         } = store;
 
-        const jobsString = makeJobsString(store.jobNumbers);
+        const jobsString = makeJobsString(roles, store.jobNumbers);
 
         return <div>
             <p>現在の人数：{playersNumber}人 - {jobsString}</p>

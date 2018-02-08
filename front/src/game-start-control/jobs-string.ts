@@ -1,7 +1,14 @@
 /**
  * Make a string representing given jobNumbers.
  */
-export function makeJobsString(jobNumbers: Map<string, number>): string {
+export function makeJobsString(roles: string[], jobNumbers: Map<string, number>): string {
     // TODO
-    return Array.from(jobNumbers.entries(), ([key, value])=> `${key}:${value}`).join(' ');
+    return roles.map((id)=> {
+        const val = jobNumbers.get(id) || 0;
+        if (val > 0) {
+            return `${id}: ${val}`;
+        } else {
+            return '';
+        }
+    }).join(' ');
 }
