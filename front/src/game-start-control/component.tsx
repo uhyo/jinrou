@@ -70,9 +70,9 @@ export class Casting extends React.Component<IPropCasting, {}> {
                 return (<div>
                     <p>
                         {t('gamestart.info.player_number', {count: playersNumber})}
-                    -
+                    {' - '}
                     {store.currentCasting.name}
-                    /
+                    {' / '}
                     {
                         playersNumber >= store.requiredNumber ?
                         <JobsString

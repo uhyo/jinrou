@@ -4,6 +4,10 @@ import {
     I18n,
 } from '../i18n';
 
+import {
+    InlineWarning,
+} from '../common/warning';
+
 export interface IPropJobsString {
     i18n: i18n;
     jobNumbers: Record<string, number>;
@@ -43,8 +47,8 @@ export function PlayerTooFew({
     i18n,
     requiredNumber,
 }: IPropPlayerTooFew) {
-    return (<span>
+    return (<InlineWarning>
         人数が足りません。この配役は最低{requiredNumber}人必要です。
-    </span>);
+    </InlineWarning>);
 
 }
