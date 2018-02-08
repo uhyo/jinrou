@@ -12,13 +12,21 @@ import {
 } from '../util/labeled-group';
 
 import {
-    makeJobsString,
+    JobsString,
 } from './jobs-string';
 import {
     CastingStore,
 } from './store';
 
+import {
+    i18n,
+} from '../i18n';
+
 interface IPropCasting {
+    /**
+     * i18n instance.
+     */
+    i18n: i18n,
     /**
      * store.
      */
@@ -41,6 +49,7 @@ interface IPropCasting {
 export class Casting extends React.Component<IPropCasting, {}> {
     render(){
         const {
+            i18n,
             store,
             castings,
             roles,
@@ -50,14 +59,18 @@ export class Casting extends React.Component<IPropCasting, {}> {
             currentCasting,
         } = store;
 
-        const jobsString = makeJobsString(roles, store.jobNumbers);
-
         const handleChange = (value: CastingDefinition)=>{
             store.setCurrentCasting(value);
         };
 
         return (<div>
-            <p>現在の人数：{playersNumber}人 - {jobsString}</p>
+            <p>現在の人数：{playersNumber}人 -
+                <JobsString
+                    i18n={i18n}
+                    jobNumbers={store.jobNumbers}
+                    roles={roles}
+                />
+            </p>
             <fieldset>
                 <legend>役職</legend>
 

@@ -14,6 +14,9 @@ import {
     CastingDefinition,
     LabeledGroup,
 } from '../defs';
+import {
+    forLanguage,
+} from '../i18n';
 
 /**
  * Options to place.
@@ -52,7 +55,10 @@ export function place({
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore(initialCasting);
-    store.setCurrentCasting(initialCasting, );
+    store.setCurrentCasting(initialCasting);
+
+    // TODO language
+    const i18n = forLanguage('ja');
 
     const onSetJob = (casting: CastingDefinition, jobUpdates: Record<string, number>)=>{
         runInAction(()=>{
@@ -63,6 +69,7 @@ export function place({
 
     const com =
         <Casting
+            i18n={i18n}
             store={store}
             castings={castings}
             roles={roles}
