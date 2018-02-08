@@ -3,7 +3,11 @@ gamestart:
   # information shown to an owner.
   info:
     # Current number of players.
-    player_number: "現在の人数: {{count}}人"
+    playerNumber: "現在の人数: {{count}}人"
+    # Players are too few.
+    playerTooFew: "人数が足りません。この配役は最低{{count}}人必要です。"
+    # Players are too many.
+    playerTooMany: "人数が多すぎます。この配役は最高{{count}}人です。"
   # game start control.
   control:
     # legend: "roles"

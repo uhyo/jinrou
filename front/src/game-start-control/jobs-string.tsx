@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
     i18n,
     I18n,
+    TranslationFunction,
 } from '../i18n';
 
 import {
@@ -35,20 +36,33 @@ export function JobsString({
     }</I18n>);
 }
 
-export interface IPropPlayerTooFew {
-    i18n: i18n;
-    requiredNumber: number;
+export interface IPropPlayerNumberError {
+    t: TranslationFunction;
+    minNumber?: number;
+    maxNumber?: number;
 }
 
 /**
  * Player number is not enough.
  */
-export function PlayerTooFew({
-    i18n,
-    requiredNumber,
-}: IPropPlayerTooFew) {
-    return (<InlineWarning>
-        人数が足りません。この配役は最低{requiredNumber}人必要です。
-    </InlineWarning>);
-
+export function PlayerNumberError({
+    t,
+    minNumber,
+    maxNumber,
+}: IPropPlayerNumberError) {
+    if (minNumber != null) {
+        return (<InlineWarning>{
+            t('game_client:gamestart.info.playerTooFew', {
+                count: minNumber,
+            })
+        }</InlineWarning>);
+    } else if (maxNumber != null) {
+        return (<InlineWarning>{
+            t('game_client:gamestart.info.playerTooMany', {
+                count: maxNumber,
+            })
+        }</InlineWarning>);
+    } else {
+        return null;
+    }
 }

@@ -26,6 +26,13 @@ export interface CastingDefinition {
      * Options suggested to this rule.
      */
     suggestedOptions?: Record<string, OptionSuggestion>;
+    /**
+     * Check whether this number of players is admissible.
+     */
+    suggestedPlayersNumber?: {
+        min?: number;
+        max?: number;
+    };
 }
 
 /**

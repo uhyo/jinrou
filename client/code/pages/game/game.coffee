@@ -1806,6 +1806,13 @@ getLabeledGroupsOfJobrules = ()->
                             roleSelect: false
                             preset: obj.rule
                             suggestedOptions: obj.suggestedOption
+                            suggestedPlayersNumber:
+                                if obj.minNumber?
+                                    {
+                                        min: obj.minNumber
+                                    }
+                                else
+                                    undefined
 
                     }
         return result

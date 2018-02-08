@@ -13,7 +13,7 @@ import {
 
 import {
     JobsString,
-    PlayerTooFew,
+    PlayerNumberError,
 } from './jobs-string';
 import {
     CastingStore,
@@ -65,26 +65,33 @@ export class Casting extends React.Component<IPropCasting, {}> {
             store.setCurrentCasting(value);
         };
 
+        // Check whether current number of players is admissible.
+        const {
+            min = undefined,
+            max = undefined,
+        } = currentCasting.suggestedPlayersNumber || {};
+        const minReq = Math.max(min || -Infinity, store.requiredNumber);
+            
+
         return (<I18n i18n={i18n} namespace='game_client'>{
             (t)=> {
+                const jobsMonitor =
+                    max && max < playersNumber ?
+                    (<PlayerNumberError t={t} maxNumber={max} />) :
+                    minReq > playersNumber ? 
+                    (<PlayerNumberError t={t} minNumber={minReq} />) :
+                    (<JobsString
+                        i18n={i18n}
+                        jobNumbers={store.jobNumbers}
+                        roles={roles}
+                    />);
                 return (<div>
                     <p>
-                        {t('gamestart.info.player_number', {count: playersNumber})}
+                        {t('gamestart.info.playerNumber', {count: playersNumber})}
                     {' - '}
                     {store.currentCasting.name}
                     {' / '}
-                    {
-                        playersNumber >= store.requiredNumber ?
-                        <JobsString
-                            i18n={i18n}
-                            jobNumbers={store.jobNumbers}
-                            roles={roles}
-                        /> :
-                        <PlayerTooFew
-                            i18n={i18n}
-                            requiredNumber={store.requiredNumber}
-                        />
-                        }
+                    {jobsMonitor}
                     </p>
                     <fieldset>
                         <legend>{t('gamestart.control.roles')}</legend>
