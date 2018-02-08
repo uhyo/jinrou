@@ -13,6 +13,7 @@ import {
 
 import {
     JobsString,
+    PlayerTooFew,
 } from './jobs-string';
 import {
     CastingStore,
@@ -20,6 +21,7 @@ import {
 
 import {
     i18n,
+    I18n,
 } from '../i18n';
 
 interface IPropCasting {
@@ -63,30 +65,45 @@ export class Casting extends React.Component<IPropCasting, {}> {
             store.setCurrentCasting(value);
         };
 
-        return (<div>
-            <p>現在の人数：{playersNumber}人 -
-                <JobsString
-                    i18n={i18n}
-                    jobNumbers={store.jobNumbers}
-                    roles={roles}
-                />
-            </p>
-            <fieldset>
-                <legend>役職</legend>
+        return (<I18n i18n={i18n} namespace='game_client'>{
+            (t)=> {
+                return (<div>
+                    <p>
+                        {t('gamestart.info.player_number', {count: playersNumber})}
+                    -
+                    {store.currentCasting.name}
+                    /
+                    {
+                        playersNumber >= store.requiredNumber ?
+                        <JobsString
+                            i18n={i18n}
+                            jobNumbers={store.jobNumbers}
+                            roles={roles}
+                        /> :
+                        <PlayerTooFew
+                            i18n={i18n}
+                            requiredNumber={store.requiredNumber}
+                        />
+                        }
+                    </p>
+                    <fieldset>
+                        <legend>{t('gamestart.control.roles')}</legend>
 
-                <SelectLabeledGroup
-                    items={castings}
-                    getGroupLabel={(x: string)=>({
-                        key: x,
-                        label: x,
-                    })}
-                    getOptionKey={({id}: CastingDefinition)=>id}
-                    makeOption={(obj: CastingDefinition)=>{
-                        return <option value={obj.id} title={obj.label}>{obj.name}</option>;
-                    }}
-                    onChange={handleChange}
-                />
-            </fieldset>
-        </div>);
+                        <SelectLabeledGroup
+                            items={castings}
+                            getGroupLabel={(x: string)=>({
+                                key: x,
+                                label: x,
+                            })}
+                            getOptionKey={({id}: CastingDefinition)=>id}
+                            makeOption={(obj: CastingDefinition)=>{
+                                return <option value={obj.id} title={obj.label}>{obj.name}</option>;
+                                }}
+                                onChange={handleChange}
+                            />
+                        </fieldset>
+                    </div>);
+            }
+        }</I18n>);
     }
 }

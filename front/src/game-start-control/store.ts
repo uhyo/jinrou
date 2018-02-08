@@ -51,6 +51,21 @@ export class CastingStore {
             return result;
         }
     }
+    /**
+     * Calculated required number of jobs.
+     */
+    @computed
+    public get requiredNumber(): number {
+        const jobs = this.jobNumbers;
+        let result = 0;
+        for (const key in jobs) {
+            const v = jobs[key];
+            if (v) {
+                result += v;
+            }
+        }
+        return result;
+    }
 
     /**
      * Set player number.

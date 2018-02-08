@@ -15,13 +15,17 @@ i18next
     },
     // TODO language
     fallbackLng: 'ja',
-    ns: ['roles'],
+    ns: [
+        'roles',
+        'game_client',
+    ],
 });
 
 /**
  * Reexport type of i18n.
  */
 export type i18n = i18next.i18n;
+export type TranslationFunction = i18next.TranslationFunction;
 
 /**
  * Get an instance of i18next for given language.

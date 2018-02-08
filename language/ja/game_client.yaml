@@ -1,0 +1,10 @@
+# Game start control.
+gamestart:
+  # information shown to an owner.
+  info:
+    # Current number of players.
+    player_number: "現在の人数: {{count}}人"
+  # game start control.
+  control:
+    # legend: "roles"
+    roles: 役職

@@ -22,11 +22,29 @@ export function JobsString({
             return roles.map((id)=> {
                 const val = jobNumbers[id] || 0;
                 if (val > 0) {
-                    return (<span key={id}>{t(`roles:jobname.${id}`)}: {val}</span>);
+                    return (<span key={id}>{t(`roles:jobname.${id}`)}: {val} </span>);
                 } else {
                     return <React.Fragment key={id} />;
                 }
             })
         }
     }</I18n>);
+}
+
+export interface IPropPlayerTooFew {
+    i18n: i18n;
+    requiredNumber: number;
+}
+
+/**
+ * Player number is not enough.
+ */
+export function PlayerTooFew({
+    i18n,
+    requiredNumber,
+}: IPropPlayerTooFew) {
+    return (<span>
+        人数が足りません。この配役は最低{requiredNumber}人必要です。
+    </span>);
+
 }
