@@ -42,12 +42,22 @@ export class CastingStore {
             preset,
         } = this.currentCasting;
         if (preset != null) {
-            return preset(this.playersNumber);
+            const res = preset(this.playersNumber);
+            let total = 0;
+            for (const key in res) {
+                total += res[key];
+            }
+            // Human
+            res.Human = (res.Human || 0) + (this.playersNumber - total);
+            return res;
         } else {
             const result: Record<string, number> = {};
+            let total = 0;
             for (const [key, value] of this.userJobNumbers) {
                 result[key] = value;
+                total += value;
             }
+            result.Human = (result.Human || 0) + (this.playersNumber - total);
             return result;
         }
     }
