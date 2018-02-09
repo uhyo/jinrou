@@ -1,4 +1,7 @@
 import * as React from 'react';
+import {
+    observer,
+} from 'mobx-react';
 import styled, {
     StyledFunction,
 } from 'styled-components';
@@ -50,6 +53,7 @@ export interface IPropSelectRoles {
 /**
  * Interface to select role numbers.
  */
+@observer
 export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
     protected updateMap: Map<string, (value: number, included: boolean)=> void> = new Map();
 
@@ -108,7 +112,12 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
 }
 
 interface IPropRoleWrapper {
-    active: boolean;
+    /**
+     * State of this role.
+     * active: value > 0,
+     * inactive: value == 0.
+     */
+    status: 'active' | 'inactive' | 'excluded';
 }
 
 const RoleWrapper = withProps<IPropRoleWrapper>()(styled.div)`
@@ -120,12 +129,20 @@ const RoleWrapper = withProps<IPropRoleWrapper>()(styled.div)`
     flex-flow: column nowrap;
     justify-content: space-between;
 
-    background-color: ${props=> props.active ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.3)'};
+    background-color: ${({status})=> {
+        return (
+            status === 'active' ?
+            'rgba(255, 255, 255, 0.6)' :
+            status === 'inactive' ?
+            'rgba(255, 255, 255, 0.3)' :
+            'rgba(255, 255, 255, 0.15)'
+        )}};
 
     b {
         display: flex;
         flex-flow: row nowrap;
         margin-bottom: 0.25em;
+        color: ${({status})=> status === 'excluded' ? 'rgba(0, 0, 0, 0.4)' : 'inherit'};
 
         text-align: center;
 
@@ -133,12 +150,6 @@ const RoleWrapper = withProps<IPropRoleWrapper>()(styled.div)`
             flex: 1 1 auto;
         }
     }
-`;
-const ErrorRoleWrapper = styled(RoleWrapper)`
-    background-color: rgba(255, 96, 96, 0.5);
-`;
-const ActiveRoleWrapper = styled(RoleWrapper)`
-    background-color: rgba(255, 255, 255, 0.6);
 `;
 
 interface IPropRoleCounter {
@@ -203,15 +214,9 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             onChange,
         } = this.props;
 
-        console.log('render', role);
+        console.log('render', role, included);
 
         const roleName = t(`roles:jobname.${role}`);
-
-        // value less than 0 is error.
-        const RW =
-            value > 0 ?
-            ActiveRoleWrapper :
-            RoleWrapper;
 
         // Checkbox for exclusion.
         const exclusion =
@@ -223,7 +228,12 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             /> :
             null;
 
-        return (<RoleWrapper active={value > 0}>
+        const roleStatus =
+            included ?
+            (value > 0 ? 'active' : 'inactive') :
+            'excluded';
+
+        return (<RoleWrapper status={roleStatus}>
             <b>
                 <span>{roleName}</span>
                 <a href={`/manual/job/${role}`}>

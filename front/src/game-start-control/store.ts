@@ -2,6 +2,7 @@ import {
     action,
     computed,
     observable,
+    runInAction,
 } from 'mobx';
 
 import {
@@ -108,6 +109,10 @@ export class CastingStore {
      */
     @action
     public updateJobNumber(role: string, value: number, included: boolean): void {
+        if (!included) {
+            // An excluded role should not be selected.
+            value = 0;
+        }
         this.userJobNumbers.set(role, value);
         this.jobInclusions.set(role, included);
     }
