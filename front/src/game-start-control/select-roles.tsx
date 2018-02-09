@@ -130,6 +130,9 @@ const RoleWrapper = styled.div`
 const ErrorRoleWrapper = styled(RoleWrapper)`
     background-color: rgba(255, 96, 96, 0.5);
 `;
+const ActiveRoleWrapper = styled(RoleWrapper)`
+    background-color: rgba(255, 255, 255, 0.6);
+`;
 
 const RoleControls = styled.div`
     display: flex;
@@ -167,7 +170,9 @@ function RoleCounter({
 
     // value less than 0 is error.
     const RW =
-        value >= 0 ? RoleWrapper : ErrorRoleWrapper;
+        value > 0 ?
+        ActiveRoleWrapper :
+        RoleWrapper;
 
     // Checkbox for exclusion.
     const exclusion =
