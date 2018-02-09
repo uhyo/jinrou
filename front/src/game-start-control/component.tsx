@@ -10,7 +10,11 @@ import {
 } from '../defs';
 import {
     SelectLabeledGroup,
+    IPropSelectLabeledGroup,
 } from '../util/labeled-group';
+import {
+    ReactCtor,
+} from '../util/react-type';
 
 import {
     JobsString,
@@ -82,6 +86,8 @@ export class Casting extends React.Component<IPropCasting, {}> {
         } = currentCasting.suggestedPlayersNumber || {};
         const minReq = Math.max(min || -Infinity, store.requiredNumber);
             
+        // Specialized generic component.
+        const SLG: ReactCtor<IPropSelectLabeledGroup<CastingDefinition, string>, {}> = SelectLabeledGroup;
 
         return (<I18n i18n={i18n} namespace='game_client'>{
             (t)=> {
@@ -108,7 +114,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     <fieldset>
                         <legend>{t('gamestart.control.roles')}</legend>
 
-                        <SelectLabeledGroup
+                        <SLG
                             items={castings}
                             getGroupLabel={(x: string)=>({
                                 key: x,

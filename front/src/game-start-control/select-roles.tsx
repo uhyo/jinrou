@@ -9,6 +9,9 @@ import {
 } from '../i18n';
 
 import {
+    bind,
+} from '../util/bind';
+import {
     FontAwesomeIcon,
 } from '../util/icon';
 
@@ -42,42 +45,61 @@ const JobsWrapper = styled.dd`
 /**
  * Interface to select role numbers.
  */
-export function SelectRoles({
-    categories,
-    t,
-    jobNumbers,
-    jobInclusions,
-    roleExclusion,
-    onUpdate,
-}: IPropSelectRoles) {
-    return (<Wrapper>{
-        categories.map(({
-            id,
-            roles,
-        })=> {
-            return (<React.Fragment key={id}>
-                <CategoryTitle key={id}>
-                    {t(`roles:categoryName.${id}`)}
-                </CategoryTitle>
-                <JobsWrapper>
-                    {
-                        roles.map((role)=> {
-                            const included = jobInclusions.get(role) || false;
-                            return (<RoleCounter
-                                key={role}
-                                role={role}
-                                t={t}
-                                roleExclusion={roleExclusion}
-                                included={included}
-                                value={jobNumbers[role] || 0}
-                                onChange={onUpdate.bind(null, role)}
+export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
+    protected updateMap: Map<string, (value: number)=> void> = new Map();
+
+    public render() {
+        const {
+            categories,
+            t,
+            jobNumbers,
+            jobInclusions,
+            roleExclusion,
+            onUpdate,
+        } = this.props;
+
+        return (<Wrapper>{
+            categories.map(({
+                id,
+                roles,
+            })=> {
+                return (<React.Fragment key={id}>
+                    <CategoryTitle key={id}>
+                        {t(`roles:categoryName.${id}`)}
+                    </CategoryTitle>
+                    <JobsWrapper>
+                        {
+                            roles.map((role)=> {
+                                const included = jobInclusions.get(role) || false;
+                                const changeHandler = this.getChangeHandler(role);
+                                return (<RoleCounter
+                                    key={role}
+                                    role={role}
+                                    t={t}
+                                    roleExclusion={roleExclusion}
+                                    included={included}
+                                    value={jobNumbers[role] || 0}
+                                    onChange={changeHandler}
                                 />);
-                        })
-                    }
-                </JobsWrapper>
-            </React.Fragment>);
-        })
-    }</Wrapper>);
+                            })
+                        }
+                    </JobsWrapper>
+                </React.Fragment>);
+            })
+        }</Wrapper>);
+    }
+    protected getChangeHandler(role: string): ((value: number)=>void) {
+        const v = this.updateMap.get(role);
+        if (v != null) {
+            return v;
+        }
+        const f = this.handleUpdate.bind(this, role);
+        this.updateMap.set(role, f);
+        return f;
+    }
+    protected handleUpdate(role: string, value: number) {
+        this.props.onUpdate(role, value);
+    }
 }
 
 interface IPropRoleCounter {
@@ -158,74 +180,80 @@ const NumberWrap = styled.span`
         width: 100%;
     }
 `;
-function RoleCounter({
-    role,
-    t,
-    value,
-    included,
-    roleExclusion,
-    onChange,
-}: IPropRoleCounter) {
-    const roleName = t(`roles:jobname.${role}`);
+class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
+    public render() {
+        const {
+            role,
+            t,
+            value,
+            included,
+            roleExclusion,
+            onChange,
+        } = this.props;
 
-    // value less than 0 is error.
-    const RW =
-        value > 0 ?
-        ActiveRoleWrapper :
-        RoleWrapper;
+        console.log('render', role);
 
-    // Checkbox for exclusion.
-    const exclusion =
-        roleExclusion ?
-        <input
-            type='checkbox'
-            checked={included}
-        /> :
-        null;
+        const roleName = t(`roles:jobname.${role}`);
 
-    return (<RW>
-        <b>
-            <span>{roleName}</span>
-            <a href={`/manual/job/${role}`}>
-                <FontAwesomeIcon icon={['far', 'question-circle']} />
-            </a>
-        </b>
-        <RoleControls>
-            {
-                role === 'Human' ?
-                // Just display computed number for Human
-                (<span>{value}</span>) :
-                (<>
-                    {exclusion}
-                    <NumberWrap>
-                        <input
-                            type='number'
-                            value={value}
-                            min={0}
-                            step={1}
-                            onChange={(e)=>{ onChange(Number(e.currentTarget.value)) }}
-                        />
-                    </NumberWrap>
-                    {/* +1 button */}
-                    <button
-                        onClick={()=> {
-                            onChange(value+1);
-                        }}
-                    >
-                        <FontAwesomeIcon icon='plus-square' />
-                    </button>
-                    {/* -1 button */}
-                    <button
-                        onClick={()=> {
-                            if (value > 0) {
-                                onChange(value-1);
-                            }
-                        }}
-                    >
-                        <FontAwesomeIcon icon='minus-square' />
-                    </button>
-            </>)
-            }
-        </RoleControls>
-    </RW>);
+        // value less than 0 is error.
+        const RW =
+            value > 0 ?
+            ActiveRoleWrapper :
+            RoleWrapper;
+
+        // Checkbox for exclusion.
+        const exclusion =
+            roleExclusion ?
+            <input
+                type='checkbox'
+                checked={included}
+            /> :
+            null;
+
+        return (<RW>
+            <b>
+                <span>{roleName}</span>
+                <a href={`/manual/job/${role}`}>
+                    <FontAwesomeIcon icon={['far', 'question-circle']} />
+                </a>
+            </b>
+            <RoleControls>
+                {
+                    role === 'Human' ?
+                    // Just display computed number for Human
+                    (<span>{value}</span>) :
+                    (<>
+                        {exclusion}
+                        <NumberWrap>
+                            <input
+                                type='number'
+                                value={value}
+                                min={0}
+                                step={1}
+                                onChange={(e)=>{ onChange(Number(e.currentTarget.value)) }}
+                            />
+                        </NumberWrap>
+                        {/* +1 button */}
+                        <button
+                            onClick={()=> {
+                                onChange(value+1);
+                            }}
+                        >
+                            <FontAwesomeIcon icon='plus-square' />
+                        </button>
+                        {/* -1 button */}
+                        <button
+                            onClick={()=> {
+                                if (value > 0) {
+                                    onChange(value-1);
+                                }
+                            }}
+                        >
+                            <FontAwesomeIcon icon='minus-square' />
+                        </button>
+                </>)
+                }
+            </RoleControls>
+        </RW>);
+    }
 }

@@ -26,42 +26,46 @@ export interface IPropSelectLabeledGroup<T, L> {
 /**
  * Genelate a selection of given LabeledGroup.
  */
-export function SelectLabeledGroup<T, L>({
-    items,
-    getGroupLabel,
-    getOptionKey,
-    makeOption,
-    onChange,
-}: IPropSelectLabeledGroup<T, L>) {
-    const itemMap = new Map();
-    const tree = genTree({
-        items,
-        getGroupLabel,
-        getOptionKey,
-        itemMap,
-    });
+export class SelectLabeledGroup<T, L> extends React.PureComponent<IPropSelectLabeledGroup<T, L>, {}> {
+    public render() {
+        const {
+            items,
+            getGroupLabel,
+            getOptionKey,
+            makeOption,
+            onChange,
+        } = this.props;
 
-    const TOT: ReactCtor<IPropTreeOption<T>, {}> = TreeOption;
+        const itemMap = new Map();
+        const tree = genTree({
+            items,
+            getGroupLabel,
+            getOptionKey,
+            itemMap,
+        });
 
-    const changeHandler =
-        onChange != null ? ({currentTarget}: React.SyntheticEvent<HTMLSelectElement>)=> {
-            const {
-                value,
-            } = currentTarget;
-            const v = itemMap.get(value);
-            if (v != null) {
-                onChange(v);
-            }
-        } : undefined;
+        const TOT: ReactCtor<IPropTreeOption<T>, {}> = TreeOption;
 
-    return (<select onChange={changeHandler}>{
-        tree.map((item)=> (
-            <TOT
-                key={item.key}
-                item={item}
-                makeOption={makeOption}
-            />))
-    }</select>);
+        const changeHandler =
+            onChange != null ? ({currentTarget}: React.SyntheticEvent<HTMLSelectElement>)=> {
+                const {
+                    value,
+                } = currentTarget;
+                const v = itemMap.get(value);
+                if (v != null) {
+                    onChange(v);
+                }
+            } : undefined;
+
+        return (<select onChange={changeHandler}>{
+            tree.map((item)=> (
+                <TOT
+                    key={item.key}
+                    item={item}
+                    makeOption={makeOption}
+                />))
+        }</select>);
+    }
 }
 
 interface IGentreeInput<T, L> {
@@ -138,7 +142,7 @@ interface IPropTreeOption<T> {
 /**
  * Generate a list of <option>s from given LabeledGroup.
  */
-class TreeOption<T> extends React.Component<IPropTreeOption<T>, {}> {
+class TreeOption<T> extends React.PureComponent<IPropTreeOption<T>, {}> {
     public render(): JSX.Element {
         const {
             item,

@@ -86,7 +86,6 @@ export class CastingStore {
                 result += v;
             }
         }
-        console.log('reqq', jobs, result);
         return result;
     }
 
