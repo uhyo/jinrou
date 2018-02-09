@@ -15,6 +15,10 @@ import {
  */
 export class CastingStore {
     /**
+     * All known names of roles.
+     */
+    protected roles: string[];
+    /**
      * Current number of players.
      */
     @observable
@@ -39,11 +43,10 @@ export class CastingStore {
         roles: string[],
         initialCasting: CastingDefinition,
     ) {
+        this.roles = roles;
         this.currentCasting = initialCasting;
         // Init userInclusion by filling with true.
-        for (const role of roles) {
-            this.jobInclusions.set(role, true);
-        }
+        this.resetInclusion();
     }
 
     /**
@@ -102,6 +105,11 @@ export class CastingStore {
      */
     @action
     public setCurrentCasting(casting: CastingDefinition): void {
+        if (this.currentCasting.roleExclusion && !casting.roleExclusion) {
+            // If new casting does not allow exclusions,
+            // reset exclusion state.
+            this.resetInclusion();
+        }
         this.currentCasting = casting;
     }
     /**
@@ -115,5 +123,14 @@ export class CastingStore {
         }
         this.userJobNumbers.set(role, value);
         this.jobInclusions.set(role, included);
+    }
+    /**
+     * Reset inclusion of roles.
+     */
+    @action
+    protected resetInclusion(): void {
+        for (const role of this.roles) {
+            this.jobInclusions.set(role, true);
+        }
     }
 }
