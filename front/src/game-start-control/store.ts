@@ -56,6 +56,7 @@ export class CastingStore {
     public get jobNumbers(): Record<string, number> {
         const {
             preset,
+            noFill,
         } = this.currentCasting;
         if (preset != null) {
             const res = preset(this.playersNumber);
@@ -63,8 +64,10 @@ export class CastingStore {
             for (const key in res) {
                 total += res[key];
             }
-            // Human
-            res.Human = Math.max(0, (res.Human || 0) + (this.playersNumber - total));
+            if (!noFill) {
+                // Human
+                res.Human = Math.max(0, (res.Human || 0) + (this.playersNumber - total));
+            }
             return res;
         } else {
             const result: Record<string, number> = {};
@@ -73,7 +76,9 @@ export class CastingStore {
                 result[key] = value;
                 total += value;
             }
-            result.Human = Math.max(0, (result.Human || 0) + (this.playersNumber - total));
+            if (!noFill) {
+                result.Human = Math.max(0, (result.Human || 0) + (this.playersNumber - total));
+            }
             return result;
         }
     }

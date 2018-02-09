@@ -23,6 +23,10 @@ export interface CastingDefinition {
      */
     roleExclusion?: boolean;
     /**
+     * Do not fill remaining players by Humans.
+     */
+    noFill?: boolean;
+    /**
      * Function to define this casting.
      */
     preset?: PresetFunction

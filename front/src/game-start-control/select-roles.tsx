@@ -47,6 +47,7 @@ export interface IPropSelectRoles {
     jobNumbers: Record<string, number>;
     jobInclusions: Map<string, boolean>;
     roleExclusion: boolean;
+    noFill: boolean;
     onUpdate(role: string, value: number, include: boolean): void;
 }
 
@@ -64,6 +65,7 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
             jobNumbers,
             jobInclusions,
             roleExclusion,
+            noFill,
             onUpdate,
         } = this.props;
 
@@ -86,6 +88,7 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
                                     role={role}
                                     t={t}
                                     roleExclusion={roleExclusion}
+                                    noFill={noFill}
                                     included={included}
                                     value={jobNumbers[role] || 0}
                                     onChange={changeHandler}
@@ -174,6 +177,10 @@ interface IPropRoleCounter {
      */
     roleExclusion: boolean;
     /**
+     * Whether Human filling is disabled/
+     */
+    noFill: boolean;
+    /**
      * Change number of role.
      */
     onChange(value: number, included: boolean): void;
@@ -211,6 +218,7 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             value,
             included,
             roleExclusion,
+            noFill,
             onChange,
         } = this.props;
 
@@ -242,7 +250,7 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             </b>
             <RoleControls>
                 {
-                    role === 'Human' ?
+                    role === 'Human' && !noFill ?
                     // Just display computed number for Human
                     (<span>{value}</span>) :
                     (<>

@@ -134,6 +134,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     jobNumbers={jobNumbers}
                                     jobInclusions={jobInclusions}
                                     roleExclusion={currentCasting.roleExclusion || false}
+                                    noFill={currentCasting.noFill || false}
                                     onUpdate={handleUpdate}
                                 /> :
                                 null

@@ -1852,6 +1852,7 @@ getLabeledGroupsOfJobrules = ()->
                     label: '一部の配役を固定して残りをランダムにします。'
                     roleSelect: true
                     roleExclusion: true
+                    noFill: true
             }
             {
                 type: 'item'
