@@ -75,8 +75,8 @@ export class Casting extends React.Component<IPropCasting, {}> {
         const handleChange = (value: CastingDefinition)=> {
             store.setCurrentCasting(value);
         };
-        const handleUpdate = (role: string, value: number)=> {
-            store.updateJobNumber(role, value);
+        const handleUpdate = (role: string, value: number, included: boolean)=> {
+            store.updateJobNumber(role, value, included);
         };
 
         // Check whether current number of players is admissible.

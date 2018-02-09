@@ -107,7 +107,8 @@ export class CastingStore {
      * Partially update jobNumbers by given object.
      */
     @action
-    public updateJobNumber(role: string, value: number): void {
+    public updateJobNumber(role: string, value: number, included: boolean): void {
         this.userJobNumbers.set(role, value);
+        this.jobInclusions.set(role, included);
     }
 }

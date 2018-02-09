@@ -20,15 +20,6 @@ import {
     withProps,
 } from '../util/styled';
 
-export interface IPropSelectRoles {
-    categories: RoleCategoryDefinition[];
-    t: TranslationFunction;
-    jobNumbers: Record<string, number>;
-    jobInclusions: Map<string, boolean>;
-    roleExclusion: boolean;
-    onUpdate(role: string, value: number): void;
-}
-
 const Wrapper = styled.dl`
 `;
 const CategoryTitle = styled.dt`
@@ -47,11 +38,20 @@ const JobsWrapper = styled.dd`
     margin: auto;
 `;
 
+export interface IPropSelectRoles {
+    categories: RoleCategoryDefinition[];
+    t: TranslationFunction;
+    jobNumbers: Record<string, number>;
+    jobInclusions: Map<string, boolean>;
+    roleExclusion: boolean;
+    onUpdate(role: string, value: number, include: boolean): void;
+}
+
 /**
  * Interface to select role numbers.
  */
 export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
-    protected updateMap: Map<string, (value: number)=> void> = new Map();
+    protected updateMap: Map<string, (value: number, included: boolean)=> void> = new Map();
 
     public render() {
         const {
@@ -93,7 +93,7 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
             })
         }</Wrapper>);
     }
-    protected getChangeHandler(role: string): ((value: number)=>void) {
+    protected getChangeHandler(role: string): ((value: number, included: boolean)=>void) {
         const v = this.updateMap.get(role);
         if (v != null) {
             return v;
@@ -102,33 +102,9 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
         this.updateMap.set(role, f);
         return f;
     }
-    protected handleUpdate(role: string, value: number) {
-        this.props.onUpdate(role, value);
+    protected handleUpdate(role: string, value: number, included: boolean) {
+        this.props.onUpdate(role, value, included);
     }
-}
-
-interface IPropRoleCounter {
-    /**
-     * i18n function.
-     */
-    t: TranslationFunction;
-    /**
-     * The role which this component counts.
-     */
-    role: string;
-    /**
-     * Number of this role.
-     */
-    value: number;
-    /**
-     * Whether this role is included by user.
-     */
-    included: boolean;
-    /**
-     * Whether role exclusion is enabled.
-     */
-    roleExclusion: boolean;
-    onChange(value: number): void;
 }
 
 interface IPropRoleWrapper {
@@ -164,6 +140,33 @@ const ErrorRoleWrapper = styled(RoleWrapper)`
 const ActiveRoleWrapper = styled(RoleWrapper)`
     background-color: rgba(255, 255, 255, 0.6);
 `;
+
+interface IPropRoleCounter {
+    /**
+     * i18n function.
+     */
+    t: TranslationFunction;
+    /**
+     * The role which this component counts.
+     */
+    role: string;
+    /**
+     * Number of this role.
+     */
+    value: number;
+    /**
+     * Whether this role is included by user.
+     */
+    included: boolean;
+    /**
+     * Whether role exclusion is enabled.
+     */
+    roleExclusion: boolean;
+    /**
+     * Change number of role.
+     */
+    onChange(value: number, included: boolean): void;
+}
 
 const RoleControls = styled.div`
     display: flex;
@@ -216,6 +219,7 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             <input
                 type='checkbox'
                 checked={included}
+                onChange={this.handleExclusionCheck}
             /> :
             null;
 
@@ -264,14 +268,23 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
      */
     @bind
     protected handleNumberChange(e: React.SyntheticEvent<HTMLInputElement>): void {
-        this.props.onChange(Number(e.currentTarget.value));
+        const {
+            onChange,
+            included,
+        } = this.props;
+        this.props.onChange(Number(e.currentTarget.value), included);
     }
     /**
      * Handler of clicking of plus button.
      */
     @bind
     protected handlePlusButton(): void {
-        this.props.onChange(this.props.value+1);
+        const {
+            onChange,
+            value,
+            included,
+        } = this.props;
+        onChange(value+1, included);
     }
     /**
      * Handler of clicking of minus button.
@@ -281,9 +294,22 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
         const {
             onChange,
             value,
+            included,
         } = this.props;
         if (value > 0) {
-            onChange(value-1);
+            onChange(value-1, included);
         }
     }
+    /**
+     * Handler of changing role inclusion check.
+     */
+    @bind
+    protected handleExclusionCheck(e: React.SyntheticEvent<HTMLInputElement>): void {
+        const {
+            onChange,
+            value,
+        } = this.props;
+        onChange(value, e.currentTarget.checked);
+    }
+
 }
