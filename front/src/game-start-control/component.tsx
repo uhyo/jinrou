@@ -57,7 +57,7 @@ interface IPropCasting {
 
 @observer
 export class Casting extends React.Component<IPropCasting, {}> {
-    render(){
+    public render(){
         const {
             i18n,
             store,
@@ -142,5 +142,8 @@ export class Casting extends React.Component<IPropCasting, {}> {
                 </div>);
             }
         }</I18n>);
+    }
+    public componentDidCatch(err: any) {
+        console.error(err);
     }
 }

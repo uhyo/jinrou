@@ -1,5 +1,7 @@
 import * as React from 'react';
-import styled from 'styled-components';
+import styled, {
+    StyledFunction,
+} from 'styled-components';
 
 import {
     RoleCategoryDefinition,
@@ -14,6 +16,9 @@ import {
 import {
     FontAwesomeIcon,
 } from '../util/icon';
+import {
+    withProps,
+} from '../util/styled';
 
 export interface IPropSelectRoles {
     categories: RoleCategoryDefinition[];
@@ -126,7 +131,11 @@ interface IPropRoleCounter {
     onChange(value: number): void;
 }
 
-const RoleWrapper = styled.div`
+interface IPropRoleWrapper {
+    active: boolean;
+}
+
+const RoleWrapper = withProps<IPropRoleWrapper>()(styled.div)`
     flex: 0 0 8.6em;
     margin: 0.25em;
     padding: 0.3em;
@@ -135,7 +144,7 @@ const RoleWrapper = styled.div`
     flex-flow: column nowrap;
     justify-content: space-between;
 
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: ${props=> props.active ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.3)'};
 
     b {
         display: flex;
@@ -210,7 +219,7 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
             /> :
             null;
 
-        return (<RW>
+        return (<RoleWrapper active={value > 0}>
             <b>
                 <span>{roleName}</span>
                 <a href={`/manual/job/${role}`}>
@@ -230,30 +239,51 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
                                 value={value}
                                 min={0}
                                 step={1}
-                                onChange={(e)=>{ onChange(Number(e.currentTarget.value)) }}
+                                onChange={this.handleNumberChange}
                             />
                         </NumberWrap>
                         {/* +1 button */}
                         <button
-                            onClick={()=> {
-                                onChange(value+1);
-                            }}
+                            onClick={this.handlePlusButton}
                         >
                             <FontAwesomeIcon icon='plus-square' />
                         </button>
                         {/* -1 button */}
                         <button
-                            onClick={()=> {
-                                if (value > 0) {
-                                    onChange(value-1);
-                                }
-                            }}
+                            onClick={this.handleMinusButton}
                         >
                             <FontAwesomeIcon icon='minus-square' />
                         </button>
                 </>)
                 }
             </RoleControls>
-        </RW>);
+        </RoleWrapper>);
+    }
+    /**
+     * Handler of input change event.
+     */
+    @bind
+    protected handleNumberChange(e: React.SyntheticEvent<HTMLInputElement>): void {
+        this.props.onChange(Number(e.currentTarget.value));
+    }
+    /**
+     * Handler of clicking of plus button.
+     */
+    @bind
+    protected handlePlusButton(): void {
+        this.props.onChange(this.props.value+1);
+    }
+    /**
+     * Handler of clicking of minus button.
+     */
+    @bind
+    protected handleMinusButton(): void {
+        const {
+            onChange,
+            value,
+        } = this.props;
+        if (value > 0) {
+            onChange(value-1);
+        }
     }
 }
