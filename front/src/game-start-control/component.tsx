@@ -85,24 +85,25 @@ export class Casting extends React.Component<IPropCasting, {}> {
         return (<I18n i18n={i18n} namespace='game_client'>{
             (t)=> {
                 // status line indicating jobs.
-                const jobsMonitor =
+                const warning =
                     max && max < playersNumber ?
-                    (<PlayerNumberError t={t} maxNumber={max} />) :
+                    (<p><PlayerNumberError t={t} maxNumber={max} /></p>) :
                     minReq > playersNumber ? 
-                    (<PlayerNumberError t={t} minNumber={minReq} />) :
-                    (<JobsString
-                        i18n={i18n}
-                        jobNumbers={jobNumbers}
-                        roles={roles}
-                    />);
+                    (<p><PlayerNumberError t={t} minNumber={minReq} /></p>) :
+                    null;
                 return (<div>
                     <p>
                         {t('gamestart.info.playerNumber', {count: playersNumber})}
                     {' - '}
                     {store.currentCasting.name}
                     {' / '}
-                    {jobsMonitor}
+                    <JobsString
+                        i18n={i18n}
+                        jobNumbers={jobNumbers}
+                        roles={roles}
+                    />
                     </p>
+                    {warning}
                     <fieldset>
                         <legend>{t('gamestart.control.roles')}</legend>
 

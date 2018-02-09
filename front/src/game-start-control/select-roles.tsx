@@ -103,6 +103,10 @@ const RoleWrapper = styled.div`
         }
     }
 `;
+const ErrorRoleWrapper = styled(RoleWrapper)`
+    background-color: rgba(255, 96, 96, 0.5);
+`;
+
 const RoleControls = styled.div`
     display: flex;
 
@@ -117,6 +121,7 @@ const RoleControls = styled.div`
         cursor: pointer;
     }
 `;
+
 const NumberWrap = styled.span`
     flex: 1 0 2.8em;
     padding: 0 1ex;
@@ -134,7 +139,11 @@ function RoleCounter({
 }: IPropRoleCounter) {
     const roleName = t(`roles:jobname.${role}`);
 
-    return (<RoleWrapper>
+    // value less than 0 is error.
+    const RW =
+        value >= 0 ? RoleWrapper : ErrorRoleWrapper;
+
+    return (<RW>
         <b>
             <span>{roleName}</span>
             <a href={`/manual/job/${role}`}>
@@ -142,33 +151,40 @@ function RoleCounter({
             </a>
         </b>
         <RoleControls>
-            <NumberWrap>
-                <input
-                    type='number'
-                    value={value}
-                    min={0}
-                    step={1}
-                    onChange={(e)=>{ onChange(Number(e.currentTarget.value)) }}
-                />
-            </NumberWrap>
-            {/* +1 button */}
-            <button
-                onClick={()=> {
-                    onChange(value+1);
-                }}
-            >
-                <FontAwesomeIcon icon='plus-square' />
-            </button>
-            {/* -1 button */}
-            <button
-                onClick={()=> {
-                    if (value > 0) {
-                        onChange(value-1);
-                    }
-                }}
-            >
-                <FontAwesomeIcon icon='minus-square' />
-            </button>
+            {
+                role === 'Human' ?
+                // Just display computed number for Human
+                (<span>{value}</span>) :
+                (<>
+                    <NumberWrap>
+                        <input
+                            type='number'
+                            value={value}
+                            min={0}
+                            step={1}
+                            onChange={(e)=>{ onChange(Number(e.currentTarget.value)) }}
+                        />
+                    </NumberWrap>
+                    {/* +1 button */}
+                    <button
+                        onClick={()=> {
+                            onChange(value+1);
+                        }}
+                    >
+                        <FontAwesomeIcon icon='plus-square' />
+                    </button>
+                    {/* -1 button */}
+                    <button
+                        onClick={()=> {
+                            if (value > 0) {
+                                onChange(value-1);
+                            }
+                        }}
+                    >
+                        <FontAwesomeIcon icon='minus-square' />
+                    </button>
+            </>)
+            }
         </RoleControls>
-    </RoleWrapper>);
+    </RW>);
 }

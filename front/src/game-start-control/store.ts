@@ -48,7 +48,7 @@ export class CastingStore {
                 total += res[key];
             }
             // Human
-            res.Human = (res.Human || 0) + (this.playersNumber - total);
+            res.Human = Math.max(0, (res.Human || 0) + (this.playersNumber - total));
             return res;
         } else {
             const result: Record<string, number> = {};
@@ -57,7 +57,7 @@ export class CastingStore {
                 result[key] = value;
                 total += value;
             }
-            result.Human = (result.Human || 0) + (this.playersNumber - total);
+            result.Human = Math.max(0, (result.Human || 0) + (this.playersNumber - total));
             return result;
         }
     }
@@ -74,6 +74,7 @@ export class CastingStore {
                 result += v;
             }
         }
+        console.log('reqq', jobs, result);
         return result;
     }
 
