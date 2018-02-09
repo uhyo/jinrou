@@ -19,6 +19,10 @@ export interface CastingDefinition {
      */
     roleSelect: boolean;
     /**
+     * Whether this casting allows exclusion of roles.
+     */
+    roleExclusion?: boolean;
+    /**
      * Function to define this casting.
      */
     preset?: PresetFunction

@@ -60,11 +60,14 @@ export function place({
     categories,
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
-    const store = new CastingStore(initialCasting);
+    const store = new CastingStore(roles, initialCasting);
     store.setCurrentCasting(initialCasting);
 
     // TODO language
     const i18n = forLanguage('ja');
+
+    // XXX ad-hoc but exclude hidden roles.
+    const cs = excludeHiddenRoles(categories, roles);
 
     const com =
         <Casting
@@ -72,7 +75,7 @@ export function place({
             store={store}
             castings={castings}
             roles={roles}
-            categories={categories}
+            categories={cs}
         />;
 
     ReactDOM.render(com, node);
@@ -83,4 +86,23 @@ export function place({
             ReactDOM.unmountComponentAtNode(node);
         },
     };
+}
+
+/**
+ * Filter out hidden roles from categories.
+ */
+function excludeHiddenRoles(categories: RoleCategoryDefinition[], roles: string[]): RoleCategoryDefinition[] {
+    // rolesをsetに変換
+    const rolesSet = new Set(roles);
+    const result: RoleCategoryDefinition[] = [];
+    for (const {id, roles} of categories) {
+        const r = roles.filter((x)=> rolesSet.has(x));
+        if (r.length > 0) {
+            result.push({
+                id,
+                roles: r,
+            });
+        }
+    }
+    return result;
 }

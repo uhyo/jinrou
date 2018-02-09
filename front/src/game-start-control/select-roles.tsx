@@ -16,6 +16,8 @@ export interface IPropSelectRoles {
     categories: RoleCategoryDefinition[];
     t: TranslationFunction;
     jobNumbers: Record<string, number>;
+    jobInclusions: Map<string, boolean>;
+    roleExclusion: boolean;
     onUpdate(role: string, value: number): void;
 }
 
@@ -44,6 +46,8 @@ export function SelectRoles({
     categories,
     t,
     jobNumbers,
+    jobInclusions,
+    roleExclusion,
     onUpdate,
 }: IPropSelectRoles) {
     return (<Wrapper>{
@@ -58,10 +62,13 @@ export function SelectRoles({
                 <JobsWrapper>
                     {
                         roles.map((role)=> {
+                            const included = jobInclusions.get(role) || false;
                             return (<RoleCounter
                                 key={role}
                                 role={role}
                                 t={t}
+                                roleExclusion={roleExclusion}
+                                included={included}
                                 value={jobNumbers[role] || 0}
                                 onChange={onUpdate.bind(null, role)}
                                 />);
@@ -74,9 +81,26 @@ export function SelectRoles({
 }
 
 interface IPropRoleCounter {
-    role: string;
+    /**
+     * i18n function.
+     */
     t: TranslationFunction;
+    /**
+     * The role which this component counts.
+     */
+    role: string;
+    /**
+     * Number of this role.
+     */
     value: number;
+    /**
+     * Whether this role is included by user.
+     */
+    included: boolean;
+    /**
+     * Whether role exclusion is enabled.
+     */
+    roleExclusion: boolean;
     onChange(value: number): void;
 }
 
@@ -135,6 +159,8 @@ function RoleCounter({
     role,
     t,
     value,
+    included,
+    roleExclusion,
     onChange,
 }: IPropRoleCounter) {
     const roleName = t(`roles:jobname.${role}`);
@@ -142,6 +168,15 @@ function RoleCounter({
     // value less than 0 is error.
     const RW =
         value >= 0 ? RoleWrapper : ErrorRoleWrapper;
+
+    // Checkbox for exclusion.
+    const exclusion =
+        roleExclusion ?
+        <input
+            type='checkbox'
+            checked={included}
+        /> :
+        null;
 
     return (<RW>
         <b>
@@ -156,6 +191,7 @@ function RoleCounter({
                 // Just display computed number for Human
                 (<span>{value}</span>) :
                 (<>
+                    {exclusion}
                     <NumberWrap>
                         <input
                             type='number'

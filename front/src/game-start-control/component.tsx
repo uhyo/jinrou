@@ -65,6 +65,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
             playersNumber,
             currentCasting,
             jobNumbers,
+            jobInclusions,
         } = store;
 
         const handleChange = (value: CastingDefinition)=> {
@@ -125,6 +126,8 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     categories={categories}
                                     t={t}
                                     jobNumbers={jobNumbers}
+                                    jobInclusions={jobInclusions}
+                                    roleExclusion={currentCasting.roleExclusion || false}
                                     onUpdate={handleUpdate}
                                 /> :
                                 null

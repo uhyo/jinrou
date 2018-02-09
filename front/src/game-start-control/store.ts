@@ -28,9 +28,21 @@ export class CastingStore {
      */
     @observable
     public userJobNumbers: Map<string, number> = new Map();
+    /**
+     * Inclusion of roles by user.
+     */
+    @observable
+    public jobInclusions: Map<string, boolean> = new Map();
 
-    constructor(initialCasting: CastingDefinition) {
+    constructor(
+        roles: string[],
+        initialCasting: CastingDefinition,
+    ) {
         this.currentCasting = initialCasting;
+        // Init userInclusion by filling with true.
+        for (const role of roles) {
+            this.jobInclusions.set(role, true);
+        }
     }
 
     /**

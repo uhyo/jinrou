@@ -1851,6 +1851,7 @@ getLabeledGroupsOfJobrules = ()->
                     name: '一部闇鍋'
                     label: '一部の配役を固定して残りをランダムにします。'
                     roleSelect: true
+                    roleExclusion: true
             }
             {
                 type: 'item'
