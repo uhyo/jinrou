@@ -51,11 +51,11 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
             ruledefs.map((rule, i)=> {
                 if (rule.type === 'group') {
                     const {
-                        name,
+                        id,
                     } = rule.label;
                     return (<RuleSetGroup
-                        key={`group-${name}`}
-                        name={name}
+                        key={`group-${id}`}
+                        name={t(`game_client:ruleGroup.${id}.name`)}
                     >
                         <RuleControl
                             t={t}

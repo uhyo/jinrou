@@ -34,8 +34,6 @@ export interface SelectRule extends RuleDefinitionBase {
 }
 export interface SelectValue {
     value: string;
-    label: string;
-    description?: string;
 }
 
 export interface CheckboxRule extends RuleDefinitionBase {
@@ -94,9 +92,10 @@ export type RuleDefinition =
  */
 export interface RuleGroupLabel {
     /**
-     * Name of this group.
+     * Id of this group.
+     * Only used for user interface purposes.
      */
-    name: string;
+    id: string;
     /**
      * Whether this setting is visible for current setting.
      */

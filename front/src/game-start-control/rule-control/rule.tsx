@@ -157,11 +157,13 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
                     onChange={this.handleChange}
                 >{
                     item.values.map((v)=> {
+                        const label = t(`game_client:rule.${item.id}.labels.${v.value}`);
+                        const description = t(`game_client:rule.${item.id}.descriptions.${v.value}`);
                         return (<option
                             key={v.value}
-                            title={v.description}
+                            title={description}
                             value={v.value}
-                        >{v.label}</option>);
+                        >{label}</option>);
                     })
                 }</select>
             </label>

@@ -1890,7 +1890,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: '闇鍋オプション'
+            id: 'yaminabe_option'
             visible: (rule)->rule.casting.id in ['特殊ルール.闇鍋','特殊ルール.一部闇鍋','特殊ルール.エンドレス闇鍋']
         items: [
             {
@@ -1898,43 +1898,28 @@ exports.new_rules=[
                 value:
                     type: 'select'
                     id: 'yaminabe_safety'
-                    label: '配役にどれくらい気をつけるか指定します。'
                     defaultValue: 'low'
                     values:[
                         {
                             value:"supersuper"
-                            label:"走召（α2）"
-                            description:"強さのバランスを調整するかもしれません。"
                         }
                         {
                             value:"super"
-                            label:"超(β2)"
-                            description:"強さのバランスを調整します。"
                         }
                         {
                             value:"high"
-                            label:"高"
-                            description:"出現役職どうしの兼ね合いも考慮します。"
                         }
                         {
                             value:"middle"
-                            label:"中"
-                            description:"各陣営の割合を調整します。"
                         }
                         {
                             value:"low"
-                            label:"低"
-                            description:"人狼・妖狐の数をちょうどいい数に調整します。"
                         }
                         {
                             value:"none"
-                            label:"なし"
-                            title:"まったく気をつけません。人狼系1が保証される以外は全てランダムです。"
                         }
                         {
                             value:"reverse"
-                            label:"逆（α）"
-                            title:"クソゲーになりますが、人外数の調整は行われます。"
                         }
                     ]
             }
@@ -1943,7 +1928,6 @@ exports.new_rules=[
                 value:
                     type: 'checkbox'
                     id: 'hide_singleton_teams'
-                    label: 'ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。'
                     defaultChecked: false
                     value:
                         value: 'on'
@@ -1955,7 +1939,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: ''
+            id: 'normal_rules'
             visible:->true
         items: [
             {
@@ -1963,7 +1947,6 @@ exports.new_rules=[
                 value:
                     type: 'checkbox'
                     id: 'decider'
-                    label: '昼の処刑投票のときに、同数の場合決定者が投票した人が優先されます。誰が決定者かは分かりません。'
                     defaultChecked: false
                     value:
                         value: '1'
@@ -1974,7 +1957,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"authority"
-                    label:"昼の処刑投票のときに投票が2票分になります。誰が権力者かは分かりません。"
                     defaultChecked: false
                     value:
                         value:"1"
@@ -1985,7 +1967,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"deathnote"
-                    label:"毎晩死神の手帳が移動します。死神の手帳を持った人は一人殺すことができます。"
                     defaultChecked: false
                     value:
                         value:"1"
@@ -1996,7 +1977,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"wolfminion"
-                    label:"初日の夜に人狼が狼の子分を指定します。狼の子分になった場合能力はそのままで人狼陣営になります。"
                     defaultChecked: false
                     value:
                         value:"1"
@@ -2007,7 +1987,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"drunk"
-                    label:"誰かが酔っ払いになります。酔っ払いは3日目の夜まで自分が村人だと思い込んでいます。"
                     defaultChecked: false
                     value:
                         value:"1"
@@ -2023,20 +2002,16 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"scapegoat"
-                    label:"身代わりくんは1日目の夜に殺されるためのNPCです。"
                     defaultValue: 'on'
                     values: [
                         {
                             value:"on"
-                            label:"あり"
                         }
                         {
                             value:"off"
-                            label:"なし（参加者が死ぬ）"
                         }
                         {
                             value:"no"
-                            label:"なし（誰も死なない）"
                         }
                     ]
             }
@@ -2050,7 +2025,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'day'
-                    label: '昼の長さを設定します。'
                     defaultValue: 330
                     getstr:(_, ruleobj)->
                         if Number(ruleobj.rules.day) > 0
@@ -2066,7 +2040,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'night'
-                    label: '夜の長さを設定します。'
                     defaultValue: 150
                     getstr:(_, ruleobj)->
                         if Number(ruleobj.rules.night) > 0
@@ -2082,7 +2055,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'remain'
-                    label: '猶予時間の長さを設定します。'
                     defaultValue: 120
                     getstr:(_, ruleobj)->
                         if Number(ruleobj.rules.remain) > 0
@@ -2098,7 +2070,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'voting'
-                    label:"投票専用時間を設定すると、昼間の議論中には投票できなくなり、投票専用時間に投票することになります。"
                     defaultValue: 0
                     getstr:(_, ruleobj)->
                         if Number(ruleobj.rules.voting) > 0
@@ -2119,7 +2090,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"will"
-                    label:"遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。"
                     defaultChecked: true
                     value:
                         value:"die"
@@ -2131,25 +2101,17 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"heavenview"
-                    label:"ありの場合、霊界で役職一覧が見られ、夜の発言なども全て見ることができます。"
                     defaultValue: 'norevive'
                     values:[
                         {
                             # ""なのは歴史的経緯
                             value:"view"
-                            label:"常にあり"
-                            description:"蘇生役職が存在する場合でも常に公開します。"
                         }
                         {
                             value:"norevive"
-                            label:"あり"
-                            description:"表示しますが、誰かが蘇生する可能性がある場合は表示しません。"
-                            selected:true
                         }
                         {
                             value:""
-                            label:"なし"
-                            description:"ゲーム終了まで非公開にします。"
                         }
                     ]
             }
@@ -2158,7 +2120,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"votemyself"
-                    label: 'ありの場合、処刑投票で自分に投票可能になります。'
                     value:
                         value:"ok"
                         label:"あり"
@@ -2174,7 +2135,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"voteresult"
-                    label: 'ありの場合、処刑投票で誰が誰に投票したか分からなくなります。'
                     value:
                         value:"hide"
                         label:"隠す"
@@ -2190,7 +2150,6 @@ exports.new_rules=[
                 value:
                     type:"hidden"
                     id:"waitingnight"
-                    label:""
                     value:
                         value:"wait"
                         label:"あり"
@@ -2201,20 +2160,16 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"safety"
-                    label:"「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
                     defaultValue: 'full'
                     values:[
                         {
                             value:"full"
-                            label:"あり"
                         }
                         {
                             value:"no"
-                            label:"なし"
                         }
                         {
                             value:"free"
-                            label:"なんでもあり"
                         }
                     ]
             }
@@ -2228,7 +2183,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"noticebitten"
-                    label:"人狼に襲われたときに襲われた側に知らせます。"
                     value:
                         value:"notice"
                         label:"あり"
@@ -2244,7 +2198,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"GMpsychic"
-                    label:"ありにすると、処刑された人の霊能結果が全員に公開されます。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2255,7 +2208,6 @@ exports.new_rules=[
                 value:
                     type:"integer"
                     id:"silentrule"
-                    label:"1以上にすると、朝になってからその時間の間は発言できません。"
                     defaultValue: 0
                     getstr:(value)->
                         if value==0
@@ -2271,20 +2223,16 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"runoff"
-                    label:"ありの場合、処刑投票時に上位候補で決選投票を行います。"
                     defaultValue: 'no'
                     values:[
                         {
                             value:"no"
-                            label:"なし"
                         }
                         {
                             value:"revote"
-                            label:"再投票時"
                         }
                         {
                             value:"yes"
-                            label:"常に行う"
                         }
                     ]
             }
@@ -2293,24 +2241,19 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"drawvote"
-                    label:"投票で同数になった場合の処理を設定します。"
                     defaultValue: 'revote'
                     values:[
                         {
                             value:"revote"
-                            label:"再投票"
                         }
                         {
                             value:"random"
-                            label:"ランダムに処刑"
                         }
                         {
                             value:"none"
-                            label:"誰も処刑しない"
                         }
                         {
                             value:"all"
-                            label:"全員処刑"
                         }
                     ]
             }
@@ -2325,24 +2268,17 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"yaminabe_hidejobs"
-                    label:"配役の公開方法を指定します。"
                     defaultValue: ''
                     values:[
                         {
                             # ""なのは歴史的経緯
                             value:""
-                            label:"役職一覧を公開"
-                            description:"ゲーム開始時、出現役職の一覧が公開されます。"
                         }
                         {
                             value:"team"
-                            label:"陣営ごとの数のみ公開"
-                            description:"各陣営の数のみ公開されます。"
                         }
                         {
                             value:"2"
-                            label:"非公開"
-                            description:"出現役職の一覧は分からなくなります。"
                         }
                     ]
             }
@@ -2351,7 +2287,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"losemode"
-                    label:"負けることを目指す人狼です。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2361,7 +2296,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"rolerequest"
-                    label:"各参加者はなりたい役職を選択できます。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2371,7 +2305,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"chemical"
-                    label:"1人につき役職が2つ割り当てられる特殊ルールです。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2382,7 +2315,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "人狼系の設定"
+            id: "werewolf"
             visible: (rule)->
                 return true if isYaminabe rule
                 for job in exports.categories.Werewolf
@@ -2395,7 +2328,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"wolfsound"
-                    label: 'ありにすると夜の人狼たちの会話が遠吠えとして聞こえます。'
                     defaultChecked: true
                     value:
                         value:"aloud"
@@ -2412,8 +2344,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"wolfattack"
-                    name:"人狼は人狼を襲撃対象に選択できる"
-                    label: ''
                     value:
                         value:"ok"
                         label:"あり"
@@ -2432,7 +2362,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "占い師の設定"
+            id: 'diviner'
             visible:(rule)->
                 return true if isYaminabe rule
                 for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
@@ -2445,16 +2375,13 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"divineresult"
-                    label:"夜に行った占いの結果が表示されるタイミングを調整できます。"
                     defaultValue: 'sunrise'
                     values:[
                         {
                             value:"immediate"
-                            label:"すぐ分かる"
                         }
                         {
                             value:"sunrise"
-                            label:"翌朝分かる"
                         }
                     ]
             }
@@ -2463,16 +2390,13 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"firstnightdivine"
-                    label:"ありにすると、初日の占い先は占い結果が「村人」の人の中からランダムに選択されます。"
                     defaultValue: 'manual'
                     values:[
                         {
                             value:"auto"
-                            label:"あり"
                         }
                         {
                             value:"manual"
-                            label:"なし"
                         }
                     ]
             }
@@ -2482,7 +2406,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "霊能者の設定"
+            id: 'psychic'
             visible:(rule)->
                 return true if isYaminabe rule
                 return jobs.jobNumbers.Psychic>0
@@ -2492,16 +2416,13 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"psychicresult"
-                    label:"夜に行った霊能の結果が表示されるタイミングを調整できます。"
                     defaultValue: 'sunrise'
                     values:[
                         {
                             value:"sunset"
-                            label:"すぐ分かる"
                         }
                         {
                             value:"sunrise"
-                            label:"翌朝分かる"
                         }
                     ]
             }
@@ -2511,7 +2432,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "共有者の設定"
+            id: 'couple'
             visible:(rule)->
                 return true if isYaminabe rule
                 return rule.jobNumbers.Couple>0 || rule.jobNumbers.MadCouple>0
@@ -2521,7 +2442,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"couplesound"
-                    label:"ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
                     value:{
                         value:"aloud"
                         label:"あり"
@@ -2539,7 +2459,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "狩人などの設定"
+            id: 'guard'
             visible:(rule)->
                 return true if isYaminabe rule
                 for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
@@ -2552,7 +2472,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"guardmyself"
-                    label:"ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
                     value:
                         value:"ok"
                         label:"あり"
@@ -2567,7 +2486,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"gjmessage"
-                    label:"ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2582,16 +2500,13 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"consecutiveguard"
-                    label:"狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
                     defaultValue: 'yes'
                     values:[
                         {
                             value:"yes"
-                            label:"あり"
                         }
                         {
                             value:"no"
-                            label:"なし"
                         }
                     ]
             }
@@ -2601,7 +2516,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "妖狐の設定"
+            id: "fox"
             visible:(rule)->
                 return true if isYaminabe rule
                 return rule.jobNumbers.Fox>0
@@ -2611,7 +2526,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"deadfox"
-                    label:"有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
                     value:
                         value:"obvious"
                         label:"あり"
@@ -2628,7 +2542,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: "ハンターの設定"
+            id: 'hunter'
             visible:(rule)->
                 return true if isYaminabe rule
                 return rule.jobNumbers.Hunter > 0 || rule.jobNumbers.MadHunter > 0
@@ -2638,16 +2552,13 @@ exports.new_rules=[
                 value:
                     type: "select"
                     id:"hunter_lastattack"
-                    label: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
                     defaultValue: 'yes'
                     values:[
                         {
                             value:"yes"
-                            label:"あり"
                         }
                         {
                             value:"no"
-                            label:"なし"
                         }
                     ]
             }
@@ -2657,7 +2568,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: '埋毒者・猫又の設定'
+            id: 'poison'
             visible:(rule)->
                 return true if isYaminabe rule
                 return rule.jobNumbers.Poisoner>0 || rule.jobNumbers.Cat>0
@@ -2667,16 +2578,13 @@ exports.new_rules=[
                 value:
                     type: "select"
                     id: "poisonwolf"
-                    label: "人狼が埋毒者・猫又を襲撃した場合の動作を設定します。"
                     defaultValue: 'selector'
                     values:[
                         {
                             value: "selector"
-                            label: "襲撃者を道連れ"
                         }
                         {
                             value: ""
-                            label: "ランダムに道連れ"
                         }
                     ]
             }
@@ -2686,27 +2594,26 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: '恋人の設定'
+            id: 'lover'
             visible:(rule)->
                 return true if isYaminabe rule
-                return rule.jobNumbers.Lover>0 || rule.jobNumbers.Cupid>0
+                for job in ["Cupid","Lover","BadLady","Patissiere"]
+                    if rule.jobNumbers[job]>0
+                        return true
+                return false
         items:[
             {
                 type: 'item'
                 value:
                     type:"select"
                     id:"friendsjudge"
-                    label: ''
                     defaultValue: 'alive'
                     values:[
                         {
                             value:"alive"
-                            label:"終了時に生存"
-                            description:"妖狐と同じです。"
                         }
                         {
                             value:"ruin"
-                            label:"恋人だけ生存"
                         }
                     ]
             }
@@ -2715,7 +2622,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"friendssplit"
-                    label:"恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
                     defaultChecked: true
                     value:
                         value:"split"
@@ -2732,7 +2638,7 @@ exports.new_rules=[
     {
         type: 'group'
         label:
-            name: '量子人狼の設定'
+            id: 'quantum'
             visible:(rule)->rule.casting=="特殊ルール.量子人狼"
         items:[
             {
@@ -2740,17 +2646,13 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"quantumwerewolf_table"
-                    label: ''
                     defaultValue: 'open'
                     values:[
                         {
                             value:"open"
-                            label:"プレイヤー名を表示"
                         }
                         {
                             value:"anonymous"
-                            label:"プレイヤー番号を表示"
-                            description:"自分以外のプレイヤー番号は分かりません。"
                         }
                     ]
             }
@@ -2759,7 +2661,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_dead"
-                    label:"確率表に死亡率を表示しないルールです。表示するのが普通です。"
                     value:
                         value:"no"
                         label:"あり"
@@ -2770,7 +2671,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_diviner"
-                    label:"確率表に占い師の確率も表示します。表示しないのが普通のルールです。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2781,7 +2681,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_firstattack"
-                    label:"ありの場合初日から襲撃対象を選択します。"
                     value:
                         value:"on"
                         label:"あり"
@@ -2872,7 +2771,7 @@ exports.jobinfos=[
 ]
 
 # 判定
-isYaminabe=(rule)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+isYaminabe=(rule)->(rule.casting?.id ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
 # 秒数を分と秒に
 secondsStr=(sec)->
     if sec >= 60
