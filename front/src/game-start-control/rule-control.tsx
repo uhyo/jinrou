@@ -130,7 +130,7 @@ class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {}> {
 
         const checked = value === item.value.value;
 
-        return (<label>
+        return (<label title={item.label}>
             {item.name}
             <input
                 type='checkbox'
@@ -160,7 +160,7 @@ class IntegerControl extends React.PureComponent<IPropIntegerControl, {}> {
             value,
         } = this.props;
 
-        return (<label>
+        return (<label title={item.label}>
             {item.name}
             <input
                 type='number'
@@ -193,6 +193,7 @@ class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
         return (<label>
             {item.name}
             <select
+                title={item.label}
                 value={value}
                 onChange={this.handleChange}
             >{
