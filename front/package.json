@@ -7,7 +7,7 @@
     "build": "run-s clean build:tsc build:bundle",
     "build:tsc": "tsc",
     "build:bundle": "webpack-cli",
-    "clean": "rimraf ../client/static/front-assets",
+    "clean": "rimraf ../client/static/front-assets ./dist-esm",
     "watch": "run-p watch:tsc watch:bundle",
     "watch:tsc": "tsc --watch --pretty",
     "watch:bundle": "webpack-cli --watch",
