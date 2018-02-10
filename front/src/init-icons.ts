@@ -6,6 +6,8 @@ import {
 import {
     faPlusSquare,
     faMinusSquare,
+    faFolder,
+    faFolderOpen,
 } from '@fortawesome/fontawesome-free-solid';
 
 fontawesome.library.add(

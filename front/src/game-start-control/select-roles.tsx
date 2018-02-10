@@ -33,6 +33,8 @@ const CategoryTitle = styled.dt`
 
     text-align: center;
     font-weight: bold;
+
+    cursor: pointer;
 `;
 const JobsWrapper = styled.dd`
     display: flex;
@@ -104,10 +106,10 @@ export class SelectRoles extends React.Component<IPropSelectRoles, {}> {
                 id,
                 roles,
             })=> {
-                return (<React.Fragment key={id}>
-                    <CategoryTitle key={id}>
-                        {t(`roles:categoryName.${id}`)}
-                    </CategoryTitle>
+                return (<RoleCategoryFolder
+                    key={id}
+                    name={t(`roles:categoryName.${id}`)}
+                >
                     <JobsWrapper>
                         {
                             roles.map((role)=> {
@@ -128,15 +130,14 @@ export class SelectRoles extends React.Component<IPropSelectRoles, {}> {
                             })
                         }
                     </JobsWrapper>
-                </React.Fragment>);
+                </RoleCategoryFolder>);
             })
         }
             {
                 useCategory ?
-                <>
-                    <CategoryTitle>
-                        {t('game_client:gamestart.control.categorySelection')}
-                    </CategoryTitle>
+                <RoleCategoryFolder
+                    name={t('game_client:gamestart.control.categorySelection')}
+                >
                     <JobsWrapper>{
                         categories.map(({
                             id,
@@ -157,7 +158,7 @@ export class SelectRoles extends React.Component<IPropSelectRoles, {}> {
                         })
                     }
                     </JobsWrapper>
-                </> :
+                </RoleCategoryFolder> :
                 null
             }
             </Wrapper>);
@@ -185,6 +186,60 @@ export class SelectRoles extends React.Component<IPropSelectRoles, {}> {
     }
     protected handleCategoryUpdate(cat: string, value: number) {
         this.props.onCategoryUpdate(cat, value);
+    }
+}
+
+interface IPropRoleCategoryFolder {
+    name: string;
+}
+interface IStateRoleCategoryFolder {
+    open: boolean;
+}
+class RoleCategoryFolder extends React.PureComponent<IPropRoleCategoryFolder, IStateRoleCategoryFolder> {
+    constructor(props: IPropRoleCategoryFolder) {
+        super(props);
+
+        this.state = {
+            open: true,
+        };
+    }
+    public render() {
+        const {
+            props: {
+                children,
+                name,
+            },
+            state: {
+                open,
+            },
+        } = this;
+
+        const icon = open ? 'folder-open' : 'folder';
+
+        return (<>
+            <CategoryTitle
+                role='button'
+                aria-expanded={open}
+                onClick={this.handleClick}
+            >
+                <FontAwesomeIcon
+                    icon={icon}
+                    fixedWidth
+                />
+                {name}
+            </CategoryTitle>
+            <div
+                hidden={!open}
+            >
+                {children}
+            </div>
+        </>);
+    }
+    @bind
+    protected handleClick() {
+        this.setState({
+            open: !this.state.open,
+        });
     }
 }
 
