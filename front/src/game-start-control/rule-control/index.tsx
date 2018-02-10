@@ -5,7 +5,8 @@ import {
 
 import {
     RuleGroup,
-} from '../../defs';
+    Rule,
+} from '../../defs/rule-definition';
 import {
     TranslationFunction,
 } from '../../i18n';
@@ -30,7 +31,7 @@ import {
 export interface IPropRuleControl {
     t: TranslationFunction;
     ruledefs: RuleGroup;
-    rules: Map<string, string>;
+    ruleObject: Rule,
     onUpdate: (rule: string, value: string)=> void;
 }
 /**
@@ -43,27 +44,36 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
         const {
             t,
             ruledefs,
-            rules,
+            ruleObject,
             onUpdate,
         } = this.props;
+        const {
+            rules,
+        } = ruleObject;
 
         return (<>{
             ruledefs.map((rule, i)=> {
                 if (rule.type === 'group') {
                     const {
                         id,
+                        visible,
                     } = rule.label;
-                    return (<RuleSetGroup
-                        key={`group-${id}`}
-                        name={t(`game_client:ruleGroup.${id}.name`)}
-                    >
-                        <RuleControl
-                            t={t}
-                            ruledefs={rule.items}
-                            rules={rules}
-                            onUpdate={onUpdate}
-                        />
-                    </RuleSetGroup>)
+                    const vi = visible(ruleObject);
+                    if (vi) {
+                        return (<RuleSetGroup
+                            key={`group-${id}`}
+                            name={t(`game_client:ruleGroup.${id}.name`)}
+                        >
+                            <RuleControl
+                                t={t}
+                                ruledefs={rule.items}
+                                ruleObject={ruleObject}
+                                onUpdate={onUpdate}
+                            />
+                        </RuleSetGroup>);
+                    } else {
+                        return null;
+                    }
                 } else {
                     const {
                         value,

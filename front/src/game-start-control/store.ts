@@ -9,6 +9,9 @@ import {
     CastingDefinition,
     PresetFunction,
 } from '../defs/casting-definition';
+import {
+    Rule,
+} from '../defs/rule-definition';
 
 /**
  * Store of current selection of casting.
@@ -114,6 +117,17 @@ export class CastingStore {
             }
         }
         return result;
+    }
+    /**
+     * Computed complete rule object.
+     */
+    @computed
+    public get ruleObject(): Rule {
+        return {
+            casting: this.currentCasting,
+            rules: this.rules,
+            jobNumbers: this.jobNumbers,
+        };
     }
 
     /**

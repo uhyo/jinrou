@@ -118,7 +118,7 @@ export interface Rule {
     /**
      * Options.
      */
-    rules: Record<string, string>;
+    rules: Map<string, string>;
     /**
      * Job numbers.
      */

@@ -2409,7 +2409,7 @@ exports.new_rules=[
             id: 'psychic'
             visible:(rule)->
                 return true if isYaminabe rule
-                return jobs.jobNumbers.Psychic>0
+                return rule.jobNumbers.Psychic>0
         items:[
             {
                 type: 'item'
@@ -2639,7 +2639,7 @@ exports.new_rules=[
         type: 'group'
         label:
             id: 'quantum'
-            visible:(rule)->rule.casting=="特殊ルール.量子人狼"
+            visible:(rule)->rule.casting.id=="特殊ルール.量子人狼"
         items:[
             {
                 type: 'item'

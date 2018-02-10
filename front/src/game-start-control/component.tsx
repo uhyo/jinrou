@@ -82,7 +82,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
             currentCasting,
             jobNumbers,
             jobInclusions,
-            rules,
+            ruleObject,
         } = store;
 
         // Check whether current number of players is admissible.
@@ -151,7 +151,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                         <RuleControl
                             t={t}
                             ruledefs={ruledefs}
-                            rules={rules}
+                            ruleObject={ruleObject}
                             onUpdate={this.handleRuleUpdate}
                         />
                     </fieldset>
