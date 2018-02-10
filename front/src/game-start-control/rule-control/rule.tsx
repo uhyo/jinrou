@@ -157,8 +157,8 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
                     onChange={this.handleChange}
                 >{
                     item.values.map((v)=> {
-                        const label = t(`game_client:rule.${item.id}.labels.${v.value}`);
-                        const description = t(`game_client:rule.${item.id}.descriptions.${v.value}`);
+                        const label = t(`rules:rule.${item.id}.labels.${v.value}`);
+                        const description = t(`rules:rule.${item.id}.descriptions.${v.value}`);
                         return (<option
                             key={v.value}
                             title={description}
@@ -211,7 +211,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
                     step={1}
                     onChange={this.handleChange}
                 />
-                分
+                {t('game_client:gamestart.control.minutes')}
                 <input
                     ref={i=> this.seconds=i}
                     type='number'
@@ -221,7 +221,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
                     step={1}
                     onChange={this.handleChange}
                 />
-                秒
+                {t('game_client:gamestart.control.seconds')}
             </span>
         </RuleWrapper>);
     }
@@ -242,8 +242,8 @@ interface RuleText {
  * Retrieve name and label of given rule item from language file.
  */
 function getRuleText(t: TranslationFunction, id: string): RuleText {
-    const name = t(`game_client:rule.${id}.name`);
-    const label = t(`game_client:rule.${id}.label`);
+    const name = t(`rules:rule.${id}.name`);
+    const label = t(`rules:rule.${id}.label`);
     return {
         name,
         label,

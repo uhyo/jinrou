@@ -18,6 +18,7 @@ i18next
     ns: [
         'roles',
         'game_client',
+        'rules',
     ],
 });
 

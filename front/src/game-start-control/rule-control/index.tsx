@@ -62,7 +62,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                     if (vi) {
                         return (<RuleSetGroup
                             key={`group-${id}`}
-                            name={t(`game_client:ruleGroup.${id}.name`)}
+                            name={t(`rules:ruleGroup.${id}.name`)}
                         >
                             <RuleControl
                                 t={t}
