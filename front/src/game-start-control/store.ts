@@ -10,6 +10,9 @@ import {
     PresetFunction,
 } from '../defs/casting-definition';
 import {
+    RoleCategoryDefinition,
+} from '../defs/category-definition';
+import {
     Rule,
 } from '../defs/rule-definition';
 
@@ -21,6 +24,10 @@ export class CastingStore {
      * All known names of roles.
      */
     protected roles: string[];
+    /**
+     * All known categories.
+     */
+    protected categories: RoleCategoryDefinition[];
     /**
      * Current number of players.
      */
@@ -42,6 +49,12 @@ export class CastingStore {
     @observable
     public jobInclusions: Map<string, boolean> = new Map();
     /**
+     * User input of number of categories.
+     */
+    @observable
+    public categoryNumbers: Map<string, number> = new Map();
+
+    /**
      * Current rule options.
      */
     @observable
@@ -49,12 +62,18 @@ export class CastingStore {
 
     constructor(
         roles: string[],
+        categories: RoleCategoryDefinition[],
         initialCasting: CastingDefinition,
     ) {
         this.roles = roles;
+        this.categories = categories;
         this.currentCasting = initialCasting;
         // Init userInclusion by filling with true.
         this.resetInclusion();
+        // Init category numbers.
+        for (const {id} of categories) {
+            this.categoryNumbers.set(id, 0);
+        }
     }
 
     /**
@@ -108,13 +127,19 @@ export class CastingStore {
      */
     @computed
     public get requiredNumber(): number {
-        const jobs = this.jobNumbers;
+        const {
+            jobNumbers,
+            categoryNumbers,
+        } = this;
         let result = 0;
-        for (const key in jobs) {
-            const v = jobs[key];
+        for (const key in jobNumbers) {
+            const v = jobNumbers[key];
             if (v) {
                 result += v;
             }
+        }
+        for (const [, v] of categoryNumbers) {
+            result += v;
         }
         return result;
     }
@@ -150,7 +175,7 @@ export class CastingStore {
         this.currentCasting = casting;
     }
     /**
-     * Partially update jobNumbers by given object.
+     * Update jobNumbers of given role.
      */
     @action
     public updateJobNumber(role: string, value: number, included: boolean): void {
@@ -160,6 +185,13 @@ export class CastingStore {
         }
         this.userJobNumbers.set(role, value);
         this.jobInclusions.set(role, included);
+    }
+    /**
+     * Update number of given category.
+     */
+    @action
+    public updateCategoryNumber(category: string, value: number): void {
+        this.categoryNumbers.set(category, value);
     }
     /**
      * Update rule.
@@ -183,8 +215,10 @@ export class CastingStore {
     public getQuery(): Record<string, string> {
         const {
             roles,
+            categories,
             jobNumbers,
             jobInclusions,
+            categoryNumbers,
             rules,
         } = this;
         const result: Record<string, string> = {};
@@ -192,6 +226,11 @@ export class CastingStore {
         for (const role of roles) {
             const v = jobNumbers[role] || 0;
             result[role] = String(v);
+        }
+        // Add category number param.
+        for (const {id} of categories) {
+            const v = categoryNumbers.get(id) || 0;
+            result[`category_${id}`] = String(v);
         }
         // Add job inclusion param.
         for (const role of roles) {

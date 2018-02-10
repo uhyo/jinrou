@@ -71,7 +71,7 @@ export function place({
     initialCasting,
     onStart,
 }: IPlaceOptions): IPlaceResult {
-    const store = new CastingStore(roles, initialCasting);
+    const store = new CastingStore(roles, categories, initialCasting);
     runInAction(()=> {
         store.setCurrentCasting(initialCasting);
         setInitialRules(rules, store);

@@ -42,22 +42,50 @@ const JobsWrapper = styled.dd`
 `;
 
 export interface IPropSelectRoles {
+    /**
+     * Definition of role categories.
+     */
     categories: RoleCategoryDefinition[];
+    /**
+     * Translation function.
+     */
     t: TranslationFunction;
+    /**
+     * Current number of jobs.
+     */
     jobNumbers: Record<string, number>;
+    /**
+     * Current inclusion state of jobs.
+     */
     jobInclusions: Map<string, boolean>;
+    /**
+     * Current number of categories.
+     */
+    categoryNumbers: Map<string, number>;
+    /**
+     * Whether role exclusion is enabled.
+     */
     roleExclusion: boolean;
+    /**
+     * Whether Human is filled by remaining numbers.
+     */
     noFill: boolean;
+    /**
+     * Whether using category query.
+     */
     useCategory: boolean;
+
     onUpdate(role: string, value: number, include: boolean): void;
+    onCategoryUpdate(category: string, value: number): void;
 }
 
 /**
  * Interface to select role numbers.
  */
 @observer
-export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
+export class SelectRoles extends React.Component<IPropSelectRoles, {}> {
     protected updateMap: Map<string, (value: number, included: boolean)=> void> = new Map();
+    protected updateCategoryMap: Map<string, (value: number)=> void> = new Map();
 
     public render() {
         const {
@@ -65,10 +93,10 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
             t,
             jobNumbers,
             jobInclusions,
+            categoryNumbers,
             roleExclusion,
             noFill,
             useCategory,
-            onUpdate,
         } = this.props;
 
         return (<Wrapper>{
@@ -113,17 +141,18 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
                         categories.map(({
                             id,
                         })=> {
-                            // TODO
+                            const num = categoryNumbers.get(id) || 0;
+                            const changeHandler = this.getCategoryChangeHandler(id);
                             return (<RoleCounter
                                 key={id}
                                 t={t}
                                 role='foo'
                                 roleName={t(`roles:categoryName.${id}`)}
                                 editable={true}
-                                value={0}
+                                value={num}
                                 included={true}
                                 roleExclusion={false}
-                                onChange={()=>{}}
+                                onChange={changeHandler}
                             />);
                         })
                     }
@@ -142,8 +171,20 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
         this.updateMap.set(role, f);
         return f;
     }
+    protected getCategoryChangeHandler(cat: string): ((value: number)=>void) {
+        const v = this.updateCategoryMap.get(cat);
+        if (v != null) {
+            return v;
+        }
+        const f = this.handleCategoryUpdate.bind(this, cat);
+        this.updateCategoryMap.set(cat, f);
+        return f;
+    }
     protected handleUpdate(role: string, value: number, included: boolean) {
         this.props.onUpdate(role, value, included);
+    }
+    protected handleCategoryUpdate(cat: string, value: number) {
+        this.props.onCategoryUpdate(cat, value);
     }
 }
 
@@ -372,5 +413,4 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
         } = this.props;
         onChange(value, e.currentTarget.checked);
     }
-
 }

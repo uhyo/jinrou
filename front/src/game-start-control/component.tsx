@@ -89,6 +89,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
             currentCasting,
             jobNumbers,
             jobInclusions,
+            categoryNumbers,
             ruleObject,
         } = store;
 
@@ -102,6 +103,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
         // Specialized generic component.
         const SLG: ReactCtor<IPropSelectLabeledGroup<CastingDefinition, string>, {}> = SelectLabeledGroup;
 
+        console.log('re', [...categoryNumbers]);
         return (<I18n i18n={i18n} namespace='game_client'>{
             (t)=> {
                 // status line indicating jobs.
@@ -118,9 +120,12 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     {store.currentCasting.name}
                     {' / '}
                     <JobsString
+                        t={t}
                         i18n={i18n}
                         jobNumbers={jobNumbers}
+                        categoryNumbers={categoryNumbers}
                         roles={roles}
+                        categories={categories}
                     />
                     </p>
                     {warning}
@@ -146,10 +151,12 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     t={t}
                                     jobNumbers={jobNumbers}
                                     jobInclusions={jobInclusions}
+                                    categoryNumbers={categoryNumbers}
                                     roleExclusion={currentCasting.roleExclusion || false}
                                     noFill={currentCasting.noFill || false}
                                     useCategory={currentCasting.category || false}
                                     onUpdate={this.handleJobUpdate}
+                                    onCategoryUpdate={this.handleCategoryUpdate}
                                 /> :
                                 null
                         }
@@ -184,6 +191,10 @@ export class Casting extends React.Component<IPropCasting, {}> {
     @bind
     protected handleJobUpdate(role: string, value: number, included: boolean): void {
         this.props.store.updateJobNumber(role, value, included);
+    }
+    @bind
+    protected handleCategoryUpdate(cat: string, value: number): void {
+        this.props.store.updateCategoryNumber(cat, value);
     }
     @bind
     protected handleRuleUpdate(rule: string, value: string): void {
