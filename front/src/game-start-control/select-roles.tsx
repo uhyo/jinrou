@@ -48,6 +48,7 @@ export interface IPropSelectRoles {
     jobInclusions: Map<string, boolean>;
     roleExclusion: boolean;
     noFill: boolean;
+    useCategory: boolean;
     onUpdate(role: string, value: number, include: boolean): void;
 }
 
@@ -66,6 +67,7 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
             jobInclusions,
             roleExclusion,
             noFill,
+            useCategory,
             onUpdate,
         } = this.props;
 
@@ -86,9 +88,11 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
                                 return (<RoleCounter
                                     key={role}
                                     role={role}
+                                    roleName={t(`roles:jobname.${role}`)}
+                                    helpLink={`/manual/job/${role}`}
+                                    editable={role !== 'Human' || noFill}
                                     t={t}
                                     roleExclusion={roleExclusion}
-                                    noFill={noFill}
                                     included={included}
                                     value={jobNumbers[role] || 0}
                                     onChange={changeHandler}
@@ -98,7 +102,36 @@ export class SelectRoles extends React.PureComponent<IPropSelectRoles, {}> {
                     </JobsWrapper>
                 </React.Fragment>);
             })
-        }</Wrapper>);
+        }
+            {
+                useCategory ?
+                <>
+                    <CategoryTitle>
+                        {t('game_client:gamestart.control.categorySelection')}
+                    </CategoryTitle>
+                    <JobsWrapper>{
+                        categories.map(({
+                            id,
+                        })=> {
+                            // TODO
+                            return (<RoleCounter
+                                key={id}
+                                t={t}
+                                role='foo'
+                                roleName={t(`roles:categoryName.${id}`)}
+                                editable={true}
+                                value={0}
+                                included={true}
+                                roleExclusion={false}
+                                onChange={()=>{}}
+                            />);
+                        })
+                    }
+                    </JobsWrapper>
+                </> :
+                null
+            }
+            </Wrapper>);
     }
     protected getChangeHandler(role: string): ((value: number, included: boolean)=>void) {
         const v = this.updateMap.get(role);
@@ -165,6 +198,22 @@ interface IPropRoleCounter {
      */
     role: string;
     /**
+     * Display name of this role.
+     */
+    roleName: string;
+    /**
+     * href of help icon.
+     */
+    helpLink?: string;
+    /**
+     * Whether this control is editable.
+     */
+    editable: boolean;
+    /**
+     * Whether role exclusion is enabled.
+     */
+    roleExclusion: boolean;
+    /**
      * Number of this role.
      */
     value: number;
@@ -172,14 +221,6 @@ interface IPropRoleCounter {
      * Whether this role is included by user.
      */
     included: boolean;
-    /**
-     * Whether role exclusion is enabled.
-     */
-    roleExclusion: boolean;
-    /**
-     * Whether Human filling is disabled/
-     */
-    noFill: boolean;
     /**
      * Change number of role.
      */
@@ -214,17 +255,15 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
     public render() {
         const {
             role,
+            roleName,
+            helpLink,
+            editable,
+            roleExclusion,
             t,
             value,
             included,
-            roleExclusion,
-            noFill,
             onChange,
         } = this.props;
-
-        console.log('render', role, included);
-
-        const roleName = t(`roles:jobname.${role}`);
 
         // Checkbox for exclusion.
         const exclusion =
@@ -244,13 +283,17 @@ class RoleCounter extends React.PureComponent<IPropRoleCounter, {}> {
         return (<RoleWrapper status={roleStatus}>
             <b>
                 <span>{roleName}</span>
-                <a href={`/manual/job/${role}`}>
-                    <FontAwesomeIcon icon={['far', 'question-circle']} />
-                </a>
+                {
+                    helpLink != null ?
+                    (<a href={helpLink}>
+                        <FontAwesomeIcon icon={['far', 'question-circle']} />
+                    </a>) :
+                    null
+                }
             </b>
             <RoleControls>
                 {
-                    role === 'Human' && !noFill ?
+                    !editable ?
                     // Just display computed number for Human
                     (<span>{value}</span>) :
                     (<>

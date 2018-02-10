@@ -1858,6 +1858,7 @@ getLabeledGroupsOfJobrules = ()->
                     roleSelect: true
                     roleExclusion: true
                     noFill: true
+                    category: true
             }
             {
                 type: 'item'

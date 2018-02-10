@@ -27,6 +27,10 @@ export interface CastingDefinition {
      */
     noFill?: boolean;
     /**
+     * Whether to use category query.
+     */
+    category?: boolean;
+    /**
      * Function to define this casting.
      */
     preset?: PresetFunction

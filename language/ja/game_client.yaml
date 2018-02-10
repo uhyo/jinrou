@@ -20,4 +20,6 @@ gamestart:
     seconds: 秒
     # Game start button
     start: 開始
+    # Legend of category query.
+    categorySelection: 一部闇鍋用
 
