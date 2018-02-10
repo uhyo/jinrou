@@ -48,6 +48,10 @@ export interface IPlaceOptions {
      * Initial selection of casting.
      */
     initialCasting: CastingDefinition;
+    /**
+     * Event of pressing gamestart button.
+     */
+    onStart: (query: Record<string, string>)=> void;
 }
 export interface IPlaceResult {
     store: CastingStore;
@@ -65,6 +69,7 @@ export function place({
     categories,
     rules,
     initialCasting,
+    onStart,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore(roles, initialCasting);
     runInAction(()=> {
@@ -86,6 +91,7 @@ export function place({
             castings={castings}
             categories={cs}
             ruledefs={rules}
+            onStart={onStart}
         />;
 
     ReactDOM.render(com, node);

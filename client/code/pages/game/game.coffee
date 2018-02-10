@@ -274,6 +274,9 @@ exports.start=(roomid)->
                         rules: Shared.game.new_rules
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
+                        onStart: (query)->
+                            # TODO
+                            console.log 'newquery', query
                     }
                     # XXX players number is not updated!
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
@@ -824,6 +827,7 @@ exports.start=(roomid)->
                     starting()
             # じっさいに開始
             starting=->
+                console.log 'query', query
                 ss.rpc "game.game.gameStart", roomid,query,(result)->
                     if result?
                         Index.util.message "ルーム",result

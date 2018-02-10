@@ -18,4 +18,6 @@ gamestart:
     minutes: 分
     # seconds
     seconds: 秒
+    # Game start button
+    start: 開始
 

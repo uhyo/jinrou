@@ -4,6 +4,9 @@ import {
 import * as React from 'react';
 
 import {
+    WideButton,
+} from '../common/button';
+import {
     CastingDefinition,
     LabeledGroup,
     RoleCategoryDefinition,
@@ -64,6 +67,10 @@ interface IPropCasting {
      * Definition of rules.
      */
     ruledefs: RuleGroup;
+    /**
+     * Event of pressing gamestart button.
+     */
+    onStart: (query: Record<string, string>)=> void;
 }
 
 @observer
@@ -155,6 +162,13 @@ export class Casting extends React.Component<IPropCasting, {}> {
                             onUpdate={this.handleRuleUpdate}
                         />
                     </fieldset>
+                    <div>
+                        <WideButton
+                            onClick={this.handleGameStart}
+                        >
+                            {t('gamestart.control.start')}
+                        </WideButton>
+                    </div>
                 </div>);
             }
         }</I18n>);
@@ -173,5 +187,10 @@ export class Casting extends React.Component<IPropCasting, {}> {
     @bind
     protected handleRuleUpdate(rule: string, value: string): void {
         this.props.store.updateRule(rule, value);
+    }
+    @bind
+    protected handleGameStart(): void {
+        const query = this.props.store.getQuery();
+        this.props.onStart(query);
     }
 }

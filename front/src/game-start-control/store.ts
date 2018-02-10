@@ -177,4 +177,31 @@ export class CastingStore {
             this.jobInclusions.set(role, true);
         }
     }
+    /**
+     * Generate a query from current setting.
+     */
+    public getQuery(): Record<string, string> {
+        const {
+            roles,
+            jobNumbers,
+            jobInclusions,
+            rules,
+        } = this;
+        const result: Record<string, string> = {};
+        // Add role param.
+        for (const role of roles) {
+            const v = jobNumbers[role] || 0;
+            result[role] = String(v);
+        }
+        // Add job inclusion param.
+        for (const role of roles) {
+            const include = jobInclusions.get(role) || true;
+            result[`job_use_${role}`] = include ? 'on' : '';
+        }
+        // Add rule param.
+        for (const [rule, value] of rules) {
+            result[rule] = value;
+        }
+        return result;
+    }
 }
