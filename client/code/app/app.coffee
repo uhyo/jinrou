@@ -386,6 +386,15 @@ body.heaven, #logs .heaven, #logs .prepare {
     background-color: #{cp.heaven.bg};
     color: #{cp.heaven.color};
 }""",3
+    # テーマを更新
+    JinrouFront.themeStore.update {
+        bg_day: cp.day.bg
+        bg_night: cp.night.bg
+        bg_heaven: cp.heaven.bg
+        fg_day: cp.day.color
+        fg_night: cp.night.color
+        fg_heaven: cp.heaven.color
+    }
     return
 
 exports.getApplicationConfig = ()-> application_config

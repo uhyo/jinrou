@@ -2,6 +2,13 @@ import {
     observer,
 } from 'mobx-react';
 import * as React from 'react';
+import styled, {
+    ThemeProvider,
+} from '../util/styled';
+
+import {
+    themeStore,
+} from '../theme';
 
 import {
     WideButton,
@@ -41,6 +48,14 @@ import {
     i18n,
     I18n,
 } from '../i18n';
+
+const StatusLine = styled.div`
+    position: sticky;
+    top: 0;
+
+    padding: 0.3em;
+    background-color: ${props=> props.theme.bg_day || 'transparent'};
+`;
 
 interface IPropCasting {
     /**
@@ -103,84 +118,85 @@ export class Casting extends React.Component<IPropCasting, {}> {
         // Specialized generic component.
         const SLG: ReactCtor<IPropSelectLabeledGroup<CastingDefinition, string>, {}> = SelectLabeledGroup;
 
-        console.log('re', [...categoryNumbers]);
-        return (<I18n i18n={i18n} namespace='game_client'>{
-            (t)=> {
-                // status line indicating jobs.
-                const warning =
-                    max && max < playersNumber ?
-                    (<p><PlayerNumberError t={t} maxNumber={max} /></p>) :
-                    minReq > playersNumber ? 
-                    (<p><PlayerNumberError t={t} minNumber={minReq} /></p>) :
-                    null;
-                return (<div>
-                    <p>
-                        {t('gamestart.info.playerNumber', {count: playersNumber})}
-                    {' - '}
-                    {store.currentCasting.name}
-                    {' / '}
-                    <JobsString
-                        t={t}
-                        i18n={i18n}
-                        jobNumbers={jobNumbers}
-                        categoryNumbers={categoryNumbers}
-                        roles={roles}
-                        categories={categories}
-                    />
-                    </p>
-                    {warning}
-                    <fieldset>
-                        <legend>{t('gamestart.control.roles')}</legend>
-
-                        <SLG
-                            items={castings}
-                            getGroupLabel={(x: string)=>({
-                                key: x,
-                                label: x,
-                            })}
-                            getOptionKey={({id}: CastingDefinition)=>id}
-                            makeOption={(obj: CastingDefinition)=>{
-                                return <option value={obj.id} title={obj.label}>{obj.name}</option>;
-                                }}
-                                onChange={this.handleCastingChange}
+        return (<ThemeProvider theme={themeStore.themeObject}>
+            <I18n i18n={i18n} namespace='game_client'>{
+                (t)=> {
+                    // status line indicating jobs.
+                    const warning =
+                        max && max < playersNumber ?
+                        (<p><PlayerNumberError t={t} maxNumber={max} /></p>) :
+                        minReq > playersNumber ? 
+                        (<p><PlayerNumberError t={t} minNumber={minReq} /></p>) :
+                        null;
+                    return (<div>
+                        <StatusLine>
+                            {t('gamestart.info.playerNumber', {count: playersNumber})}
+                            {' - '}
+                            {store.currentCasting.name}
+                            {' / '}
+                            <JobsString
+                                t={t}
+                                i18n={i18n}
+                                jobNumbers={jobNumbers}
+                                categoryNumbers={categoryNumbers}
+                                roles={roles}
+                                categories={categories}
                             />
-                        {
-                            currentCasting.roleSelect ?
-                                <SelectRoles
-                                    categories={categories}
+                            {warning}
+                        </StatusLine>
+                        <fieldset>
+                            <legend>{t('gamestart.control.roles')}</legend>
+
+                            <SLG
+                                items={castings}
+                                getGroupLabel={(x: string)=>({
+                                    key: x,
+                                    label: x,
+                                })}
+                                getOptionKey={({id}: CastingDefinition)=>id}
+                                makeOption={(obj: CastingDefinition)=>{
+                                    return <option value={obj.id} title={obj.label}>{obj.name}</option>;
+                                    }}
+                                    onChange={this.handleCastingChange}
+                                />
+                                {
+                                    currentCasting.roleSelect ?
+                                    <SelectRoles
+                                        categories={categories}
+                                        t={t}
+                                        jobNumbers={jobNumbers}
+                                        jobInclusions={jobInclusions}
+                                        categoryNumbers={categoryNumbers}
+                                        roleExclusion={currentCasting.roleExclusion || false}
+                                        noFill={currentCasting.noFill || false}
+                                        useCategory={currentCasting.category || false}
+                                        onUpdate={this.handleJobUpdate}
+                                        onCategoryUpdate={this.handleCategoryUpdate}
+                                    /> :
+                                    null
+                                }
+                            </fieldset>
+                            <fieldset>
+                                <legend>{t('gamestart.control.rules')}</legend>
+                                <RuleControl
                                     t={t}
-                                    jobNumbers={jobNumbers}
-                                    jobInclusions={jobInclusions}
-                                    categoryNumbers={categoryNumbers}
-                                    roleExclusion={currentCasting.roleExclusion || false}
-                                    noFill={currentCasting.noFill || false}
-                                    useCategory={currentCasting.category || false}
-                                    onUpdate={this.handleJobUpdate}
-                                    onCategoryUpdate={this.handleCategoryUpdate}
-                                /> :
-                                null
-                        }
-                    </fieldset>
-                    <fieldset>
-                        <legend>{t('gamestart.control.rules')}</legend>
-                        <RuleControl
-                            t={t}
-                            ruledefs={ruledefs}
-                            ruleObject={ruleObject}
-                            onUpdate={this.handleRuleUpdate}
-                        />
-                    </fieldset>
-                    <div>
-                        <WideButton
-                            onClick={this.handleGameStart}
-                        >
-                            {t('gamestart.control.start')}
+                                    ruledefs={ruledefs}
+                                    ruleObject={ruleObject}
+                                    onUpdate={this.handleRuleUpdate}
+                                />
+                            </fieldset>
+                            <div>
+                                <WideButton
+                                    onClick={this.handleGameStart}
+                                >
+                                    {t('gamestart.control.start')}
                         </WideButton>
                     </div>
                 </div>);
-            }
-        }</I18n>);
-    }
+                }
+            }</I18n>
+        </ThemeProvider>);
+        }
     public componentDidCatch(err: any) {
         console.error(err);
     }

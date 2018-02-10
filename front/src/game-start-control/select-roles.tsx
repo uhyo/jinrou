@@ -4,7 +4,7 @@ import {
 } from 'mobx-react';
 import styled, {
     StyledFunction,
-} from 'styled-components';
+} from '../util/styled';
 
 import {
     RoleCategoryDefinition,
