@@ -275,7 +275,7 @@ exports.start=(roomid)->
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
                     }
-                    # TODO: scapegoat is not counted at this point
+                    # XXX players number is not updated!
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
                 ).catch((err)->
                     console.error err)

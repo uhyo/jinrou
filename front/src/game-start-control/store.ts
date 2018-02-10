@@ -22,7 +22,7 @@ export class CastingStore {
      * Current number of players.
      */
     @observable
-    public playersNumber: number = 0;
+    public actualPlayersNumber: number = 0;
     /**
      * Current selected casting.
      */
@@ -52,6 +52,19 @@ export class CastingStore {
         this.currentCasting = initialCasting;
         // Init userInclusion by filling with true.
         this.resetInclusion();
+    }
+
+    /**
+     * Computed number of players.
+     */
+    @computed
+    public get playersNumber(): number {
+        // if scapegoat is on, an NPC is added.
+        const npc =
+            this.rules.get('scapegoat') === 'on' ?
+            1 :
+            0;
+        return this.actualPlayersNumber + npc;
     }
 
     /**
@@ -108,7 +121,7 @@ export class CastingStore {
      */
     @action
     public setPlayersNumber(num: number): void {
-        this.playersNumber = num;
+        this.actualPlayersNumber = num;
     }
     /**
      * Set current casting.
