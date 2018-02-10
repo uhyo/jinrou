@@ -149,6 +149,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     <fieldset>
                         <legend>{t('gamestart.control.rules')}</legend>
                         <RuleControl
+                            t={t}
                             ruledefs={ruledefs}
                             rules={rules}
                             onUpdate={this.handleRuleUpdate}

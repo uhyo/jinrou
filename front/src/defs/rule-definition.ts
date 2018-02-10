@@ -11,14 +11,6 @@ export interface RuleDefinitionBase {
      */
     id: string;
     /**
-     * Name of rule setting.
-     */
-    name: string;
-    /**
-     * Description of rule.
-     */
-    label: string;
-    /**
      * Rule string generation function.
      */
     getstr?: (value: string, rule: Rule)=> GetstrResult | null;

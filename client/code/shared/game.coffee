@@ -1898,7 +1898,6 @@ exports.new_rules=[
                 value:
                     type: 'select'
                     id: 'yaminabe_safety'
-                    name: '闇鍋セーフティ'
                     label: '配役にどれくらい気をつけるか指定します。'
                     defaultValue: 'low'
                     values:[
@@ -1944,7 +1943,6 @@ exports.new_rules=[
                 value:
                     type: 'checkbox'
                     id: 'hide_singleton_teams'
-                    name: '単独陣営を隠す'
                     label: 'ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。'
                     defaultChecked: false
                     value:
@@ -1965,7 +1963,6 @@ exports.new_rules=[
                 value:
                     type: 'checkbox'
                     id: 'decider'
-                    name: '決定者'
                     label: '昼の処刑投票のときに、同数の場合決定者が投票した人が優先されます。誰が決定者かは分かりません。'
                     defaultChecked: false
                     value:
@@ -1977,7 +1974,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"authority"
-                    name:"権力者"
                     label:"昼の処刑投票のときに投票が2票分になります。誰が権力者かは分かりません。"
                     defaultChecked: false
                     value:
@@ -1989,7 +1985,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"deathnote"
-                    name:"死神の手帳"
                     label:"毎晩死神の手帳が移動します。死神の手帳を持った人は一人殺すことができます。"
                     defaultChecked: false
                     value:
@@ -2001,7 +1996,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"wolfminion"
-                    name:"狼の子分"
                     label:"初日の夜に人狼が狼の子分を指定します。狼の子分になった場合能力はそのままで人狼陣営になります。"
                     defaultChecked: false
                     value:
@@ -2013,7 +2007,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"drunk"
-                    name:"酔っ払い"
                     label:"誰かが酔っ払いになります。酔っ払いは3日目の夜まで自分が村人だと思い込んでいます。"
                     defaultChecked: false
                     value:
@@ -2030,7 +2023,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"scapegoat"
-                    name:"身代わりくん"
                     label:"身代わりくんは1日目の夜に殺されるためのNPCです。"
                     defaultValue: 'on'
                     values: [
@@ -2058,7 +2050,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'day'
-                    name:"昼"
                     label: '昼の長さを設定します。'
                     defaultValue: 330
                     getstr:(_, ruleobj)->
@@ -2075,7 +2066,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'night'
-                    name:"夜"
                     label: '夜の長さを設定します。'
                     defaultValue: 150
                     getstr:(_, ruleobj)->
@@ -2092,7 +2082,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'remain'
-                    name:"猶予"
                     label: '猶予時間の長さを設定します。'
                     defaultValue: 120
                     getstr:(_, ruleobj)->
@@ -2109,7 +2098,6 @@ exports.new_rules=[
                 value:
                     type:"time"
                     id: 'voting'
-                    name:"投票専用時間"
                     label:"投票専用時間を設定すると、昼間の議論中には投票できなくなり、投票専用時間に投票することになります。"
                     defaultValue: 0
                     getstr:(_, ruleobj)->
@@ -2131,7 +2119,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"will"
-                    name:"遺言"
                     label:"遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。"
                     defaultChecked: true
                     value:
@@ -2144,7 +2131,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"heavenview"
-                    name:"霊界表示"
                     label:"ありの場合、霊界で役職一覧が見られ、夜の発言なども全て見ることができます。"
                     defaultValue: 'norevive'
                     values:[
@@ -2172,7 +2158,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"votemyself"
-                    name:"自分に投票できる"
                     label: 'ありの場合、処刑投票で自分に投票可能になります。'
                     value:
                         value:"ok"
@@ -2189,7 +2174,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"voteresult"
-                    name:"投票結果を隠す"
                     label: 'ありの場合、処刑投票で誰が誰に投票したか分からなくなります。'
                     value:
                         value:"hide"
@@ -2206,7 +2190,6 @@ exports.new_rules=[
                 value:
                     type:"hidden"
                     id:"waitingnight"
-                    name:"夜は時間切れまで待つ"
                     label:""
                     value:
                         value:"wait"
@@ -2218,7 +2201,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"safety"
-                    name:"身代わりセーフティ"
                     label:"「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
                     defaultValue: 'full'
                     values:[
@@ -2246,7 +2228,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"noticebitten"
-                    name:"噛まれたら分かる"
                     label:"人狼に襲われたときに襲われた側に知らせます。"
                     value:
                         value:"notice"
@@ -2263,7 +2244,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"GMpsychic"
-                    name:"GM霊能"
                     label:"ありにすると、処刑された人の霊能結果が全員に公開されます。"
                     value:
                         value:"on"
@@ -2275,7 +2255,6 @@ exports.new_rules=[
                 value:
                     type:"integer"
                     id:"silentrule"
-                    name:"n秒ルール"
                     label:"1以上にすると、朝になってからその時間の間は発言できません。"
                     defaultValue: 0
                     getstr:(value)->
@@ -2292,7 +2271,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"runoff"
-                    name:"決選投票"
                     label:"ありの場合、処刑投票時に上位候補で決選投票を行います。"
                     defaultValue: 'no'
                     values:[
@@ -2315,7 +2293,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"drawvote"
-                    name:"投票同数時の処理"
                     label:"投票で同数になった場合の処理を設定します。"
                     defaultValue: 'revote'
                     values:[
@@ -2348,7 +2325,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"yaminabe_hidejobs"
-                    name:"配役公開"
                     label:"配役の公開方法を指定します。"
                     defaultValue: ''
                     values:[
@@ -2375,7 +2351,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"losemode"
-                    name:"敗北村"
                     label:"負けることを目指す人狼です。"
                     value:
                         value:"on"
@@ -2386,7 +2361,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"rolerequest"
-                    name:"希望役職制"
                     label:"各参加者はなりたい役職を選択できます。"
                     value:
                         value:"on"
@@ -2397,7 +2371,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"chemical"
-                    name:"ケミカル人狼"
                     label:"1人につき役職が2つ割り当てられる特殊ルールです。"
                     value:
                         value:"on"
@@ -2422,7 +2395,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"wolfsound"
-                    name:"人狼の遠吠えが聞こえる"
                     label: 'ありにすると夜の人狼たちの会話が遠吠えとして聞こえます。'
                     defaultChecked: true
                     value:
@@ -2473,7 +2445,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"divineresult"
-                    name:"占い結果"
                     label:"夜に行った占いの結果が表示されるタイミングを調整できます。"
                     defaultValue: 'sunrise'
                     values:[
@@ -2492,7 +2463,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"firstnightdivine"
-                    name:"占いの初日白通知"
                     label:"ありにすると、初日の占い先は占い結果が「村人」の人の中からランダムに選択されます。"
                     defaultValue: 'manual'
                     values:[
@@ -2522,7 +2492,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"psychicresult"
-                    name:"霊能結果"
                     label:"夜に行った霊能の結果が表示されるタイミングを調整できます。"
                     defaultValue: 'sunrise'
                     values:[
@@ -2552,7 +2521,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"couplesound"
-                    name:"共有者の小声が聞こえる"
                     label:"ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
                     value:{
                         value:"aloud"
@@ -2584,7 +2552,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"guardmyself"
-                    name:"狩人は自分を守れる"
                     label:"ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
                     value:
                         value:"ok"
@@ -2600,7 +2567,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"gjmessage"
-                    name:"護衛成功が分かる"
                     label:"ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
                     value:
                         value:"on"
@@ -2616,7 +2582,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"consecutiveguard"
-                    name:"連続護衛"
                     label:"狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
                     defaultValue: 'yes'
                     values:[
@@ -2646,7 +2611,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"deadfox"
-                    name:"呪殺は襲撃と区別がつく"
                     label:"有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
                     value:
                         value:"obvious"
@@ -2674,7 +2638,6 @@ exports.new_rules=[
                 value:
                     type: "select"
                     id:"hunter_lastattack"
-                    name: "ラス撃ち"
                     label: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
                     defaultValue: 'yes'
                     values:[
@@ -2704,7 +2667,6 @@ exports.new_rules=[
                 value:
                     type: "select"
                     id: "poisonwolf"
-                    name: "人狼の毒持ち襲撃"
                     label: "人狼が埋毒者・猫又を襲撃した場合の動作を設定します。"
                     defaultValue: 'selector'
                     values:[
@@ -2734,7 +2696,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"friendsjudge"
-                    name:"恋人陣営の勝利条件"
                     label: ''
                     defaultValue: 'alive'
                     values:[
@@ -2754,7 +2715,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"friendssplit"
-                    name:"恋人はそれぞれ独立する"
                     label:"恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
                     defaultChecked: true
                     value:
@@ -2780,7 +2740,6 @@ exports.new_rules=[
                 value:
                     type:"select"
                     id:"quantumwerewolf_table"
-                    name:"確率表"
                     label: ''
                     defaultValue: 'open'
                     values:[
@@ -2800,7 +2759,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_dead"
-                    name:"死亡率を表示しない"
                     label:"確率表に死亡率を表示しないルールです。表示するのが普通です。"
                     value:
                         value:"no"
@@ -2812,7 +2770,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_diviner"
-                    name:"占い師の確率も表示する"
                     label:"確率表に占い師の確率も表示します。表示しないのが普通のルールです。"
                     value:
                         value:"on"
@@ -2824,7 +2781,6 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_firstattack"
-                    name:"初日の襲撃"
                     label:"ありの場合初日から襲撃対象を選択します。"
                     value:
                         value:"on"

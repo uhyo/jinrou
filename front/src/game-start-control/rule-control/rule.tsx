@@ -9,6 +9,10 @@ import {
 } from '../../defs/rule-definition';
 
 import {
+    TranslationFunction,
+} from '../../i18n';
+
+import {
     bind,
 } from '../../util/bind';
 
@@ -54,6 +58,7 @@ const RuleName = styled.b`
 `;
 
 interface IPropCheckboxControl {
+    t: TranslationFunction;
     item: CheckboxRule;
     value: string;
     onChange: (value: string)=> void;
@@ -64,15 +69,17 @@ interface IPropCheckboxControl {
 export class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {}> {
     public render() {
         const {
+            t,
             item,
             value,
         } = this.props;
 
         const checked = value === item.value.value;
+        const {name, label} = getRuleText(t, item.id);
 
         return (<RuleWrapper>
-            <label title={item.label}>
-                <RuleName>{item.name}</RuleName>
+            <label title={label}>
+                <RuleName>{name}</RuleName>
                 <input
                     type='checkbox'
                     checked={checked}
@@ -88,6 +95,7 @@ export class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {
 }
 
 interface IPropIntegerControl {
+    t: TranslationFunction;
     item: IntegerRule;
     value: string;
     onChange: (value: string)=> void;
@@ -98,13 +106,16 @@ interface IPropIntegerControl {
 export class IntegerControl extends React.PureComponent<IPropIntegerControl, {}> {
     public render() {
         const {
+            t,
             item,
             value,
         } = this.props;
 
+        const {name, label} = getRuleText(t, item.id);
+
         return (<RuleWrapper>
-            <label title={item.label}>
-                <RuleName>{item.name}</RuleName>
+            <label title={label}>
+                <RuleName>{name}</RuleName>
                 <input
                     type='number'
                     value={value}
@@ -120,6 +131,7 @@ export class IntegerControl extends React.PureComponent<IPropIntegerControl, {}>
 }
 
 interface IPropSelectControl {
+    t: TranslationFunction;
     item: SelectRule;
     value: string;
     onChange: (value: string)=> void;
@@ -130,13 +142,16 @@ interface IPropSelectControl {
 export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
     public render() {
         const {
+            t,
             item,
             value,
         } = this.props;
 
+        const {name, label} = getRuleText(t, item.id);
+
         return (<RuleWrapper>
-            <label title={item.label}>
-                <RuleName>{item.name}</RuleName>
+            <label title={label}>
+                <RuleName>{name}</RuleName>
                 <select
                     value={value}
                     onChange={this.handleChange}
@@ -158,6 +173,7 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
     }
 }
 interface IPropTimeControl {
+    t: TranslationFunction;
     item: TimeRule;
     value: string;
     onChange: (value: string)=> void;
@@ -171,6 +187,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
     protected seconds: HTMLInputElement | null = null;
     public render() {
         const {
+            t,
             item,
             value,
         } = this.props;
@@ -179,9 +196,11 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
         const minutes = Math.floor(v / 60);
         const seconds = v % 60;
 
+        const {name, label} = getRuleText(t, item.id);
+
         return (<RuleWrapper>
-            <span>
-                <RuleName>{item.name}</RuleName>
+            <span title={label}>
+                <RuleName>{name}</RuleName>
                 <input
                     ref={i=> this.minutes=i}
                     type='number'
@@ -213,3 +232,18 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
     }
 }
 
+interface RuleText {
+    name: string;
+    label: string;
+}
+/**
+ * Retrieve name and label of given rule item from language file.
+ */
+function getRuleText(t: TranslationFunction, id: string): RuleText {
+    const name = t(`game_client:rule.${id}.name`);
+    const label = t(`game_client:rule.${id}.label`);
+    return {
+        name,
+        label,
+    };
+}

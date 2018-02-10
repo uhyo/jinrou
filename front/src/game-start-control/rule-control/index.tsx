@@ -7,6 +7,9 @@ import {
     RuleGroup,
 } from '../../defs';
 import {
+    TranslationFunction,
+} from '../../i18n';
+import {
     bind,
 } from '../../util/bind';
 import {
@@ -25,6 +28,7 @@ import {
 } from './group';
 
 export interface IPropRuleControl {
+    t: TranslationFunction;
     ruledefs: RuleGroup;
     rules: Map<string, string>;
     onUpdate: (rule: string, value: string)=> void;
@@ -37,13 +41,14 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
     protected updateHandlers = new CachedBinder<string, string, void>();
     public render(): JSX.Element {
         const {
+            t,
             ruledefs,
             rules,
             onUpdate,
         } = this.props;
 
         return (<>{
-            ruledefs.map((rule)=> {
+            ruledefs.map((rule, i)=> {
                 if (rule.type === 'group') {
                     const {
                         name,
@@ -53,6 +58,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                         name={name}
                     >
                         <RuleControl
+                            t={t}
                             ruledefs={rule.items}
                             rules={rules}
                             onUpdate={onUpdate}
@@ -64,7 +70,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                     } = rule;
                     switch (value.type) {
                         case 'separator': {
-                            return (<Separator />);
+                            return (<Separator key={`separator-${i}`} />);
                         }
                         case 'hidden': {
                             return null;
@@ -74,6 +80,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                             const onChange = this.updateHandlers.bind(value.id, this.handleChange);
                             return (<CheckboxControl
                                 key={`item-${value.id}`}
+                                t={t}
                                 item={value}
                                 value={cur}
                                 onChange={onChange}
@@ -84,6 +91,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                             const onChange = this.updateHandlers.bind(value.id, this.handleChange);
                             return (<IntegerControl
                                 key={`item-${value.id}`}
+                                t={t}
                                 item={value}
                                 value={cur}
                                 onChange={onChange}
@@ -94,6 +102,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                             const onChange = this.updateHandlers.bind(value.id, this.handleChange);
                             return (<SelectControl
                                 key={`item-${value.id}`}
+                                t={t}
                                 item={value}
                                 value={cur}
                                 onChange={onChange}
@@ -104,6 +113,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                             const onChange = this.updateHandlers.bind(value.id, this.handleChange);
                             return (<TimeControl
                                 key={`item-${value.id}`}
+                                t={t}
                                 item={value}
                                 value={cur}
                                 onChange={onChange}
