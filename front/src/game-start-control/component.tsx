@@ -7,6 +7,7 @@ import {
     CastingDefinition,
     LabeledGroup,
     RoleCategoryDefinition,
+    RuleGroup,
 } from '../defs';
 import {
     SelectLabeledGroup,
@@ -20,6 +21,9 @@ import {
     JobsString,
     PlayerNumberError,
 } from './jobs-string';
+import {
+    RuleControl,
+} from './rule-control';
 import {
     SelectRoles,
 } from './select-roles';
@@ -42,17 +46,21 @@ interface IPropCasting {
      */
     store: CastingStore;
     /**
-     * Definition of castings.
-     */
-    castings: LabeledGroup<CastingDefinition, string>;
-    /**
      * Id of roles.
      */
     roles: string[];
     /**
+     * Definition of castings.
+     */
+    castings: LabeledGroup<CastingDefinition, string>;
+    /**
      * Definition of categories.
      */
     categories: RoleCategoryDefinition[];
+    /**
+     * Definition of rules.
+     */
+    rules: RuleGroup;
 }
 
 @observer
@@ -61,9 +69,10 @@ export class Casting extends React.Component<IPropCasting, {}> {
         const {
             i18n,
             store,
-            castings,
             roles,
+            castings,
             categories,
+            rules,
         } = this.props;
         const {
             playersNumber,
@@ -139,6 +148,12 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                 /> :
                                 null
                         }
+                    </fieldset>
+                    <fieldset>
+                        <legend>{t('gamestart.control.rules')}</legend>
+                        <RuleControl
+                            rules={rules}
+                        />
                     </fieldset>
                 </div>);
             }

@@ -12,3 +12,5 @@ gamestart:
   control:
     # legend: "roles"
     roles: 役職
+    # legend: "rules"
+    rules: ルール設定

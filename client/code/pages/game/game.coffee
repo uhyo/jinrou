@@ -271,6 +271,7 @@ exports.start=(roomid)->
                                     id: key
                                     roles: Shared.game.categories[key]
                                 })
+                        rules: Shared.game.rules
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
                     }

@@ -14,6 +14,7 @@ import {
     CastingDefinition,
     LabeledGroup,
     RoleCategoryDefinition,
+    RuleGroup,
 } from '../defs';
 import {
     forLanguage,
@@ -28,17 +29,21 @@ export interface IPlaceOptions {
      */
     node: HTMLElement;
     /**
-     * Definition of castings.
-     */
-    castings: LabeledGroup<CastingDefinition, string>;
-    /**
      * Id of roles.
      */
     roles: string[];
     /**
+     * Definition of castings.
+     */
+    castings: LabeledGroup<CastingDefinition, string>;
+    /**
      * Definition of categories.
      */
     categories: RoleCategoryDefinition[];
+    /**
+     * Definition of rules.
+     */
+    rules: RuleGroup;
     /**
      * Initial selection of casting.
      */
@@ -55,9 +60,10 @@ export interface IPlaceResult {
  */
 export function place({
     node,
-    castings,
     roles,
+    castings,
     categories,
+    rules,
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore(roles, initialCasting);
@@ -73,9 +79,10 @@ export function place({
         <Casting
             i18n={i18n}
             store={store}
-            castings={castings}
             roles={roles}
+            castings={castings}
             categories={cs}
+            rules={rules}
         />;
 
     ReactDOM.render(com, node);
