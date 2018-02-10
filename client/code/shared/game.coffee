@@ -1940,14 +1940,16 @@ exports.new_rules=[
                     ]
             }
             {
-                type: 'checkbox'
-                id: 'hide_singleton_teams'
-                name: '単独陣営を隠す'
-                label: 'ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。'
-                defaultChecked: false
+                type: 'item'
                 value:
-                    value: 'on'
-                    label: 'あり'
+                    type: 'checkbox'
+                    id: 'hide_singleton_teams'
+                    name: '単独陣営を隠す'
+                    label: 'ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。'
+                    defaultChecked: false
+                    value:
+                        value: 'on'
+                        label: 'あり'
             }
         ]
     }
@@ -2089,7 +2091,7 @@ exports.new_rules=[
                 type: 'item'
                 value:
                     type:"time"
-                    name: 'remain'
+                    id: 'remain'
                     name:"猶予"
                     label: '猶予時間の長さを設定します。'
                     defaultValue: 120

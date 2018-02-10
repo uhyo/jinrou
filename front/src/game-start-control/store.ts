@@ -38,6 +38,11 @@ export class CastingStore {
      */
     @observable
     public jobInclusions: Map<string, boolean> = new Map();
+    /**
+     * Current rule options.
+     */
+    @observable
+    public rules: Map<string, string> = new Map();
 
     constructor(
         roles: string[],
@@ -128,6 +133,13 @@ export class CastingStore {
         }
         this.userJobNumbers.set(role, value);
         this.jobInclusions.set(role, included);
+    }
+    /**
+     * Update rule.
+     */
+    @action
+    public updateRule(rule: string, value: string): void {
+        this.rules.set(rule, value);
     }
     /**
      * Reset inclusion of roles.

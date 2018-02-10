@@ -10,6 +10,9 @@ import {
     RuleGroup,
 } from '../defs';
 import {
+    bind,
+} from '../util/bind';
+import {
     SelectLabeledGroup,
     IPropSelectLabeledGroup,
 } from '../util/labeled-group';
@@ -60,7 +63,7 @@ interface IPropCasting {
     /**
      * Definition of rules.
      */
-    rules: RuleGroup;
+    ruledefs: RuleGroup;
 }
 
 @observer
@@ -72,21 +75,15 @@ export class Casting extends React.Component<IPropCasting, {}> {
             roles,
             castings,
             categories,
-            rules,
+            ruledefs,
         } = this.props;
         const {
             playersNumber,
             currentCasting,
             jobNumbers,
             jobInclusions,
+            rules,
         } = store;
-
-        const handleChange = (value: CastingDefinition)=> {
-            store.setCurrentCasting(value);
-        };
-        const handleUpdate = (role: string, value: number, included: boolean)=> {
-            store.updateJobNumber(role, value, included);
-        };
 
         // Check whether current number of players is admissible.
         const {
@@ -133,7 +130,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                             makeOption={(obj: CastingDefinition)=>{
                                 return <option value={obj.id} title={obj.label}>{obj.name}</option>;
                                 }}
-                                onChange={handleChange}
+                                onChange={this.handleCastingChange}
                             />
                         {
                             currentCasting.roleSelect ?
@@ -144,7 +141,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     jobInclusions={jobInclusions}
                                     roleExclusion={currentCasting.roleExclusion || false}
                                     noFill={currentCasting.noFill || false}
-                                    onUpdate={handleUpdate}
+                                    onUpdate={this.handleJobUpdate}
                                 /> :
                                 null
                         }
@@ -152,7 +149,9 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     <fieldset>
                         <legend>{t('gamestart.control.rules')}</legend>
                         <RuleControl
+                            ruledefs={ruledefs}
                             rules={rules}
+                            onUpdate={this.handleRuleUpdate}
                         />
                     </fieldset>
                 </div>);
@@ -161,5 +160,17 @@ export class Casting extends React.Component<IPropCasting, {}> {
     }
     public componentDidCatch(err: any) {
         console.error(err);
+    }
+    @bind
+    protected handleCastingChange(value: CastingDefinition): void {
+        this.props.store.setCurrentCasting(value);
+    }
+    @bind
+    protected handleJobUpdate(role: string, value: number, included: boolean): void {
+        this.props.store.updateJobNumber(role, value, included);
+    }
+    @bind
+    protected handleRuleUpdate(rule: string, value: string): void {
+        this.props.store.updateRule(rule, value);
     }
 }

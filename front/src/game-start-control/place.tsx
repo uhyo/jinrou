@@ -67,7 +67,10 @@ export function place({
     initialCasting,
 }: IPlaceOptions): IPlaceResult {
     const store = new CastingStore(roles, initialCasting);
-    store.setCurrentCasting(initialCasting);
+    runInAction(()=> {
+        store.setCurrentCasting(initialCasting);
+        setInitialRules(rules, store);
+    });
 
     // TODO language
     const i18n = forLanguage('ja');
@@ -82,7 +85,7 @@ export function place({
             roles={roles}
             castings={castings}
             categories={cs}
-            rules={rules}
+            ruledefs={rules}
         />;
 
     ReactDOM.render(com, node);
@@ -112,4 +115,42 @@ function excludeHiddenRoles(categories: RoleCategoryDefinition[], roles: string[
         }
     }
     return result;
+}
+
+/**
+ * Set initial rule settings to store.
+ */
+function setInitialRules(rules: RuleGroup, store: CastingStore): void {
+    for (const rule of rules) {
+        if (rule.type === 'group') {
+            setInitialRules(rule.items, store);
+        } else {
+            const {
+                value,
+            } = rule;
+            switch (value.type) {
+                case 'checkbox': {
+                    const v = value.defaultChecked ? value.value.value : '';
+                    store.updateRule(value.id, v);
+                    break;
+                }
+                case 'hidden': {
+                    store.updateRule(value.id, value.value.value);
+                    break;
+                }
+                case 'integer': {
+                    store.updateRule(value.id, String(value.defaultValue));
+                    break;
+                }
+                case 'select': {
+                    store.updateRule(value.id, value.defaultValue);
+                    break;
+                }
+                case 'time': {
+                    store.updateRule(value.id, String(value.defaultValue));
+                    break;
+                }
+            }
+        }
+    }
 }
