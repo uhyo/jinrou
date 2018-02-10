@@ -1037,6 +1037,857 @@ exports.jobinfo=
 exports.rules=[
     # 闇鍋関係
     {
+        label:"闇鍋オプション"
+        visible:(rule,jobs)->rule.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+        rules:[
+            {
+                name:"yaminabe_safety"
+                label:"闇鍋セーフティ"
+                title:"配役にどれくらい気をつけるか指定します。"
+                type:"select"
+                values:[
+                    {
+                        value:"supersuper"
+                        label:"走召（α2）"
+                        title:"強さのバランスを調整するかもしれません。"
+                    }
+                    {
+                        value:"super"
+                        label:"超(β2)"
+                        title:"強さのバランスを調整します。"
+                    }
+                    {
+                        value:"high"
+                        label:"高"
+                        title:"出現役職どうしの兼ね合いも考慮します。"
+                    }
+                    {
+                        value:"middle"
+                        label:"中"
+                        title:"各陣営の割合を調整します。"
+                    }
+                    {
+                        value:"low"
+                        label:"低"
+                        title:"人狼・妖狐の数をちょうどいい数に調整します。"
+                        selected:true
+                    }
+                    {
+                        value:"none"
+                        label:"なし"
+                        title:"まったく気をつけません。人狼系1が保証される以外は全てランダムです。"
+                    }
+                    {
+                        value:"reverse"
+                        label:"逆（α）"
+                        title:"クソゲーになりますが、人外数の調整は行われます。"
+                    }
+                ]
+            }
+            {
+                name:"hide_singleton_teams"
+                label:"単独陣営を隠す"
+                title:"ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+            }
+        ]
+    }
+    # 標準ルール
+    {
+        label:null
+        visible:->true
+        rules:[
+            {
+                name:"decider"
+                label:"決定者"
+                title:"昼の処刑投票のときに、同数の場合決定者が投票した人が優先されます。誰が決定者かは分かりません。"
+                type:"checkbox"
+                value:{
+                    value:"1"
+                    label:"あり"
+                }
+            }
+            {
+                name:"authority"
+                label:"権力者"
+                title:"昼の処刑投票のときに投票が2票分になります。誰が権力者かは分かりません。"
+                type:"checkbox"
+                value:{
+                    value:"1"
+                    label:"あり"
+                }
+            }
+            {
+                name:"deathnote"
+                label:"死神の手帳"
+                title:"毎晩死神の手帳が移動します。死神の手帳を持った人は一人殺すことができます。"
+                type:"checkbox"
+                value:{
+                    value:"1"
+                    label:"あり"
+                }
+            }
+            {
+                name:"wolfminion"
+                label:"狼の子分"
+                title:"初日の夜に人狼が狼の子分を指定します。狼の子分になった場合能力はそのままで人狼陣営になります。"
+                type:"checkbox"
+                value:{
+                    value:"1"
+                    label:"あり"
+                }
+            }
+            {
+                name:"drunk"
+                label:"酔っ払い"
+                title:"誰かが酔っ払いになります。酔っ払いは3日目の夜まで自分が村人だと思い込んでいます。"
+                type:"checkbox"
+                value:{
+                    value:"1"
+                    label:"あり"
+                }
+            }
+            {
+                type:"separator"
+            }
+            {
+                name:"scapegoat"
+                label:"身代わりくん"
+                title:"身代わりくんは1日目の夜に殺されるためのNPCです。"
+                type:"select"
+                values: [
+                    {
+                        value:"on"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"off"
+                        label:"なし（参加者が死ぬ）"
+                    }
+                    {
+                        value:"no"
+                        label:"なし（誰も死なない）"
+                    }
+                ]
+            }
+            {
+                type:"separator"
+            }
+            {
+                type:"time"
+                name:
+                    minute:"day_minute"
+                    second:"day_second"
+                label:"昼"
+                defaultValue:
+                    minute:5
+                    second:30
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.day) > 0
+                        {
+                            label: "昼の議論時間"
+                            value: secondsStr ruleobj.day
+                        }
+                    else
+                        null
+            }
+            {
+                type:"time"
+                name:
+                    minute:"night_minute"
+                    second:"night_second"
+                label:"夜"
+                defaultValue:
+                    minute:2
+                    second:30
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.day) > 0
+                        {
+                            label: "夜時間"
+                            value: secondsStr ruleobj.night
+                        }
+                    else
+                        null
+            }
+            {
+                type:"time"
+                name:
+                    minute:"remain_minute"
+                    second:"remain_second"
+                label:"猶予"
+                defaultValue:
+                    minute:2
+                    second:0
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.remain) > 0
+                        {
+                            label: "猶予時間"
+                            value: secondsStr ruleobj.remain
+                        }
+                    else
+                        null
+            }
+            {
+                type:"time"
+                name:
+                    minute:"voting_minute"
+                    second:"voting_second"
+                label:"投票専用時間"
+                title:"投票専用時間を設定すると、昼間の議論中には投票できなくなり、投票専用時間に投票することになります。"
+                defaultValue:
+                    minute:0
+                    second:0
+                getstr:(_, ruleobj)->
+                    if Number(ruleobj.voting) > 0
+                        {
+                            label: "投票専用時間"
+                            value: "あり（#{secondsStr ruleobj.voting}）"
+                        }
+                    else
+                        null
+            }
+            {
+                type:"separator"
+            }
+            {
+                name:"will"
+                label:"遺言"
+                title:"遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。"
+                type:"checkbox"
+                value:{
+                    value:"die"
+                    label:"あり"
+                    nolabel:"なし"
+                    checked:true
+                }
+            }
+            {
+                name:"heavenview"
+                label:"霊界表示"
+                title:"ありの場合、霊界で役職一覧が見られ、夜の発言なども全て見ることができます。"
+                type:"select"
+                values:[
+                    {
+                        # ""なのは歴史的経緯
+                        value:"view"
+                        label:"常にあり"
+                        title:"蘇生役職が存在する場合でも常に公開します。"
+                    }
+                    {
+                        value:"norevive"
+                        label:"あり"
+                        title:"表示しますが、誰かが蘇生する可能性がある場合は表示しません。"
+                        selected:true
+                    }
+                    {
+                        value:""
+                        label:"なし"
+                        title:"ゲーム終了まで非公開にします。"
+                    }
+                ]
+            }
+            {
+                name:"votemyself"
+                label:"昼は自分に投票できる"
+                type:"checkbox"
+                value:{
+                    value:"ok"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+                getstr:(value)->
+                    {
+                        label:"自分投票"
+                        value:if value=="ok" then "あり" else "なし"
+                    }
+            }
+            {
+                name:"voteresult"
+                label:"投票結果を隠す"
+                type:"checkbox"
+                value:{
+                    value:"hide"
+                    label:"隠す"
+                    nolabel:"隠さない"
+                }
+                getstr:(value)->
+                    {
+                        label:"投票結果"
+                        value:if value=="hide" then "隠す" else "隠さない"
+                    }
+            }
+            {
+                name:"waitingnight"
+                label:"夜は時間切れまで待つ"
+                type:"hidden"
+                value:{
+                    value:"wait"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
+            {
+                name:"safety"
+                label:"身代わりセーフティ"
+                title:"「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
+                type:"select"
+                values:[
+                    {
+                        value:"full"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                    {
+                        value:"free"
+                        label:"なんでもあり"
+                    }
+                ]
+            }
+            {
+                type:"separator"
+            }
+            {
+                name:"noticebitten"
+                label:"噛まれたら分かる"
+                title:"人狼に襲われたときに襲われた側に知らせます。"
+                type:"checkbox"
+                value:{
+                    value:"notice"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+                getstr:(value)->
+                    {
+                        label:"襲撃された通知"
+                        value:if value=="notice" then "あり" else "なし"
+                    }
+            }
+            {
+                name:"GMpsychic"
+                label:"GM霊能"
+                title:"ありにすると、処刑された人の霊能結果が全員に公開されます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
+            {
+                name:"silentrule"
+                label:"秒ルール"
+                backlabel:true  # 後ろに
+                title:"1以上にすると、朝になってからその時間の間は発言できません。"
+                type:"second"
+                defaultValue:{
+                    value:0
+                }
+                getstr:(value)->
+                    if value==0
+                        return null
+                    else
+                        return {
+                            label:null
+                            value:"#{value}秒ルール"
+                        }
+            }
+            {
+                name:"runoff"
+                label:"決選投票"
+                title:"ありの場合、上位候補で決選投票を行います。"
+                type:"select"
+                values:[
+                    {
+                        value:"no"
+                        label:"なし"
+                        selected:true
+                    }
+                    {
+                        value:"revote"
+                        label:"再投票時"
+                    }
+                    {
+                        value:"yes"
+                        label:"常に行う"
+                    }
+                ]
+            }
+            {
+                name:"drawvote"
+                label:"投票同数時の処理"
+                title:"投票で同数になった場合の処理を設定します。"
+                type:"select"
+                values:[
+                    {
+                        value:"revote"
+                        label:"再投票"
+                        selected:true
+                    }
+                    {
+                        value:"random"
+                        label:"ランダムに処刑"
+                    }
+                    {
+                        value:"none"
+                        label:"誰も処刑しない"
+                    }
+                    {
+                        value:"all"
+                        label:"全員処刑"
+                    }
+                ]
+            }
+            {
+                type: "separator"
+            }
+            {
+                # 名前がyaminabeなのは歴史的経緯
+                name:"yaminabe_hidejobs"
+                label:"配役公開"
+                title:"配役の公開方法を指定します。"
+                type:"select"
+                values:[
+                    {
+                        # ""なのは歴史的経緯
+                        value:""
+                        label:"役職一覧を公開"
+                        title:"ゲーム開始時、出現役職の一覧が公開されます。"
+                        selected:true
+                    }
+                    {
+                        value:"team"
+                        label:"陣営ごとの数のみ公開"
+                        title:"各陣営の数のみ公開されます。"
+                    }
+                    {
+                        value:"2"
+                        label:"非公開"
+                        title:"出現役職の一覧は分からなくなります。"
+                    }
+                ]
+            }
+            {
+                name:"losemode"
+                label:"敗北村"
+                title:"負けることを目指す人狼です。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+            }
+            {
+                name:"rolerequest"
+                label:"希望役職制"
+                title:"各参加者はなりたい役職を選択できます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+            }
+            {
+                name:"chemical"
+                label:"ケミカル人狼"
+                title:"1人につき役職が2つ割り当てられる特殊ルールです。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+            }
+        ]
+    }
+    # 人狼系
+    {
+        label: "人狼系の設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            for job in exports.categories.Werewolf
+                if jobs[job]>0
+                    return true
+            return false
+        rules:[
+            {
+                name:"wolfsound"
+                label:"人狼の遠吠えが聞こえる"
+                type:"checkbox"
+                value:{
+                    value:"aloud"
+                    label:"あり"
+                    nolabel:"なし"
+                    checked:true
+                }
+                getstr:(value)->
+                    {
+                        label:"人狼の遠吠え"
+                        value:if value=="aloud" then "聞こえる" else "聞こえない"
+                    }
+            }
+            {
+                name:"wolfattack"
+                label:"人狼は人狼を襲撃対象に選択できる"
+                type:"checkbox"
+                value:{
+                    value:"ok"
+                    label:"あり"
+                }
+                getstr:(value)->
+                    if value=="ok"
+                        {
+                            label:null
+                            value:"人狼は人狼を襲撃対象に選択できる"
+                        }
+                    else
+                        null
+            }
+        ]
+    }
+    # 占い系
+    {
+        label: "占い師の設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
+                if jobs[job]>0
+                    return true
+            return false
+        rules:[
+            {
+                name:"divineresult"
+                label:"占い結果"
+                title:"夜に行った占いの結果が表示されるタイミングを調整できます。"
+                type:"select"
+                values:[
+                    {
+                        value:"immediate"
+                        label:"すぐ分かる"
+                    }
+                    {
+                        value:"sunrise"
+                        label:"翌朝分かる"
+                        selected:true
+                    }
+                ]
+            }
+            {
+                name:"firstnightdivine"
+                label:"占いの初日白通知"
+                title:"ありにすると、初日の占い先は占い結果が「村人」の人の中からランダムに選択されます。"
+                type:"select"
+                values:[
+                    {
+                        value:"auto"
+                        label:"あり"
+                    }
+                    {
+                        value:"manual"
+                        label:"なし"
+                        selected:true
+                    }
+                ]
+            }
+        ]
+    }
+    # 霊能
+    {
+        label: "霊能者の設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Psychic>0
+        rules:[
+            {
+                name:"psychicresult"
+                label:"霊能結果"
+                title:"夜に行った霊能の結果が表示されるタイミングを調整できます。"
+                type:"select"
+                values:[
+                    {
+                        value:"sunset"
+                        label:"すぐ分かる"
+                    }
+                    {
+                        value:"sunrise"
+                        label:"翌朝分かる"
+                        selected:true
+                    }
+                ]
+            }
+        ]
+    }
+    # 共有者
+    {
+        label: "共有者の設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Couple>0 || jobs.MadCouple>0
+        rules:[
+            {
+                name:"couplesound"
+                label:"共有者の小声が聞こえる"
+                title:"ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
+                type:"checkbox"
+                value:{
+                    value:"aloud"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+                getstr:(value)->
+                    {
+                        label:"共有者の小声"
+                        value:if value=="aloud" then "聞こえる" else "聞こえない"
+                    }
+            }
+        ]
+    }
+    # 護衛役職
+    {
+        label: "狩人などの設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
+                if jobs[job]>0
+                    return true
+            return false
+        rules:[
+            {
+                name:"guardmyself"
+                label:"狩人は自分を守れる"
+                title:"ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
+                type:"checkbox"
+                value:{
+                    value:"ok"
+                    label:"あり"
+                }
+                getstr:(value)->
+                    {
+                        label:"狩人の自分護衛"
+                        value:if value=="ok" then "あり" else "なし"
+                    }
+            }
+            {
+                name:"gjmessage"
+                label:"護衛成功が分かる"
+                title:"ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                }
+                getstr:(value)->
+                    {
+                        label:"護衛成功通知"
+                        value:if value=="on" then "あり" else "なし"
+                    }
+            }
+            {
+                name:"consecutiveguard"
+                label:"連続護衛"
+                title:"狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
+                type:"select"
+                values:[
+                    {
+                        value:"yes"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                ]
+            }
+        ]
+    }
+    # 妖狐
+    {
+        label: "妖狐の設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Fox>0
+        rules:[
+            {
+                name:"deadfox"
+                label:"呪殺は襲撃と区別がつく"
+                title:"有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
+                type:"checkbox"
+                value:
+                    value:"obvious"
+                    label:"あり"
+                    nolabel:"なし"
+                getstr:(value)->
+                    {
+                        label:"呪殺ログと襲撃ログの区別"
+                        value:if value=="obvious" then "あり" else "なし"
+                    }
+            }
+        ]
+    }
+    # ハンター
+    {
+        label: "ハンターの設定"
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Hunter > 0 || jobs.MadHunter > 0
+        rules:[
+            {
+                name:"hunter_lastattack"
+                label: "ラス撃ち"
+                title: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
+                type: "select"
+                values:[
+                    {
+                        value:"yes"
+                        label:"あり"
+                        selected:true
+                    }
+                    {
+                        value:"no"
+                        label:"なし"
+                    }
+                ]
+            }
+        ]
+    }
+    # 埋毒者、猫又
+    {
+        label:null
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Poisoner>0 || jobs.Cat>0
+        rules:[
+            {
+                name: "poisonwolf"
+                label: "人狼の毒持ち襲撃"
+                title: "人狼が埋毒者・猫又を襲撃した場合の動作を設定します。"
+                type: "select"
+                values:[
+                    {
+                        value: "selector"
+                        label: "襲撃者を道連れ"
+                        selected: true
+                    }
+                    {
+                        value: ""
+                        label: "ランダムに道連れ"
+                    }
+                ]
+            }
+        ]
+    }
+    # 恋人
+    {
+        label:null
+        visible:(rule,jobs)->
+            return true if isYaminabe rule
+            return jobs.Lover>0 || jobs.Cupid>0
+        rules:[
+            {
+                name:"friendsjudge"
+                label:"恋人陣営の勝利条件"
+                type:"select"
+                values:[
+                    {
+                        value:"alive"
+                        label:"終了時に生存"
+                        title:"妖狐と同じです。"
+                        selected:true
+                    }
+                    {
+                        value:"ruin"
+                        label:"恋人だけ生存"
+                    }
+                ]
+            }
+            {
+                name:"friendssplit"
+                label:"恋人はそれぞれ独立する"
+                title:"恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
+                type:"checkbox"
+                value:{
+                    value:"split"
+                    label:"あり"
+                    checked:true
+                }
+                getstr:(value)->
+                    {
+                        label:"恋人の独立"
+                        value:if value=="split" then "あり" else "なし"
+                    }
+            }
+        ]
+    }
+    # 量子人狼
+    {
+        label:null
+        visible:(rule,jobs)->rule.jobrule=="特殊ルール.量子人狼"
+        rules:[
+            {
+                name:"quantumwerewolf_table"
+                label:"確率表"
+                type:"select"
+                values:[
+                    {
+                        value:"open"
+                        label:"プレイヤー名を表示"
+                        selected:true
+                    }
+                    {
+                        value:"anonymous"
+                        label:"プレイヤー番号を表示"
+                        title:"自分以外のプレイヤー番号は分かりません。"
+                    }
+                ]
+            }
+            {
+                name:"quantumwerewolf_dead"
+                label:"死亡率を表示しない"
+                title:"確率表に死亡率を表示しないルールです。表示するのが普通です。"
+                type:"checkbox"
+                value:{
+                    value:"no"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
+            {
+                name:"quantumwerewolf_diviner"
+                label:"占い師の確率も表示する"
+                title:"確率表に占い師の確率も表示します。表示しないのが普通のルールです。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
+            {
+                name:"quantumwerewolf_firstattack"
+                label:"初日の襲撃"
+                title:"ありの場合初日から襲撃対象を選択します。"
+                type:"checkbox"
+                value:{
+                    value:"on"
+                    label:"あり"
+                    nolabel:"なし"
+                }
+            }
+        ]
+    }
+]
+# TODO temporal new version
+exports.new_rules=[
+    # 闇鍋関係
+    {
         type: 'group'
         label:
             name: '闇鍋オプション'
@@ -1196,7 +2047,9 @@ exports.rules=[
                     ]
             }
             {
-                type:"separator"
+                type: 'item'
+                value:
+                    type:"separator"
             }
             {
                 type: 'item'
@@ -1267,7 +2120,9 @@ exports.rules=[
                             null
             }
             {
-                type:"separator"
+                type: 'item'
+                value:
+                    type:"separator"
             }
             {
                 type: 'item'

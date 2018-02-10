@@ -19,6 +19,7 @@ export class RuleControl extends React.PureComponent<IPropRuleControl, {}> {
 
         return (<>{
             rules.map((rule)=> {
+                console.log(rule);
                 if (rule.type === 'group') {
                     const {
                         name,
@@ -68,6 +69,7 @@ export class RuleControl extends React.PureComponent<IPropRuleControl, {}> {
                             return (<label
                                 key={`item-${value.id}`}
                             >
+                                {value.name}
                                 <select
                                     name={value.id}
                                     defaultValue={value.defaultValue}
