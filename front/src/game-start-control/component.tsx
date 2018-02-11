@@ -14,6 +14,9 @@ import {
     WideButton,
 } from '../common/button';
 import {
+    showConfirmDialog,
+} from '../dialog';
+import {
     CastingDefinition,
     LabeledGroup,
     RoleCategoryDefinition,
@@ -217,8 +220,17 @@ export class Casting extends React.Component<IPropCasting, {}> {
         this.props.store.updateRule(rule, value);
     }
     @bind
-    protected handleGameStart(): void {
+    protected async handleGameStart(): Promise<void> {
+        // TODO
+        const result = await showConfirmDialog({
+            modal: true,
+            title: 'hi',
+            message: 'Hey!',
+        });
+        console.log(result);
+        /*
         const query = this.props.store.getQuery();
         this.props.onStart(query);
+         */
     }
 }
