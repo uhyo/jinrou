@@ -1195,10 +1195,10 @@ exports.start=(roomid)->
             jobsformvalidate room,form
     # 配役一覧をアレする
     setplayersbyjobrule=(room,form,number)->
+        game_start_control?.store.setPlayersNumber number
         jobrulename=form.elements["jobrule"].value
         if form.elements["scapegoat"]?.value=="on"
             number++    # 身代わりくん
-        game_start_control?.store.setPlayersNumber number
         if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
             j = $("#jobsfield").get 0
             j.hidden=false
