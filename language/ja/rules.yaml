@@ -1,5 +1,9 @@
 # texts related to game rule settings.
 # each rule object has `name` and `label` fields.
+# type=select rules have `labels` and `descriptions` field.
+# type=checkbox & type=hidden rules have `yes` and `no` fields.
+# `yes` and `no` fields may be empty.
+# other fields are used by `getstr` functions.
 rule:
   yaminabe_safety:
     name: "闇鍋セーフティ"
@@ -23,18 +27,28 @@ rule:
   hide_singleton_teams:
     name: "単独陣営を隠す"
     label: "ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。"
+    yes: "あり"
+    no: ""
   decider:
     name: "決定者"
     label: "昼の処刑投票のときに、同数の場合決定者が投票した人が優先されます。誰が決定者かは分かりません。"
+    yes: "あり"
+    no: ""
   authority:
     name: "権力者"
     label: "昼の処刑投票のときに投票が2票分になります。誰が権力者かは分かりません。"
+    yes: "あり"
+    no: ""
   deathnote:
     name: "死神の手帳"
     label: "毎晩死神の手帳が移動します。死神の手帳を持った人は一人殺すことができます。"
+    yes: "あり"
+    no: ""
   wolfminion:
     name: "狼の子分"
     label: "初日の夜に人狼が狼の子分を指定します。狼の子分になった場合能力はそのままで人狼陣営になります。"
+    yes: "あり"
+    no: ""
   drunk:
     name: "酔っ払い"
     label: "誰かが酔っ払いになります。酔っ払いは3日目の夜まで自分が村人だと思い込んでいます。"
@@ -64,6 +78,8 @@ rule:
   will:
     name: "遺言"
     label: "遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。"
+    yes: "あり"
+    no: "なし"
   heavenview:
     name: "霊界表示"
     label: "ありの場合、霊界で役職一覧が見られ、夜の発言なども全て見ることができます。"
@@ -78,12 +94,18 @@ rule:
   votemyself:
     name: "自分に投票できる"
     label: "ありの場合、処刑投票で自分に投票可能になります。"
+    yes: "あり"
+    no: "なし"
   voteresult:
     name: "投票結果を隠す"
     label: "ありの場合、処刑投票で誰が誰に投票したか分からなくなります。"
+    yes: "あり"
+    no: "なし"
   waitingnight:
     name: "夜は時間切れまで待つ"
     label: ""
+    yes: "あり"
+    no: "なし"
   safety:
     name: "身代わりセーフティ"
     label: "「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
@@ -98,9 +120,13 @@ rule:
   noticebitten:
     name: "噛まれたら分かる"
     label: "人狼に襲われたときに襲われた側に知らせます。"
+    yes: "あり"
+    no: "なし"
   GMpsychic:
     name: "GM霊能"
     label: "ありにすると、処刑された人の霊能結果が全員に公開されます。"
+    yes: "あり"
+    no: "なし"
   silentrule:
     name: "n秒ルール"
     label: "1以上にすると、朝になってからその時間の間は発言できません。"
@@ -142,18 +168,28 @@ rule:
   losemode:
     name: "敗北村"
     label: "負けることを目指す人狼です。"
+    yes: "あり"
+    no: ""
   rolerequest:
     name: "希望役職制"
     label: "各参加者はなりたい役職を選択できます。"
+    yes: "あり"
+    no: ""
   chemical:
     name: "ケミカル人狼"
     label: "1人につき役職が2つ割り当てられる特殊ルールです。"
+    yes: "あり"
+    no: ""
   wolfsound:
     name: "人狼の遠吠えが聞こえる"
     label: "ありにすると夜の人狼たちの会話が遠吠えとして聞こえます。"
+    yes: "あり"
+    no: "なし"
   wolfattack:
     name: "人狼は人狼を襲撃対象に選択できる"
     label: ""
+    yes: "あり"
+    no: ""
   divineresult:
     name: "占い結果"
     label: "夜に行った占いの結果が表示されるタイミングを調整できます。"
@@ -184,12 +220,18 @@ rule:
   couplesound:
     name: "共有者の小声が聞こえる"
     label: "ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
+    yes: "あり"
+    no: "なし"
   guardmyself:
     name: "狩人は自分を守れる"
     label: "ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
+    yes: "あり"
+    no: ""
   gjmessage:
-    name: "護衛成功が分かる"
+    name: "護衛成功通知"
     label: "ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
+    yes: "あり"
+    no: ""
   consecutiveguard:
     name: "連続護衛"
     label: "狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
@@ -202,6 +244,8 @@ rule:
   deadfox:
     name: "呪殺は襲撃と区別が付く"
     label: "有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
+    yes: "あり"
+    no: "なし"
   hunter_lastattack:
     name: "ラス撃ち"
     label: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
@@ -232,6 +276,8 @@ rule:
   friendssplit:
     name: "恋人はそれぞれ独立する"
     label: "恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
+    yes: "あり"
+    no: "なし"
   quantumwerewolf_table:
     name: "確率表"
     label: "確率表の表示方法を設定します。"
@@ -244,12 +290,18 @@ rule:
   quantumwerewolf_dead:
     name: "死亡率を表示しない"
     label: "確率表に死亡率を表示しないルールです。表示するのが普通です。"
+    yes: "あり"
+    no: "なし"
   quantumwerewolf_diviner:
     name: "占い師の確率も表示する"
     label: "確率表に占い師の確率も表示します。表示しないのが普通のルールです。"
+    yes: "あり"
+    no: "なし"
   quantumwerewolf_firstattack:
     name: "初日の襲撃"
     label: "ありの場合初日から襲撃対象を選択します。"
+    yes: "あり"
+    no: "なし"
 
 # texts related to rule groups.
 ruleGroup:
@@ -277,4 +329,9 @@ ruleGroup:
     name: "恋人の設定"
   quantum:
     name: "量子人狼の設定"
+
+# rule-related string.
+common:
+  minutes: "分"
+  seconds: "秒"
 

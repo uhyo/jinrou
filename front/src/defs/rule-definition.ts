@@ -1,4 +1,8 @@
 import {
+    TranslationFunction,
+} from '../i18n';
+
+import {
     CastingDefinition,
 } from './casting-definition';
 import {
@@ -13,18 +17,19 @@ export interface RuleDefinitionBase {
     /**
      * Rule string generation function.
      */
-    getstr?: (value: string, rule: Rule)=> GetstrResult | null;
+    getstr?: (t: TranslationFunction, value: string)=> GetstrResult | undefined;
 }
 
 export interface GetstrResult {
     /**
      * Title of this rule setting.
+     * If undefined, default rule name is used.
      */
-    label: string;
+    label?: string;
     /**
      * Value of this rule setting.
      */
-    value: string;
+    value?: string;
 }
 
 export interface SelectRule extends RuleDefinitionBase {
@@ -62,6 +67,7 @@ export interface TimeRule extends RuleDefinitionBase {
 }
 
 export interface Separator {
+    id?: string;
     type: 'separator';
 }
 

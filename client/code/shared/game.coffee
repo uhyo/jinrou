@@ -1931,7 +1931,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value: 'on'
-                        label: 'あり'
             }
         ]
     }
@@ -1950,7 +1949,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value: '1'
-                        label: "あり"
             }
             {
                 type: 'item'
@@ -1960,7 +1958,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value:"1"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -1970,7 +1967,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value:"1"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -1980,7 +1976,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value:"1"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -1990,7 +1985,6 @@ exports.new_rules=[
                     defaultChecked: false
                     value:
                         value:"1"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -2026,14 +2020,6 @@ exports.new_rules=[
                     type:"time"
                     id: 'day'
                     defaultValue: 330
-                    getstr:(_, ruleobj)->
-                        if Number(ruleobj.rules.day) > 0
-                            {
-                                label: "昼の議論時間"
-                                value: secondsStr ruleobj.rules.day
-                            }
-                        else
-                            null
             }
             {
                 type: 'item'
@@ -2041,14 +2027,6 @@ exports.new_rules=[
                     type:"time"
                     id: 'night'
                     defaultValue: 150
-                    getstr:(_, ruleobj)->
-                        if Number(ruleobj.rules.night) > 0
-                            {
-                                label: "夜時間"
-                                value: secondsStr ruleobj.rules.night
-                            }
-                        else
-                            null
             }
             {
                 type: 'item'
@@ -2056,14 +2034,6 @@ exports.new_rules=[
                     type:"time"
                     id: 'remain'
                     defaultValue: 120
-                    getstr:(_, ruleobj)->
-                        if Number(ruleobj.rules.remain) > 0
-                            {
-                                label: "猶予時間"
-                                value: secondsStr ruleobj.rules.remain
-                            }
-                        else
-                            null
             }
             {
                 type: 'item'
@@ -2071,14 +2041,6 @@ exports.new_rules=[
                     type:"time"
                     id: 'voting'
                     defaultValue: 0
-                    getstr:(_, ruleobj)->
-                        if Number(ruleobj.rules.voting) > 0
-                            {
-                                label: "投票専用時間"
-                                value: "あり（#{secondsStr ruleobj.rules.voting}）"
-                            }
-                        else
-                            null
             }
             {
                 type: 'item'
@@ -2093,8 +2055,6 @@ exports.new_rules=[
                     defaultChecked: true
                     value:
                         value:"die"
-                        label:"あり"
-                        nolabel:"なし"
             }
             {
                 type: 'item'
@@ -2122,13 +2082,6 @@ exports.new_rules=[
                     id:"votemyself"
                     value:
                         value:"ok"
-                        label:"あり"
-                        nolabel:"なし"
-                    getstr:(value)->
-                        {
-                            label:"自分投票"
-                            value:if value=="ok" then "あり" else "なし"
-                        }
             }
             {
                 type: 'item'
@@ -2137,13 +2090,6 @@ exports.new_rules=[
                     id:"voteresult"
                     value:
                         value:"hide"
-                        label:"隠す"
-                        nolabel:"隠さない"
-                    getstr:(value)->
-                        {
-                            label:"投票結果"
-                            value:if value=="hide" then "隠す" else "隠さない"
-                        }
             }
             {
                 type: 'item'
@@ -2152,8 +2098,6 @@ exports.new_rules=[
                     id:"waitingnight"
                     value:
                         value:"wait"
-                        label:"あり"
-                        nolabel:"なし"
             }
             {
                 type: 'item'
@@ -2185,13 +2129,6 @@ exports.new_rules=[
                     id:"noticebitten"
                     value:
                         value:"notice"
-                        label:"あり"
-                        nolabel:"なし"
-                    getstr:(value)->
-                        {
-                            label:"襲撃された通知"
-                            value:if value=="notice" then "あり" else "なし"
-                        }
             }
             {
                 type: 'item'
@@ -2200,8 +2137,6 @@ exports.new_rules=[
                     id:"GMpsychic"
                     value:
                         value:"on"
-                        label:"あり"
-                        nolabel:"なし"
             }
             {
                 type: 'item'
@@ -2209,14 +2144,10 @@ exports.new_rules=[
                     type:"integer"
                     id:"silentrule"
                     defaultValue: 0
-                    getstr:(value)->
-                        if value==0
-                            return null
-                        else
-                            return {
-                                label: 'n秒ルール'
-                                value:"#{value}秒ルール"
-                            }
+                    getstr:(t, value)->
+                        {
+                            value: value + t('rules:common.seconds')
+                        }
             }
             {
                 type: 'item'
@@ -2289,7 +2220,6 @@ exports.new_rules=[
                     id:"losemode"
                     value:
                         value:"on"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -2298,7 +2228,6 @@ exports.new_rules=[
                     id:"rolerequest"
                     value:
                         value:"on"
-                        label:"あり"
             }
             {
                 type: 'item'
@@ -2307,7 +2236,6 @@ exports.new_rules=[
                     id:"chemical"
                     value:
                         value:"on"
-                        label:"あり"
             }
         ]
     }
@@ -2331,13 +2259,6 @@ exports.new_rules=[
                     defaultChecked: true
                     value:
                         value:"aloud"
-                        label:"あり"
-                        nolabel:"なし"
-                    getstr:(value)->
-                        {
-                            label:"人狼の遠吠え"
-                            value:if value=="aloud" then "聞こえる" else "聞こえない"
-                        }
             }
             {
                 type: 'item'
@@ -2346,15 +2267,6 @@ exports.new_rules=[
                     id:"wolfattack"
                     value:
                         value:"ok"
-                        label:"あり"
-                    getstr:(value)->
-                        if value=="ok"
-                            {
-                                label:null
-                                value:"人狼は人狼を襲撃対象に選択できる"
-                            }
-                        else
-                            null
             }
         ]
     }
@@ -2444,14 +2356,7 @@ exports.new_rules=[
                     id:"couplesound"
                     value:{
                         value:"aloud"
-                        label:"あり"
-                        nolabel:"なし"
                     }
-                    getstr:(value)->
-                        {
-                            label:"共有者の小声"
-                            value:if value=="aloud" then "聞こえる" else "聞こえない"
-                        }
             }
         ]
     }
@@ -2474,12 +2379,6 @@ exports.new_rules=[
                     id:"guardmyself"
                     value:
                         value:"ok"
-                        label:"あり"
-                    getstr:(value)->
-                        {
-                            label:"狩人の自分護衛"
-                            value:if value=="ok" then "あり" else "なし"
-                        }
             }
             {
                 type: 'item'
@@ -2488,12 +2387,6 @@ exports.new_rules=[
                     id:"gjmessage"
                     value:
                         value:"on"
-                        label:"あり"
-                    getstr:(value)->
-                        {
-                            label:"護衛成功通知"
-                            value:if value=="on" then "あり" else "なし"
-                        }
             }
             {
                 type: 'item'
@@ -2528,13 +2421,6 @@ exports.new_rules=[
                     id:"deadfox"
                     value:
                         value:"obvious"
-                        label:"あり"
-                        nolabel:"なし"
-                    getstr:(value)->
-                        {
-                            label:"呪殺ログと襲撃ログの区別"
-                            value:if value=="obvious" then "あり" else "なし"
-                        }
             }
         ]
     }
@@ -2625,12 +2511,6 @@ exports.new_rules=[
                     defaultChecked: true
                     value:
                         value:"split"
-                        label:"あり"
-                    getstr:(value)->
-                        {
-                            label:"恋人の独立"
-                            value:if value=="split" then "あり" else "なし"
-                        }
             }
         ]
     }
@@ -2663,8 +2543,6 @@ exports.new_rules=[
                     id:"quantumwerewolf_dead"
                     value:
                         value:"no"
-                        label:"あり"
-                        nolabel:"なし"
             }
             {
                 type: 'item'
@@ -2673,8 +2551,6 @@ exports.new_rules=[
                     id:"quantumwerewolf_diviner"
                     value:
                         value:"on"
-                        label:"あり"
-                        nolabel:"なし"
             }
             {
                 type: 'item'
@@ -2683,8 +2559,6 @@ exports.new_rules=[
                     id:"quantumwerewolf_firstattack"
                     value:
                         value:"on"
-                        label:"あり"
-                        nolabel:"なし"
             }
         ]
     }

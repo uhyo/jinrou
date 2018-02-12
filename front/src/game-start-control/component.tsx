@@ -38,6 +38,9 @@ import {
     PlayerNumberError,
 } from './jobs-string';
 import {
+    gameStart,
+} from './logic/index';
+import {
     RuleControl,
 } from './rule-control';
 import {
@@ -221,16 +224,19 @@ export class Casting extends React.Component<IPropCasting, {}> {
     }
     @bind
     protected async handleGameStart(): Promise<void> {
-        // TODO
-        const result = await showConfirmDialog({
-            modal: true,
-            title: 'hi',
-            message: 'Hey!',
+        const {
+            i18n,
+            roles,
+            categories,
+            ruledefs,
+            store,
+        } = this.props;
+        await gameStart({
+            i18n: this.props.i18n,
+            roles,
+            categories,
+            ruledefs,
+            store,
         });
-        console.log(result);
-        /*
-        const query = this.props.store.getQuery();
-        this.props.onStart(query);
-         */
     }
 }

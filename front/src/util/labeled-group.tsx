@@ -9,6 +9,30 @@ import {
     ReactCtor,
 } from './react-type';
 
+/**
+ * Iterate items of labeled group.
+ */
+export function* iterateLabeledGroup<T, L>(items: LabeledGroup<T, L>): IterableIterator<T> {
+    for (const item of items) {
+        if (item.type === 'group') {
+            yield* iterateLabeledGroup(item.items);
+        } else {
+            yield item.value;
+        }
+    }
+}
+/**
+ * Find given item for labeled group.
+ */
+export function findLabeledGroupItem<T, L>(items: LabeledGroup<T, L>, predicate: (item: T)=> boolean): T | undefined {
+    for (const item of iterateLabeledGroup(items)) {
+        if (predicate(item)) {
+            return item;
+        }
+    }
+    return undefined;
+}
+
 export interface IPropSelectLabeledGroup<T, L> {
     /**
      * Items of this select.

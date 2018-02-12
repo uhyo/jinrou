@@ -16,6 +16,10 @@ import {
     bind,
 } from '../../util/bind';
 
+import {
+    getRuleName,
+} from '../../logic/rule';
+
 /**
  * Wrapper of rules.
  */
@@ -75,7 +79,7 @@ export class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {
         } = this.props;
 
         const checked = value === item.value.value;
-        const {name, label} = getRuleText(t, item.id);
+        const {name, label} = getRuleName(t, item.id);
 
         return (<RuleWrapper>
             <label title={label}>
@@ -111,7 +115,7 @@ export class IntegerControl extends React.PureComponent<IPropIntegerControl, {}>
             value,
         } = this.props;
 
-        const {name, label} = getRuleText(t, item.id);
+        const {name, label} = getRuleName(t, item.id);
 
         return (<RuleWrapper>
             <label title={label}>
@@ -147,7 +151,7 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
             value,
         } = this.props;
 
-        const {name, label} = getRuleText(t, item.id);
+        const {name, label} = getRuleName(t, item.id);
 
         return (<RuleWrapper>
             <label title={label}>
@@ -198,7 +202,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
         const minutes = Math.floor(v / 60);
         const seconds = v % 60;
 
-        const {name, label} = getRuleText(t, item.id);
+        const {name, label} = getRuleName(t, item.id);
 
         return (<RuleWrapper>
             <span title={label}>
@@ -234,18 +238,3 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
     }
 }
 
-interface RuleText {
-    name: string;
-    label: string;
-}
-/**
- * Retrieve name and label of given rule item from language file.
- */
-function getRuleText(t: TranslationFunction, id: string): RuleText {
-    const name = t(`rules:rule.${id}.name`);
-    const label = t(`rules:rule.${id}.label`);
-    return {
-        name,
-        label,
-    };
-}

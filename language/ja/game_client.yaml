@@ -22,4 +22,22 @@ gamestart:
     start: 開始
     # Legend of category query.
     categorySelection: 一部闇鍋用
+  # confirmation messages.
+  confirm:
+    # suggestion of rule based on casting.
+    ruleSuggestion:
+      # confirmation message
+      message: "この配役ではオプション「{{name}}」を{{suggestion}}にすることが推奨されています。このまま開始してもよろしいですか？"
+      # yes: rearrange rule setting.
+      yes: "戻る"
+      # no: continue.
+      no: "このまま開始する"
+      # value suggestion.
+      valueSuggestion: "「{{value}}」"
+      # range-based suggestions
+      rangeSuggestionMin: "{{min}}以上"
+      rangeSuggestionMax: "{{max}}以下"
+      rangeSuggestionMinMax: "{{min}}以上{{max}}以下"
+
+
 

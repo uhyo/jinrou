@@ -29,7 +29,7 @@ const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
     height: 100vh;
 
     z-index: 50;
-    background-color: ${({modal})=> modal ? 'rgba(0, 0, 0, 0.4)' : 'transparent'};
+    background-color: ${({modal})=> modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
     pointer-events: ${({modal})=> modal ? 'auto' : 'none'};
 
     display: flex;
@@ -55,9 +55,10 @@ const DialogMain = styled.div`
     margin: 0.8em;
 `;
 const Buttons = styled.div`
-    margin: 1em 6px 6px 6px;
+    margin: 1em 6px 0 6px;
     display: flex;
     flex-flow: row nowrap;
+    justify-content: flex-end;
 `;
 const ButtonBase = styled.button`
     appearance: none;
@@ -135,6 +136,8 @@ export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
             title,
             modal,
             message,
+            yes,
+            no,
         } = this.props;
         return (<DialogWrapper
             modal={modal}
@@ -147,13 +150,13 @@ export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
                     <NoButton
                         onClick={this.handleNoClick}
                     >
-                        no
+                        {no}
                     </NoButton>
                     <YesButton
                         onClick={this.handleYesClick}
                         innerRef={e=> this.yesButton=e}
                     >
-                        yes
+                        {yes}
                     </YesButton>
                 </Buttons>
             </DialogBase>

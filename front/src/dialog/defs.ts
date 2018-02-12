@@ -17,9 +17,9 @@ export interface IConfirmDialog {
     /**
      * yes button.
      */
-    yes?: string;
+    yes: string;
     /**
      * no button.
      */
-    no?: string;
+    no: string;
 }
