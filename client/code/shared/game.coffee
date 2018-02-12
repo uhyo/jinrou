@@ -1900,27 +1900,13 @@ exports.new_rules=[
                     id: 'yaminabe_safety'
                     defaultValue: 'low'
                     values:[
-                        {
-                            value:"supersuper"
-                        }
-                        {
-                            value:"super"
-                        }
-                        {
-                            value:"high"
-                        }
-                        {
-                            value:"middle"
-                        }
-                        {
-                            value:"low"
-                        }
-                        {
-                            value:"none"
-                        }
-                        {
-                            value:"reverse"
-                        }
+                        "supersuper"
+                        "super"
+                        "high"
+                        "middle"
+                        "low"
+                        "none"
+                        "reverse"
                     ]
             }
             {
@@ -1929,8 +1915,7 @@ exports.new_rules=[
                     type: 'checkbox'
                     id: 'hide_singleton_teams'
                     defaultChecked: false
-                    value:
-                        value: 'on'
+                    value: 'on'
             }
         ]
     }
@@ -1947,8 +1932,7 @@ exports.new_rules=[
                     type: 'checkbox'
                     id: 'decider'
                     defaultChecked: false
-                    value:
-                        value: '1'
+                    value: '1'
             }
             {
                 type: 'item'
@@ -1956,8 +1940,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"authority"
                     defaultChecked: false
-                    value:
-                        value:"1"
+                    value:"1"
             }
             {
                 type: 'item'
@@ -1965,8 +1948,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"deathnote"
                     defaultChecked: false
-                    value:
-                        value:"1"
+                    value:"1"
             }
             {
                 type: 'item'
@@ -1974,8 +1956,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"wolfminion"
                     defaultChecked: false
-                    value:
-                        value:"1"
+                    value:"1"
             }
             {
                 type: 'item'
@@ -1983,8 +1964,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"drunk"
                     defaultChecked: false
-                    value:
-                        value:"1"
+                    value:"1"
             }
             {
                 type: 'item'
@@ -1998,15 +1978,9 @@ exports.new_rules=[
                     id:"scapegoat"
                     defaultValue: 'on'
                     values: [
-                        {
-                            value:"on"
-                        }
-                        {
-                            value:"off"
-                        }
-                        {
-                            value:"no"
-                        }
+                        "on"
+                        "off"
+                        "no"
                     ]
             }
             {
@@ -2053,8 +2027,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"will"
                     defaultChecked: true
-                    value:
-                        value:"die"
+                    value:"die"
             }
             {
                 type: 'item'
@@ -2063,16 +2036,10 @@ exports.new_rules=[
                     id:"heavenview"
                     defaultValue: 'norevive'
                     values:[
-                        {
-                            # ""なのは歴史的経緯
-                            value:"view"
-                        }
-                        {
-                            value:"norevive"
-                        }
-                        {
-                            value:""
-                        }
+                        "view"
+                        "norevive"
+                        # ""なのは歴史的経緯
+                        ""
                     ]
             }
             {
@@ -2080,16 +2047,14 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"votemyself"
-                    value:
-                        value:"ok"
+                    value:"ok"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"voteresult"
-                    value:
-                        value:"hide"
+                    value:"hide"
             }
             {
                 type: 'item'
@@ -2106,15 +2071,9 @@ exports.new_rules=[
                     id:"safety"
                     defaultValue: 'full'
                     values:[
-                        {
-                            value:"full"
-                        }
-                        {
-                            value:"no"
-                        }
-                        {
-                            value:"free"
-                        }
+                        "full"
+                        "no"
+                        "free"
                     ]
             }
             {
@@ -2127,16 +2086,14 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"noticebitten"
-                    value:
-                        value:"notice"
+                    value:"notice"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"GMpsychic"
-                    value:
-                        value:"on"
+                    value:"on"
             }
             {
                 type: 'item'
@@ -2156,15 +2113,9 @@ exports.new_rules=[
                     id:"runoff"
                     defaultValue: 'no'
                     values:[
-                        {
-                            value:"no"
-                        }
-                        {
-                            value:"revote"
-                        }
-                        {
-                            value:"yes"
-                        }
+                        "no"
+                        "revote"
+                        "yes"
                     ]
             }
             {
@@ -2174,18 +2125,10 @@ exports.new_rules=[
                     id:"drawvote"
                     defaultValue: 'revote'
                     values:[
-                        {
-                            value:"revote"
-                        }
-                        {
-                            value:"random"
-                        }
-                        {
-                            value:"none"
-                        }
-                        {
-                            value:"all"
-                        }
+                        "revote"
+                        "random"
+                        "none"
+                        "all"
                     ]
             }
             {
@@ -2201,16 +2144,10 @@ exports.new_rules=[
                     id:"yaminabe_hidejobs"
                     defaultValue: ''
                     values:[
-                        {
-                            # ""なのは歴史的経緯
-                            value:""
-                        }
-                        {
-                            value:"team"
-                        }
-                        {
-                            value:"2"
-                        }
+                        # ""なのは歴史的経緯
+                        ""
+                        "team"
+                        "2"
                     ]
             }
             {
@@ -2218,24 +2155,21 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"losemode"
-                    value:
-                        value:"on"
+                    value:"on"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"rolerequest"
-                    value:
-                        value:"on"
+                    value:"on"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"chemical"
-                    value:
-                        value:"on"
+                    value:"on"
             }
         ]
     }
@@ -2257,16 +2191,14 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"wolfsound"
                     defaultChecked: true
-                    value:
-                        value:"aloud"
+                    value:"aloud"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"wolfattack"
-                    value:
-                        value:"ok"
+                    value:"ok"
             }
         ]
     }
@@ -2289,12 +2221,8 @@ exports.new_rules=[
                     id:"divineresult"
                     defaultValue: 'sunrise'
                     values:[
-                        {
-                            value:"immediate"
-                        }
-                        {
-                            value:"sunrise"
-                        }
+                        "immediate"
+                        "sunrise"
                     ]
             }
             {
@@ -2304,12 +2232,8 @@ exports.new_rules=[
                     id:"firstnightdivine"
                     defaultValue: 'manual'
                     values:[
-                        {
-                            value:"auto"
-                        }
-                        {
-                            value:"manual"
-                        }
+                        "auto"
+                        "manual"
                     ]
             }
         ]
@@ -2330,12 +2254,8 @@ exports.new_rules=[
                     id:"psychicresult"
                     defaultValue: 'sunrise'
                     values:[
-                        {
-                            value:"sunset"
-                        }
-                        {
-                            value:"sunrise"
-                        }
+                        "sunset"
+                        "sunrise"
                     ]
             }
         ]
@@ -2354,9 +2274,7 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"couplesound"
-                    value:{
-                        value:"aloud"
-                    }
+                    value:"aloud"
             }
         ]
     }
@@ -2377,16 +2295,14 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"guardmyself"
-                    value:
-                        value:"ok"
+                    value:"ok"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"gjmessage"
-                    value:
-                        value:"on"
+                    value:"on"
             }
             {
                 type: 'item'
@@ -2395,12 +2311,8 @@ exports.new_rules=[
                     id:"consecutiveguard"
                     defaultValue: 'yes'
                     values:[
-                        {
-                            value:"yes"
-                        }
-                        {
-                            value:"no"
-                        }
+                        "yes"
+                        "no"
                     ]
             }
         ]
@@ -2419,8 +2331,7 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"deadfox"
-                    value:
-                        value:"obvious"
+                    value:"obvious"
             }
         ]
     }
@@ -2440,12 +2351,8 @@ exports.new_rules=[
                     id:"hunter_lastattack"
                     defaultValue: 'yes'
                     values:[
-                        {
-                            value:"yes"
-                        }
-                        {
-                            value:"no"
-                        }
+                        "yes"
+                        "no"
                     ]
             }
         ]
@@ -2466,12 +2373,8 @@ exports.new_rules=[
                     id: "poisonwolf"
                     defaultValue: 'selector'
                     values:[
-                        {
-                            value: "selector"
-                        }
-                        {
-                            value: ""
-                        }
+                        "selector"
+                        ""
                     ]
             }
         ]
@@ -2495,12 +2398,8 @@ exports.new_rules=[
                     id:"friendsjudge"
                     defaultValue: 'alive'
                     values:[
-                        {
-                            value:"alive"
-                        }
-                        {
-                            value:"ruin"
-                        }
+                        "alive"
+                        "ruin"
                     ]
             }
             {
@@ -2509,8 +2408,7 @@ exports.new_rules=[
                     type:"checkbox"
                     id:"friendssplit"
                     defaultChecked: true
-                    value:
-                        value:"split"
+                    value:"split"
             }
         ]
     }
@@ -2528,12 +2426,8 @@ exports.new_rules=[
                     id:"quantumwerewolf_table"
                     defaultValue: 'open'
                     values:[
-                        {
-                            value:"open"
-                        }
-                        {
-                            value:"anonymous"
-                        }
+                        "open"
+                        "anonymous"
                     ]
             }
             {
@@ -2541,24 +2435,21 @@ exports.new_rules=[
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_dead"
-                    value:
-                        value:"no"
+                    value:"no"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_diviner"
-                    value:
-                        value:"on"
+                    value:"on"
             }
             {
                 type: 'item'
                 value:
                     type:"checkbox"
                     id:"quantumwerewolf_firstattack"
-                    value:
-                        value:"on"
+                    value:"on"
             }
         ]
     }

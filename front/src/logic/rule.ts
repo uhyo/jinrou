@@ -114,7 +114,7 @@ function getRuleValue(
         case 'checkbox':
         case 'hidden':
             {
-            if (value === rule.value.value) {
+            if (value === rule.value) {
                 // checked
                 return t(`rules:rule.${rule.id}.yes`);
             } else {

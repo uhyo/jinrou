@@ -78,7 +78,7 @@ export class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {
             value,
         } = this.props;
 
-        const checked = value === item.value.value;
+        const checked = value === item.value;
         const {name, label} = getRuleName(t, item.id);
 
         return (<RuleWrapper>
@@ -94,7 +94,7 @@ export class CheckboxControl extends React.PureComponent<IPropCheckboxControl, {
     }
     @bind
     protected handleChange(e: React.SyntheticEvent<HTMLInputElement>) {
-        this.props.onChange(e.currentTarget.checked ? this.props.item.value.value : '');
+        this.props.onChange(e.currentTarget.checked ? this.props.item.value : '');
     }
 }
 
@@ -161,12 +161,12 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
                     onChange={this.handleChange}
                 >{
                     item.values.map((v)=> {
-                        const label = t(`rules:rule.${item.id}.labels.${v.value}`);
-                        const description = t(`rules:rule.${item.id}.descriptions.${v.value}`);
+                        const label = t(`rules:rule.${item.id}.labels.${v}`);
+                        const description = t(`rules:rule.${item.id}.descriptions.${v}`);
                         return (<option
-                            key={v.value}
+                            key={v}
                             title={description}
-                            value={v.value}
+                            value={v}
                         >{label}</option>);
                     })
                 }</select>

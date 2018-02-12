@@ -34,31 +34,14 @@ export interface GetstrResult {
 
 export interface SelectRule extends RuleDefinitionBase {
     type: 'select';
-    values: SelectValue[];
+    values: string[];
     defaultValue: string;
-}
-export interface SelectValue {
-    value: string;
 }
 
 export interface CheckboxRule extends RuleDefinitionBase {
     type: 'checkbox';
-    value: CheckboxValue;
-    defaultChecked?: boolean;
-}
-export interface CheckboxValue {
-    /**
-     * Value of checkbox.
-     */
     value: string;
-    /**
-     * Label expressing the meaning of setting this true.
-     */
-    label: string;
-    /**
-     * Label of false.
-     */
-    nolabel?: string;
+    defaultChecked?: boolean;
 }
 
 export interface TimeRule extends RuleDefinitionBase {
@@ -73,7 +56,7 @@ export interface Separator {
 
 export interface HiddenRule extends RuleDefinitionBase {
     type: 'hidden';
-    value: CheckboxValue;
+    value: string;
 }
 
 export interface IntegerRule extends RuleDefinitionBase {
