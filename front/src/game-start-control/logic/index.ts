@@ -84,8 +84,8 @@ export async function gameStart({
             }
         }
     }
-
-    return undefined;
+    // Query is verified to pass.
+    return query;
 }
 
 /**

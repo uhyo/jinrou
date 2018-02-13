@@ -230,13 +230,18 @@ export class Casting extends React.Component<IPropCasting, {}> {
             categories,
             ruledefs,
             store,
+            onStart,
         } = this.props;
-        await gameStart({
+        const query = await gameStart({
             i18n: this.props.i18n,
             roles,
             categories,
             ruledefs,
             store,
         });
+
+        if (query != null) {
+            onStart(query);
+        }
     }
 }

@@ -278,7 +278,6 @@ exports.start=(roomid)->
                             # TODO
                             console.log 'newquery', query
                     }
-                    # XXX players number is not updated!
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
                 ).catch((err)->
                     console.error err)

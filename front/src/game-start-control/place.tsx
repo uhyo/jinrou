@@ -136,12 +136,12 @@ function setInitialRules(rules: RuleGroup, store: CastingStore): void {
             } = rule;
             switch (value.type) {
                 case 'checkbox': {
-                    const v = value.defaultChecked ? value.value.value : '';
+                    const v = value.defaultChecked ? value.value : '';
                     store.updateRule(value.id, v);
                     break;
                 }
                 case 'hidden': {
-                    store.updateRule(value.id, value.value.value);
+                    store.updateRule(value.id, value.value);
                     break;
                 }
                 case 'integer': {
