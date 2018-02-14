@@ -16,6 +16,7 @@ i18next
     // TODO language
     fallbackLng: 'ja',
     ns: [
+        'common',
         'roles',
         'game_client',
         'rules',
@@ -39,6 +40,22 @@ export function forLanguage(lng: string): i18next.i18n {
         }
     });
     return res;
+}
+
+/**
+ * Get an instance of i18next with specified language loaded.
+ */
+export function getI18nFor(lng: string): Promise<i18next.i18n> {
+    return new Promise((resolve, reject)=> {
+        const res = i18next.cloneInstance();
+        res.changeLanguage(lng, (err)=> {
+            if (err != null){
+                reject(err);
+            } else {
+                resolve(res);
+            }
+        });
+    });
 }
 
 /**

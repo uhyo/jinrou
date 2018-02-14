@@ -11,6 +11,7 @@ import {
 } from '../util/with-ids';
 
 import {
+    IMessageDialog,
     IConfirmDialog,
 } from './defs';
 
@@ -121,6 +122,53 @@ const DialogBase = styled(DialogBaseInner)`
         max-width: 60vh;
     }
 `;
+
+export interface IPropMessageDialog extends IMessageDialog {
+    onClose(): void;
+}
+
+/**
+ * Message Dialog.
+ */
+export class MessageDialog extends React.PureComponent<IPropMessageDialog, {}> {
+    protected button: HTMLElement | undefined;
+    public render() {
+        const {
+            title,
+            modal,
+            message,
+            ok,
+        } = this.props;
+
+        return (<DialogWrapper
+            modal={modal}
+        >
+            <DialogBase
+                title={title}
+            >
+                <p>{message}</p>
+                <Buttons>
+                    <YesButton
+                        onClick={this.handleClick}
+                        innerRef={e=> this.button=e}
+                    >
+                        {ok}
+                    </YesButton>
+                </Buttons>
+            </DialogBase>
+        </DialogWrapper>);
+    }
+    public componentDidMount() {
+        // focus on a close button
+        if (this.button != null) {
+            this.button.focus();
+        }
+    }
+    @bind
+    protected handleClick() {
+        this.props.onClose();
+    }
+}
 
 
 export interface IPropConfirmDialog extends IConfirmDialog {

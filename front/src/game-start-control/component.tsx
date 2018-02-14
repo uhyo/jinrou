@@ -15,6 +15,7 @@ import {
 } from '../common/button';
 import {
     showConfirmDialog,
+    showMessageDialog,
 } from '../dialog';
 import {
     CastingDefinition,

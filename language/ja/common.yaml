@@ -1,6 +1,14 @@
 # Common language fragments.
 error:
+  # Common heading indicating error.
+  error: "エラー"
   # You need to log in.
   needLogin: "ログインしてください。"
   # Input is invalid.
   invalidInput: "入力が不正です。"
+
+# Message dialog.
+messageDialog:
+  # close button.
+  close: "閉じる"
+

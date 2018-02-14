@@ -275,8 +275,25 @@ exports.start=(roomid)->
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
                         onStart: (query)->
-                            # TODO
                             console.log 'newquery', query
+                            ss.rpc "game.game.gameStart", roomid, query, (result)->
+                                if result?
+                                    JinrouFront
+                                        .loadDialog()
+                                        .then (d)->
+                                            JinrouFront.loadI18n()
+                                                # TODO
+                                                .then((i18n)-> i18n.getI18nFor('ja'))
+                                                .then (i18n)->
+                                                    d.showMessageDialog {
+                                                        modal: true
+                                                        title: i18n.t 'common:error.error'
+                                                        message: String result
+                                                        ok: i18n.t 'common:messageDialog.close'
+                                                    }
+                                else
+                                    game_start_control.unmount()
+                                    $("#gamestartsec").attr "hidden", "hidden"
                     }
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length
                 ).catch((err)->
@@ -826,7 +843,6 @@ exports.start=(roomid)->
                     starting()
             # じっさいに開始
             starting=->
-                console.log 'query', query
                 ss.rpc "game.game.gameStart", roomid,query,(result)->
                     if result?
                         Index.util.message "ルーム",result
