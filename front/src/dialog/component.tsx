@@ -42,6 +42,10 @@ const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
 interface IPropDialogBase {
     className?: string;
     title?: string;
+    /**
+     * Handler of canceling the dialog.
+     */
+    onCancel?(): void;
 }
 
 const Title = styled.div`
@@ -110,6 +114,20 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
             }
             </WithRandomIds>);
     }
+    public componentDidMount() {
+        // handle pressing escape key.
+        document.addEventListener('keydown', this.keyDownHandler, false);
+    }
+    public componentWillUnmount() {
+        document.removeEventListener('keydown', this.keyDownHandler, false);
+    }
+    @bind
+    protected keyDownHandler(e: KeyboardEvent) {
+        // if Escape key is pressed, cancel the dialog.
+        if (e.key === 'Escape' && this.props.onCancel) {
+            this.props.onCancel();
+        }
+    }
 }
 
 const DialogBase = styled(DialogBaseInner)`
@@ -145,6 +163,7 @@ export class MessageDialog extends React.PureComponent<IPropMessageDialog, {}> {
         >
             <DialogBase
                 title={title}
+                onCancel={this.handleClick}
             >
                 <p>{message}</p>
                 <Buttons>
@@ -192,6 +211,7 @@ export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
         >
             <DialogBase
                 title={title}
+                onCancel={this.handleNoClick}
             >
                 <p>{message}</p>
                 <Buttons>
