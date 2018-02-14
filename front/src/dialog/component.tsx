@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled, {
+    keyframes,
     withProps,
 } from '../util/styled';
 
@@ -20,6 +21,19 @@ interface IPropDialogWrapper {
 }
 
 /**
+ * Keyframes for dialogs.
+ */
+const opacityAnimation = keyframes`
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+`;
+
+
+/**
  * Wrapper of dialog.
  */
 const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
@@ -37,6 +51,8 @@ const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
+
+    animation: ${opacityAnimation} ease-out 0.1s;
 `;
 
 interface IPropDialogBase {
