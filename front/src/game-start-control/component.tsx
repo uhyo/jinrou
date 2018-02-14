@@ -120,7 +120,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
             min = undefined,
             max = undefined,
         } = currentCasting.suggestedPlayersNumber || {};
-        const minReq = Math.max(min || -Infinity, store.requiredNumber);
+        const minReq = Math.max(min || -Infinity, store.requiredPlayersNumber);
             
         // Specialized generic component.
         const SLG: ReactCtor<IPropSelectLabeledGroup<CastingDefinition, string>, {}> = SelectLabeledGroup;

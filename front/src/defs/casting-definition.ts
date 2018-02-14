@@ -30,6 +30,7 @@ export interface CastingDefinition {
      * Whether to use category query.
      */
     category?: boolean;
+
     /**
      * Function to define this casting.
      */

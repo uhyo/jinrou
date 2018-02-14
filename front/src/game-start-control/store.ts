@@ -88,52 +88,51 @@ export class CastingStore {
             0;
         return this.actualPlayersNumber + npc;
     }
-
     /**
-     * Calculated number of jobs.
+     * Computed sum of role assignments.
      */
     @computed
-    public get jobNumbers(): Record<string, number> {
+    protected get rolesNumber(): number {
+        // Normally, one role per player.
+        let result = this.playersNumber;
+        // But when the game is chemical, two roles per player.
+        if (this.rules.get('chemical') === 'on') {
+            // XXX it depends on definition of rules!
+            result *= 2;
+        }
+        return result;
+    }
+
+    /**
+     * Role sets required by casting.
+     */
+    @computed
+    protected get castingJobNumbers(): Record<string, number> {
         const {
             preset,
-            noFill,
         } = this.currentCasting;
         if (preset != null) {
-            const res = preset(this.playersNumber);
-            let total = 0;
-            for (const key in res) {
-                total += res[key];
-            }
-            if (!noFill) {
-                // Human
-                res.Human = Math.max(0, (res.Human || 0) + (this.playersNumber - total));
-            }
-            return res;
+            return preset(this.playersNumber);
         } else {
             const result: Record<string, number> = {};
-            let total = 0;
             for (const [key, value] of this.userJobNumbers) {
                 result[key] = value;
-                total += value;
-            }
-            if (!noFill) {
-                result.Human = Math.max(0, (result.Human || 0) + (this.playersNumber - total));
             }
             return result;
         }
     }
     /**
-     * Calculated required number of jobs.
+     * Calculated required number of players.
      */
     @computed
-    public get requiredNumber(): number {
+    public get requiredPlayersNumber(): number {
         const {
-            jobNumbers,
+            castingJobNumbers,
             categoryNumbers,
         } = this;
         let result = 0;
-        for (const key in jobNumbers) {
-            const v = jobNumbers[key];
+        for (const key in castingJobNumbers) {
+            const v = castingJobNumbers[key];
             if (v) {
                 result += v;
             }
@@ -141,7 +140,35 @@ export class CastingStore {
         for (const [, v] of categoryNumbers) {
             result += v;
         }
+        // If chemical, required players number is adjusted.
+        result = Math.ceil(result * this.playersNumber / this.rolesNumber);
         return result;
+    }
+
+    /**
+     * Calculated number of jobs.
+     */
+    @computed
+    public get jobNumbers(): Record<string, number> {
+        const {
+            castingJobNumbers,
+            currentCasting: {
+                noFill,
+            },
+        } = this;
+        const res: Record<string, number> = {};
+
+        let total = 0;
+        // copy to res, counting total number of requested jobs.
+        for (const key in castingJobNumbers) {
+            res[key] = castingJobNumbers[key];
+            total += res[key];
+        }
+        if (!noFill) {
+            // Remaining players are filled with Humans.
+            res.Human = Math.max(0, (res.Human || 0) + (this.rolesNumber - total));
+        }
+        return res;
     }
     /**
      * Computed complete rule object.
