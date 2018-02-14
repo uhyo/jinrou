@@ -21,6 +21,8 @@ export function checkSuggestion(
     if (typeof suggestion === 'string') {
         // String suggestion.
         return ruleValue === suggestion;
+    } else if (suggestion.type === 'string') {
+        return ruleValue === suggestion.value;
     } else if (suggestion.type === 'range') {
         // Range suggestion.
         const v = Number(ruleValue);
@@ -37,6 +39,7 @@ export function checkSuggestion(
     }
     // XXX https://github.com/Microsoft/TypeScript/issues/16976
     // https://github.com/Microsoft/TypeScript/issues/16976
+    const n: never = suggestion;
     throw new Error('Unreachable');
 }
 

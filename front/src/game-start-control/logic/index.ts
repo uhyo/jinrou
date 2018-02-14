@@ -98,20 +98,22 @@ function suggestionMessage(
 ): string {
     const t = i18n.t.bind(i18n);
 
-    let lbl;
-    let sug;
-    if ('string' === typeof suggestion) {
-        // get a rulestring for this suggestion.
-        const {
-            label,
-            value,
-        } = getRuleExpression(t, rule, suggestion);
+    let lbl: string;
+    let sug: string;
+    switch (suggestion.type) {
+        case 'string': {
+            // get a rulestring for this suggestion.
+            const {
+                label,
+                value,
+            } = getRuleExpression(t, rule, suggestion.value);
 
-        lbl = label;
-        sug = i18n.t('game_client:gamestart.confirm.ruleSuggestion.valueSuggestion', {
-            value,
-        });
-    } else switch (suggestion.type) {
+            lbl = label;
+            sug = i18n.t('game_client:gamestart.confirm.ruleSuggestion.valueSuggestion', {
+                value,
+            });
+            break;
+        }
         case 'range': {
             const {
                 min,
@@ -142,6 +144,12 @@ function suggestionMessage(
                 sug = '';
             }
             break;
+        }
+        default: {
+            // XXX
+            const n: never = suggestion;
+            lbl = n;
+            sug = n;
         }
     }
     return i18n.t('game_client:gamestart.confirm.ruleSuggestion.message', {

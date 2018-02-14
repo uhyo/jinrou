@@ -57,10 +57,17 @@ export type PresetFunction = (players: number)=> Record<string, number>;
 /**
  * Suggestion of an option.
  */
-export type OptionSuggestion = string | RangeOptionSuggestion;
+export type OptionSuggestion = StringOptionSuggestion | RangeOptionSuggestion;
 
 /**
- * Suggestion of number option/
+ * Suggestion of string-valued option.
+ */
+export interface StringOptionSuggestion {
+    type: 'string';
+    value: string;
+}
+/**
+ * Suggestion of number option.
  */
 export interface RangeOptionSuggestion {
     type: 'range';

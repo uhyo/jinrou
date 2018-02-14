@@ -770,14 +770,6 @@ exports.start=(roomid)->
     forminfo=()->
         number = room.players.length
         game_start_control?.store.setPlayersNumber number
-        # TODO
-        ###
-        if form.elements["chemical"]?.checked
-            # chemical人狼では村人を足す
-            form.elements["Human"].value = number*2 - count
-        else
-            form.elements["Human"].value = number-count
-        ###
     # ルールの表示具合をチェックする
     # TODO
     ###
@@ -1263,7 +1255,7 @@ getLabeledGroupsOfJobrules = ()->
                             label: obj.title
                             roleSelect: false
                             preset: obj.rule
-                            suggestedOptions: obj.suggestedOption
+                            suggestedOptions: convertSuggestedOption obj.suggestedOption
                             suggestedPlayersNumber:
                                 if obj.minNumber?
                                     {
@@ -1330,3 +1322,14 @@ getLabeledGroupsOfJobrules = ()->
         ]
     }
     res
+# Convert suggestedOption to OptionSuggestion.
+convertSuggestedOption = (obj)->
+    result = {}
+    for key, value of obj
+        if 'string' == typeof value
+            result[key] =
+                type: 'string'
+                value: value
+        else
+            result[key] = value
+    return result
