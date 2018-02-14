@@ -39,6 +39,8 @@ export function showConfirmDialog(d: IConfirmDialog): Promise<boolean> {
                 {...d}
                 onSelect={close}
             />);
+
+            open(dialog);
         });
 }
 
