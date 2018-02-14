@@ -74,9 +74,6 @@ exports.start=(roomid)->
             Index.util.message "ルーム","そのルームは存在しません。"
             Index.app.showUrl "/rooms"
             return
-        # フォームを修正する
-        forminfo=->
-            setplayersnumber room,$("#gamestart").get(0), room.players.filter((x)->x.mode=="player").length
         # 今までのログを送ってもらう
         this_icons={}
         this_logdata={}
@@ -299,123 +296,8 @@ exports.start=(roomid)->
                 ).catch((err)->
                     console.error err)
 
-            form=$("#gamestart").get 0
-            # ルール設定保存を参照する
-            # ルール画面を構築するぞーーー(idx: グループのアレ)
-            buildrules=(arr,parent)->
-                p=null
-                for obj,idx in arr
-                    if obj.rules
-                        # グループだ
-                        if p && !p.get(0).hasChildNodes()
-                            # 空のpは要らない
-                            p.remove()
-                        fieldset=$ "<fieldset>"
-                        
-                        pn=parent.attr("name") || ""
-                        fieldset.attr "name","#{pn}.#{idx}"
-                        if obj.label
-                            fieldset.append $ "<legend>#{obj.label}</legend>"
-                        buildrules obj.rules,fieldset
-                        parent.append fieldset
-                        p=null
-                    else
-                        # ひとつの設定だ
-                        if obj.type=="separator"
-                            # pの区切り
-                            p=$ "<p>"
-                            p.appendTo parent
-                            continue
-                        unless p?
-                            p=$ "<p>"
-                            p.appendTo parent
-                        label=$ "<label>"
-                        if obj.title
-                            label.attr "title",obj.title
-                        unless obj.backlabel
-                            if obj.type!="hidden"
-                                label.text obj.label
-                        switch obj.type
-                            when "checkbox"
-                                input=$ "<input>"
-                                input.attr "type","checkbox"
-                                input.attr "name",obj.name
-                                input.attr "value",obj.value.value
-                                input.prop "checked",!!obj.value.checked
-                                label.append input
-                            when "select"
-                                select=$ "<select>"
-                                select.attr "name",obj.name
-                                slv=null
-                                for o in obj.values
-                                    op=$ "<option>"
-                                    op.text o.label
-                                    if o.title
-                                        op.attr "title",o.title
-                                    op.attr "value",o.value
-                                    select.append op
-                                    if o.selected
-                                        slv=o.value
-                                if slv?
-                                    select.get(0).value=slv
-                                label.append select
-                            when "time"
-                                input=$ "<input>"
-                                input.attr "type","number"
-                                input.attr "name",obj.name.minute
-                                input.attr "min","0"
-                                input.attr "step","1"
-                                input.attr "size","5"
-                                input.attr "value",String obj.defaultValue.minute
-                                label.append input
-                                label.append document.createTextNode "分"
-                                input.change ()->
-                                    if(Number($(this).val()) < 0)
-                                        $(this).val(0)
-
-                                input=$ "<input>"
-                                input.attr "type","number"
-                                input.attr "name",obj.name.second
-                                input.attr "min","-1"
-                                input.attr "max","60"
-                                input.attr "step","1"
-                                input.attr "size","5"
-                                input.attr "value",String obj.defaultValue.second
-                                label.append input
-                                label.append document.createTextNode "秒"
-                                input.change ()->
-                                    if(Number($(this).val()) >= 60)
-                                        $(this).val(0)
-                                        $(this).prev().val(Number($(this).prev().val())+1)
-                                        $(this).prev().change()
-                                    else if(Number($(this).val()) < 0)
-                                        $(this).val(59)
-                                        $(this).prev().val(Number($(this).prev().val())-1)
-                                        $(this).prev().change()
-                            when "hidden"
-                                input=$ "<input>"
-                                input.attr "type","hidden"
-                                input.attr "name",obj.name
-                                input.attr "value",obj.value.value
-                                label.append input
-                            when "second"
-                                input=$ "<input>"
-                                input.attr "type","number"
-                                input.attr "name",obj.name
-                                input.attr "min","0"
-                                input.attr "step","1"
-                                input.attr "size","5"
-                                input.attr "value",obj.defaultValue.value
-                                label.append input
-                        if obj.backlabel
-                            if obj.type!="hidden"
-                                label.append document.createTextNode obj.label
-                        p.append label
-
-
-            $("#rules").attr "name","rule"
-            buildrules Shared.game.rules,$("#rules")
-            if localStorage.savedRule
+            # TODO
+            if false && localStorage.savedRule
                 rule=JSON.parse localStorage.savedRule
                 jobs = rule._jobquery
                 unless jobs?
@@ -461,8 +343,6 @@ exports.start=(roomid)->
                             e.checked = jobs["job_use_#{job}"] == "on"
 
             $("#gamestartsec").removeAttr "hidden"
-
-            forminfo()
 
         $("#roomname").text room.name
         roomnumber = document.createElement 'span'
@@ -602,198 +482,6 @@ exports.start=(roomid)->
                                 if result?
                                     Index.util.message "エラー",result
 
-                # 役職入力フォームを作る
-                (()=>
-                    # job -> cat と job -> team を作る
-                    catTable = {}
-                    teamTable = {}
-
-                    dds = {}
-                    for category,members of Shared.game.categories
-                        # HTML
-                        dt = document.createElement "dt"
-                        dt.textContent = Shared.game.categoryNames[category]
-                        dt.classList.add "jobs-cat"
-                        dd = dds[category] = document.createElement "dd"
-                        dd.classList.add "jobs-cat"
-                        $("#jobsfield").append(dt).append(dd)
-                        # table
-                        for job in members
-                            catTable[job] = category
-
-                    dt = document.createElement "dt"
-                    dt.classList.add "jobs-cat"
-                    dt.textContent = "その他"
-                    dd = dds["*"] = document.createElement "dd"
-                    dd.classList.add "jobs-cat"
-                    # その他は今の所ない
-                    # $("#jobsfield").append(dt).append(dd)
-
-                    # table
-                    for team,members of Shared.game.teams
-                        for job in members
-                            teamTable[job] = team
-
-                    for job in Shared.game.jobs
-                        # 探す
-                        dd = $(dds[catTable[job] ? "*"])
-                        team = teamTable[job]
-                        continue unless team?
-                        ji = Shared.game.jobinfo[team][job]
-
-                        div = document.createElement "div"
-                        div.classList.add "jobs-job"
-                        div.dataset.job = job
-                        b = document.createElement "b"
-                        span = document.createElement "span"
-                        span.textContent = ji.name
-                        b.appendChild span
-                        b.insertAdjacentHTML "beforeend", "<a class='jobs-job-help' href='/manual/job/#{job}'><i class='fa fa-question-circle-o'></i></a>"
-                        span = document.createElement "span"
-                        span.classList.add "jobs-job-controls"
-
-                        if job == "Human"
-                            # 村人は違う処理
-                            output = document.createElement "output"
-                            output.name = job
-                            output.dataset.jobname = ji.name
-                            output.classList.add "jobs-job-controls-number"
-                            span.appendChild output
-                            check = document.createElement "input"
-                            check.type = "hidden"
-                            check.name = "job_use_#{job}"
-                            check.value = "on"
-                            span.appendChild check
-                        else
-                            # 使用チェック
-                            check = document.createElement "input"
-                            check.type = "checkbox"
-                            check.checked = true
-                            check.name = "job_use_#{job}"
-                            check.value = "on"
-                            check.classList.add "jobs-job-controls-check"
-                            check.title = "チェックを外すと、一部闇鍋で#{ji.name}が出現しなくなります。"
-                            span.appendChild check
-                            # 人数
-                            span2 = document.createElement "span"
-                            span2.classList.add "jobs-job-controls-number-span"
-                            input = document.createElement "input"
-                            input.type = "number"
-                            input.min = 0
-                            input.step = 1
-                            input.value = 0
-                            input.name = job
-                            input.dataset.jobname = ji.name
-                            input.classList.add "jobs-job-controls-number"
-                            span2.appendChild input
-
-                            # plus / minus button
-                            button1 = document.createElement "button"
-                            button1.type = "button"
-                            button1.classList.add "jobs-job-controls-button"
-                            ic1 = document.createElement "i"
-                            ic1.classList.add "fa"
-                            ic1.classList.add "fa-plus-square"
-                            button1.appendChild ic1
-                            button1.addEventListener 'click', ((job)-> (e)->
-                                # plus 1
-                                form = e.currentTarget.form
-                                num = form.elements[job]
-                                v = parseInt(num.value)
-                                num.value = String(v + 1)
-                                jobsformvalidate room, form
-                            )(job)
-
-                            button2 = document.createElement "button"
-                            button2.type = "button"
-                            button2.classList.add "jobs-job-controls-button"
-                            ic2 = document.createElement "i"
-                            ic2.classList.add "fa"
-                            ic2.classList.add "fa-minus-square"
-                            button2.appendChild ic2
-                            button2.addEventListener 'click', ((job)-> (e)->
-                                # plus 1
-                                form = e.currentTarget.form
-                                num = form.elements[job]
-                                v = parseInt(num.value)
-                                if v > 0
-                                    num.value = String(v - 1)
-                                    jobsformvalidate room, form
-                            )(job)
-
-                            span.appendChild span2
-                            span.appendChild button1
-                            span.appendChild button2
-                        div.appendChild b
-                        div.appendChild span
-                        dd.append div
-                    # カテゴリ別のも用意しておく
-                    dt = document.createElement "dt"
-                    dt.classList.add "jobs-cat"
-                    dt.textContent = "一部闇鍋用"
-                    dd = document.createElement "dd"
-                    dd.classList.add "jobs-cat"
-                    for type,name of Shared.game.categoryNames
-                        div = document.createElement "div"
-                        div.classList.add "jobs-job"
-                        div.dataset.job = "category_#{type}"
-                        b = document.createElement "b"
-                        span = document.createElement "span"
-                        span.textContent = name
-                        b.appendChild span
-                        span = document.createElement "span"
-                        span.classList.add "jobs-job-controls"
-
-                        input = document.createElement "input"
-                        input.type = "number"
-                        input.min = 0
-                        input.step = 1
-                        input.value = 0
-                        input.name = "category_#{type}"
-                        input.dataset.jobname = name
-                        input.classList.add "jobs-job-controls-number"
-                        # plus / minus button
-                        button1 = document.createElement "button"
-                        button1.type = "button"
-                        button1.classList.add "jobs-job-controls-button"
-                        ic1 = document.createElement "i"
-                        ic1.classList.add "fa"
-                        ic1.classList.add "fa-plus-square"
-                        button1.appendChild ic1
-                        button1.addEventListener 'click', ((type)-> (e)->
-                            # plus 1
-                            form = e.currentTarget.form
-                            num = form.elements["category_#{type}"]
-                            v = parseInt(num.value)
-                            num.value = String(v + 1)
-                            jobsformvalidate room, form
-                        )(type)
-
-                        button2 = document.createElement "button"
-                        button2.type = "button"
-                        button2.classList.add "jobs-job-controls-button"
-                        ic2 = document.createElement "i"
-                        ic2.classList.add "fa"
-                        ic2.classList.add "fa-minus-square"
-                        button2.appendChild ic2
-                        button2.addEventListener 'click', ((type)-> (e)->
-                            # plus 1
-                            form = e.currentTarget.form
-                            num = form.elements["category_#{type}"]
-                            v = parseInt(num.value)
-                            if v > 0
-                                num.value = String(v - 1)
-                                jobsformvalidate room, form
-                        )(type)
-
-                        span.appendChild input
-                        span.appendChild button1
-                        span.appendChild button2
-                        div.appendChild b
-                        div.appendChild span
-                        dd.appendChild div
-                    $("#catesfield").append(dt).append(dd)
-                )()
             if room.owner.userid==Index.app.userid() || room.old
                 b=makebutton "この部屋を廃村にする"
                 $("#playersinfo").append b
@@ -803,76 +491,7 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
-
-
-        form=$("#gamestart").get 0
-        # ゲーム開始フォームが何か変更されたら呼ばれる関数
-        jobsforminput=(e)->
-            t=e.target
-            form=t.form
-            pl=room.players.filter((x)->x.mode=="player").length
-            if t.name=="jobrule" || t.name=="chemical"
-                # ルール変更があった
-                resetplayersinput room, form
-                setplayersbyjobrule room,form,pl
-            jobsformvalidate room,form
-        form.addEventListener "input",jobsforminput,false
-        form.addEventListener "change",jobsforminput,false
                 
-                
-        $("#gamestart").submit (je)->
-            # いよいよゲーム開始だ！
-            je.preventDefault()
-            query=Index.util.formQuery je.target
-            jobrule=query.jobrule
-            ruleobj=Shared.game.getruleobj(jobrule) ? {}
-            # ステップ2: 時間チェック
-            step2=->
-                # 夜時間をチェック
-                minNight = ruleobj.suggestedNight?.min ? -Infinity
-                maxNight = ruleobj.suggestedNight?.max ? Infinity
-                night = parseInt(query.night_minute)*60+parseInt(query.night_second)
-                #console.log ruleobj,night,minNight,maxNight
-                if night<minNight || maxNight<night
-                    # 範囲オーバー
-                    Index.util.ask "オプション","この配役では夜の時間は#{if isFinite(minNight) then minNight+'秒以上' else ''}#{if isFinite(maxNight) then maxNight+'秒以下' else ''}が推奨されています。このまま開始してもいいですか？",(res)->
-                        if res
-                            #OKだってよ...
-                            starting()
-                else
-                    starting()
-            # じっさいに開始
-            starting=->
-                ss.rpc "game.game.gameStart", roomid,query,(result)->
-                    if result?
-                        Index.util.message "ルーム",result
-                    else
-                        $("#gamestartsec").attr "hidden","hidden"
-            # 相違がないか探す
-            diff=null
-            for key,value of (ruleobj.suggestedOption ? {})
-                if query[key]!=value
-                    diff=
-                        key:key
-                        value:value
-                    break
-            if diff?
-                control=je.target.elements[diff.key]
-                if control?
-                    sugval=null
-                    if control.type=="select-one"
-                        for opt in control.options
-                            if opt.value==diff.value
-                                sugval=opt.text
-                                break
-                        if sugval?
-                            Index.util.ask "オプション","この配役ではオプション「#{control.dataset.name}」を「#{sugval}」にすることが推奨されています。このまま開始してもいいですか？",(res)->
-                                if res
-                                    # OKだってよ...
-                                    step2()
-                            return
-            # とくに何もない
-            step2()
         speakform=$("#speakform").get 0
         $("#speakform").submit (je)->
             form=je.target
@@ -1146,214 +765,27 @@ exports.start=(roomid)->
             setcss()
         .click (je)->
             je.stopPropagation()
-    # 配役タイプ
-    setjobrule=(rulearr,names,parent)->
-        for obj in rulearr
-            # name,title, ruleをもつ
-            if obj.rule instanceof Array
-                # さらに子
-                optgroup=document.createElement "optgroup"
-                optgroup.label=obj.name
-                parent.appendChild optgroup
-                setjobrule obj.rule,names.concat([obj.name]),optgroup
-            else
-                # option
-                option=document.createElement "option"
-                option.textContent=obj.name
-                option.value=names.concat([obj.name]).join "."
-                option.title=obj.title
-                parent.appendChild option
-                
-    setjobrule Shared.game.jobrules.concat([
-        name:"特殊ルール"
-        rule:[
-            {
-                name:"自由配役"
-                title:"配役を自由に設定できます。"
-                rule:null
-            }
-            {
-                name:"闇鍋"
-                title:"配役がランダムに設定されます。"
-                rule:null
-            }
-            {
-                name:"一部闇鍋"
-                title:"一部の配役を固定して残りをランダムにします。"
-                rule:null
-            }
-            {
-                name:"量子人狼"
-                title:"全員の役職などが確率で表現される。村人・人狼・占い師のみ。"
-                rule:null
-                suggestedNight:{
-                    max:60
-                }
-            }
-            {
-                name:"エンドレス闇鍋"
-                title:"途中参加可能・死亡したらそのうち転生の闇鍋。"
-                rule:null
-                suggestedOption:{
-                    heavenview:""
-                }
-            }
-        ]
         
-    ]),[],$("#jobruleselect").get 0
-    
-        
-    setplayersnumber=(room,form,number)->
-        form.elements["number"].value=number
-        unless $("#gamestartsec").attr("hidden") == "hidden"
-            setplayersbyjobrule room,form,number
-            jobsformvalidate room,form
-    # 配役一覧をアレする
-    setplayersbyjobrule=(room,form,number)->
+    # プレイヤー一覧の情報を開始フォームに反映
+    forminfo=()->
+        number = room.players.length
         game_start_control?.store.setPlayersNumber number
-        jobrulename=form.elements["jobrule"].value
-        if form.elements["scapegoat"]?.value=="on"
-            number++    # 身代わりくん
-        if jobrulename in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]
-            j = $("#jobsfield").get 0
-            j.hidden=false
-            j.dataset.checkboxes = (if jobrulename!="特殊ルール.一部闇鍋" then "no" else "")
-            $("#catesfield").get(0).hidden= jobrulename!="特殊ルール.一部闇鍋"
-            #$("#yaminabe_opt_nums").get(0).hidden=true
-        else if jobrulename in ["特殊ルール.闇鍋","特殊ルール.エンドレス闇鍋"]
-            $("#jobsfield").get(0).hidden=true
-            $("#catesfield").get(0).hidden=true
-            #$("#yaminabe_opt_nums").get(0).hidden=false
+        # TODO
+        ###
+        if form.elements["chemical"]?.checked
+            # chemical人狼では村人を足す
+            form.elements["Human"].value = number*2 - count
         else
-            $("#jobsfield").get(0).hidden=true
-            $("#catesfield").get(0).hidden=true
-        if jobrulename=="特殊ルール.量子人狼"
-            jobrulename="内部利用.量子人狼"
-        obj= Shared.game.getrulefunc jobrulename
-        if obj?
-            form.elements["number"].value=number
-            for x in Shared.game.jobs
-                form.elements[x].value=0
-            jobs=obj number
-            count=0 #村人以外
-            for job,num of jobs
-                form.elements[job]?.value=num
-                count+=num
-            # カテゴリ別
-            for type of Shared.game.categoryNames
-                count+= parseInt(form.elements["category_#{type}"].value ? 0)
-            # 残りが村人の人数
-            if form.elements["chemical"]?.checked
-                # chemical人狼では村人を足す
-                form.elements["Human"].value = number*2 - count
-            else
-                form.elements["Human"].value = number-count
-
-        setjobsmonitor form,number
-    jobsformvalidate=(room,form)->
-        # 村人の人数を調節する
-        pl=room.players.filter((x)->x.mode=="player").length
-        if form.elements["scapegoat"].value=="on"
-            # 身代わりくん
-            pl++
-        sum=0
-        cjobs.forEach (x)->
-            chk = form.elements["job_use_#{x}"].checked
-            if chk
-                sum+=Number form.elements[x].value
-            else
-                form.elements[x].value = 0
-        # カテゴリ別
-        for type of Shared.game.categoryNames
-            sum+= parseInt(form.elements["category_#{type}"].value ? 0)
-        if form.elements["chemical"].checked
-            form.elements["Human"].value=pl*2-sum
-        else
-            form.elements["Human"].value=pl-sum
-        form.elements["number"].value=pl
-        setplayersinput room, form
-        setjobsmonitor form,pl
+            form.elements["Human"].value = number-count
+        ###
     # ルールの表示具合をチェックする
-    checkrule=(form,ruleobj,rules,fsetname)->
-        for obj,idx in rules
-            continue unless obj.rules
-            fsetname2="#{fsetname}.#{idx}"
-            form.elements[fsetname2].hidden=!(obj.visible ruleobj,ruleobj)
-            checkrule form,ruleobj,obj.rules,fsetname2
-    # ルールが変更されたときはチェックを元に戻す
-    resetplayersinput=(room, form)->
-        rule = form.elements["jobrule"].value
-        if rule != "特殊ルール.一部闇鍋"
-            checks = form.querySelectorAll 'input.jobs-job-controls-check[name^="job_use_"]'
-            for check in checks
-                check.checked = true
-    # フォームに応じてプレイヤーの人数inputの表示を調整
-    setplayersinput=(room, form)->
-        divs = document.querySelectorAll "div.jobs-job"
-        for div in divs
-            job = div.dataset.job
-            if job?
-                e = form.elements[job]
-                chk = form.elements["job_use_#{job}"]
-                if e?
-                    v = Number e.value
-                    if chk? && chk.type=="checkbox" && !chk.checked
-                        # 無効化されている
-                        div.classList.remove "jobs-job-active"
-                        div.classList.add "jobs-job-inactive"
-                        div.classList.remove "jobs-job-error"
-                    else if v > 0
-                        div.classList.add "jobs-job-active"
-                        div.classList.remove "jobs-job-inactive"
-                        div.classList.remove "jobs-job-error"
-                    else if v < 0
-                        div.classList.remove "jobs-job-active"
-                        div.classList.remove "jobs-job-inactive"
-                        div.classList.add "jobs-job-error"
-                    else
-                        div.classList.remove "jobs-job-active"
-                        div.classList.remove "jobs-job-inactive"
-                        div.classList.remove "jobs-job-error"
-            
-            
-    # 配役をテキストで書いてあげる
-    setjobsmonitor=(form,number)->
-        text=""
-        rule=Index.util.formQuery form
-        jobrule=rule.jobrule
-        if jobrule=="特殊ルール.闇鍋"
-            # 闇鍋の場合
-            $("#jobsmonitor").text "闇鍋"
-        else if jobrule=="特殊ルール.エンドレス闇鍋"
-            $("#jobsmonitor").text "エンドレス闇鍋"
-        else
-            ruleobj=Shared.game.getruleobj jobrule
-            if ruleobj?.minNumber>number
-                $("#jobsmonitor").text "（この配役は最低#{ruleobj.minNumber}人必要です）"
-            else
-                $("#jobsmonitor").text Shared.game.getrulestr jobrule,rule
-        ###
-        jobprops=$("#jobprops")
-        jobprops.children(".prop").prop "hidden",true
-        for job in Shared.game.jobs
-            jobpr=jobprops.children(".prop.#{job}")
-            if jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋"] || form.elements[job].value>0
-                jobpr.prop "hidden",false
-        # ルールによる設定
-        ruleprops=$("#ruleprops")
-        ruleprops.children(".prop").prop "hidden",true
-        switch jobrule
-            when "特殊ルール.量子人狼"
-                ruleprops.children(".prop.rule-quantum").prop "hidden",false
-                # あと身代わりくんはOFFにしたい
-                form.elements["scapegoat"].value="off"
-        ###
-        if jobrule=="特殊ルール.量子人狼"
-            # あと身代わりくんはOFFにしたい
-            form.elements["scapegoat"].value="off"
-            rule.scapegoat="off"
-        checkrule form,rule,Shared.game.rules,$("#rules").attr("name")
-        
+    # TODO
+    ###
+    if jobrule=="特殊ルール.量子人狼"
+        # あと身代わりくんはOFFにしたい
+        form.elements["scapegoat"].value="off"
+        rule.scapegoat="off"
+    ###
         
     #ログをもらった
     getlog=(log)->

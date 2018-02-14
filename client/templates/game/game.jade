@@ -8,22 +8,6 @@
   section#gamestartsec(hidden)
     h1 ゲーム開始
     #gamestart-app
-    form#gamestart
-      p
-        | 現在の人数 : 
-        output(name="number")
-        | 人 - 
-        span#jobsmonitor
-      fieldset
-        legend 役職
-        p
-          select#jobruleselect(name="jobrule")
-        dl.jobs#jobsfield(hidden)
-        dl.jobs#catesfield(hidden)
-      fieldset#rules
-        //- dd(name="category_Foobar")
-
-      p: input(type="submit",value="開始")
   .infobox
     div
     #jobinfo
