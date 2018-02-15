@@ -17,7 +17,7 @@ import {
     RuleGroup,
 } from '../defs';
 import {
-    forLanguage,
+    i18n,
 } from '../i18n';
 import {
     findLabeledGroupItem,
@@ -27,6 +27,10 @@ import {
  * Options to place.
  */
 export interface IPlaceOptions {
+    /**
+     * i18n instance to use.
+     */
+    i18n: i18n;
     /**
      * A node to place the component to.
      */
@@ -66,6 +70,7 @@ export interface IPlaceResult {
  * @returns Unmount point with newly created store.
  */
 export function place({
+    i18n,
     node,
     roles,
     castings,
@@ -80,9 +85,6 @@ export function place({
         setInitialRules(rules, store);
         loadSavedRules(castings, categories, roles, store);
     });
-
-    // TODO language
-    const i18n = forLanguage('ja');
 
     // XXX ad-hoc but exclude hidden roles.
     const cs = excludeHiddenRoles(categories, roles);

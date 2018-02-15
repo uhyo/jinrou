@@ -253,12 +253,17 @@ exports.start=(roomid)->
         newgamebutton = (je)->
             unless $("#gamestartsec").attr("hidden") == "hidden"
                 return
+            language = Index.app.getApplicationConfig()?.language?.value ? 'ja'
             # GameStartControlコンポーネントを設置
-            JinrouFront.loadGameStartControl()
-                .then((gsc)=>
+            Promise.all([
+                JinrouFront.loadI18n().then((i18n)-> i18n.getI18nFor(language))
+                JinrouFront.loadGameStartControl()
+            ])
+                .then(([i18n, gsc])=>
                     # casting情報を用意
                     castings = getLabeledGroupsOfJobrules()
                     game_start_control = gsc.place {
+                        i18n: i18n
                         node: $("#gamestart-app").get 0
                         castings: castings
                         roles: Shared.game.jobs
@@ -279,8 +284,7 @@ exports.start=(roomid)->
                                         .loadDialog()
                                         .then (d)->
                                             JinrouFront.loadI18n()
-                                                # TODO
-                                                .then((i18n)-> i18n.getI18nFor('ja'))
+                                                .then((i18n)-> i18n.getI18nFor(language))
                                                 .then (i18n)->
                                                     d.showMessageDialog {
                                                         modal: true

@@ -6,6 +6,9 @@ exports.actions=(req,res,ss)->
         res Config.backdoor[name]
     # configを教えてあげる
     applicationconfig:->
-        res Config.application
+        res {
+            application: Config.application
+            language: Config.language
+        }
 
   

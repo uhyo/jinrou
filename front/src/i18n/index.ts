@@ -13,7 +13,7 @@ i18next
         parse: (data: any)=> data,
         ajax,
     },
-    // TODO language
+    // XXX language
     fallbackLng: 'ja',
     ns: [
         'common',
@@ -28,6 +28,13 @@ i18next
  */
 export type i18n = i18next.i18n;
 export type TranslationFunction = i18next.TranslationFunction;
+
+/**
+ * Preload language data.
+ */
+export async function preload(lng: string): Promise<void> {
+    await getI18nFor(lng);
+}
 
 /**
  * Get an instance of i18next for given language.

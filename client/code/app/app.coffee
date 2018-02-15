@@ -30,10 +30,10 @@ exports.init = ->
         return if je.isDefaultPrevented()
         href = t.href
         unless t.classList.contains "mode-change-link"
-            if application_config?.modes?
+            if application_config?.application?.modes?
                 curidx = -1
                 hrefidx = -1
-                modes = application_config.modes
+                modes = application_config.application.modes
                 for mode, i in modes
                     if location.href.indexOf(mode.url) == 0
                         curidx = i
@@ -404,7 +404,7 @@ loadApplicationConfig = ()->
         application_config = conf
         # HTTP/HTTPS切り替えのための
         # ツールバーを設定
-        modes = application_config.modes
+        modes = application_config.application.modes
         if modes?
             for m in modes
                 if location.href.indexOf(m.url) != 0
