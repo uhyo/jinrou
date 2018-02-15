@@ -11,13 +11,31 @@ import {
     faFolder,
     faFolderOpen,
     faSpinner,
+    faLock,
+    faUnlockAlt,
+    faInfoCircle,
+    faTimes,
+    faUser,
+    faUserTimes,
+    faBan,
 } from '@fortawesome/fontawesome-free-solid';
 
 fontawesome.library.add(
     faQuestionCircle,
+    faIdCard,
     faPlusSquare,
     faMinusSquare,
+    faSquare,
+    faFolder,
+    faFolderOpen,
     faSpinner,
+    faLock,
+    faUnlockAlt,
+    faInfoCircle,
+    faTimes,
+    faUser,
+    faUserTimes,
+    faBan,
 );
 
 // Publish to global.

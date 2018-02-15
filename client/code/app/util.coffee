@@ -22,11 +22,11 @@ makeIconHTML = (icon)->
     unless icon?
         return ''
     if 'string' == typeof icon
-        return "<i class='fa fa-#{icon}'></i>"
+        return FontAwesome.icon({iconName: icon}).html
     if icon instanceof Array
         result = "<span class='fa-stack'>"
         for name in icon
-            result += "<i class='fa fa-#{name}'></i>"
+            result += FontAwesome.icon({iconName: name}).html
         result += "</span>"
         return result
     return ''

@@ -24,5 +24,11 @@ module.exports = {
                 use: ['json-loader', 'yaml-loader'],
             },
         ],
-    }
+    },
+    resolve: {
+        alias: {
+            '@fortawesome/fontawesome-free-solid$': '@fortawesome/fontawesome-free-solid/shakable.es.js',
+            '@fortawesome/fontawesome-free-regular': '@fortawesome/fontawesome-free-regular/shakable.es.js',
+        },
+    },
 };

@@ -8,6 +8,7 @@
     "build:tsc": "tsc",
     "build:bundle": "webpack-cli",
     "clean": "rimraf ../client/static/front-assets ./dist-esm",
+    "production-build": "NODE_ENV=production npm run build",
     "watch": "run-p watch:tsc watch:bundle",
     "watch:tsc": "tsc --watch --pretty",
     "watch:bundle": "webpack-cli --watch",
