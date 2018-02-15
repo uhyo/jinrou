@@ -296,52 +296,6 @@ exports.start=(roomid)->
                 ).catch((err)->
                     console.error err)
 
-            # TODO
-            if false && localStorage.savedRule
-                rule=JSON.parse localStorage.savedRule
-                jobs = rule._jobquery
-                unless jobs?
-                    # backward compatibility
-                    savedJobs = JSON.parse localStorage.savedJobs
-                    if savedJobs?
-                        jobs = {}
-                        for job in Shared.game.jobs
-                            jobs[job] = savedJobs[job]?.number ? 0
-                            jobs["job_use_#{job}"] = "on"
-                delete localStorage.savedRule
-                delete localStorage.savedJobs
-                # 時間設定
-                daysec=rule.day-0
-                nightsec=rule.night-0
-                remainsec=rule.remain-0
-                votingsec=rule.voting|0
-                form.elements["day_minute"].value=parseInt daysec/60
-                form.elements["day_second"].value=daysec%60
-                form.elements["night_minute"].value=parseInt nightsec/60
-                form.elements["night_second"].value=nightsec%60
-                form.elements["remain_minute"].value=parseInt remainsec/60
-                form.elements["remain_second"].value=remainsec%60
-                form.elements["voting_minute"].value=parseInt votingsec/60
-                form.elements["voting_second"].value=votingsec%60
-                # その他
-                delete rule.number  # 人数は違うかも
-                for key of rule
-                    e=form.elements[key]
-                    if e?
-                        if e.type=="checkbox"
-                            e.checked = e.value==rule[key]
-                        else
-                            e.value=rule[key]
-                # 配役も再現
-                if jobs?
-                    for job in Shared.game.jobs
-                        e=form.elements[job]    # 役職
-                        if e?
-                            e.value = String jobs[job]
-                        e = form.elements["job_use_#{job}"]
-                        if e?
-                            e.checked = jobs["job_use_#{job}"] == "on"
-
             $("#gamestartsec").removeAttr "hidden"
 
         $("#roomname").text room.name
