@@ -189,6 +189,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     t={t}
                                     ruledefs={ruledefs}
                                     ruleObject={ruleObject}
+                                    suggestedOptions={currentCasting.suggestedOptions}
                                     onUpdate={this.handleRuleUpdate}
                                 />
                             </fieldset>

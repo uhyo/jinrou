@@ -2,6 +2,9 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import {
+    OptionSuggestion,
+} from '../../defs/casting-definition';
+import {
     CheckboxRule,
     IntegerRule,
     SelectRule,
@@ -63,8 +66,17 @@ const RuleName = styled.b`
 
 interface IPropCheckboxControl {
     t: TranslationFunction;
+    /**
+     * Setting of this rule option.
+     */
     item: CheckboxRule;
+    /**
+     * Current value of this rule.
+     */
     value: string;
+    /**
+     * Callback on changing this rule.
+     */
     onChange: (value: string)=> void;
 }
 /**
@@ -136,8 +148,18 @@ export class IntegerControl extends React.PureComponent<IPropIntegerControl, {}>
 
 interface IPropSelectControl {
     t: TranslationFunction;
+    /**
+     * Definition of this select rule option.
+     */
     item: SelectRule;
+    /**
+     * Current value of this rule.
+     */
     value: string;
+    /**
+     * Suggestion to this rule, if any.
+     */
+    suggestion?: OptionSuggestion,
     onChange: (value: string)=> void;
 }
 /**
@@ -148,10 +170,14 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
         const {
             t,
             item,
+            suggestion,
             value,
         } = this.props;
 
         const {name, label} = getRuleName(t, item.id);
+
+        // If there is a must-suggestion, set it read-only.
+        const readonly = suggestion != null && suggestion.type === 'string' && suggestion.must && suggestion.value === value;
 
         return (<RuleWrapper>
             <label title={label}>
@@ -167,6 +193,8 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
                             key={v}
                             title={description}
                             value={v}
+                            // if read-only, other options are disabled.
+                            disabled={readonly && v !== value}
                         >{label}</option>);
                     })
                 }</select>

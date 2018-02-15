@@ -4,6 +4,9 @@ import {
 } from 'mobx-react';
 
 import {
+    OptionSuggestion,
+} from '../../defs/casting-definition';
+import {
     RuleGroup,
     Rule,
 } from '../../defs/rule-definition';
@@ -30,8 +33,21 @@ import {
 
 export interface IPropRuleControl {
     t: TranslationFunction;
+    /**
+     * Definition of all rule settings.
+     */
     ruledefs: RuleGroup;
+    /**
+     * Suggestion of rule options.
+     */
+    suggestedOptions?: Record<string, OptionSuggestion>;
+    /**
+     * Current rule setting.
+     */
     ruleObject: Rule,
+    /**
+     * Callback function for rule updates.
+     */
     onUpdate: (rule: string, value: string)=> void;
 }
 /**
@@ -44,6 +60,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
         const {
             t,
             ruledefs,
+            suggestedOptions = {},
             ruleObject,
             onUpdate,
         } = this.props;
@@ -67,6 +84,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                             <RuleControl
                                 t={t}
                                 ruledefs={rule.items}
+                                suggestedOptions={suggestedOptions}
                                 ruleObject={ruleObject}
                                 onUpdate={onUpdate}
                             />
@@ -114,6 +132,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                                 key={`item-${value.id}`}
                                 t={t}
                                 item={value}
+                                suggestion={suggestedOptions[value.id]}
                                 value={cur}
                                 onChange={onChange}
                             />);
