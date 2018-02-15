@@ -770,14 +770,6 @@ exports.start=(roomid)->
     forminfo=()->
         number = room.players.length
         game_start_control?.store.setPlayersNumber number
-    # ルールの表示具合をチェックする
-    # TODO
-    ###
-    if jobrule=="特殊ルール.量子人狼"
-        # あと身代わりくんはOFFにしたい
-        form.elements["scapegoat"].value="off"
-        rule.scapegoat="off"
-    ###
         
     #ログをもらった
     getlog=(log)->

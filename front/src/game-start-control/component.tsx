@@ -156,13 +156,18 @@ export class Casting extends React.Component<IPropCasting, {}> {
 
                             <SLG
                                 items={castings}
+                                value={currentCasting.id}
                                 getGroupLabel={(x: string)=>({
                                     key: x,
                                     label: x,
                                 })}
                                 getOptionKey={({id}: CastingDefinition)=>id}
                                 makeOption={(obj: CastingDefinition)=>{
-                                    return <option value={obj.id} title={obj.label}>{obj.name}</option>;
+                                    return (<option
+                                        value={obj.id}
+                                        title={obj.label}>
+                                            {obj.name}
+                                        </option>);
                                     }}
                                     onChange={this.handleCastingChange}
                                 />

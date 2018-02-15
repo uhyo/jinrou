@@ -234,7 +234,14 @@ export class CastingStore {
      * Update rule.
      */
     @action
-    public updateRule(rule: string, value: string): void {
+    public updateRule(rule: string, value: string, init?: boolean): void {
+        if (!init) {
+            // if non-init mode,
+            // check whether this rule exists.
+            if (!this.rules.has(rule)) {
+                throw new Error(`No such rule: ${rule}`);
+            }
+        }
         this.rules.set(rule, value);
     }
     /**
