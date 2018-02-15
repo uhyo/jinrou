@@ -52,9 +52,9 @@ exports.init = ->
         app.showUrl href
         return
     # ヘルプアイコン
-    $("i[data-helpicon]").live "click", (je)->
+    $("*[data-helpicon]").live "click", (je)->
         t = je.currentTarget
-        util.message "ヘルプ", t.title
+        util.message "ヘルプ", t.getAttribute 'title'
 
     # 自動ログイン
     if localStorage.userid && localStorage.password
