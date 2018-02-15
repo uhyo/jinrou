@@ -27,4 +27,3 @@ export function loadDialog() {
 export function loadGameStartControl() {
     return import('./game-start-control');
 }
-

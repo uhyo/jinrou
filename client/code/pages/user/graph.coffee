@@ -33,13 +33,17 @@ class CircleGraph extends Graph
                 return
             closed = t.classList.toggle 'graph-item-closed'
             # アイコンも変える
-            icon = t.querySelector 'i.fa'
+            control = t.querySelector '.graph-item-control'
             if closed
-                icon.classList.add 'fa-plus-square'
-                icon.classList.remove 'fa-minus-square'
+                newicon = FontAwesome.icon({iconName: 'plus-square'}, {
+                    classes: ['fa-fw']
+                }).node[0]
+                control.replaceChild newicon, control.firstChild
             else
-                icon.classList.add 'fa-minus-square'
-                icon.classList.remove 'fa-plus-square'
+                newicon = FontAwesome.icon({iconName: 'minus-square'}, {
+                    classes: ['fa-fw']
+                }).node[0]
+                control.replaceChild newicon, control.firstChild
 
 
     setData:(@data,@names)->    #names: 値の名前と実際のアレの対応
@@ -85,18 +89,24 @@ class CircleGraph extends Graph
                 li = document.createElement 'li'
                 title = document.createElement 'div'
                 title.classList.add 'graph-item-title'
-                square = document.createElement 'i'
-                square.classList.add 'fa'
-                square.classList.add 'fa-fw'
+                control = document.createElement 'span'
+                control.classList.add 'graph-item-control' 
+                iconName = null
+
                 if typeof data[_name] == "object"
                     # 子がある
                     li.classList.add 'graph-has-child'
                     li.classList.add 'graph-item-closed'
-                    square.classList.add 'fa-plus-square'
+                    iconName = 'plus-square'
                 else
-                    square.classList.add 'fa-square'
-                square.style.color = names[_name].color ? "#cccccc"
-                title.appendChild square
+                    iconName = 'square'
+                square = FontAwesome.icon({iconName: iconName}, {
+                    classes: ['fa-fw']
+                }).node[0]
+                control.style.color = names[_name].color ? "#cccccc"
+                control.appendChild square
+
+                title.appendChild control
                 title.appendChild document.createTextNode "#{names[_name].name} #{thissum} (#{(thissum/@sum*100).toPrecision(2)}%)"
                 li.appendChild title
                 child = datatable data[_name], name, names[_name]

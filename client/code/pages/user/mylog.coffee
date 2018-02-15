@@ -18,7 +18,7 @@ exports.start=->
             $("#open-all").prop "checked", true
 
         # 戦績が少ないとアレだ
-        for i in document.querySelectorAll 'i.mylog-desc-of-open'
+        for i in document.querySelectorAll '.mylog-desc-of-open'
             i.title += "戦績を公開するには総対戦数#{result.dataOpenBarrier}以上が必要です。"
         unless userlog?.counter?.allgamecount >= result.dataOpenBarrier
             # 戦績が足りない
