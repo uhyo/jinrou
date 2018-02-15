@@ -2061,8 +2061,7 @@ exports.new_rules=[
                 value:
                     type:"hidden"
                     id:"waitingnight"
-                    value:
-                        value:"wait"
+                    value: "wait"
             }
             {
                 type: 'item'

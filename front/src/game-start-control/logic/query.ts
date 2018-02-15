@@ -19,6 +19,7 @@ export function getQuery(
         jobInclusions,
         categoryNumbers,
         rules,
+        currentCasting,
     } = store;
     const result: Record<string, string> = {};
     // Add role param.
@@ -43,6 +44,8 @@ export function getQuery(
     // Add player number param,
     // scapegoat should not be added here.
     result['number'] = String(actualPlayersNumber);
+    // Add `jobrule` param.
+    result['jobrule'] = currentCasting.id;
     return result;
 }
 

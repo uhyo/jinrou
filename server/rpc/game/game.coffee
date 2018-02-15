@@ -8766,10 +8766,10 @@ module.exports.actions=(req,res,ss)->
                 maxnumber:room.number
                 blind:room.blind
                 gm:room.gm
-                day: parseInt(query.day_minute)*60+parseInt(query.day_second)
-                night: parseInt(query.night_minute)*60+parseInt(query.night_second)
-                remain: parseInt(query.remain_minute)*60+parseInt(query.remain_second)
-                voting: parseInt(query.voting_minute)*60+parseInt(query.voting_second)
+                day: parseInt query.day
+                night: parseInt query.night
+                remain: parseInt query.remain
+                voting: parseInt query.voting
                 # (n=15)秒ルール
                 silentrule: parseInt(query.silentrule) ? 0
             }

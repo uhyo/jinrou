@@ -720,11 +720,11 @@ exports.start=(roomid)->
         .click (je)->
             je.stopPropagation()
         
-    # プレイヤー一覧の情報を開始フォームに反映
-    forminfo=()->
-        number = room.players.length
-        game_start_control?.store.setPlayersNumber number
-        
+        # プレイヤー一覧の情報を開始フォームに反映
+        forminfo=()->
+            number = room.players.length
+            game_start_control?.store.setPlayersNumber number
+            
     #ログをもらった
     getlog=(log)->
         if log.mode in ["voteresult","probability_table"]
