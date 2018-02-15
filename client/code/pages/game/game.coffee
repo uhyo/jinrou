@@ -1310,6 +1310,10 @@ getLabeledGroupsOfJobrules = ()->
                         night:
                             type: 'range'
                             max: 60
+                        scapegoat:
+                            type: 'string'
+                            value: 'off'
+                            must: true
             }
             {
                 type: 'item'

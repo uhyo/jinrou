@@ -200,6 +200,16 @@ export class CastingStore {
             this.resetInclusion();
         }
         this.currentCasting = casting;
+        // investigate its forced suggestions.
+        if (casting.suggestedOptions != null) {
+            for (const key in casting.suggestedOptions) {
+                const sug = casting.suggestedOptions[key];
+                if (sug.type === 'string' && sug.must === true) {
+                    // This is a must-suggestion.
+                    this.updateRule(key, sug.value);
+                }
+            }
+        }
     }
     /**
      * Update jobNumbers of given role.

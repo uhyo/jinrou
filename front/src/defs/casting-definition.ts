@@ -65,6 +65,10 @@ export type OptionSuggestion = StringOptionSuggestion | RangeOptionSuggestion;
 export interface StringOptionSuggestion {
     type: 'string';
     value: string;
+    /**
+     * Indicates that this suggestion should be forced.
+     */
+    must?: boolean;
 }
 /**
  * Suggestion of number option.
