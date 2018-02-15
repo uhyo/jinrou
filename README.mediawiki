@@ -10,12 +10,22 @@ Are you a werewolf?
 * MongoDB >= 3.2
 
 == usage ==
-# git clone git://github.com/uhyo/jinrou.git
-# cd jinrou
-# npm install
+# `git clone git://github.com/uhyo/jinrou.git`
+# `cd jinrou`
+# `npm install`
+# Build front scripts
+## `cd front`
+## `npm install`
+## `npm run production-build`
+## `cd ..`
 # run mongodb
 # run redis
 # SS_ENV=production SS_PACK=1 node app.js
+
+== development ==
+To run in development mode, just run `node app.js`.
+
+Also, to keep updating the front-end assets, run `npm run watch` in the `front` directory.
 
 == jobs ==
 全80種くらい?
