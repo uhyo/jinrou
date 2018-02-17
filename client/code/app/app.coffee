@@ -22,6 +22,8 @@ ss.event.on 'forcereload', ()->
 # cached values
 my_userid=null
 application_config=null
+# Callbacks waiting for application_config.
+application_config_callbacks = []
 
 exports.init = ->
     # 固定リンク
@@ -399,11 +401,28 @@ body.heaven, #logs .heaven, #logs .prepare {
     }
     return
 
-exports.getApplicationConfig = ()-> application_config
+# Returns a Promise which resolves to the application config.
+exports.getApplicationConfig = getApplicationConfig = ()->
+    if application_config?
+        return Promise.resolve application_config
+    else
+        return new Promise((resolve)->
+            application_config_callbacks.push(resolve))
+
+# Returns a Promise which resolves to an i18n instance with appropreate language setting.
+exports.getI18n = ()->
+    Promise.all([
+        getApplicationConfig()
+        JinrouFront.loadI18n()
+    ])
+        .then(([ac, i18n])-> i18n.getI18nFor(ac.language.value))
 
 loadApplicationConfig = ()->
     ss.rpc "app.applicationconfig", (conf)->
         application_config = conf
+        # call callbacks.
+        for f in application_config_callbacks
+            f conf
         # HTTP/HTTPS切り替えのための
         # ツールバーを設定
         modes = application_config.application.modes

@@ -24,8 +24,19 @@ exports.start=(roomid)->
     my_player_id=null
     this_room_id=null
 
-    # 役職名一覧
-    cjobs=Shared.game.jobs.filter (x)->x!="Human"    # 村人は自動で決定する
+    game_view = null
+
+    # ゲーム用コンポーネントを生成
+    Promise.all([
+        JinrouFront.loadGameView(),
+        Index.app.getI18n()
+    ])
+        .then(([gv, i18n])->
+            game_view = gv.place {
+                i18n: i18n
+                node: $("#game-app").get(0)
+            })
+
 
     # CSS操作
     this_style=document.createElement "style"
@@ -253,10 +264,9 @@ exports.start=(roomid)->
         newgamebutton = (je)->
             unless $("#gamestartsec").attr("hidden") == "hidden"
                 return
-            language = Index.app.getApplicationConfig()?.language?.value ? 'ja'
             # GameStartControlコンポーネントを設置
             Promise.all([
-                JinrouFront.loadI18n().then((i18n)-> i18n.getI18nFor(language))
+                Index.app.getI18n()
                 JinrouFront.loadGameStartControl()
             ])
                 .then(([i18n, gsc])=>

@@ -27,3 +27,10 @@ export function loadDialog() {
 export function loadGameStartControl() {
     return import('./game-start-control');
 }
+
+/**
+ * Asynchronously load the game-view module.
+ */
+export function loadGameView() {
+    return import('./game-view');
+}
