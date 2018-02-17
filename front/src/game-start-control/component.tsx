@@ -187,25 +187,27 @@ export class Casting extends React.Component<IPropCasting, {}> {
                                     /> :
                                     null
                                 }
-                            </fieldset>
-                            <fieldset>
-                                <legend>{t('gamestart.control.rules')}</legend>
-                                <RuleControl
-                                    t={t}
-                                    ruledefs={ruledefs}
-                                    ruleObject={ruleObject}
-                                    suggestedOptions={currentCasting.suggestedOptions}
-                                    onUpdate={this.handleRuleUpdate}
-                                />
-                            </fieldset>
-                            <div>
-                                <WideButton
-                                    onClick={this.handleGameStart}
-                                >
-                                    {t('gamestart.control.start')}
-                        </WideButton>
-                    </div>
-                </div>);
+                        </fieldset>
+                        {/* Controls for rules. */}
+                        <fieldset>
+                            <legend>{t('gamestart.control.rules')}</legend>
+                            <RuleControl
+                                t={t}
+                                ruledefs={ruledefs}
+                                ruleObject={ruleObject}
+                                suggestedOptions={currentCasting.suggestedOptions}
+                                onUpdate={this.handleRuleUpdate}
+                            />
+                        </fieldset>
+                        {/* Game start button */}
+                        <div>
+                            <WideButton
+                                onClick={this.handleGameStart}
+                            >
+                                {t('gamestart.control.start')}
+                            </WideButton>
+                        </div>
+                    </div>);
                 }
             }</I18n>
         </ThemeProvider>);
