@@ -254,6 +254,8 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
         else
             if result=url.match /^\/room\/-?(\d+)$/
                 # ルーム
+                # preload game-start-control assets.
+                JinrouFront.loadGameStartControl()
                 page "game-game",null,Index.game.game,parseInt result[1]
             else if result=url.match /^\/user\/(\w+|身代わりくん|%E8%BA%AB%E4%BB%A3%E3%82%8F%E3%82%8A%E3%81%8F%E3%82%93)$/
                 userid = result[1]
@@ -421,12 +423,9 @@ loadApplicationConfig = ()->
                     a.appendChild(document.createTextNode "#{m.name}へ移動")
                     span.appendChild a
                     $("#toolbar").append span
-                ###
-                else
-                    span.classList.add "tool-disabled"
-                    span.appendChild(document.createTextNode "現在#{m.name}です")
-                ###
-
+        # preload front-end assets
+        JinrouFront.loadI18n()
+            .then((i18n)-> i18n.preload conf.language.value)
 checkBanData = ()->
     libban.loadBanData (data)->
         if data?
