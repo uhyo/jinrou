@@ -10,6 +10,10 @@ import {
     GameStore,
 } from './store';
 
+import {
+    JobInfo,
+} from './job-info';
+
 interface IPropGame {
     /**
      * i18n instance.
@@ -24,8 +28,16 @@ interface IPropGame {
 @observer
 export class Game extends React.Component<IPropGame, {}> {
     public render() {
+        const {
+            store,
+        } = this.props;
+        const {
+            roleInfo,
+        } = store;
         return (<div>
-            Hi
+            <JobInfo
+                {...roleInfo}
+            />
         </div>);
     }
 }

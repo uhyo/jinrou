@@ -26,18 +26,6 @@ exports.start=(roomid)->
 
     game_view = null
 
-    # ゲーム用コンポーネントを生成
-    Promise.all([
-        JinrouFront.loadGameView(),
-        Index.app.getI18n()
-    ])
-        .then(([gv, i18n])->
-            game_view = gv.place {
-                i18n: i18n
-                node: $("#game-app").get(0)
-            })
-
-
     # CSS操作
     this_style=document.createElement "style"
     document.head.appendChild this_style
@@ -61,6 +49,19 @@ exports.start=(roomid)->
             # 表示する
             sheet.insertRule "#logs > div:not([data-day=\"#{day}\"]){display: none}",0
 
+    # ゲーム用コンポーネントを生成
+    Promise.all([
+        JinrouFront.loadGameView(),
+        Index.app.getI18n()
+    ])
+        .then(([gv, i18n])->
+            game_view = gv.place {
+                i18n: i18n
+                node: $("#game-app").get(0)
+            }
+            ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
+            )
+
     getenter=(result)->
         if result.error?
             # エラー
@@ -79,7 +80,6 @@ exports.start=(roomid)->
         enter_result=result
         this_room_id=roomid
         ss.rpc "game.rooms.oneRoom", roomid,initroom
-    ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
     initroom=(room)->
         unless room?
             Index.util.message "ルーム","そのルームは存在しません。"
@@ -95,6 +95,14 @@ exports.start=(roomid)->
             return unless obj.id==this_room_id
             my_job=obj.type
             my_player_id=obj.playerid
+
+            # Give info to the GameView component.
+            game_view?.store.update {
+                roleInfo:
+                    jobname: obj.jobname
+                    desc: obj.desc
+            }
+
             $("#jobinfo").empty()
             pp=(text)->
                 p=document.createElement "p"
