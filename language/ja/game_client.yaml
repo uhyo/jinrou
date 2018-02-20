@@ -39,5 +39,9 @@ gamestart:
       rangeSuggestionMax: "{{max}}以下"
       rangeSuggestionMinMax: "{{min}}以上{{max}}以下"
 
+# game-view: job info control.
+jobinfo:
+  # your status.
+  status: "あなたは{{job}}です（{{details}}）"
 
 

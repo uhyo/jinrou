@@ -5,13 +5,20 @@ import {
     RoleInfo,
 } from './defs';
 
+import {
+    i18n,
+    I18nInterp,
+} from '../i18n';
+
 const Wrapper = styled.div`
     margin: 5px;
     padding: 8px;
     border: 2px dashed currentColor;
 `;
 
-export interface IPropJobInfo extends RoleInfo { }
+export interface IPropJobInfo extends RoleInfo {
+    i18n: i18n;
+}
 
 /**
  * Player's information.
@@ -19,29 +26,35 @@ export interface IPropJobInfo extends RoleInfo { }
 export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
     public render() {
         const {
+            i18n,
             jobname,
             desc,
         } = this.props;
 
         console.log(desc);
         return (<Wrapper>
-            <p>あなたは<b>{jobname}</b>です{
-                desc.length === 0 ? null :
-                /* XXX TypeScript bug. maybe fixed in TS 2.8? */
-                (<>{'（'}{
-                    [...mapJoin(
-                        desc,
-                        '・',
-                        ((obj, idx)=> (<React.Fragment key={`${idx}-${obj.type}`}>
-                            <a href={`/manual/job/${obj.type}`}>
-                                {
-                                    desc.length === 1 ? '詳細' : 
-                                    `${obj.name}の詳細`
-                                }
-                            </a></React.Fragment>)),
-                    )
-                ]}）</>)
-            }</p>
+            <p>
+                <I18nInterp
+                    i18n={i18n}
+                    ns='game_client'
+                    k='jobinfo.status'
+                >{{
+                    job: (<b>{jobname}</b>),
+                    details: 
+                        desc.length === 0 ? null : 
+                        [...mapJoin(
+                            desc,
+                            '・',
+                            ((obj, idx)=> (<React.Fragment key={`${idx}-${obj.type}`}>
+                                <a href={`/manual/job/${obj.type}`}>
+                                    {
+                                        desc.length === 1 ? '詳細' : 
+                                        `${obj.name}の詳細`
+                                    }
+                                </a></React.Fragment>)),
+                        )],
+                }}</I18nInterp>
+            </p>
         </Wrapper>);
     }
 }

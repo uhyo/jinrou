@@ -3,6 +3,7 @@ import * as xhrBackend from 'i18next-xhr-backend';
 
 export {
     I18n,
+    I18nInterp,
 } from './react';
 
 i18next

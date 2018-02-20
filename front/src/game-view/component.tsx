@@ -29,6 +29,7 @@ interface IPropGame {
 export class Game extends React.Component<IPropGame, {}> {
     public render() {
         const {
+            i18n,
             store,
         } = this.props;
         const {
@@ -36,6 +37,7 @@ export class Game extends React.Component<IPropGame, {}> {
         } = store;
         return (<div>
             <JobInfo
+                i18n={i18n}
                 {...roleInfo}
             />
         </div>);
