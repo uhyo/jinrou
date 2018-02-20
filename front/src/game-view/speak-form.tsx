@@ -32,6 +32,10 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
      * Temporally saved comment.
      */
     protected commentString: string = '';
+    /**
+     * Temporal flag to focus on the comment input.
+     */
+    protected focus: boolean = false;
     public render() {
         const {
             i18n,
@@ -65,6 +69,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                             autoComplete='off'
                             defaultValue={this.commentString}
                             onChange={this.handleCommentChange}
+                            onKeyDown={this.handleKeyDownComment}
                         />
                     }
                     {/* Speak button. */}
@@ -132,6 +137,13 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
             }</I18n>
         </form>);
     }
+    public componentDidUpdate() {
+        // process the temporal flag to focus.
+        if (this.focus && this.comment != null) {
+            this.focus = false;
+            this.comment.focus();
+        }
+    }
     /**
      * Handle submission of the speak form.
      */
@@ -145,6 +157,21 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     @bind
     protected handleCommentChange(e: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>): void {
         this.commentString = e.currentTarget.value;
+    }
+    /**
+     * Handle a keydown event of comment input.
+     */
+    @bind
+    protected handleKeyDownComment(e: React.KeyboardEvent<HTMLInputElement>): void {
+        if (e.key === 'Enter' && (e.shiftKey || e.ctrlKey || e.metaKey)) {
+            // this keyboard input switches to the multiline mode.
+            e.preventDefault();
+            this.commentString += '\n';
+            this.focus = true;
+            this.props.onUpdate({
+                multiline: true,
+            });
+        }
     }
     /**
      * Handle a change of comment size.
