@@ -43,5 +43,14 @@ gamestart:
 jobinfo:
   # your status.
   status: "あなたは{{job}}です（{{details}}）"
+# game-view: speak form.
+speak:
+  say: "発言"
+  # size of comment.
+  size:
+    small: "小さく"
+    normal: "普通"
+    big: "大きく"
+
 
 

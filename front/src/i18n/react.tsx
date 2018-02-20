@@ -120,13 +120,17 @@ export class I18nInterp extends React.PureComponent<IPropI18nInterp, IStateI18nI
         } = this;
         const res: Array<React.ReactNode> = [];
         let flg = false;
+        let i = 0;
         for (const r of this.state.resource) {
             if (flg) {
-                res.push(children[r]);
+                res.push(<React.Fragment key={`interp-${i}`}>
+                    {children[r]}
+                </React.Fragment>);
             } else {
                 res.push(r);
             }
             flg = !flg;
+            i++;
         }
         return res;
     }

@@ -7,12 +7,22 @@ import {
 } from 'mobx-react';
 
 import {
-    GameStore,
-} from './store';
+    bind,
+} from '../util/bind';
 
+import {
+    SpeakState,
+} from './defs';
+import {
+    GameStore,
+    UpdateQuery,
+} from './store';
 import {
     JobInfo,
 } from './job-info';
+import {
+    SpeakForm,
+} from './speak-form';
 
 interface IPropGame {
     /**
@@ -34,12 +44,27 @@ export class Game extends React.Component<IPropGame, {}> {
         } = this.props;
         const {
             roleInfo,
+            speakState,
         } = store;
         return (<div>
             <JobInfo
                 i18n={i18n}
                 {...roleInfo}
             />
+            <SpeakForm
+                i18n={i18n}
+                onUpdate={this.handleSpeakUpdate}
+                {...speakState}
+            />
         </div>);
+    }
+    /**
+     * Handle an update to the store.
+     */
+    @bind
+    protected handleSpeakUpdate(obj: Partial<SpeakState>): void {
+        this.props.store.update({
+            speakState: obj,
+        });
     }
 }

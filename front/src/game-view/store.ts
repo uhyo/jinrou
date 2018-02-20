@@ -6,6 +6,7 @@ import {
 
 import {
     RoleInfo,
+    SpeakState,
 } from './defs';
 
 /**
@@ -13,6 +14,7 @@ import {
  */
 export interface UpdateQuery {
     roleInfo?: RoleInfo;
+    speakState?: Partial<SpeakState>,
 }
 /**
  * Store of current game state.
@@ -26,13 +28,27 @@ export class GameStore {
         jobname: '',
         desc: [],
     };
+    /**
+     * State of speaking forms.
+     */
+    @observable
+    speakState: SpeakState = {
+        size: 'normal',
+    };
 
+    /**
+     * Update current role information.
+     */
     @action
     public update({
         roleInfo,
+        speakState,
     }: UpdateQuery): void {
         if (roleInfo != null) {
             this.roleInfo = roleInfo;
+        }
+        if (speakState != null) {
+            Object.assign(this.speakState, speakState);
         }
     }
 }

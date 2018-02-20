@@ -22,3 +22,12 @@ export interface RoleDesc {
     type: string;
 }
 
+/**
+ * State of speaking form.
+ */
+export interface SpeakState {
+    /**
+     * Size of comment.
+     */
+    size: 'small' | 'normal' | 'big';
+}
