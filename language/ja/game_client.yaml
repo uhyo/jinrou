@@ -81,6 +81,8 @@ speak:
     helperwhisper: "助言"
     # reply from GM to someone.
     gmreply: "→{{target}}"
+  # label of multiline checkbox.
+  multiline: "複数行"
 
 
 

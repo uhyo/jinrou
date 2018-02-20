@@ -27,13 +27,18 @@ export interface IPropSpeakForm extends SpeakState {
  * Speaking controls.
  */
 export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
-    protected comment: HTMLInputElement | null = null;
+    protected comment: HTMLInputElement | HTMLTextAreaElement | null = null;
+    /**
+     * Temporally saved comment.
+     */
+    protected commentString: string = '';
     public render() {
         const {
             i18n,
             roleInfo,
             size,
             kind,
+            multiline,
         } = this.props;
 
         return (<form
@@ -43,12 +48,25 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 (t)=>
                 (<>
                     {/* Comment input form. */}
-                    <input
-                        ref={e=> this.comment=e}
-                        type='text'
-                        size={50}
-                        autoComplete='off'
-                    />
+                    {
+                        multiline ?
+                        <textarea
+                            ref={e=> this.comment=e}
+                            cols={50}
+                            rows={4}
+                            autoComplete='off'
+                            defaultValue={this.commentString}
+                            onChange={this.handleCommentChange}
+                        /> :
+                        <input
+                            ref={e=> this.comment=e}
+                            type='text'
+                            size={50}
+                            autoComplete='off'
+                            defaultValue={this.commentString}
+                            onChange={this.handleCommentChange}
+                        />
+                    }
                     {/* Speak button. */}
                     <input
                         type='submit'
@@ -99,6 +117,16 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                             >{label}</option>);
                         })
                     }</select>
+                    {/* Multiline checkbox. */}
+                    <label>
+                        <input
+                            type='checkbox'
+                            name='multilinecheck'
+                            checked={multiline}
+                            onChange={this.handleMultilineChange}
+                        />
+                        {t('game_client:speak.multiline')}
+                    </label>
 
             </>)
             }</I18n>
@@ -110,6 +138,13 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     @bind
     protected handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
         e.preventDefault();
+    }
+    /**
+     * Handle a change of comment input.
+     */
+    @bind
+    protected handleCommentChange(e: React.SyntheticEvent<HTMLInputElement | HTMLTextAreaElement>): void {
+        this.commentString = e.currentTarget.value;
     }
     /**
      * Handle a change of comment size.
@@ -127,6 +162,15 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     protected handleKindChange(e: React.SyntheticEvent<HTMLSelectElement>): void {
         this.props.onUpdate({
             kind: e.currentTarget.value || '',
+        });
+    }
+    /**
+     * Handle a change of multiline checkbox.
+     */
+    @bind
+    protected handleMultilineChange(e: React.SyntheticEvent<HTMLInputElement>): void {
+        this.props.onUpdate({
+            multiline: e.currentTarget.checked,
         });
     }
 }

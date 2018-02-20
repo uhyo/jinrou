@@ -36,6 +36,7 @@ export class GameStore {
     speakState: SpeakState = {
         size: 'normal',
         kind: '',
+        multiline: false,
     };
 
     /**

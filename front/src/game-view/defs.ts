@@ -38,4 +38,8 @@ export interface SpeakState {
      * Kind of speech.
      */
     kind: string;
+    /**
+     * Multiline or not.
+     */
+    multiline: boolean;
 }
