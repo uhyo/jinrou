@@ -51,6 +51,37 @@ speak:
     small: "小さく"
     normal: "普通"
     big: "大きく"
+  # kind of speech.
+  kind:
+    # speech before beginning of game.
+    prepare: "全員に発言"
+    # say to everyone.
+    day: "全員に発言"
+    # speech among audience.
+    audience: "観戦者の会話"
+    # monologue in day and night.
+    monologue: "独り言"
+    # talk between werewolves.
+    werewolf: "人狼の会話"
+    # talk between couples.
+    couple: "共有者の会話"
+    # talk between MadCouples.
+    madcouple: "叫迷狂人の会話"
+    # talk between foxes.
+    fox: "妖狐の会話"
+    # announce from GM to everyone.
+    gm: "全員へ"
+    # announce from GM to the heaven.
+    heaven: "霊界へ"
+    # announce from GM to audience.
+    gmaudience: "観戦者へ"
+    # monologue of GM.
+    gmmonologue: "独り言"
+    # talk of helpers.
+    helperwhisper: "助言"
+    # reply from GM to someone.
+    gmreply: "→{{target}}"
+
 
 
 

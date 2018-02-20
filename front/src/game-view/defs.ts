@@ -10,6 +10,10 @@ export interface RoleInfo {
      * Descriptions provided to you.
      */
     desc: RoleDesc[];
+    /**
+     * Kind of speech available now.
+     */
+    speak: string[];
 }
 export interface RoleDesc {
     /**
@@ -30,4 +34,8 @@ export interface SpeakState {
      * Size of comment.
      */
     size: 'small' | 'normal' | 'big';
+    /**
+     * Kind of speech.
+     */
+    kind: string;
 }

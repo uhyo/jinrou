@@ -14,6 +14,8 @@ this_logdata={} # ログデータをアレする
 this_style=null #style要素（終わったら消したい）
 # GameStartControlのインスタンス
 game_start_control = null
+# GameViewのインスタンス
+game_view = null
 
 
 exports.start=(roomid)->
@@ -24,7 +26,6 @@ exports.start=(roomid)->
     my_player_id=null
     this_room_id=null
 
-    game_view = null
 
     # CSS操作
     this_style=document.createElement "style"
@@ -101,6 +102,7 @@ exports.start=(roomid)->
                 roleInfo:
                     jobname: obj.jobname
                     desc: obj.desc
+                    speak: obj.speak
             }
 
             $("#jobinfo").empty()
@@ -966,6 +968,7 @@ exports.start=(roomid)->
 exports.end=->
     # unmount react components.
     game_start_control?.unmount()
+    game_view?.unmount()
 
     ss.rpc "game.rooms.exit", this_room_id,(result)->
         if result?

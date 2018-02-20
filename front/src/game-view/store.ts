@@ -27,6 +27,7 @@ export class GameStore {
     roleInfo: RoleInfo = {
         jobname: '',
         desc: [],
+        speak: [],
     };
     /**
      * State of speaking forms.
@@ -34,6 +35,7 @@ export class GameStore {
     @observable
     speakState: SpeakState = {
         size: 'normal',
+        kind: '',
     };
 
     /**

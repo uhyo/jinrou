@@ -53,6 +53,7 @@ export class Game extends React.Component<IPropGame, {}> {
             />
             <SpeakForm
                 i18n={i18n}
+                roleInfo={roleInfo}
                 onUpdate={this.handleSpeakUpdate}
                 {...speakState}
             />
