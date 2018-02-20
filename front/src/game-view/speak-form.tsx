@@ -43,6 +43,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
             size,
             kind,
             multiline,
+            willOpen,
         } = this.props;
 
         return (<form
@@ -132,7 +133,12 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                         />
                         {t('game_client:speak.multiline')}
                     </label>
-
+                    {/* Will open button. */}
+                    <button
+                        onClick={this.handleWillClick}
+                    >
+                        {t('game_client:speak.will.open')}
+                    </button>
             </>)
             }</I18n>
         </form>);
@@ -198,6 +204,15 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     protected handleMultilineChange(e: React.SyntheticEvent<HTMLInputElement>): void {
         this.props.onUpdate({
             multiline: e.currentTarget.checked,
+        });
+    }
+    /**
+     * Handle a click of will button.
+     */
+    @bind
+    protected handleWillClick(): void {
+        this.props.onUpdate({
+            willOpen: true,
         });
     }
 }

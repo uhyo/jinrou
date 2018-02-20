@@ -28,6 +28,7 @@ export class GameStore {
         jobname: '',
         desc: [],
         speak: [],
+        will: undefined,
     };
     /**
      * State of speaking forms.
@@ -37,6 +38,7 @@ export class GameStore {
         size: 'normal',
         kind: '',
         multiline: false,
+        willOpen: false,
     };
 
     /**

@@ -103,6 +103,7 @@ exports.start=(roomid)->
                     jobname: obj.jobname
                     desc: obj.desc
                     speak: obj.speak
+                    will: obj.will
             }
 
             $("#jobinfo").empty()

@@ -14,6 +14,10 @@ export interface RoleInfo {
      * Kind of speech available now.
      */
     speak: string[];
+    /**
+     * Content of will.
+     */
+    will: string | undefined;
 }
 export interface RoleDesc {
     /**
@@ -42,4 +46,8 @@ export interface SpeakState {
      * Multiline or not.
      */
     multiline: boolean;
+    /**
+     * Whether will form is open.
+     */
+    willOpen: boolean;
 }
