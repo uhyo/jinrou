@@ -29,6 +29,15 @@ export interface RoleDesc {
      */
     type: string;
 }
+/**
+ * Provided info og game.
+ */
+export interface GameInfo {
+    /**
+     * Current day.
+     */
+    day: number;
+}
 
 /**
  * State of speaking form.
@@ -50,4 +59,24 @@ export interface SpeakState {
      * Whether will form is open.
      */
     willOpen: boolean;
+}
+
+/**
+ * visibility of logs per day.
+ */
+export type LogVisibility =
+    | LogAll
+    | LogToday
+    | LogOneDay
+    ;
+
+export interface LogAll {
+    type: 'all';
+}
+export interface LogToday {
+    type: 'today';
+}
+export interface LogOneDay {
+    type: 'one';
+    day: number;
 }

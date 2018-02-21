@@ -2,26 +2,44 @@ import * as React from 'react';
 import {
     i18n,
     I18n,
-} from '../i18n';
+} from '../../i18n';
 import {
     bind,
-} from '../util/bind';
+} from '../../util/bind';
 
 import {
+    GameInfo,
     RoleInfo,
     SpeakState,
-} from './defs';
+    LogVisibility,
+} from '../defs';
+
+import {
+    LogVisibilityControl,
+} from './log-visibility';
 
 export interface IPropSpeakForm extends SpeakState {
     i18n: i18n;
     /**
+     * Info of game.
+     */
+    gameInfo: GameInfo;
+    /**
      * Info of roles.
      */
-    roleInfo: RoleInfo,
+    roleInfo: RoleInfo;
+    /**
+     * Info of log visibility.
+     */
+    logVisibility: LogVisibility;
     /**
      * update to a speak form state.
      */
     onUpdate: (obj: Partial<SpeakState>)=> void;
+    /**
+     * update to log visibility.
+     */
+    onUpdateLogVisibility: (obj: LogVisibility)=> void;
 }
 /**
  * Speaking controls.
@@ -39,11 +57,13 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     public render() {
         const {
             i18n,
+            gameInfo,
             roleInfo,
             size,
             kind,
             multiline,
             willOpen,
+            logVisibility,
         } = this.props;
 
         return (<form
@@ -139,6 +159,19 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                     >
                         {t('game_client:speak.will.open')}
                     </button>
+                    {/* Show rule button. */}
+                    <button
+                        onClick={this.handleRuleClick}
+                    >
+                        {t('game_client:speak.rule')}
+                    </button>
+                    {/* Log visibility control. */}
+                    <LogVisibilityControl
+                        i18n={i18n}
+                        visibility={logVisibility}
+                        day={gameInfo.day}
+                        onUpdate={this.handleVisibilityUpdate}
+                    />
             </>)
             }</I18n>
         </form>);
@@ -214,5 +247,19 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
         this.props.onUpdate({
             willOpen: true,
         });
+    }
+    /**
+     * Handle a click of rule button.
+     */
+    @bind
+    protected handleRuleClick(): void {
+        // TODO
+    }
+    /**
+     * Handle an update of log visibility.
+     */
+    @bind
+    protected handleVisibilityUpdate(v: LogVisibility): void {
+        this.props.onUpdateLogVisibility(v);
     }
 }

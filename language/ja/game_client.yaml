@@ -89,6 +89,17 @@ speak:
     open: "遺言"
     # click to close button.
     close: "遺言を隠す"
-
+  # show rule button.
+  rule: "ルール"
+  # log visibility.
+  logVisibility:
+    # show all.
+    all: "全部"
+    # show today's log.
+    today: "今日"
+    # label of one-day options.
+    onedayLabel: "一日ずつ"
+    # show one day.
+    oneday: "{{day}}日目"
 
 
