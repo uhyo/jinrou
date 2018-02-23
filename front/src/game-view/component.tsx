@@ -13,6 +13,7 @@ import {
 import {
     SpeakState,
     LogVisibility,
+    SpeakQuery,
 } from './defs';
 import {
     GameStore,
@@ -34,6 +35,10 @@ interface IPropGame {
      * store.
      */
     store: GameStore;
+    /**
+     * Handle a speak event.
+     */
+    onSpeak: (query: SpeakQuery)=> void;
 }
 
 @observer
@@ -42,6 +47,7 @@ export class Game extends React.Component<IPropGame, {}> {
         const {
             i18n,
             store,
+            onSpeak,
         } = this.props;
         const {
             gameInfo,
@@ -61,6 +67,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 logVisibility={logVisibility}
                 onUpdate={this.handleSpeakUpdate}
                 onUpdateLogVisibility={this.handleLogVisibilityUpdate}
+                onSpeak={onSpeak}
                 {...speakState}
             />
         </div>);

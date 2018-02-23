@@ -59,6 +59,8 @@ exports.start=(roomid)->
             game_view = gv.place {
                 i18n: i18n
                 node: $("#game-app").get(0)
+                onSpeak: (query)->
+                    console.log 'speak', query
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
@@ -474,10 +476,13 @@ exports.start=(roomid)->
         speakform=$("#speakform").get 0
         $("#speakform").submit (je)->
             form=je.target
+            je.preventDefault()
+            # TODO temp
+            console.log "speakquery", Index.util.formQuery(form)
+            return
             ss.rpc "game.game.speak", roomid,Index.util.formQuery(form),(result)->
                 if result?
                     Index.util.message "エラー",result
-            je.preventDefault()
             form.elements["comment"].value=""
             if form.elements["multilinecheck"].checked
                 # 複数行は直す

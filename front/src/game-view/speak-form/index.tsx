@@ -12,6 +12,7 @@ import {
     RoleInfo,
     SpeakState,
     LogVisibility,
+    SpeakQuery,
 } from '../defs';
 
 import {
@@ -40,6 +41,10 @@ export interface IPropSpeakForm extends SpeakState {
      * update to log visibility.
      */
     onUpdateLogVisibility: (obj: LogVisibility)=> void;
+    /**
+     * Speak a comment.
+     */
+    onSpeak: (query: SpeakQuery)=> void;
 }
 /**
  * Speaking controls.
@@ -172,6 +177,13 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                         day={gameInfo.day}
                         onUpdate={this.handleVisibilityUpdate}
                     />
+                    {/* Refuse revival button. */}
+                    <button
+                        onClick={this.handleRefuseRevival}
+                    >
+                        {t('game_client:speak.refuseRevival')}
+                    </button>
+
             </>)
             }</I18n>
         </form>);
@@ -188,7 +200,25 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
      */
     @bind
     protected handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
+        const {
+            kind,
+            size,
+            onSpeak,
+        } = this.props;
         e.preventDefault();
+
+        const query: SpeakQuery = {
+            comment: this.commentString,
+            mode: kind,
+            // XXX compatibility!
+            size: size === 'normal' ? '' : size,
+        };
+        this.props.onSpeak(query);
+        // reset the comment form.
+        this.commentString = '';
+        if (this.comment != null) {
+            this.comment.value = '';
+        }
     }
     /**
      * Handle a change of comment input.
@@ -261,5 +291,12 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     @bind
     protected handleVisibilityUpdate(v: LogVisibility): void {
         this.props.onUpdateLogVisibility(v);
+    }
+    /**
+     * Handle a click of refuse revival button.
+     */
+    @bind
+    protected handleRefuseRevival(): void {
+        // TODO
     }
 }

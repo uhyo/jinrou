@@ -81,5 +81,9 @@ export class GameStore {
         if (logVisibility != null) {
             this.logVisibility = logVisibility;
         }
+        // Check consistency.
+        if (!this.roleInfo.speak.includes(this.speakState.kind)) {
+            this.speakState.kind = this.roleInfo.speak[0] || '';
+        }
     }
 }

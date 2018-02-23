@@ -10,6 +10,9 @@ import {
 import {
     Game,
 } from './component';
+import {
+    SpeakQuery,
+} from './defs';
 
 /**
  * Options to place.
@@ -23,6 +26,10 @@ export interface IPlaceOptions {
      * Node to place the component to.
      */
     node: HTMLElement;
+    /**
+     * Handle a speak event.
+     */
+    onSpeak: (query: SpeakQuery)=> void;
 }
 
 export interface IPlaceResult {
@@ -35,6 +42,7 @@ export interface IPlaceResult {
 export function place({
     i18n,
     node,
+    onSpeak,
 }: IPlaceOptions) {
 
     const store = new GameStore();
@@ -42,6 +50,7 @@ export function place({
     const com = (<Game
         i18n={i18n}
         store={store}
+        onSpeak={onSpeak}
     />);
 
     ReactDOM.render(com, node);

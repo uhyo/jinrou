@@ -80,3 +80,21 @@ export interface LogOneDay {
     type: 'one';
     day: number;
 }
+
+/**
+ * Query of speaking.
+ */
+export interface SpeakQuery {
+    /**
+     * Comment string.
+     */
+    comment: string;
+    /**
+     * Type of comment.
+     */
+    mode: string;
+    /**
+     * Size of comment.
+     */
+    size: 'big' | '' | 'small';
+}

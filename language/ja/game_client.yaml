@@ -101,5 +101,6 @@ speak:
     onedayLabel: "一日ずつ"
     # show one day.
     oneday: "{{day}}日目"
-
+  # label of refuse revival button.
+  refuseRevival: "蘇生辞退"
 
