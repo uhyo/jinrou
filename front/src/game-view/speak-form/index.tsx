@@ -84,6 +84,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                             ref={e=> this.comment=e}
                             cols={50}
                             rows={4}
+                            required
                             autoComplete='off'
                             defaultValue={this.commentString}
                             onChange={this.handleCommentChange}
@@ -92,6 +93,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                             ref={e=> this.comment=e}
                             type='text'
                             size={50}
+                            required
                             autoComplete='off'
                             defaultValue={this.commentString}
                             onChange={this.handleCommentChange}

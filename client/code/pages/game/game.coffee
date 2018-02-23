@@ -60,7 +60,10 @@ exports.start=(roomid)->
                 i18n: i18n
                 node: $("#game-app").get(0)
                 onSpeak: (query)->
-                    console.log 'speak', query
+                    ss.rpc "game.game.speak", roomid, query, (result)->
+                        if result?
+                            # TODO
+                            Index.util.message "エラー", result
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )

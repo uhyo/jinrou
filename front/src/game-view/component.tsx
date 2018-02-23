@@ -47,7 +47,6 @@ export class Game extends React.Component<IPropGame, {}> {
         const {
             i18n,
             store,
-            onSpeak,
         } = this.props;
         const {
             gameInfo,
@@ -67,7 +66,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 logVisibility={logVisibility}
                 onUpdate={this.handleSpeakUpdate}
                 onUpdateLogVisibility={this.handleLogVisibilityUpdate}
-                onSpeak={onSpeak}
+                onSpeak={this.handleSpeak}
                 {...speakState}
             />
         </div>);
@@ -89,5 +88,22 @@ export class Game extends React.Component<IPropGame, {}> {
         this.props.store.update({
             logVisibility: obj,
         });
+    }
+    /**
+     * Handle a speak event.
+     */
+    @bind
+    protected handleSpeak(query: SpeakQuery): void {
+        const {
+            store,
+            onSpeak,
+        } = this.props;
+        // Back to the single line mode.
+        store.update({
+            speakState: {
+                multiline: false,
+            },
+        });
+        onSpeak(query);
     }
 }
