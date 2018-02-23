@@ -43,6 +43,10 @@ gamestart:
 jobinfo:
   # your status.
   status: "あなたは{{job}}です（{{details}}）"
+  # you won.
+  win: "勝利しました"
+  # you lose.
+  lose: "敗北しました"
 # game-view: speak form.
 speak:
   say: "発言"

@@ -111,6 +111,7 @@ exports.start=(roomid)->
                             desc: obj.desc
                             speak: obj.speak
                             will: obj.will
+                            win: obj.winner
                         }
                     else
                         null

@@ -18,6 +18,11 @@ export interface RoleInfo {
      * Content of will.
      */
     will: string | undefined;
+    /**
+     * Whether the player won the game.
+     * null is for not determined.
+     */
+    win: boolean | null;
 }
 export interface RoleDesc {
     /**

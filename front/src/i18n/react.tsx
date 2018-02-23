@@ -78,7 +78,7 @@ export interface IPropI18nInterp {
     /**
      * Object passed to the interpolation routine.
      */
-    children: Record<string, React.ReactNode>;
+    children?: Record<string, React.ReactNode>;
     /**
      * i18n instance.
      */
@@ -111,20 +111,18 @@ export class I18nInterp extends React.PureComponent<IPropI18nInterp, IStateI18nI
     }
     public render() {
         const {
-            props: {
-                children,
-            },
             state: {
                 resource,
             },
         } = this;
+        const c = this.props.children as Record<string, React.ReactNode> | undefined;
         const res: Array<React.ReactNode> = [];
         let flg = false;
         let i = 0;
         for (const r of this.state.resource) {
             if (flg) {
                 res.push(<React.Fragment key={`interp-${i}`}>
-                    {children[r]}
+                    {c != null ? c[r] : null}
                 </React.Fragment>);
             } else {
                 res.push(r);

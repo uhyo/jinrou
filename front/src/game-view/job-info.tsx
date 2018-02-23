@@ -29,10 +29,12 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
             i18n,
             jobname,
             desc,
+            win,
         } = this.props;
 
         console.log(desc);
         return (<Wrapper>
+            {/* Job Status. */}
             <p>
                 <I18nInterp
                     i18n={i18n}
@@ -54,7 +56,26 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                                 </a></React.Fragment>)),
                         )],
                 }}</I18nInterp>
+            {/* Victory or defeat. */}
+            {
+                win === true ?
+                <p>
+                    <I18nInterp
+                        i18n={i18n}
+                        ns='game_client'
+                        k='jobinfo.win' />
+                </p> :
+                win === false ?
+                <p>
+                    <I18nInterp
+                        i18n={i18n}
+                        ns='game_client'
+                        k='jobinfo.lose' />
+                </p> :
+                null
+            }
             </p>
+
         </Wrapper>);
     }
 }
