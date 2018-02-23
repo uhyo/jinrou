@@ -105,10 +105,22 @@ exports.start=(roomid)->
             # Give info to the GameView component.
             game_view?.store.update {
                 roleInfo:
-                    jobname: obj.jobname
-                    desc: obj.desc
-                    speak: obj.speak
-                    will: obj.will
+                    if obj.jobname?
+                        {
+                            jobname: obj.jobname
+                            desc: obj.desc
+                            speak: obj.speak
+                            will: obj.will
+                        }
+                    else
+                        null
+                gameInfo:
+                    if obj.game?
+                        {
+                            day: obj.game.day
+                        }
+                    else
+                        undefined
             }
 
             $("#jobinfo").empty()
@@ -477,19 +489,6 @@ exports.start=(roomid)->
                                     Index.util.message "エラー",result
                 
         speakform=$("#speakform").get 0
-        $("#speakform").submit (je)->
-            form=je.target
-            je.preventDefault()
-            # TODO temp
-            console.log "speakquery", Index.util.formQuery(form)
-            return
-            ss.rpc "game.game.speak", roomid,Index.util.formQuery(form),(result)->
-                if result?
-                    Index.util.message "エラー",result
-            form.elements["comment"].value=""
-            if form.elements["multilinecheck"].checked
-                # 複数行は直す
-                form.elements["multilinecheck"].click()
         speakform.elements["willbutton"].addEventListener "click", (e)->
             # 遺言フォームオープン
             wf=$("#willform").get 0

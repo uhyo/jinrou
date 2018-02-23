@@ -28,7 +28,7 @@ export interface IPropSpeakForm extends SpeakState {
     /**
      * Info of roles.
      */
-    roleInfo: RoleInfo;
+    roleInfo: RoleInfo | null;
     /**
      * Info of log visibility.
      */
@@ -70,6 +70,9 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
             willOpen,
             logVisibility,
         } = this.props;
+
+        // list of speech kind.
+        const speaks = roleInfo != null ? roleInfo.speak : ['day'];
 
         return (<form
             onSubmit={this.handleSubmit}
@@ -131,7 +134,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                         value={kind}
                         onChange={this.handleKindChange}
                     >{
-                        roleInfo.speak.map(value=> {
+                        speaks.map(value=> {
                             // special handling of speech kind.
                             let label;
                             if (value.startsWith('gmreply_')) {
@@ -162,12 +165,14 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                     </label>
                     {/* Will open button. */}
                     <button
+                        type='button'
                         onClick={this.handleWillClick}
                     >
                         {t('game_client:speak.will.open')}
                     </button>
                     {/* Show rule button. */}
                     <button
+                        type='button'
                         onClick={this.handleRuleClick}
                     >
                         {t('game_client:speak.rule')}
@@ -181,6 +186,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                     />
                     {/* Refuse revival button. */}
                     <button
+                        type='button'
                         onClick={this.handleRefuseRevival}
                     >
                         {t('game_client:speak.refuseRevival')}

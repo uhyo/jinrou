@@ -16,7 +16,7 @@ import {
  */
 export interface UpdateQuery {
     gameInfo?: GameInfo;
-    roleInfo?: RoleInfo;
+    roleInfo?: RoleInfo | null;
     speakState?: Partial<SpeakState>;
     logVisibility?: LogVisibility;
 }
@@ -35,12 +35,7 @@ export class GameStore {
      * Name of your role.
      */
     @observable.shallow
-    roleInfo: RoleInfo = {
-        jobname: '',
-        desc: [],
-        speak: [],
-        will: undefined,
-    };
+    roleInfo: RoleInfo | null = null;
     /**
      * State of speaking forms.
      */
@@ -72,7 +67,8 @@ export class GameStore {
         if (gameInfo != null) {
             this.gameInfo = gameInfo;
         }
-        if (roleInfo != null) {
+        if (roleInfo !== undefined) {
+            // roleInfo is either null or RoleInfo object.
             this.roleInfo = roleInfo;
         }
         if (speakState != null) {
@@ -82,7 +78,7 @@ export class GameStore {
             this.logVisibility = logVisibility;
         }
         // Check consistency.
-        if (!this.roleInfo.speak.includes(this.speakState.kind)) {
+        if (this.roleInfo != null && !this.roleInfo.speak.includes(this.speakState.kind)) {
             this.speakState.kind = this.roleInfo.speak[0] || '';
         }
     }

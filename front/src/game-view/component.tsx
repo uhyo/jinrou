@@ -55,10 +55,14 @@ export class Game extends React.Component<IPropGame, {}> {
             logVisibility,
         } = store;
         return (<div>
-            <JobInfo
-                i18n={i18n}
-                {...roleInfo}
-            />
+            {
+                roleInfo != null ?
+                (<JobInfo
+                    i18n={i18n}
+                    {...roleInfo}
+                />) :
+                null
+            }
             <SpeakForm
                 i18n={i18n}
                 gameInfo={gameInfo}
