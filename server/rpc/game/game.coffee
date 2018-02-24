@@ -5016,8 +5016,12 @@ class Trapper extends Player
             @setTarget ""  # 誰も守らない
         else if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
+            targets = game.players.filter (pl)-> !pl.dead
+            if targets.length == 0
+                @setTarget ""
+                return
+            r=Math.floor Math.random()*targets.length
+            if @job game,targets[r].id,{}
                 @sunset game
     job:(game,playerid)->
         unless playerid==@id && game.rule.guardmyself!="ok"
