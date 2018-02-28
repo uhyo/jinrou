@@ -1,6 +1,2 @@
-export {
-    place,
-} from './place';
-export {
-    GameStore,
-} from './store';
+export { place } from './place';
+export { GameStore } from './store';
