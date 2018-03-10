@@ -44,17 +44,17 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                     ],
             }}
           </I18nInterp>
-          {/* Victory or defeat. */}
-          {win === true ? (
-            <p>
-              <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.win" />
-            </p>
-          ) : win === false ? (
-            <p>
-              <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.lose" />
-            </p>
-          ) : null}
         </p>
+        {/* Victory or defeat. */}
+        {win === true ? (
+          <p>
+            <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.win" />
+          </p>
+        ) : win === false ? (
+          <p>
+            <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.lose" />
+          </p>
+        ) : null}
       </Wrapper>
     );
   }
