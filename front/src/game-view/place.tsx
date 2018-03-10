@@ -22,6 +22,10 @@ export interface IPlaceOptions {
    * Handle a speak event.
    */
   onSpeak: (query: SpeakQuery) => void;
+  /**
+   * Handle a refuse revival event.
+   */
+  onRefuseRevival: () => void;
 }
 
 export interface IPlaceResult {
@@ -31,10 +35,17 @@ export interface IPlaceResult {
  * Place a game view component.
  * @returns Unmount point with newly created store.
  */
-export function place({ i18n, node, onSpeak }: IPlaceOptions) {
+export function place({ i18n, node, onSpeak, onRefuseRevival }: IPlaceOptions) {
   const store = new GameStore();
 
-  const com = <Game i18n={i18n} store={store} onSpeak={onSpeak} />;
+  const com = (
+    <Game
+      i18n={i18n}
+      store={store}
+      onSpeak={onSpeak}
+      onRefuseRevival={onRefuseRevival}
+    />
+  );
 
   ReactDOM.render(com, node);
 

@@ -45,7 +45,7 @@ exports.start=(roomid)->
             day=this_logdata.day    # 現在
         else if myrules.day!="all"
             day=parseInt myrules.day    # 表示したい日
-        
+
         if day?
             # 表示する
             sheet.insertRule "#logs > div:not([data-day=\"#{day}\"]){display: none}",0
@@ -64,6 +64,17 @@ exports.start=(roomid)->
                         if result?
                             # TODO
                             Index.util.message "エラー", result
+                onRefuseRevival: ()->
+                    # 蘇生辞退ボタン
+                    Index.util.ask "蘇生辞退","一度蘇生辞退をすると解除することができません。よろしいですか？",(result)->
+                        if result
+                            ss.rpc "game.game.norevive", roomid, (result)->
+                                if result?
+                                    # エラー
+                                    Index.util.message "エラー",result
+                                else
+                                    Index.util.message "蘇生辞退","蘇生を辞退しました。"
+
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
@@ -139,7 +150,7 @@ exports.start=(roomid)->
                         a=$ "<a href='/manual/job/#{o.type}'>#{if obj.desc.length==1 then '詳細' else "#{o.name}の詳細"}</a>"
                         infop.append a
                     infop.append "）"
-                        
+
 
                 $("#jobinfo").append infop
             if obj.myteam?
@@ -179,7 +190,7 @@ exports.start=(roomid)->
                 $("#jobinfo").append pp "あなたのプレイヤー番号は#{obj.quantumwerewolf_number}番です"
             if obj.twins?
                 $("#jobinfo").append pp "双子は#{obj.twins.map((x)->x.name).join(',')}"
-            
+
             if obj.winner?
                 # 勝敗
                 $("#jobinfo").append pp "#{if obj.winner then '勝利' else '敗北'}しました"
@@ -190,7 +201,7 @@ exports.start=(roomid)->
                 document.body.classList.remove "heaven"
             if obj.will
                 $("#willform").get(0).elements["will"].value=obj.will
-                
+
             if game=obj.game
                 if game.finished
                     # 終了
@@ -284,7 +295,7 @@ exports.start=(roomid)->
                         a.click()
                         document.body.removeChild a
 
-                
+
                 result.logs.forEach getlog
                 gettimer parseInt(result.timer),result.timer_mode if result.timer?
 
@@ -488,7 +499,7 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
-                
+
         speakform=$("#speakform").get 0
         speakform.elements["willbutton"].addEventListener "click", (e)->
             # 遺言フォームオープン
@@ -527,10 +538,10 @@ exports.start=(roomid)->
             if je.keyCode==13 && je.shiftKey && je.target.form.elements["multilinecheck"].checked==false
                 # 複数行にする
                 je.target.form.elements["multilinecheck"].click()
-                
+
                 je.preventDefault()
-                
-        
+
+
         # ルール表示
         $("#speakform").get(0).elements["rulebutton"].addEventListener "click", (e)->
             return unless this_rule?
@@ -597,7 +608,7 @@ exports.start=(roomid)->
                         win.append p
             console.log "rule!", this_rule.rule
             chkrule this_rule.rule, jobcountobj,Shared.game.rules
-            
+
         $("#willform").submit (je)->
             form=je.target
             je.preventDefault()
@@ -607,7 +618,7 @@ exports.start=(roomid)->
                 else
                     $("#willform").get(0).hidden=true
                     $("#speakform").get(0).elements["willbutton"].value="遺言"
-        
+
         # 夜の仕事（あと投票）
         $("#jobform").submit (je)->
             form=je.target
@@ -629,19 +640,8 @@ exports.start=(roomid)->
                 # 送信ボタン
                 bt.form.elements["commandname"].value=bt.name   # コマンド名教えてあげる
                 bt.form.elements["jobtype"].value=bt.dataset.job    # 役職名も教えてあげる
-        # 蘇生辞退ボタン
-        $("#speakform").get(0).elements["norevivebutton"].addEventListener "click",(e)->
-            Index.util.ask "蘇生辞退","一度蘇生辞退をすると解除することができません。よろしいですか？",(result)->
-                if result
-                    ss.rpc "game.game.norevive", roomid, (result)->
-                        if result?
-                            # エラー
-                            Index.util.message "エラー",result
-                        else
-                            Index.util.message "蘇生辞退","蘇生を辞退しました。"
-        ,false
         #========================================
-            
+
         # 誰かが参加した!!!!
         socket_ids.push Index.socket.on "join","room#{roomid}",(msg,channel)->
             room.players.push msg
@@ -662,7 +662,7 @@ exports.start=(roomid)->
         # 誰かが出て行った!!!
         socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
             room.players=room.players.filter (x)->x.userid!=msg
-            
+
             $("#players li").filter((idx)-> this.dataset.id==msg).remove()
             forminfo()
         # kickされた
@@ -689,7 +689,7 @@ exports.start=(roomid)->
                     li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
                     li.replaceWith makeplayerbox pl,room.blind
                     forminfo()
-            
+
         # ログが流れてきた!!!
         socket_ids.push Index.socket.on "log",null,(msg,channel)->
             #if channel=="room#{roomid}" || channel.indexOf("room#{roomid}_")==0 || channel==Index.app.userid()
@@ -735,7 +735,7 @@ exports.start=(roomid)->
             if msg.id==roomid
                 # Index.util.message "突然死の罰",msg.name+" は突然死のために部屋に参加できなくなった。"
                 console.log "room:",msg.id,msg
-    
+
         $(document).click (je)->
             # クリックで発言強調
             li=if je.target.tagName.toLowerCase()=="li" then je.target else $(je.target).parents("li").get 0
@@ -752,12 +752,12 @@ exports.start=(roomid)->
             setcss()
         .click (je)->
             je.stopPropagation()
-        
+
         # プレイヤー一覧の情報を開始フォームに反映
         forminfo=()->
             number = room.players.length
             game_start_control?.store.setPlayersNumber number
-            
+
     #ログをもらった
     getlog=(log)->
         if log.mode in ["voteresult","probability_table"]
@@ -769,7 +769,7 @@ exports.start=(roomid)->
             div=document.createElement "div"
             div.classList.add "name"
             p.appendChild div
-            
+
             tb=document.createElement "table"
             if log.mode=="voteresult"
                 tb.createCaption().textContent="投票結果"
@@ -835,7 +835,7 @@ exports.start=(roomid)->
             div.classList.add "name"
             icondiv=document.createElement "div"
             icondiv.classList.add "icon"
-            
+
             if log.name?
                 div.textContent=switch log.mode
                     when "monologue", "heavenmonologue"
@@ -855,13 +855,13 @@ exports.start=(roomid)->
             p.appendChild icondiv
             p.appendChild div
             p.dataset.name=log.name
-            
+
             span=document.createElement "div"
             span.classList.add "comment"
             if log.size in ["big","small"]
                 # 大/小発言
                 span.classList.add log.size
-            
+
             wrdv=document.createElement "div"
             wrdv.textContent=log.comment ? ""
             # 改行の処理
@@ -870,10 +870,10 @@ exports.start=(roomid)->
             while spp? && (wr=spp.nodeValue.indexOf("\n"))>=0
                 spp=spp.splitText wr+1
                 wrdv.insertBefore document.createElement("br"),spp
-            
+
             parselognode wrdv
             span.appendChild wrdv
-            
+
             p.appendChild span
             if log.time?
                 time=Index.util.timeFromDate new Date log.time
@@ -884,7 +884,7 @@ exports.start=(roomid)->
                 p.id="turn_#{log.day}#{if log.night then '_night' else ''}"
                 this_logdata.day=log.day
                 this_logdata.night=log.night
-                
+
                 if log.night==false || log.day==1
                     # 朝の場合optgroupに追加
                     option=document.createElement "option"
@@ -899,12 +899,12 @@ exports.start=(roomid)->
                 p.dataset.night="night"
         else
             p.dataset.day=0
-        
+
         p.classList.add log.mode
-        
+
         logs=$("#logs").get 0
         logs.insertBefore p,logs.firstChild
-    
+
     # プレイヤーオブジェクトのプロパティを得る
     ###
     getprop=(obj,propname)->
@@ -926,7 +926,7 @@ exports.start=(roomid)->
             # 上の一覧用
             li=makeplayerbox x
             $("#players").append li
-            
+
             # アイコン
             if x.icon
                 this_icons[x.name]=x.icon
@@ -964,16 +964,16 @@ exports.start=(roomid)->
             sec=remain_time%60
             $("#time").text "#{mode || ''} #{min}:#{sec}"
         ,1000
-            
+
     makebutton=(text,title="")->
         b=document.createElement "button"
         b.type="button"
         b.textContent=text
         b.title=title
         b
-        
-        
-            
+
+
+
 exports.end=->
     # unmount react components.
     game_start_control?.unmount()
@@ -988,12 +988,12 @@ exports.end=->
     document.body.classList.remove x for x in ["day","night","finished","heaven"]
     if this_style?
         $(this_style).remove()
-    
+
 #ソケットを全部off
 alloff= (ids...)->
     ids.forEach (x)->
         Index.socket.off x
-        
+
 # ノードのコメントなどをパースする
 exports.parselognode=parselognode=(node)->
     if node.nodeType==Node.TEXT_NODE
@@ -1025,7 +1025,7 @@ exports.parselognode=parselognode=(node)->
                 node=node.splitText url.length
                 node.parentNode.replaceChild a,node.previousSibling
                 continue
-                
+
             if res=v.match /^(.*?)#(\d+)/
                 if res[1]
                     # 前の部分
@@ -1044,12 +1044,12 @@ exports.parselognode=parselognode=(node)->
         for ch in node.childNodes
             if ch.parentNode== node
                 parselognode ch
-            
+
 # #players用要素
 makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
     #df=document.createDocumentFragment()
     df=document.createElement tagname
-    
+
     df.dataset.id=obj.id ? obj.userid
     df.dataset.name=obj.name
     if obj.icon
@@ -1066,7 +1066,7 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
         df.classList.add "icon"
     p=document.createElement "p"
     p.classList.add "name"
-    
+
     if obj.realid
         a=document.createElement "a"
         a.href="/user/#{obj.realid}"

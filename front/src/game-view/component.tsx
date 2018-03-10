@@ -22,6 +22,10 @@ interface IPropGame {
    * Handle a speak event.
    */
   onSpeak: (query: SpeakQuery) => void;
+  /**
+   * Handle a refuse revival event.
+   */
+  onRefuseRevival: () => void;
 }
 
 @observer
@@ -40,6 +44,7 @@ export class Game extends React.Component<IPropGame, {}> {
           onUpdate={this.handleSpeakUpdate}
           onUpdateLogVisibility={this.handleLogVisibilityUpdate}
           onSpeak={this.handleSpeak}
+          onRefuseRevival={this.props.onRefuseRevival}
           {...speakState}
         />
       </div>

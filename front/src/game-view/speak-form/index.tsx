@@ -38,6 +38,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Speak a comment.
    */
   onSpeak: (query: SpeakQuery) => void;
+  /**
+   * Push a refuse revival button.
+   */
+  onRefuseRevival: () => void;
 }
 /**
  * Speaking controls.
@@ -275,6 +279,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
    */
   @bind
   protected handleRefuseRevival(): void {
-    // TODO
+    this.props.onRefuseRevival();
   }
 }
