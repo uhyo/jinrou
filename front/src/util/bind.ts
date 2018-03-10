@@ -1,3 +1,1 @@
-export {
-    bind,
-} from 'bind-decorator';
+export { bind } from 'bind-decorator';
