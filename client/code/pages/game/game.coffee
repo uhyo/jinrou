@@ -66,14 +66,12 @@ exports.start=(roomid)->
                             Index.util.message "エラー", result
                 onRefuseRevival: ()->
                     # 蘇生辞退ボタン
-                    Index.util.ask "蘇生辞退","一度蘇生辞退をすると解除することができません。よろしいですか？",(result)->
-                        if result
-                            ss.rpc "game.game.norevive", roomid, (result)->
-                                if result?
-                                    # エラー
-                                    Index.util.message "エラー",result
-                                else
-                                    Index.util.message "蘇生辞退","蘇生を辞退しました。"
+                    new Promise (resolve, reject)->
+                        ss.rpc "game.game.norevive", roomid, (result)->
+                            if result?
+                                reject result
+                            else
+                                resolve()
 
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter

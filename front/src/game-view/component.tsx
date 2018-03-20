@@ -9,6 +9,8 @@ import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 
+import { showConfirmDialog } from '../dialog';
+
 interface IPropGame {
   /**
    * i18n instance.
@@ -44,7 +46,7 @@ export class Game extends React.Component<IPropGame, {}> {
           onUpdate={this.handleSpeakUpdate}
           onUpdateLogVisibility={this.handleLogVisibilityUpdate}
           onSpeak={this.handleSpeak}
-          onRefuseRevival={this.props.onRefuseRevival}
+          onRefuseRevival={this.handleRefuseRevival}
           {...speakState}
         />
       </div>
@@ -81,5 +83,13 @@ export class Game extends React.Component<IPropGame, {}> {
       },
     });
     onSpeak(query);
+  }
+  /**
+   * Handle a refuse revival event.
+   */
+  @bind
+  protected handleRefuseRevival(): void {
+    const { onRefuseRevival } = this.props;
+    onRefuseRevival();
   }
 }

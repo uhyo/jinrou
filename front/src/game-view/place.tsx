@@ -5,6 +5,7 @@ import { i18n } from 'i18next';
 import { GameStore } from './store';
 import { Game } from './component';
 import { SpeakQuery } from './defs';
+import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
 /**
  * Options to place.
@@ -25,7 +26,7 @@ export interface IPlaceOptions {
   /**
    * Handle a refuse revival event.
    */
-  onRefuseRevival: () => void;
+  onRefuseRevival: () => Promise<void>;
 }
 
 export interface IPlaceResult {
@@ -37,13 +38,15 @@ export interface IPlaceResult {
  */
 export function place({ i18n, node, onSpeak, onRefuseRevival }: IPlaceOptions) {
   const store = new GameStore();
+  // 蘇生辞退時のロジックを作る
+  const refuseRevivalLogic = makeRefuseRevivalLogic(i18n, onRefuseRevival);
 
   const com = (
     <Game
       i18n={i18n}
       store={store}
       onSpeak={onSpeak}
-      onRefuseRevival={onRefuseRevival}
+      onRefuseRevival={refuseRevivalLogic}
     />
   );
 

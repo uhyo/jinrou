@@ -107,4 +107,15 @@ speak:
     oneday: "{{day}}日目"
   # label of refuse revival button.
   refuseRevival: "蘇生辞退"
+# Game view: refuse revival.
+refuseRevival:
+  # name of the refuse revival feature.
+  title: "蘇生辞退"
+  # Confirm whether one really wants to refuse revival.
+  confirm: "一度蘇生辞退をすると解除することができません。よろしいですか？"
+  # result of logic.
+  result: "蘇生を辞退しました。"
+  # yes/no
+  yes: "OK"
+  no: "キャンセル"
 
