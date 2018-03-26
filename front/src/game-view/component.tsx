@@ -37,7 +37,9 @@ export class Game extends React.Component<IPropGame, {}> {
     const { gameInfo, roleInfo, speakState, logVisibility } = store;
     return (
       <div>
+        {/* Information of your role. */}
         {roleInfo != null ? <JobInfo i18n={i18n} {...roleInfo} /> : null}
+        {/* Form for speak and other utilities. */}
         <SpeakForm
           i18n={i18n}
           gameInfo={gameInfo}
@@ -49,6 +51,7 @@ export class Game extends React.Component<IPropGame, {}> {
           onRefuseRevival={this.handleRefuseRevival}
           {...speakState}
         />
+        {/* Logs. */}
       </div>
     );
   }
