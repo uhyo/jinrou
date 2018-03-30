@@ -4,7 +4,7 @@ import { i18n } from 'i18next';
 
 import { GameStore } from './store';
 import { Game } from './component';
-import { SpeakQuery } from './defs';
+import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
 /**
@@ -30,13 +30,25 @@ export interface IPlaceOptions {
 }
 
 export interface IPlaceResult {
+  /**
+   * store.
+   */
+  store: GameStore;
+  /**
+   * Unmount the component placed by place().
+   */
   unmount(): void;
 }
 /**
  * Place a game view component.
  * @returns Unmount point with newly created store.
  */
-export function place({ i18n, node, onSpeak, onRefuseRevival }: IPlaceOptions) {
+export function place({
+  i18n,
+  node,
+  onSpeak,
+  onRefuseRevival,
+}: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
   // 蘇生辞退時のロジックを作る
   const refuseRevivalLogic = makeRefuseRevivalLogic(i18n, onRefuseRevival);

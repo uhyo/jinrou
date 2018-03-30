@@ -1,6 +1,6 @@
 import { action, computed, observable } from 'mobx';
 
-import { GameInfo, RoleInfo, SpeakState, LogVisibility } from './defs';
+import { GameInfo, RoleInfo, SpeakState, LogVisibility, Log } from './defs';
 
 /**
  * Query of updating the store.
@@ -43,6 +43,10 @@ export class GameStore {
   logVisibility: LogVisibility = {
     type: 'all',
   };
+  /**
+   * All logs.
+   */
+  @observable logs: Log[] = [];
 
   /**
    * Update current role information.
@@ -74,5 +78,22 @@ export class GameStore {
     ) {
       this.speakState.kind = this.roleInfo.speak[0] || '';
     }
+  }
+
+  /**
+   * Add a log to the store.
+   */
+  @action
+  public addLog(log: Log): void {
+    console.log('adddddd');
+    this.logs.push(log);
+  }
+
+  /**
+   * Prepend logs to the store.
+   */
+  @action
+  public prependLogs(logs: Log[]): void {
+    this.logs.splice(0, 0, ...logs);
   }
 }

@@ -758,6 +758,7 @@ exports.start=(roomid)->
 
     #ログをもらった
     getlog=(log)->
+        game_view?.store.addLog log
         if log.mode in ["voteresult","probability_table"]
             # 表を出す
             p=document.createElement "div"

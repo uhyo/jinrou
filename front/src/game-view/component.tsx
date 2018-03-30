@@ -8,6 +8,7 @@ import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
+import { Logs } from './logs';
 
 import { showConfirmDialog } from '../dialog';
 
@@ -52,6 +53,7 @@ export class Game extends React.Component<IPropGame, {}> {
           {...speakState}
         />
         {/* Logs. */}
+        <Logs logs={store.logs} visibility={store.logVisibility} />
       </div>
     );
   }

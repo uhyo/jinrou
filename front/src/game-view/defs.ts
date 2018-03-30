@@ -99,3 +99,85 @@ export interface SpeakQuery {
    */
   size: 'big' | '' | 'small';
 }
+
+/**
+ * Normal Log.
+ */
+export interface NormalLog {
+  /**
+   * Type of this log.
+   */
+  mode:
+    | 'day'
+    | 'system'
+    | 'werewolf'
+    | 'heaven'
+    | 'prepare'
+    | 'skill'
+    | 'audience'
+    | 'monologue'
+    | 'couple'
+    | 'fox'
+    | 'will'
+    | 'userinfo'
+    | 'madcouple'
+    | 'wolfskill'
+    | 'emmaskill'
+    | 'eyeswolfskill';
+  /**
+   * Content of this log.
+   */
+  comment: string;
+  /**
+   * Userid.
+   */
+  userid: string;
+  /**
+   * Displayed name of speaker.
+   */
+  name?: string;
+  /**
+   * Target of this log.
+   */
+  to: string | null;
+}
+
+/**
+ * Phase change log.
+ */
+export interface NextTurnLog {
+  mode: 'nextturn';
+  comment: string;
+  /**
+   * Day number of this log.
+   */
+  day: number;
+  /**
+   * Whether this is night.
+   */
+  night: boolean;
+  /**
+   * Whether this is a finished log.
+   */
+  finished?: boolean;
+}
+
+/**
+ * Vote result log.
+ */
+export interface VoteResultLog {
+  mode: 'voteresult';
+  /**
+   * TODO Result of all votes.
+   */
+  voteresult: any[];
+  /**
+   * TODO Dictionary of all voting.
+   */
+  tos: any;
+}
+
+/**
+ * Type of log.
+ */
+export type Log = NormalLog | NextTurnLog | VoteResultLog;
