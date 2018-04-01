@@ -35,13 +35,28 @@ export interface RoleDesc {
   type: string;
 }
 /**
- * Provided info og game.
+ * Provided info of game.
  */
 export interface GameInfo {
   /**
    * Current day.
    */
   day: number;
+}
+
+/**
+ * Provided information of rule setting.
+ */
+export interface RuleInfo {
+  /**
+   * Job number settings.
+   */
+  jobNumbers: Record<string, number> | undefined;
+  /**
+   * Rule settings.
+   * It may not exist at certain cituations.
+   */
+  rule: Record<string, string> | undefined;
 }
 
 /**

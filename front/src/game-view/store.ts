@@ -1,6 +1,13 @@
 import { action, computed, observable } from 'mobx';
 
-import { GameInfo, RoleInfo, SpeakState, LogVisibility, Log } from './defs';
+import {
+  GameInfo,
+  RoleInfo,
+  RuleInfo,
+  SpeakState,
+  LogVisibility,
+  Log,
+} from './defs';
 
 /**
  * Query of updating the store.
@@ -10,7 +17,7 @@ export interface UpdateQuery {
   roleInfo?: RoleInfo | null;
   speakState?: Partial<SpeakState>;
   logVisibility?: LogVisibility;
-  rule?: Record<string, string>;
+  rule?: RuleInfo;
   icons?: Record<string, string | undefined>;
 }
 /**
@@ -52,7 +59,11 @@ export class GameStore {
   /**
    * Current rule.
    */
-  @observable.shallow rule: Record<string, string> = {};
+  @observable
+  rule: RuleInfo = {
+    jobNumbers: undefined,
+    rule: undefined,
+  };
   /**
    * All logs.
    */
@@ -103,7 +114,6 @@ export class GameStore {
    */
   @action
   public addLog(log: Log): void {
-    console.log('adddddd');
     this.logs.push(log);
   }
 

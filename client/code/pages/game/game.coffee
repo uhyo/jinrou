@@ -144,6 +144,14 @@ exports.start=(roomid)->
                         }
                     else
                         undefined
+                rule:
+                    if obj.game?
+                        {
+                            jobNumbers: obj.game.jobscount
+                            rule: obj.game.rule
+                        }
+                    else
+                        undefined
                 icons: player_icons
             }
 

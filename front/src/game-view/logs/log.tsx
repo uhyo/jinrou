@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { autolink } from 'my-autolink';
 import styled, { withProps } from '../../util/styled';
-import { Log } from '../defs';
+import { RuleInfo, Log } from '../defs';
 import { i18n, I18n } from '../../i18n';
 
 export interface IPropOneLog {
@@ -17,7 +17,7 @@ export interface IPropOneLog {
   /**
    * Current rule setting.
    */
-  rule: Record<string, string>;
+  rule: RuleInfo;
 }
 
 /**
@@ -25,7 +25,7 @@ export interface IPropOneLog {
  */
 export class OneLog extends React.PureComponent<IPropOneLog, {}> {
   public render() {
-    const { i18n, log, rule, icons } = this.props;
+    const { i18n, log, rule: { rule }, icons } = this.props;
     if (log.mode === 'voteresult') {
       // log of vote result table
       return (
@@ -77,7 +77,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
                   <thead>
                     <tr>
                       <th>{t('log.probabilityTable.name')}</th>
-                      {rule.quantumwerewolf_diviner === 'on' ? (
+                      {rule && rule.quantumwerewolf_diviner === 'on' ? (
                         // Show probability for Diviner and Human separately.
                         <>
                           {/* 村人 */}
@@ -91,7 +91,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
                       )}
                       /* 人狼 */
                       <th>{t('log.probabilityTable.Werewolf')}</th>
-                      {rule.quantumwerewolf_dead !== 'no' ? (
+                      {rule && rule.quantumwerewolf_dead !== 'no' ? (
                         /* 死亡 */
                         <th>{t('log.probabilityTable.dead')}</th>
                       ) : null}
@@ -104,11 +104,11 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
                         <ProbabilityTr dead={obj.dead === 1}>
                           <td>{obj.name}</td>
                           <ProbTd prob={obj.Human} />
-                          {rule.quantumwerewolf_diviner === 'on' ? (
+                          {rule && rule.quantumwerewolf_diviner === 'on' ? (
                             <ProbTd prob={obj.Diviner} />
                           ) : null}
                           <ProbTd prob={obj.Werewolf} />
-                          {rule.quantumwerewolf_dead !== 'no' ? (
+                          {rule && rule.quantumwerewolf_dead !== 'no' ? (
                             <ProbTd prob={obj.dead} />
                           ) : null}
                         </ProbabilityTr>

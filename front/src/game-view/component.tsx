@@ -35,7 +35,7 @@ interface IPropGame {
 export class Game extends React.Component<IPropGame, {}> {
   public render() {
     const { i18n, store } = this.props;
-    const { gameInfo, roleInfo, speakState, logVisibility } = store;
+    const { gameInfo, roleInfo, speakState, logVisibility, rule } = store;
     return (
       <div>
         {/* Information of your role. */}
@@ -46,6 +46,7 @@ export class Game extends React.Component<IPropGame, {}> {
           gameInfo={gameInfo}
           roleInfo={roleInfo}
           logVisibility={logVisibility}
+          rule={rule.rule != null}
           onUpdate={this.handleSpeakUpdate}
           onUpdateLogVisibility={this.handleLogVisibilityUpdate}
           onSpeak={this.handleSpeak}

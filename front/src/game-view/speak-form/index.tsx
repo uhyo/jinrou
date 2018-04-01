@@ -27,6 +27,10 @@ export interface IPropSpeakForm extends SpeakState {
    */
   logVisibility: LogVisibility;
   /**
+   * Whether rule is available now.
+   */
+  rule: boolean;
+  /**
    * update to a speak form state.
    */
   onUpdate: (obj: Partial<SpeakState>) => void;
@@ -66,6 +70,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
       multiline,
       willOpen,
       logVisibility,
+      rule,
     } = this.props;
 
     // list of speech kind.
@@ -117,7 +122,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   // special handling of speech kind.
                   let label;
                   if (value.startsWith('gmreply_')) {
-                    // TODO
                     label = t('game_client:speak.kind.gmreply', {
                       target: value.slice(8),
                     });
@@ -148,7 +152,11 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 {t('game_client:speak.will.open')}
               </button>
               {/* Show rule button. */}
-              <button type="button" onClick={this.handleRuleClick}>
+              <button
+                type="button"
+                onClick={this.handleRuleClick}
+                disabled={!rule}
+              >
                 {t('game_client:speak.rule')}
               </button>
               {/* Log visibility control. */}
