@@ -20,31 +20,31 @@
   "devDependencies": {
     "@types/i18next": "^8.4.3",
     "@types/i18next-xhr-backend": "^1.4.1",
-    "@types/react": "^16.0.41",
+    "@types/react": "^16.1.0",
     "@types/react-dom": "^16.0.4",
     "json-loader": "^0.5.7",
     "npm-run-all": "^4.1.2",
     "rimraf": "^2.6.2",
     "source-map-loader": "^0.2.3",
-    "typescript": "^2.7.2",
-    "webpack": "^4.2.0",
+    "typescript": "^2.8.1",
+    "webpack": "^4.4.1",
     "webpack-cli": "^2.0.13",
     "yaml-loader": "^0.5.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome": "^1.1.4",
-    "@fortawesome/fontawesome-free-regular": "^5.0.8",
-    "@fortawesome/fontawesome-free-solid": "^5.0.8",
-    "@fortawesome/fontawesome-svg-core": "^1.2.0-9",
+    "@fortawesome/fontawesome": "^1.1.5",
+    "@fortawesome/fontawesome-free-regular": "^5.0.9",
+    "@fortawesome/fontawesome-free-solid": "^5.0.9",
+    "@fortawesome/fontawesome-svg-core": "^1.2.0-10",
     "@fortawesome/react-fontawesome": "0.1.0-6",
     "bind-decorator": "^1.0.11",
     "i18next": "^10.6.0",
     "i18next-xhr-backend": "^1.5.1",
-    "mobx": "^4.1.0",
+    "mobx": "^4.1.1",
     "mobx-react": "^5.0.0",
     "my-autolink": "^0.1.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "styled-components": "^3.2.3"
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "styled-components": "^3.2.5"
   }
 }
