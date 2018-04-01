@@ -54,6 +54,7 @@ export class Game extends React.Component<IPropGame, {}> {
         />
         {/* Logs. */}
         <Logs
+          i18n={i18n}
           logs={store.logs}
           visibility={store.logVisibility}
           icons={store.icons}

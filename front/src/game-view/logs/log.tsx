@@ -2,8 +2,10 @@ import * as React from 'react';
 import { autolink } from 'my-autolink';
 import styled, { withProps } from '../../util/styled';
 import { Log } from '../defs';
+import { i18n, I18n } from '../../i18n';
 
 export interface IPropOneLog {
+  i18n: i18n;
   /**
    * Log to show.
    */
@@ -23,77 +25,100 @@ export interface IPropOneLog {
  */
 export class OneLog extends React.PureComponent<IPropOneLog, {}> {
   public render() {
-    const { log, rule, icons } = this.props;
+    const { i18n, log, rule, icons } = this.props;
     if (log.mode === 'voteresult') {
       // log of vote result table
       return (
         <logComponents.voteresult>
-          <Icon />
-          <Name />
-          <table>
-            <caption>投票結果</caption>
-            <tbody>
-              {log.voteresult.map(({ id, name, voteto }) => {
-                const votecount = log.tos[id] || 0;
-                // Name of vote target
-                const vt = log.voteresult.filter(x => x.id === voteto)[0];
-                const targetname = (vt ? vt.name : '') || '';
-                return (
-                  <tr key={id}>
-                    <td>{name}</td>
-                    <td>{log.tos[id] || 0}票</td>
-                    <td>→{targetname}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <Time time={new Date(log.time)} />
+          <I18n i18n={i18n} namespace="game_client">
+            {t => (
+              <>
+                <Icon />
+                <Name />
+                <table>
+                  {/* Vote result caption */}
+                  <caption>{t('log.voteResult.caption')}</caption>
+                  <tbody>
+                    {log.voteresult.map(({ id, name, voteto }) => {
+                      const votecount = log.tos[id] || 0;
+                      // Name of vote target
+                      const vt = log.voteresult.filter(x => x.id === voteto)[0];
+                      const targetname = (vt ? vt.name : '') || '';
+                      return (
+                        <tr key={id}>
+                          <td>{name}</td>
+                          <td>
+                            {t('log.voteResult.count', { count: votecount })}
+                          </td>
+                          <td>→{targetname}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <Time time={new Date(log.time)} />
+              </>
+            )}
+          </I18n>
         </logComponents.voteresult>
       );
     } else if (log.mode === 'probabilitytable') {
       // log of probability table for Quantum Werewwolf
       return (
         <div>
-          <Icon />
-          <Name />
-          <table>
-            <caption>確率表</caption>
-            <thead>
-              <tr>
-                <th>名前</th>
-                {rule.quantumwerewolf_diviner === 'on' ? (
-                  // Show probability for Diviner and Human separately.
-                  <>
-                    <th>村人</th>
-                    <th>占い師</th>
-                  </>
-                ) : (
-                  <th>人間</th>
-                )}
-                <th>人狼</th>
-                {rule.quantumwerewolf_dead !== 'no' ? <th>死亡</th> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {Object.keys(log.probability_table).map(id => {
-                const obj = log.probability_table[id];
-                return (
-                  <ProbabilityTr dead={obj.dead === 1}>
-                    <td>{obj.name}</td>
-                    <ProbTd prob={obj.Human} />
-                    {rule.quantumwerewolf_diviner === 'on' ? (
-                      <ProbTd prob={obj.Diviner} />
-                    ) : null}
-                    <ProbTd prob={obj.Werewolf} />
-                    {rule.quantumwerewolf_dead !== 'no' ? (
-                      <ProbTd prob={obj.dead} />
-                    ) : null}
-                  </ProbabilityTr>
-                );
-              })}
-            </tbody>
-          </table>
+          <I18n i18n={i18n} namespace="game_client">
+            {t => (
+              <>
+                <Icon />
+                <Name />
+                <table>
+                  {/* Probability table caption */}
+                  <caption>{t('log.probabilityTable.caption')}</caption>
+                  <thead>
+                    <tr>
+                      <th>{t('log.probabilityTable.name')}</th>
+                      {rule.quantumwerewolf_diviner === 'on' ? (
+                        // Show probability for Diviner and Human separately.
+                        <>
+                          {/* 村人 */}
+                          <th>{t('log.probabilityTable.Villager')}</th>
+                          {/* 占い師 */}
+                          <th>{t('log.probabilityTable.Diviner')}</th>
+                        </>
+                      ) : (
+                        /* 人間 */
+                        <th>{t('log.probabilityTable.Human')}</th>
+                      )}
+                      /* 人狼 */
+                      <th>{t('log.probabilityTable.Werewolf')}</th>
+                      {rule.quantumwerewolf_dead !== 'no' ? (
+                        /* 死亡 */
+                        <th>{t('log.probabilityTable.dead')}</th>
+                      ) : null}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.keys(log.probability_table).map(id => {
+                      const obj = log.probability_table[id];
+                      return (
+                        <ProbabilityTr dead={obj.dead === 1}>
+                          <td>{obj.name}</td>
+                          <ProbTd prob={obj.Human} />
+                          {rule.quantumwerewolf_diviner === 'on' ? (
+                            <ProbTd prob={obj.Diviner} />
+                          ) : null}
+                          <ProbTd prob={obj.Werewolf} />
+                          {rule.quantumwerewolf_dead !== 'no' ? (
+                            <ProbTd prob={obj.dead} />
+                          ) : null}
+                        </ProbabilityTr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </>
+            )}
+          </I18n>
         </div>
       );
     } else {
@@ -102,7 +127,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
         log.mode === 'nextturn' || !log.name
           ? null
           : log.mode === 'monologue' || log.mode === 'heavenmonologue'
-            ? `${log.name}の独り言:`
+            ? i18n.t('game_client:log.monologue', { name: log.name }) + ':'
             : log.name + ':';
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];

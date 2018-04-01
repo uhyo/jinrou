@@ -2,10 +2,12 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { Log, LogVisibility } from '../defs';
+import { i18n } from '../../i18n';
 
 import { OneLog } from './log';
 
 export interface IPropLogs {
+  i18n: i18n;
   /**
    * All logs.
    */
@@ -29,13 +31,15 @@ export interface IPropLogs {
 @observer
 export class Logs extends React.PureComponent<IPropLogs, {}> {
   public render() {
-    const { logs, rule, icons } = this.props;
+    const { i18n, logs, rule, icons } = this.props;
     // MobX observable array returns a reversed copy of original array.
     const rev = logs.reverse();
     return (
       <LogWrapper>
         {rev.map((log, i) => {
-          return <OneLog key={i} log={log} rule={rule} icons={icons} />;
+          return (
+            <OneLog key={i} i18n={i18n} log={log} rule={rule} icons={icons} />
+          );
         })}
       </LogWrapper>
     );

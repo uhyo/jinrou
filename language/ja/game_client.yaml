@@ -118,4 +118,28 @@ refuseRevival:
   # yes/no
   yes: "OK"
   no: "キャンセル"
+# Game view: text related to logs.
+log:
+  # ote result log.
+  voteResult:
+    # Caption of vote result table.
+    caption: "投票結果"
+    # Count of votes.
+    count: "{{count}}票"
+  # Probability table.
+  probabilityTable:
+    # Caption of probability table.
+    caption: "確率表"
+    # Name of player.
+    name: "名前"
+    # Villager column.
+    Villager: "村人"
+    # Diviner column,
+    Diviner: "占い師"
+    # Human column.
+    Human: "人間"
+    Werewolf: "人狼"
+    dead: "死亡"
+  # 独り言
+  monologue: "{{name}}の独り言"
 
