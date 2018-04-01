@@ -53,7 +53,12 @@ export class Game extends React.Component<IPropGame, {}> {
           {...speakState}
         />
         {/* Logs. */}
-        <Logs logs={store.logs} visibility={store.logVisibility} />
+        <Logs
+          logs={store.logs}
+          visibility={store.logVisibility}
+          icons={store.icons}
+          rule={store.rule}
+        />
       </div>
     );
   }

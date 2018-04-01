@@ -110,6 +110,19 @@ exports.start=(roomid)->
             return unless obj.id==this_room_id
             my_job=obj.type
             my_player_id=obj.playerid
+            # Prepare icons of players
+            player_icons = {}
+            if room.mode == "waiting"
+                # 開始前のユーザー一覧はroomから取得する
+                console.log room.players
+                for pl in room.players
+                    if pl.icon
+                        player_icons[pl.userid] = pl.icon
+            else if obj.game?.players?
+                for pl in obj.game.players
+                    if pl.icon
+                        player_icons[pl.id] = pl.icon
+            console.log player_icons, obj.game?.players
 
             # Give info to the GameView component.
             game_view?.store.update {
@@ -131,6 +144,7 @@ exports.start=(roomid)->
                         }
                     else
                         undefined
+                icons: player_icons
             }
 
             $("#jobinfo").empty()
@@ -293,8 +307,9 @@ exports.start=(roomid)->
                         a.click()
                         document.body.removeChild a
 
-
-                result.logs.forEach getlog
+                # TODO
+                game_view.runInAction ()->
+                    result.logs.forEach getlog
                 gettimer parseInt(result.timer),result.timer_mode if result.timer?
 
         ss.rpc "game.game.getlog", roomid,sentlog

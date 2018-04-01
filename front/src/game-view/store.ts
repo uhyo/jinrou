@@ -10,6 +10,8 @@ export interface UpdateQuery {
   roleInfo?: RoleInfo | null;
   speakState?: Partial<SpeakState>;
   logVisibility?: LogVisibility;
+  rule?: Record<string, string>;
+  icons?: Record<string, string | undefined>;
 }
 /**
  * Store of current game state.
@@ -44,6 +46,14 @@ export class GameStore {
     type: 'all',
   };
   /**
+   * URL of icons of users.
+   */
+  @observable.shallow icons: Record<string, string | undefined> = {};
+  /**
+   * Current rule.
+   */
+  @observable.shallow rule: Record<string, string> = {};
+  /**
    * All logs.
    */
   @observable logs: Log[] = [];
@@ -57,6 +67,8 @@ export class GameStore {
     roleInfo,
     speakState,
     logVisibility,
+    icons,
+    rule,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -70,6 +82,12 @@ export class GameStore {
     }
     if (logVisibility != null) {
       this.logVisibility = logVisibility;
+    }
+    if (rule != null) {
+      this.rule = rule;
+    }
+    if (icons != null) {
+      this.icons = icons;
     }
     // Check consistency.
     if (

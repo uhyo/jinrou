@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { i18n } from 'i18next';
+import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
 import { Game } from './component';
@@ -35,6 +36,10 @@ export interface IPlaceResult {
    */
   store: GameStore;
   /**
+   * RunInAction helper.
+   */
+  runInAction: typeof runInAction;
+  /**
    * Unmount the component placed by place().
    */
   unmount(): void;
@@ -66,6 +71,7 @@ export function place({
 
   return {
     store,
+    runInAction,
     unmount: () => {
       ReactDOM.unmountComponentAtNode(node);
     },

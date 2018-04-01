@@ -101,9 +101,16 @@ export interface SpeakQuery {
 }
 
 /**
+ * Base of log.
+ */
+export interface LogBase {
+  time: number;
+}
+
+/**
  * Normal Log.
  */
-export interface NormalLog {
+export interface NormalLog extends LogBase {
   /**
    * Type of this log.
    */
@@ -123,7 +130,17 @@ export interface NormalLog {
     | 'madcouple'
     | 'wolfskill'
     | 'emmaskill'
-    | 'eyeswolfskill';
+    | 'eyeswolfskill'
+    | 'half-day'
+    | 'heavenmonologue'
+    | 'voteto'
+    | 'gm'
+    | 'gmreply'
+    | 'gmheaven'
+    | 'gmaudience'
+    | 'gmmonologue'
+    | 'helperwhisper'
+    | 'inlog';
   /**
    * Content of this log.
    */
@@ -140,12 +157,16 @@ export interface NormalLog {
    * Target of this log.
    */
   to: string | null;
+  /**
+   * Size of comment.
+   */
+  size?: 'big' | 'small';
 }
 
 /**
  * Phase change log.
  */
-export interface NextTurnLog {
+export interface NextTurnLog extends LogBase {
   mode: 'nextturn';
   comment: string;
   /**
@@ -165,19 +186,43 @@ export interface NextTurnLog {
 /**
  * Vote result log.
  */
-export interface VoteResultLog {
+export interface VoteResultLog extends LogBase {
   mode: 'voteresult';
   /**
-   * TODO Result of all votes.
+   * Result of all votes.
    */
-  voteresult: any[];
+  voteresult: Array<{
+    id: string;
+    name: string;
+    voteto: string;
+  }>;
   /**
-   * TODO Dictionary of all voting.
+   * Dictionary of all voting.
    */
-  tos: any;
+  tos: Record<string, number | undefined>;
+}
+
+/**
+ * Probability table log.
+ */
+export interface ProbabilityTableLog extends LogBase {
+  mode: 'probabilitytable';
+  /**
+   * Probability table attached to this log.
+   */
+  probability_table: Record<
+    string,
+    {
+      name: string;
+      Human: number;
+      Diviner: number;
+      Werewolf: number;
+      dead: number;
+    }
+  >;
 }
 
 /**
  * Type of log.
  */
-export type Log = NormalLog | NextTurnLog | VoteResultLog;
+export type Log = NormalLog | NextTurnLog | ProbabilityTableLog | VoteResultLog;
