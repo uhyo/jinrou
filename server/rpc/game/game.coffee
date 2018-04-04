@@ -8434,8 +8434,11 @@ class Chemical extends Complex
 
         # どちらかが耐えたら耐える
         @main.die game, found, from
+        console.log "deem", @id, @dead
         isdead = @dead
-        @setDead false, null
+
+        pl = game.getPlayer @id
+        pl.setDead false, null
         if @sub?
             @sub.die game, found, from
             isdead = isdead && @dead
