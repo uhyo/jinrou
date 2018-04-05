@@ -8367,12 +8367,16 @@ class Chemical extends Complex
             0
         else if @isWerewolf()
             0
+        else if @isVampire()
+            0
         else if @isHuman()
             1
         else
             0
     werewolfCount:->
         if @isFox()
+            0
+        else if @isVampire()
             0
         else if @isWerewolf()
             if @sub?
