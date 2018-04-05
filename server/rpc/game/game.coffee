@@ -11,6 +11,9 @@ libi18n      = require '../../libs/i18n.coffee'
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
+# 身代わりセーフティありのときの除外役職一覧
+SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+
 # フェイズの一覧
 Phase =
     # 開始前
@@ -618,7 +621,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+                nogoat=nogoat.concat SAFETY_EXCLUDED_JOBS
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -3789,7 +3792,15 @@ class Copier extends Player
     sunset:(game)->
         @setTarget null
         if @scapegoat
-            alives=game.players.filter (x)->!x.dead
+            # 身代わりくんはコピーを自動選択
+            alives = []
+            for x in game.players
+                unless x.dead
+                    # 除外役職は他に比べて当選確率が4分の1
+                    if x.type in SAFETY_EXCLUDED_JOBS
+                        alives.push x
+                    else
+                        alives.push x, x, x, x
             r=Math.floor Math.random()*alives.length
             pl=alives[r]
             @job game,pl.id,{}
