@@ -13,6 +13,9 @@ i18n = libi18n.getWithDefaultNS "game"
 
 # 身代わりセーフティありのときの除外役職一覧
 SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+# 冒涜者によって冒涜されない役職
+BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
+
 
 # フェイズの一覧
 Phase =
@@ -6443,8 +6446,10 @@ class Blasphemy extends Player
         return unless pl?
 
         # まずい対象だと自分が冒涜される
-        if pl.type in ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
-            pl=this
+        for type in BLASPHEMY_DEFENCE_JOBS
+            if pl.isJobType type
+                pl = game.getPlayer @id
+                break
         return if pl.dead
         @setFlag true
 
