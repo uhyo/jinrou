@@ -6400,7 +6400,7 @@ class Bomber extends Madman
 class Blasphemy extends Player
     type:"Blasphemy"
     team:"Fox"
-    midnightSort:100
+    midnightSort:90
     sleeping:(game)->@target? || @flag
     constructor:->
         super
