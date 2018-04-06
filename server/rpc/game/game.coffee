@@ -8832,17 +8832,18 @@ module.exports.actions=(req,res,ss)->
                 frees++
             playersnumber=frees
             # 人数の確認
-            if frees<6
+            if playersnumber<6
                 res game.i18n.t "error.gamestart.playerNotEnough", {count: 6}
                 return
-            if query.jobrule=="特殊ルール.量子人狼" && frees>=20
+            if query.jobrule=="特殊ルール.量子人狼" && playersnumber>=20
                 # 多すぎてたえられない
                 res game.i18n.t "error.gamestart.tooManyQuantum", {count: 19}
                 return
             # ケミカル人狼の場合
             if query.chemical=="on"
+                frees *= 2
                 # 闇鍋と量子人狼は無理
-                if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.量子人狼"]
+                if query.jobrule in ["特殊ルール.エンドレス闇鍋","特殊ルール.量子人狼"]
                     res game.i18n.t "error.gamestart.noChemical"
                     return
                 
@@ -8861,8 +8862,7 @@ module.exports.actions=(req,res,ss)->
                     Shared.game.categories[categoryname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["category_#{categoryname}"]
 
                 # 闇鍋のときはランダムに決める
-                pls=frees   # プレイヤーの数をとっておく
-                plsh=Math.floor pls/2   # 過半数
+                plsh=Math.floor playersnumber/2   # 過半数
         
                 if query.jobrule=="特殊ルール.一部闇鍋"
                     # 一部闇鍋のときは村人のみ闇鍋
@@ -8941,53 +8941,53 @@ module.exports.actions=(req,res,ss)->
                         fox_number=0
                         vampire_number=0
                         devil_number=0
-                        if frees>=9
+                        if playersnumber>=9
                             wolf_number++
-                            if frees>=12
+                            if playersnumber>=12
                                 if Math.random()<0.6
                                     fox_number++
                                 else if Math.random()<0.7
                                     devil_number++
-                                if frees>=14
+                                if playersnumber>=14
                                     wolf_number++
-                                    if frees>=16
+                                    if playersnumber>=16
                                         if Math.random()<0.5
                                             fox_number++
                                         else if Math.random()<0.3
                                             vampire_number++
                                         else
                                             devil_number++
-                                        if frees>=18
+                                        if playersnumber>=18
                                             wolf_number++
-                                            if frees>=22
+                                            if playersnumber>=22
                                                 if Math.random()<0.2
                                                     fox_number++
                                                 else if Math.random()<0.6
                                                     vampire_number++
                                                 else if Math.random()<0.9
                                                     devil_number++
-                                            if frees>=24
+                                            if playersnumber>=24
                                                 wolf_number++
-                                                if frees>=30
+                                                if playersnumber>=30
                                                     wolf_number++
                         # ランダム調整
                         if wolf_number>1 && Math.random()<0.1
                             wolf_number--
-                        else if frees>0 && playersnumber>=10 && Math.random()<0.2
+                        else if playersnumber>0 && playersnumber>=10 && Math.random()<0.2
                             wolf_number++
                         if fox_number>1 && Math.random()<0.15
                             fox_number--
-                        else if frees>=11 && Math.random()<0.25
+                        else if playersnumber>=11 && Math.random()<0.25
                             fox_number++
-                        else if frees>=8 && Math.random()<0.1
+                        else if playersnumber>=8 && Math.random()<0.1
                             fox_number++
-                        if frees>=11 && Math.random()<0.2
+                        if playersnumber>=11 && Math.random()<0.2
                             vampire_number++
-                        if frees>=11 && Math.random()<0.2
+                        if playersnumber>=11 && Math.random()<0.2
                             devil_number++
                         # セットする
                         if joblist.category_Werewolf>0
-                            frees+=joblist.category_Werewolf
+                            playersnumber+=joblist.category_Werewolf
                         joblist.category_Werewolf=wolf_number
                         frees -= wolf_number
 
@@ -9522,7 +9522,7 @@ module.exports.actions=(req,res,ss)->
                 unless func
                     res game.i18n.t "error.gamestart.unknownCasting"
                     return
-                joblist=func frees
+                joblist=func playersnumber
                 sum=0   # 穴を埋めつつ合計数える
                 for job of jobs
                     unless joblist[job]?
@@ -9534,11 +9534,7 @@ module.exports.actions=(req,res,ss)->
                     if joblist["category_#{type}"]>0
                         sum-=parseInt joblist["category_#{type}"]
                 # 残りは村人だ！
-                if query.chemical == "on"
-                    # ケミカル人狼なので村人が大い
-                    joblist.Human = frees * 2 - sum
-                else
-                    joblist.Human=frees-sum
+                joblist.Human = frees - sum
                 ruleinfo_str=Shared.game.getrulestr query.jobrule,joblist
             if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.一部闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
                 # 闇鍋以外で配役情報を公開しないときはアレする
