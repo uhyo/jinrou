@@ -251,4 +251,4 @@ logs:
 # Tweet.
 tweet:
   # Tweet when game ended
-  gameend: "「{{roomname}}」の結果：{{result}} #月下人狼"
+  gameend: "「{{roomname}}」の結果：{{result}} #月下人狼村建て通知"
