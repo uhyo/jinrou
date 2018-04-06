@@ -2899,18 +2899,27 @@ class Player
     # 自分自身を変える
     transform:(game,newpl,override,initial=false)->
         # override: trueなら全部変える falseならメイン役職のみ変える
+        # jobnameを覚えておく
+        pl = game.getPlayer @id
+        jobname = pl.getJobname()
+        orig_name = pl.originalJobname
+        @transform_inner game, newpl, override, initial
+        pl = game.getPlayer @id
+        jobname2 = pl.getJobname()
+        if jobname != jobname2
+            # jobnameが変わったので変更
+            if initial
+                # 最初の変化（ログに残さない）
+                pl.setOriginalJobname jobname2
+            else
+                # ふつうの変化
+                pl.setOriginalJobname "#{orig_name}→#{jobname2}"
+    # transformの本体処理
+    transform_inner:(game,newpl,override)->
         @addGamelog game,"transform",newpl.type
         # 役職変化ログ
         if override || !@isComplex()
             # 全部取っ払ってnewplになる
-            newpl.setOriginalType @originalType
-            if @getJobname()!=newpl.getJobname()
-                unless initial
-                    # ふつうの変化
-                    newpl.setOriginalJobname "#{@originalJobname}→#{newpl.getJobname()}"
-                else
-                    # 最初の変化（ログに残さない）
-                    newpl.setOriginalJobname newpl.getJobname()
             pa=@getParent game
             unless pa?
                 # 親なんていない
@@ -2928,21 +2937,19 @@ class Player
                     newparent.cmplFlag=pa.cmplFlag
                     newpl.transProfile newparent
 
-                    pa.transform game,newparent,override # たのしい再帰
+                    pa.transform_inner game,newparent,override # たのしい再帰
                 else
                     # サブだった
                     pa.sub=newpl
         else
             # 中心のみ変える
             pa=game.getPlayer @id
-            orig_originalJobname=pa.originalJobname
             chain=[pa]
             while pa.main.isComplex()
                 pa=pa.main
                 chain.push pa
             # pa.mainはComplexではない
             toppl=Player.reconstruct chain, newpl, game
-            toppl.setOriginalJobname "#{orig_originalJobname}→#{toppl.getJobname()}"
             # 親なんていない
             game.players.forEach (x,i)=>
                 if x.id==@id
