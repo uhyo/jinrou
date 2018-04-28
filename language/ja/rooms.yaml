@@ -59,7 +59,7 @@ tweet:
   # A new room is made
   newRoom:
     # Tweet body
-    main: "「{{name}}」（{{id}}番{{options}}）が建てられました。"
+    main: "「{{name}}」（{{id}}番{{options}}）が建てられました。 #月下人狼村建て通知"
     # Password option
     password: "🔒パスワードあり"
     # Blind option

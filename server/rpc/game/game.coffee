@@ -11,6 +11,12 @@ libi18n      = require '../../libs/i18n.coffee'
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
+# 身代わりセーフティありのときの除外役職一覧
+SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+# 冒涜者によって冒涜されない役職
+BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
+
+
 # フェイズの一覧
 Phase =
     # 開始前
@@ -618,7 +624,7 @@ class Game
                 nogoat=nogoat.concat Shared.game.nonhumans  #人外は除く
             if @rule.safety=="full"
                 # 危ない
-                nogoat=nogoat.concat ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+                nogoat=nogoat.concat SAFETY_EXCLUDED_JOBS
             jobss=[]
             for job in Object.keys jobs
                 continue if !joblist[job] || (job in nogoat)
@@ -2893,18 +2899,27 @@ class Player
     # 自分自身を変える
     transform:(game,newpl,override,initial=false)->
         # override: trueなら全部変える falseならメイン役職のみ変える
+        # jobnameを覚えておく
+        pl = game.getPlayer @id
+        jobname = pl.getJobname()
+        orig_name = pl.originalJobname
+        @transform_inner game, newpl, override, initial
+        pl = game.getPlayer @id
+        jobname2 = pl.getJobname()
+        if jobname != jobname2
+            # jobnameが変わったので変更
+            if initial
+                # 最初の変化（ログに残さない）
+                pl.setOriginalJobname jobname2
+            else
+                # ふつうの変化
+                pl.setOriginalJobname "#{orig_name}→#{jobname2}"
+    # transformの本体処理
+    transform_inner:(game,newpl,override)->
         @addGamelog game,"transform",newpl.type
         # 役職変化ログ
         if override || !@isComplex()
             # 全部取っ払ってnewplになる
-            newpl.setOriginalType @originalType
-            if @getJobname()!=newpl.getJobname()
-                unless initial
-                    # ふつうの変化
-                    newpl.setOriginalJobname "#{@originalJobname}→#{newpl.getJobname()}"
-                else
-                    # 最初の変化（ログに残さない）
-                    newpl.setOriginalJobname newpl.getJobname()
             pa=@getParent game
             unless pa?
                 # 親なんていない
@@ -2922,21 +2937,19 @@ class Player
                     newparent.cmplFlag=pa.cmplFlag
                     newpl.transProfile newparent
 
-                    pa.transform game,newparent,override # たのしい再帰
+                    pa.transform_inner game,newparent,override # たのしい再帰
                 else
                     # サブだった
                     pa.sub=newpl
         else
             # 中心のみ変える
             pa=game.getPlayer @id
-            orig_originalJobname=pa.originalJobname
             chain=[pa]
             while pa.main.isComplex()
                 pa=pa.main
                 chain.push pa
             # pa.mainはComplexではない
             toppl=Player.reconstruct chain, newpl, game
-            toppl.setOriginalJobname "#{orig_originalJobname}→#{toppl.getJobname()}"
             # 親なんていない
             game.players.forEach (x,i)=>
                 if x.id==@id
@@ -3789,7 +3802,15 @@ class Copier extends Player
     sunset:(game)->
         @setTarget null
         if @scapegoat
-            alives=game.players.filter (x)->!x.dead
+            # 身代わりくんはコピーを自動選択
+            alives = []
+            for x in game.players
+                unless x.dead
+                    # 除外役職は他に比べて当選確率が4分の1
+                    if x.type in SAFETY_EXCLUDED_JOBS
+                        alives.push x
+                    else
+                        alives.push x, x, x, x
             r=Math.floor Math.random()*alives.length
             pl=alives[r]
             @job game,pl.id,{}
@@ -6386,7 +6407,7 @@ class Bomber extends Madman
 class Blasphemy extends Player
     type:"Blasphemy"
     team:"Fox"
-    midnightSort:100
+    midnightSort:90
     sleeping:(game)->@target? || @flag
     constructor:->
         super
@@ -6432,8 +6453,10 @@ class Blasphemy extends Player
         return unless pl?
 
         # まずい対象だと自分が冒涜される
-        if pl.type in ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
-            pl=this
+        for type in BLASPHEMY_DEFENCE_JOBS
+            if pl.isJobType type
+                pl = game.getPlayer @id
+                break
         return if pl.dead
         @setFlag true
 
@@ -8351,12 +8374,16 @@ class Chemical extends Complex
             0
         else if @isWerewolf()
             0
+        else if @isVampire()
+            0
         else if @isHuman()
             1
         else
             0
     werewolfCount:->
         if @isFox()
+            0
+        else if @isVampire()
             0
         else if @isWerewolf()
             if @sub?
@@ -8435,7 +8462,9 @@ class Chemical extends Complex
         # どちらかが耐えたら耐える
         @main.die game, found, from
         isdead = @dead
-        @setDead false, null
+
+        pl = game.getPlayer @id
+        pl.setDead false, null
         if @sub?
             @sub.die game, found, from
             isdead = isdead && @dead
@@ -8796,6 +8825,8 @@ module.exports.actions=(req,res,ss)->
             joblist={}
             for job of jobs
                 joblist[job]=0  # 一旦初期化
+            for type of Shared.game.categoryNames
+                joblist["category_#{type}"] = 0
             #frees=room.players.length  # 参加者の数
             # プレイヤーとその他に分類
             players=[]
@@ -8810,17 +8841,18 @@ module.exports.actions=(req,res,ss)->
                 frees++
             playersnumber=frees
             # 人数の確認
-            if frees<6
+            if playersnumber<6
                 res game.i18n.t "error.gamestart.playerNotEnough", {count: 6}
                 return
-            if query.jobrule=="特殊ルール.量子人狼" && frees>=20
+            if query.jobrule=="特殊ルール.量子人狼" && playersnumber>=20
                 # 多すぎてたえられない
                 res game.i18n.t "error.gamestart.tooManyQuantum", {count: 19}
                 return
             # ケミカル人狼の場合
             if query.chemical=="on"
+                frees *= 2
                 # 闇鍋と量子人狼は無理
-                if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.量子人狼"]
+                if query.jobrule in ["特殊ルール.エンドレス闇鍋","特殊ルール.量子人狼"]
                     res game.i18n.t "error.gamestart.noChemical"
                     return
                 
@@ -8839,8 +8871,7 @@ module.exports.actions=(req,res,ss)->
                     Shared.game.categories[categoryname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["category_#{categoryname}"]
 
                 # 闇鍋のときはランダムに決める
-                pls=frees   # プレイヤーの数をとっておく
-                plsh=Math.floor pls/2   # 過半数
+                plsh=Math.floor playersnumber/2   # 過半数
         
                 if query.jobrule=="特殊ルール.一部闇鍋"
                     # 一部闇鍋のときは村人のみ闇鍋
@@ -8911,120 +8942,120 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "SpiritPossessed"
                     special_exceptions.push "SpiritPossessed"
-                unless query.jobrule=="特殊ルール.一部闇鍋" && countCategory("Werewolf")>0
-                    #人外の数
-                    if safety.jingais
-                        # いい感じに決めてあげる
-                        wolf_number=1
-                        fox_number=0
-                        vampire_number=0
-                        devil_number=0
-                        if frees>=9
-                            wolf_number++
-                            if frees>=12
-                                if Math.random()<0.6
-                                    fox_number++
-                                else if Math.random()<0.7
-                                    devil_number++
-                                if frees>=14
-                                    wolf_number++
-                                    if frees>=16
-                                        if Math.random()<0.5
-                                            fox_number++
-                                        else if Math.random()<0.3
-                                            vampire_number++
-                                        else
-                                            devil_number++
-                                        if frees>=18
+
+                #人外の数
+                if safety.jingais
+                    # いい感じに決めてあげる
+                    wolf_number=1
+                    fox_number=0
+                    vampire_number=0
+                    devil_number=0
+                    if playersnumber>=9
+                        wolf_number++
+                        if playersnumber>=12
+                            if Math.random()<0.6
+                                fox_number++
+                            else if Math.random()<0.7
+                                devil_number++
+                            if playersnumber>=14
+                                wolf_number++
+                                if playersnumber>=16
+                                    if Math.random()<0.5
+                                        fox_number++
+                                    else if Math.random()<0.3
+                                        vampire_number++
+                                    else
+                                        devil_number++
+                                    if playersnumber>=18
+                                        wolf_number++
+                                        if playersnumber>=22
+                                            if Math.random()<0.2
+                                                fox_number++
+                                            else if Math.random()<0.6
+                                                vampire_number++
+                                            else if Math.random()<0.9
+                                                devil_number++
+                                        if playersnumber>=24
                                             wolf_number++
-                                            if frees>=22
-                                                if Math.random()<0.2
-                                                    fox_number++
-                                                else if Math.random()<0.6
-                                                    vampire_number++
-                                                else if Math.random()<0.9
-                                                    devil_number++
-                                            if frees>=24
+                                            if playersnumber>=30
                                                 wolf_number++
-                                                if frees>=30
-                                                    wolf_number++
-                        # ランダム調整
-                        if wolf_number>1 && Math.random()<0.1
-                            wolf_number--
-                        else if frees>0 && playersnumber>=10 && Math.random()<0.2
-                            wolf_number++
-                        if fox_number>1 && Math.random()<0.15
-                            fox_number--
-                        else if frees>=11 && Math.random()<0.25
-                            fox_number++
-                        else if frees>=8 && Math.random()<0.1
-                            fox_number++
-                        if frees>=11 && Math.random()<0.2
-                            vampire_number++
-                        if frees>=11 && Math.random()<0.2
-                            devil_number++
-                        # セットする
-                        if joblist.category_Werewolf>0
-                            frees+=joblist.category_Werewolf
-                        joblist.category_Werewolf=wolf_number
-                        frees -= wolf_number
+                    # ランダム調整
+                    if wolf_number>1 && Math.random()<0.1
+                        wolf_number--
+                    else if playersnumber>0 && playersnumber>=10 && Math.random()<0.2
+                        wolf_number++
+                    if fox_number>1 && Math.random()<0.15
+                        fox_number--
+                    else if playersnumber>=11 && Math.random()<0.25
+                        fox_number++
+                    else if playersnumber>=8 && Math.random()<0.1
+                        fox_number++
+                    if playersnumber>=11 && Math.random()<0.2
+                        vampire_number++
+                    if playersnumber>=11 && Math.random()<0.2
+                        devil_number++
 
-                        if joblist.Fox>0
-                            frees+=joblist.Fox
-                        if joblist.TinyFox>0
-                            frees+=joblist.TinyFox
-                        if joblist.Blasphemy>0
-                            frees+=joblist.Blasphemy
-                        joblist.Fox=0
-                        joblist.TinyFox=0
-                        joblist.Blasphemy=0
+                    if query.jobrule == "特殊ルール.一部闇鍋"
+                        # 一部闇鍋の指定との兼ね合いを調整する
+                        if countCategory("Werewolf") > wolf_number
+                            # 多いのでそちらに合わせる
+                            wolf_number = countCategory("Werewolf")
+                        if countCategory("Fox") + joblist.Blasphemy > fox_number
+                            fox_number = countCategory("Fox") + joblist.Blasphemy
+                    # セットする
+                    diff = wolf_number - countCategory("Werewolf")
+                    if diff > 0
+                        joblist.category_Werewolf += diff
+                        frees -= diff
 
-                        # 除外役職を入れないように気をつける
-                        nonavs = {}
-                        for job in exceptions
-                            nonavs[job] = true
-                        # 狐を振分け
-                        for i in [0...fox_number]
-                            if frees <= 0
-                                break
-                            r = Math.random()
-                            if r<0.55 && !nonavs.Fox
-                                joblist.Fox++
-                                frees--
-                            else if r<0.85 && !nonavs.TinyFox
-                                joblist.TinyFox++
-                                frees--
-                            else if !nonavs.Blasphemy
-                                joblist.Blasphemy++
-                                frees--
-                        if joblist.Vampire>0
-                            frees+=joblist.Vampire
-                        joblist.Vampire = 0
-                        if !nonavs.Vampire
-                            if vampire_number <= frees
-                                joblist.Vampire = vampire_number
-                                frees -= vampire_number
-                            else
-                                joblist.Vampire = frees
-                                frees = 0
+                    # 除外役職を入れないように気をつける
+                    nonavs = {}
+                    for job in exceptions
+                        nonavs[job] = true
 
-                        if joblist.Devil>0
-                            frees+=joblist.Devil
-                        joblist.Devil = 0
-                        if !nonavs.Devil
-                            if devil_number <= frees
-                                joblist.Devil = devil_number
-                                frees -= devil_number
-                            else
-                                joblist.Devil = frees
-                                frees = 0
-                        # 人外は選んだのでもう選ばれなくする
-                        exceptions=exceptions.concat Shared.game.nonhumans
-                        exceptions.push "Blasphemy"
-                    else
-                        # 調整しない
+                    # 狐を振分け
+                    diff = fox_number - countCategory("Fox") - joblist.Blasphemy
+
+                    for i in [0...diff]
+                        if frees <= 0
+                            break
+                        r = Math.random()
+                        if r<0.55 && !nonavs.Fox
+                            joblist.Fox++
+                            frees--
+                        else if r<0.85 && !nonavs.TinyFox
+                            joblist.TinyFox++
+                            frees--
+                        else if !nonavs.Blasphemy
+                            joblist.Blasphemy++
+                            frees--
+
+                    diff = vampire_number - joblist.Vampire
+                    if !nonavs.Vampire && diff > 0
+                        if diff <= frees
+                            joblist.Vampire += diff
+                            frees -= diff
+                        else
+                            joblist.Vampire += frees
+                            frees = 0
+
+                    diff = devil_number - joblist.Devil
+                    if !nonavs.Devil && diff > 0
+                        if diff <= frees
+                            joblist.Devil += diff
+                            frees -= diff
+                        else
+                            joblist.Devil += frees
+                            frees = 0
+                    # 人外は選んだのでもう選ばれなくする
+                    exceptions=exceptions.concat Shared.game.nonhumans
+                    exceptions.push "Blasphemy"
+                else
+                    # 人狼0は避ける最低限の調整
+                    if countCategory("Werewolf") == 0
                         joblist.category_Werewolf=1
                         frees--
+
                 
                 if safety.jingais || safety.jobs
                     if joblist.Fox==0 && joblist.TinyFox==0
@@ -9045,19 +9076,30 @@ module.exports.actions=(req,res,ss)->
                         plsh = Math.ceil(playersnumber/2)
                         if wolfteam_n >= plsh
                             wolfteam_n = plsh-1
+                        # 人狼系を数える
                         wolf_number = countCategory "Werewolf"
                         # 残りは狂人系
                         if wolf_number <= wolfteam_n
-                            joblist.category_Madman = Math.min(frees, wolfteam_n - wolf_number)
-                            frees -= joblist.category_Madman
+                            mad_number = Math.min(frees, wolfteam_n - wolf_number)
+                            diff = mad_number - countCategory("Madman")
+                            if diff > 0
+                                joblist.category_Madman += diff
+                            frees -= diff
                         # 狂人の処理終了
                         addCategoryToExceptions "Madman"
                     # 村人陣営
                     if frees>0
                         # 50%〜60%くらい
-                        humanteam_n = Math.round (playersnumber*(0.48 + Math.random()*0.12))
-                        joblist.category_Human = Math.min(frees, humanteam_n)
-                        frees -= joblist.category_Human
+                        humanteam_n =
+                            if query.chemical == "on"
+                                # ケミカルの場合は多い
+                                Math.round (playersnumber*(1.28 + Math.random()*0.12))
+                            else
+                                Math.round (playersnumber*(0.48 + Math.random()*0.12))
+                        diff = Math.min(frees, humanteam_n) - countCategory("Human")
+                        if diff > 0
+                            joblist.category_Human += diff
+                            frees -= diff
 
                         addCategoryToExceptions "Human"
                         
@@ -9500,7 +9542,7 @@ module.exports.actions=(req,res,ss)->
                 unless func
                     res game.i18n.t "error.gamestart.unknownCasting"
                     return
-                joblist=func frees
+                joblist=func playersnumber
                 sum=0   # 穴を埋めつつ合計数える
                 for job of jobs
                     unless joblist[job]?
@@ -9512,11 +9554,7 @@ module.exports.actions=(req,res,ss)->
                     if joblist["category_#{type}"]>0
                         sum-=parseInt joblist["category_#{type}"]
                 # 残りは村人だ！
-                if query.chemical == "on"
-                    # ケミカル人狼なので村人が大い
-                    joblist.Human = frees * 2 - sum
-                else
-                    joblist.Human=frees-sum
+                joblist.Human = frees - sum
                 ruleinfo_str=Shared.game.getrulestr query.jobrule,joblist
             if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.一部闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
                 # 闇鍋以外で配役情報を公開しないときはアレする
