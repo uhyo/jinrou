@@ -1,8 +1,10 @@
 import * as React from 'react';
+import { ThemeProvider } from '../util/styled';
 import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
 
 import { bind } from '../util/bind';
+import { themeStore } from '../theme';
 
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
@@ -37,31 +39,33 @@ export class Game extends React.Component<IPropGame, {}> {
     const { i18n, store } = this.props;
     const { gameInfo, roleInfo, speakState, logVisibility, rule } = store;
     return (
-      <div>
-        {/* Information of your role. */}
-        {roleInfo != null ? <JobInfo i18n={i18n} {...roleInfo} /> : null}
-        {/* Form for speak and other utilities. */}
-        <SpeakForm
-          i18n={i18n}
-          gameInfo={gameInfo}
-          roleInfo={roleInfo}
-          logVisibility={logVisibility}
-          rule={rule.rule != null}
-          onUpdate={this.handleSpeakUpdate}
-          onUpdateLogVisibility={this.handleLogVisibilityUpdate}
-          onSpeak={this.handleSpeak}
-          onRefuseRevival={this.handleRefuseRevival}
-          {...speakState}
-        />
-        {/* Logs. */}
-        <Logs
-          i18n={i18n}
-          logs={store.logs}
-          visibility={store.logVisibility}
-          icons={store.icons}
-          rule={store.rule}
-        />
-      </div>
+      <ThemeProvider theme={themeStore.themeObject}>
+        <div>
+          {/* Information of your role. */}
+          {roleInfo != null ? <JobInfo i18n={i18n} {...roleInfo} /> : null}
+          {/* Form for speak and other utilities. */}
+          <SpeakForm
+            i18n={i18n}
+            gameInfo={gameInfo}
+            roleInfo={roleInfo}
+            logVisibility={logVisibility}
+            rule={rule.rule != null}
+            onUpdate={this.handleSpeakUpdate}
+            onUpdateLogVisibility={this.handleLogVisibilityUpdate}
+            onSpeak={this.handleSpeak}
+            onRefuseRevival={this.handleRefuseRevival}
+            {...speakState}
+          />
+          {/* Logs. */}
+          <Logs
+            i18n={i18n}
+            logs={store.logs}
+            visibility={store.logVisibility}
+            icons={store.icons}
+            rule={store.rule}
+          />
+        </div>
+      </ThemeProvider>
     );
   }
   /**

@@ -29,7 +29,7 @@ export interface IPropLogs {
  * Shows all logs.
  */
 @observer
-export class Logs extends React.PureComponent<IPropLogs, {}> {
+export class Logs extends React.Component<IPropLogs, {}> {
   public render() {
     const { i18n, logs, rule, icons } = this.props;
     // MobX observable array returns a reversed copy of original array.

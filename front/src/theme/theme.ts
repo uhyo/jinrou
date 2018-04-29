@@ -3,27 +3,24 @@
  */
 export interface Theme {
   /**
-   * Backgroud color of day.
+   * Color scheme of day.
    */
-  bg_day: string;
+  day: {
+    bg: string;
+    color: string;
+  };
   /**
-   * Backgroud color of night.
+   * Color scheme of heaven.
    */
-  bg_night: string;
+  heaven: {
+    bg: string;
+    color: string;
+  };
   /**
-   * Backgroud color of heaven.
+   * Color scheme of night.
    */
-  bg_heaven: string;
-  /**
-   * Foreground color of day.
-   */
-  fg_day: string;
-  /**
-   * Foreground color of night.
-   */
-  fg_night: string;
-  /**
-   * Foreground color of heaven.
-   */
-  fg_heaven: string;
+  night: {
+    bg: string;
+    color: string;
+  };
 }

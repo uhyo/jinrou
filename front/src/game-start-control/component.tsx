@@ -2,7 +2,7 @@ import { observer } from 'mobx-react';
 import * as React from 'react';
 import styled, { ThemeProvider } from '../util/styled';
 
-import { themeStore } from '../theme';
+import { Theme } from '../theme';
 
 import { WideButton } from '../common/button';
 import { showConfirmDialog, showMessageDialog } from '../dialog';
@@ -32,7 +32,7 @@ const StatusLine = styled.div`
   top: 0;
 
   padding: 0.3em;
-  background-color: ${props => props.theme.bg_day || 'transparent'};
+  background-color: ${props => props.theme.day.bg || 'transparent'};
 `;
 
 interface IPropCasting {
@@ -40,6 +40,10 @@ interface IPropCasting {
    * i18n instance.
    */
   i18n: i18n;
+  /**
+   * current theme.
+   */
+  theme: Theme;
   /**
    * store.
    */
@@ -69,7 +73,15 @@ interface IPropCasting {
 @observer
 export class Casting extends React.Component<IPropCasting, {}> {
   public render() {
-    const { i18n, store, roles, castings, categories, ruledefs } = this.props;
+    const {
+      i18n,
+      theme,
+      store,
+      roles,
+      castings,
+      categories,
+      ruledefs,
+    } = this.props;
     const {
       playersNumber,
       currentCasting,
@@ -91,7 +103,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
     > = SelectLabeledGroup;
 
     return (
-      <ThemeProvider theme={themeStore.themeObject}>
+      <ThemeProvider theme={theme}>
         <I18n i18n={i18n} namespace="game_client">
           {t => {
             // status line indicating jobs.
