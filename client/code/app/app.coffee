@@ -8,7 +8,7 @@ ss.server.on 'disconnect', ->
 ss.server.on 'reconnect', ->
     util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
 libban = require '/ban'
-    
+
 
 # 全体告知
 ss.event.on 'grandalert', (msg)->
@@ -91,7 +91,7 @@ exports.init = ->
     ),false
     # application configを取得
     loadApplicationConfig()
-  
+
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
     jQuery.data(cdom,"end")?()
@@ -108,7 +108,7 @@ manualpage=(pagename)->
         jQuery.data(cdom,"end")?()
         jQuery.removeData cdom,"end"
         $("#content").empty()
-        
+
         $(tmp).appendTo("#content")
         pageobj=Index.manual
         if pageobj
@@ -162,7 +162,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             else
                 location.href=url
                 return
-    
+
     switch url
         when "/my"
             # プロフィールとか
@@ -293,8 +293,8 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
 
 exports.pushState=pushState=(url, query)->
     history.pushState null, null, "#{url}#{util.hashSearch query}"
-                    
-                    
+
+
 exports.refresh=->showUrl location.pathname, util.searchHash(location.search), true
 
 exports.login=login=(uid,ups,cb)->
@@ -365,7 +365,7 @@ exports.useColorProfile=useColorProfile=(cp)->
         # 設定されているものを利用
         while sheet.cssRules.length>0
             sheet.deleteRule 0
-            
+
     else
         # 新規に作る
         st=$("<style id='profilesheet'>").appendTo(document.head).get 0
@@ -391,14 +391,7 @@ body.heaven, #logs .heaven, #logs .prepare {
     color: #{cp.heaven.color};
 }""",3
     # テーマを更新
-    JinrouFront.themeStore.update {
-        bg_day: cp.day.bg
-        bg_night: cp.night.bg
-        bg_heaven: cp.heaven.bg
-        fg_day: cp.day.color
-        fg_night: cp.night.color
-        fg_heaven: cp.heaven.color
-    }
+    JinrouFront.themeStore.update cp
     return
 
 # Returns a Promise which resolves to the application config.

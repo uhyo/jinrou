@@ -345,7 +345,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   prepare: styled(LogBox)`
-    background-color: rgb(255, 255, 240);
+    background-color: ${props => props.theme.heaven.bg};
+    color: ${props => props.theme.heaven.color};
 
     > * {
       border-top: 1px dashed #fffff8;
