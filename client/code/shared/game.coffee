@@ -83,6 +83,7 @@ exports.categories=
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
 
+# deprecated
 exports.categoryNames=
     Human:"村人系"
     Werewolf:"人狼系"
@@ -91,6 +92,7 @@ exports.categoryNames=
     Immoral:"背徳者系"
     Switching:"役職変化系"
     Others:"第三陣営系"
+
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
 normal1=(number)->
@@ -601,8 +603,8 @@ exports.jobrules=[
           if number>=38
             ret.Vampire++
           ret
-            
-          
+
+
       }
     ]
   }
@@ -850,7 +852,7 @@ exports.jobinfo=
         Emma:
             name:"閻魔"
             color:"#dd2211"
-        
+
     Werewolf:
         name:"人狼陣営"
         color:"#DD0000"
@@ -947,8 +949,8 @@ exports.jobinfo=
         EyesWolf:
             name:"瞳狼"
             color:"#000a75"
-        
-        
+
+
     Fox:
         name:"妖狐陣営"
         color:"#934293"

@@ -8826,7 +8826,7 @@ module.exports.actions=(req,res,ss)->
             joblist={}
             for job of jobs
                 joblist[job]=0  # 一旦初期化
-            for type of Shared.game.categoryNames
+            for type of Shared.game.categories
                 joblist["category_#{type}"] = 0
             #frees=room.players.length  # 参加者の数
             # プレイヤーとその他に分類
@@ -8863,7 +8863,7 @@ module.exports.actions=(req,res,ss)->
                 for job in Shared.game.jobs
                     joblist[job]=parseInt(query[job]) || 0    # 仕事の数
                 # カテゴリも
-                for type of Shared.game.categoryNames
+                for type of Shared.game.categories
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
@@ -9551,7 +9551,7 @@ module.exports.actions=(req,res,ss)->
                     else
                         sum+=joblist[job]
                 # カテゴリも
-                for type of Shared.game.categoryNames
+                for type of Shared.game.categories
                     if joblist["category_#{type}"]>0
                         sum-=parseInt joblist["category_#{type}"]
                 # 残りは村人だ！
@@ -9597,9 +9597,9 @@ module.exports.actions=(req,res,ss)->
                                 teamcount["Others"] += num
                             else
                                 teamcount[team] += num
-                for team,obj of Shared.game.jobinfo
+                for team of Shared.game.jobinfo
                     if teamcount[team]>0
-                        teaminfos.push "#{obj.name}#{teamcount[team]}"    #陣営名
+                        teaminfos.push "#{i18n.t "roles:categoryName.#{team}"}#{teamcount[team]}"    #陣営名
 
                 log=
                     mode:"system"
@@ -9636,7 +9636,7 @@ module.exports.actions=(req,res,ss)->
             for job in Shared.game.jobs
                 ruleobj._jobquery["job_use_#{job}"] = query["job_use_#{job}"]
                 ruleobj._jobquery[job] = query[job]
-            for type of Shared.game.categoryNames
+            for type of Shared.game.categories
                 ruleobj._jobquery["category_#{type}"] = query["category_#{type}"]
 
             game.setrule ruleobj
