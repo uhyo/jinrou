@@ -5925,7 +5925,7 @@ class BloodyMary extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:BloodyMary", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:BloodyMary.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @setTarget playerid
         null
