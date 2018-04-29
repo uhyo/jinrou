@@ -134,6 +134,23 @@ exports.start=(roomid)->
                             speak: obj.speak
                             will: obj.will
                             win: obj.winner
+                            myteam: obj.myteam
+                            quantumwerewolf_number: obj.quantumwerewolf_number
+                            supporting: obj.supporting
+                            wolves: obj.wolves
+                            peers: obj.peers
+                            madpeers: obj.madpeers
+                            foxes: obj.foxes
+                            nobles: obj.nobles
+                            queens: obj.queens
+                            spy2s: obj.spy2s
+                            friends: obj.friends
+                            stalking: obj.stalking
+                            cultmembers: obj.cultmembers
+                            vampires: obj.vampires
+                            supporting: obj.supporting
+                            dogOwner: obj.dogOwner
+                            twins: obj.twins
                         }
                     else
                         null

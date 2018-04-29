@@ -47,6 +47,31 @@ jobinfo:
   win: "勝利しました"
   # you lose.
   lose: "敗北しました"
+  # show your team.
+  team:
+    # message when no team.
+    none: "あなたの陣営はありません"
+    # other.
+    message: "あなたの陣営は{{team}}です"
+  # Info of peers.
+  peers:
+    wolves: "仲間の人狼は{{names}}です"
+    peers: "共有者は{{names}}です"
+    madpeers: "仲間の叫迷狂人は{{names}}です"
+    foxes: "仲間の妖狐は{{names}}です"
+    nobles: "貴族は{{names}}です"
+    queens: "女王観戦者は{{names}}です"
+    spy2s: "スパイⅡは{{names}}です"
+    friends: "恋人は{{names}}です"
+    cultmembers: "カルトの信者は{{names}}です"
+    vampire: "ヴァンパイアは{{names}}です"
+    twins: "双子は{{names}}です"
+    stalking: "あなたは{{name}}のストーカーです"
+    supporting: "あなたは{{name}}（{{job}}）をサポートしています"
+    dogOwner: "あなたの飼い主は{{name}}です"
+    quantumwerewolfNumber: "あなたのプレイヤー番号は{{number}}です"
+
+
 # game-view: speak form.
 speak:
   say: "発言"

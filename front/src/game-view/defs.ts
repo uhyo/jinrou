@@ -1,7 +1,7 @@
 /**
- * Information of your job.
+ * Information of your job, typically sent from server.
  */
-export interface RoleInfo {
+export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
   /**
    * Name of current job.
    */
@@ -23,6 +23,67 @@ export interface RoleInfo {
    * null is for not determined.
    */
   win: boolean | null;
+  /**
+   * Your team.
+   */
+  myteam?: string;
+  /**
+   * Your player number when quantum werewolf.
+   */
+  quantumwerewolf_number?: number;
+  /**
+   * Info of player which you support.
+   */
+  supporting?: PublicPlayerInfo & {
+    supportingJob: string;
+  };
+}
+
+/**
+ * Part of RoleInfo which consists of information of other players.
+ */
+export type RolePeersInfo = Record<
+  | 'wolves'
+  | 'peers'
+  | 'madpeers'
+  | 'foxes'
+  | 'nobles'
+  | 'queens'
+  | 'spy2s'
+  | 'friends'
+  | 'cultmembers'
+  | 'vampires'
+  | 'twins',
+  PublicPlayerInfo[] | undefined
+>;
+/**
+ * Part of RoleInfo which consists of information of one other player.
+ */
+export type RoleOtherPlayerInfo = Record<
+  'stalking' | 'dogOwner',
+  PublicPlayerInfo | undefined
+>;
+
+/**
+ * Object of info of user.
+ */
+export interface PublicPlayerInfo {
+  /**
+   * ID of this player.
+   */
+  id: string;
+  /**
+   * Display name of this player.
+   */
+  name: string;
+  /**
+   * Whether this player is dead.
+   */
+  dead: boolean;
+  /**
+   * Whether this player shows norevival flag.
+   */
+  norevive: boolean;
 }
 export interface RoleDesc {
   /**
