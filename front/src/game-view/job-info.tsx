@@ -78,14 +78,22 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
         {/* Team info when provided. */}
         {myteam != null ? (
           <p>
-            {myteam !== '' ? (
+            {myteam === '' ? (
               <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.team.none" />
             ) : (
-              <I18nInterp
-                i18n={i18n}
-                ns="game_client"
-                k="jobinfo.team.mesage"
-              />
+              <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.team.message">
+                {{
+                  team: (
+                    <b>
+                      <I18nInterp
+                        i18n={i18n}
+                        ns="roles"
+                        k={`teamName.${myteam}`}
+                      />
+                    </b>
+                  ),
+                }}
+              </I18nInterp>
             )}
           </p>
         ) : null}

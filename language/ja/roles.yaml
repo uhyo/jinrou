@@ -124,6 +124,18 @@ categoryName:
   Switching: "役職変化系"
   Others: "第三陣営系"
 
+# Name of teams.
+teamName:
+  Human: "村人陣営"
+  Werewolf: "人狼陣営"
+  Fox: "妖狐陣営"
+  Friend: "恋人陣営"
+  Devil: "悪魔くん"
+  Vampire: "ヴァンパイア陣営"
+  Cult: "カルトリーダー陣営"
+  Others: "その他"
+
+
 # Fortune result.
 fortune:
   human: "村人"
