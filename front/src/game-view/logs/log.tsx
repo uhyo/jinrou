@@ -2,10 +2,9 @@ import * as React from 'react';
 import { autolink } from 'my-autolink';
 import styled, { withProps } from '../../util/styled';
 import { RuleInfo, Log } from '../defs';
-import { i18n, I18n } from '../../i18n';
+import { I18n } from '../../i18n';
 
 export interface IPropOneLog {
-  i18n: i18n;
   /**
    * Log to show.
    */
@@ -25,12 +24,12 @@ export interface IPropOneLog {
  */
 export class OneLog extends React.PureComponent<IPropOneLog, {}> {
   public render() {
-    const { i18n, log, rule: { rule }, icons } = this.props;
+    const { log, rule: { rule }, icons } = this.props;
     if (log.mode === 'voteresult') {
       // log of vote result table
       return (
         <logComponents.voteresult>
-          <I18n i18n={i18n} namespace="game_client">
+          <I18n namespace="game_client">
             {t => (
               <>
                 <Icon />
@@ -66,7 +65,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
       // log of probability table for Quantum Werewwolf
       return (
         <div>
-          <I18n i18n={i18n} namespace="game_client">
+          <I18n namespace="game_client">
             {t => (
               <>
                 <Icon />
@@ -123,12 +122,6 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
       );
     } else {
       const Cmp = logComponents[log.mode];
-      const name =
-        log.mode === 'nextturn' || !log.name
-          ? null
-          : log.mode === 'monologue' || log.mode === 'heavenmonologue'
-            ? i18n.t('game_client:log.monologue', { name: log.name }) + ':'
-            : log.name + ':';
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
@@ -170,7 +163,17 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
         <Cmp>
           {/* icon */}
           <Icon>{icon != null ? <img src={icon} alt="" /> : null}</Icon>
-          <Name>{name}</Name>
+          <I18n>
+            {t => (
+              <Name>
+                {log.mode === 'nextturn' || !log.name
+                  ? null
+                  : log.mode === 'monologue' || log.mode === 'heavenmonologue'
+                    ? t('game_client:log.monologue', { name: log.name }) + ':'
+                    : log.name + ':'}
+              </Name>
+            )}
+          </I18n>
           <Comment size={size} dangerouslySetInnerHTML={{ __html: comment }} />
           <Time time={new Date(log.time)} />
         </Cmp>

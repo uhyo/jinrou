@@ -372,7 +372,7 @@ exports.start=(roomid)->
                                         .loadDialog()
                                         .then (d)->
                                             JinrouFront.loadI18n()
-                                                .then((i18n)-> i18n.getI18nFor(language))
+                                                .then((i18n)-> i18n.getI18nFor())
                                                 .then (i18n)->
                                                     d.showMessageDialog {
                                                         modal: true

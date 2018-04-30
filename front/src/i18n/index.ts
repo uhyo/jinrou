@@ -1,7 +1,7 @@
 import * as i18next from 'i18next';
 import * as xhrBackend from 'i18next-xhr-backend';
 
-export { I18n, I18nInterp } from './react';
+export { I18n, I18nInterp, I18nProvider } from './react';
 
 i18next.use(xhrBackend).init({
   backend: {
@@ -43,16 +43,20 @@ export function forLanguage(lng: string): i18next.i18n {
 /**
  * Get an instance of i18next with specified language loaded.
  */
-export function getI18nFor(lng: string): Promise<i18next.i18n> {
+export function getI18nFor(lng?: string): Promise<i18next.i18n> {
   return new Promise((resolve, reject) => {
     const res = i18next.cloneInstance();
-    res.changeLanguage(lng, err => {
-      if (err != null) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
+    if (lng != null) {
+      res.changeLanguage(lng, err => {
+        if (err != null) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    } else {
+      resolve(res);
+    }
   });
 }
 

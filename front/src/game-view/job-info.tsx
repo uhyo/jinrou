@@ -4,7 +4,7 @@ import { WithSeparator } from '../util/with-separator';
 
 import { RoleInfo, RolePeersInfo, RoleOtherPlayerInfo } from './defs';
 
-import { i18n, I18nInterp } from '../i18n';
+import { I18nInterp } from '../i18n';
 
 const Wrapper = styled.div`
   margin: 5px;
@@ -35,9 +35,7 @@ const otherPlayerKeys: Array<keyof RoleOtherPlayerInfo> = [
   'dogOwner',
 ];
 
-export interface IPropJobInfo extends RoleInfo {
-  i18n: i18n;
-}
+export interface IPropJobInfo extends RoleInfo {}
 
 /**
  * Player's information.
@@ -45,7 +43,6 @@ export interface IPropJobInfo extends RoleInfo {
 export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
   public render() {
     const {
-      i18n,
       jobname,
       desc,
       win,
@@ -57,7 +54,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
       <Wrapper>
         {/* Job Status. */}
         <p>
-          <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.status">
+          <I18nInterp ns="game_client" k="jobinfo.status">
             {{
               job: <b>{jobname}</b>,
               details:
@@ -79,17 +76,13 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
         {myteam != null ? (
           <p>
             {myteam === '' ? (
-              <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.team.none" />
+              <I18nInterp ns="game_client" k="jobinfo.team.none" />
             ) : (
-              <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.team.message">
+              <I18nInterp ns="game_client" k="jobinfo.team.message">
                 {{
                   team: (
                     <b>
-                      <I18nInterp
-                        i18n={i18n}
-                        ns="roles"
-                        k={`teamName.${myteam}`}
-                      />
+                      <I18nInterp ns="roles" k={`teamName.${myteam}`} />
                     </b>
                   ),
                 }}
@@ -107,11 +100,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
           const names = pls.map(({ id, name }) => <b key={id}>{name}</b>);
           return (
             <p key={`peers-${key}`}>
-              <I18nInterp
-                i18n={i18n}
-                ns="game_client"
-                k={`jobinfo.peers.${key}`}
-              >
+              <I18nInterp ns="game_client" k={`jobinfo.peers.${key}`}>
                 {{
                   names: <WithSeparator separator="，">{names}</WithSeparator>,
                 }}
@@ -126,11 +115,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
           }
           return (
             <p key={`otherPlayer-${key}`}>
-              <I18nInterp
-                i18n={i18n}
-                ns="game_client"
-                k={`jobinfo.peers.${key}`}
-              >
+              <I18nInterp ns="game_client" k={`jobinfo.peers.${key}`}>
                 {{
                   name: <b>{pl.name}</b>,
                 }}
@@ -142,7 +127,6 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
         {quantumwerewolf_number == null ? null : (
           <p>
             <I18nInterp
-              i18n={i18n}
               ns="game_client"
               k="jobinfo.peers.quantumwerewolfNumber"
             >
@@ -154,11 +138,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
         )}
         {supporting == null ? null : (
           <p>
-            <I18nInterp
-              i18n={i18n}
-              ns="game_client"
-              k="jobinfo.peers.supprting"
-            >
+            <I18nInterp ns="game_client" k="jobinfo.peers.supprting">
               {{
                 name: <b>{supporting.name}</b>,
                 job: <b>{supporting.supportingJob}</b>,
@@ -169,11 +149,11 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
         {/* Victory or defeat. */}
         {win === true ? (
           <p>
-            <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.win" />
+            <I18nInterp ns="game_client" k="jobinfo.win" />
           </p>
         ) : win === false ? (
           <p>
-            <I18nInterp i18n={i18n} ns="game_client" k="jobinfo.lose" />
+            <I18nInterp ns="game_client" k="jobinfo.lose" />
           </p>
         ) : null}
       </Wrapper>

@@ -7,7 +7,6 @@ import { i18n, I18n } from '../../i18n';
 import { LogVisibility } from '../defs';
 
 export interface IPropLogVisibility {
-  i18n: i18n;
   /**
    * current visibility of logs.
    */
@@ -30,7 +29,7 @@ export class LogVisibilityControl extends React.PureComponent<
   {}
 > {
   public render() {
-    const { i18n, visibility, day } = this.props;
+    const { visibility, day } = this.props;
 
     // current select value.
     let value: string;
@@ -55,7 +54,7 @@ export class LogVisibilityControl extends React.PureComponent<
     }
 
     return (
-      <I18n i18n={i18n} namespace="game_client">
+      <I18n namespace="game_client">
         {t => (
           <select value={value} onChange={this.handleUpdate}>
             <option value="all">{t('speak.logVisibility.all')}</option>

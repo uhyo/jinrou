@@ -13,7 +13,6 @@ import {
 import { LogVisibilityControl } from './log-visibility';
 
 export interface IPropSpeakForm extends SpeakState {
-  i18n: i18n;
   /**
    * Info of game.
    */
@@ -62,7 +61,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
   protected focus: boolean = false;
   public render() {
     const {
-      i18n,
       gameInfo,
       roleInfo,
       size,
@@ -78,7 +76,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
 
     return (
       <form onSubmit={this.handleSubmit}>
-        <I18n i18n={i18n}>
+        <I18n>
           {t => (
             <>
               {/* Comment input form. */}
@@ -105,7 +103,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 />
               )}
               {/* Speak button. */}
-              <input type="submit" value={i18n.t('game_client:speak.say')} />
+              <input type="submit" value={t('game_client:speak.say')} />
               {/* Speak size select control. */}
               <select value={size} onChange={this.handleSizeChange}>
                 <option value="small">
@@ -161,7 +159,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
               </button>
               {/* Log visibility control. */}
               <LogVisibilityControl
-                i18n={i18n}
                 visibility={logVisibility}
                 day={gameInfo.day}
                 onUpdate={this.handleVisibilityUpdate}

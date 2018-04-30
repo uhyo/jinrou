@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 
 import { bind } from '../util/bind';
 import { themeStore } from '../theme';
+import { I18nProvider } from '../i18n';
 
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
@@ -40,31 +41,31 @@ export class Game extends React.Component<IPropGame, {}> {
     const { gameInfo, roleInfo, speakState, logVisibility, rule } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
-        <div>
-          {/* Information of your role. */}
-          {roleInfo != null ? <JobInfo i18n={i18n} {...roleInfo} /> : null}
-          {/* Form for speak and other utilities. */}
-          <SpeakForm
-            i18n={i18n}
-            gameInfo={gameInfo}
-            roleInfo={roleInfo}
-            logVisibility={logVisibility}
-            rule={rule.rule != null}
-            onUpdate={this.handleSpeakUpdate}
-            onUpdateLogVisibility={this.handleLogVisibilityUpdate}
-            onSpeak={this.handleSpeak}
-            onRefuseRevival={this.handleRefuseRevival}
-            {...speakState}
-          />
-          {/* Logs. */}
-          <Logs
-            i18n={i18n}
-            logs={store.logs}
-            visibility={store.logVisibility}
-            icons={store.icons}
-            rule={store.rule}
-          />
-        </div>
+        <I18nProvider i18n={i18n}>
+          <div>
+            {/* Information of your role. */}
+            {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
+            {/* Form for speak and other utilities. */}
+            <SpeakForm
+              gameInfo={gameInfo}
+              roleInfo={roleInfo}
+              logVisibility={logVisibility}
+              rule={rule.rule != null}
+              onUpdate={this.handleSpeakUpdate}
+              onUpdateLogVisibility={this.handleLogVisibilityUpdate}
+              onSpeak={this.handleSpeak}
+              onRefuseRevival={this.handleRefuseRevival}
+              {...speakState}
+            />
+            {/* Logs. */}
+            <Logs
+              logs={store.logs}
+              visibility={store.logVisibility}
+              icons={store.icons}
+              rule={store.rule}
+            />
+          </div>
+        </I18nProvider>
       </ThemeProvider>
     );
   }

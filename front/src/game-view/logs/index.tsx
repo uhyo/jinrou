@@ -7,7 +7,6 @@ import { i18n } from '../../i18n';
 import { OneLog } from './log';
 
 export interface IPropLogs {
-  i18n: i18n;
   /**
    * All logs.
    */
@@ -31,15 +30,13 @@ export interface IPropLogs {
 @observer
 export class Logs extends React.Component<IPropLogs, {}> {
   public render() {
-    const { i18n, logs, rule, icons } = this.props;
+    const { logs, rule, icons } = this.props;
     // MobX observable array returns a reversed copy of original array.
     const rev = logs.reverse();
     return (
       <LogWrapper>
         {rev.map((log, i) => {
-          return (
-            <OneLog key={i} i18n={i18n} log={log} rule={rule} icons={icons} />
-          );
+          return <OneLog key={i} log={log} rule={rule} icons={icons} />;
         })}
       </LogWrapper>
     );
