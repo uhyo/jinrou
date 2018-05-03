@@ -2809,9 +2809,17 @@ class Player
         if Phase.isNight(game.phase) || @chooseJobDay(game)
             unless @jobdone(game)
                 obj.open.push @type
+                obj.forms.push {
+                    type: @type
+                    options: @makeJobSelection game
+                }
         else if game.phase == Phase.hunter
             unless @hunterJobdone(game)
                 obj.open.push @type
+                obj.forms.push {
+                    type: @type
+                    options: @makeJobSelection game
+                }
         # 役職解説のアレ
         obj.desc ?= []
         type = @getTypeDisp()
@@ -3581,6 +3589,7 @@ class WolfDiviner extends Werewolf
             if @flag?
                 # もう占いは終わった
                 result.open = result.open?.filter (x)=>x!="WolfDiviner"
+                result.forms = result.forms.filter (x)-> x.type != "WolfDiviner"
 
 
 class Fugitive extends Player
@@ -4972,10 +4981,18 @@ class Dog extends Player
                 if pl?
                     if !pl.read
                         result.open.push "Dog1"
+                        result.forms.push {
+                            type: "Dog1"
+                            options: @makeJobSelection game
+                        }
                     result.dogOwner=pl.publicinfo()
 
             else
                 result.open.push "Dog2"
+                result.forms.push {
+                    type: "Dog2"
+                    options: []
+                }
     makeJobSelection:(game)->
         # 噛むときは対象選択なし
         if Phase.isNight(game.phase) && @flag?
@@ -5325,8 +5342,16 @@ class QuantumPlayer extends Player
         tarobj=JSON.parse(@target||"{}")
         unless tarobj.Diviner?
             result.open.push "_Quantum_Diviner"
+            result.forms.push {
+                type: "_Quantum_Diviner"
+                options: @makeJobSelection game
+            }
         unless tarobj.Werewolf?
             result.open.push "_Quantum_Werewolf"
+            result.forms.push {
+                type: "_Quantum_Werewolf"
+                options: @makeJobSelection game
+            }
         if game.rule.quantumwerewolf_table=="anonymous"
             # 番号がある
             flag=JSON.parse @flag
@@ -5490,8 +5515,13 @@ class GreedyWolf extends Werewolf
             if @sleeping game
                 # 襲撃は必要ない
                 result.open = result.open?.filter (x)=>x!="_Werewolf"
+                result.forms = result.forms.filter (x)-> x.type != "_Werewolf"
             if !@flag && game.day>=2
                 result.open?.push "GreedyWolf"
+                result.forms.push {
+                    type: "GreedyWolf"
+                    options: @makeJobSelection game
+                }
     makeJobSelection:(game)->
         if Phase.isNight(game.phase) && @sleeping(game) && !@jobdone(game)
             # 欲張る選択肢のみある
@@ -5564,6 +5594,7 @@ class FascinatingWolf extends Werewolf
             if @flag
                 # もう誘惑は必要ない
                 result.open = result.open?.filter (x)=>x!="FascinatingWolf"
+                result.forms = result.forms.filter (x)-> x != "FascinatingWolf"
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
     sleeping:(game)-> !@flag || super
@@ -5683,6 +5714,7 @@ class ThreateningWolf extends Werewolf
         unless Phase.isDay(game.phase)
             # 夜は威嚇しない
             result.open = result.open?.filter (x)=>x!="ThreateningWolf"
+            result.forms = result.forms.filter (x)-> x != "ThreateningWolf"
 class HolyMarked extends Human
     type:"HolyMarked"
 class WanderingGuard extends Player
@@ -5962,6 +5994,10 @@ class BloodyMary extends Player
         super
         if @flag && !("BloodyMary" in obj.open)
             obj.open.push "BloodyMary"
+            obj.forms.push {
+                type: "BloodyMary"
+                options: @makeJobSelection game
+            }
 
 class King extends Player
     type:"King"
@@ -6256,9 +6292,17 @@ class BadLady extends Player
                 unless fl.main
                     # 本命を決める
                     result.open.push "BadLady1"
+                    result.forms.push {
+                        type: "BadLady1"
+                        options: @makeJobSelection game
+                    }
                 else if !fl.keep
                     # 手玉に取る
                     result.open.push "BadLady2"
+                    result.forms.push {
+                        type: "BadLady2"
+                        options: @makeJobSelection game
+                    }
 # 看板娘
 class DrawGirl extends Player
     type:"DrawGirl"
@@ -6908,7 +6952,12 @@ class CraftyWolf extends Werewolf
         if @dead && @flag=="revivable"
             # 死に戻り
             result.open = result.open.filter (x)->!(x in ["CraftyWolf","_Werewolf"])
+            result.forms = result.forms.filter (x)-> !(x.type in ["CraftyWolf", "_Werewolf"])
             result.open.push "CraftyWolf2"
+            result.forms.push {
+                type: "CraftyWolf2"
+                options: @makeJobSelection game
+            }
         return result
     makeJobSelection:(game)->
         if Phase.isNight(game.phase) && @dead && @flag=="revivable"
@@ -7415,6 +7464,7 @@ class Helper extends Player
             helpedinfo={}
             pl.makejobinfo game,helpedinfo
             result.supporting=pl?.publicinfo()
+            # This is for old client
             result.supportingJob=pl?.getJobDisp()
             result.supporting.supportingJob = pl?.getJobDisp()
             for value in Shared.game.jobinfos
@@ -7437,6 +7487,10 @@ class Waiting extends Player
         super
         # 自分で追加する
         result.open.push "Waiting"
+        result.forms.push {
+            type: "Waiting"
+            options: @makeJobSelection game
+        }
     makeJobSelection:(game)->
         if game.day==0 && game.phase == Phase.rolerequesting
             # 開始前
@@ -10090,6 +10144,8 @@ makejobinfo = (game,player,result={})->
         gm: is_gm
     })  # 終了か霊界（ルール設定あり）の場合は職情報公開
     result.id=game.id
+    # List of forms for new client.
+    result.forms = []
 
     if player
         # 参加者としての（perticipantsは除く）
