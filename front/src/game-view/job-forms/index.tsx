@@ -45,14 +45,14 @@ export class Form extends React.PureComponent<IPropForm, {}> {
           // Make name of this form.
           const name = specialNamedTypes.includes(type)
             ? t(`specialName.${type}`)
-            : t('game_client_form:normalName', {
-                job: t(`jobname.${type}`),
+            : t('normalName', {
+                job: t(`roles:jobname.${type}`),
               });
 
           const content = specialContentTypes.includes(type)
             ? // This is special!
               makeSpecialContent(form, t)
-            : makeNormalContent(form);
+            : makeNormalContent(form, t);
 
           // Handle submission of job form.
           const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -99,7 +99,10 @@ export class Form extends React.PureComponent<IPropForm, {}> {
 /**
  * Make a normal content for job form.
  */
-function makeNormalContent({ options }: FormDesc) {
+function makeNormalContent(
+  { type, options }: FormDesc,
+  t: TranslationFunction,
+) {
   // List up options.
   const opts = options.map(({ name, value }, i) => (
     <label>
@@ -107,7 +110,12 @@ function makeNormalContent({ options }: FormDesc) {
       <input key={`${i}-${value}`} type="range" name="target" value={value} />
     </label>
   ));
-  return <p>{opts}</p>;
+  return (
+    <>
+      <p>{t(`game_client_form:messages.${type}`)}</p>
+      <p>{opts}</p>
+    </>
+  );
 }
 
 /**
