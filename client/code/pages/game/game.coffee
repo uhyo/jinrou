@@ -129,6 +129,7 @@ exports.start=(roomid)->
                 roleInfo:
                     if obj.jobname?
                         {
+                            forms: obj.forms
                             jobname: obj.jobname
                             desc: obj.desc
                             speak: obj.speak

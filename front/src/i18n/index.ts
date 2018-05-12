@@ -11,7 +11,7 @@ i18next.use(xhrBackend).init({
   },
   // XXX language
   fallbackLng: 'ja',
-  ns: ['common', 'roles', 'game_client', 'rules'],
+  ns: ['common', 'roles', 'game_client', 'game_client_form', 'rules'],
 });
 
 /**

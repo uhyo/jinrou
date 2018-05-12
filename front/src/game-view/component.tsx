@@ -11,6 +11,7 @@ import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
+import { JobForms } from './job-forms';
 import { Logs } from './logs';
 
 import { showConfirmDialog } from '../dialog';
@@ -45,6 +46,8 @@ export class Game extends React.Component<IPropGame, {}> {
           <div>
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
+            {/* Open forms. */}
+            {roleInfo != null ? <JobForms forms={roleInfo.forms} /> : null}
             {/* Form for speak and other utilities. */}
             <SpeakForm
               gameInfo={gameInfo}

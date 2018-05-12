@@ -37,6 +37,10 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
   supporting?: PublicPlayerInfo & {
     supportingJob: string;
   };
+  /**
+   * Info of currently open forms.
+   */
+  forms: FormDesc[];
 }
 
 /**
@@ -94,6 +98,26 @@ export interface RoleDesc {
    * Id of role.
    */
   type: string;
+}
+export interface FormDesc {
+  /**
+   * Type of this form.
+   */
+  type: string;
+  /**
+   * Options for this form.
+   */
+  options: FormOption[];
+}
+export interface FormOption {
+  /**
+   * Label of this option.
+   */
+  name: string;
+  /**
+   * Value sent to server.
+   */
+  value: string;
 }
 /**
  * Provided info of game.
