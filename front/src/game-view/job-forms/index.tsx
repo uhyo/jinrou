@@ -9,6 +9,7 @@ import { makeWitchForm } from './witch';
 
 export interface IPropJobForms {
   forms: FormDesc[];
+  onSubmit: (query: Record<string, string>) => void;
 }
 
 /**
@@ -16,10 +17,12 @@ export interface IPropJobForms {
  */
 export class JobForms extends React.PureComponent<IPropJobForms, {}> {
   public render() {
-    const { forms } = this.props;
+    const { forms, onSubmit } = this.props;
     return (
       <div>
-        {forms.map((form, i) => <Form key={`${i}-${form.type}`} form={form} />)}
+        {forms.map((form, i) => (
+          <Form key={`${i}-${form.type}`} form={form} onSubmit={onSubmit} />
+        ))}
       </div>
     );
   }
@@ -27,13 +30,14 @@ export class JobForms extends React.PureComponent<IPropJobForms, {}> {
 
 export interface IPropForm {
   form: FormDesc;
+  onSubmit: (query: Record<string, string>) => void;
 }
 /**
  * One job form.
  */
 export class Form extends React.PureComponent<IPropForm, {}> {
   public render() {
-    const { form } = this.props;
+    const { form, onSubmit } = this.props;
     const { type, options } = form;
     return (
       <I18n namespace="game_client_form">
@@ -50,11 +54,39 @@ export class Form extends React.PureComponent<IPropForm, {}> {
               makeSpecialContent(form, t)
             : makeNormalContent(form);
 
+          // Handle submission of job form.
+          const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            // Retrieve a key/value pairs of the form.
+            const data = new FormData(form);
+            // Make a plain object from it.
+            const query: Record<string, string> = {};
+            for (const [key, value] of data.entries()) {
+              // value is either string or File.
+              // File should not occur here.
+              if ('string' === typeof value) {
+                query[key] = value;
+              } else {
+                console.warn('File', value);
+              }
+            }
+            // query is generated
+            console.log(query);
+            onSubmit(query);
+          };
+
           return (
-            <form>
+            <form onSubmit={handleSubmit}>
               <fieldset>
                 <legend>{name}</legend>
                 {content}
+                <p>
+                  <input
+                    type="submit"
+                    value={t('game_client_form:normalButton')}
+                  />
+                </p>
               </fieldset>
             </form>
           );

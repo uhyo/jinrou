@@ -28,6 +28,10 @@ export interface IPlaceOptions {
    * Handle a refuse revival event.
    */
   onRefuseRevival: () => Promise<void>;
+  /**
+   * Handle a job query.
+   */
+  onJobQuery: (query: Record<string, string>) => void;
 }
 
 export interface IPlaceResult {
@@ -53,6 +57,7 @@ export function place({
   node,
   onSpeak,
   onRefuseRevival,
+  onJobQuery,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
   // 蘇生辞退時のロジックを作る
@@ -64,6 +69,7 @@ export function place({
       store={store}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
+      onJobQuery={onJobQuery}
     />
   );
 

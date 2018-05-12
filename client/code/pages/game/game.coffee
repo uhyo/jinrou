@@ -72,6 +72,14 @@ exports.start=(roomid)->
                                 reject result
                             else
                                 resolve()
+                onJobQuery:(query)->
+                    # Job query
+                    ss.rpc "game.game.job", roomid, query, (result)->
+                        # TODO
+                        if result?.error?
+                            Index.util.message "エラー",result.error
+                        else
+                            getjobinfo result
 
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter

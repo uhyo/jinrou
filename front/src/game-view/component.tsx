@@ -33,12 +33,16 @@ interface IPropGame {
    * Handle a refuse revival event.
    */
   onRefuseRevival: () => void;
+  /**
+   * Handle a job query event.
+   */
+  onJobQuery: (query: Record<string, string>) => void;
 }
 
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   public render() {
-    const { i18n, store } = this.props;
+    const { i18n, store, onJobQuery } = this.props;
     const { gameInfo, roleInfo, speakState, logVisibility, rule } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
@@ -47,7 +51,9 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}
-            {roleInfo != null ? <JobForms forms={roleInfo.forms} /> : null}
+            {roleInfo != null ? (
+              <JobForms forms={roleInfo.forms} onSubmit={onJobQuery} />
+            ) : null}
             {/* Form for speak and other utilities. */}
             <SpeakForm
               gameInfo={gameInfo}
