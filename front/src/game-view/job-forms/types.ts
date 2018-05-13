@@ -21,3 +21,19 @@ export const specialNamedTypes = [
  * Type of forms which has special content of form.
  */
 export const specialContentTypes = ['GameMaster', 'Merchant', 'Witch'];
+
+/**
+ * Convert a form type into type of jobs.
+ */
+export function toJobType(type: string): string {
+  if (type === 'Dog1' || type === 'Dog2') {
+    return 'Dog';
+  }
+  if (type === 'BadLady1' || type === 'BadLady2') {
+    return 'BadLady';
+  }
+  if (type === 'CraftyWolf2') {
+    return 'CraftyWolf';
+  }
+  return type;
+}

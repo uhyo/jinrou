@@ -19,6 +19,7 @@ export interface UpdateQuery {
   logVisibility?: LogVisibility;
   rule?: RuleInfo;
   icons?: Record<string, string | undefined>;
+  ruleOpen?: boolean;
 }
 /**
  * Store of current game state.
@@ -30,6 +31,7 @@ export class GameStore {
   @observable
   gameInfo: GameInfo = {
     day: 0,
+    finished: false,
   };
   /**
    * Name of your role.
@@ -65,6 +67,11 @@ export class GameStore {
     rule: undefined,
   };
   /**
+   * Whether the rule information is open.
+   */
+  @observable ruleOpen: boolean = false;
+
+  /**
    * All logs.
    */
   @observable logs: Log[] = [];
@@ -80,6 +87,7 @@ export class GameStore {
     logVisibility,
     icons,
     rule,
+    ruleOpen,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -99,6 +107,9 @@ export class GameStore {
     }
     if (icons != null) {
       this.icons = icons;
+    }
+    if (ruleOpen != null) {
+      this.ruleOpen = ruleOpen;
     }
     // Check consistency.
     if (

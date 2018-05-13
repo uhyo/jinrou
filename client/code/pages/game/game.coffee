@@ -167,6 +167,7 @@ exports.start=(roomid)->
                     if obj.game?
                         {
                             day: obj.game.day
+                            finished: obj.game.finished
                         }
                     else
                         undefined

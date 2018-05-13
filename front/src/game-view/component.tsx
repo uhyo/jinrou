@@ -51,7 +51,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}
-            {roleInfo != null ? (
+            {!gameInfo.finished && roleInfo != null ? (
               <JobForms forms={roleInfo.forms} onSubmit={onJobQuery} />
             ) : null}
             {/* Form for speak and other utilities. */}

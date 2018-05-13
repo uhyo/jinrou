@@ -1,8 +1,9 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { FormDesc } from '../defs';
 import { I18n, TranslationFunction } from '../../i18n';
 
-import { specialNamedTypes, specialContentTypes } from './types';
+import { specialNamedTypes, specialContentTypes, toJobType } from './types';
 import { makeGameMasterForm } from './gm';
 import { makeMerchantForm } from './merchant';
 import { makeWitchForm } from './witch';
@@ -36,6 +37,10 @@ export interface IPropForm {
  * One job form.
  */
 export class Form extends React.PureComponent<IPropForm, {}> {
+  /**
+   * Saved name of submit button.
+   */
+  protected commandName: string = '';
   public render() {
     const { form, onSubmit } = this.props;
     const { type, options } = form;
@@ -71,13 +76,26 @@ export class Form extends React.PureComponent<IPropForm, {}> {
                 console.warn('File', value);
               }
             }
+            // add special parameters
+            if (this.commandName !== '') {
+              query.commandname = this.commandName;
+            }
+            query.jobtype = toJobType(type);
             // query is generated
             console.log(query);
             onSubmit(query);
           };
+          // Handle click of something.
+          const handleClick = (e: React.SyntheticEvent<HTMLFormElement>) => {
+            const t = e.target as HTMLInputElement;
+            // When submit button is clicked, save its name,
+            if (t.tagName === 'INPUT' && t.type === 'submit') {
+              this.commandName = t.name;
+            }
+          };
 
           return (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onClick={handleClick}>
               <fieldset>
                 <legend>{name}</legend>
                 {content}
@@ -105,10 +123,10 @@ function makeNormalContent(
 ) {
   // List up options.
   const opts = options.map(({ name, value }, i) => (
-    <label>
+    <OptionLabel key={`${i}-value`}>
       {name}
-      <input key={`${i}-${value}`} type="range" name="target" value={value} />
-    </label>
+      <input type="radio" name="target" value={value} />
+    </OptionLabel>
   ));
   return (
     <>
@@ -138,3 +156,16 @@ function makeSpecialContent(form: FormDesc, t: TranslationFunction) {
     }
   }
 }
+
+/**
+ * Label for each option.
+ */
+const OptionLabel = styled.label`
+  display: inline-block;
+  margin-left: 0.8em;
+
+  :hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 3px 3px #ffffff;
+  }
+`;

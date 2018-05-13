@@ -127,6 +127,10 @@ export interface GameInfo {
    * Current day.
    */
   day: number;
+  /**
+   * Whether the game is finished or not.
+   */
+  finished: boolean;
 }
 
 /**
