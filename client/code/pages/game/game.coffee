@@ -59,6 +59,8 @@ exports.start=(roomid)->
             game_view = gv.place {
                 i18n: i18n
                 node: $("#game-app").get(0)
+                roles: Shared.game.jobs
+                rules: Shared.game.new_rules
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
                         if result?

@@ -5,6 +5,7 @@ import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
 import { Game } from './component';
+import { RuleGroup } from '../defs';
 import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
@@ -20,6 +21,14 @@ export interface IPlaceOptions {
    * Node to place the component to.
    */
   node: HTMLElement;
+  /**
+   * List of role ids.
+   */
+  roles: string[];
+  /**
+   * Definition of rules.
+   */
+  rules: RuleGroup;
   /**
    * Handle a speak event.
    */
@@ -55,6 +64,8 @@ export interface IPlaceResult {
 export function place({
   i18n,
   node,
+  roles,
+  rules,
   onSpeak,
   onRefuseRevival,
   onJobQuery,
@@ -67,6 +78,8 @@ export function place({
     <Game
       i18n={i18n}
       store={store}
+      roles={roles}
+      ruleDefs={rules}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}

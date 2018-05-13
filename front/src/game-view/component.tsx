@@ -7,12 +7,14 @@ import { bind } from '../util/bind';
 import { themeStore } from '../theme';
 import { I18nProvider } from '../i18n';
 
+import { RuleGroup } from '../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 import { JobForms } from './job-forms';
 import { Logs } from './logs';
+import { ShowRule } from './rule';
 
 import { showConfirmDialog } from '../dialog';
 
@@ -25,6 +27,14 @@ interface IPropGame {
    * store.
    */
   store: GameStore;
+  /**
+   * List of role ids.
+   */
+  roles: string[];
+  /**
+   * Definition of rules.
+   */
+  ruleDefs: RuleGroup;
   /**
    * Handle a speak event.
    */
@@ -42,7 +52,7 @@ interface IPropGame {
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   public render() {
-    const { i18n, store, onJobQuery } = this.props;
+    const { i18n, store, roles, ruleDefs, onJobQuery } = this.props;
     const {
       gameInfo,
       roleInfo,
@@ -77,7 +87,9 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Main game screen. */}
             <div>
               {/* Rule panel if open. */}
-              {ruleOpen ? 'rule' : null}
+              {ruleOpen ? (
+                <ShowRule rule={rule} roles={roles} ruleDefs={ruleDefs} />
+              ) : null}
               {/* Logs. */}
               <Logs
                 logs={store.logs}
