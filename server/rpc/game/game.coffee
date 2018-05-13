@@ -7486,11 +7486,12 @@ class Waiting extends Player
     makejobinfo:(game,result)->
         super
         # 自分で追加する
-        result.open.push "Waiting"
-        result.forms.push {
-            type: "Waiting"
-            options: @makeJobSelection game
-        }
+        unless @sleeping game
+            result.open.push "Waiting"
+            result.forms.push {
+                type: "Waiting"
+                options: @makeJobSelection game
+            }
     makeJobSelection:(game)->
         if game.day==0 && game.phase == Phase.rolerequesting
             # 開始前
