@@ -45,6 +45,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Push a refuse revival button.
    */
   onRefuseRevival: () => void;
+  /**
+   * Push the rule button.
+   */
+  onRuleOpen: () => void;
 }
 /**
  * Speaking controls.
@@ -270,7 +274,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
    */
   @bind
   protected handleRuleClick(): void {
-    // TODO
+    this.props.onRuleOpen();
   }
   /**
    * Handle an update of log visibility.

@@ -43,7 +43,14 @@ interface IPropGame {
 export class Game extends React.Component<IPropGame, {}> {
   public render() {
     const { i18n, store, onJobQuery } = this.props;
-    const { gameInfo, roleInfo, speakState, logVisibility, rule } = store;
+    const {
+      gameInfo,
+      roleInfo,
+      speakState,
+      logVisibility,
+      rule,
+      ruleOpen,
+    } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
         <I18nProvider i18n={i18n}>
@@ -64,15 +71,21 @@ export class Game extends React.Component<IPropGame, {}> {
               onUpdateLogVisibility={this.handleLogVisibilityUpdate}
               onSpeak={this.handleSpeak}
               onRefuseRevival={this.handleRefuseRevival}
+              onRuleOpen={this.handleRuleOpen}
               {...speakState}
             />
-            {/* Logs. */}
-            <Logs
-              logs={store.logs}
-              visibility={store.logVisibility}
-              icons={store.icons}
-              rule={store.rule}
-            />
+            {/* Main game screen. */}
+            <div>
+              {/* Rule panel if open. */}
+              {ruleOpen ? 'rule' : null}
+              {/* Logs. */}
+              <Logs
+                logs={store.logs}
+                visibility={store.logVisibility}
+                icons={store.icons}
+                rule={store.rule}
+              />
+            </div>
           </div>
         </I18nProvider>
       </ThemeProvider>
@@ -117,5 +130,16 @@ export class Game extends React.Component<IPropGame, {}> {
   protected handleRefuseRevival(): void {
     const { onRefuseRevival } = this.props;
     onRefuseRevival();
+  }
+  /**
+   * handle the rule open button event.
+   */
+  @bind
+  protected handleRuleOpen(): void {
+    const { store } = this.props;
+    // toggle the rule pane.
+    store.update({
+      ruleOpen: !store.ruleOpen,
+    });
   }
 }
