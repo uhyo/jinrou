@@ -7269,12 +7269,85 @@ class Emma extends Player
 
 class EyesWolf extends Werewolf
     type:"EyesWolf"
-    jobname:"瞳狼"
     isListener:(game, log)->
         if log.mode == "eyeswolfskill"
             true
         else
             super
+
+class TongueWolf extends Werewolf
+    type:"TongueWolf"
+    sunset:(game)->
+        unless @flag == "lost"
+            # Reset the target selection.
+            @setFlag {
+                mode: "targets"
+                targets: []
+            }
+        super
+    job:(game, playerid)->
+        res = super
+        if res?
+            return res
+        # If target selection was successful,
+        # mark the target.
+        if @flag?.mode == "targets"
+            @flag.targets.push playerid
+        null
+    midnight:(game)->
+        if @flag?.mode == "targets"
+            # Save the job name of target.s
+            results = []
+            for target in @flag.targets
+                pl = game.getPlayer target
+                continue unless pl?
+                results.push {
+                    player: pl.publicinfo()
+                    jobname: pl.jobname
+                    isHuman: pl.isJobType "Human"
+                }
+            @setFlag {
+                mode: "results"
+                results: results
+            }
+    sunrise:(game)->
+        # Show the result.
+        if @flag?.mode == "results"
+            # Check whether the target is dead.
+            results = @flag.results
+            for obj in results
+                pl = game.getPlayer obj.player.id
+                continue unless pl?
+                continue unless pl.dead
+
+                if obj.isHuman
+                    # Attacked a Human. Skill is lost.
+                    log=
+                        mode: "skill"
+                        to: @id
+                        comment: game.i18n.t "roles:TongueWolf.resultLost", {
+                            name: @name
+                            target: obj.player.name
+                            job: obj.jobname
+                        }
+                    splashlog game.id, game, log
+                    @addGamelog game,"tongueresult", pl.type, pl.id
+                    @setFlag "lost"
+                else
+                    log=
+                        mode: "skill"
+                        to: @id
+                        comment: game.i18n.t "roles:TongueWolf.result", {
+                            name: @name
+                            target: obj.player.name
+                            job: obj.jobname
+                        }
+                    splashlog game.id, game, log
+                    @addGamelog game,"tongueresult", pl.type, pl.id
+
+
+
+
 
 
 
@@ -8618,6 +8691,7 @@ jobs=
     MadCouple:MadCouple
     Emma:Emma
     EyesWolf:EyesWolf
+    TongueWolf:TongueWolf
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8767,6 +8841,7 @@ jobStrength=
     MadCouple:19
     Emma:17
     EyesWolf:70
+    TongueWolf:60
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

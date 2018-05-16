@@ -109,6 +109,7 @@ jobname:
   MadCouple: "叫迷狂人"
   Emma: "閻魔"
   EyesWolf: "瞳狼"
+  TongueWolf: "舌禍狼"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -648,6 +649,12 @@ EyesWolf:
     holy: "{{name}}への襲撃は聖なる力に阻まれました。"
     # Guard by a trap
     trap: "{{name}}への襲撃は罠に阻まれました。"
+
+TongueWolf:
+  # Result of TongueWolf skill.
+  result: "{{name}}の味見の結果、{{target}}は{{job}}でした。"
+  # Result when the skill is lost.
+  resultLost: "{{name}}の味見の結果、{{target}}は{{job}}でした。以降は襲撃対象者の役職を知ることができません。"
 
 
 GameMaster:
