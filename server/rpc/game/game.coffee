@@ -333,7 +333,8 @@ class Game
         
         @winner=null    # 勝ったチーム名
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
-        # DBには現れない
+       
+        # ----- DBには現れないプロパティ -----
         @timerid=null
         @timer_start=null   # 残り時間のカウント開始時間（秒）
         @timer_remain=null  # 残り時間全体（秒）
@@ -347,6 +348,7 @@ class Game
 
         @revive_log = [] # 蘇生した人の記録
         @guard_log = []  # 襲撃阻止の記録（for 瞳狼）
+        @ninja_data =
 
         @slientexpires=0    # 静かにしてろ！（この時間まで）
         @heavenview=false   # 霊界表示がどうなっているか
@@ -1165,19 +1167,15 @@ class Game
                 else
                     player.deadsunset this
             # 忍者のデータを作る
-            ninjadata = {}
+            @ninja_data = {}
             for player in @players
                 unless player.dead
                     # 夜に行動していたらtrue
-                    ninjadata[player.id] = !player.jobdone(this)
+                    @ninja_data[player.id] = !player.jobdone(this)
 
                     if @rule.scapegoat=="on" && @day==1 && player.isWerewolf() && player.isAttacker()
                         # 身代わり襲撃は例外的にtrue
-                        ninjadata[player.id] = true
-            # 忍者に配布
-            for player in @players
-                for p in player.accessByJobTypeAll("Ninja")
-                    p.setFlag(JSON.stringify ninjadata)
+                        @ninja_data[player.id] = true
         else
             # 誤爆防止
             @werewolf_target_remain=0
@@ -7176,10 +7174,7 @@ class Ninja extends Player
     midnight:(game)->
         pl = game.getPlayer @target
         return unless pl?
-        return unless @flag?
-        # flagに忍者用データが入っている
-        obj = JSON.parse @flag
-        result = !!obj?[pl.id]
+        result = !!game.ninja_data?[pl.id]
         # trueなら夜行動あり
         if result
             log=
