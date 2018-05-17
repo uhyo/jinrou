@@ -7345,7 +7345,19 @@ class TongueWolf extends Werewolf
                     splashlog game.id, game, log
                     @addGamelog game,"tongueresult", pl.type, pl.id
 
-
+class BlackCat extends Madman
+    type:"BlackCat"
+    dying:(game,found,from)->
+        super
+        if found == "punish"
+            # If dead by punishment,
+            # kill another non-Werewolf player.
+            canbedead = game.players.filter (x)-> !x.dead && !x.isWerewolf()
+            return if canbedead.length == 0
+            r = Math.floor Math.random() * canbedead.length
+            pl = canbedead[r]
+            pl.die game, "poison"
+            @addGamelog game, "poisonkill", null, pl.id
 
 
 
@@ -8692,6 +8704,7 @@ jobs=
     Emma:Emma
     EyesWolf:EyesWolf
     TongueWolf:TongueWolf
+    BlackCat:BlackCat
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8842,6 +8855,7 @@ jobStrength=
     Emma:17
     EyesWolf:70
     TongueWolf:60
+    BlackCat:19
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
