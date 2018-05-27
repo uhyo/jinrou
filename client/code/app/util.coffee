@@ -342,7 +342,12 @@ exports.hashSearch=(hash)->
         return "?#{arr.join '&'}"
 
 # HTTPS優先iconを表示
-exports.setHTTPSicon = setHTTPSicon = (img, url)->
+exports.setHTTPSicon = setHTTPSicon = (img, url, cacheObject)->
+    if cacheObject?[url]?
+        # If this url is already cached, use it.
+        img.src = cacheObject?[url]
+        return
+    original_url = url
     # HTTPSに直す
     if /^http:/.test url
         url = "https:" + url.slice 5
@@ -350,10 +355,12 @@ exports.setHTTPSicon = setHTTPSicon = (img, url)->
         handler1 = (ev)->
             img.removeEventListener "error", handler1, false
             img.removeEventListener "load", handler2, false
-            img.src = "http:" + url.slice 6
+            cacheObject?[original_url] = original_url
+            img.src = original_url
         handler2 = ()->
             img.removeEventListener "error", handler1, false
             img.removeEventListener "load", handler2, false
+            cacheObject?[original_url] = url
         img.addEventListener "error", handler1, false
         img.addEventListener "load", handler2, false
     # URLをset

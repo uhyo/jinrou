@@ -50,7 +50,7 @@ small
   font-size smaller
 strong
   font-weight bold
-
+  
 fieldset
   border 1px dashed #888888
   padding 0.8em
@@ -170,7 +170,7 @@ body > .notice
   cursor pointer
 .window div.window-content
   margin 1em 0.25em
-
+  
 .window p.window-aside
   text-align right
 button.link-like
@@ -181,7 +181,7 @@ button.link-like
   cursor pointer
   font-size 0.9em
 
-
+  
   
 //user-profile
 section.profile
@@ -311,6 +311,23 @@ body.heaven
     color:#0000ff
   figure.icon
     float left
+#players li.dead figure.icon .avatar
+  position:absolute
+  /* Firefox 10+, Firefox on Android */
+  filter: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxmaWx0ZXIgaWQ9J2dyYXlzY2FsZSc+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAuMzMzMyAwLjMzMzMgMC4zMzMzIDAgMCAwLjMzMzMgMC4zMzMzIDAuMzMzMyAwIDAgMC4zMzMzIDAuMzMzMyAwLjMzMzMgMCAwIDAgMCAwIDEgMCcvPjwvZmlsdGVyPjwvc3ZnPg==#grayscale");
+  /*
+    Chrome 19+,
+    Safari 6+,
+    Safari 6+ iOS,
+    Opera 15+
+    */
+  -webkit-filter: grayscale(100%)
+  filter: grayscale(100%)
+#players li.dead figure.icon img.dead_mark
+  position:relative
+  float:left
+#players li:not(.dead) figure.icon img.dead_mark
+  display:none
 .infobox
     border 2px dashed currentColor
     padding 8px
@@ -365,7 +382,7 @@ body.heaven
     div.comment
       display table-cell
       width 100%
-      /*div
+	  /*div
         //white-space pre-wrap
         white-space -moz-pre-wrap
         white-space -webkit-pre-wrap

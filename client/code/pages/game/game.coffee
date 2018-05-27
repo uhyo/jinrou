@@ -10,6 +10,7 @@ this_rule=null  # ルールオブジェクトがある
 enter_result=null #enter
 
 this_icons={}   #名前とアイコンの対応表
+this_icons_cache = {} # cache object for urls in this_icons
 this_logdata={} # ログデータをアレする
 this_style=null #style要素（終わったら消したい）
 # GameStartControlのインスタンス
@@ -901,7 +902,7 @@ exports.start=(roomid)->
                     img.style.width="1em"
                     img.style.height="1em"
                     img.alt=""  # 飾り
-                    Index.util.setHTTPSicon img, this_icons[log.name]
+                    Index.util.setHTTPSicon img, this_icons[log.name], this_icons_cache
                     icondiv.appendChild img
             p.appendChild icondiv
             p.appendChild div
@@ -1106,13 +1107,22 @@ makeplayerbox=(obj,blindflg,tagname="li")->#obj:game.playersのアレ
     if obj.icon
         figure=document.createElement "figure"
         figure.classList.add "icon"
+        div=document.createElement "div"
+        div.classList.add "avatar"
         img=document.createElement "img"
         img.width=img.height=48
         img.alt=""
         img.style.width = "48px"
         img.style.height = "48px"
         Index.util.setHTTPSicon img, obj.icon
-        figure.appendChild img
+        div.appendChild img
+        figure.appendChild div
+        img2=document.createElement "img"
+        img2.src="/images/dead.png"
+        img2.width=img2.height=48
+        img2.alt="死亡"
+        img2.classList.add "dead_mark"
+        figure.appendChild img2
         df.appendChild figure
         df.classList.add "icon"
     p=document.createElement "p"
