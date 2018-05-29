@@ -61,12 +61,12 @@ class JobNumbers extends React.PureComponent<
         {roles.map(
           role =>
             jobs[role] > 0 ? (
-              <>
+              <React.Fragment key={role}>
                 <a href={`/manual/job/${role}`}>
                   {t(`roles:jobname.${role}`)}
                   {jobs[role]}
                 </a>{' '}
-              </>
+              </React.Fragment>
             ) : null,
         )}
       </p>
@@ -101,7 +101,6 @@ class RuleItems extends React.PureComponent<
           </section>
         );
       } else {
-        // TODO
         const ruledef = item.value;
         if (ruledef.type === 'separator' || ruledef.type === 'hidden') {
           // non-setting or hidden rule is not displayed
@@ -113,7 +112,7 @@ class RuleItems extends React.PureComponent<
           rule[ruledef.id],
         );
         return value ? (
-          <p>
+          <p key={`item-${ruledef.id}`}>
             {label}: {value}
           </p>
         ) : null;
@@ -121,3 +120,28 @@ class RuleItems extends React.PureComponent<
     });
   }
 }
+
+/**
+ * Styled components which shours current rule.
+ */
+export class ShowRuleWrapperInner extends React.PureComponent<
+  IPropShowRule & { className?: string },
+  {}
+> {
+  public render() {
+    const { className, ...ps } = this.props;
+    return (
+      <div className={className}>
+        <ShowRule {...ps} />
+      </div>
+    );
+  }
+}
+
+export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
+  background-color: #ffd1f2;
+
+  h1 {
+    font-size: 1.3em;
+  }
+`;

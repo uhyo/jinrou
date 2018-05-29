@@ -14,7 +14,7 @@ import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 import { JobForms } from './job-forms';
 import { Logs } from './logs';
-import { ShowRule } from './rule';
+import { ShowRuleWrapper } from './rule';
 
 import { showConfirmDialog } from '../dialog';
 
@@ -88,7 +88,11 @@ export class Game extends React.Component<IPropGame, {}> {
             <div>
               {/* Rule panel if open. */}
               {ruleOpen ? (
-                <ShowRule rule={rule} roles={roles} ruleDefs={ruleDefs} />
+                <ShowRuleWrapper
+                  rule={rule}
+                  roles={roles}
+                  ruleDefs={ruleDefs}
+                />
               ) : null}
               {/* Logs. */}
               <Logs
