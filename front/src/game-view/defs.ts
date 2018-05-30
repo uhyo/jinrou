@@ -134,21 +134,6 @@ export interface GameInfo {
 }
 
 /**
- * Provided information of rule setting.
- */
-export interface RuleInfo {
-  /**
-   * Job number settings.
-   */
-  jobNumbers: Record<string, number>;
-  /**
-   * Rule settings.
-   * It may not exist at certain cituations.
-   */
-  rule: Record<string, string>;
-}
-
-/**
  * State of speaking form.
  */
 export interface SpeakState {
