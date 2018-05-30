@@ -178,7 +178,7 @@ exports.start=(roomid)->
                     if obj.game?
                         {
                             casting: obj.game.rule.jobrule
-                            jobNumbers: obj.game.jobscount
+                            jobNumbers: convertToJobNumbers obj.game.jobscount
                             rules: new Map Object.entries obj.game.rule
                         }
                     else
@@ -1379,3 +1379,10 @@ convertSuggestedOption = (obj)->
         else
             result[key] = value
     return result
+# Convert jobsCount from server to jobNumbers.
+# Namely remove role name info.
+convertToJobNumbers = (obj) ->
+    result = {}
+    for key, value of obj
+        result[key] = obj[key].number
+    result

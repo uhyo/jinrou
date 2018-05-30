@@ -33,7 +33,7 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
               <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
             ) : null}
             {rule.rules != null ? (
-              <RuleItems items={ruleDefs} rule={rule.rules} t={t} />
+              <RuleItems items={ruleDefs} rule={rule} t={t} />
             ) : null}
           </>
         )}
@@ -78,7 +78,7 @@ class JobNumbers extends React.PureComponent<
  */
 class RuleItems extends React.PureComponent<
   {
-    rule: Map<string, string>;
+    rule: Rule;
     items: RuleGroup;
     t: TranslationFunction;
   },
@@ -86,13 +86,16 @@ class RuleItems extends React.PureComponent<
 > {
   public render(): React.ReactNode {
     const { rule, items, t } = this.props;
+    const { rules } = rule;
     return items.map(item => {
       if (item.type === 'group') {
         // group of rule
         const groupdef = item.label;
 
         // check visibility of this group.
-        groupdef.visible;
+        if (!groupdef.visible(rule)) {
+          return null;
+        }
 
         return (
           <section key={`group-${groupdef.id}`}>
@@ -109,7 +112,7 @@ class RuleItems extends React.PureComponent<
         const { label, value } = getRuleExpression(
           t,
           ruledef,
-          rule.get(ruledef.id) || '',
+          rules.get(ruledef.id) || '',
         );
         return value ? (
           <p key={`item-${ruledef.id}`}>
