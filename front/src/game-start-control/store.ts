@@ -145,7 +145,7 @@ export class CastingStore {
   @computed
   public get ruleObject(): Rule {
     return {
-      casting: this.currentCasting,
+      casting: this.currentCasting.id,
       rules: this.rules,
       jobNumbers: this.jobNumbers,
     };

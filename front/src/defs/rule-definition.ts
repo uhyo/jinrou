@@ -96,7 +96,7 @@ export interface Rule {
   /**
    * Setting of casting.
    */
-  casting: CastingDefinition;
+  casting: string;
   /**
    * Options.
    */

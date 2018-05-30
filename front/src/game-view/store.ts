@@ -61,11 +61,7 @@ export class GameStore {
   /**
    * Current rule.
    */
-  @observable
-  rule: RuleInfo = {
-    jobNumbers: undefined,
-    rule: undefined,
-  };
+  @observable rule: RuleInfo | undefined = undefined;
   /**
    * Whether the rule information is open.
    */

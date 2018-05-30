@@ -76,7 +76,7 @@ export class Game extends React.Component<IPropGame, {}> {
               gameInfo={gameInfo}
               roleInfo={roleInfo}
               logVisibility={logVisibility}
-              rule={rule.rule != null}
+              rule={rule != null}
               onUpdate={this.handleSpeakUpdate}
               onUpdateLogVisibility={this.handleLogVisibilityUpdate}
               onSpeak={this.handleSpeak}
@@ -87,7 +87,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Main game screen. */}
             <div>
               {/* Rule panel if open. */}
-              {ruleOpen ? (
+              {rule != null && ruleOpen ? (
                 <ShowRuleWrapper
                   rule={rule}
                   roles={roles}

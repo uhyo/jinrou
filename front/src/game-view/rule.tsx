@@ -92,7 +92,8 @@ class RuleItems extends React.PureComponent<
         // group of rule
         const groupdef = item.label;
 
-        // TODO: check visibility of group
+        // check visibility of this group.
+        groupdef.visible;
 
         return (
           <section key={`group-${groupdef.id}`}>

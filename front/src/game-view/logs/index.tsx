@@ -22,7 +22,7 @@ export interface IPropLogs {
   /**
    * Current rule setting.
    */
-  rule: RuleInfo;
+  rule: RuleInfo | undefined;
 }
 /**
  * Shows all logs.
