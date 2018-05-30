@@ -1,7 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
-import { RuleInfo, Log, LogVisibility } from '../defs';
+import { Log, LogVisibility } from '../defs';
+import { Rule } from '../../defs';
 import { i18n } from '../../i18n';
 
 import { OneLog } from './log';
@@ -22,7 +23,7 @@ export interface IPropLogs {
   /**
    * Current rule setting.
    */
-  rule: RuleInfo | undefined;
+  rule: Rule | undefined;
 }
 /**
  * Shows all logs.

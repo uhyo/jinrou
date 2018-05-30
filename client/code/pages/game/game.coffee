@@ -177,8 +177,9 @@ exports.start=(roomid)->
                 rule:
                     if obj.game?
                         {
+                            casting: obj.game.rule.jobrule
                             jobNumbers: obj.game.jobscount
-                            rule: obj.game.rule
+                            rules: new Map Object.entries obj.game.rule
                         }
                     else
                         undefined

@@ -1,8 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { I18n, TranslationFunction } from '../i18n';
-import { RuleGroup } from '../defs';
-import { RuleInfo } from './defs';
+import { RuleGroup, Rule } from '../defs';
 
 import { getRuleExpression } from '../logic/rule';
 
@@ -10,7 +9,7 @@ export interface IPropShowRule {
   /**
    * Current rule.
    */
-  rule: RuleInfo;
+  rule: Rule;
   /**
    * Id of roles.
    */
@@ -33,8 +32,8 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
             {rule.jobNumbers != null ? (
               <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
             ) : null}
-            {rule.rule != null ? (
-              <RuleItems items={ruleDefs} rule={rule.rule} t={t} />
+            {rule.rules != null ? (
+              <RuleItems items={ruleDefs} rule={rule.rules} t={t} />
             ) : null}
           </>
         )}
@@ -79,7 +78,7 @@ class JobNumbers extends React.PureComponent<
  */
 class RuleItems extends React.PureComponent<
   {
-    rule: Record<string, string>;
+    rule: Map<string, string>;
     items: RuleGroup;
     t: TranslationFunction;
   },
@@ -110,7 +109,7 @@ class RuleItems extends React.PureComponent<
         const { label, value } = getRuleExpression(
           t,
           ruledef,
-          rule[ruledef.id],
+          rule.get(ruledef.id) || '',
         );
         return value ? (
           <p key={`item-${ruledef.id}`}>

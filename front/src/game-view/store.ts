@@ -1,13 +1,7 @@
 import { action, computed, observable } from 'mobx';
 
-import {
-  GameInfo,
-  RoleInfo,
-  RuleInfo,
-  SpeakState,
-  LogVisibility,
-  Log,
-} from './defs';
+import { Rule } from '../defs';
+import { GameInfo, RoleInfo, SpeakState, LogVisibility, Log } from './defs';
 
 /**
  * Query of updating the store.
@@ -17,7 +11,7 @@ export interface UpdateQuery {
   roleInfo?: RoleInfo | null;
   speakState?: Partial<SpeakState>;
   logVisibility?: LogVisibility;
-  rule?: RuleInfo;
+  rule?: Rule;
   icons?: Record<string, string | undefined>;
   ruleOpen?: boolean;
 }
@@ -61,7 +55,7 @@ export class GameStore {
   /**
    * Current rule.
    */
-  @observable rule: RuleInfo | undefined = undefined;
+  @observable rule: Rule | undefined = undefined;
   /**
    * Whether the rule information is open.
    */
