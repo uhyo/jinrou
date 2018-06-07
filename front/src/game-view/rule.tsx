@@ -33,7 +33,9 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
               <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
             ) : null}
             {rule.rules != null ? (
-              <RuleItems items={ruleDefs} rule={rule} t={t} />
+              <table>
+                <RuleItems items={ruleDefs} rule={rule} t={t} />
+              </table>
             ) : null}
           </>
         )}
@@ -98,10 +100,12 @@ class RuleItems extends React.PureComponent<
         }
 
         return (
-          <section key={`group-${groupdef.id}`}>
-            <h1>{t(`rules:ruleGroup.${groupdef.id}.name`)}</h1>
+          <React.Fragment key={`group-${groupdef.id}`}>
+            <tr>
+              <th colSpan={2}>{t(`rules:ruleGroup.${groupdef.id}.name`)}</th>
+            </tr>
             <RuleItems rule={rule} items={item.items} t={t} />
-          </section>
+          </React.Fragment>
         );
       } else {
         const ruledef = item.value;
@@ -115,9 +119,10 @@ class RuleItems extends React.PureComponent<
           rules.get(ruledef.id) || '',
         );
         return value ? (
-          <p key={`item-${ruledef.id}`}>
-            {label}: {value}
-          </p>
+          <tr key={`item-${ruledef.id}`}>
+            <td>{label}</td>
+            <td>{value}</td>
+          </tr>
         ) : null;
       }
     });
@@ -142,9 +147,21 @@ export class ShowRuleWrapperInner extends React.PureComponent<
 }
 
 export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
+  padding: 5px;
   background-color: #ffd1f2;
 
-  h1 {
-    font-size: 1.3em;
+  table {
+    th,
+    td {
+      border: none;
+    }
+    th {
+      padding-top: 2px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+    }
+    td {
+      border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+    }
   }
 `;
