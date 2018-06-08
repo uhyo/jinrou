@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { ThemeProvider } from '../util/styled';
 import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
@@ -85,7 +86,7 @@ export class Game extends React.Component<IPropGame, {}> {
               {...speakState}
             />
             {/* Main game screen. */}
-            <div>
+            <MainWrapper>
               {/* Rule panel if open. */}
               {rule != null && ruleOpen ? (
                 <ShowRuleWrapper
@@ -101,7 +102,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 icons={store.icons}
                 rule={store.rule}
               />
-            </div>
+            </MainWrapper>
           </div>
         </I18nProvider>
       </ThemeProvider>
@@ -159,3 +160,11 @@ export class Game extends React.Component<IPropGame, {}> {
     });
   }
 }
+
+/**
+ * Wrapper for main game panel.
+ */
+const MainWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+`;

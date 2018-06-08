@@ -28,16 +28,18 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
     return (
       <I18n>
         {t => (
-          <>
+          <RuleInnerWrapper>
             {rule.jobNumbers != null ? (
               <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
             ) : null}
             {rule.rules != null ? (
               <table>
-                <RuleItems items={ruleDefs} rule={rule} t={t} />
+                <tbody>
+                  <RuleItems items={ruleDefs} rule={rule} t={t} />
+                </tbody>
               </table>
             ) : null}
-          </>
+          </RuleInnerWrapper>
         )}
       </I18n>
     );
@@ -148,6 +150,8 @@ export class ShowRuleWrapperInner extends React.PureComponent<
 
 export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
   padding: 5px;
+  flex: auto 0 0;
+  order: 2;
   background-color: #ffd1f2;
 
   table {
@@ -164,4 +168,9 @@ export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
       border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
     }
   }
+`;
+
+const RuleInnerWrapper = styled.div`
+  position: sticky;
+  top: 0;
 `;

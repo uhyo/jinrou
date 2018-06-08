@@ -218,7 +218,6 @@ function ProbTd({ prob }: IPropProbTd) {
 const LogBox = styled.div`
   display: table-row;
   margin: 0;
-  width: 100%;
   line-height: 1;
   color: #000000;
 `;
@@ -450,7 +449,6 @@ interface IPropComment {
  */
 const Comment = withProps<IPropComment>()(styled.div)`
   display: table-cell;
-  width: 100%;
 
   white-space: pre-wrap;
   font-size: ${({ size }) =>
@@ -479,8 +477,10 @@ const TimeInner = ({ time, className }: IPropTime) => {
 const Time = styled(TimeInner)`
   display: table-cell;
   white-space: nowrap;
-  max-width: 22ex;
+  max-width: 12ex;
   font-size: x-small;
   margin-left: 2em;
   line-height: 15px;
+  text-align: right;
+  padding-right: 1ex;
 `;
