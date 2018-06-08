@@ -15,7 +15,7 @@ import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 import { JobForms } from './job-forms';
 import { Logs } from './logs';
-import { ShowRuleWrapper } from './rule';
+import { ShowRule } from './rule';
 
 import { showConfirmDialog } from '../dialog';
 
@@ -89,19 +89,21 @@ export class Game extends React.Component<IPropGame, {}> {
             <MainWrapper>
               {/* Rule panel if open. */}
               {rule != null && ruleOpen ? (
-                <ShowRuleWrapper
-                  rule={rule}
-                  roles={roles}
-                  ruleDefs={ruleDefs}
-                />
+                <RuleWrapper>
+                  <RuleInnerWrapper>
+                    <ShowRule rule={rule} roles={roles} ruleDefs={ruleDefs} />
+                  </RuleInnerWrapper>
+                </RuleWrapper>
               ) : null}
               {/* Logs. */}
-              <Logs
-                logs={store.logs}
-                visibility={store.logVisibility}
-                icons={store.icons}
-                rule={store.rule}
-              />
+              <LogsWrapper>
+                <Logs
+                  logs={store.logs}
+                  visibility={store.logVisibility}
+                  icons={store.icons}
+                  rule={store.rule}
+                />
+              </LogsWrapper>
             </MainWrapper>
           </div>
         </I18nProvider>
@@ -167,4 +169,28 @@ export class Game extends React.Component<IPropGame, {}> {
 const MainWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
+`;
+
+/**
+ * Wrapper of logs.
+ */
+const LogsWrapper = styled.div`
+  flex: auto 1 0;
+  order: 1;
+`;
+
+/**
+ * Wrapper of rule.
+ */
+const RuleWrapper = styled.div`
+  flex: 20em 0 0;
+  order: 2;
+
+  background-color: #ffd1f2;
+`;
+
+const RuleInnerWrapper = styled.div`
+  position: sticky;
+  top: 0;
+  padding: 5px;
 `;

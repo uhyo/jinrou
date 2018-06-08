@@ -45,7 +45,6 @@ export class Logs extends React.Component<IPropLogs, {}> {
 }
 
 const LogWrapper = styled.div`
-  flex: auto 1 0;
-  order: 1;
+  width: 100%;
   display: table;
 `;

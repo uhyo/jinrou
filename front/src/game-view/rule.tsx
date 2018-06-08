@@ -29,18 +29,18 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
     return (
       <I18n>
         {t => (
-          <RuleInnerWrapper>
+          <>
             {rule.jobNumbers != null ? (
               <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
             ) : null}
             {rule.rules != null ? (
-              <table>
+              <RuleTable>
                 <tbody>
                   <RuleItems items={ruleDefs} rule={rule} t={t} />
                 </tbody>
-              </table>
+              </RuleTable>
             ) : null}
-          </RuleInnerWrapper>
+          </>
         )}
       </I18n>
     );
@@ -132,48 +132,19 @@ class RuleItems extends React.PureComponent<
   }
 }
 
-/**
- * Styled components which shours current rule.
- */
-export class ShowRuleWrapperInner extends React.PureComponent<
-  IPropShowRule & { className?: string },
-  {}
-> {
-  public render() {
-    const { className, ...ps } = this.props;
-    return (
-      <div className={className}>
-        <ShowRule {...ps} />
-      </div>
-    );
+const RuleTable = styled.table`
+  width: 100%;
+
+  th,
+  td {
+    border: none;
   }
-}
-
-export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
-  padding: 5px;
-  flex: 20em 0 0;
-  order: 2;
-  background-color: #ffd1f2;
-
-  table {
-    width: 100%;
-
-    th,
-    td {
-      border: none;
-    }
-    th {
-      padding-top: 2px;
-      text-align: center;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.42);
-    }
-    td {
-      border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
-    }
+  th {
+    padding-top: 2px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
   }
-`;
-
-const RuleInnerWrapper = styled.div`
-  position: sticky;
-  top: 0;
+  td {
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.3);
+  }
 `;
