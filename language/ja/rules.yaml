@@ -336,4 +336,5 @@ ruleGroup:
 common:
   minutes: "分"
   seconds: "秒"
+  none: "なし"
 

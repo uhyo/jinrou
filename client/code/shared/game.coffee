@@ -2111,7 +2111,11 @@ exports.new_rules=[
                     defaultValue: 0
                     getstr:(t, value)->
                         {
-                            value: value + t('rules:common.seconds')
+                            value:
+                                if !value
+                                    t('rules:common.none')
+                                else
+                                    value + t('rules:common.seconds')
                         }
             }
             {
