@@ -1,5 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import { CSSTransition } from 'react-transition-group';
 import { I18n, TranslationFunction } from '../i18n';
 import { RuleGroup, Rule } from '../defs';
 
@@ -150,11 +151,13 @@ export class ShowRuleWrapperInner extends React.PureComponent<
 
 export const ShowRuleWrapper = styled(ShowRuleWrapperInner)`
   padding: 5px;
-  flex: auto 0 0;
+  flex: 20em 0 0;
   order: 2;
   background-color: #ffd1f2;
 
   table {
+    width: 100%;
+
     th,
     td {
       border: none;
