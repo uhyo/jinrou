@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { CSSTransition } from 'react-transition-group';
 import { I18n, TranslationFunction } from '../i18n';
 import { RuleGroup, Rule } from '../defs';
 

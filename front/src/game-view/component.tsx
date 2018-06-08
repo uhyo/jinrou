@@ -1,6 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { ThemeProvider } from '../util/styled';
+import { Transition } from 'react-transition-group';
+
+import { ThemeProvider, withProps } from '../util/styled';
 import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
 
@@ -88,13 +90,29 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Main game screen. */}
             <MainWrapper>
               {/* Rule panel if open. */}
-              {rule != null && ruleOpen ? (
-                <RuleWrapper>
-                  <RuleInnerWrapper>
-                    <ShowRule rule={rule} roles={roles} ruleDefs={ruleDefs} />
-                  </RuleInnerWrapper>
-                </RuleWrapper>
-              ) : null}
+              <Transition in={rule != null && ruleOpen} timeout={250}>
+                {(state: string) => {
+                  const closed =
+                    state === 'exiting' ||
+                    state === 'exited' ||
+                    state === 'unmounted';
+                  return (
+                    <RuleWrapper closed={closed}>
+                      {rule != null ? (
+                        <RuleStickyWrapper closed={closed}>
+                          <RuleInnerWrapper>
+                            <ShowRule
+                              rule={rule}
+                              roles={roles}
+                              ruleDefs={ruleDefs}
+                            />
+                          </RuleInnerWrapper>
+                        </RuleStickyWrapper>
+                      ) : null}
+                    </RuleWrapper>
+                  );
+                }}
+              </Transition>
               {/* Logs. */}
               <LogsWrapper>
                 <Logs
@@ -179,18 +197,34 @@ const LogsWrapper = styled.div`
   order: 1;
 `;
 
+interface IPropsRuleWrapper {
+  /**
+   * Whether this is in closed state.
+   */
+  closed?: boolean;
+}
 /**
  * Wrapper of rule.
  */
-const RuleWrapper = styled.div`
-  flex: 20em 0 0;
+const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
+  transition: width 250ms ease-out;
+  flex: auto 0 0;
+  width: ${({ closed }) => (closed ? '0' : '20em')};
   order: 2;
 
   background-color: #ffd1f2;
 `;
 
-const RuleInnerWrapper = styled.div`
+const RuleStickyWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
+  transition: width 250ms ease-out;
+  width: ${({ closed }) => (closed ? '0' : '20em')};
   position: sticky;
   top: 0;
+  overflow-x: hidden;
+`;
+
+const RuleInnerWrapper = styled.div`
+  box-sizing: border-box;
+  width: 20em;
   padding: 5px;
 `;
