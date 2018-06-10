@@ -83,6 +83,21 @@ exports.start=(roomid)->
                             Index.util.message "エラー",result.error
                         else
                             getjobinfo result
+                onWillChange:(will)->
+                    # User's will is updated
+                    ss.rpc "game.game.will", roomid, will, (result)->
+                        # TODO
+                        if result?
+                            Index.util.message "エラー", result
+                        else
+                            # will is successfully updated
+                            # TODO: better update function?
+                            game_view.store.update {
+                                roleInfo: Object.assign {
+                                }, game_view.store.roleInfo, {
+                                    will: will
+                                }
+                            }
 
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
