@@ -65,7 +65,10 @@ export class WillForm extends React.PureComponent<
     );
   }
   public componentDidUpdate(prevProps: IPropWillForm): void {
-    if (this.props.will !== prevProps.will || !this.props.open) {
+    if (
+      this.props.will !== prevProps.will ||
+      (this.props.open && !prevProps.open)
+    ) {
       // Changed will causes a forced update to DOM.
       if (this.textareaRef.current) {
         this.textareaRef.current.value = this.props.will || '';
