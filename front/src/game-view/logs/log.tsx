@@ -416,6 +416,7 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
  */
 const Icon = styled.div`
   display: table-cell;
+  width: 1em;
 
   img {
     width: 1em;
@@ -477,7 +478,6 @@ const TimeInner = ({ time, className }: IPropTime) => {
 const Time = styled(TimeInner)`
   display: table-cell;
   white-space: nowrap;
-  max-width: 12ex;
   font-size: x-small;
   margin-left: 2em;
   line-height: 15px;

@@ -205,7 +205,7 @@ const MainWrapper = styled.div`
  * Wrapper of logs.
  */
 const LogsWrapper = styled.div`
-  flex: auto 1 0;
+  flex: auto 1 1;
   order: 1;
 `;
 
