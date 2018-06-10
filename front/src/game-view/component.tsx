@@ -50,12 +50,23 @@ interface IPropGame {
    * Handle a job query event.
    */
   onJobQuery: (query: Record<string, string>) => void;
+  /**
+   * Handle a will update event.
+   */
+  onWillChange: (will: string) => void;
 }
 
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   public render() {
-    const { i18n, store, roles, ruleDefs, onJobQuery } = this.props;
+    const {
+      i18n,
+      store,
+      roles,
+      ruleDefs,
+      onJobQuery,
+      onWillChange,
+    } = this.props;
     const {
       gameInfo,
       roleInfo,
@@ -85,6 +96,7 @@ export class Game extends React.Component<IPropGame, {}> {
               onSpeak={this.handleSpeak}
               onRefuseRevival={this.handleRefuseRevival}
               onRuleOpen={this.handleRuleOpen}
+              onWillChange={onWillChange}
               {...speakState}
             />
             {/* Main game screen. */}

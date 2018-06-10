@@ -41,6 +41,10 @@ export interface IPlaceOptions {
    * Handle a job query.
    */
   onJobQuery: (query: Record<string, string>) => void;
+  /**
+   * Handle an update to the will.
+   */
+  onWillChange: (will: string) => void;
 }
 
 export interface IPlaceResult {
@@ -69,6 +73,7 @@ export function place({
   onSpeak,
   onRefuseRevival,
   onJobQuery,
+  onWillChange,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
   // 蘇生辞退時のロジックを作る
@@ -83,6 +88,7 @@ export function place({
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
+      onWillChange={onWillChange}
     />
   );
 

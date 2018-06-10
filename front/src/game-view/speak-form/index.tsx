@@ -51,6 +51,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Push the rule button.
    */
   onRuleOpen: () => void;
+  /**
+   * Change the will.
+   */
+  onWillChange: (will: string) => void;
 }
 /**
  * Speaking controls.
@@ -287,12 +291,12 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
    */
   @bind
   protected handleWillChange(will: string): void {
-    // hi
-    console.log(will);
+    const { onUpdate, onWillChange } = this.props;
     // close will form.
-    this.props.onUpdate({
+    onUpdate({
       willOpen: false,
     });
+    onWillChange(will);
   }
   /**
    * Handle a click of rule button.
