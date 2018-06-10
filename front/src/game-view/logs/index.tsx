@@ -6,6 +6,7 @@ import { Rule } from '../../defs';
 import { i18n } from '../../i18n';
 
 import { OneLog } from './log';
+import { assertNever } from '../../util/assert-never';
 
 export interface IPropLogs {
   /**
@@ -31,12 +32,58 @@ export interface IPropLogs {
 @observer
 export class Logs extends React.Component<IPropLogs, {}> {
   public render() {
-    const { logs, rule, icons } = this.props;
-    // MobX observable array returns a reversed copy of original array.
-    const rev = logs.reverse();
+    const { logs, rule, icons, visibility } = this.props;
+    // List of logs to be shown.
+    let shownLogs: Log[];
+    switch (visibility.type) {
+      case 'all': {
+        // MobX observable array returns a reversed copy of original array.
+        shownLogs = logs.reverse();
+        break;
+      }
+      case 'one': {
+        shownLogs = [];
+        const vday = visibility.day;
+        let day = 1;
+        // Filter logs for the day.
+        for (const log of logs) {
+          if (log.mode === 'nextturn' && !log.finished) {
+            if (!log.night) {
+              // date is changed.
+              day = log.day;
+              if (day > vday) {
+                // Shown region is passed.
+                break;
+              }
+            }
+          }
+          if (day === vday) {
+            shownLogs.push(log);
+          }
+        }
+        //Reverse the logs so that the newest comes first.
+        shownLogs.reverse();
+        break;
+      }
+      case 'today': {
+        shownLogs = [];
+        // collect logs until the day change log is reached.
+        for (const log of logs.reverse()) {
+          shownLogs.push(log);
+          if (log.mode === 'nextturn' && !log.finished && !log.night) {
+            break;
+          }
+        }
+        break;
+      }
+      default: {
+        shownLogs = assertNever(visibility);
+      }
+    }
+
     return (
       <LogWrapper>
-        {rev.map((log, i) => {
+        {shownLogs.map((log, i) => {
           return <OneLog key={i} log={log} rule={rule} icons={icons} />;
         })}
       </LogWrapper>
