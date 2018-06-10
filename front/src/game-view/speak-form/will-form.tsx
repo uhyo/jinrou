@@ -1,8 +1,10 @@
 import * as React from 'react';
 import styled, { withProps } from '../../util/styled';
 import { bind } from '../../util/bind';
+import { TranslationFunction } from 'i18next';
 
 interface IPropWillForm {
+  t: TranslationFunction;
   /**
    * Whether the will form is open.
    */
@@ -42,23 +44,23 @@ export class WillForm extends React.PureComponent<
     this.textareaRef = React.createRef();
   }
   public render() {
-    const { open } = this.props;
+    const { t, open } = this.props;
     const { changed } = this.state;
     return (
       <Wrapper open={open} onSubmit={this.handleSubmit}>
         <Content>
           <p>
-            遺言を入力
+            {t('game_client:speak.will.message')}
             {changed ? (
               <>
                 {'　'}
-                <em>変更を保存するには保存ボタンを押してください</em>
+                <em>{t('game_client:speak.will.changed')}</em>
               </>
             ) : null}
           </p>
           <p>
             <textarea ref={this.textareaRef} onChange={this.handleChange} />
-            <input type="submit" value="遺言を保存" />
+            <input type="submit" value={t('game_client:speak.will.save')} />
           </p>
         </Content>
       </Wrapper>

@@ -85,113 +85,114 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     const speaks = roleInfo != null ? roleInfo.speak : ['day'];
 
     return (
-      <>
-        <form onSubmit={this.handleSubmit}>
-          <I18n>
-            {t => (
-              <>
-                {/* Comment input form. */}
-                {multiline ? (
-                  <textarea
-                    ref={e => (this.comment = e)}
-                    cols={50}
-                    rows={4}
-                    required
-                    autoComplete="off"
-                    defaultValue={this.commentString}
-                    onChange={this.handleCommentChange}
-                  />
-                ) : (
-                  <input
-                    ref={e => (this.comment = e)}
-                    type="text"
-                    size={50}
-                    required
-                    autoComplete="off"
-                    defaultValue={this.commentString}
-                    onChange={this.handleCommentChange}
-                    onKeyDown={this.handleKeyDownComment}
-                  />
-                )}
-                {/* Speak button. */}
-                <input type="submit" value={t('game_client:speak.say')} />
-                {/* Speak size select control. */}
-                <select value={size} onChange={this.handleSizeChange}>
-                  <option value="small">
-                    {t('game_client:speak.size.small')}
-                  </option>
-                  <option value="normal">
-                    {t('game_client:speak.size.normal')}
-                  </option>
-                  <option value="big">{t('game_client:speak.size.big')}</option>
-                </select>
-                {/* Speech kind selection. */}
-                <select value={kind} onChange={this.handleKindChange}>
-                  {speaks.map(value => {
-                    // special handling of speech kind.
-                    let label;
-                    if (value.startsWith('gmreply_')) {
-                      label = t('game_client:speak.kind.gmreply', {
-                        target: value.slice(8),
-                      });
-                    } else if (value.startsWith('helperwhisper_')) {
-                      label = t('game_client:speak.kind.helperwhisper');
-                    } else {
-                      label = t(`game_client:speak.kind.${value}`);
-                    }
-                    return (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    );
-                  })}
-                </select>
-                {/* Multiline checkbox. */}
-                <label>
-                  <input
-                    type="checkbox"
-                    name="multilinecheck"
-                    checked={multiline}
-                    onChange={this.handleMultilineChange}
-                  />
-                  {t('game_client:speak.multiline')}
-                </label>
-                {/* Will open button. */}
-                <button type="button" onClick={this.handleWillClick}>
-                  {t('game_client:speak.will.open')}
-                </button>
-                {/* Show rule button. */}
-                <button
-                  type="button"
-                  onClick={this.handleRuleClick}
-                  disabled={!rule}
-                >
-                  {t('game_client:speak.rule')}
-                </button>
-                {/* Log visibility control. */}
-                <LogVisibilityControl
-                  visibility={logVisibility}
-                  day={gameInfo.day}
-                  onUpdate={this.handleVisibilityUpdate}
+      <I18n>
+        {t => (
+          <>
+            <form onSubmit={this.handleSubmit}>
+              {/* Comment input form. */}
+              {multiline ? (
+                <textarea
+                  ref={e => (this.comment = e)}
+                  cols={50}
+                  rows={4}
+                  required
+                  autoComplete="off"
+                  defaultValue={this.commentString}
+                  onChange={this.handleCommentChange}
                 />
-                {/* Refuse revival button. */}
-                <button type="button" onClick={this.handleRefuseRevival}>
-                  {t('game_client:speak.refuseRevival')}
-                </button>
-              </>
-            )}
-          </I18n>
-        </form>
-        <Transition in={willOpen} timeout={250}>
-          {(state: string) => (
-            <WillForm
-              open={willOpen}
-              will={(roleInfo && roleInfo.will) || undefined}
-              onWillChange={this.handleWillChange}
-            />
-          )}
-        </Transition>
-      </>
+              ) : (
+                <input
+                  ref={e => (this.comment = e)}
+                  type="text"
+                  size={50}
+                  required
+                  autoComplete="off"
+                  defaultValue={this.commentString}
+                  onChange={this.handleCommentChange}
+                  onKeyDown={this.handleKeyDownComment}
+                />
+              )}
+              {/* Speak button. */}
+              <input type="submit" value={t('game_client:speak.say')} />
+              {/* Speak size select control. */}
+              <select value={size} onChange={this.handleSizeChange}>
+                <option value="small">
+                  {t('game_client:speak.size.small')}
+                </option>
+                <option value="normal">
+                  {t('game_client:speak.size.normal')}
+                </option>
+                <option value="big">{t('game_client:speak.size.big')}</option>
+              </select>
+              {/* Speech kind selection. */}
+              <select value={kind} onChange={this.handleKindChange}>
+                {speaks.map(value => {
+                  // special handling of speech kind.
+                  let label;
+                  if (value.startsWith('gmreply_')) {
+                    label = t('game_client:speak.kind.gmreply', {
+                      target: value.slice(8),
+                    });
+                  } else if (value.startsWith('helperwhisper_')) {
+                    label = t('game_client:speak.kind.helperwhisper');
+                  } else {
+                    label = t(`game_client:speak.kind.${value}`);
+                  }
+                  return (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  );
+                })}
+              </select>
+              {/* Multiline checkbox. */}
+              <label>
+                <input
+                  type="checkbox"
+                  name="multilinecheck"
+                  checked={multiline}
+                  onChange={this.handleMultilineChange}
+                />
+                {t('game_client:speak.multiline')}
+              </label>
+              {/* Will open button. */}
+              <button type="button" onClick={this.handleWillClick}>
+                {willOpen
+                  ? t('game_client:speak.will.close')
+                  : t('game_client:speak.will.open')}
+              </button>
+              {/* Show rule button. */}
+              <button
+                type="button"
+                onClick={this.handleRuleClick}
+                disabled={!rule}
+              >
+                {t('game_client:speak.rule')}
+              </button>
+              {/* Log visibility control. */}
+              <LogVisibilityControl
+                visibility={logVisibility}
+                day={gameInfo.day}
+                onUpdate={this.handleVisibilityUpdate}
+              />
+              {/* Refuse revival button. */}
+              <button type="button" onClick={this.handleRefuseRevival}>
+                {t('game_client:speak.refuseRevival')}
+              </button>
+            </form>
+            <Transition in={willOpen} timeout={250}>
+              {(state: string) => (
+                <WillForm
+                  t={t}
+                  open={willOpen}
+                  will={(roleInfo && roleInfo.will) || undefined}
+                  onWillChange={this.handleWillChange}
+                />
+              )}
+            </Transition>
+          </>
+        )}
+      </I18n>
     );
   }
   public componentDidUpdate() {

@@ -118,6 +118,13 @@ speak:
     open: "遺言"
     # click to close button.
     close: "遺言を隠す"
+    # "Input your will" message,
+    message: "遺言を入力"
+    # save will button.
+    save: "遺言を保存"
+    # Message shown when a change is made to will
+    # "Press save button to save your new will"
+    changed: "変更を保存するには保存ボタンを押してください"
   # show rule button.
   rule: "ルール"
   # log visibility.
