@@ -3,16 +3,18 @@ import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { Log, LogVisibility } from '../defs';
 import { Rule } from '../../defs';
-import { i18n } from '../../i18n';
 
 import { OneLog } from './log';
 import { assertNever } from '../../util/assert-never';
+import { StoredLog, LogStore } from './log-store';
+import { mapReverse } from '../../util/map-reverse';
+import { withProps } from '../../util/styled';
 
 export interface IPropLogs {
   /**
    * All logs.
    */
-  logs: Log[];
+  logs: LogStore;
   /**
    * Visibility of logs.
    */
@@ -33,60 +35,59 @@ export interface IPropLogs {
 export class Logs extends React.Component<IPropLogs, {}> {
   public render() {
     const { logs, rule, icons, visibility } = this.props;
-    // List of logs to be shown.
-    let shownLogs: Log[];
-    switch (visibility.type) {
-      case 'all': {
-        // MobX observable array returns a reversed copy of original array.
-        shownLogs = logs.reverse();
-        break;
-      }
-      case 'one': {
-        shownLogs = [];
-        const vday = visibility.day;
-        let day = 1;
-        // Filter logs for the day.
-        for (const log of logs) {
-          if (log.mode === 'nextturn' && !log.finished) {
-            if (!log.night) {
-              // date is changed.
-              day = log.day;
-              if (day > vday) {
-                // Shown region is passed.
-                break;
-              }
-            }
-          }
-          if (day === vday) {
-            shownLogs.push(log);
-          }
-        }
-        //Reverse the logs so that the newest comes first.
-        shownLogs.reverse();
-        break;
-      }
-      case 'today': {
-        shownLogs = [];
-        // collect logs until the day change log is reached.
-        for (const log of logs.reverse()) {
-          shownLogs.push(log);
-          if (log.mode === 'nextturn' && !log.finished && !log.night) {
-            break;
-          }
-        }
-        break;
-      }
-      default: {
-        shownLogs = assertNever(visibility);
-      }
-    }
 
     return (
       <LogWrapper>
-        {shownLogs.map((log, i) => {
-          return <OneLog key={i} log={log} rule={rule} icons={icons} />;
+        {mapReverse(logs.chunks, (chunk, i) => {
+          // Decide whether this chunk should be shown.
+          const visible =
+            visibility.type === 'all' ||
+            (visibility.type === 'today'
+              ? i === logs.chunks.length - 1
+              : chunk.day === visibility.day);
+          return (
+            <LogChunk
+              key={chunk.day}
+              logs={chunk.logs}
+              visible={visible}
+              icons={icons}
+              rule={rule}
+            />
+          );
         })}
       </LogWrapper>
+    );
+  }
+}
+
+/**
+ * Show chunk of logs.
+ */
+@observer
+class LogChunk extends React.Component<
+  {
+    logs: StoredLog[];
+    visible: boolean;
+    icons: Record<string, string | undefined>;
+    rule: Rule | undefined;
+  },
+  {}
+> {
+  public render() {
+    const { logs, visible, rule, icons } = this.props;
+    return (
+      <ChunkWrapper visible={visible}>
+        {mapReverse(logs, log => {
+          return (
+            <OneLog
+              key={`${log.time}-${(log as any).comment || ''}`}
+              log={log}
+              rule={rule}
+              icons={icons}
+            />
+          );
+        })}
+      </ChunkWrapper>
     );
   }
 }
@@ -94,4 +95,8 @@ export class Logs extends React.Component<IPropLogs, {}> {
 const LogWrapper = styled.div`
   width: 100%;
   display: table;
+`;
+
+const ChunkWrapper = withProps<{ visible: boolean }>()(styled.div)`
+  display: ${props => (props.visible ? 'table-row-group' : 'none')}
 `;

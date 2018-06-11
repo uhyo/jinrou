@@ -2,6 +2,7 @@ import { action, computed, observable } from 'mobx';
 
 import { Rule } from '../defs';
 import { GameInfo, RoleInfo, SpeakState, LogVisibility, Log } from './defs';
+import { LogStore } from './logs/log-store';
 
 /**
  * Query of updating the store.
@@ -64,7 +65,7 @@ export class GameStore {
   /**
    * All logs.
    */
-  @observable logs: Log[] = [];
+  public logs: LogStore = new LogStore();
 
   /**
    * Update current role information.
@@ -115,14 +116,6 @@ export class GameStore {
    */
   @action
   public addLog(log: Log): void {
-    this.logs.push(log);
-  }
-
-  /**
-   * Prepend logs to the store.
-   */
-  @action
-  public prependLogs(logs: Log[]): void {
-    this.logs.splice(0, 0, ...logs);
+    this.logs.addLog(log);
   }
 }
