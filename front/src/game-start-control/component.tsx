@@ -106,7 +106,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                   </p>
                 ) : null;
               return (
-                <div>
+                <Wrapper>
                   <StatusLine>
                     {t('gamestart.info.playerNumber', { count: playersNumber })}
                     {' - '}
@@ -174,7 +174,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                       {t('gamestart.control.start')}
                     </WideButton>
                   </div>
-                </div>
+                </Wrapper>
               );
             }}
           </I18n>
@@ -221,3 +221,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
     }
   }
 }
+
+const Wrapper = styled.div`
+  margin-bottom: 1.2em;
+`;

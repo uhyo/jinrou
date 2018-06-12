@@ -450,6 +450,7 @@ interface IPropComment {
  */
 const Comment = withProps<IPropComment>()(styled.div)`
   display: table-cell;
+  width: 100%;
 
   white-space: pre-wrap;
   font-size: ${({ size }) =>
