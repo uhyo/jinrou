@@ -190,7 +190,7 @@ exports.start=(roomid)->
                     else
                         undefined
                 rule:
-                    if obj.game?
+                    if obj.game?.rule?
                         {
                             casting: obj.game.rule.jobrule
                             jobNumbers: convertToJobNumbers obj.game.jobscount
