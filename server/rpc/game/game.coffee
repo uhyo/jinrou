@@ -2027,6 +2027,18 @@ class Game
 
             # generate the list of Sudden Dead Player
             norevivers=@gamelogs.filter((x)->x.event=="found" && x.flag in ["gone-day","gone-night"]).map((x)->x.id)
+            # handle miko-gone
+            miko_gone=@gamelogs.filter((x)->x.event=="miko-gone").map((x)->x.id)
+            miko_gone_counter = {}
+            for miko in miko_gone
+                if miko_gone_counter[miko] == undefined
+                    miko_gone_counter[miko] = 1
+                else
+                    miko_gone_counter[miko]++
+            for miko of miko_gone_counter
+                if miko_gone_counter[miko] >= 3 and miko not in norevivers
+                    norevivers.push miko
+
             if norevivers.length
                 @suddenDeathPunishment =
                     targets: {}
@@ -8093,6 +8105,9 @@ class MikoProtected extends Complex
     die:(game,found)->
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # The draw caused by Miko's escape is annoying.
+        if found in ["gone-day","gone-night"]
+            @addGamelog game,"miko-gone",null,null
         # 襲撃失敗理由を保存
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
