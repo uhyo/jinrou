@@ -1157,10 +1157,9 @@ class Game
                     mode:"system"
                     comment: game.i18n.t "roles:Pyrotechnist.affect"
                 splashlog game.id,game,log
+                # complete job of Pyrotechnist.
                 for pyr in x
-                    # avoid duplicate call .sunset()
-                    if pyr.cmplType=="Threatened"
-                        pyr.accessByJobType("Pyrotechnist").sunset this
+                    pyr.accessByJobType("Pyrotechnist").setFlag "done"
                 # 全员花火の虜にしてしまう
                 for pl in @players
                     newpl=Player.factory null, this, pl,null,WatchingFireworks
@@ -6353,11 +6352,6 @@ class Pyrotechnist extends Player
         # 使用済
         @setFlag "using"
         null
-    sunset:(game)->
-        if @flag=="using"
-            @setFlag "done"
-    deadsunset:(game)->
-        @sunset game
     checkJobValidity:(game,query)->
         if query.jobtype=="Pyrotechnist"
             # 対象選択は不要
