@@ -1710,7 +1710,8 @@ class Game
         if log?
             splashlog @id,this,log
         # 必要がある場合は候補者を再設定
-        @votingbox.setCandidates @players.filter ((x)->!x.dead)
+        if mode != "runoff"
+            @votingbox.setCandidates @players.filter ((x)->!x.dead)
             
         @votingbox.start()
         for player in @players
