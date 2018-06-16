@@ -1152,6 +1152,11 @@ class Game
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
                 # Pyrotechnist should break the blockade of Threatened.sunset
+                # Show a fireworks log.
+                log=
+                    mode:"system"
+                    comment: game.i18n.t "roles:Pyrotechnist.affect"
+                splashlog game.id,game,log
                 for pyr in x
                     # avoid duplicate call .sunset()
                     if pyr.cmplType=="Threatened"
@@ -6350,10 +6355,6 @@ class Pyrotechnist extends Player
         null
     sunset:(game)->
         if @flag=="using"
-            log=
-                mode:"system"
-                comment: game.i18n.t "roles:Pyrotechnist.affect"
-            splashlog game.id,game,log
             @setFlag "done"
     deadsunset:(game)->
         @sunset game
