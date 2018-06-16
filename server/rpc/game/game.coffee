@@ -1155,8 +1155,8 @@ class Game
                 # Show a fireworks log.
                 log=
                     mode:"system"
-                    comment: game.i18n.t "roles:Pyrotechnist.affect"
-                splashlog game.id,game,log
+                    comment: @i18n.t "roles:Pyrotechnist.affect"
+                splashlog @id, this, log
                 # complete job of Pyrotechnist.
                 for pyr in x
                     pyr.accessByJobType("Pyrotechnist").setFlag "done"
