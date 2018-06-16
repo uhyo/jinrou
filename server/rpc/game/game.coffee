@@ -2488,10 +2488,10 @@ class VotingBox
                     if ok
                         tops.push id
                         back=id
-                if tops.length>1
-                    @setCandidates @game.players.filter (x)->x.id in tops
-                    @runoffmode=true
-                    return ["runoff",null,tos,table]
+            if tops.length>1
+                @setCandidates @game.players.filter (x)->x.id in tops
+                @runoffmode=true
+                return ["runoff",null,tos,table]
         # 結果を教える
         return ["punish",[@game.getPlayer(tops[0])],tos,table]
 
