@@ -12,7 +12,7 @@ cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
 # 身代わりセーフティありのときの除外役職一覧
-SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter","Idol"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
 
@@ -7380,7 +7380,131 @@ class BlackCat extends Madman
             pl.die game, "poison"
             @addGamelog game, "poisonkill", null, pl.id
 
+class Idol extends Player
+    type:"Idol"
+    sunset:(game)->
+        super
+        if !@flag
+            # Choose a fan.
+            @setTarget null
+            if @scapegoat
+                # 自分以外から選ぶ
+                targets = game.players.filter (x)=> !x.dead && x.id != @id
+                if targets.length > 0
+                    r = Math.floor Math.random() * targets.length
+                    @job game, targets[r].id, {}
+                else
+                    @setTarget ""
+        else
+            @setTarget ""
+    sleeping:->@flag?
+    job:(game, playerid, query)->
+        if @target? || @flag?
+            return game.i18n.t "error.common.alreadyUsed"
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game, @id
 
+        # select a fan.
+        @setTarget playerid
+        @setFlag {
+            # List of fans.
+            fans: [playerid]
+            # Whether second fan is decided.
+            second: false
+        }
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Idol.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        # apply a fan complex
+        pl = game.getPlayer @target
+        if pl?
+            newpl = Player.factory null, game, pl, null, FanOfIdol
+            pl.transProfile newpl
+            #FanOfIdol.cmplFlag is set to the id of idol
+            newpl.cmplFlag = @id
+            pl.transform game, newpl, true
+
+            # show a message to the fan.
+            log =
+                mode: "skill"
+                to: pl.id
+                comment: game.i18n.t "roles:Idol.become", {name: pl.name, idol: @name}
+            splashlog game.id, game, log
+        # at Day 4 night, a new fan appears if there still is a fan alive.
+        if @flag? && game.day >= 4 && !@flag.second
+            fanalive = @flag.fans.some((id)->
+                pl = game.getPlayer id
+                pl? && !pl.dead)
+            unless fanalive
+                return
+            # choose a new fan.
+            targets = game.players.filter((pl)=>
+                !pl.dead && pl.id != @id && !(pl.id in @flag.fans))
+            if targets.length == 0
+                return
+            r = Math.floor Math.random() * targets.length
+            pl = targets[r]
+            newpl = Player.factory null, game, pl, null, FanOfIdol
+            pl.transProfile newpl
+            newpl.cmplFlag = @id
+            pl.transform game, newpl, true
+            # show messages.
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Idol.select", {name: @name, target: pl.name}
+            splashlog game.id, game, log
+            log =
+                mode: "skill"
+                to: pl.id
+                comment: game.i18n.t "roles:Idol.become", {name: pl.name, idol: @name}
+            splashlog game.id, game, log
+            # write to flag
+            @setFlag {
+                fans: [@flag.fans..., pl.id]
+                second: true
+            }
+
+        null
+    sunrise:(game)->
+        # If one of my fans is alive, Idol can know
+        # the number of remaining Human team players.
+        super
+        unless @flag?
+            return
+        
+        if @flag.fans.every((x)->game.getPlayer(x)?.dead)
+            return
+
+        humanTeams = game.players.filter (x)-> !x.dead && x.getTeam() == "Human"
+        num = humanTeams.length
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Idol.result", {name: @name, count: num}
+        splashlog game.id, game, log
+    makejobinfo:(game, result)->
+        super
+        # add list of fans.
+        if @flag?
+            result.myfans = @flag.fans.map((id)->
+                p = game.getPlayer id
+                p?.publicinfo()
+            ).filter((x)-> x?)
+    modifyMyVote:(game, vote)->
+        # If this is Day 5 or later and fan is no alive, vote is +1ed.
+        if game.day >= 5 && @flag? && @flag.fans.every((id)-> game.getPlayer(id)?.dead)
+            vote.votes++
+        vote
 
 
 
@@ -8426,6 +8550,47 @@ class VoteGuarded extends Complex
 class PumpkinCostumed extends Complex
     cmplType:"PumpkinCostumed"
     fortuneResult: FortuneResult.pumpkin
+# ファンになった人
+class FanOfIdol extends Complex
+    cmplType:"FanOfIdol"
+    sunset:(game)->
+        # If the idol is dead, skill is temporally disabled.
+        pl = game.getPlayer @cmplFlag
+        if pl?
+            if pl.dead
+                # OH MY GOD MY IDOL IS DEAD
+                log =
+                    mode: "skill"
+                    to: @id
+                    comment: game.i18n.t "roles:FanOfIdol.idolDead", {name: @name}
+                splashlog game.id, game, log
+                
+                # First uncomplex FanOfIdol.
+                @uncomplex game
+                # Then, compound with WatchingFireworks (XXX 使い回し)
+                pl = game.getPlayer @id
+                return unless pl?
+                newpl = Player.factory null, game, pl, null, WatchingFireworks
+                pl.transProfile newpl
+                pl.transform game, newpl, true
+                pl = game.getPlayer @id
+                pl.sunset game
+                return
+        # If nothing happended, do normal sunset.
+        super
+    makejobinfo:(game, result)->
+        @sub?.makejobinfo? game, result
+        @mcall game, @main.makejobinfo, game, result
+
+        # add description of fan.
+        result.desc?.push {
+            name: game.i18n.t "roles:FanOfIdol.name"
+            type: "FanOfIdol"
+        }
+
+        # add fan-of info.
+        pl = game.getPlayer @cmplFlag
+        result.fanof = pl?.publicinfo()
 
 
 # 決定者
@@ -8729,6 +8894,7 @@ jobs=
     EyesWolf:EyesWolf
     TongueWolf:TongueWolf
     BlackCat:BlackCat
+    Idol:Idol
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8768,7 +8934,7 @@ complexes=
     VoteGuarded:VoteGuarded
     Chemical:Chemical
     PumpkinCostumed:PumpkinCostumed
-
+    FanOfIdol:FanOfIdol
 
     # 役職ごとの強さ
 jobStrength=
