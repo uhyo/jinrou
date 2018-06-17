@@ -1,0 +1,254 @@
+# Common terms
+common:
+  # 身代わりくん
+  scapegoat: "替身君"
+  # Penalty for sudden death
+  suddenDeathPenalty: "猝死惩罚"
+  # Chemical werewolf
+  chemicalWerewolf: "炼成人狼"
+# Error messages
+error:
+  # Common error message
+  common:
+    ## game-related
+    # That player does not exist
+    nonexistentPlayer: "这个玩家不存在。"
+    # That player is already dead
+    alreadyDead: "这个玩家已经死亡。"
+    # You are not a player
+    notPlayer: "你没有加入游戏。"
+    # Cannot use a skill now
+    cannotUseSkillNow: "现在还不能发动技能。"
+    # Skill is already used
+    alreadyUsed: "当前技能已经用尽。"
+    # Selection is invalid
+    invalidSelection: "选择的对象无效。"
+    # Cannot target myself
+    noSelectSelf: "不能选择自己。"
+    # That player is not dead
+    notDead: "这个玩家尚未死亡。"
+    # Do not select scapegoat.
+    noScapegoat: "不能选择替身君。"
+    ## others
+    # Such game does not exist.
+    noSuchGame: "此游戏不存在。"
+    # Login is needed.
+    needLogin: "请先登陆。"
+    # given query is invalid.
+    invalidQuery: "无效的操作。"
+  # Error during gamestart operation
+  gamestart:
+    # Player number is invalid (invalid number is passed as a number of a role)
+    playerNumberInvalid1: "职业数不是有效数字（{{job}}:{{num}}）。多次重试可能解决这个错误。"
+    # Player number is invalid (sum of requested jobs is not the same as number of players)
+    playerNumberInvalid2: "玩家总数与职业总数不相等（职业数：{{request}}/玩家数：{{jallnum}}/房间人数：{{players}}）。多次重试可能解决这个错误。"
+    # Failed to process Thief
+    thiefFailed: "小偷处理失败。"
+    # Casting is failed
+    castingFailed: "角色分配失败。"
+    # That game is already started.
+    alreadyStarted: "游戏已经开始。"
+    # Not all players are ready
+    notReady: "全员尚未全部准备好。"
+    # Role-hiding rule is only for gm.
+    noHiddenRole: "「配置公开」选项在黑暗火锅模式下，只有在有GM的房间才能使用。"
+    # Time parameter is invalid.
+    invalidTime: "时间长度不是有效数字。"
+    # Players number is not enough.
+    playerNotEnough: "人数不足，不能开始。含替身君最少要有{{count}}人。"
+    # Too many for quantum werewolf.
+    tooManyQuantum: "人数过多。量子人狼的人数应当在{{count}}人以下。"
+    # Chemical werewolf is not available under this rule.
+    noChemical: "本规则下无法使用炼成人狼。"
+    # unknown casting name is given
+    unknownCasting: "不存在此配置。"
+    # Helper target does not exist
+    helperNotExist: "{{name}} 的帮助对象已不存在。"
+  # Error during sudden death punishment
+  suddenDeathPunish:
+    # You are not a valid voter
+    notvoter: "不能投票。"
+    # Invalid voting target
+    invalid: "投票对象无效。"
+  # Error of Votingbox
+  voting:
+    # You have already voted
+    voted: "你已经投过票了。"
+    # You are voting to yourself
+    self: "不能向自己投票。"
+    # Target is not selected.
+    noTarget: "请选择投票对象。"
+    # Voting is not available yet.
+    notNow: "尚未进入投票阶段，现在不能投票。"
+  # Error during speaking
+  speak:
+    # no comment
+    tooLong: "发言过长。"
+    # Access restriction.
+    ban: "您的账号受限，不能在此处发言。"
+  # Error during job
+  job:
+    # Invalid target selection.
+    invalid: "对象选择无效。"
+    # Job is already done.
+    done: "已经使用了能力。"
+  # Will setting.
+  will:
+    # Will is not enabled in this game.
+    noWill: "此房间不能使用遗言。"
+    # You are already dead.
+    alreadyDead: "你已经死了。"
+
+
+# System Logs
+system:
+  # Room state changed logs
+  rooms:
+    # A user has entered a room
+    enter: "{{name}} 加入了游戏。"
+    # A user is goint to enter an エンドレス闇鍋 room
+    entering: "{{name}} 加入了游戏。"
+    # A user has left a room
+    leave: "{{name}} 离开了游戏。"
+    # A user got kicked out a room
+    kicked: "{{name}} 被踢出了游戏。"
+    # A user became a helper of another user
+    helper: "{{helper}}成为了 {{target}} 的帮手。"
+    # A user stopped being a helper.
+    stophelper: "{{name}} 放弃做帮手了。"
+    # This room is abandoned.
+    abandoned: "这个房间已经废弃。"
+    # A user has joined to a running room.
+    join: "{{name}} 加入了游戏。"
+    # A rebirth of user.
+    rebirth: "{{name}} 转生了。"
+  # gameStart-related logs
+  gamestart:
+    # Diviner result mode is changed
+    divinerModeChanged: "由于存在能够左右占卜结果的职业，占卜结果从「立刻知道」变更为「天亮才知道」。"
+    # Excluded jobs
+    excluded: "除外职业：{{jobnames}}"
+    # This game has the role requesting mode.
+    roleRequesting: "本场游戏采取了希望役职制，请选择想要的职业。"
+    # Show casting
+    casting: "配置:{{casting}}"
+    # Show info of teams
+    teams: "出场阵营信息:{{info}}"
+    # Show info of roles
+    roles: "出场职业:{{info}}"
+  # Phase transitions
+  phase:
+    # Special new year message
+    newyear: "现在是{{year}}年了。"
+    # It's day now
+    day: "第{{day}}天的白天到来了。"
+    # It's night now
+    night: "第{{day}}天的夜晚到来了。"
+    # The debate has ended
+    debateEnd: "白天的讨论时间到此结束。请投票决定要处死的人。"
+  # Logs related to werewolves' phase
+  werewolf:
+    diseased: "人狼们染病了。今天无法出击。"
+    wolfcub: "为狼之子复仇吧，今天可以袭击两个人。"
+    # A user is notified to be attacked by a werewolf.
+    attacked: "{{name}} 被人狼袭击了。"
+  # Logs related to voting
+  voting:
+    # No player was punished.
+    nopunish: "没有人被处刑。"
+    # Voting entered to a runoff.
+    runoff: "出现了得票数相同的玩家，现在进行决胜投票。"
+    # Vote again!
+    revote: "现在重新进行投票。如果在接下来的{{count}}轮投票中无法达成一致，本场游戏将以平局处理。"
+    # We have more chances of punishment
+    more: "今天还有{{count}}人将被处刑。请继续投票。"
+  # Logs related to voting box
+  votingbox:
+    voted: "{{name}} 向 {{target}} 投票了。"
+  # Quantum werewolf logs
+  quantum:
+    breakdown: "世界崩坏，概率无法定义。"
+  # Revival of a user
+  revive: "{{name}} 复活了。"
+  # Role of a player changed
+  changeRole: "{{name}} 变成了 {{result}}。"
+  # Role of a player changed (with old job)
+  changeRoleFrom: "{{name}} 从{{old}}变成了 {{result}}。"
+  # GM霊能
+  gmPsychic: "根据灵能的结论，被处刑的 {{name}} 是 {{result}}。"
+  # A Hunter is preparing a last attack.
+  hunterPrepare: "{{names}} 用最后的力量举起了猎枪，枪口指向了——"
+  # A user declied to be revived.
+  declineRevival: "{{name}} 拒绝复活。"
+  # Game result
+  judge: "【{{short}}】{{result}}"
+  # A user got prizes
+  prize: "{{name}} 获得了称号{{prize}}。"
+
+# User-shown name of phases
+phase:
+  rolerequesting: "希望选择"
+  day: "昼"
+  voting: "投票"
+  night: "夜"
+  additional: "犹豫"
+  skill: "正在瞄准"
+
+# Reason of death
+found:
+  normal: "{{name}} 不成样子的尸体被发现了。"
+  curse: "{{name}} 被咒杀了。"
+  punish: "{{name}} 被处刑了。"
+  leave: "{{name}} 离开了村子。"
+  body: "{{name}} 的尸体被发现了。"
+  suicide: "{{name}} 追随着某个人自尽了。"
+  infirm: "{{name}} 衰老而死了。"
+  hunter: "{{name}} 被猎枪射杀了。"
+  gm: "{{name}} 被GM处死了。"
+  goneDay: "{{name}} 因为没有及时投票猝死了。猝死是十分令人困扰的行为，请务必不要再犯。"
+  goneNight: "{{name}} 因为没有及时使用夜间技能猝死了。猝死是十分令人困扰的行为，请务必不要再犯。"
+  fallback: "{{name}} 死了。"
+# Result of Game
+judge:
+  human: "村子里的人狼已经被赶尽杀绝。"
+  neet: "村子变成了NEET的乐园。"
+  werewolf: "人狼吃掉了最后一个村民，向着下一个住满了猎物的村庄前进了…"
+  fox: "村子成了妖狐的玩物。"
+  devil: "村子成了恶魔的玩物。"
+  friendsNormal: "在{{count}}人爱的力量面前，所有阻碍都无法与之匹敌。"
+  friendsSpecial: "在主仆{{count}}人跨越世俗禁忌的爱情面前，所有阻碍都无法与之匹敌。"
+  friendsAll: "村子被恋人们支配了。"
+  cult: "村子被教会支配了。"
+  vampire: "吸血鬼饮尽了最后一个村民的鲜血，向着下一个住满了猎物的村庄前进了…"
+  lonewolf: "人狼吃掉了最后一个村民，向着下一个住满了猎物的村庄前进了…"
+  draw: "平局。"
+  # short summary
+  short:
+    human: "村人胜利"
+    werewolf: "人狼胜利"
+    fox: "妖狐胜利"
+    devil: "恶魔胜利"
+    friends: "恋人胜利"
+    cult: "邪教主胜利"
+    vampire: "吸血鬼胜利"
+    lonewolf: "一匹狼胜利"
+
+
+# Terms for quantum werewolf
+quantum:
+  # Player called by a number
+  player: "玩家{{num}}"
+
+# Crafted logs.
+logs:
+  werewolf:
+    name: "狼的远吠"
+    comment: "嗷呜・・・"
+  couple:
+    name: "模糊的低语声"
+    comment: "沙沙・・・"
+
+# Tweet.
+tweet:
+  # Tweet when game ended
+  gameend: "「{{roomname}}」的结果:{{result}} #月下人狼"
