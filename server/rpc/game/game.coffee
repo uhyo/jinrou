@@ -2078,7 +2078,10 @@ class Game
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)=>
                 return unless doc?
-                tweet doc.id, @i18n.t("tweet.gameend", {roomname: doc.name, result: log.comment})
+                tweet doc.id, @i18n.t("tweet.gameend", {
+                    roomname: Server.oauth.sanitizeTweet doc.name
+                    result: log.comment
+                })
             
             return true
         else

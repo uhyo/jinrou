@@ -262,7 +262,7 @@ module.exports.actions=(req,res,ss)->
                         (if room.gm then delimiter + i18n.t("tweet.newRoom.gm") else ''),
                     ].join ''
                     tweet = i18n.t "tweet.newRoom.main", {
-                        name: room.name
+                        name: Server.oauth.sanitizeTweet room.name
                         id: room.id
                         options: options
                     }

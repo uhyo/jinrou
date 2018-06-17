@@ -77,3 +77,9 @@ exports.getTwitterIcon=(id,cb)->
             cb null
             return
         cb result?.profile_image_url_https
+
+# sanitize string for tweet.
+exports.sanitizeTweet = (str)->
+    # Put U+200B after specialcharacters (@, #, $) and
+    # periods (they may form URL)
+    str.replace /[\@\#\$\.]/g, (k)-> k + "\u200b"
