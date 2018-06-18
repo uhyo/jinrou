@@ -7503,7 +7503,7 @@ class Idol extends Player
     modifyMyVote:(game, vote)->
         # If this is Day 5 or later and fan is no alive, vote is +1ed.
         if game.day >= 5 && @flag? && @flag.fans.every((id)-> game.getPlayer(id)?.dead)
-            vote.votes++
+            vote.priority++
         vote
 
 
