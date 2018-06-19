@@ -12,7 +12,7 @@ cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
 # 身代わりセーフティありのときの除外役職一覧
-SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter","Idol"]
+SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
 
