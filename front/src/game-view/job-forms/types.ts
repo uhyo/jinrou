@@ -3,7 +3,7 @@
  */
 export const specialNamedTypes = [
   // day's vote form.
-  'day',
+  '_day',
   // Job form common for werewolves.
   '_Werewolf',
   // Special forms for some roles.

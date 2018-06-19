@@ -3113,6 +3113,10 @@ class Werewolf extends Player
         if Phase.isNight(game.phase) && game.werewolf_target_remain>0
             # まだ襲える
             result.open.push "_Werewolf"
+            result.forms.push {
+                type: "_Werewolf"
+                options: @makeJobSelection game
+            }
         # 人狼は仲間が分かる
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
@@ -5546,9 +5550,10 @@ class GreedyWolf extends Werewolf
                 result.forms = result.forms.filter (x)-> x.type != "_Werewolf"
             if !@flag && game.day>=2
                 result.open?.push "GreedyWolf"
+                result.forms = result.forms.filter (x)-> x.type != "GreedyWolf"
                 result.forms.push {
                     type: "GreedyWolf"
-                    options: @makeJobSelection game
+                    options: []
                 }
     makeJobSelection:(game)->
         if Phase.isNight(game.phase) && @sleeping(game) && !@jobdone(game)
@@ -10429,6 +10434,7 @@ makejobinfo = (game,player,result={})->
         player.makejobinfo game,result
         result.playerid = player.id
         result.dead=player.dead
+        # voteopen is for old forms
         result.voteopen=false
         result.sleeping=true
         # 投票が終了したかどうか（フォーム表示するかどうか判断）
@@ -10447,6 +10453,10 @@ makejobinfo = (game,player,result={})->
                 unless player.dead || (game.rule.voting > 0 && game.phase == Phase.day) || game.votingbox.isVoteFinished player
                     # 投票ボックスオープン!!!
                     result.voteopen=true
+                    result.forms.push {
+                        type: "_day"
+                        options: player.makeJobSelection game
+                    }
                     result.sleeping=false
                 if player.chooseJobDay game
                     # 昼でも能力発動できる人

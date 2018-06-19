@@ -5,7 +5,7 @@ normalButton: "選択"
 
 # Name forms which is a little special.
 specialName:
-  day: "処刑投票"
+  _day: "処刑投票"
   _Werewolf: "人狼の襲撃"
   Dog1: "犬の能力"
   Dog2: "犬の能力"
@@ -17,7 +17,7 @@ specialName:
 
 # Message for normal selection form.  normalMessage:
 messages:
-  day: "処刑したい人に投票してください"
+  _day: "処刑したい人に投票してください"
   Waiting: "希望する役職を選択してください"
   _Werewolf: "襲撃する相手を選択してください"
   WolfDiviner: "占う相手を選択してください"

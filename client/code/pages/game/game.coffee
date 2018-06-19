@@ -26,6 +26,8 @@ exports.start=(roomid)->
     my_job=null
     my_player_id=null
     this_room_id=null
+    # it's very bad but it's temporal!
+    getjobinfo = null
 
 
     # CSS操作
