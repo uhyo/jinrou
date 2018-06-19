@@ -17,6 +17,8 @@ class RateLimits
     isSuspended:(type)-> @suspended[type]
     # examine an error response from Twitter.
     examineError: (type, err, raw)->
+        if err.toString() == "[object Object]"
+            return
         if @suspended[type]
             # it is already suspended; nothing to do.
             return
