@@ -111,6 +111,7 @@ jobname:
   EyesWolf: "瞳狼"
   TongueWolf: "舌禍狼"
   BlackCat: "黒猫"
+  Idol: "アイドル"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -679,6 +680,13 @@ TongueWolf:
   # Result when the skill is lost.
   resultLost: "{{name}}の味見の結果、{{target}}は{{job}}でした。以降は襲撃対象者の役職を知ることができません。"
 
+Idol:
+  # Select a fan,
+  select: "{{name}}は{{target}}をファンにしました。"
+  # Becoming a fan of idol.
+  become: "{{name}}は{{idol}}のファンになりました。"
+  # Result of observation.
+  result: "{{name}}の観察の結果、現在の村人陣営の人数は{{count}}人でした。"
 
 GameMaster:
   # Failed to revive.
@@ -743,6 +751,11 @@ KeepedLover:
 
 FoxMinion:
   jobname: "狐憑き（{{jobname}}）"
+
+FanOfIdol:
+  name: "ファン"
+  # message when his idol is dead.
+  idolDead: "アイドルが死亡したショックで{{name}}は今夜能力を使えなくなりました。"
 
 Decider:
   jobname: "{{jobname}}（決定者）"

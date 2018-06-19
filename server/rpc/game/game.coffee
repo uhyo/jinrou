@@ -12,7 +12,7 @@ cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
 # 身代わりセーフティありのときの除外役職一覧
-SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter"]
+SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter","Idol"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
 
@@ -333,7 +333,7 @@ class Game
 
         @winner=null    # 勝ったチーム名
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
-       
+
         # ----- DBには現れないプロパティ -----
         @timerid=null
         @timer_start=null   # 残り時間のカウント開始時間（秒）
@@ -559,6 +559,7 @@ class Game
         plsl=players.length #実際の参加人数（身代わり含む）
         if @rule.scapegoat=="on"
             plsl++
+
         # 必要な役職の
         jallnum = plsl
         if @rule.chemical == "on"
@@ -723,6 +724,8 @@ class Game
                     all_foxes += num
         for job,num of joblist
             i=0
+            # 無限ループ防止用カウンタ
+            loop_count = 0
             while i++<num
                 r=Math.floor Math.random()*players.length
                 if @rule.chemical == "on" && gotjs[r].length == 1
@@ -731,6 +734,9 @@ class Game
                         # 人狼が1人のときは人狼を消さない
                         if (gotjs[r][0] in Shared.game.categories.Werewolf && job in Shared.game.categories.Fox) || (gotjs[r][0] in Shared.game.categories.Fox && job in Shared.game.categories.Werewolf)
                            # 人狼×妖狐はまずい
+                           i--
+                           if loop_count++ >= 100
+                               break
                            continue
                 gotjs[r].push job
                 if gotjs[r].length >= jobperpl
@@ -763,6 +769,10 @@ class Game
                     if pl.scapegoat
                         # 身代わりくん
                         newpl.scapegoat=true
+        if loop_count >= 100
+            # 配役失敗
+            res @i18n.t "error.gamestart.castingFailed"
+            return
         if joblist.Thief>0
             # 盗人がいる場合
             thieves=@players.filter (x)->x.isJobType "Thief"
@@ -1142,10 +1152,14 @@ class Game
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
                 # Pyrotechnist should break the blockade of Threatened.sunset
+                # Show a fireworks log.
+                log=
+                    mode:"system"
+                    comment: @i18n.t "roles:Pyrotechnist.affect"
+                splashlog @id, this, log
+                # complete job of Pyrotechnist.
                 for pyr in x
-                    # avoid duplicate call .sunset()
-                    if pyr.cmplType=="Threatened"
-                        pyr.accessByJobType("Pyrotechnist").sunset this
+                    pyr.accessByJobType("Pyrotechnist").setFlag "done"
                 # 全员花火の虜にしてしまう
                 for pl in @players
                     newpl=Player.factory null, this, pl,null,WatchingFireworks
@@ -1696,7 +1710,8 @@ class Game
         if log?
             splashlog @id,this,log
         # 必要がある場合は候補者を再設定
-        @votingbox.setCandidates @players.filter ((x)->!x.dead)
+        if mode != "runoff"
+            @votingbox.setCandidates @players.filter ((x)->!x.dead)
 
         @votingbox.start()
         for player in @players
@@ -2017,6 +2032,18 @@ class Game
 
             # generate the list of Sudden Dead Player
             norevivers=@gamelogs.filter((x)->x.event=="found" && x.flag in ["gone-day","gone-night"]).map((x)->x.id)
+            # handle miko-gone
+            miko_gone=@gamelogs.filter((x)->x.event=="miko-gone").map((x)->x.id)
+            miko_gone_counter = {}
+            for miko in miko_gone
+                if miko_gone_counter[miko] == undefined
+                    miko_gone_counter[miko] = 1
+                else
+                    miko_gone_counter[miko]++
+            for miko of miko_gone_counter
+                if miko_gone_counter[miko] >= 3 and miko not in norevivers
+                    norevivers.push miko
+
             if norevivers.length
                 @suddenDeathPunishment =
                     targets: {}
@@ -2051,7 +2078,10 @@ class Game
             # DBからとってきて告知ツイート
             M.rooms.findOne {id:@id},(err,doc)=>
                 return unless doc?
-                tweet doc.id, @i18n.t("tweet.gameend", {roomname: doc.name, result: log.comment})
+                tweet doc.id, @i18n.t("tweet.gameend", {
+                    roomname: Server.oauth.sanitizeTweet doc.name
+                    result: log.comment
+                })
 
             return true
         else
@@ -2461,10 +2491,10 @@ class VotingBox
                     if ok
                         tops.push id
                         back=id
-                if tops.length>1
-                    @setCandidates @game.players.filter (x)->x.id in tops
-                    @runoffmode=true
-                    return ["runoff",null,tos,table]
+            if tops.length>1
+                @setCandidates @game.players.filter (x)->x.id in tops
+                @runoffmode=true
+                return ["runoff",null,tos,table]
         # 結果を教える
         return ["punish",[@game.getPlayer(tops[0])],tos,table]
 
@@ -6370,15 +6400,6 @@ class Pyrotechnist extends Player
         # 使用済
         @setFlag "using"
         null
-    sunset:(game)->
-        if @flag=="using"
-            log=
-                mode:"system"
-                comment: game.i18n.t "roles:Pyrotechnist.affect"
-            splashlog game.id,game,log
-            @setFlag "done"
-    deadsunset:(game)->
-        @sunset game
     checkJobValidity:(game,query)->
         if query.jobtype=="Pyrotechnist"
             # 対象選択は不要
@@ -7408,7 +7429,131 @@ class BlackCat extends Madman
             pl.die game, "poison"
             @addGamelog game, "poisonkill", null, pl.id
 
+class Idol extends Player
+    type:"Idol"
+    sunset:(game)->
+        super
+        if !@flag
+            # Choose a fan.
+            @setTarget null
+            if @scapegoat
+                # 自分以外から選ぶ
+                targets = game.players.filter (x)=> !x.dead && x.id != @id
+                if targets.length > 0
+                    r = Math.floor Math.random() * targets.length
+                    @job game, targets[r].id, {}
+                else
+                    @setTarget ""
+        else
+            @setTarget ""
+    sleeping:->@flag?
+    job:(game, playerid, query)->
+        if @target? || @flag?
+            return game.i18n.t "error.common.alreadyUsed"
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game, @id
 
+        # select a fan.
+        @setTarget playerid
+        @setFlag {
+            # List of fans.
+            fans: [playerid]
+            # Whether second fan is decided.
+            second: false
+        }
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Idol.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        # apply a fan complex
+        pl = game.getPlayer @target
+        if pl?
+            newpl = Player.factory null, game, pl, null, FanOfIdol
+            pl.transProfile newpl
+            #FanOfIdol.cmplFlag is set to the id of idol
+            newpl.cmplFlag = @id
+            pl.transform game, newpl, true
+
+            # show a message to the fan.
+            log =
+                mode: "skill"
+                to: pl.id
+                comment: game.i18n.t "roles:Idol.become", {name: pl.name, idol: @name}
+            splashlog game.id, game, log
+        # at Day 4 night, a new fan appears if there still is a fan alive.
+        if @flag? && game.day >= 4 && !@flag.second
+            fanalive = @flag.fans.some((id)->
+                pl = game.getPlayer id
+                pl? && !pl.dead)
+            unless fanalive
+                return
+            # choose a new fan.
+            targets = game.players.filter((pl)=>
+                !pl.dead && pl.id != @id && !(pl.id in @flag.fans))
+            if targets.length == 0
+                return
+            r = Math.floor Math.random() * targets.length
+            pl = targets[r]
+            newpl = Player.factory null, game, pl, null, FanOfIdol
+            pl.transProfile newpl
+            newpl.cmplFlag = @id
+            pl.transform game, newpl, true
+            # show messages.
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Idol.select", {name: @name, target: pl.name}
+            splashlog game.id, game, log
+            log =
+                mode: "skill"
+                to: pl.id
+                comment: game.i18n.t "roles:Idol.become", {name: pl.name, idol: @name}
+            splashlog game.id, game, log
+            # write to flag
+            @setFlag {
+                fans: [@flag.fans..., pl.id]
+                second: true
+            }
+
+        null
+    sunrise:(game)->
+        # If one of my fans is alive, Idol can know
+        # the number of remaining Human team players.
+        super
+        unless @flag?
+            return
+
+        if @flag.fans.every((x)->game.getPlayer(x)?.dead)
+            return
+
+        humanTeams = game.players.filter (x)-> !x.dead && x.getTeam() == "Human"
+        num = humanTeams.length
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Idol.result", {name: @name, count: num}
+        splashlog game.id, game, log
+    makejobinfo:(game, result)->
+        super
+        # add list of fans.
+        if @flag?
+            result.myfans = @flag.fans.map((id)->
+                p = game.getPlayer id
+                p?.publicinfo()
+            ).filter((x)-> x?)
+    modifyMyVote:(game, vote)->
+        # If this is Day 5 or later and fan is no alive, vote is +1ed.
+        if game.day >= 5 && @flag? && @flag.fans.every((id)-> game.getPlayer(id)?.dead)
+            vote.priority++
+        vote
 
 
 
@@ -8139,6 +8284,9 @@ class MikoProtected extends Complex
     die:(game,found)->
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # The draw caused by Miko's escape is annoying.
+        if found in ["gone-day","gone-night"]
+            @addGamelog game,"miko-gone",null,null
         # 襲撃失敗理由を保存
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
@@ -8270,6 +8418,7 @@ class WatchingFireworks extends Complex
     cmplType:"WatchingFireworks"
     sleeping:->true
     jobdone:->true
+    isAttacker:->false
 
     sunrise:(game)->
         @sub?.sunrise? game
@@ -8458,6 +8607,47 @@ class VoteGuarded extends Complex
 class PumpkinCostumed extends Complex
     cmplType:"PumpkinCostumed"
     fortuneResult: FortuneResult.pumpkin
+# ファンになった人
+class FanOfIdol extends Complex
+    cmplType:"FanOfIdol"
+    sunset:(game)->
+        # If the idol is dead, skill is temporally disabled.
+        pl = game.getPlayer @cmplFlag
+        if pl?
+            if pl.dead
+                # OH MY GOD MY IDOL IS DEAD
+                log =
+                    mode: "skill"
+                    to: @id
+                    comment: game.i18n.t "roles:FanOfIdol.idolDead", {name: @name}
+                splashlog game.id, game, log
+
+                # First uncomplex FanOfIdol.
+                @uncomplex game
+                # Then, compound with WatchingFireworks (XXX 使い回し)
+                pl = game.getPlayer @id
+                return unless pl?
+                newpl = Player.factory null, game, pl, null, WatchingFireworks
+                pl.transProfile newpl
+                pl.transform game, newpl, true
+                pl = game.getPlayer @id
+                pl.sunset game
+                return
+        # If nothing happended, do normal sunset.
+        super
+    makejobinfo:(game, result)->
+        @sub?.makejobinfo? game, result
+        @mcall game, @main.makejobinfo, game, result
+
+        # add description of fan.
+        result.desc?.push {
+            name: game.i18n.t "roles:FanOfIdol.name"
+            type: "FanOfIdol"
+        }
+
+        # add fan-of info.
+        pl = game.getPlayer @cmplFlag
+        result.fanof = pl?.publicinfo()
 
 
 # 決定者
@@ -8761,6 +8951,7 @@ jobs=
     EyesWolf:EyesWolf
     TongueWolf:TongueWolf
     BlackCat:BlackCat
+    Idol:Idol
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -8800,7 +8991,7 @@ complexes=
     VoteGuarded:VoteGuarded
     Chemical:Chemical
     PumpkinCostumed:PumpkinCostumed
-
+    FanOfIdol:FanOfIdol
 
     # 役職ごとの強さ
 jobStrength=
