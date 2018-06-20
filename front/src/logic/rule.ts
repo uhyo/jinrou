@@ -1,7 +1,7 @@
 // Logics related to game rules.
 
 import { OptionSuggestion } from '../defs/casting-definition';
-import { RuleDefinition } from '../defs/rule-definition';
+import { RuleDefinition, SelectRule } from '../defs/rule-definition';
 import { TranslationFunction } from '../i18n';
 
 /**
@@ -122,7 +122,8 @@ function getRuleValue(
       return String(value);
     }
     case 'select': {
-      return t(`rules:rule.${rule.id}.labels.${value}`);
+      const { label } = getOptionString(t, rule, value);
+      return label;
     }
     case 'separator': {
       return '';
@@ -144,4 +145,27 @@ function getRuleValue(
       return '';
     }
   }
+}
+
+/**
+ * Get label and description of given option.
+ */
+export function getOptionString(
+  t: TranslationFunction,
+  rule: SelectRule,
+  value: string,
+): OptionExpression {
+  const res = (rule.getOptionStr && rule.getOptionStr(t, value)) || {};
+  const label = res.label || t(`rules:rule.${rule.id}.labels.${value}`);
+  const description =
+    res.description || t(`rules:rule.${rule.id}.descriptions.${value}`);
+  return {
+    label,
+    description,
+  };
+}
+
+export interface OptionExpression {
+  label: string;
+  description: string;
 }

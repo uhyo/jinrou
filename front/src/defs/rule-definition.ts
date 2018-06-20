@@ -30,6 +30,24 @@ export interface SelectRule extends RuleDefinitionBase {
   type: 'select';
   values: string[];
   defaultValue: string;
+  /**
+   * Label and description of each option.
+   */
+  getOptionStr?: (
+    t: TranslationFunction,
+    value: string,
+  ) => GetOptionStrResult | undefined;
+}
+
+export interface GetOptionStrResult {
+  /**
+   * Label of this option.
+   */
+  label?: string;
+  /**
+   * Description of this option.
+   */
+  description?: string;
 }
 
 export interface CheckboxRule extends RuleDefinitionBase {

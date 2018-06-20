@@ -13,7 +13,7 @@ import { TranslationFunction } from '../../i18n';
 
 import { bind } from '../../util/bind';
 
-import { getRuleName } from '../../logic/rule';
+import { getRuleName, getOptionString } from '../../logic/rule';
 
 /**
  * Wrapper of rules.
@@ -175,8 +175,7 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
           <RuleName>{name}</RuleName>
           <select value={value} onChange={this.handleChange}>
             {item.values.map(v => {
-              const label = t(`rules:rule.${item.id}.labels.${v}`);
-              const description = t(`rules:rule.${item.id}.descriptions.${v}`);
+              const { label, description } = getOptionString(t, item, v);
               return (
                 <option
                   key={v}

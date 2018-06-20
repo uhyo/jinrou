@@ -115,9 +115,10 @@ rule:
       full: "あり"
       no: "なし"
       free: "なんでもあり"
+    # {{safety_excluded_jobs}} is provided by getOptionStr
     descriptions:
-      full: ""
-      no: ""
+      full: "身代わりくんは人外、{{safety_excluded_jobs}}になりません。"
+      no: "身代わりくんは人外になりません。"
       free: ""
   noticebitten:
     name: "噛まれたら分かる"

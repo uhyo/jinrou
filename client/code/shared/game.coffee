@@ -2091,6 +2091,13 @@ exports.new_rules=[
                         "no"
                         "free"
                     ]
+                    getOptionStr: (t, value)->
+                        {
+                            label: t("rules:rule.safety.labels.#{value}")
+                            description: t("rules:rule.safety.descriptions.#{value}", {
+                                safety_excluded_jobs: SAFETY_EXCLUDED_JOBS.map((job)-> t("roles:jobname.#{job}")).join("、")
+                            })
+                        }
             }
             {
                 type: 'item'
