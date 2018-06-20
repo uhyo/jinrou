@@ -1,5 +1,8 @@
 Shared=
     game:exports
+
+# 身代わりセーフティありのときの除外役職一覧
+exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble","Twin","Hunter","MadHunter","Idol"]
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
@@ -1344,17 +1347,19 @@ exports.rules=[
             {
                 name:"safety"
                 label:"身代わりセーフティ"
-                title:"「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
+                title:"「なんでもあり」にすると身代わりくんが人狼になったりします。"
                 type:"select"
                 values:[
                     {
                         value:"full"
-                        label:"あり"
+                        label:"なし"
                         selected:true
+                        title:"身代わりくんは人外、"+SAFETY_EXCLUDED_JOBS.map((job)-> exports.getjobname(job)).join("、")+"になりません"
                     }
                     {
                         value:"no"
-                        label:"なし"
+                        label:"あり"
+                        title:"身代わりくんは人外になりません"
                     }
                     {
                         value:"free"
