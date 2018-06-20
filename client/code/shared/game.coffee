@@ -1352,13 +1352,13 @@ exports.rules=[
                 values:[
                     {
                         value:"full"
-                        label:"なし"
+                        label:"あり"
                         selected:true
                         title:"身代わりくんは人外、"+SAFETY_EXCLUDED_JOBS.map((job)-> exports.getjobname(job)).join("、")+"になりません"
                     }
                     {
                         value:"no"
-                        label:"あり"
+                        label:"なし"
                         title:"身代わりくんは人外になりません"
                     }
                     {
