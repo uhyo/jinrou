@@ -6386,6 +6386,10 @@ class CautiousWolf extends Werewolf
         splashlog game.id,game,log
         game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
+    makejobinfo:(game, result)->
+        super
+        # it doues not have its own form.
+        result.forms = result.forms.filter (obj)-> obj.type != "CautiousWolf"
 # 花火師
 class Pyrotechnist extends Player
     type:"Pyrotechnist"
