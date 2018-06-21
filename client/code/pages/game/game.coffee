@@ -369,6 +369,7 @@ exports.start=(roomid)->
 
                 # TODO
                 game_view.runInAction ()->
+                    game_view.store.resetLogs()
                     result.logs.forEach getlog
                 gettimer parseInt(result.timer),result.timer_mode if result.timer?
 

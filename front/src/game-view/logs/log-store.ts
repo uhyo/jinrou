@@ -69,6 +69,18 @@ export class LogStore {
     chunk.logs.push(stored);
   }
   /**
+   * Reset logs.
+   */
+  @action
+  public reset(): void {
+    this.chunks = [
+      {
+        day: 1,
+        logs: [],
+      },
+    ];
+  }
+  /**
    * Iterate over all logs.
    */
   public *iterateLogs(visibility?: LogVisibility): IterableIterator<StoredLog> {

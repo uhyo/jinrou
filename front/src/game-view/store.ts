@@ -118,4 +118,11 @@ export class GameStore {
   public addLog(log: Log): void {
     this.logs.addLog(log);
   }
+  /**
+   * Reset current logs.
+   */
+  @action
+  public resetLogs(): void {
+    this.logs.reset();
+  }
 }
