@@ -1,7 +1,14 @@
 import { action, computed, observable } from 'mobx';
 
 import { Rule } from '../defs';
-import { GameInfo, RoleInfo, SpeakState, LogVisibility, Log } from './defs';
+import {
+  GameInfo,
+  RoleInfo,
+  SpeakState,
+  LogVisibility,
+  Log,
+  TimerState,
+} from './defs';
 import { LogStore } from './logs/log-store';
 
 /**
@@ -15,6 +22,7 @@ export interface UpdateQuery {
   rule?: Rule;
   icons?: Record<string, string | undefined>;
   ruleOpen?: boolean;
+  timer?: TimerState;
 }
 /**
  * Store of current game state.
@@ -61,6 +69,15 @@ export class GameStore {
    * Whether the rule information is open.
    */
   @observable ruleOpen: boolean = false;
+  /**
+   * State of timer.
+   */
+  @observable
+  timer: TimerState = {
+    enabled: false,
+    name: '',
+    target: 0,
+  };
 
   /**
    * All logs.
@@ -79,6 +96,7 @@ export class GameStore {
     icons,
     rule,
     ruleOpen,
+    timer,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -101,6 +119,9 @@ export class GameStore {
     }
     if (ruleOpen != null) {
       this.ruleOpen = ruleOpen;
+    }
+    if (timer != null) {
+      this.timer = timer;
     }
     // Check consistency.
     if (

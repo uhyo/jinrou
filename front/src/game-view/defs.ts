@@ -172,6 +172,24 @@ export interface LogOneDay {
 }
 
 /**
+ * Current status of timer.
+ */
+export interface TimerState {
+  /**
+   * Whether timer is currently enabled.
+   */
+  enabled: boolean;
+  /**
+   * Displayed name of timer.
+   */
+  name: string;
+  /**
+   * Target time of countdown (in ms).
+   */
+  target: number;
+}
+
+/**
  * Query of speaking.
  */
 export interface SpeakQuery {

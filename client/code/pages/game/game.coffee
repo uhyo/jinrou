@@ -1039,6 +1039,14 @@ exports.start=(roomid)->
             sec=remain_time%60
             $("#time").text "#{mode || ''} #{min}:#{sec}"
         ,1000
+        # for new frontend
+        game_view?.store.update {
+            timer: {
+                enabled: true
+                name: mode
+                target: Date.now() + remain_time * 1000
+            }
+        }
 
     makebutton=(text,title="")->
         b=document.createElement "button"
