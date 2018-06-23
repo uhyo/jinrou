@@ -138,9 +138,9 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
             pattern() {
               return /#(\d+)/g;
             },
-            transform(_, num) {
+            transform(_1, _2, num) {
               return {
-                href: `/room/#{num}`,
+                href: `/room/${num}`,
               };
             },
           },
