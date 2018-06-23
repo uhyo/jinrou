@@ -227,6 +227,7 @@ const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
   order: 2;
 
   background-color: #ffd1f2;
+  color: black;
 `;
 
 const RuleStickyWrapper = withProps<IPropsRuleWrapper>()(styled.div)`

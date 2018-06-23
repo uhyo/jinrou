@@ -162,8 +162,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 />
                 {t('game_client:speak.multiline')}
               </label>
-              {/* Show timer. */}
-              <Timer timer={timer} />
+              {/* Show timer. */} <Timer timer={timer} />
               {/* Will open button. */}
               <button type="button" onClick={this.handleWillClick}>
                 {willOpen
