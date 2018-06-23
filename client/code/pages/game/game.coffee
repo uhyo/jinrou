@@ -371,7 +371,17 @@ exports.start=(roomid)->
                 game_view.runInAction ()->
                     game_view.store.resetLogs()
                     result.logs.forEach getlog
-                gettimer parseInt(result.timer),result.timer_mode if result.timer?
+                    if result.game.finished
+                        # remove timer.
+                        game_view.store.update {
+                            timer: {
+                                enabled: false
+                                name: ''
+                                target: 0
+                            }
+                        }
+                    else
+                        gettimer parseInt(result.timer),result.timer_mode if result.timer?
 
         ss.rpc "game.game.getlog", roomid,sentlog
         # 新しいゲーム

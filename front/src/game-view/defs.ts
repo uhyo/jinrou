@@ -174,7 +174,7 @@ export interface LogOneDay {
 /**
  * Current status of timer.
  */
-export interface TimerState {
+export interface TimerInfo {
   /**
    * Whether timer is currently enabled.
    */

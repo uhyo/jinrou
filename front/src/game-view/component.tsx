@@ -74,6 +74,7 @@ export class Game extends React.Component<IPropGame, {}> {
       logVisibility,
       rule,
       ruleOpen,
+      timer,
     } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
@@ -91,6 +92,7 @@ export class Game extends React.Component<IPropGame, {}> {
               roleInfo={roleInfo}
               logVisibility={logVisibility}
               rule={rule != null}
+              timer={timer}
               onUpdate={this.handleSpeakUpdate}
               onUpdateLogVisibility={this.handleLogVisibilityUpdate}
               onSpeak={this.handleSpeak}

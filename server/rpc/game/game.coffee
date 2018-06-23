@@ -5747,7 +5747,7 @@ class ThreateningWolf extends Werewolf
         unless Phase.isDay(game.phase)
             # 夜は威嚇しない
             result.open = result.open?.filter (x)=>x!="ThreateningWolf"
-            result.forms = result.forms.filter (x)-> x != "ThreateningWolf"
+            result.forms = result.forms.filter (x)-> x.type != "ThreateningWolf"
 class HolyMarked extends Human
     type:"HolyMarked"
 class WanderingGuard extends Player

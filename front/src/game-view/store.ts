@@ -7,7 +7,7 @@ import {
   SpeakState,
   LogVisibility,
   Log,
-  TimerState,
+  TimerInfo,
 } from './defs';
 import { LogStore } from './logs/log-store';
 
@@ -22,7 +22,7 @@ export interface UpdateQuery {
   rule?: Rule;
   icons?: Record<string, string | undefined>;
   ruleOpen?: boolean;
-  timer?: TimerState;
+  timer?: TimerInfo;
 }
 /**
  * Store of current game state.
@@ -73,7 +73,7 @@ export class GameStore {
    * State of timer.
    */
   @observable
-  timer: TimerState = {
+  timer: TimerInfo = {
     enabled: false,
     name: '',
     target: 0,

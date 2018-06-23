@@ -9,10 +9,12 @@ import {
   SpeakState,
   LogVisibility,
   SpeakQuery,
+  TimerInfo,
 } from '../defs';
 
 import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
+import { Timer } from './timer';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -31,6 +33,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Whether rule is available now.
    */
   rule: boolean;
+  /**
+   * Timer info.
+   */
+  timer: TimerInfo;
   /**
    * update to a speak form state.
    */
@@ -79,6 +85,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
       willOpen,
       logVisibility,
       rule,
+      timer,
     } = this.props;
 
     // list of speech kind.
@@ -155,6 +162,8 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 />
                 {t('game_client:speak.multiline')}
               </label>
+              {/* Show timer. */}
+              <Timer timer={timer} />
               {/* Will open button. */}
               <button type="button" onClick={this.handleWillClick}>
                 {willOpen
