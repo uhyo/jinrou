@@ -3,7 +3,7 @@ import { observer } from 'mobx-react';
 import { PlayerInfo } from '../defs';
 import styled from 'styled-components';
 import { PlayerBox } from './box';
-import { I18n } from '../../i18n';
+import { I18n, TranslationFunction } from '../../i18n';
 
 export interface IPropPlayers {
   players: PlayerInfo[];
@@ -11,18 +11,30 @@ export interface IPropPlayers {
 /**
  * Show a list of players.
  */
-@observer
 export class Players extends React.Component<IPropPlayers, {}> {
   public render() {
     const { players } = this.props;
+    return <I18n>{t => <PlayersInner t={t} players={players} />}</I18n>;
+  }
+}
+
+/**
+ * Inner component to apply mobx's observer.
+ */
+@observer
+class PlayersInner extends React.Component<
+  {
+    t: TranslationFunction;
+    players: PlayerInfo[];
+  },
+  {}
+> {
+  public render() {
+    const { t, players } = this.props;
     return (
-      <I18n>
-        {t => (
-          <Wrapper>
-            {players.map(pl => <PlayerBox t={t} key={pl.id} player={pl} />)}
-          </Wrapper>
-        )}
-      </I18n>
+      <Wrapper>
+        {players.map(pl => <PlayerBox t={t} key={pl.id} player={pl} />)}
+      </Wrapper>
     );
   }
 }

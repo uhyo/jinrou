@@ -21,13 +21,15 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
       player: { id, icon, name, anonymous, dead, jobname, winner, flags },
     } = this.props;
     return (
-      <Wrapper dead={dead} icon={icon != null}>
+      <Wrapper dead={dead} hasIcon={icon != null}>
         <Icon t={t} icon={icon} dead={dead} />
         <Name dead={dead}>
           {anonymous ? name : <a href={`/user/${id}`}>{name}</a>}
         </Name>
         {flags.map(flag => (
-          <Jobname>[{t(`game_client:playerbox.flags.${flag}`)}]</Jobname>
+          <Jobname key={flag}>
+            [{t(`game_client:playerbox.flags.${flag}`)}]
+          </Jobname>
         ))}
         {jobname ? <Jobname>{jobname}</Jobname> : null}
         {winner != null ? (
@@ -47,10 +49,10 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
  */
 const Wrapper = withProps<{
   dead: boolean;
-  icon: boolean;
+  hasIcon: boolean;
 }>()(styled.div)`
   display: inline-block;
-  min-width: ${props => (props.icon ? '8em' : '5em')};
+  min-width: ${props => (props.hasIcon ? '8em' : '5em')};
   min-height: 2em;
   vertical-align: top;
 

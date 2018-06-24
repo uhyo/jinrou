@@ -733,9 +733,8 @@ exports.start=(roomid)->
             room.players.push msg
             li=makeplayerbox msg,room.blind
             $("#players").append li
-
-            game_view.store.addPlayer convertRoomPlayerToPlayerInfo msg
             forminfo()
+            game_view.store.addPlayer convertRoomPlayerToPlayerInfo msg
         # 誰かが出て行った!!!
         socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
             room.players=room.players.filter (x)->x.userid!=msg
@@ -755,7 +754,7 @@ exports.start=(roomid)->
                     li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
                     li.replaceWith makeplayerbox pl,room.blind
                     game_view.store.updatePlayer msg.userid, {
-                        start: msg.start
+                        flags: getPlayerInfoFlags msg.start, pl.mode
                     }
         socket_ids.push Index.socket.on "unreadyall","room#{roomid}",(msg,channel)->
             # TODO
@@ -766,7 +765,7 @@ exports.start=(roomid)->
                         li=$("#players li").filter((idx)-> this.dataset.id==pl.userid)
                         li.replaceWith makeplayerbox pl,room.blind
                         game_view.store.updatePlayer pl.userid, {
-                            start: false
+                            flags: getPlayerInfoFlags false, pl.mode
                         }
         socket_ids.push Index.socket.on "mode","room#{roomid}",(msg,channel)->
             for pl in room.players
