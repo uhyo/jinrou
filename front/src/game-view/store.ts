@@ -162,9 +162,9 @@ export class GameStore {
    * Update current player.
    */
   @action
-  public updatePlayer(player: PlayerInfo): void {
+  public updatePlayer(id: string, player: Partial<PlayerInfo>): void {
     for (const p of this.players) {
-      if (p.id === player.id) {
+      if (p.id === id) {
         // This player is updated.
         Object.assign(p, player);
         break;
@@ -177,5 +177,12 @@ export class GameStore {
   @action
   public removePlayer(id: string): void {
     this.players = this.players.filter(p => p.id !== id);
+  }
+  /**
+   * Reset players with given list of players.
+   */
+  @action
+  public resetPlayers(players: PlayerInfo[]): void {
+    this.players = players;
   }
 }

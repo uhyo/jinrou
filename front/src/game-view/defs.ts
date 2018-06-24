@@ -206,6 +206,10 @@ export interface PlayerInfo {
    */
   name: string;
   /**
+   * Whether this player is dead.
+   */
+  dead: boolean;
+  /**
    * URL of icon of this player.
    */
   icon: string | null;

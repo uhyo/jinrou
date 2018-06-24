@@ -474,6 +474,8 @@ exports.start=(roomid)->
                 # アイコンを取得
                 if x.icon
                     this_icons[x.name] = x.icon
+            # for new frontend
+            game_view.store.resetPlayers room.players.map convertRoomPlayerToPlayerInfo
         # 未参加の場合は参加ボタン
         joinbutton=(je)->
             # 参加
@@ -729,19 +731,10 @@ exports.start=(roomid)->
         # 誰かが参加した!!!!
         socket_ids.push Index.socket.on "join","room#{roomid}",(msg,channel)->
             room.players.push msg
-            ###
-            li=document.createElement "li"
-            li.title=msg.userid
-            if room.blind
-                li.textContent=msg.name
-            else
-                a=document.createElement "a"
-                a.href="/user/#{msg.userid}"
-                a.textContent=msg.name
-                li.appendChild a
-            ###
             li=makeplayerbox msg,room.blind
             $("#players").append li
+
+            game_view.store.addPlayer convertRoomPlayerToPlayerInfo msg
             forminfo()
         # 誰かが出て行った!!!
         socket_ids.push Index.socket.on "unjoin","room#{roomid}",(msg,channel)->
@@ -749,6 +742,7 @@ exports.start=(roomid)->
 
             $("#players li").filter((idx)-> this.dataset.id==msg).remove()
             forminfo()
+            game_view.store.removePlayer msg
         # kickされた
         socket_ids.push Index.socket.on "kicked",null,(msg,channel)->
             if msg.id==roomid
@@ -760,12 +754,20 @@ exports.start=(roomid)->
                     pl.start=msg.start
                     li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
                     li.replaceWith makeplayerbox pl,room.blind
+                    game_view.store.updatePlayer msg.userid, {
+                        start: msg.start
+                    }
         socket_ids.push Index.socket.on "unreadyall","room#{roomid}",(msg,channel)->
-            for pl in room.players
-                if pl.start
-                    pl.start=false
-                    li=$("#players li").filter((idx)-> this.dataset.id==pl.userid)
-                    li.replaceWith makeplayerbox pl,room.blind
+            # TODO
+            game_view.runInAction ()->
+                for pl in room.players
+                    if pl.start
+                        pl.start=false
+                        li=$("#players li").filter((idx)-> this.dataset.id==pl.userid)
+                        li.replaceWith makeplayerbox pl,room.blind
+                        game_view.store.updatePlayer pl.userid, {
+                            start: false
+                        }
         socket_ids.push Index.socket.on "mode","room#{roomid}",(msg,channel)->
             for pl in room.players
                 if pl.userid==msg.userid
@@ -773,6 +775,9 @@ exports.start=(roomid)->
                     li=$("#players li").filter((idx)-> this.dataset.id==msg.userid)
                     li.replaceWith makeplayerbox pl,room.blind
                     forminfo()
+                    game_view.store.updatePlayer msg.userid, {
+                        flags: getPlayerInfoFlags pl.start, msg.mode
+                    }
 
         # ログが流れてきた!!!
         socket_ids.push Index.socket.on "log",null,(msg,channel)->
@@ -1015,6 +1020,8 @@ exports.start=(roomid)->
             # アイコン
             if x.icon
                 this_icons[x.name]=x.icon
+
+        game_view?.store.resetPlayers players.map convertGamePlayerToPlayerInfo
 
     setJobSelection=(selections)->
         $("#form_players").empty()
@@ -1426,3 +1433,37 @@ convertToJobNumbers = (obj) ->
     for key, value of obj
         result[key] = obj[key].number
     result
+# Convert game.players to PlayerInfo
+convertGamePlayerToPlayerInfo = (pl) ->
+    {
+        id: pl.id
+        anonymous: !pl.realid
+        name: pl.name
+        dead: pl.dead
+        icon: pl.icon || null
+        winner: pl.winner
+        jobname: pl.originalJobname
+        flags: if pl.norevive then ['norevive'] else []
+    }
+# Convert room.players to PlayerInfo
+convertRoomPlayerToPlayerInfo = (pl) ->
+    {
+        id: pl.userid
+        anonymous: !pl.realid
+        name: pl.name
+        dead: false
+        icon: pl.icon || null
+        winner: null
+        jobname: null
+        flags: getPlayerInfoFlags pl.start, pl.mode
+    }
+# get flags from ready and mode.
+getPlayerInfoFlags = (ready, mode) ->
+    flags = []
+    if ready
+        flags.push 'ready'
+    if mode == 'gm'
+        flags.push 'gm'
+    if /^helper_/.test mode
+        flags.push 'helper'
+    flags
