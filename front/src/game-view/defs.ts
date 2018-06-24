@@ -190,6 +190,41 @@ export interface TimerInfo {
 }
 
 /**
+ * One player in player list.
+ */
+export interface PlayerInfo {
+  /**
+   * userid of player.
+   */
+  id: string;
+  /**
+   * Whether this player is anonymized.
+   */
+  anonymous: boolean;
+  /**
+   * Displayed name of this player.
+   */
+  name: string;
+  /**
+   * URL of icon of this player.
+   */
+  icon: string | null;
+  /**
+   * Whether this player is a winner.
+   * Null indicates that game is not finished yet.
+   */
+  winner: boolean | null;
+  /**
+   * Displayed jobname.
+   */
+  jobname: string | null;
+  /**
+   * Flags enabled for this player.
+   */
+  flags: Array<'ready' | 'helper' | 'gm' | 'norevive'>;
+}
+
+/**
  * Query of speaking.
  */
 export interface SpeakQuery {
