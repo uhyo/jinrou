@@ -1,18 +1,32 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { withProps } from '../../util/styled';
+import { TranslationFunction } from 'i18next';
 
 /**
  * Show user's icon.
  */
-export function Icon({ icon, dead }: { icon: string | null; dead: boolean }) {
+export function Icon({
+  t,
+  icon,
+  dead,
+}: {
+  t: TranslationFunction;
+  icon: string | null;
+  dead: boolean;
+}) {
   if (icon == null) return null;
   return (
     <IconWrapper>
       <IconImg dead={dead} width={48} height={48} alt="" src={icon} />
       {/* Add a dead mark when dead. */}
       {dead ? (
-        <IconImg width={48} height={48} alt="死亡" src="/images/dead.png" />
+        <IconImg
+          width={48}
+          height={48}
+          alt={t('game_client:playerbox.read')}
+          src="/images/dead.png"
+        />
       ) : null}
     </IconWrapper>
   );

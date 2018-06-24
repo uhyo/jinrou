@@ -1460,10 +1460,10 @@ convertRoomPlayerToPlayerInfo = (pl) ->
 # get flags from ready and mode.
 getPlayerInfoFlags = (ready, mode) ->
     flags = []
-    if ready
-        flags.push 'ready'
     if mode == 'gm'
         flags.push 'gm'
-    if /^helper_/.test mode
+    else if /^helper_/.test mode
         flags.push 'helper'
+    if ready
+        flags.push 'ready'
     flags

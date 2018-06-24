@@ -4,8 +4,10 @@ import { PlayerInfo } from '../defs';
 import styled from 'styled-components';
 import { withProps } from '../../util/styled';
 import { Icon } from './icon';
+import { TranslationFunction } from 'i18next';
 
 export interface IPropPlayerBox {
+  t: TranslationFunction;
   player: PlayerInfo;
 }
 /**
@@ -15,17 +17,25 @@ export interface IPropPlayerBox {
 export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
   public render() {
     const {
-      player: { id, icon, name, anonymous, dead, jobname, winner },
+      t,
+      player: { id, icon, name, anonymous, dead, jobname, winner, flags },
     } = this.props;
     return (
-      <Wrapper dead={dead}>
-        <Icon icon={icon} dead={dead} />
+      <Wrapper dead={dead} icon={icon != null}>
+        <Icon t={t} icon={icon} dead={dead} />
         <Name dead={dead}>
           {anonymous ? name : <a href={`/user/${id}`}>{name}</a>}
         </Name>
+        {flags.map(flag => (
+          <Jobname>[{t(`game_client:playerbox.flags.${flag}`)}]</Jobname>
+        ))}
         {jobname ? <Jobname>{jobname}</Jobname> : null}
         {winner != null ? (
-          <Winner winner={winner}>{winner ? '勝利' : '敗北'}</Winner>
+          <Winner winner={winner}>
+            {winner
+              ? t('game_client:playerbox.win')
+              : t('game_client:playerbox.lose')}
+          </Winner>
         ) : null}
       </Wrapper>
     );
@@ -37,9 +47,10 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
  */
 const Wrapper = withProps<{
   dead: boolean;
+  icon: boolean;
 }>()(styled.div)`
   display: inline-block;
-  min-width: 5em;
+  min-width: ${props => (props.icon ? '8em' : '5em')};
   min-height: 2em;
   vertical-align: top;
 
