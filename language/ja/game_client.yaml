@@ -174,4 +174,18 @@ log:
     dead: "死亡"
   # 独り言
   monologue: "{{name}}の独り言"
+# Game view: player box.
+playerbox:
+  # Alt for the dead image.
+  dead: "死亡"
+  # Indication of winner.
+  win: "勝利"
+  # Indication of loser.
+  lose: "敗北"
+  # Labels for flag.
+  flags:
+    ready: "ready"
+    gm: "GM"
+    helper: "helper"
+    norevive: "蘇生辞退"
 

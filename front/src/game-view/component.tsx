@@ -20,6 +20,7 @@ import { Logs } from './logs';
 import { ShowRule } from './rule';
 
 import { showConfirmDialog } from '../dialog';
+import { Players } from './players';
 
 interface IPropGame {
   /**
@@ -75,11 +76,14 @@ export class Game extends React.Component<IPropGame, {}> {
       rule,
       ruleOpen,
       timer,
+      players,
     } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
         <I18nProvider i18n={i18n}>
           <div>
+            {/* List of players. */}
+            <Players players={players} />
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}

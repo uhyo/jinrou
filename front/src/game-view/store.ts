@@ -8,6 +8,7 @@ import {
   LogVisibility,
   Log,
   TimerInfo,
+  PlayerInfo,
 } from './defs';
 import { LogStore } from './logs/log-store';
 
@@ -40,6 +41,10 @@ export class GameStore {
    * Name of your role.
    */
   @observable.shallow roleInfo: RoleInfo | null = null;
+  /**
+   * List of players.
+   */
+  @observable players: PlayerInfo[] = [];
   /**
    * State of speaking forms.
    */
@@ -145,5 +150,39 @@ export class GameStore {
   @action
   public resetLogs(): void {
     this.logs.reset();
+  }
+  /**
+   * Add a player.
+   */
+  @action
+  public addPlayer(player: PlayerInfo): void {
+    this.players.push(player);
+  }
+  /**
+   * Update current player.
+   */
+  @action
+  public updatePlayer(id: string, player: Partial<PlayerInfo>): void {
+    for (const p of this.players) {
+      if (p.id === id) {
+        // This player is updated.
+        Object.assign(p, player);
+        break;
+      }
+    }
+  }
+  /**
+   * Remove a player.
+   */
+  @action
+  public removePlayer(id: string): void {
+    this.players = this.players.filter(p => p.id !== id);
+  }
+  /**
+   * Reset players with given list of players.
+   */
+  @action
+  public resetPlayers(players: PlayerInfo[]): void {
+    this.players = players;
   }
 }

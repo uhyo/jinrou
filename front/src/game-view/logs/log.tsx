@@ -301,7 +301,7 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   heavenmonologue: styled(LogBox)`
-    background-coor: #8888aa;
+    background-color: #8888aa;
     color: #ffffff;
   `,
   'half-day': styled(LogBox)`

@@ -2575,7 +2575,7 @@ exports.jobinfos=[
 ]
 
 # 判定
-isYaminabe=(rule)->console.log rule; (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+isYaminabe=(rule)-> (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
 # 秒数を分と秒に
 secondsStr=(sec)->
     if sec >= 60
