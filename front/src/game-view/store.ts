@@ -41,7 +41,7 @@ export class GameStore {
   };
   /**
    */
-  @observable roomPrelude: RoomPreludeInfo | null = null;
+  @observable.shallow roomPrelude: RoomPreludeInfo | null = null;
   /**
    * Name of your role.
    */

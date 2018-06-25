@@ -240,6 +240,10 @@ export interface RoomPreludeInfo {
    * Whether you have already joined the room.
    */
   joined: boolean;
+  /**
+   * Whether this room is old.
+   */
+  old: boolean;
 }
 
 /**

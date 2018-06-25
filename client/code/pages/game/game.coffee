@@ -585,6 +585,18 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
+        # for new frontend
+        game_view.store.update {
+            roomPrelude:
+                # TODO endless?
+                if room.mode == "waiting"
+                    {
+                        owner: room.owner.userid == Index.app.userid()
+                        joined: Boolean enter_result?.joined
+                    }
+                else
+                    null
+        }
 
         speakform=$("#speakform").get 0
         speakform.elements["willbutton"].addEventListener "click", (e)->
