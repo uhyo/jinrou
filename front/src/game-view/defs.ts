@@ -229,6 +229,20 @@ export interface PlayerInfo {
 }
 
 /**
+ * State of room before starting.
+ */
+export interface RoomPreludeInfo {
+  /**
+   * Whether you are an owner.
+   */
+  owner: boolean;
+  /**
+   * Whether you have already joined the room.
+   */
+  joined: boolean;
+}
+
+/**
  * Query of speaking.
  */
 export interface SpeakQuery {

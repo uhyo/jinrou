@@ -9,6 +9,7 @@ import {
   Log,
   TimerInfo,
   PlayerInfo,
+  RoomPreludeInfo,
 } from './defs';
 import { LogStore } from './logs/log-store';
 
@@ -24,6 +25,7 @@ export interface UpdateQuery {
   icons?: Record<string, string | undefined>;
   ruleOpen?: boolean;
   timer?: TimerInfo;
+  roomPrelude?: RoomPreludeInfo | null;
 }
 /**
  * Store of current game state.
@@ -37,6 +39,9 @@ export class GameStore {
     day: 0,
     finished: false,
   };
+  /**
+   */
+  @observable roomPrelude: RoomPreludeInfo | null = null;
   /**
    * Name of your role.
    */
@@ -102,6 +107,7 @@ export class GameStore {
     rule,
     ruleOpen,
     timer,
+    roomPrelude,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -127,6 +133,9 @@ export class GameStore {
     }
     if (timer != null) {
       this.timer = timer;
+    }
+    if (roomPrelude !== undefined) {
+      this.roomPrelude = roomPrelude;
     }
     // Check consistency.
     if (

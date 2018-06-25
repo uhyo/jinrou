@@ -21,6 +21,7 @@ import { ShowRule } from './rule';
 
 import { showConfirmDialog } from '../dialog';
 import { Players } from './players';
+import { RoomControls } from './room-controls';
 
 interface IPropGame {
   /**
@@ -77,6 +78,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleOpen,
       timer,
       players,
+      roomPrelude,
     } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
@@ -84,6 +86,8 @@ export class Game extends React.Component<IPropGame, {}> {
           <div>
             {/* List of players. */}
             <Players players={players} />
+            {/* Room control buttons. */}
+            {roomPrelude != null ? <RoomControls {...roomPrelude} /> : null}
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}
