@@ -244,6 +244,10 @@ export interface RoomPreludeInfo {
    * Whether this room is old.
    */
   old: boolean;
+  /**
+   * Whether this room is blind mode.
+   */
+  blind: boolean;
 }
 
 /**

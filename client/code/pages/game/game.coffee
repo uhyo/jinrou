@@ -100,7 +100,20 @@ exports.start=(roomid)->
                                     will: will
                                 }
                             }
-
+                roomPreludeHandlers:
+                    join: (user)->
+                        ss.rpc "game.rooms.join", roomid, user, (result)->
+                            if result?.require == "logiin"
+                                # ログインが必要
+                                # TODO
+                                Index.util.loginWindow ->
+                                    if Index.app.userid()
+                                        Index.app.refresh()
+                            else if result?.error?
+                                Index.util.message "ルーム", result.error
+                            else
+                                # succeeded to login
+                                Index.app.refresh()
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
@@ -593,6 +606,8 @@ exports.start=(roomid)->
                     {
                         owner: room.owner.userid == Index.app.userid()
                         joined: Boolean enter_result?.joined
+                        old: room.old
+                        blind: room.blind
                     }
                 else
                     null

@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { RoomPreludeHandlers } from '../../defs';
+import { bind } from 'bind-decorator';
 
 export interface IPropRoomControls {
   /**
@@ -13,45 +15,75 @@ export interface IPropRoomControls {
    * Whether this room is old.
    */
   old: boolean;
+  /**
+   * Handlers for UI events.
+   */
+  handlers: RoomPreludeHandlers;
 }
 /**
  * Buttons to control rooms, used before a game starts.
  */
 export class RoomControls extends React.Component<IPropRoomControls, {}> {
   public render() {
-    const { joined, owner, old } = this.props;
+    const { joined, owner, old, handlers } = this.props;
     return (
       <div>
         {joined ? (
           <>
-            <button type="button">ゲームから脱退</button>
+            <button type="button" onClick={handlers.unjoin}>
+              ゲームから脱退
+            </button>
             <button
               type="button"
               title="全員が準備完了になるとゲームを開始できます。"
+              onClick={handlers.ready}
             >
               準備完了/準備中
             </button>
             <button
               type="button"
               title="ヘルパーになると、ゲームに参加せずに助言役になります。"
+              onClick={handlers.helper}
             >
               ヘルパー
             </button>
           </>
         ) : (
-          <button type="button">ゲームに参加</button>
+          <button type="button" onClick={this.handleJoinClick}>
+            ゲームに参加
+          </button>
         )}
         {owner ? (
           <>
-            <button type="button">ゲーム開始画面を開く</button>
-            <button type="button">参加者を追い出す</button>
-            <button type="button">[ready]を初期化する</button>
+            <button type="button" onClick={handlers.openGameStart}>
+              ゲーム開始画面を開く
+            </button>
+            <button type="button" onClick={handlers.kick}>
+              参加者を追い出す
+            </button>
+            <button type="button" onClick={handlers.resetReady}>
+              [ready]を初期化する
+            </button>
           </>
         ) : null}
         {owner || old ? (
-          <button type="button">この部屋を廃村にする</button>
+          <button type="button" onClick={handlers.discard}>
+            この部屋を廃村にする
+          </button>
         ) : null}
       </div>
     );
+  }
+  /**
+   * Handle a click of the join button.
+   */
+  @bind
+  private handleJoinClick(): void {
+    // TODO: if the room is in blind mode,
+    // show user info dialog.
+    this.props.handlers.join({
+      name: '',
+      icon: null,
+    });
   }
 }

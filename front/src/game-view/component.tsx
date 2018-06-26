@@ -10,7 +10,7 @@ import { bind } from '../util/bind';
 import { themeStore } from '../theme';
 import { I18nProvider } from '../i18n';
 
-import { RuleGroup } from '../defs';
+import { RuleGroup, RoomPreludeHandlers } from '../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
@@ -56,6 +56,10 @@ interface IPropGame {
    * Handle a will update event.
    */
   onWillChange: (will: string) => void;
+  /**
+   * Handlers of room prelude.
+   */
+  roomPreludeHandlers: RoomPreludeHandlers;
 }
 
 @observer
@@ -68,6 +72,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleDefs,
       onJobQuery,
       onWillChange,
+      roomPreludeHandlers,
     } = this.props;
     const {
       gameInfo,
@@ -87,7 +92,9 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* List of players. */}
             <Players players={players} />
             {/* Room control buttons. */}
-            {roomPrelude != null ? <RoomControls {...roomPrelude} /> : null}
+            {roomPrelude != null ? (
+              <RoomControls {...roomPrelude} handlers={roomPreludeHandlers} />
+            ) : null}
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}
