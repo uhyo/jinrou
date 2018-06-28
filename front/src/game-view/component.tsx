@@ -8,7 +8,7 @@ import { observer } from 'mobx-react';
 
 import { bind } from '../util/bind';
 import { themeStore } from '../theme';
-import { I18nProvider } from '../i18n';
+import { I18nProvider, I18n } from '../i18n';
 
 import { RuleGroup, RoomPreludeHandlers } from '../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
@@ -93,7 +93,15 @@ export class Game extends React.Component<IPropGame, {}> {
             <Players players={players} />
             {/* Room control buttons. */}
             {roomPrelude != null ? (
-              <RoomControls {...roomPrelude} handlers={roomPreludeHandlers} />
+              <I18n>
+                {t => (
+                  <RoomControls
+                    {...roomPrelude}
+                    t={t}
+                    handlers={roomPreludeHandlers}
+                  />
+                )}
+              </I18n>
             ) : null}
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}

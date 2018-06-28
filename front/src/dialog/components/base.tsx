@@ -1,10 +1,7 @@
 import * as React from 'react';
-import styled, { keyframes, withProps } from '../util/styled';
-
-import { bind } from '../util/bind';
-import { WithRandomIds } from '../util/with-ids';
-
-import { IMessageDialog, IConfirmDialog } from './defs';
+import styled, { keyframes, withProps } from '../../util/styled';
+import { WithRandomIds } from '../../util/with-ids';
+import { bind } from '../../util/bind';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -65,7 +62,7 @@ const Title = styled.div`
 const DialogMain = styled.div`
   margin: 0.8em;
 `;
-const Buttons = styled.div`
+export const Buttons = styled.div`
   margin: 1em 6px 0 6px;
   display: flex;
   flex-flow: row nowrap;
@@ -82,10 +79,10 @@ const ButtonBase = styled.button`
   font-size: 1.24em;
   font-weight: bold;
 `;
-const YesButton = styled(ButtonBase)`
+export const YesButton = styled(ButtonBase)`
   background-color: #83f183;
 `;
-const NoButton = styled(ButtonBase)`
+export const NoButton = styled(ButtonBase)`
   background-color: #dddddd;
 `;
 /**
@@ -139,85 +136,39 @@ const DialogBase = styled(DialogBaseInner)`
   }
 `;
 
-export interface IPropMessageDialog extends IMessageDialog {
-  onClose(): void;
-}
-
+export type IPropDialog = IPropDialogWrapper &
+  IPropDialogBase & {
+    /**
+     * Message to show in a dialog.
+     */
+    message: string;
+    /**
+     * function to render buttons.
+     */
+    buttons(): React.ReactNode;
+    /**
+     * function to render custom dialog contents.
+     */
+    contents?(): React.ReactNode;
+  };
 /**
- * Message Dialog.
+ * commom wrapper of dialog.
  */
-export class MessageDialog extends React.PureComponent<IPropMessageDialog, {}> {
-  protected button: HTMLElement | undefined;
-  public render() {
-    const { title, modal, message, ok } = this.props;
-
-    return (
-      <DialogWrapper modal={modal}>
-        <DialogBase title={title} onCancel={this.handleClick}>
-          <p>{message}</p>
-          <Buttons>
-            <YesButton
-              onClick={this.handleClick}
-              innerRef={e => (this.button = e)}
-            >
-              {ok}
-            </YesButton>
-          </Buttons>
-        </DialogBase>
-      </DialogWrapper>
-    );
-  }
-  public componentDidMount() {
-    // focus on a close button
-    if (this.button != null) {
-      this.button.focus();
-    }
-  }
-  @bind
-  protected handleClick() {
-    this.props.onClose();
-  }
-}
-
-export interface IPropConfirmDialog extends IConfirmDialog {
-  onSelect(result: boolean): void;
-}
-/**
- * Confirmation Dialog.
- */
-export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
-  protected yesButton: HTMLButtonElement | undefined;
-  public render() {
-    const { title, modal, message, yes, no } = this.props;
-    return (
-      <DialogWrapper modal={modal}>
-        <DialogBase title={title} onCancel={this.handleNoClick}>
-          <p>{message}</p>
-          <Buttons>
-            <NoButton onClick={this.handleNoClick}>{no}</NoButton>
-            <YesButton
-              onClick={this.handleYesClick}
-              innerRef={e => (this.yesButton = e)}
-            >
-              {yes}
-            </YesButton>
-          </Buttons>
-        </DialogBase>
-      </DialogWrapper>
-    );
-  }
-  public componentDidMount() {
-    // focus on a yes button
-    if (this.yesButton != null) {
-      this.yesButton.focus();
-    }
-  }
-  @bind
-  protected handleNoClick() {
-    this.props.onSelect(false);
-  }
-  @bind
-  protected handleYesClick() {
-    this.props.onSelect(true);
-  }
+export function Dialog({
+  modal,
+  title,
+  message,
+  onCancel,
+  buttons,
+  contents,
+}: IPropDialog) {
+  return (
+    <DialogWrapper modal={modal}>
+      <DialogBase title={title} onCancel={onCancel}>
+        <p>{message}</p>
+        {contents ? contents() : null}
+        <Buttons>{buttons()}</Buttons>
+      </DialogBase>
+    </DialogWrapper>
+  );
 }

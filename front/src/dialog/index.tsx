@@ -1,10 +1,11 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { IMessageDialog, IConfirmDialog } from './defs';
-import { ErrorBoundary } from '../util/error-boundary';
+import { IMessageDialog, IConfirmDialog, IPlayerDialog } from './defs';
 
-import { MessageDialog, ConfirmDialog } from './component';
+import { MessageDialog } from './components/message';
+import { ConfirmDialog } from './components/confirm';
+import { PlayerDialog } from './components/player';
 
 /**
  * Show a message dialog.
@@ -24,6 +25,21 @@ export function showConfirmDialog(d: IConfirmDialog): Promise<boolean> {
   return showDialog((open, close) => {
     const dialog = <ConfirmDialog {...d} onSelect={close} />;
 
+    open(dialog);
+  });
+}
+
+/**
+ * Show a player information dialog.
+ */
+export function showPlayerDialog(
+  d: IPlayerDialog,
+): Promise<{
+  name: string;
+  icon: string | null;
+} | null> {
+  return showDialog((open, close) => {
+    const dialog = <PlayerDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }

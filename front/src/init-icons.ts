@@ -17,6 +17,7 @@ import {
   faTimes,
   faUser,
   faUserTimes,
+  faUserSecret,
   faBan,
 } from '@fortawesome/fontawesome-free-solid';
 
@@ -35,6 +36,7 @@ fontawesome.library.add(
   faTimes,
   faUser,
   faUserTimes,
+  faUserSecret,
   faBan,
 );
 

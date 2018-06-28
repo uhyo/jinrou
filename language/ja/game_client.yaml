@@ -189,3 +189,15 @@ playerbox:
     helper: "helper"
     norevive: "蘇生辞退"
 
+# Room control buttons.
+room:
+  # Player information dialog.
+  playerDialog:
+    # title of player dialog.
+    title: "ゲームに参加"
+    # message of player dialog.
+    message: "この部屋で使用する名前を入力してください。"
+    # ok button
+    ok: "部屋に入る"
+    # cancel button
+    cancel: "キャンセル"

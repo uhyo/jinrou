@@ -607,7 +607,7 @@ exports.start=(roomid)->
                         owner: room.owner.userid == Index.app.userid()
                         joined: Boolean enter_result?.joined
                         old: room.old
-                        blind: room.blind
+                        blind: !!room.blind
                     }
                 else
                     null
