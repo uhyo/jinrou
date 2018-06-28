@@ -17,7 +17,7 @@ class RateLimits
     isSuspended:(type)-> @suspended[type]
     # examine an error response from Twitter.
     examineError: (type, err, raw)->
-        if err.length == undefined
+        unless Array.isArray(err)
             return
         if @suspended[type]
             # it is already suspended; nothing to do.
