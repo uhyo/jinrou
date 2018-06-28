@@ -53,7 +53,8 @@ tweet=(message, pass)->
         trim_user: 'true'
     }, (err, data, raw)->
         if err?
-            console.error 'tweet:', err
+            unless Array.isArray(err)
+                console.error 'tweet:', err
             rateLimits.examineError 'tweet', err, raw
         if data?
             console.log 'tweet:', data
