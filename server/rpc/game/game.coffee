@@ -1884,7 +1884,7 @@ class Game
                 lw=aliveps.filter((x)->x.isWerewolf())[0]
                 if lw?.isJobType "LoneWolf"
                     team="LoneWolf"
-                
+            
             if team?
                 # 妖狐判定
                 if @players.some((x)->!x.dead && x.isFox())
@@ -1931,7 +1931,7 @@ class Game
                     else if friends_count>1
                         if alives==friendsn
                             team="Friend"
-                        else
+                        else if @rule.friendssplit=="split"
                             # 恋人バトル
                             team=null
             # カルト判定
