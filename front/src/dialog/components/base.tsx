@@ -62,6 +62,9 @@ const Title = styled.div`
 const DialogMain = styled.div`
   margin: 0.8em;
 `;
+/**
+ * Wrapper of buttons in the bottom line of a dialog.
+ */
 export const Buttons = styled.div`
   margin: 1em 6px 0 6px;
   display: flex;
@@ -79,12 +82,46 @@ const ButtonBase = styled.button`
   font-size: 1.24em;
   font-weight: bold;
 `;
+/**
+ * Button with affirmative impression.
+ */
 export const YesButton = styled(ButtonBase)`
   background-color: #83f183;
 `;
+/**
+ * Button with negative impression.
+ */
 export const NoButton = styled(ButtonBase)`
   background-color: #dddddd;
 `;
+
+/**
+ * Table for use in dialog.
+ */
+export const FormTable = styled.table`
+  margin: 5px;
+
+  th,
+  td {
+    border: none;
+  }
+`;
+
+/**
+ * Input for form in dialog.
+ */
+export const FormInput = styled.input`
+  background-color: white;
+  width: 240px;
+  padding: 0.4em;
+  border: 1px solid #cccccc;
+
+  &:focus {
+    border-color: #83f183;
+    outline-color: #83f183;
+  }
+`;
+
 /**
  * Base of dialog.
  */
