@@ -104,6 +104,7 @@ export const FormTable = styled.table`
   th,
   td {
     border: none;
+    vertical-align: middle;
   }
 `;
 
