@@ -99,7 +99,7 @@ export const NoButton = styled(ButtonBase)`
  * Table for use in dialog.
  */
 export const FormTable = styled.table`
-  margin: 5px;
+  margin: 5px auto;
 
   th,
   td {
@@ -120,6 +120,10 @@ export const FormInput = styled.input`
   &:focus {
     border-color: #83f183;
     outline-color: #83f183;
+  }
+  &:disabled {
+    background-color: #eeeeee;
+    color: #888888;
   }
 `;
 

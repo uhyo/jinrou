@@ -50,3 +50,10 @@ export interface IPlayerDialog extends IDialogBase {
    */
   cancel: string;
 }
+
+/**
+ * Icon select dialog.
+ */
+export interface IIconSelectDialog {
+  modal?: boolean;
+}

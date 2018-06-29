@@ -4,6 +4,8 @@ import { bind } from 'bind-decorator';
 import { NoButton, Dialog, YesButton, FormTable, FormInput } from './base';
 import { UserIcon } from '../../common/user-icon';
 import styled from '../../util/styled';
+import { showIconSelectDialog } from '..';
+import { TranslationFunction } from '../../i18n';
 
 export interface IPropPlayerDialog extends IPlayerDialog {
   onSelect(user: { name: string; icon: string | null } | null): void;
@@ -108,6 +110,9 @@ export class PlayerDialog extends React.PureComponent<
   @bind
   private handleIconClick() {
     // TODO
+    showIconSelectDialog({
+      modal: true,
+    });
   }
 }
 

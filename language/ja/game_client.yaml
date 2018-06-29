@@ -201,3 +201,18 @@ room:
     ok: "部屋に入る"
     # cancel button
     cancel: "キャンセル"
+
+# Icon select dialog.
+iconSelect:
+  # title of icon select dialog.
+  title: "アイコン選択"
+  # message for icon select dialog.
+  message: "画像のURLを直接入力するか、Twitterのアカウントを入力してください。"
+  # button for no icon.
+  no: "キャンセル"
+  # save button.
+  save: "OK"
+  # label for url.
+  url: "URL"
+  # label for twitter account
+  twitter: "Twitterアカウント"

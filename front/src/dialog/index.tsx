@@ -1,17 +1,25 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { IMessageDialog, IConfirmDialog, IPlayerDialog } from './defs';
+import {
+  IMessageDialog,
+  IConfirmDialog,
+  IPlayerDialog,
+  IIconSelectDialog,
+} from './defs';
 
 import { MessageDialog } from './components/message';
 import { ConfirmDialog } from './components/confirm';
 import { PlayerDialog } from './components/player';
+import { IconSelectDialog } from './components/icon-select';
+import { I18nProvider, getI18nFor } from '../i18n';
+import { i18n } from 'i18next';
 
 /**
  * Show a message dialog.
  */
 export function showMessageDialog(d: IMessageDialog): Promise<void> {
-  return showDialog((open, close) => {
+  return showDialog(null, (open, close) => {
     const dialog = <MessageDialog {...d} onClose={() => close(undefined)} />;
 
     open(dialog);
@@ -22,7 +30,7 @@ export function showMessageDialog(d: IMessageDialog): Promise<void> {
  * Show a confirmation dialog.
  */
 export function showConfirmDialog(d: IConfirmDialog): Promise<boolean> {
-  return showDialog((open, close) => {
+  return showDialog(null, (open, close) => {
     const dialog = <ConfirmDialog {...d} onSelect={close} />;
 
     open(dialog);
@@ -38,8 +46,22 @@ export function showPlayerDialog(
   name: string;
   icon: string | null;
 } | null> {
-  return showDialog((open, close) => {
+  return showDialog(null, (open, close) => {
     const dialog = <PlayerDialog {...d} onSelect={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show an icon select dialog.
+ */
+export async function showIconSelectDialog(
+  d: IIconSelectDialog,
+): Promise<string | null> {
+  // get i18n instance with system language.
+  const i18n = await getI18nFor();
+  return showDialog<string | null>(i18n, (open, close) => {
+    const dialog = <IconSelectDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }
@@ -48,6 +70,7 @@ export function showPlayerDialog(
  * Inner function to show a dialog.
  */
 function showDialog<T>(
+  i18n: i18n | null,
   callback: (
     open: ((dialog: React.ReactElement<any>) => void),
     close: ((result: T) => void),
@@ -60,7 +83,14 @@ function showDialog<T>(
 
     // show a dialog.
     const open = (dialog: React.ReactElement<any>) => {
-      ReactDOM.render(dialog, area);
+      // Wrap a dialog with I18nProvider if i18n is provided.
+      const dialogElm =
+        i18n != null ? (
+          <I18nProvider i18n={i18n}>{dialog}</I18nProvider>
+        ) : (
+          dialog
+        );
+      ReactDOM.render(dialogElm, area);
     };
     // clean up dialog.
     const close = (result: T) => {
