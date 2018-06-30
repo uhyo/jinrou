@@ -34,8 +34,9 @@ export class PlayerDialog extends React.PureComponent<
     const { title, modal, message, ok, cancel } = this.props;
     return (
       <Dialog
-        title={title}
         modal={modal}
+        title={title}
+        icon="user-secret"
         message={message}
         onCancel={this.handleCancel}
         buttons={() => (

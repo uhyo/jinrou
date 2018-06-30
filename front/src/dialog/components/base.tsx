@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled, { keyframes, withProps } from '../../util/styled';
 import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
+import { IconProp, FontAwesomeIcon } from '../../util/icon';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -45,6 +46,7 @@ const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
 interface IPropDialogBase {
   className?: string;
   title?: string;
+  icon?: IconProp;
   /**
    * Handler of canceling the dialog.
    */
@@ -132,7 +134,7 @@ export const FormInput = styled.input`
  */
 class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
   public render() {
-    const { className, title, children } = this.props;
+    const { className, icon, title, children } = this.props;
 
     return (
       <WithRandomIds names={['title', 'desc']}>
@@ -143,7 +145,12 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
             aria-labelledby={title ? titleid : undefined}
             aria-describedby={desc}
           >
-            {title ? <Title id={titleid}>{title}</Title> : null}
+            {title ? (
+              <Title id={titleid}>
+                {icon ? <FontAwesomeIcon icon={icon} /> : null}
+                {title}
+              </Title>
+            ) : null}
             <DialogMain id={desc}>{children}</DialogMain>
           </div>
         )}
@@ -181,6 +188,10 @@ const DialogBase = styled(DialogBaseInner)`
 export type IPropDialog = IPropDialogWrapper &
   IPropDialogBase & {
     /**
+     * Icon shown at the left of title.
+     */
+    icon?: IconProp;
+    /**
      * Message to show in a dialog.
      */
     message: string;
@@ -199,6 +210,7 @@ export type IPropDialog = IPropDialogWrapper &
 export function Dialog({
   modal,
   title,
+  icon,
   message,
   onCancel,
   buttons,
@@ -206,7 +218,7 @@ export function Dialog({
 }: IPropDialog) {
   return (
     <DialogWrapper modal={modal}>
-      <DialogBase title={title} onCancel={onCancel}>
+      <DialogBase title={title} icon={icon} onCancel={onCancel}>
         <p>{message}</p>
         {contents ? contents() : null}
         <Buttons>{buttons()}</Buttons>

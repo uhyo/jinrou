@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { FontAwesomeIcon, Props } from '@fortawesome/react-fontawesome';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 class Icon extends React.PureComponent<Props, {}> {
   public render() {
@@ -7,4 +8,4 @@ class Icon extends React.PureComponent<Props, {}> {
   }
 }
 
-export { Icon as FontAwesomeIcon };
+export { Icon as FontAwesomeIcon, IconProp };
