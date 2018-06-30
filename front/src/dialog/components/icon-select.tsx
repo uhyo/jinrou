@@ -4,6 +4,7 @@ import { Dialog, NoButton, YesButton, FormTable, FormInput } from './base';
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
 import { UserIcon } from '../../common/user-icon';
+import { getTwitterIcon } from '../../api/twitter-icon';
 
 export interface IPropIconSelectDialog extends IIconSelectDialog {
   onSelect(icon: string | null): void;
@@ -99,8 +100,23 @@ export class IconSelectDialog extends React.PureComponent<
    * Handle a click of yes button.
    */
   @bind
-  private handleYesClick() {
-    // this.props.onSelect(this.state.icon);
+  private async handleYesClick() {
+    const url = this.urlRef.current;
+    if (url != null && url.value != null) {
+      this.props.onSelect(url.value);
+      return;
+    }
+    const tw = this.twitterRef.current;
+    if (tw == null) {
+      return;
+    }
+    const icon = await getTwitterIcon(tw.value);
+    if (icon == null) {
+      // could not get icon.
+      // TODO
+      return;
+    }
+    this.props.onSelect(icon);
   }
   /**
    * Handle a change of input.

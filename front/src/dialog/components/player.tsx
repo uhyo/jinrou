@@ -22,6 +22,7 @@ export class PlayerDialog extends React.PureComponent<
     icon: string | null;
   }
 > {
+  private formRef: React.RefObject<HTMLFormElement> = React.createRef();
   private nameRef: React.RefObject<HTMLInputElement> = React.createRef();
   constructor(props: IPropPlayerDialog) {
     super(props);
@@ -44,7 +45,7 @@ export class PlayerDialog extends React.PureComponent<
           </>
         )}
         contents={() => (
-          <form onSubmit={this.handleFormSubmit}>
+          <form onSubmit={this.handleFormSubmit} ref={this.formRef}>
             <FormTable>
               <tbody>
                 <tr>
@@ -91,9 +92,12 @@ export class PlayerDialog extends React.PureComponent<
     if (input == null) {
       return;
     }
+    if (this.formRef.current && !this.formRef.current.reportValidity()) {
+      return;
+    }
     this.props.onSelect({
       name: input.value,
-      icon: null,
+      icon: this.state.icon,
     });
   }
   /**
@@ -108,10 +112,12 @@ export class PlayerDialog extends React.PureComponent<
    * Handle a click of icon.
    */
   @bind
-  private handleIconClick() {
-    // TODO
-    showIconSelectDialog({
+  private async handleIconClick() {
+    const icon = await showIconSelectDialog({
       modal: true,
+    });
+    this.setState({
+      icon,
     });
   }
 }
