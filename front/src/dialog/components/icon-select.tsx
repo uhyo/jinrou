@@ -5,6 +5,8 @@ import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
 import { UserIcon } from '../../common/user-icon';
 import { getTwitterIcon } from '../../api/twitter-icon';
+import { TranslationFunction } from 'i18next';
+import { showMessageDialog } from '..';
 
 export interface IPropIconSelectDialog extends IIconSelectDialog {
   onSelect(icon: string | null): void;
@@ -53,7 +55,7 @@ export class IconSelectDialog extends React.PureComponent<
                 <NoButton onClick={this.handleNoClick}>
                   {t('iconSelect.no')}
                 </NoButton>
-                <YesButton onClick={this.handleYesClick}>
+                <YesButton onClick={this.makeHandleYesClick(t)}>
                   {t('iconSelect.save')}
                 </YesButton>
               </>
@@ -99,24 +101,31 @@ export class IconSelectDialog extends React.PureComponent<
   /**
    * Handle a click of yes button.
    */
-  @bind
-  private async handleYesClick() {
-    const url = this.urlRef.current;
-    if (url != null && url.value != null) {
-      this.props.onSelect(url.value);
-      return;
-    }
-    const tw = this.twitterRef.current;
-    if (tw == null) {
-      return;
-    }
-    const icon = await getTwitterIcon(tw.value);
-    if (icon == null) {
-      // could not get icon.
-      // TODO
-      return;
-    }
-    this.props.onSelect(icon);
+  private makeHandleYesClick(t: TranslationFunction): (() => void) {
+    return async () => {
+      const url = this.urlRef.current;
+      if (url != null && url.value) {
+        this.props.onSelect(url.value);
+        return;
+      }
+      const tw = this.twitterRef.current;
+      if (tw == null) {
+        // アイコン取得失敗
+        return;
+      }
+      const icon = await getTwitterIcon(tw.value);
+      if (icon == null) {
+        // could not get icon.
+        showMessageDialog({
+          modal: true,
+          title: t('common:error.error'),
+          ok: t('common:messageDialog.close'),
+          message: t('iconSelect.apiFail'),
+        });
+        return;
+      }
+      this.props.onSelect(icon);
+    };
   }
   /**
    * Handle a change of input.
