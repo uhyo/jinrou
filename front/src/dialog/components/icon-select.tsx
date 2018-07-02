@@ -45,49 +45,56 @@ export class IconSelectDialog extends React.PureComponent<
     const { urlDisabled, twitterDisabled } = this.state;
     return (
       <I18n namespace="game_client">
-        {t => (
-          <Dialog
-            modal={modal}
-            title={t('iconSelect.title')}
-            message={t('iconSelect.message')}
-            buttons={() => (
-              <>
-                <NoButton onClick={this.handleNoClick}>
-                  {t('iconSelect.no')}
-                </NoButton>
-                <YesButton onClick={this.makeHandleYesClick(t)}>
-                  {t('iconSelect.save')}
-                </YesButton>
-              </>
-            )}
-            contents={() => (
-              <FormTable>
-                <tbody>
-                  <tr>
-                    <th>{t('iconSelect.url')}</th>
-                    <td>
-                      <FormInput
-                        innerRef={this.urlRef}
-                        disabled={urlDisabled}
-                        onChange={this.handleInputChange}
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <th>{t('iconSelect.twitter')}</th>
-                    <td>
-                      <FormInput
-                        innerRef={this.twitterRef}
-                        disabled={twitterDisabled}
-                        onChange={this.handleInputChange}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
-              </FormTable>
-            )}
-          />
-        )}
+        {t => {
+          const yesh = this.makeHandleYesClick(t);
+          return (
+            <Dialog
+              modal={modal}
+              title={t('iconSelect.title')}
+              message={t('iconSelect.message')}
+              form
+              onSubmit={yesh}
+              buttons={() => (
+                <>
+                  <NoButton type="button" onClick={this.handleNoClick}>
+                    {t('iconSelect.no')}
+                  </NoButton>
+                  <YesButton type="submit">{t('iconSelect.save')}</YesButton>
+                </>
+              )}
+              contents={() => (
+                <FormTable>
+                  <tbody>
+                    <tr>
+                      <th>{t('iconSelect.url')}</th>
+                      <td>
+                        <FormInput
+                          innerRef={this.urlRef}
+                          type="text"
+                          disabled={urlDisabled}
+                          required
+                          onChange={this.handleInputChange}
+                        />
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>{t('iconSelect.twitter')}</th>
+                      <td>
+                        <FormInput
+                          innerRef={this.twitterRef}
+                          type="text"
+                          disabled={twitterDisabled}
+                          required
+                          onChange={this.handleInputChange}
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </FormTable>
+              )}
+            />
+          );
+        }}
       </I18n>
     );
   }
@@ -101,8 +108,11 @@ export class IconSelectDialog extends React.PureComponent<
   /**
    * Handle a click of yes button.
    */
-  private makeHandleYesClick(t: TranslationFunction): (() => void) {
-    return async () => {
+  private makeHandleYesClick(
+    t: TranslationFunction,
+  ): ((e: React.SyntheticEvent<any>) => void) {
+    return async (e: React.SyntheticEvent<any>) => {
+      e.preventDefault();
       const url = this.urlRef.current;
       if (url != null && url.value) {
         this.props.onSelect(url.value);

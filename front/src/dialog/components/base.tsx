@@ -51,6 +51,14 @@ interface IPropDialogBase {
    * Handler of canceling the dialog.
    */
   onCancel?(): void;
+  /**
+   * Whether wrap the content with a form.
+   */
+  form?: boolean;
+  /**
+   * handler of submission when form is used.
+   */
+  onSubmit?(e: React.SyntheticEvent<HTMLFormElement>): void;
 }
 
 const Title = styled.div`
@@ -134,7 +142,7 @@ export const FormInput = styled.input`
  */
 class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
   public render() {
-    const { className, icon, title, children } = this.props;
+    const { className, icon, title, children, form, onSubmit } = this.props;
 
     return (
       <WithRandomIds names={['title', 'desc']}>
@@ -151,7 +159,9 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
                 {title}
               </Title>
             ) : null}
-            <DialogMain id={desc}>{children}</DialogMain>
+            <DialogMain id={desc}>
+              {form ? <form onSubmit={onSubmit}>{children}</form> : children}
+            </DialogMain>
           </div>
         )}
       </WithRandomIds>
@@ -213,12 +223,20 @@ export function Dialog({
   icon,
   message,
   onCancel,
+  form,
+  onSubmit,
   buttons,
   contents,
 }: IPropDialog) {
   return (
     <DialogWrapper modal={modal}>
-      <DialogBase title={title} icon={icon} onCancel={onCancel}>
+      <DialogBase
+        title={title}
+        icon={icon}
+        onCancel={onCancel}
+        form={form}
+        onSubmit={onSubmit}
+      >
         <p>{message}</p>
         {contents ? contents() : null}
         <Buttons>{buttons()}</Buttons>
