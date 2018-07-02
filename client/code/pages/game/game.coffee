@@ -114,6 +114,19 @@ exports.start=(roomid)->
                             else
                                 # succeeded to login
                                 Index.app.refresh()
+                    unjoin: ()->
+                        # 脱退
+                        ss.rpc "game.rooms.unjoin", roomid,(result)->
+                            if result?
+                                Index.util.message "ルーム",result
+                            else
+                                Index.app.refresh()
+                    ready: ()->
+                        ss.rpc "game.rooms.ready", roomid,(result)->
+                            if result?
+                                Index.util.message "ルーム",result
+
+
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
