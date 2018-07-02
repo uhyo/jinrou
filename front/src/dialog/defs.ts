@@ -57,3 +57,24 @@ export interface IPlayerDialog extends IDialogBase {
 export interface IIconSelectDialog {
   modal?: boolean;
 }
+
+/**
+ * Select from options dialog.
+ */
+export interface ISelectDialog extends IDialogBase {
+  /**
+   * Options.
+   */
+  options: Array<{
+    label: string;
+    value: string;
+  }>;
+  /**
+   * ok button.
+   */
+  ok: string;
+  /**
+   * cancel button.
+   */
+  cancel: string;
+}

@@ -125,6 +125,10 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.ready", roomid,(result)->
                             if result?
                                 Index.util.message "ルーム",result
+                    helper: (idornull)->
+                        ss.rpc "game.rooms.helper",roomid, idornull, (result)->
+                            if result?
+                                Index.util.message "エラー",result
 
 
             }

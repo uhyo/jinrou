@@ -18,7 +18,7 @@ export interface RoomPreludeHandlers {
   /**
    * Handler for helper button.
    */
-  helper(): void;
+  helper(userid: string | null): void;
   /**
    * Open game start button.
    */

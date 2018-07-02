@@ -6,6 +6,7 @@ import {
   IConfirmDialog,
   IPlayerDialog,
   IIconSelectDialog,
+  ISelectDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -14,6 +15,7 @@ import { PlayerDialog } from './components/player';
 import { IconSelectDialog } from './components/icon-select';
 import { I18nProvider, getI18nFor } from '../i18n';
 import { i18n } from 'i18next';
+import { SelectDialog } from './components/select';
 
 /**
  * Show a message dialog.
@@ -62,6 +64,16 @@ export async function showIconSelectDialog(
   const i18n = await getI18nFor();
   return showDialog<string | null>(i18n, (open, close) => {
     const dialog = <IconSelectDialog {...d} onSelect={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show a select dialog.
+ */
+export function showSelectDialog(d: ISelectDialog): Promise<string | null> {
+  return showDialog(null, (open, close) => {
+    const dialog = <SelectDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }

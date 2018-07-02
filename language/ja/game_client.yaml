@@ -201,6 +201,14 @@ room:
     ok: "部屋に入る"
     # cancel button
     cancel: "キャンセル"
+  # helper select dialog.
+  helperDialog:
+    title: "ヘルパー"
+    message: "ヘルパーになる相手を選択してください。"
+    ok: "選択"
+    cancel: "キャンセル"
+    # label for no helper.
+    nohelper: "ヘルパーをやめる"
 
 # Icon select dialog.
 iconSelect:

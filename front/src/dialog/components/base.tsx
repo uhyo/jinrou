@@ -119,9 +119,36 @@ export const FormTable = styled.table`
 `;
 
 /**
+ * Wrapper of simple form component in form.
+ */
+export const FormControlWrapper = styled.div`
+  margin: 5px auto;
+  text-align: center;
+`;
+
+/**
  * Input for form in dialog.
  */
 export const FormInput = styled.input`
+  background-color: white;
+  width: 240px;
+  padding: 0.4em;
+  border: 1px solid #cccccc;
+
+  &:focus {
+    border-color: #83f183;
+    outline-color: #83f183;
+  }
+  &:disabled {
+    background-color: #eeeeee;
+    color: #888888;
+  }
+`;
+
+/**
+ * Select for form in dialog.
+ */
+export const FormSelect = styled.select`
   background-color: white;
   width: 240px;
   padding: 0.4em;

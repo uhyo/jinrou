@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { RoomPreludeHandlers } from '../../defs';
 import { bind } from 'bind-decorator';
-import { showPlayerDialog } from '../../dialog';
+import { showPlayerDialog, showSelectDialog } from '../../dialog';
 import { TranslationFunction } from '../../i18n';
+import { PlayerInfo } from '../defs';
 
 export interface IPropRoomControls {
   /**
@@ -25,6 +26,10 @@ export interface IPropRoomControls {
    * Whether this room is in blind mode.
    */
   blind: boolean;
+  /**
+   * List of players in this room.
+   */
+  players: PlayerInfo[];
   /**
    * Handlers for UI events.
    */
@@ -53,7 +58,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
             <button
               type="button"
               title="ヘルパーになると、ゲームに参加せずに助言役になります。"
-              onClick={handlers.helper}
+              onClick={this.handleHelperClick}
             >
               ヘルパー
             </button>
@@ -112,5 +117,31 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
         icon: null,
       });
     }
+  }
+  /**
+   * Handle a click of helper button.
+   */
+  @bind
+  private async handleHelperClick() {
+    const { t, players, handlers } = this.props;
+    const target = await showSelectDialog({
+      modal: true,
+      title: t('game_client:room.helperDialog.title'),
+      message: t('game_client:room.helperDialog.message'),
+      ok: t('game_client:room.helperDialog.ok'),
+      cancel: t('game_client:room.helperDialog.cancel'),
+      options: [
+        {
+          label: t('game_client:room.helperDialog.nohelper'),
+          value: '',
+        },
+      ].concat(players.map(({ name, id }) => ({ label: name, value: id }))),
+    });
+    if (target == null) {
+      // cancellation
+      return;
+    }
+    // convert '' to null so that 'no helper' can be selected
+    handlers.helper(target || null);
   }
 }

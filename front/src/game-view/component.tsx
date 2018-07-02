@@ -98,6 +98,7 @@ export class Game extends React.Component<IPropGame, {}> {
                   <RoomControls
                     {...roomPrelude}
                     t={t}
+                    players={players}
                     handlers={roomPreludeHandlers}
                   />
                 )}
