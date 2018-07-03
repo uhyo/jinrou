@@ -26,7 +26,7 @@ export interface RoomPreludeHandlers {
   /**
    * kick button.
    */
-  kick(): void;
+  kick(obj: { id: string; noentry: boolean }): void;
   /**
    * Reset everyone's ready button.
    */

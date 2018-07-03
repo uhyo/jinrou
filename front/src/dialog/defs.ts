@@ -1,3 +1,5 @@
+import { StringLiteral } from 'babel-types';
+
 /**
  * Base of dialog configs.
  */
@@ -77,4 +79,18 @@ export interface ISelectDialog extends IDialogBase {
    * cancel button.
    */
   cancel: string;
+}
+
+/**
+ * Kick user from room dialog.
+ */
+export interface IKickDialog {
+  modal?: boolean;
+  /**
+   * Current list of players.
+   */
+  players: Array<{
+    id: string;
+    name: string;
+  }>;
 }

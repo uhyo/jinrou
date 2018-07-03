@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { RoomPreludeHandlers } from '../../defs';
 import { bind } from 'bind-decorator';
-import { showPlayerDialog, showSelectDialog } from '../../dialog';
+import {
+  showPlayerDialog,
+  showSelectDialog,
+  showKickDialog,
+} from '../../dialog';
 import { TranslationFunction } from '../../i18n';
 import { PlayerInfo } from '../defs';
 
@@ -73,7 +77,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
             <button type="button" onClick={handlers.openGameStart}>
               ゲーム開始画面を開く
             </button>
-            <button type="button" onClick={handlers.kick}>
+            <button type="button" onClick={this.handleKickClick}>
               参加者を追い出す
             </button>
             <button type="button" onClick={handlers.resetReady}>
@@ -143,5 +147,22 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
     }
     // convert '' to null so that 'no helper' can be selected
     handlers.helper(target || null);
+  }
+  /**
+   * Handle a click of kick button.
+   */
+  @bind
+  private async handleKickClick() {
+    const { players, handlers } = this.props;
+    const target = await showKickDialog({
+      modal: true,
+      players,
+    });
+    console.log(target);
+    if (target == null) {
+      // cancellation
+      return;
+    }
+    handlers.kick(target);
   }
 }

@@ -7,6 +7,7 @@ import {
   IPlayerDialog,
   IIconSelectDialog,
   ISelectDialog,
+  IKickDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -16,6 +17,7 @@ import { IconSelectDialog } from './components/icon-select';
 import { I18nProvider, getI18nFor } from '../i18n';
 import { i18n } from 'i18next';
 import { SelectDialog } from './components/select';
+import { KickDialog, KickResult } from './components/kick';
 
 /**
  * Show a message dialog.
@@ -74,6 +76,19 @@ export async function showIconSelectDialog(
 export function showSelectDialog(d: ISelectDialog): Promise<string | null> {
   return showDialog(null, (open, close) => {
     const dialog = <SelectDialog {...d} onSelect={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show a kick dialog.
+ */
+export async function showKickDialog(
+  d: IKickDialog,
+): Promise<KickResult | null> {
+  const i18n = await getI18nFor();
+  return showDialog<KickResult | null>(i18n, (open, close) => {
+    const dialog = <KickDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }

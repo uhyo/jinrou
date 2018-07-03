@@ -132,6 +132,12 @@ exports.start=(roomid)->
                                 Index.util.message "エラー",result
                     openGameStart: ->
                         newgamebutton()
+                    kick: (obj)->
+                        id = obj.id
+                        noentry = obj.noentry
+                        ss.rpc "game.rooms.kick", roomid, id, noentry, (result)->
+                            if result?
+                                Index.util.message "エラー",result
 
 
             }
