@@ -28,6 +28,7 @@ exports.start=(roomid)->
     this_room_id=null
     # it's very bad but it's temporal!
     getjobinfo = null
+    newgamebutton = null
 
 
     # CSS操作
@@ -129,6 +130,8 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.helper",roomid, idornull, (result)->
                             if result?
                                 Index.util.message "エラー",result
+                    openGameStart: ->
+                        newgamebutton()
 
 
             }
@@ -415,7 +418,7 @@ exports.start=(roomid)->
 
         ss.rpc "game.game.getlog", roomid,sentlog
         # 新しいゲーム
-        newgamebutton = (je)->
+        newgamebutton = ->
             unless $("#gamestartsec").attr("hidden") == "hidden"
                 return
             # GameStartControlコンポーネントを設置
