@@ -239,3 +239,5 @@ kick:
   ok: "選択"
   # Label for no re-entry button.
   noentry: "再入室を禁止"
+  # Link to kick manager.
+  manager: "追い出しを管理"

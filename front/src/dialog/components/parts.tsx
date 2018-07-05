@@ -46,6 +46,16 @@ export const FormControlWrapper = styled.div`
 `;
 
 /**
+ * Wrapper of aside text in a dialog.
+ */
+export const FormAsideText = styled.div`
+  margin: 5px 0;
+
+  text-align: right;
+  font-size: 0.9em;
+`;
+
+/**
  * Input for form in dialog.
  */
 export const FormInput = styled.input`

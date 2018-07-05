@@ -7,6 +7,7 @@ import {
   FormSelect,
   FormControlWrapper,
   FormTable,
+  FormAsideText,
 } from './parts';
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
@@ -69,6 +70,18 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
                   </FormControlWrapper>
                 </>
               )}
+              afterButtons={() => (
+                <FormAsideText>
+                  <a
+                    href="/"
+                    // no-jump class instructs page to ignore click of this link.
+                    className="no-jump"
+                    onClick={this.handleManagerClick}
+                  >
+                    {t('kick.manager')}…
+                  </a>
+                </FormAsideText>
+              )}
             />
           );
         }}
@@ -95,5 +108,10 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
       id: sel.value,
       noentry,
     });
+  }
+  @bind
+  private handleManagerClick<T>(e: React.SyntheticEvent<T>): void {
+    // TODO
+    e.preventDefault();
   }
 }
