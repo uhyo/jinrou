@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { IConfirmDialog } from '../defs';
-import { Dialog, NoButton, YesButton } from './base';
+import { Dialog } from './base';
+import { NoButton, YesButton } from './parts';
 import { bind } from '../../util/bind';
 
 export interface IPropConfirmDialog extends IConfirmDialog {

@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { ISelectDialog } from '../defs';
-import {
-  Dialog,
-  NoButton,
-  YesButton,
-  FormSelect,
-  FormControlWrapper,
-} from './base';
+import { Dialog } from './base';
+import { NoButton, YesButton, FormSelect, FormControlWrapper } from './parts';
 import bind from 'bind-decorator';
 
 export interface IPropSelectDialog extends ISelectDialog {

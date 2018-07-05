@@ -3,7 +3,8 @@ import { bind } from '../../util/bind';
 
 import { IMessageDialog } from '../defs';
 
-import { Dialog, YesButton } from './base';
+import { Dialog } from './base';
+import { YesButton } from './parts';
 
 export interface IPropMessageDialog extends IMessageDialog {
   onClose(): void;

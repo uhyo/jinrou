@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { IIconSelectDialog } from '../defs';
-import { Dialog, NoButton, YesButton, FormTable, FormInput } from './base';
+import { Dialog } from './base';
+import { NoButton, YesButton, FormTable, FormInput } from './parts';
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
-import { UserIcon } from '../../common/user-icon';
 import { getTwitterIcon } from '../../api/twitter-icon';
 import { TranslationFunction } from 'i18next';
 import { showMessageDialog } from '..';

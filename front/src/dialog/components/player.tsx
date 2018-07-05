@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { IPlayerDialog } from '../defs';
 import { bind } from 'bind-decorator';
-import { NoButton, Dialog, YesButton, FormTable, FormInput } from './base';
+import { Dialog } from './base';
+import { NoButton, YesButton, FormTable, FormInput } from './parts';
 import { UserIcon } from '../../common/user-icon';
 import styled from '../../util/styled';
 import { showIconSelectDialog } from '..';
-import { TranslationFunction } from '../../i18n';
 
 export interface IPropPlayerDialog extends IPlayerDialog {
   onSelect(user: { name: string; icon: string | null } | null): void;

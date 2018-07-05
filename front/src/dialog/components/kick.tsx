@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { IKickDialog } from '../defs';
+import { Dialog } from './base';
 import {
-  Dialog,
   NoButton,
   YesButton,
   FormSelect,
   FormControlWrapper,
   FormTable,
-} from './base';
+} from './parts';
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
 import { FontAwesomeIcon } from '../../util/icon';
