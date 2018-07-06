@@ -213,7 +213,13 @@ room:
   resetReadyDialog:
     title: "[ready]初期化"
     message: "全員の[ready]を解除しますか？"
-    yes: "OK"
+    yes: "解除する"
+    no: "キャンセル"
+  # discard room confirmation dialog.
+  discardDialog:
+    title: "廃村"
+    message: "本当に部屋を廃村にしますか？"
+    yes: "廃村にする"
     no: "キャンセル"
 
 # Icon select dialog.

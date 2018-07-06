@@ -147,6 +147,10 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.unreadyall",roomid,(result)->
                             if result?
                                 Index.util.message "エラー",result
+                    discard: ->
+                        ss.rpc "game.rooms.del", roomid,(result)->
+                            if result?
+                                Index.util.message "エラー",result
 
 
             }

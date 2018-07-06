@@ -91,7 +91,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
           </>
         ) : null}
         {owner || old ? (
-          <button type="button" onClick={handlers.discard}>
+          <button type="button" onClick={this.handleDiscard}>
             この部屋を廃村にする
           </button>
         ) : null}
@@ -189,6 +189,23 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
     });
     if (conf) {
       handlers.resetReady();
+    }
+  }
+  /**
+   * Handle a click of discard button.
+   */
+  @bind
+  private async handleDiscard() {
+    const { t, handlers } = this.props;
+    const conf = await showConfirmDialog({
+      modal: true,
+      title: t('game_client:room.discardDialog.title'),
+      message: t('game_client:room.discardDialog.message'),
+      yes: t('game_client:room.discardDialog.yes'),
+      no: t('game_client:room.discardDialog.no'),
+    });
+    if (conf) {
+      handlers.discard();
     }
   }
 }
