@@ -5,6 +5,7 @@ import { Dialog } from './base';
 import { NoButton, YesButton, FormTable, FormControlWrapper } from './parts';
 import { bind } from 'bind-decorator';
 import { FontAwesomeIcon } from '../../util/icon';
+import { WithRandomIds } from '../../util/with-ids';
 
 export interface KickManageResult {
   /**
@@ -74,18 +75,29 @@ export class KickManageDialog extends React.PureComponent<
               contents={() =>
                 fetched ? (
                   <>
-                    <FormTable>
-                      <tbody>
-                        {users.map(id => (
-                          <tr key={id}>
-                            <td>
-                              <input type="checkbox" />
-                            </td>
-                            <td>{id}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </FormTable>
+                    <WithRandomIds names={['inputid']}>
+                      {({ inputid }) => (
+                        <FormTable>
+                          <tbody>
+                            {users.map(id => (
+                              <tr key={id}>
+                                <td>
+                                  <input
+                                    type="checkbox"
+                                    id={`${inputid}-${id}`}
+                                  />
+                                </td>
+                                <td>
+                                  <label htmlFor={`${inputid}-${id}`}>
+                                    {id}
+                                  </label>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </FormTable>
+                      )}
+                    </WithRandomIds>
                   </>
                 ) : (
                   <FormControlWrapper>
