@@ -14,6 +14,7 @@ import {
   faLock,
   faUnlockAlt,
   faInfoCircle,
+  faSearch,
   faTimes,
   faUser,
   faUserTimes,
@@ -38,6 +39,7 @@ fontawesome.library.add(
   faUserTimes,
   faUserSecret,
   faBan,
+  faSearch,
 );
 
 // Publish to global.
