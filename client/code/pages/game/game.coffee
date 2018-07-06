@@ -139,6 +139,10 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.kick", roomid, id, noentry, (result)->
                             if result?
                                 Index.util.message "エラー",result
+                    kickRemove: (users)->
+                        ss.rpc "game.rooms.cancelban", roomid, users, (result)->
+                            if result?
+                                Index.util.message "エラー", result
 
 
             }

@@ -28,6 +28,10 @@ export interface RoomPreludeHandlers {
    */
   kick(obj: { id: string; noentry: boolean }): void;
   /**
+   * Remove fomr kick list.
+   */
+  kickRemove(users: string[]): void;
+  /**
    * Reset everyone's ready button.
    */
   resetReady(): void;

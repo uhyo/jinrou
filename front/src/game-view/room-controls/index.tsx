@@ -163,11 +163,14 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
       roomid,
       players,
     });
-    console.log(target);
     if (target == null) {
       // cancellation
       return;
     }
-    handlers.kick(target);
+    if (target.type === 'kick') {
+      handlers.kick(target);
+    } else {
+      handlers.kickRemove(target.users);
+    }
   }
 }

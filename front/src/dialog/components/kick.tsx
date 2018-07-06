@@ -15,16 +15,25 @@ import { FontAwesomeIcon } from '../../util/icon';
 import { showKickManageDialog } from '..';
 import { getKickList } from '../../api/kick-manage';
 
-export interface KickResult {
-  /**
-   * Id of kicked user.
-   */
-  id: string;
-  /**
-   * Whether re-entry is forbidden.
-   */
-  noentry: boolean;
-}
+export type KickResult =
+  | {
+      type: 'kick';
+      /**
+       * Id of kicked user.
+       */
+      id: string;
+      /**
+       * Whether re-entry is forbidden.
+       */
+      noentry: boolean;
+    }
+  | {
+      type: 'list-remove';
+      /**
+       * List of user ids removed from kick list.
+       */
+      users: string[];
+    };
 export interface IPropKickDialog extends IKickDialog {
   onSelect(result: KickResult | null): void;
 }
@@ -99,6 +108,7 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
   }
   @bind
   private handleYesClick(): void {
+    // Yes button is clicked.
     const sel = this.selectRef.current;
     if (sel == null) {
       return;
@@ -107,19 +117,31 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
       this.noentryRef.current && this.noentryRef.current.checked
     );
     this.props.onSelect({
+      type: 'kick',
       id: sel.value,
       noentry,
     });
   }
   @bind
   private handleManagerClick<T>(e: React.SyntheticEvent<T>): void {
-    const { modal, roomid } = this.props;
+    const { modal, roomid, onSelect } = this.props;
     e.preventDefault();
-    // close this and show manger dialog.
+    // Kick manager link is clicked.
     showKickManageDialog({
       modal,
       users: getKickList(roomid),
-    });
-    this.props.onSelect(null);
+    })
+      .then(kicked => {
+        if (kicked != null) {
+          onSelect({
+            type: 'list-remove',
+            users: kicked.remove,
+          });
+        }
+      })
+      .catch(err => {
+        // TODO: error handling
+        console.error(err);
+      });
   }
 }
