@@ -87,10 +87,25 @@ export interface ISelectDialog extends IDialogBase {
 export interface IKickDialog {
   modal?: boolean;
   /**
+   * Room ID for kicklist API.
+   */
+  roomid: number;
+  /**
    * Current list of players.
    */
   players: Array<{
     id: string;
     name: string;
   }>;
+}
+
+/**
+ * Kick list management dialog.
+ */
+export interface IKickManageDialog {
+  modal?: boolean;
+  /**
+   * Promise which resolves to list of user ids.
+   */
+  users: Promise<string[]>;
 }

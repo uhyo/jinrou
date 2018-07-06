@@ -239,5 +239,10 @@ kick:
   ok: "選択"
   # Label for no re-entry button.
   noentry: "再入室を禁止"
-  # Link to kick manager.
-  manager: "追い出しを管理"
+  manager:
+    # Name of kick manager.
+    title: "追い出しを管理"
+    # Message shown at kick manager.
+    message: "参加禁止を解除したい人を全て選択してください。"
+    # message when kicked list user is empty.
+    empty: "現在参加禁止になっている人はいません。"

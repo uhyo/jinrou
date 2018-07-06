@@ -29,6 +29,10 @@ interface IPropGame {
    */
   i18n: i18n;
   /**
+   * ID of this room.
+   */
+  roomid: number;
+  /**
    * store.
    */
   store: GameStore;
@@ -67,6 +71,7 @@ export class Game extends React.Component<IPropGame, {}> {
   public render() {
     const {
       i18n,
+      roomid,
       store,
       roles,
       ruleDefs,
@@ -98,6 +103,7 @@ export class Game extends React.Component<IPropGame, {}> {
                   <RoomControls
                     {...roomPrelude}
                     t={t}
+                    roomid={roomid}
                     players={players}
                     handlers={roomPreludeHandlers}
                   />

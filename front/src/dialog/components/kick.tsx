@@ -12,6 +12,8 @@ import {
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
 import { FontAwesomeIcon } from '../../util/icon';
+import { showKickManageDialog } from '..';
+import { getKickList } from '../../api/kick-manage';
 
 export interface KickResult {
   /**
@@ -78,7 +80,7 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
                     className="no-jump"
                     onClick={this.handleManagerClick}
                   >
-                    {t('kick.manager')}…
+                    {t('kick.manager.title')}…
                   </a>
                 </FormAsideText>
               )}
@@ -111,7 +113,13 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
   }
   @bind
   private handleManagerClick<T>(e: React.SyntheticEvent<T>): void {
-    // TODO
+    const { modal, roomid } = this.props;
     e.preventDefault();
+    // close this and show manger dialog.
+    showKickManageDialog({
+      modal,
+      users: getKickList(roomid),
+    });
+    this.props.onSelect(null);
   }
 }

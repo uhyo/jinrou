@@ -22,6 +22,10 @@ export interface IPlaceOptions {
    */
   node: HTMLElement;
   /**
+   * ID of this room.
+   */
+  roomid: number;
+  /**
    * List of role ids.
    */
   roles: string[];
@@ -72,6 +76,7 @@ export interface IPlaceResult {
 export function place({
   i18n,
   node,
+  roomid,
   roles,
   rules,
   onSpeak,
@@ -87,6 +92,7 @@ export function place({
   const com = (
     <Game
       i18n={i18n}
+      roomid={roomid}
       store={store}
       roles={roles}
       ruleDefs={rules}

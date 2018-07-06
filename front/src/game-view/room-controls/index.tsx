@@ -15,6 +15,10 @@ export interface IPropRoomControls {
    */
   t: TranslationFunction;
   /**
+   * ID of room.
+   */
+  roomid: number;
+  /**
    * Whether you have already joined to to the room.
    */
   joined: boolean;
@@ -153,9 +157,10 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
    */
   @bind
   private async handleKickClick() {
-    const { players, handlers } = this.props;
+    const { roomid, players, handlers } = this.props;
     const target = await showKickDialog({
       modal: true,
+      roomid,
       players,
     });
     console.log(target);

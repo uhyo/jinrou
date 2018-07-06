@@ -8,6 +8,7 @@ import {
   IIconSelectDialog,
   ISelectDialog,
   IKickDialog,
+  IKickManageDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -18,6 +19,7 @@ import { I18nProvider, getI18nFor } from '../i18n';
 import { i18n } from 'i18next';
 import { SelectDialog } from './components/select';
 import { KickDialog, KickResult } from './components/kick';
+import { KickManageResult, KickManageDialog } from './components/kick-manage';
 
 /**
  * Show a message dialog.
@@ -89,6 +91,19 @@ export async function showKickDialog(
   const i18n = await getI18nFor();
   return showDialog<KickResult | null>(i18n, (open, close) => {
     const dialog = <KickDialog {...d} onSelect={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show a kick manager dialog.
+ */
+export async function showKickManageDialog(
+  d: IKickManageDialog,
+): Promise<KickManageResult | null> {
+  const i18n = await getI18nFor();
+  return showDialog<KickManageResult | null>(i18n, (open, close) => {
+    const dialog = <KickManageDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }
