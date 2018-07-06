@@ -5,6 +5,7 @@ import {
   showPlayerDialog,
   showSelectDialog,
   showKickDialog,
+  showConfirmDialog,
 } from '../../dialog';
 import { TranslationFunction } from '../../i18n';
 import { PlayerInfo } from '../defs';
@@ -84,7 +85,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
             <button type="button" onClick={this.handleKickClick}>
               参加者を追い出す
             </button>
-            <button type="button" onClick={handlers.resetReady}>
+            <button type="button" onClick={this.handleResetReady}>
               [ready]を初期化する
             </button>
           </>
@@ -171,6 +172,23 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
       handlers.kick(target);
     } else {
       handlers.kickRemove(target.users);
+    }
+  }
+  /**
+   * Handle a click of reset ready button.
+   */
+  @bind
+  private async handleResetReady() {
+    const { t, handlers } = this.props;
+    const conf = await showConfirmDialog({
+      modal: true,
+      title: t('game_client:room.resetReadyDialog.title'),
+      message: t('game_client:room.resetReadyDialog.message'),
+      yes: t('game_client:room.resetReadyDialog.yes'),
+      no: t('game_client:room.resetReadyDialog.no'),
+    });
+    if (conf) {
+      handlers.resetReady();
     }
   }
 }

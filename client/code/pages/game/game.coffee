@@ -143,6 +143,10 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.cancelban", roomid, users, (result)->
                             if result?
                                 Index.util.message "エラー", result
+                    resetReady: ->
+                        ss.rpc "game.rooms.unreadyall",roomid,(result)->
+                            if result?
+                                Index.util.message "エラー",result
 
 
             }

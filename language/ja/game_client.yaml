@@ -209,6 +209,12 @@ room:
     cancel: "キャンセル"
     # label for no helper.
     nohelper: "ヘルパーをやめる"
+  # reset ready confirmation dialog.
+  resetReadyDialog:
+    title: "[ready]初期化"
+    message: "全員の[ready]を解除しますか？"
+    yes: "OK"
+    no: "キャンセル"
 
 # Icon select dialog.
 iconSelect:
