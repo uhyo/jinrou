@@ -1,24 +1,35 @@
 tabs=
     blacklist:
         init:->
-            initblisttable()
+            unless blistpage?
+                blistpage = 0
+            initblisttable(blistpage)
             $("#newbanform").submit (je)->
                 je.preventDefault()
                 query=Index.util.formQuery je.target
                 ss.rpc "admin.addBlacklist", query,->
-                    initblisttable()
+                    initblisttable(blistpage)
             $("#blacklisttable").click (je)->
                 target=je.target
                 if target.dataset.banid
                     query=
                         id: target.dataset.banid
                     ss.rpc "admin.removeBlacklist", query,->
-                        initblisttable()
+                        initblisttable(blistpage)
                 else if target.dataset.setbanid
                     query=
                         id: target.dataset.setbanid
                     ss.rpc "admin.restoreBlacklist", query, ->
-                        initblisttable()
+                        initblisttable(blistpage)
+            $("#blistpager").click (je)->
+                t=je.target
+                if t.name=="prev"
+                    blistpage--
+                    if blistpage<0 then blistpage=0
+                    initblisttable(blistpage)
+                else if t.name=="next"
+                    blistpage++
+                    initblisttable(blistpage)
     grandalert:
         init:->
             $("#alertform").submit (je)->
@@ -86,24 +97,26 @@ exports.start=->
     
 exports.end=->
 
-initblisttable=->
+initblisttable=(page=0)->
     table=$("#blacklisttable").get 0
-    ss.rpc "admin.getBlacklist", {},(result)->
+    ss.rpc "admin.getBlacklist", {page:page},(result)->
         if result.error?
             Index.util.message "管理ページ",result.error
             return
+        $("span#page").text result.page+1
+        $("span#total").text result.total
         $(table).empty()
         result.docs.forEach (doc)->
             row=table.insertRow -1
             cell=row.insertCell 0
             if Array.isArray doc.userid
-                cell.textContent = doc.userid.join ","
+                cell.textContent = doc.userid.join ", "
             else
                 cell.textContent = doc.userid
             
             cell=row.insertCell 1
             if Array.isArray doc.ip
-                cell.textContent = doc.ip.join ","
+                cell.textContent = doc.ip.join ", "
             else
                 cell.textContent = doc.ip
             
@@ -111,7 +124,7 @@ initblisttable=->
             cell.textContent=(if doc.expires? then new Date(doc.expires).toLocaleString() else "無期限")
             
             cell=row.insertCell 3
-            cell.textContent= doc.types?.join(",")
+            cell.textContent= doc.types?.join(", ")
 
             cell=row.insertCell 4
             cell.textContent= doc.reason
