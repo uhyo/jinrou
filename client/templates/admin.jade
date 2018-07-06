@@ -19,6 +19,13 @@ section.admin#admin
           th 理由
           th 解除
       tbody#blacklisttable
+    form#blistpager
+      p
+        input(type="button",name="prev",value="前のページ")
+        span#page
+        /
+        span#total
+        input(type="button",name="next",value="次のページ")
     h2 新規アク禁
     form#newbanform
       fieldset
