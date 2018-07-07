@@ -1908,7 +1908,7 @@ exports.new_rules=[
         type: 'group'
         label:
             id: 'yaminabe_option'
-            visible: (rule)->rule.casting.id in ['特殊ルール.闇鍋','特殊ルール.一部闇鍋','特殊ルール.エンドレス闇鍋']
+            visible: (rule)->rule.casting in ['特殊ルール.闇鍋','特殊ルール.一部闇鍋','特殊ルール.エンドレス闇鍋']
         items: [
             {
                 type: 'item'
