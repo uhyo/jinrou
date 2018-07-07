@@ -229,9 +229,11 @@ export class Game extends React.Component<IPropGame, {}> {
    * Handle update of log pickup filter.
    */
   @bind
-  protected handleLogFilter(userid: string | null): void {
-    this.props.store.update({
-      logPickup: userid,
+  protected handleLogFilter(userid: string): void {
+    const { store } = this.props;
+    // If userid is same to the current one, reset filter.
+    store.update({
+      logPickup: store.logPickup === userid ? null : userid,
     });
   }
 }
