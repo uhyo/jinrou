@@ -38,7 +38,7 @@ export class GameStore {
   @observable
   gameInfo: GameInfo = {
     day: 0,
-    finished: false,
+    status: 'waiting',
   };
   /**
    */

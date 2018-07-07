@@ -239,7 +239,12 @@ exports.start=(roomid)->
                     if obj.game?
                         {
                             day: obj.game.day
-                            finished: obj.game.finished
+                            status: if room.mode == "waiting"
+                                "waiting"
+                            else if obj.game.finished
+                                "finished"
+                            else
+                                "playing"
                         }
                     else
                         undefined

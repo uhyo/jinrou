@@ -128,9 +128,9 @@ export interface GameInfo {
    */
   day: number;
   /**
-   * Whether the game is finished or not.
+   * Status of game.
    */
-  finished: boolean;
+  status: 'waiting' | 'playing' | 'finished';
 }
 
 /**
