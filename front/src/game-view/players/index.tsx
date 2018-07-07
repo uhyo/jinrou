@@ -4,17 +4,27 @@ import { PlayerInfo } from '../defs';
 import styled from 'styled-components';
 import { PlayerBox } from './box';
 import { I18n, TranslationFunction } from '../../i18n';
+import { CachedBinder } from '../../util/cached-binder';
+import { bind } from 'bind-decorator';
 
 export interface IPropPlayers {
   players: PlayerInfo[];
+  /**
+   * Callback for filtering specific player.
+   */
+  onFilter(userid: string): void;
 }
 /**
  * Show a list of players.
  */
 export class Players extends React.Component<IPropPlayers, {}> {
   public render() {
-    const { players } = this.props;
-    return <I18n>{t => <PlayersInner t={t} players={players} />}</I18n>;
+    const { players, onFilter } = this.props;
+    return (
+      <I18n>
+        {t => <PlayersInner t={t} players={players} onFilter={onFilter} />}
+      </I18n>
+    );
   }
 }
 
@@ -25,17 +35,35 @@ export class Players extends React.Component<IPropPlayers, {}> {
 class PlayersInner extends React.Component<
   {
     t: TranslationFunction;
-    players: PlayerInfo[];
-  },
+  } & IPropPlayers,
   {}
 > {
+  private filterHandlers = new CachedBinder<string, undefined>();
   public render() {
     const { t, players } = this.props;
     return (
       <Wrapper>
-        {players.map(pl => <PlayerBox t={t} key={pl.id} player={pl} />)}
+        {players.map(pl => {
+          const filterHandler = this.filterHandlers.bind(
+            pl.id,
+            this.handleFilter,
+          );
+          return (
+            <PlayerBox
+              t={t}
+              key={pl.id}
+              player={pl}
+              onEnableFilter={filterHandler}
+            />
+          );
+        })}
       </Wrapper>
     );
+  }
+  @bind
+  private handleFilter(userid: string): void {
+    // filter is enabled for this player.
+    this.props.onFilter(userid);
   }
 }
 

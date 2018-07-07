@@ -26,6 +26,7 @@ export interface UpdateQuery {
   ruleOpen?: boolean;
   timer?: TimerInfo;
   roomPrelude?: RoomPreludeInfo | null;
+  logPickup?: string | null;
 }
 /**
  * Store of current game state.
@@ -50,6 +51,10 @@ export class GameStore {
    * List of players.
    */
   @observable players: PlayerInfo[] = [];
+  /**
+   * Currently picked up user in logs.
+   */
+  @observable logPickup: string | null = null;
   /**
    * State of speaking forms.
    */
@@ -108,6 +113,7 @@ export class GameStore {
     ruleOpen,
     timer,
     roomPrelude,
+    logPickup,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -136,6 +142,9 @@ export class GameStore {
     }
     if (roomPrelude !== undefined) {
       this.roomPrelude = roomPrelude;
+    }
+    if (logPickup !== undefined) {
+      this.logPickup = logPickup;
     }
     // Check consistency.
     if (

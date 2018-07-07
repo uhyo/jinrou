@@ -95,7 +95,7 @@ export class Game extends React.Component<IPropGame, {}> {
         <I18nProvider i18n={i18n}>
           <div>
             {/* List of players. */}
-            <Players players={players} />
+            <Players players={players} onFilter={this.handleLogFilter} />
             {/* Room control buttons. */}
             {roomPrelude != null ? (
               <I18n>
@@ -221,6 +221,15 @@ export class Game extends React.Component<IPropGame, {}> {
     // toggle the rule pane.
     store.update({
       ruleOpen: !store.ruleOpen,
+    });
+  }
+  /**
+   * Handle update of log pickup filter.
+   */
+  @bind
+  protected handleLogFilter(userid: string | null): void {
+    this.props.store.update({
+      logPickup: userid,
     });
   }
 }

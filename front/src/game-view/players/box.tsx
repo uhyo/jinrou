@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '../../util/icon';
 export interface IPropPlayerBox {
   t: TranslationFunction;
   player: PlayerInfo;
+  onEnableFilter(): void;
 }
 /**
  * A box which shows one player.
@@ -28,7 +29,9 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
           {anonymous ? name : <a href={`/user/${id}`}>{name}</a>}
         </Name>
         <ToolIcons>
-          <FontAwesomeIcon icon="search" />
+          <span onClick={this.handleFilterClick}>
+            <FontAwesomeIcon icon="search" />
+          </span>
         </ToolIcons>
         {flags.map(flag => (
           <Jobname key={flag}>
@@ -45,6 +48,10 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
         ) : null}
       </Wrapper>
     );
+  }
+  private handleFilterClick() {
+    // Handle a click of filter icon.
+    this.props.onEnableFilter();
   }
 }
 
