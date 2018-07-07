@@ -166,6 +166,7 @@ export class Game extends React.Component<IPropGame, {}> {
                   icons={store.icons}
                   rule={store.rule}
                   logPickup={logPickup}
+                  onResetLogPickup={this.handleResetLogPickup}
                 />
               </LogsWrapper>
             </MainWrapper>
@@ -235,6 +236,13 @@ export class Game extends React.Component<IPropGame, {}> {
     store.update({
       logPickup: store.logPickup === userid ? null : userid,
     });
+  }
+  /**
+   * Handle setting signal of log pickup.
+   */
+  @bind
+  protected handleResetLogPickup(): void {
+    this.props.store.update({ logPickup: null });
   }
 }
 

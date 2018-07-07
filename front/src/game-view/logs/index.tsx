@@ -31,6 +31,10 @@ export interface IPropLogs {
    * Current rule setting.
    */
   rule: Rule | undefined;
+  /**
+   * Callback for resetting log pickup filter.
+   */
+  onResetLogPickup(): void;
 }
 /**
  * Shows all logs.
@@ -42,10 +46,21 @@ export class Logs extends React.Component<IPropLogs, {}> {
    */
   private readonly logClass = 'jf-log';
   public render() {
-    const { logs, rule, icons, visibility, logPickup } = this.props;
+    const {
+      logs,
+      rule,
+      icons,
+      visibility,
+      logPickup,
+      onResetLogPickup,
+    } = this.props;
 
     return (
-      <LogWrapper logPickup={logPickup} logClass={this.logClass}>
+      <LogWrapper
+        logPickup={logPickup}
+        logClass={this.logClass}
+        onClick={onResetLogPickup}
+      >
         {mapReverse(logs.chunks, (chunk, i) => {
           // Decide whether this chunk should be shown.
           const visible =
