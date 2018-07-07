@@ -6,6 +6,7 @@ import { withProps } from '../../util/styled';
 import { Icon } from './icon';
 import { TranslationFunction } from 'i18next';
 import { FontAwesomeIcon } from '../../util/icon';
+import { bind } from 'bind-decorator';
 
 export interface IPropPlayerBox {
   t: TranslationFunction;
@@ -49,6 +50,7 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
       </Wrapper>
     );
   }
+  @bind
   private handleFilterClick() {
     // Handle a click of filter icon.
     this.props.onEnableFilter();

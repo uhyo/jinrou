@@ -7,6 +7,10 @@ import { I18n } from '../../i18n';
 
 export interface IPropOneLog {
   /**
+   * Class name attached to each log.
+   */
+  logClass: string;
+  /**
    * Log to show.
    */
   log: Log;
@@ -25,11 +29,11 @@ export interface IPropOneLog {
  */
 export class OneLog extends React.PureComponent<IPropOneLog, {}> {
   public render() {
-    const { log, rule, icons } = this.props;
+    const { logClass, log, rule, icons } = this.props;
     if (log.mode === 'voteresult') {
       // log of vote result table
       return (
-        <logComponents.voteresult>
+        <logComponents.voteresult className={logClass}>
           <I18n namespace="game_client">
             {t => (
               <>
@@ -65,7 +69,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
     } else if (log.mode === 'probabilitytable') {
       // log of probability table for Quantum Werewwolf
       return (
-        <div>
+        <div className={logClass}>
           <I18n namespace="game_client">
             {t => (
               <>
@@ -165,7 +169,10 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
         },
       );
       return (
-        <Cmp>
+        <Cmp
+          className={logClass}
+          data-userid={'userid' in log ? log.userid : undefined}
+        >
           {/* icon */}
           <Icon>{icon != null ? <img src={icon} alt="" /> : null}</Icon>
           <I18n>

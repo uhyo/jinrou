@@ -89,6 +89,7 @@ export class Game extends React.Component<IPropGame, {}> {
       timer,
       players,
       roomPrelude,
+      logPickup,
     } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
@@ -164,6 +165,7 @@ export class Game extends React.Component<IPropGame, {}> {
                   visibility={store.logVisibility}
                   icons={store.icons}
                   rule={store.rule}
+                  logPickup={logPickup}
                 />
               </LogsWrapper>
             </MainWrapper>
