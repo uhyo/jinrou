@@ -128,9 +128,9 @@ export interface GameInfo {
    */
   day: number;
   /**
-   * Whether the game is finished or not.
+   * Status of game.
    */
-  finished: boolean;
+  status: 'waiting' | 'playing' | 'finished';
 }
 
 /**
@@ -226,6 +226,28 @@ export interface PlayerInfo {
    * Flags enabled for this player.
    */
   flags: Array<'ready' | 'helper' | 'gm' | 'norevive'>;
+}
+
+/**
+ * State of room before starting.
+ */
+export interface RoomPreludeInfo {
+  /**
+   * Whether you are an owner.
+   */
+  owner: boolean;
+  /**
+   * Whether you have already joined the room.
+   */
+  joined: boolean;
+  /**
+   * Whether this room is old.
+   */
+  old: boolean;
+  /**
+   * Whether this room is blind mode.
+   */
+  blind: boolean;
 }
 
 /**

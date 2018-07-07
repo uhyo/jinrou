@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { observer } from 'mobx-react';
 import { Log, LogVisibility } from '../defs';
 import { Rule } from '../../defs';
@@ -20,6 +20,10 @@ export interface IPropLogs {
    */
   visibility: LogVisibility;
   /**
+   * Picked-up user id.
+   */
+  logPickup: string | null;
+  /**
    * Icons of users.
    */
   icons: Record<string, string | undefined>;
@@ -27,17 +31,36 @@ export interface IPropLogs {
    * Current rule setting.
    */
   rule: Rule | undefined;
+  /**
+   * Callback for resetting log pickup filter.
+   */
+  onResetLogPickup(): void;
 }
 /**
  * Shows all logs.
  */
 @observer
 export class Logs extends React.Component<IPropLogs, {}> {
+  /**
+   * Classname attached to each log.
+   */
+  private readonly logClass = 'jf-log';
   public render() {
-    const { logs, rule, icons, visibility } = this.props;
+    const {
+      logs,
+      rule,
+      icons,
+      visibility,
+      logPickup,
+      onResetLogPickup,
+    } = this.props;
 
     return (
-      <LogWrapper>
+      <LogWrapper
+        logPickup={logPickup}
+        logClass={this.logClass}
+        onClick={onResetLogPickup}
+      >
         {mapReverse(logs.chunks, (chunk, i) => {
           // Decide whether this chunk should be shown.
           const visible =
@@ -48,6 +71,7 @@ export class Logs extends React.Component<IPropLogs, {}> {
           return (
             <LogChunk
               key={chunk.day}
+              logClass={this.logClass}
               logs={chunk.logs}
               visible={visible}
               icons={icons}
@@ -66,6 +90,7 @@ export class Logs extends React.Component<IPropLogs, {}> {
 @observer
 class LogChunk extends React.Component<
   {
+    logClass: string;
     logs: StoredLog[];
     visible: boolean;
     icons: Record<string, string | undefined>;
@@ -74,13 +99,14 @@ class LogChunk extends React.Component<
   {}
 > {
   public render() {
-    const { logs, visible, rule, icons } = this.props;
+    const { logClass, logs, visible, rule, icons } = this.props;
     return (
       <ChunkWrapper visible={visible}>
         {mapReverse(logs, log => {
           return (
             <OneLog
               key={`${log.time}-${(log as any).comment || ''}`}
+              logClass={logClass}
               log={log}
               rule={rule}
               icons={icons}
@@ -92,9 +118,21 @@ class LogChunk extends React.Component<
   }
 }
 
-const LogWrapper = styled.div`
+const LogWrapper = withProps<{
+  logClass: string;
+  logPickup: string | null;
+}>()(styled.div)`
   width: 100%;
   display: table;
+
+  ${({ logClass, logPickup }) =>
+    logPickup != null
+      ? css`
+    .${logClass}:not([data-userid=${logPickup}]) {
+      opacity: 0.3;
+    }
+  `
+      : ''}
 `;
 
 const ChunkWrapper = withProps<{ visible: boolean }>()(styled.div)`

@@ -5,7 +5,7 @@ import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
 import { Game } from './component';
-import { RuleGroup } from '../defs';
+import { RuleGroup, RoomPreludeHandlers } from '../defs';
 import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
@@ -21,6 +21,10 @@ export interface IPlaceOptions {
    * Node to place the component to.
    */
   node: HTMLElement;
+  /**
+   * ID of this room.
+   */
+  roomid: number;
   /**
    * List of role ids.
    */
@@ -45,6 +49,10 @@ export interface IPlaceOptions {
    * Handle an update to the will.
    */
   onWillChange: (will: string) => void;
+  /**
+   * Handlers of room prelude events.
+   */
+  roomPreludeHandlers: RoomPreludeHandlers;
 }
 
 export interface IPlaceResult {
@@ -68,12 +76,14 @@ export interface IPlaceResult {
 export function place({
   i18n,
   node,
+  roomid,
   roles,
   rules,
   onSpeak,
   onRefuseRevival,
   onJobQuery,
   onWillChange,
+  roomPreludeHandlers,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
   // 蘇生辞退時のロジックを作る
@@ -82,6 +92,7 @@ export function place({
   const com = (
     <Game
       i18n={i18n}
+      roomid={roomid}
       store={store}
       roles={roles}
       ruleDefs={rules}
@@ -89,6 +100,7 @@ export function place({
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
       onWillChange={onWillChange}
+      roomPreludeHandlers={roomPreludeHandlers}
     />
   );
 

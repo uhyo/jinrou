@@ -1,4 +1,10 @@
-export type BoundFunc<V, R> = (value: V) => R;
+/**
+ * Type of function which accepts argument of type `V` and returns value of type `R`.
+ * If `V` is undefined, argument would be optional.
+ */
+export type BoundFunc<V, R> = undefined extends V
+  ? (value?: V) => R
+  : (value: V) => R;
 /**
  * Cache of bound functions.
  */

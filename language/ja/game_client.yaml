@@ -189,3 +189,72 @@ playerbox:
     helper: "helper"
     norevive: "蘇生辞退"
 
+# Room control buttons.
+room:
+  # Player information dialog.
+  playerDialog:
+    # title of player dialog.
+    title: "ゲームに参加"
+    # message of player dialog.
+    message: "この部屋で使用する名前を入力してください。"
+    # ok button
+    ok: "部屋に入る"
+    # cancel button
+    cancel: "キャンセル"
+  # helper select dialog.
+  helperDialog:
+    title: "ヘルパー"
+    message: "ヘルパーになる相手を選択してください。"
+    ok: "選択"
+    cancel: "キャンセル"
+    # label for no helper.
+    nohelper: "ヘルパーをやめる"
+  # reset ready confirmation dialog.
+  resetReadyDialog:
+    title: "[ready]初期化"
+    message: "全員の[ready]を解除しますか？"
+    yes: "解除する"
+    no: "キャンセル"
+  # discard room confirmation dialog.
+  discardDialog:
+    title: "廃村"
+    message: "本当に部屋を廃村にしますか？"
+    yes: "廃村にする"
+    no: "キャンセル"
+
+# Icon select dialog.
+iconSelect:
+  # title of icon select dialog.
+  title: "アイコン選択"
+  # message for icon select dialog.
+  message: "画像のURLを直接入力するか、Twitterのアカウントを入力してください。"
+  # button for no icon.
+  no: "キャンセル"
+  # save button.
+  save: "OK"
+  # label for url.
+  url: "URL"
+  # label for twitter account
+  twitter: "Twitterアカウント"
+  # message when icon could not be found with API.
+  apiFail: "アイコンを取得できませんでした。しばらく時間をあけてからお試しください。"
+
+# kick user dialog
+kick:
+  # title of kick user dialog.
+  title: "追い出す"
+  # message for the dialog.
+  message: "追い出す人を選択してください。"
+  # cancel button.
+  cancel: "キャンセル"
+  # ok button.
+  ok: "選択"
+  # Label for no re-entry button.
+  noentry: "再入室を禁止"
+  manager:
+    # Name of kick manager.
+    title: "追い出しを管理"
+    # Message shown at kick manager.
+    message: "参加禁止を解除したい人を全て選択してください。"
+    # message when kicked list user is empty.
+    empty: "現在参加禁止になっている人はいません。"

@@ -184,7 +184,11 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 onUpdate={this.handleVisibilityUpdate}
               />
               {/* Refuse revival button. */}
-              <button type="button" onClick={this.handleRefuseRevival}>
+              <button
+                type="button"
+                onClick={this.handleRefuseRevival}
+                disabled={gameInfo.status !== 'playing'}
+              >
                 {t('game_client:speak.refuseRevival')}
               </button>
             </form>

@@ -8,9 +8,9 @@ import { observer } from 'mobx-react';
 
 import { bind } from '../util/bind';
 import { themeStore } from '../theme';
-import { I18nProvider } from '../i18n';
+import { I18nProvider, I18n } from '../i18n';
 
-import { RuleGroup } from '../defs';
+import { RuleGroup, RoomPreludeHandlers } from '../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
@@ -21,12 +21,17 @@ import { ShowRule } from './rule';
 
 import { showConfirmDialog } from '../dialog';
 import { Players } from './players';
+import { RoomControls } from './room-controls';
 
 interface IPropGame {
   /**
    * i18n instance.
    */
   i18n: i18n;
+  /**
+   * ID of this room.
+   */
+  roomid: number;
   /**
    * store.
    */
@@ -55,6 +60,10 @@ interface IPropGame {
    * Handle a will update event.
    */
   onWillChange: (will: string) => void;
+  /**
+   * Handlers of room prelude.
+   */
+  roomPreludeHandlers: RoomPreludeHandlers;
 }
 
 @observer
@@ -62,11 +71,13 @@ export class Game extends React.Component<IPropGame, {}> {
   public render() {
     const {
       i18n,
+      roomid,
       store,
       roles,
       ruleDefs,
       onJobQuery,
       onWillChange,
+      roomPreludeHandlers,
     } = this.props;
     const {
       gameInfo,
@@ -77,17 +88,33 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleOpen,
       timer,
       players,
+      roomPrelude,
+      logPickup,
     } = store;
     return (
       <ThemeProvider theme={themeStore.themeObject}>
         <I18nProvider i18n={i18n}>
           <div>
             {/* List of players. */}
-            <Players players={players} />
+            <Players players={players} onFilter={this.handleLogFilter} />
+            {/* Room control buttons. */}
+            {roomPrelude != null ? (
+              <I18n>
+                {t => (
+                  <RoomControls
+                    {...roomPrelude}
+                    t={t}
+                    roomid={roomid}
+                    players={players}
+                    handlers={roomPreludeHandlers}
+                  />
+                )}
+              </I18n>
+            ) : null}
             {/* Information of your role. */}
             {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
             {/* Open forms. */}
-            {!gameInfo.finished && roleInfo != null ? (
+            {gameInfo.status === 'playing' && roleInfo != null ? (
               <JobForms forms={roleInfo.forms} onSubmit={onJobQuery} />
             ) : null}
             {/* Form for speak and other utilities. */}
@@ -138,6 +165,8 @@ export class Game extends React.Component<IPropGame, {}> {
                   visibility={store.logVisibility}
                   icons={store.icons}
                   rule={store.rule}
+                  logPickup={logPickup}
+                  onResetLogPickup={this.handleResetLogPickup}
                 />
               </LogsWrapper>
             </MainWrapper>
@@ -196,6 +225,24 @@ export class Game extends React.Component<IPropGame, {}> {
     store.update({
       ruleOpen: !store.ruleOpen,
     });
+  }
+  /**
+   * Handle update of log pickup filter.
+   */
+  @bind
+  protected handleLogFilter(userid: string): void {
+    const { store } = this.props;
+    // If userid is same to the current one, reset filter.
+    store.update({
+      logPickup: store.logPickup === userid ? null : userid,
+    });
+  }
+  /**
+   * Handle setting signal of log pickup.
+   */
+  @bind
+  protected handleResetLogPickup(): void {
+    this.props.store.update({ logPickup: null });
   }
 }
 

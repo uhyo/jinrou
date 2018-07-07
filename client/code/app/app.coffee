@@ -30,6 +30,9 @@ exports.init = ->
     $("a").live "click", (je)->
         t=je.currentTarget
         return if je.isDefaultPrevented()
+        # Flag to prevent link feature to work
+        return if t.classList.contains "no-jump"
+
         href = t.href
         unless t.classList.contains "mode-change-link"
             if application_config?.application?.modes?

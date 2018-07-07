@@ -5,10 +5,13 @@ import styled from 'styled-components';
 import { withProps } from '../../util/styled';
 import { Icon } from './icon';
 import { TranslationFunction } from 'i18next';
+import { FontAwesomeIcon } from '../../util/icon';
+import { bind } from 'bind-decorator';
 
 export interface IPropPlayerBox {
   t: TranslationFunction;
   player: PlayerInfo;
+  onEnableFilter(): void;
 }
 /**
  * A box which shows one player.
@@ -26,6 +29,11 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
         <Name dead={dead}>
           {anonymous ? name : <a href={`/user/${id}`}>{name}</a>}
         </Name>
+        <ToolIcons>
+          <span onClick={this.handleFilterClick}>
+            <FontAwesomeIcon icon="search" />
+          </span>
+        </ToolIcons>
         {flags.map(flag => (
           <Jobname key={flag}>
             [{t(`game_client:playerbox.flags.${flag}`)}]
@@ -41,6 +49,11 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
         ) : null}
       </Wrapper>
     );
+  }
+  @bind
+  private handleFilterClick() {
+    // Handle a click of filter icon.
+    this.props.onEnableFilter();
   }
 }
 
@@ -66,6 +79,17 @@ const Wrapper = withProps<{
 
 const Name = withProps<{ dead: boolean }>()(styled.span)`
   text-decoration: ${props => (props.dead ? 'line-through' : 'none')};
+`;
+
+const ToolIcons = styled.span`
+  display: inline-block;
+  visibility: hidden;
+  cursor: pointer;
+  margin: 0 0 0 0.3em;
+
+  ${Wrapper}:hover & {
+    visibility: visible;
+  }
 `;
 
 const Jobname = styled.div`

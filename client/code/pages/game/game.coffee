@@ -28,6 +28,7 @@ exports.start=(roomid)->
     this_room_id=null
     # it's very bad but it's temporal!
     getjobinfo = null
+    newgamebutton = null
 
 
     # CSS操作
@@ -61,6 +62,7 @@ exports.start=(roomid)->
         .then(([gv, i18n])->
             game_view = gv.place {
                 i18n: i18n
+                roomid: roomid
                 node: $("#game-app").get(0)
                 roles: Shared.game.jobs
                 rules: Shared.game.new_rules
@@ -100,6 +102,56 @@ exports.start=(roomid)->
                                     will: will
                                 }
                             }
+                roomPreludeHandlers:
+                    join: (user)->
+                        ss.rpc "game.rooms.join", roomid, user, (result)->
+                            if result?.require == "logiin"
+                                # ログインが必要
+                                # TODO
+                                Index.util.loginWindow ->
+                                    if Index.app.userid()
+                                        Index.app.refresh()
+                            else if result?.error?
+                                Index.util.message "ルーム", result.error
+                            else
+                                # succeeded to login
+                                Index.app.refresh()
+                    unjoin: ()->
+                        # 脱退
+                        ss.rpc "game.rooms.unjoin", roomid,(result)->
+                            if result?
+                                Index.util.message "ルーム",result
+                            else
+                                Index.app.refresh()
+                    ready: ()->
+                        ss.rpc "game.rooms.ready", roomid,(result)->
+                            if result?
+                                Index.util.message "ルーム",result
+                    helper: (idornull)->
+                        ss.rpc "game.rooms.helper",roomid, idornull, (result)->
+                            if result?
+                                Index.util.message "エラー",result
+                    openGameStart: ->
+                        newgamebutton()
+                    kick: (obj)->
+                        id = obj.id
+                        noentry = obj.noentry
+                        ss.rpc "game.rooms.kick", roomid, id, noentry, (result)->
+                            if result?
+                                Index.util.message "エラー",result
+                    kickRemove: (users)->
+                        ss.rpc "game.rooms.cancelban", roomid, users, (result)->
+                            if result?
+                                Index.util.message "エラー", result
+                    resetReady: ->
+                        ss.rpc "game.rooms.unreadyall",roomid,(result)->
+                            if result?
+                                Index.util.message "エラー",result
+                    discard: ->
+                        ss.rpc "game.rooms.del", roomid,(result)->
+                            if result?
+                                Index.util.message "エラー",result
+
 
             }
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
@@ -187,7 +239,12 @@ exports.start=(roomid)->
                     if obj.game?
                         {
                             day: obj.game.day
-                            finished: obj.game.finished
+                            status: if room.mode == "waiting"
+                                "waiting"
+                            else if obj.game.finished
+                                "finished"
+                            else
+                                "playing"
                         }
                     else
                         undefined
@@ -385,7 +442,7 @@ exports.start=(roomid)->
 
         ss.rpc "game.game.getlog", roomid,sentlog
         # 新しいゲーム
-        newgamebutton = (je)->
+        newgamebutton = ->
             unless $("#gamestartsec").attr("hidden") == "hidden"
                 return
             # GameStartControlコンポーネントを設置
@@ -585,6 +642,20 @@ exports.start=(roomid)->
                             ss.rpc "game.rooms.del", roomid,(result)->
                                 if result?
                                     Index.util.message "エラー",result
+        # for new frontend
+        game_view.store.update {
+            roomPrelude:
+                # TODO endless?
+                if room.mode == "waiting"
+                    {
+                        owner: room.owner.userid == Index.app.userid()
+                        joined: Boolean enter_result?.joined
+                        old: room.old
+                        blind: !!room.blind
+                    }
+                else
+                    null
+        }
 
         speakform=$("#speakform").get 0
         speakform.elements["willbutton"].addEventListener "click", (e)->
