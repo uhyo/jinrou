@@ -3117,6 +3117,9 @@ class Werewolf extends Player
                 type: "_Werewolf"
                 options: @makeJobSelection game
             }
+            # 人狼の場合は役職固有のやつは一旦閉じる
+            result.open = result.open.filter (x)=> x != @type
+            result.forms = result.forms.filter (x)=> x.type != @type
         # 人狼は仲間が分かる
         result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
             x.publicinfo()
@@ -3618,10 +3621,13 @@ class WolfDiviner extends Werewolf
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
-            if @flag?
-                # もう占いは終わった
-                result.open = result.open?.filter (x)=>x!="WolfDiviner"
-                result.forms = result.forms.filter (x)-> x.type != "WolfDiviner"
+            unless @flag?
+                # 占いが可能
+                result.open.push @type
+                result.forms.push {
+                    type: @type
+                    options: @makeJobSelection game
+                }
 
 
 class Fugitive extends Player
@@ -5547,10 +5553,8 @@ class GreedyWolf extends Werewolf
             if @sleeping game
                 # 襲撃は必要ない
                 result.open = result.open?.filter (x)=>x!="_Werewolf"
-                result.forms = result.forms.filter (x)-> x.type != "_Werewolf"
             if !@flag && game.day>=2
                 result.open?.push "GreedyWolf"
-                result.forms = result.forms.filter (x)-> x.type != "GreedyWolf"
                 result.forms.push {
                     type: "GreedyWolf"
                     options: []
@@ -5624,10 +5628,13 @@ class FascinatingWolf extends Werewolf
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
-            if @flag
-                # もう誘惑は必要ない
-                result.open = result.open?.filter (x)=>x!="FascinatingWolf"
-                result.forms = result.forms.filter (x)-> x != "FascinatingWolf"
+            unless @flag
+                # 誘惑可能
+                result.open.push "FascinatingWolf"
+                result.forms.push {
+                    type: "FascinatingWolf"
+                    options: @makeJobSelection game
+                }
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
     sleeping:(game)-> !@flag || super
@@ -5689,6 +5696,16 @@ class ToughWolf extends Werewolf
             comment: game.i18n.t "roles:ToughWolf.select", {name: @name, target: tp.name}
         splashlog game.id,game,log
         null
+    makejobinfo:(game, result)->
+        super
+        unless @sleeping game
+            # 襲撃可能なときは一途な狼の能力も発動可能
+            result.open.push @type
+            result.forms.push {
+                type: @type
+                options: @makeJobSelection game
+            }
+
 class ThreateningWolf extends Werewolf
     type:"ThreateningWolf"
     jobdone:(game)->
@@ -5742,12 +5759,6 @@ class ThreateningWolf extends Werewolf
         t.transform game,newpl,true
 
         super
-    makejobinfo:(game,result)->
-        super
-        unless Phase.isDay(game.phase)
-            # 夜は威嚇しない
-            result.open = result.open?.filter (x)=>x!="ThreateningWolf"
-            result.forms = result.forms.filter (x)-> x.type != "ThreateningWolf"
 class HolyMarked extends Human
     type:"HolyMarked"
 class WanderingGuard extends Player
@@ -6386,10 +6397,6 @@ class CautiousWolf extends Werewolf
         splashlog game.id,game,log
         game.splashjobinfo game.players.filter (x)=>x.id!=playerid && x.isWerewolf()
         null
-    makejobinfo:(game, result)->
-        super
-        # it doues not have its own form.
-        result.forms = result.forms.filter (obj)-> obj.type != "CautiousWolf"
 # 花火師
 class Pyrotechnist extends Player
     type:"Pyrotechnist"
@@ -6984,7 +6991,14 @@ class CraftyWolf extends Werewolf
             result.open.push "CraftyWolf2"
             result.forms.push {
                 type: "CraftyWolf2"
-                options: @makeJobSelection game
+                options: []
+            }
+        else if Phase.isNight(game.phase)
+            # 死んだふりボタン
+            result.open.push "CraftyWolf"
+            result.forms.push {
+                type: "CraftyWolf"
+                options: []
             }
         return result
     makeJobSelection:(game)->

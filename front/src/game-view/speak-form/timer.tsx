@@ -84,7 +84,7 @@ export class Timer extends React.Component<IPropTimer, IStateTimer> {
     this.timerid = setInterval(this.updateRemaining, 1000);
   }
   private stopTimer() {
-    console.assert(this.timerid == null);
+    console.assert(this.timerid != null);
     clearInterval(this.timerid);
     this.timerid = null;
   }

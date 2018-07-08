@@ -209,7 +209,7 @@ exports.start=(roomid)->
                 roleInfo:
                     if obj.jobname?
                         {
-                            forms: obj.forms
+                            forms: if obj.sleeping then [] else obj.forms
                             jobname: obj.jobname
                             desc: obj.desc
                             speak: obj.speak

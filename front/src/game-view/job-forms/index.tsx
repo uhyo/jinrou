@@ -7,6 +7,14 @@ import { specialNamedTypes, specialContentTypes, toJobType } from './types';
 import { makeGameMasterForm } from './gm';
 import { makeMerchantForm } from './merchant';
 import { makeWitchForm } from './witch';
+import {
+  OptionLabel,
+  FormWrapper,
+  JobFormsWrapper,
+  FormName,
+  FormContent,
+  SelectWrapper,
+} from './elements';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -20,11 +28,11 @@ export class JobForms extends React.PureComponent<IPropJobForms, {}> {
   public render() {
     const { forms, onSubmit } = this.props;
     return (
-      <div>
+      <JobFormsWrapper>
         {forms.map((form, i) => (
           <Form key={`${i}-${form.type}`} form={form} onSubmit={onSubmit} />
         ))}
-      </div>
+      </JobFormsWrapper>
     );
   }
 }
@@ -95,18 +103,20 @@ export class Form extends React.PureComponent<IPropForm, {}> {
           };
 
           return (
-            <form onSubmit={handleSubmit} onClick={handleClick}>
-              <fieldset>
-                <legend>{name}</legend>
-                {content}
-                <p>
-                  <input
-                    type="submit"
-                    value={t('game_client_form:normalButton')}
-                  />
-                </p>
-              </fieldset>
-            </form>
+            <FormWrapper>
+              <form onSubmit={handleSubmit} onClick={handleClick}>
+                <FormName>{name}</FormName>
+                <FormContent>
+                  {content}
+                  <SelectWrapper>
+                    <input
+                      type="submit"
+                      value={t('game_client_form:normalButton')}
+                    />
+                  </SelectWrapper>
+                </FormContent>
+              </form>
+            </FormWrapper>
           );
         }}
       </I18n>
@@ -156,16 +166,3 @@ function makeSpecialContent(form: FormDesc, t: TranslationFunction) {
     }
   }
 }
-
-/**
- * Label for each option.
- */
-const OptionLabel = styled.label`
-  display: inline-block;
-  margin-left: 0.8em;
-
-  :hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 3px 3px #ffffff;
-  }
-`;
