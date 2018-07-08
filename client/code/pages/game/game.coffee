@@ -1443,6 +1443,7 @@ getLabeledGroupsOfJobrules = ()->
                     name: '闇鍋'
                     label: '配役がランダムに設定されます。'
                     roleSelect: false
+                    noFill: true
             }
             {
                 type: 'item'
@@ -1477,7 +1478,8 @@ getLabeledGroupsOfJobrules = ()->
                     id: '特殊ルール.エンドレス闇鍋'
                     name: 'エンドレス闇鍋'
                     label: '途中参加可能で、死亡したらそのうち転生する闇鍋です。'
-
+                    roleSelect: false
+                    noFill: true
             }
         ]
     }

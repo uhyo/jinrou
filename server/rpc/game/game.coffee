@@ -3110,13 +3110,14 @@ class Werewolf extends Player
     team: "Werewolf"
     makejobinfo:(game,result)->
         super
-        if Phase.isNight(game.phase) && game.werewolf_target_remain>0
-            # まだ襲える
-            result.open.push "_Werewolf"
-            result.forms.push {
-                type: "_Werewolf"
-                options: @makeJobSelection game
-            }
+        if Phase.isNight(game.phase)
+            if game.werewolf_target_remain>0
+                # まだ襲える
+                result.open.push "_Werewolf"
+                result.forms.push {
+                    type: "_Werewolf"
+                    options: @makeJobSelection game
+                }
             # 人狼の場合は役職固有のやつは一旦閉じる
             result.open = result.open.filter (x)=> x != @type
             result.forms = result.forms.filter (x)=> x.type != @type

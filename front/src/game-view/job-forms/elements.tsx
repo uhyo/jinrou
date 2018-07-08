@@ -12,7 +12,7 @@ export const JobFormsWrapper = styled.div`
  */
 export const FormWrapper = styled.div`
   margin: 4px;
-  background-color: #f4f4f4;
+  background-color: rgba(255, 255, 255, 0.9);
   color: #000000;
 
   p {

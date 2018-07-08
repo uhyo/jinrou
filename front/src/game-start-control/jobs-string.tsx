@@ -20,14 +20,7 @@ export interface IPropJobsString {
 @observer
 export class JobsString extends React.Component<IPropJobsString, {}> {
   public render() {
-    const {
-      t,
-      i18n,
-      jobNumbers,
-      categoryNumbers,
-      roles,
-      categories,
-    } = this.props;
+    const { t, jobNumbers, categoryNumbers, roles, categories } = this.props;
     return (
       <>
         {roles.map(id => {

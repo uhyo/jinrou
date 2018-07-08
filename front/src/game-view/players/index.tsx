@@ -8,6 +8,9 @@ import { CachedBinder } from '../../util/cached-binder';
 import { bind } from 'bind-decorator';
 
 export interface IPropPlayers {
+  /**
+   * List of players to show.
+   */
   players: PlayerInfo[];
   /**
    * Callback for filtering specific player.
