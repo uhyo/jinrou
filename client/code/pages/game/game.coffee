@@ -258,12 +258,19 @@ exports.start=(roomid)->
                     else
                         undefined
                 roomPrelude:
-                    # TODO endless?
                     if room.mode == "waiting"
                         {
                             owner: room.owner.userid == Index.app.userid()
                             joined: Boolean enter_result?.joined
                             old: room.old
+                            blind: !!room.blind
+                        }
+                    else if obj.game?.rule.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
+                        # join the game button can be shown when endless
+                        {
+                            owner: room.owner.userid == Index.app.userid()
+                            joined: false
+                            old: false
                             blind: !!room.blind
                         }
                     else
