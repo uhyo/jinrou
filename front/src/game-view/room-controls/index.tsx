@@ -92,7 +92,9 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
       // show postlude.
       return (
         <div>
-          <button type="button">同じ設定で次の部屋を建てる</button>
+          <button type="button" onClick={handlers.newRoom}>
+            同じ設定で次の部屋を建てる
+          </button>
         </div>
       );
     }

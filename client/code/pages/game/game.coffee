@@ -151,6 +151,24 @@ exports.start=(roomid)->
                         ss.rpc "game.rooms.del", roomid,(result)->
                             if result?
                                 Index.util.message "エラー",result
+                    newRoom: ->
+                        # Make a new room with same settings button
+                        unless this_rule?
+                            return
+                        # ルールを保存
+                        localStorage.savedRule=JSON.stringify this_rule.rule
+                        # savedJobs is for backward compatibility
+                        localStorage.savedJobs=JSON.stringify this_rule.jobscount
+                        #Index.app.showUrl "/newroom"
+                        # 新しいタブで開く
+                        a=document.createElement "a"
+                        a.href="/newroom"
+                        a.target="_blank"
+                        a.style.display = "none"
+                        a.hidden = true
+                        document.body.appendChild a
+                        a.click()
+                        document.body.removeChild a
 
 
             }
@@ -265,6 +283,10 @@ exports.start=(roomid)->
                             joined: Boolean enter_result?.joined
                             old: room.old
                             blind: !!room.blind
+                        }
+                    else if obj.game?.finished
+                        {
+                            type: 'postlude'
                         }
                     else if obj.game?.rule.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
                         # join the game button can be shown when endless

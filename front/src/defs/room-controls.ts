@@ -39,4 +39,8 @@ export interface RoomControlHandlers {
    * Room discard button.
    */
   discard(): void;
+  /**
+   * Make a new room with same settings button.
+   */
+  newRoom(): void;
 }
