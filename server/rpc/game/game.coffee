@@ -1353,6 +1353,9 @@ class Game
             else
                 false
         else if Phase.isNight(@phase)
+            @players.forEach (pl)=>
+                if pl.scapegoat && !pl.dead && !pl.sleeping(@)
+                    pl.sunset(game)
             # 夜時間
             if @players.every( (x)=>x.dead || x.sleeping(@))
                 # 全員寝たが……
@@ -9057,8 +9060,8 @@ module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
     req.use 'session'
 
-#ゲーム開始処理
-#成功：null
+    #ゲーム開始処理
+    #成功：null
     gameStart:(roomid,query)->
         game=games[roomid]
         unless game?
