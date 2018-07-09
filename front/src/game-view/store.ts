@@ -9,7 +9,7 @@ import {
   Log,
   TimerInfo,
   PlayerInfo,
-  RoomPreludeInfo,
+  RoomControlInfo,
 } from './defs';
 import { LogStore } from './logs/log-store';
 
@@ -25,7 +25,7 @@ export interface UpdateQuery {
   icons?: Record<string, string | undefined>;
   ruleOpen?: boolean;
   timer?: TimerInfo;
-  roomPrelude?: RoomPreludeInfo | null;
+  roomControls?: RoomControlInfo | null;
   logPickup?: string | null;
 }
 /**
@@ -42,7 +42,7 @@ export class GameStore {
   };
   /**
    */
-  @observable.shallow roomPrelude: RoomPreludeInfo | null = null;
+  @observable.shallow roomControls: RoomControlInfo | null = null;
   /**
    * Name of your role.
    */
@@ -112,7 +112,7 @@ export class GameStore {
     rule,
     ruleOpen,
     timer,
-    roomPrelude,
+    roomControls,
     logPickup,
   }: UpdateQuery): void {
     if (gameInfo != null) {
@@ -140,8 +140,8 @@ export class GameStore {
     if (timer != null) {
       this.timer = timer;
     }
-    if (roomPrelude !== undefined) {
-      this.roomPrelude = roomPrelude;
+    if (roomControls !== undefined) {
+      this.roomControls = roomControls;
     }
     if (logPickup !== undefined) {
       this.logPickup = logPickup;

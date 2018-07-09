@@ -8,7 +8,7 @@ import {
   showConfirmDialog,
 } from '../../dialog';
 import { TranslationFunction } from '../../i18n';
-import { PlayerInfo } from '../defs';
+import { PlayerInfo, RoomControlInfo } from '../defs';
 
 export interface IPropRoomControls {
   /**
@@ -20,21 +20,9 @@ export interface IPropRoomControls {
    */
   roomid: number;
   /**
-   * Whether you have already joined to to the room.
+   * Status of room controls.
    */
-  joined: boolean;
-  /**
-   * Whether you are an owner of the room.
-   */
-  owner: boolean;
-  /**
-   * Whether this room is old.
-   */
-  old: boolean;
-  /**
-   * Whether this room is in blind mode.
-   */
-  blind: boolean;
+  roomControls: RoomControlInfo;
   /**
    * List of players in this room.
    */
@@ -49,61 +37,73 @@ export interface IPropRoomControls {
  */
 export class RoomControls extends React.Component<IPropRoomControls, {}> {
   public render() {
-    const { joined, owner, old, handlers } = this.props;
-    return (
-      <div>
-        {joined ? (
-          <>
-            <button type="button" onClick={handlers.unjoin}>
-              ゲームから脱退
+    const { roomControls, handlers } = this.props;
+    if (roomControls.type === 'prelude') {
+      // Show prelude.
+      const { joined, old, owner } = roomControls;
+      return (
+        <div>
+          {joined ? (
+            <>
+              <button type="button" onClick={handlers.unjoin}>
+                ゲームから脱退
+              </button>
+              <button
+                type="button"
+                title="全員が準備完了になるとゲームを開始できます。"
+                onClick={handlers.ready}
+              >
+                準備完了/準備中
+              </button>
+              <button
+                type="button"
+                title="ヘルパーになると、ゲームに参加せずに助言役になります。"
+                onClick={this.handleHelperClick}
+              >
+                ヘルパー
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={this.handleJoinClick}>
+              ゲームに参加
             </button>
-            <button
-              type="button"
-              title="全員が準備完了になるとゲームを開始できます。"
-              onClick={handlers.ready}
-            >
-              準備完了/準備中
+          )}
+          {owner ? (
+            <>
+              <button type="button" onClick={handlers.openGameStart}>
+                ゲーム開始画面を開く
+              </button>
+              <button type="button" onClick={this.handleKickClick}>
+                参加者を追い出す
+              </button>
+              <button type="button" onClick={this.handleResetReady}>
+                [ready]を初期化する
+              </button>
+            </>
+          ) : null}
+          {owner || old ? (
+            <button type="button" onClick={this.handleDiscard}>
+              この部屋を廃村にする
             </button>
-            <button
-              type="button"
-              title="ヘルパーになると、ゲームに参加せずに助言役になります。"
-              onClick={this.handleHelperClick}
-            >
-              ヘルパー
-            </button>
-          </>
-        ) : (
-          <button type="button" onClick={this.handleJoinClick}>
-            ゲームに参加
-          </button>
-        )}
-        {owner ? (
-          <>
-            <button type="button" onClick={handlers.openGameStart}>
-              ゲーム開始画面を開く
-            </button>
-            <button type="button" onClick={this.handleKickClick}>
-              参加者を追い出す
-            </button>
-            <button type="button" onClick={this.handleResetReady}>
-              [ready]を初期化する
-            </button>
-          </>
-        ) : null}
-        {owner || old ? (
-          <button type="button" onClick={this.handleDiscard}>
-            この部屋を廃村にする
-          </button>
-        ) : null}
-      </div>
-    );
+          ) : null}
+        </div>
+      );
+    } else {
+      // show postlude.
+      return (
+        <div>
+          <button type="button">同じ設定で次の部屋を建てる</button>
+        </div>
+      );
+    }
   }
   /**
    * Handle a click of the join button.
    */
   @bind
   private handleJoinClick(): void {
-    const { t, blind, handlers } = this.props;
+    const { t, roomControls, handlers } = this.props;
+    const blind = roomControls.type === 'prelude' && roomControls.blind;
     // if the room is in blind mode,
     // show user info dialog.
     if (blind) {

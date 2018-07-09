@@ -231,7 +231,8 @@ export interface PlayerInfo {
 /**
  * State of room before starting.
  */
-export interface RoomPreludeInfo {
+export interface RoomPrelude {
+  type: 'prelude';
   /**
    * Whether you are an owner.
    */
@@ -249,6 +250,13 @@ export interface RoomPreludeInfo {
    */
   blind: boolean;
 }
+/**
+ * State of room after the end.
+ */
+export interface RoomPostlude {
+  type: 'postlude';
+}
+export type RoomControlInfo = RoomPrelude | RoomPostlude;
 
 /**
  * Query of speaking.

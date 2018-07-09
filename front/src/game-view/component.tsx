@@ -88,7 +88,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleOpen,
       timer,
       players,
-      roomPrelude,
+      roomControls,
       logPickup,
     } = store;
     return (
@@ -98,11 +98,11 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* List of players. */}
             <Players players={players} onFilter={this.handleLogFilter} />
             {/* Room control buttons. */}
-            {roomPrelude != null ? (
+            {roomControls != null ? (
               <I18n>
                 {t => (
                   <RoomControls
-                    {...roomPrelude}
+                    roomControls={roomControls}
                     t={t}
                     roomid={roomid}
                     players={players}
