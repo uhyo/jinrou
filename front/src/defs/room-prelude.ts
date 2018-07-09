@@ -1,7 +1,7 @@
 /**
  * Set of handlers related to room prelude controls.
  */
-export interface RoomPreludeHandlers {
+export interface RoomControlHandlers {
   /**
    * Handler for room entry.
    * @param user Data of user when the room is blind.

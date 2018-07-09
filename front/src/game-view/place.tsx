@@ -5,7 +5,7 @@ import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
 import { Game } from './component';
-import { RuleGroup, RoomPreludeHandlers } from '../defs';
+import { RuleGroup, RoomControlHandlers } from '../defs';
 import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
@@ -52,7 +52,7 @@ export interface IPlaceOptions {
   /**
    * Handlers of room prelude events.
    */
-  roomPreludeHandlers: RoomPreludeHandlers;
+  roomControlHandlers: RoomControlHandlers;
 }
 
 export interface IPlaceResult {
@@ -83,7 +83,7 @@ export function place({
   onRefuseRevival,
   onJobQuery,
   onWillChange,
-  roomPreludeHandlers,
+  roomControlHandlers,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
   // 蘇生辞退時のロジックを作る
@@ -100,7 +100,7 @@ export function place({
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
       onWillChange={onWillChange}
-      roomPreludeHandlers={roomPreludeHandlers}
+      roomControlHandlers={roomControlHandlers}
     />
   );
 

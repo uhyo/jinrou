@@ -10,7 +10,7 @@ import { bind } from '../util/bind';
 import { themeStore } from '../theme';
 import { I18nProvider, I18n } from '../i18n';
 
-import { RuleGroup, RoomPreludeHandlers } from '../defs';
+import { RuleGroup, RoomControlHandlers } from '../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
@@ -63,7 +63,7 @@ interface IPropGame {
   /**
    * Handlers of room prelude.
    */
-  roomPreludeHandlers: RoomPreludeHandlers;
+  roomControlHandlers: RoomControlHandlers;
 }
 
 @observer
@@ -77,7 +77,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleDefs,
       onJobQuery,
       onWillChange,
-      roomPreludeHandlers,
+      roomControlHandlers,
     } = this.props;
     const {
       gameInfo,
@@ -106,7 +106,7 @@ export class Game extends React.Component<IPropGame, {}> {
                     t={t}
                     roomid={roomid}
                     players={players}
-                    handlers={roomPreludeHandlers}
+                    handlers={roomControlHandlers}
                   />
                 )}
               </I18n>

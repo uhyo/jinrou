@@ -102,7 +102,7 @@ exports.start=(roomid)->
                                     will: will
                                 }
                             }
-                roomPreludeHandlers:
+                roomControlHandlers:
                     join: (user)->
                         ss.rpc "game.rooms.join", roomid, user, (result)->
                             if result?.require == "logiin"

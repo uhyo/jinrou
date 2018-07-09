@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { RoomPreludeHandlers } from '../../defs';
+import { RoomControlHandlers } from '../../defs';
 import { bind } from 'bind-decorator';
 import {
   showPlayerDialog,
@@ -30,7 +30,7 @@ export interface IPropRoomControls {
   /**
    * Handlers for UI events.
    */
-  handlers: RoomPreludeHandlers;
+  handlers: RoomControlHandlers;
 }
 /**
  * Buttons to control rooms, used before a game starts.
