@@ -37,7 +37,7 @@ export interface IPropRoomControls {
  */
 export class RoomControls extends React.Component<IPropRoomControls, {}> {
   public render() {
-    const { roomControls, handlers } = this.props;
+    const { t, roomControls, handlers } = this.props;
     if (roomControls.type === 'prelude') {
       // Show prelude.
       const { joined, old, owner } = roomControls;
@@ -46,44 +46,44 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
           {joined ? (
             <>
               <button type="button" onClick={handlers.unjoin}>
-                ゲームから脱退
+                {t('game_client:room.unjoin')}
               </button>
               <button
                 type="button"
-                title="全員が準備完了になるとゲームを開始できます。"
+                title={t('game_client:room.readyDescription')}
                 onClick={handlers.ready}
               >
-                準備完了/準備中
+                {t('game_client:room.ready')}
               </button>
               <button
                 type="button"
-                title="ヘルパーになると、ゲームに参加せずに助言役になります。"
+                title={t('game_client:room.helperDescription')}
                 onClick={this.handleHelperClick}
               >
-                ヘルパー
+                {t('game_client:room.helper')}
               </button>
             </>
           ) : (
             <button type="button" onClick={this.handleJoinClick}>
-              ゲームに参加
+              {t('game_client:room.join')}
             </button>
           )}
           {owner ? (
             <>
               <button type="button" onClick={handlers.openGameStart}>
-                ゲーム開始画面を開く
+                {t('game_client:room.openGameStart')}
               </button>
               <button type="button" onClick={this.handleKickClick}>
-                参加者を追い出す
+                {t('game_client:room.kick')}
               </button>
               <button type="button" onClick={this.handleResetReady}>
-                [ready]を初期化する
+                {t('game_client:room.resetReady')}
               </button>
             </>
           ) : null}
           {owner || old ? (
             <button type="button" onClick={this.handleDiscard}>
-              この部屋を廃村にする
+              {t('game_client:room.discard')}
             </button>
           ) : null}
         </div>
@@ -93,7 +93,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
       return (
         <div>
           <button type="button" onClick={handlers.newRoom}>
-            同じ設定で次の部屋を建てる
+            {t('game_client:room.newRoom')}
           </button>
         </div>
       );

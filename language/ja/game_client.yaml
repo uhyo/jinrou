@@ -191,6 +191,28 @@ playerbox:
 
 # Room control buttons.
 room:
+  # join button
+  join: "ゲームに参加"
+  # unjoin button
+  unjoin: "ゲームから脱退"
+  # ready/unready button.
+  ready: "準備完了/準備中"
+  # description of ready/unready button.
+  readyDescription: "全員が準備完了になるとゲームを開始できます。"
+  # helper button.
+  helper: "ヘルパー"
+  # description of helper button.
+  helperDescription: "ヘルパーになると、ゲームに参加せずに助言役になります。"
+  # open game start control button.
+  openGameStart: "ゲーム開始画面を開く"
+  # kick player button.
+  kick: "参加者を追い出す"
+  # reset ready button.
+  resetReady: "[ready]を初期化する"
+  # Discard this room button.
+  discard: "この部屋を廃村にする"
+  # open a new room with same setting button.
+  newRoom: "同じ設定で次の部屋を建てる"
   # Player information dialog.
   playerDialog:
     # title of player dialog.
