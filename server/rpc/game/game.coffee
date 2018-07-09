@@ -1151,21 +1151,21 @@ class Game
             # Fireworks should be lit at just before sunset.
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
-                # Pyrotechnist should break the blockade of Threatened.sunset
+                # Pyrotechnist should break the blockade of Threatened.sunset
                 # Show a fireworks log.
                 log=
                     mode:"system"
                     comment: @i18n.t "roles:Pyrotechnist.affect"
                 splashlog @id, this, log
                 # complete job of Pyrotechnist.
-                for pyr in x
+                for pyr in x
                     pyr.accessByJobType("Pyrotechnist").setFlag "done"
                 # 全员花火の虜にしてしまう
                 for pl in @players
                     newpl=Player.factory null, this, pl,null,WatchingFireworks
                     pl.transProfile newpl
                     newpl.cmplFlag=x[0].id
-                    pl.transform this,newpl,true
+                    pl.transform this,newpl,true
 
             alives=[]
             deads=[]
