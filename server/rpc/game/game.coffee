@@ -2724,7 +2724,10 @@ class Player
         return if @dead
         if @scapegoat
             # 身代わりくんは投票
-            alives=game.players.filter (x)=>!x.dead && x!=this
+            alives=game.votingbox.candidates.filter (x)=>
+                pl=game.getPlayer x.id
+                return !pl.dead && pl!=this
+            #alives=game.players.filter (x)=>!x.dead && x!=this
             r=Math.floor Math.random()*alives.length    # 投票先
             return unless alives[r]?
             #@voteto=alives[r].id
