@@ -2379,6 +2379,8 @@ class VotingBox
     isVoteAllFinished:->
         alives=@game.players.filter (x)->!x.dead
         alives.every (x)=>
+            if !x.voted && x.scapegoat
+                x.votestart @game
             x.voted @game,@
     compareGots:(a,b)->
         # aとbをsort用に(gots)
