@@ -2752,7 +2752,6 @@ class Player
         result = game.votingbox.isVoteFinished this
         if result==false && @scapegoat
             @votestart game
-            debugger
             true
         else
             result
