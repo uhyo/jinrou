@@ -1151,21 +1151,21 @@ class Game
             # Fireworks should be lit at just before sunset.
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
-                # Pyrotechnist should break the blockade of Threatened.sunset
+                # Pyrotechnist should break the blockade of Threatened.sunset
                 # Show a fireworks log.
                 log=
                     mode:"system"
                     comment: @i18n.t "roles:Pyrotechnist.affect"
                 splashlog @id, this, log
                 # complete job of Pyrotechnist.
-                for pyr in x
+                for pyr in x
                     pyr.accessByJobType("Pyrotechnist").setFlag "done"
                 # 全员花火の虜にしてしまう
                 for pl in @players
                     newpl=Player.factory null, this, pl,null,WatchingFireworks
                     pl.transProfile newpl
                     newpl.cmplFlag=x[0].id
-                    pl.transform this,newpl,true
+                    pl.transform this,newpl,true
 
             alives=[]
             deads=[]
@@ -1353,6 +1353,9 @@ class Game
             else
                 false
         else if Phase.isNight(@phase)
+            @players.forEach (pl)=>
+                if pl.scapegoat && !pl.dead && !pl.sleeping(@)
+                    pl.sunset(@)
             # 夜時間
             if @players.every( (x)=>x.dead || x.sleeping(@))
                 # 全員寝たが……
@@ -2724,7 +2727,10 @@ class Player
         return if @dead
         if @scapegoat
             # 身代わりくんは投票
-            alives=game.players.filter (x)=>!x.dead && x!=this
+            alives=game.votingbox.candidates.filter (x)=>
+                pl=game.getPlayer x.id
+                return !pl.dead && pl!=this
+            #alives=game.players.filter (x)=>!x.dead && x!=this
             r=Math.floor Math.random()*alives.length    # 投票先
             return unless alives[r]?
             #@voteto=alives[r].id
@@ -2742,7 +2748,13 @@ class Player
     # ハンターフェイズに仕事があるか?
     hunterJobdone:(game)->true
     # 昼に投票を終えたか
-    voted:(game,votingbox)->game.votingbox.isVoteFinished this
+    voted:(game,votingbox)->
+        result = game.votingbox.isVoteFinished this
+        if result==false && @scapegoat
+            @votestart game
+            true
+        else
+            result
     # 夜の仕事
     job:(game,playerid,query)->
         @setTarget playerid
@@ -9052,8 +9064,8 @@ module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
     req.use 'session'
 
-#ゲーム開始処理
-#成功：null
+    #ゲーム開始処理
+    #成功：null
     gameStart:(roomid,query)->
         game=games[roomid]
         unless game?
