@@ -1355,7 +1355,7 @@ class Game
         else if Phase.isNight(@phase)
             @players.forEach (pl)=>
                 if pl.scapegoat && !pl.dead && !pl.sleeping(@)
-                    pl.sunset(game)
+                    pl.sunset(@)
             # 夜時間
             if @players.every( (x)=>x.dead || x.sleeping(@))
                 # 全員寝たが……
@@ -2382,8 +2382,6 @@ class VotingBox
     isVoteAllFinished:->
         alives=@game.players.filter (x)->!x.dead
         alives.every (x)=>
-            if !x.voted && x.scapegoat
-                x.votestart @game
             x.voted @game,@
     compareGots:(a,b)->
         # aとbをsort用に(gots)
@@ -2750,7 +2748,14 @@ class Player
     # ハンターフェイズに仕事があるか?
     hunterJobdone:(game)->true
     # 昼に投票を終えたか
-    voted:(game,votingbox)->game.votingbox.isVoteFinished this
+    voted:(game,votingbox)->
+        result = game.votingbox.isVoteFinished this
+        if result==false && @scapegoat
+            @votestart game
+            debugger
+            true
+        else
+            result
     # 夜の仕事
     job:(game,playerid,query)->
         @setTarget playerid
