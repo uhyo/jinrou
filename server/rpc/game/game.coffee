@@ -9229,9 +9229,9 @@ module.exports.actions=(req,res,ss)->
                 plsh=Math.floor playersnumber/2   # 過半数
 
                 if query.jobrule=="特殊ルール.一部闇鍋"
-                    # 一部闇鍋のときは村人のみ闇鍋
-                    frees=joblist.Human ? 0
-                    joblist.Human=0
+                    # 一部闇鍋のときはこちらで配分可能な役職を数える
+                    for job in Shared.game.jobs
+                        frees -= joblist[job]
                 ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
 
                 safety={
