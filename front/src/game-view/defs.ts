@@ -7,6 +7,10 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
    */
   jobname: string;
   /**
+   * Whether you are dead.
+   */
+  dead: boolean;
+  /**
    * Descriptions provided to you.
    */
   desc: RoleDesc[];

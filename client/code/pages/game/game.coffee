@@ -229,6 +229,7 @@ exports.start=(roomid)->
                         {
                             forms: if obj.sleeping then [] else obj.forms
                             jobname: obj.jobname
+                            dead: obj.dead
                             desc: obj.desc
                             speak: obj.speak
                             will: obj.will

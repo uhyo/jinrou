@@ -118,6 +118,7 @@ export class GameStore {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
     }
+    const prevRoleInfo = this.roleInfo;
     if (roleInfo !== undefined) {
       // roleInfo is either null or RoleInfo object.
       this.roleInfo = roleInfo;
@@ -148,9 +149,20 @@ export class GameStore {
     }
     // Check consistency.
     if (
+      roleInfo != null &&
+      roleInfo.dead &&
+      !(prevRoleInfo && prevRoleInfo.dead) &&
+      roleInfo.speak.includes('day')
+    ) {
+      // If you became non-dead from dead,
+      // reset speek kind to 'day'.
+      this.speakState.kind = 'day';
+    } else if (
       this.roleInfo != null &&
       !this.roleInfo.speak.includes(this.speakState.kind)
     ) {
+      // if roleInfo.speak and speakState.kind are inconsistent,
+      // adjust current kind.
       this.speakState.kind = this.roleInfo.speak[0] || '';
     }
   }
