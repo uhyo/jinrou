@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { FormDesc } from '../defs';
-import { TranslationFunction } from '../../i18n';
+import { FormContentProps } from './defs';
 
 /**
  * Make a form for GM.
  */
-export function makeGameMasterForm(form: FormDesc, t: TranslationFunction) {
+export function makeGameMasterForm({ t }: FormContentProps) {
   return (
     <>
       <p>

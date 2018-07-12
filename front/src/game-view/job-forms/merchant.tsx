@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { FormDesc } from '../defs';
-import { TranslationFunction } from '../../i18n';
+import { FormContentProps } from './defs';
 
 /**
  * Make a form for Merchant.
  */
-export function makeMerchantForm(form: FormDesc, t: TranslationFunction) {
+export function makeMerchantForm({ t }: FormContentProps) {
   return (
     <>
       <p>{t('game_client_form:Merchant.description')}</p>

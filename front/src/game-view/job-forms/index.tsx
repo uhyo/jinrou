@@ -15,6 +15,7 @@ import {
   FormContent,
   SelectWrapper,
 } from './elements';
+import { FormContentProps } from './defs';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -61,11 +62,19 @@ export class Form extends React.PureComponent<IPropForm, {}> {
             : t('normalName', {
                 job: t(`roles:jobname.${type}`),
               });
+          // Make options as renderer.
+          const makeOptions = () =>
+            options.map(({ name, value }, i) => (
+              <OptionLabel key={`${i}-value`}>
+                {name}
+                <input type="radio" name="target" value={value} />
+              </OptionLabel>
+            ));
 
           const content = specialContentTypes.includes(type)
             ? // This is special!
-              makeSpecialContent(form, t)
-            : makeNormalContent(form, t);
+              makeSpecialContent({ form, t, makeOptions })
+            : makeNormalContent({ form, t, makeOptions });
 
           // Handle submission of job form.
           const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -127,21 +136,15 @@ export class Form extends React.PureComponent<IPropForm, {}> {
 /**
  * Make a normal content for job form.
  */
-function makeNormalContent(
-  { type, options }: FormDesc,
-  t: TranslationFunction,
-) {
-  // List up options.
-  const opts = options.map(({ name, value }, i) => (
-    <OptionLabel key={`${i}-value`}>
-      {name}
-      <input type="radio" name="target" value={value} />
-    </OptionLabel>
-  ));
+function makeNormalContent({
+  form: { type },
+  t,
+  makeOptions,
+}: FormContentProps) {
   return (
     <>
       <p>{t(`game_client_form:messages.${type}`)}</p>
-      <p>{opts}</p>
+      <p>{makeOptions()}</p>
     </>
   );
 }
@@ -149,20 +152,31 @@ function makeNormalContent(
 /**
  * Make special content of job form.
  */
-function makeSpecialContent(form: FormDesc, t: TranslationFunction) {
+function makeSpecialContent(props: FormContentProps) {
+  const { form, makeOptions } = props;
+  let otherContents;
   switch (form.type) {
     case 'GameMaster': {
-      return makeGameMasterForm(form, t);
+      otherContents = makeGameMasterForm(props);
+      break;
     }
     case 'Merchant': {
-      return makeMerchantForm(form, t);
+      otherContents = makeMerchantForm(props);
+      break;
     }
     case 'Witch': {
-      return makeWitchForm(form, t);
+      otherContents = makeWitchForm(props);
+      break;
     }
     default: {
       console.error(`Special form for ${form.type} is undefined`);
       return null;
     }
   }
+  return (
+    <>
+      {otherContents}
+      {makeOptions()}
+    </>
+  );
 }

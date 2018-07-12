@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { FormDesc } from '../defs';
-import { TranslationFunction } from '../../i18n';
+import { FormContentProps } from './defs';
 
 /**
  * Make a form for Witch.
  */
-export function makeWitchForm(form: FormDesc, t: TranslationFunction) {
+export function makeWitchForm({ t }: FormContentProps) {
   return (
     <>
       <p>{t('game_client_form:Witch.description')}</p>
