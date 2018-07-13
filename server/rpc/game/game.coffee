@@ -4940,7 +4940,7 @@ class Dog extends Player
     type:"Dog"
     fortuneResult: FortuneResult.werewolf
     psychicResult: PsychicResult.werewolf
-    midnightSort:100
+    midnightSort:80
     hasDeadResistance:->true
     sunset:(game)->
         super
@@ -4955,19 +4955,6 @@ class Dog extends Player
                 else
                     @setFlag ""
                     @setTarget ""
-        else
-            # 飼い主を護衛する
-            pl=game.getPlayer @flag
-            if pl?
-                if pl.dead
-                    # もう死んでるじゃん
-                    @setTarget ""  # 洗濯済み
-                else
-                    newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
-                    pl.transProfile newpl
-                    newpl.cmplFlag=@id  # 護衛元cmplFlag
-                    pl.transform game,newpl,true
-
     sleeping:->@flag?
     jobdone:->@target?
     job:(game,playerid,query)->
@@ -5000,13 +4987,26 @@ class Dog extends Player
             splashlog game.id,game,log
         null
     midnight:(game,midnightSort)->
-        return unless @target?
-        pl=game.getPlayer @target
-        return unless pl?
+        if @flag? && !@target?
+            # 飼い主を護衛する
+            pl=game.getPlayer @flag
+            if pl?
+                if pl.dead
+                    # もう死んでるじゃん
+                    @setTarget ""  # 洗濯済み
+                else
+                    newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
+                    pl.transProfile newpl
+                    newpl.cmplFlag=@id  # 護衛元cmplFlag
+                    pl.transform game,newpl,true
+        else if @target?
+            # 殺害
+            pl=game.getPlayer @target
+            return unless pl?
 
-        # 殺害
-        @addGamelog game,"dogkill",pl.type,pl.id
-        pl.die game,"dog"
+            @addGamelog game,"dogkill",pl.type,pl.id
+            pl.die game,"dog"
+            pl.touched game,@id
         null
     makejobinfo:(game,result)->
         super
