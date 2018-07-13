@@ -56,7 +56,7 @@ messages:
   Counselor: "カウンセリングする相手を選択してください"
   Miko: "今晩自分を守る場合は選択してください（1回のみ）"
   FascinatingWolf: "誘惑する相手を選択してください"
-  ToughWolf: "今晩能力を使用する場合は選択してください（1回のみ）"
+  ToughWolf: "今晩能力を使用する場合は襲撃対象を選択してください（1回のみ）"
   ThreateningWolf: "威嚇する相手を選択してください（1回のみ）"
   WanderingGuard: "護衛する相手を選択してください"
   ObstructiveMad: "邪魔する相手を選択してください"
