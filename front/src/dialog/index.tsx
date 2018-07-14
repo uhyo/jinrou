@@ -42,7 +42,7 @@ export function showMessageDialog(d: IMessageDialog): Promise<void> {
 export async function showErrorDialog(d: IErrorDialog): Promise<void> {
   // get i18n instance with system language.
   const i18n = await getI18nFor();
-  return showDialog<void>(i18n, (open, close) => {
+  await showDialog<void>(i18n, (open, close) => {
     const dialog = (
       <MessageDialog
         {...d}

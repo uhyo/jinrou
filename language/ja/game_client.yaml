@@ -213,6 +213,8 @@ room:
   discard: "この部屋を廃村にする"
   # open a new room with same setting button.
   newRoom: "同じ設定で次の部屋を建てる"
+  # that room does not exist.
+  roomDoesNotExist: "その部屋は存在しません。"
   # Player information dialog.
   playerDialog:
     # title of player dialog.

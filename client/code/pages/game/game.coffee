@@ -64,7 +64,7 @@ exports.start=(roomid)->
             getenter=(result)->
                 if result.error?
                     # エラー
-                    dialog.showErrorMessage {
+                    dialog.showErrorDialog {
                         modal: true
                         message: String result.error
                     }
@@ -89,7 +89,7 @@ exports.start=(roomid)->
                     return
                 enter_result=result
                 this_room_id=roomid
-                ss.rpc "game.rooms.oneRoom", roomid,initroom
+                ss.rpc "game.rooms.oneRoom", roomid,(room)-> initroom [gv, dialog, i18n], room
             game_view = gv.place {
                 i18n: i18n
                 roomid: roomid
@@ -236,10 +236,13 @@ exports.start=(roomid)->
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
 
-    initroom=(room)->
+    initroom=([gv, dialog, i18n], room)->
         unless room?
-            Index.util.message "ルーム","そのルームは存在しません。"
-            Index.app.showUrl "/rooms"
+            # show an error that such room does not exist.
+            dialog.showErrorDialog({
+                modal: true
+                message: i18n.t "game_client:room.roomDoesNotExist"
+            }).then ()-> Index.app.showUrl "/rooms"
             return
         # 今までのログを送ってもらう
         this_icons={}
@@ -1223,7 +1226,8 @@ exports.end=->
 
     ss.rpc "game.rooms.exit", this_room_id,(result)->
         if result?
-            Index.util.message "ルーム",result
+            # error
+            console.error result
             return
     clearInterval timerid if timerid?
     alloff socket_ids...
