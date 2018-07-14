@@ -140,7 +140,7 @@ const DialogBase = styled(DialogBaseInner)`
   }
 
   @media (min-width: 600px) {
-    max-width: 60vh;
+    max-width: 60vw;
   }
 `;
 
