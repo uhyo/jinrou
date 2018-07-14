@@ -8,7 +8,7 @@ import {
   IIconSelectDialog,
   ISelectDialog,
   IKickDialog,
-  IKickManageDialog,
+  IChecklistDialog,
   IErrorDialog,
   IPromptDialog,
 } from './defs';
@@ -21,7 +21,7 @@ import { I18nProvider, getI18nFor } from '../i18n';
 import { i18n } from 'i18next';
 import { SelectDialog } from './components/select';
 import { KickDialog, KickResult } from './components/kick';
-import { KickManageResult, KickManageDialog } from './components/kick-manage';
+import { ChecklistDialog } from './components/kick-manage';
 import { BoundFunc } from '../util/cached-binder';
 import { PromptDialog } from './components/prompt';
 
@@ -128,14 +128,14 @@ export async function showKickDialog(
 }
 
 /**
- * Show a kick manager dialog.
+ * Show a select by checklist dialog.
  */
-export async function showKickManageDialog(
-  d: IKickManageDialog,
-): Promise<KickManageResult | null> {
+export async function showChecklistDialog(
+  d: IChecklistDialog,
+): Promise<string[] | null> {
   const i18n = await getI18nFor();
-  return showDialog<KickManageResult | null>(i18n, (open, close) => {
-    const dialog = <KickManageDialog {...d} onSelect={close} />;
+  return showDialog<string[] | null>(i18n, (open, close) => {
+    const dialog = <ChecklistDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }

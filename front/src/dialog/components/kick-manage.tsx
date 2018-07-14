@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IKickManageDialog } from '../defs';
+import { IChecklistDialog } from '../defs';
 import { I18n } from '../../i18n';
 import { Dialog } from './base';
 import { NoButton, YesButton, FormTable, FormControlWrapper } from './parts';
@@ -10,30 +10,27 @@ import { map2 } from '../../util/map2';
 import { filter2Right } from '../../util/filter2';
 import { updateArray } from '../../util/update-array';
 
-export interface KickManageResult {
-  /**
-   * List of ids of users removed from kick list.
-   */
-  remove: string[];
-}
-export interface IPropKickManageDialog extends IKickManageDialog {
-  onSelect(result: KickManageResult | null): void;
+export interface IPropChecklistDialog extends IChecklistDialog {
+  onSelect(result: string[] | null): void;
 }
 
 /**
- * Kick list management dialog.
+ * Select multiple using checklist dialog.
  */
-export class KickManageDialog extends React.PureComponent<
-  IPropKickManageDialog,
+export class ChecklistDialog extends React.PureComponent<
+  IPropChecklistDialog,
   {
     /**
-     * Whether user data is fetcehd.
+     * Whether data is fetcehd.
      */
     fetched: boolean;
     /**
-     * List of kicked user ids.
+     * List of options.
      */
-    users: string[];
+    options: Array<{
+      id: string;
+      label: string;
+    }>;
     /**
      * List of checks.
      */
@@ -44,17 +41,17 @@ export class KickManageDialog extends React.PureComponent<
    * Flag which tracks mountedness of this component.
    */
   private mounted: boolean = false;
-  constructor(props: IPropKickManageDialog) {
+  constructor(props: IPropChecklistDialog) {
     super(props);
     this.state = {
       fetched: false,
-      users: [],
+      options: [],
       checks: [],
     };
   }
   public render() {
     const { modal } = this.props;
-    const { fetched, users, checks } = this.state;
+    const { fetched, options, checks } = this.state;
 
     return (
       <I18n namespace="game_client">
@@ -65,7 +62,7 @@ export class KickManageDialog extends React.PureComponent<
               title={t('kick.manager.title')}
               message={
                 fetched
-                  ? users.length > 0
+                  ? options.length > 0
                     ? t('kick.manager.message')
                     : t('kick.manager.empty')
                   : undefined
@@ -76,7 +73,7 @@ export class KickManageDialog extends React.PureComponent<
                   <NoButton onClick={this.handleCancel}>
                     {t('kick.cancel')}
                   </NoButton>
-                  {fetched && users.length > 0 ? (
+                  {fetched && options.length > 0 ? (
                     <YesButton onClick={this.handleYesClick}>
                       {t('kick.ok')}
                     </YesButton>
@@ -90,23 +87,27 @@ export class KickManageDialog extends React.PureComponent<
                       {({ inputid }) => (
                         <FormTable>
                           <tbody>
-                            {map2(users, checks, (id, check, i) => (
-                              <tr key={id}>
-                                <td>
-                                  <input
-                                    type="checkbox"
-                                    checked={check}
-                                    id={`${inputid}-${id}`}
-                                    onChange={this.makeHandleChange(i)}
-                                  />
-                                </td>
-                                <td>
-                                  <label htmlFor={`${inputid}-${id}`}>
-                                    {id}
-                                  </label>
-                                </td>
-                              </tr>
-                            ))}
+                            {map2(
+                              options,
+                              checks,
+                              ({ id, label }, check, i) => (
+                                <tr key={id}>
+                                  <td>
+                                    <input
+                                      type="checkbox"
+                                      checked={check}
+                                      id={`${inputid}-${id}`}
+                                      onChange={this.makeHandleChange(i)}
+                                    />
+                                  </td>
+                                  <td>
+                                    <label htmlFor={`${inputid}-${id}`}>
+                                      {label}
+                                    </label>
+                                  </td>
+                                </tr>
+                              ),
+                            )}
                           </tbody>
                         </FormTable>
                       )}
@@ -127,14 +128,14 @@ export class KickManageDialog extends React.PureComponent<
   public async componentDidMount() {
     this.mounted = true;
     // Listen for input promise.
-    const users = await this.props.users;
+    const options = await this.props.options;
     // Prepare a checklist with the same length.
-    const checks: boolean[] = new Array(users.length).fill(false);
+    const checks: boolean[] = new Array(options.length).fill(false);
     // XXX This is anti-pattern
     if (this.mounted) {
       this.setState({
         fetched: true,
-        users,
+        options,
         checks,
       });
     }
@@ -158,11 +159,11 @@ export class KickManageDialog extends React.PureComponent<
   }
   @bind
   private handleYesClick() {
-    const { users, checks } = this.state;
+    const { options, checks } = this.state;
     // List checked users.
-    const checkedUsers = filter2Right(checks, users, check => check);
-    this.props.onSelect({
-      remove: checkedUsers,
-    });
+    const checkedIds = filter2Right(checks, options, check => check).map(
+      ({ id }) => id,
+    );
+    this.props.onSelect(checkedIds);
   }
 }

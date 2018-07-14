@@ -12,8 +12,8 @@ import {
 import bind from 'bind-decorator';
 import { I18n } from '../../i18n';
 import { FontAwesomeIcon } from '../../util/icon';
-import { showKickManageDialog } from '..';
 import { getKickList } from '../../api/kick-manage';
+import { showChecklistDialog } from '..';
 
 export type KickResult =
   | {
@@ -127,15 +127,17 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
     const { modal, roomid, onSelect } = this.props;
     e.preventDefault();
     // Kick manager link is clicked.
-    showKickManageDialog({
+    showChecklistDialog({
       modal,
-      users: getKickList(roomid),
+      options: getKickList(roomid).then(ids =>
+        ids.map(id => ({ id, label: id })),
+      ),
     })
       .then(kicked => {
         if (kicked != null) {
           onSelect({
             type: 'list-remove',
-            users: kicked.remove,
+            users: kicked,
           });
         }
       })

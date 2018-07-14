@@ -129,12 +129,17 @@ export interface IKickDialog {
 }
 
 /**
- * Kick list management dialog.
+ * checklist dialog.
  */
-export interface IKickManageDialog {
+export interface IChecklistDialog {
   modal?: boolean;
   /**
-   * Promise which resolves to list of user ids.
+   * Promise which resolves to list of options.
    */
-  users: Promise<string[]>;
+  options: Promise<
+    Array<{
+      id: string;
+      label: string;
+    }>
+  >;
 }
