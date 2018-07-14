@@ -12,3 +12,10 @@ messageDialog:
   # close button.
   close: "閉じる"
 
+# Error dialog.
+errorDialog:
+  # title.
+  title: "エラー"
+  # close button.
+  close: "閉じる"
+

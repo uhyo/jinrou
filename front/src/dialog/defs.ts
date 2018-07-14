@@ -27,6 +27,13 @@ export interface IMessageDialog extends IDialogBase {
   ok: string;
 }
 /**
+ * Standard error dialog.
+ */
+export type IErrorDialog = Pick<
+  IDialogBase,
+  Exclude<keyof IDialogBase, 'title'>
+>;
+/**
  * confirmation dialog.
  */
 export interface IConfirmDialog extends IDialogBase {

@@ -9,6 +9,7 @@ import {
   ISelectDialog,
   IKickDialog,
   IKickManageDialog,
+  IErrorDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -20,6 +21,7 @@ import { i18n } from 'i18next';
 import { SelectDialog } from './components/select';
 import { KickDialog, KickResult } from './components/kick';
 import { KickManageResult, KickManageDialog } from './components/kick-manage';
+import { BoundFunc } from '../util/cached-binder';
 
 /**
  * Show a message dialog.
@@ -28,6 +30,25 @@ export function showMessageDialog(d: IMessageDialog): Promise<void> {
   return showDialog(null, (open, close) => {
     const dialog = <MessageDialog {...d} onClose={() => close(undefined)} />;
 
+    open(dialog);
+  });
+}
+
+/**
+ * Show a standard erorr dialog.
+ */
+export async function showErrorDialog(d: IErrorDialog): Promise<void> {
+  // get i18n instance with system language.
+  const i18n = await getI18nFor();
+  return showDialog<void>(i18n, (open, close) => {
+    const dialog = (
+      <MessageDialog
+        {...d}
+        title={i18n.t('common:errorDialog.title')}
+        ok={i18n.t('common:errorDialog.close')}
+        onClose={close}
+      />
+    );
     open(dialog);
   });
 }
@@ -115,7 +136,7 @@ function showDialog<T>(
   i18n: i18n | null,
   callback: (
     open: ((dialog: React.ReactElement<any>) => void),
-    close: ((result: T) => void),
+    close: BoundFunc<T, void>,
   ) => void,
 ): Promise<T> {
   return new Promise(resolve => {
@@ -135,11 +156,11 @@ function showDialog<T>(
       ReactDOM.render(dialogElm, area);
     };
     // clean up dialog.
-    const close = (result: T) => {
+    const close = ((result: T) => {
       ReactDOM.unmountComponentAtNode(area);
       document.body.removeChild(area);
       resolve(result);
-    };
+    }) as BoundFunc<T, void>;
 
     callback(open, close);
   });

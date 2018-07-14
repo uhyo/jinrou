@@ -57,9 +57,10 @@ exports.start=(roomid)->
     # ゲーム用コンポーネントを生成
     Promise.all([
         JinrouFront.loadGameView(),
+        JinrouFront.loadDialog(),
         Index.app.getI18n()
     ])
-        .then(([gv, i18n])->
+        .then(([gv, dialog, i18n])->
             game_view = gv.place {
                 i18n: i18n
                 roomid: roomid
@@ -69,8 +70,10 @@ exports.start=(roomid)->
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
                         if result?
-                            # TODO
-                            Index.util.message "エラー", result
+                            dialog.showErrorDialog {
+                                modal: true
+                                message: String result
+                            }
                 onRefuseRevival: ()->
                     # 蘇生辞退ボタン
                     new Promise (resolve, reject)->
@@ -82,9 +85,11 @@ exports.start=(roomid)->
                 onJobQuery:(query)->
                     # Job query
                     ss.rpc "game.game.job", roomid, query, (result)->
-                        # TODO
                         if result?.error?
-                            Index.util.message "エラー",result.error
+                            dialog.showErrorDialog {
+                                modal: true
+                                message: String result.error
+                            }
                         else
                             getjobinfo result
                 onWillChange:(will)->
@@ -92,7 +97,10 @@ exports.start=(roomid)->
                     ss.rpc "game.game.will", roomid, will, (result)->
                         # TODO
                         if result?
-                            Index.util.message "エラー", result
+                            dialog.showErrorDialog {
+                                modal: true
+                                message: String result
+                            }
                         else
                             # will is successfully updated
                             # TODO: better update function?
@@ -105,14 +113,17 @@ exports.start=(roomid)->
                 roomControlHandlers:
                     join: (user)->
                         ss.rpc "game.rooms.join", roomid, user, (result)->
-                            if result?.require == "logiin"
+                            if result?.require == "login"
                                 # ログインが必要
                                 # TODO
                                 Index.util.loginWindow ->
                                     if Index.app.userid()
                                         Index.app.refresh()
                             else if result?.error?
-                                Index.util.message "ルーム", result.error
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
                             else
                                 # succeeded to login
                                 Index.app.refresh()
@@ -120,17 +131,26 @@ exports.start=(roomid)->
                         # 脱退
                         ss.rpc "game.rooms.unjoin", roomid,(result)->
                             if result?
-                                Index.util.message "ルーム",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                             else
                                 Index.app.refresh()
                     ready: ()->
                         ss.rpc "game.rooms.ready", roomid,(result)->
                             if result?
-                                Index.util.message "ルーム",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     helper: (idornull)->
                         ss.rpc "game.rooms.helper",roomid, idornull, (result)->
                             if result?
-                                Index.util.message "エラー",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     openGameStart: ->
                         newgamebutton()
                     kick: (obj)->
@@ -138,19 +158,31 @@ exports.start=(roomid)->
                         noentry = obj.noentry
                         ss.rpc "game.rooms.kick", roomid, id, noentry, (result)->
                             if result?
-                                Index.util.message "エラー",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     kickRemove: (users)->
                         ss.rpc "game.rooms.cancelban", roomid, users, (result)->
                             if result?
-                                Index.util.message "エラー", result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     resetReady: ->
                         ss.rpc "game.rooms.unreadyall",roomid,(result)->
                             if result?
-                                Index.util.message "エラー",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     discard: ->
                         ss.rpc "game.rooms.del", roomid,(result)->
                             if result?
-                                Index.util.message "エラー",result
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result
+                                }
                     newRoom: ->
                         # Make a new room with same settings button
                         unless this_rule?
