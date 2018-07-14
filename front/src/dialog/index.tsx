@@ -10,6 +10,7 @@ import {
   IKickDialog,
   IKickManageDialog,
   IErrorDialog,
+  IPromptDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -22,6 +23,7 @@ import { SelectDialog } from './components/select';
 import { KickDialog, KickResult } from './components/kick';
 import { KickManageResult, KickManageDialog } from './components/kick-manage';
 import { BoundFunc } from '../util/cached-binder';
+import { PromptDialog } from './components/prompt';
 
 /**
  * Show a message dialog.
@@ -49,6 +51,15 @@ export async function showErrorDialog(d: IErrorDialog): Promise<void> {
         onClose={close}
       />
     );
+    open(dialog);
+  });
+}
+/**
+ * Show a prompt dialog.
+ */
+export function showPromptDialog(d: IPromptDialog): Promise<string | null> {
+  return showDialog(null, (open, close) => {
+    const dialog = <PromptDialog {...d} onSelect={close} />;
     open(dialog);
   });
 }

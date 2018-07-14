@@ -243,6 +243,12 @@ room:
     message: "本当に部屋を廃村にしますか？"
     yes: "廃村にする"
     no: "キャンセル"
+  # room password dialog.
+  enterPasswordDialog:
+    title: "部屋に入室"
+    message: "この部屋のパスワードを入力してください。"
+    ok: "入室"
+    cancel: "キャンセル"
 
 # Icon select dialog.
 iconSelect:

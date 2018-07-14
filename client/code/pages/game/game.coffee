@@ -61,6 +61,35 @@ exports.start=(roomid)->
         Index.app.getI18n()
     ])
         .then(([gv, dialog, i18n])->
+            getenter=(result)->
+                if result.error?
+                    # エラー
+                    dialog.showErrorMessage {
+                        modal: true
+                        message: String result.error
+                    }
+                    return
+                else if result.require?
+                    if result.require=="password"
+                        #パスワード入力
+                        dialog.showPromptDialog({
+                            modal: true
+                            title: i18n.t "game_client:room.enterPasswordDialog.title"
+                            message: i18n.t "game_client:room.enterPasswordDialog.message"
+                            ok: i18n.t "game_client:room.enterPasswordDialog.ok"
+                            cancel: i18n.t "game_client:room.enterPasswordDialog.cancel"
+                            password: true
+                            autocomplete: "no"
+                        }).then (pass)->
+                            unless pass?
+                                Index.app.showUrl "/rooms"
+                                return
+                            ss.rpc "game.rooms.enter", roomid,pass,getenter
+                            sessionStorage.roompassword = pass
+                    return
+                enter_result=result
+                this_room_id=roomid
+                ss.rpc "game.rooms.oneRoom", roomid,initroom
             game_view = gv.place {
                 i18n: i18n
                 roomid: roomid
@@ -207,24 +236,6 @@ exports.start=(roomid)->
             ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,getenter
             )
 
-    getenter=(result)->
-        if result.error?
-            # エラー
-            Index.util.message "ルーム",result.error
-            return
-        else if result.require?
-            if result.require=="password"
-                #パスワード入力
-                Index.util.prompt "ルーム","パスワードを入力してください",{type:"password"},(pass)->
-                    unless pass?
-                        Index.app.showUrl "/rooms"
-                        return
-                    ss.rpc "game.rooms.enter", roomid,pass,getenter
-                    sessionStorage.roompassword = pass
-            return
-        enter_result=result
-        this_room_id=roomid
-        ss.rpc "game.rooms.oneRoom", roomid,initroom
     initroom=(room)->
         unless room?
             Index.util.message "ルーム","そのルームは存在しません。"

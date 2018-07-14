@@ -47,6 +47,28 @@ export interface IConfirmDialog extends IDialogBase {
   no: string;
 }
 /**
+ * Prompt dialog.
+ */
+export interface IPromptDialog extends IDialogBase {
+  /**
+   * Whether required input is a password.
+   */
+  password?: boolean;
+  /**
+   * Autocomplete attribute.
+   */
+  autocomplete?: string;
+  /**
+   * ok button.
+   */
+  ok: string;
+  /**
+   * cancel button.
+   */
+  cancel: string;
+}
+
+/**
  * Player info dialog for blind mode rooms.
  */
 export interface IPlayerDialog extends IDialogBase {
