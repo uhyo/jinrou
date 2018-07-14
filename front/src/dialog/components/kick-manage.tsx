@@ -50,79 +50,57 @@ export class ChecklistDialog extends React.PureComponent<
     };
   }
   public render() {
-    const { modal } = this.props;
+    const { modal, title, message, empty, ok, cancel } = this.props;
     const { fetched, options, checks } = this.state;
 
     return (
-      <I18n namespace="game_client">
-        {t => {
-          return (
-            <Dialog
-              modal={modal}
-              title={t('kick.manager.title')}
-              message={
-                fetched
-                  ? options.length > 0
-                    ? t('kick.manager.message')
-                    : t('kick.manager.empty')
-                  : undefined
-              }
-              onCancel={this.handleCancel}
-              buttons={() => (
-                <>
-                  <NoButton onClick={this.handleCancel}>
-                    {t('kick.cancel')}
-                  </NoButton>
-                  {fetched && options.length > 0 ? (
-                    <YesButton onClick={this.handleYesClick}>
-                      {t('kick.ok')}
-                    </YesButton>
-                  ) : null}
-                </>
-              )}
-              contents={() =>
-                fetched ? (
-                  <>
-                    <WithRandomIds names={['inputid']}>
-                      {({ inputid }) => (
-                        <FormTable>
-                          <tbody>
-                            {map2(
-                              options,
-                              checks,
-                              ({ id, label }, check, i) => (
-                                <tr key={id}>
-                                  <td>
-                                    <input
-                                      type="checkbox"
-                                      checked={check}
-                                      id={`${inputid}-${id}`}
-                                      onChange={this.makeHandleChange(i)}
-                                    />
-                                  </td>
-                                  <td>
-                                    <label htmlFor={`${inputid}-${id}`}>
-                                      {label}
-                                    </label>
-                                  </td>
-                                </tr>
-                              ),
-                            )}
-                          </tbody>
-                        </FormTable>
-                      )}
-                    </WithRandomIds>
-                  </>
-                ) : (
-                  <FormControlWrapper>
-                    <FontAwesomeIcon icon="spinner" pulse={true} size="3x" />
-                  </FormControlWrapper>
-                )
-              }
-            />
-          );
-        }}
-      </I18n>
+      <Dialog
+        modal={modal}
+        title={title}
+        message={fetched ? (options.length > 0 ? message : empty) : ''}
+        onCancel={this.handleCancel}
+        buttons={() => (
+          <>
+            <NoButton onClick={this.handleCancel}>{cancel}</NoButton>
+            {fetched && options.length > 0 ? (
+              <YesButton onClick={this.handleYesClick}>{ok}</YesButton>
+            ) : null}
+          </>
+        )}
+        contents={() =>
+          fetched ? (
+            <>
+              <WithRandomIds names={['inputid']}>
+                {({ inputid }) => (
+                  <FormTable>
+                    <tbody>
+                      {map2(options, checks, ({ id, label }, check, i) => (
+                        <tr key={id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={check}
+                              id={`${inputid}-${id}`}
+                              onChange={this.makeHandleChange(i)}
+                            />
+                          </td>
+                          <td>
+                            <label htmlFor={`${inputid}-${id}`}>{label}</label>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </FormTable>
+                )}
+              </WithRandomIds>
+            </>
+          ) : (
+            <FormControlWrapper>
+              <FontAwesomeIcon icon="spinner" pulse={true} size="3x" />
+            </FormControlWrapper>
+          )
+        }
+      />
     );
   }
   public async componentDidMount() {

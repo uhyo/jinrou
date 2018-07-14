@@ -131,8 +131,19 @@ export interface IKickDialog {
 /**
  * checklist dialog.
  */
-export interface IChecklistDialog {
-  modal?: boolean;
+export interface IChecklistDialog extends IDialogBase {
+  /**
+   * ok button.
+   */
+  ok: string;
+  /**
+   * cancel button.
+   */
+  cancel: string;
+  /**
+   * Message shown when the list is empty.
+   */
+  empty: string;
   /**
    * Promise which resolves to list of options.
    */

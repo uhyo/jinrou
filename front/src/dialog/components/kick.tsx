@@ -10,7 +10,7 @@ import {
   FormAsideText,
 } from './parts';
 import bind from 'bind-decorator';
-import { I18n } from '../../i18n';
+import { I18n, TranslationFunction } from '../../i18n';
 import { FontAwesomeIcon } from '../../util/icon';
 import { getKickList } from '../../api/kick-manage';
 import { showChecklistDialog } from '..';
@@ -87,7 +87,7 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
                     href="/"
                     // no-jump class instructs page to ignore click of this link.
                     className="no-jump"
-                    onClick={this.handleManagerClick}
+                    onClick={this.handleManagerClick(t)}
                   >
                     {t('kick.manager.title')}…
                   </a>
@@ -122,28 +122,36 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
       noentry,
     });
   }
-  @bind
-  private handleManagerClick<T>(e: React.SyntheticEvent<T>): void {
-    const { modal, roomid, onSelect } = this.props;
-    e.preventDefault();
-    // Kick manager link is clicked.
-    showChecklistDialog({
-      modal,
-      options: getKickList(roomid).then(ids =>
-        ids.map(id => ({ id, label: id })),
-      ),
-    })
-      .then(kicked => {
-        if (kicked != null) {
-          onSelect({
-            type: 'list-remove',
-            users: kicked,
-          });
-        }
+  private handleManagerClick<T>(
+    t: TranslationFunction,
+  ): (e: React.SyntheticEvent<T>) => void {
+    return (e: React.SyntheticEvent<T>) => {
+      const { modal, roomid, onSelect } = this.props;
+      e.preventDefault();
+      // Kick manager link is clicked.
+      showChecklistDialog({
+        modal,
+        title: t('kick.manager.title'),
+        message: t('kick.manager.message'),
+        empty: t('kick.manager.empty'),
+        ok: t('kick.ok'),
+        cancel: t('kick.cancel'),
+        options: getKickList(roomid).then(ids =>
+          ids.map(id => ({ id, label: id })),
+        ),
       })
-      .catch(err => {
-        // TODO: error handling
-        console.error(err);
-      });
+        .then(kicked => {
+          if (kicked != null) {
+            onSelect({
+              type: 'list-remove',
+              users: kicked,
+            });
+          }
+        })
+        .catch(err => {
+          // TODO: error handling
+          console.error(err);
+        });
+    };
   }
 }
