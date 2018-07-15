@@ -19,7 +19,7 @@ import {
 import { ReactCtor } from '../util/react-type';
 
 import { JobsString, PlayerNumberError } from './jobs-string';
-import { gameStart } from './logic/index';
+import { gameStart } from './logic';
 import { RuleControl } from './rule-control';
 import { SelectRoles } from './select-roles';
 import { CastingStore } from './store';

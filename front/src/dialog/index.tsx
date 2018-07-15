@@ -21,7 +21,7 @@ import { I18nProvider, getI18nFor } from '../i18n';
 import { i18n } from 'i18next';
 import { SelectDialog } from './components/select';
 import { KickDialog, KickResult } from './components/kick';
-import { ChecklistDialog } from './components/kick-manage';
+import { ChecklistDialog } from './components/checklist';
 import { BoundFunc } from '../util/cached-binder';
 import { PromptDialog } from './components/prompt';
 
