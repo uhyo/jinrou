@@ -7,14 +7,6 @@ export interface CastingDefinition {
    */
   id: string;
   /**
-   * name of this casting.
-   */
-  name: string;
-  /**
-   * description of casting.
-   */
-  label: string;
-  /**
    * Whether this casting allows user selection of roles.
    */
   roleSelect: boolean;

@@ -1510,16 +1510,12 @@ getLabeledGroupsOfJobrules = ()->
                 type: 'item'
                 value:
                     id: '特殊ルール.自由配役'
-                    name: '自由配役'
-                    label: '配役を自由に設定できます。'
                     roleSelect: true
             }
             {
                 type: 'item'
                 value:
                     id: '特殊ルール.闇鍋'
-                    name: '闇鍋'
-                    label: '配役がランダムに設定されます。'
                     roleSelect: false
                     noFill: true
             }
@@ -1527,8 +1523,6 @@ getLabeledGroupsOfJobrules = ()->
                 type: 'item'
                 value:
                     id: '特殊ルール.一部闇鍋'
-                    name: '一部闇鍋'
-                    label: '一部の配役を固定して残りをランダムにします。'
                     roleSelect: true
                     roleExclusion: true
                     noFill: true
@@ -1538,8 +1532,6 @@ getLabeledGroupsOfJobrules = ()->
                 type: 'item'
                 value:
                     id: '特殊ルール.量子人狼'
-                    name: '量子人狼'
-                    label: '全員の役職などが確率で表現される人狼です。村人・人狼・占い師のみ。'
                     roleSelect: false
                     suggestedOptions:
                         night:
@@ -1554,8 +1546,6 @@ getLabeledGroupsOfJobrules = ()->
                 type: 'item'
                 value:
                     id: '特殊ルール.エンドレス闇鍋'
-                    name: 'エンドレス闇鍋'
-                    label: '途中参加可能で、死亡したらそのうち転生する闇鍋です。'
                     roleSelect: false
                     noFill: true
             }

@@ -105,12 +105,19 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     <PlayerNumberError t={t} minNumber={minReq} />
                   </p>
                 ) : null;
+              // name of this casting.
+              const castingName = t(
+                `rules:castingName.${store.currentCasting.id}`,
+              );
+              const castingTitle = t(
+                `rules:castingTitle.${store.currentCasting.id}`,
+              );
               return (
                 <Wrapper>
                   <StatusLine>
                     {t('gamestart.info.playerNumber', { count: playersNumber })}
                     {' - '}
-                    {store.currentCasting.name}
+                    {castingName}
                     {' / '}
                     <JobsString
                       t={t}
@@ -125,23 +132,29 @@ export class Casting extends React.Component<IPropCasting, {}> {
                   <fieldset>
                     <legend>{t('gamestart.control.roles')}</legend>
 
-                    <SLG
-                      items={castings}
-                      value={currentCasting.id}
-                      getGroupLabel={(x: string) => ({
-                        key: x,
-                        label: x,
-                      })}
-                      getOptionKey={({ id }: CastingDefinition) => id}
-                      makeOption={(obj: CastingDefinition) => {
-                        return (
-                          <option value={obj.id} title={obj.label}>
-                            {obj.name}
-                          </option>
-                        );
-                      }}
-                      onChange={this.handleCastingChange}
-                    />
+                    <p>
+                      <SLG
+                        items={castings}
+                        value={currentCasting.id}
+                        getGroupLabel={(x: string) => ({
+                          key: x,
+                          label: x,
+                        })}
+                        getOptionKey={({ id }: CastingDefinition) => id}
+                        makeOption={(obj: CastingDefinition) => {
+                          return (
+                            <option
+                              value={obj.id}
+                              title={t(`rules:castingTitle.${obj.id}`)}
+                            >
+                              {t(`rules:castingName.${obj.id}`)}
+                            </option>
+                          );
+                        }}
+                        onChange={this.handleCastingChange}
+                      />{' '}
+                      {castingTitle}
+                    </p>
                     {currentCasting.roleSelect ? (
                       <SelectRoles
                         categories={categories}
