@@ -57,7 +57,7 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
     }
   }
   @bind
-  protected handleCancel(e?: any) {
+  protected handleCancel() {
     this.props.onSelect(null);
   }
   @bind

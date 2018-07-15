@@ -124,7 +124,6 @@ exports.start=(roomid)->
                 onWillChange:(will)->
                     # User's will is updated
                     ss.rpc "game.game.will", roomid, will, (result)->
-                        # TODO
                         if result?
                             dialog.showErrorDialog {
                                 modal: true
