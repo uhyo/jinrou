@@ -138,7 +138,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                         value={currentCasting.id}
                         getGroupLabel={(x: string) => ({
                           key: x,
-                          label: x,
+                          label: t(`rules:castingGroupName.${x}._name`),
                         })}
                         getOptionKey={({ id }: CastingDefinition) => id}
                         makeOption={(obj: CastingDefinition) => {

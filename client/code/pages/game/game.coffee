@@ -1477,7 +1477,7 @@ getLabeledGroupsOfJobrules = ()->
                 if Array.isArray obj.rule
                     {
                         type: 'group'
-                        label: obj.name
+                        label: [prefix..., obj.name].join '.'
                         items: f obj.rule, [prefix..., obj.name]
                     }
                 else
