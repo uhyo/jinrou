@@ -1485,8 +1485,6 @@ getLabeledGroupsOfJobrules = ()->
                         type: 'item'
                         value:
                             id: [prefix..., obj.name].join '.'
-                            name: obj.name
-                            label: obj.title
                             roleSelect: false
                             preset: obj.rule
                             suggestedOptions: convertSuggestedOption obj.suggestedOption
