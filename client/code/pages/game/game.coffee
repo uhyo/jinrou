@@ -79,9 +79,9 @@ exports.start=(roomid)->
                             ok: i18n.t "game_client:room.enterPasswordDialog.ok"
                             cancel: i18n.t "game_client:room.enterPasswordDialog.cancel"
                             password: true
-                            autocomplete: "no"
+                            autocomplete: "off"
                         }).then (pass)->
-                            unless pass?
+                            unless pass
                                 Index.app.showUrl "/rooms"
                                 return
                             ss.rpc "game.rooms.enter", roomid,pass,getenter

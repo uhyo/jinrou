@@ -41,7 +41,9 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
         )}
         buttons={() => (
           <>
-            <NoButton onClick={this.handleCancel}>{cancel}</NoButton>
+            <NoButton type="button" onClick={this.handleCancel}>
+              {cancel}
+            </NoButton>
             <YesButton type="submit">{ok}</YesButton>
           </>
         )}
@@ -55,15 +57,12 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
     }
   }
   @bind
-  protected handleCancel() {
+  protected handleCancel(e?: any) {
     this.props.onSelect(null);
   }
   @bind
-  protected handleSubmit() {
-    console.log(
-      this.inputRef.current,
-      this.inputRef.current && this.inputRef.current.value,
-    );
+  protected handleSubmit<T>(e: React.SyntheticEvent<T>) {
+    e.preventDefault();
     if (this.inputRef.current == null) {
       this.props.onSelect(null);
     } else {
