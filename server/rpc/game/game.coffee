@@ -7527,7 +7527,8 @@ class XianFox extends Fox
     type:"XianFox"
     # moves early so that jobname is obtained before target changes its job.
     midnightSort: 75
-    sleeping:(game)->@target?
+    jobdone:(game)->@target?
+    sleeping:->true
     sunset:(game)->
         super
         @setTarget null
