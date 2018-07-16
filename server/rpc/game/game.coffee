@@ -7523,6 +7523,56 @@ class Idol extends Player
             vote.priority++
         vote
 
+class XianFox extends Fox
+    type:"XianFox"
+    # moves early so that jobname is obtained before target changes its job.
+    midnightSort: 75
+    sleeping:(game)->@target?
+    sunset:(game)->
+        super
+        @setTarget null
+        @setFlag null
+        if @scapegoat
+            # 能力の対象を選択
+            targets = game.players.filter (x)=> !x.dead && x.id != @id
+            if targets.length > 0
+                r = Math.floor Math.random() * targets.length
+                @job game, targets[r].id, {}
+            else
+                @setTarget ""
+    job:(game, playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        @setTarget playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:XianFox.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        # obtain target's job.
+        pl = game.getPlayer @target
+        unless pl?
+            return
+        if pl.isJobType "Human"
+            # if pl is Human, result is not available.
+            @setFlag null
+        else
+            @setFlag pl.getJobname()
+        @addGamelog game, "xianresult", pl.type, pl.id
+
+    sunrise:(game)->
+        # show result.
+        if @flag?
+            log=
+                mode:"system"
+                comment: game.i18n.t "roles:XianFox.result", {result: @flag}
+            splashlog game.id, game, log
+            @setFlag null
 
 
 # ============================
@@ -8913,6 +8963,7 @@ jobs=
     TongueWolf:TongueWolf
     BlackCat:BlackCat
     Idol:Idol
+    XianFox:XianFox
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -9064,6 +9115,8 @@ jobStrength=
     EyesWolf:70
     TongueWolf:60
     BlackCat:19
+    Idol:12
+    XianFox:35
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
