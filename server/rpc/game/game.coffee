@@ -6053,6 +6053,10 @@ class SantaClaus extends Player
     isWinner:(game,team)->@flag=="gone" || super
     sunset:(game)->
         # まだ届けられる人がいるかチェック
+        if @flag == "gone"
+            # もう届け終わった
+            @setTarget ""
+            return
         fl=JSON.parse(@flag ? "[]")
         if game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
             @setTarget null
@@ -6066,6 +6070,9 @@ class SantaClaus extends Player
         else
             @setTarget ""
     sunrise:(game)->
+        if @flag == "gone"
+            # もう届け終わったのに生存している
+            return
         # 全員に配ったかチェック
         fl=JSON.parse(@flag ? "[]")
         unless game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
