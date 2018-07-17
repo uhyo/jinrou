@@ -8792,6 +8792,27 @@ class Chemical extends Complex
         if subt == myt || subt == "" || subt == "Devil"
             win = win || @sub.isWinner(game,team)
         return win
+    isWinnerStalk:(game,team,ids)->
+        if @id in ids
+            # infinite loop of Stalkers is formed, so terminate by false.
+            return false
+        # same as above but stalker-aware.
+        myt = @getTeam()
+        win = false
+        maint = @main.getTeam()
+        subt = @sub?.getTeam()
+        if maint == myt || maint == "" || maint == "Devil"
+            if @main.isWinnerStalk?
+                win = win || @main.isWinnerStalk(game, team, ids.concat @id)
+            else
+                win = win || @main.isWinner(game,team)
+        if subt == myt || subt == "" || subt == "Devil"
+            if @sub.isWinnerStalk?
+                win = win || @sub.isWinnerStalk(game, team, ids.concat @id)
+            else
+                win = win || @sub.isWinner(game,team)
+        return win
+
     die:(game, found, from)->
         return if @dead
         if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
