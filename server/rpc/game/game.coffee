@@ -2694,6 +2694,8 @@ class Player
 
     # jobtypeが合っているかどうか（夜）
     isJobType:(type)->type==@type
+    # メイン役職のjobtypeを判定
+    isMainJobType:(type)->@isJobType type
     #An access to @flag, etc.
     accessByJobType:(type)->
         unless type
@@ -2706,7 +2708,7 @@ class Player
     accessByJobTypeAll:(type, subonly)->
         unless type
             throw "there must be a JOBTYPE"
-        if @isJobType type
+        if !subonly && @isJobType(type)
             return [this]
         else
             return []
@@ -6971,7 +6973,9 @@ class Shishimai extends Player
         # 獅子舞に噛まれた人を集計
         bitten = []
         for pl in game.players
+            console.log "accessbyjobtypeall", pl.id
             ps = pl.accessByJobTypeAll("Shishimai")
+            console.log "accessed", ps
             if ps.length > 0
                 bitten.push pl.id
             for p in ps
@@ -7855,6 +7859,7 @@ class Complex
         return {dead:@dead,found:@found}
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
+    isMainJobType:(type)-> @main.isMainJobType type
     # Those like Friend return their own @team, these like Guarded return @main.getTeam()
     getTeam:-> if @team then @team else @main.getTeam()
     #An access to @main.flag, etc.
@@ -7874,7 +7879,7 @@ class Complex
         unless type
             throw "there must be a JOBTYPE"
         ret = []
-        if @main.isJobType(type)
+        if @main.isMainJobType(type)
             if !subonly
                 ret.push this
             ret.push (@main.accessByJobTypeAll(type, true))...
