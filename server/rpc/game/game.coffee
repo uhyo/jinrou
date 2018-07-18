@@ -6282,6 +6282,7 @@ class BadLady extends Player
                 to:@id
                 comment: game.i18n.t "roles:BadLady.selectKeep", {name: @name, target: pl.name}
             splashlog game.id,game,log
+
             # 2人を恋人、1人をキープに
             plm=game.getPlayer fl.main
             for pll in [plm,pl]
@@ -6292,10 +6293,11 @@ class BadLady extends Player
                         comment: game.i18n.t "roles:Lover.become", {name: pll.name}
                     splashlog game.id,game,log
             # 自分恋人
-            newpl=Player.factory null, game, this,null,Friend # 恋人だ！
+            mypl = game.getPlayer @id
+            newpl=Player.factory null, game, mypl, null, Friend # 恋人だ！
             newpl.cmplFlag=fl.main
-            @transProfile newpl
-            @transform game,newpl,true  # 入れ替え
+            mypl.transProfile newpl
+            mypl.transform game,newpl,true  # 入れ替え
             # 相手恋人
             newpl=Player.factory null, game, plm,null,Friend # 恋人だ！
             newpl.cmplFlag=@id
