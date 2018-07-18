@@ -8569,7 +8569,7 @@ class DivineCursed extends Complex
 # パティシエールに本命チョコをもらった
 class GotChocolateTrue extends Friend
     cmplType:"GotChocolateTrue"
-    getJobname:->@main.getJobname()
+    getJobname:-> @game.i18n.t "roles:GotChocolateTrue.jobname", {jobname: @main.getJobname()}
     getJobDisp:->@main.getJobDisp()
     getPartner:->
         if @cmplType=="GotChocolateTrue"

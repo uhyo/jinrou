@@ -737,6 +737,9 @@ KeepedLover:
 FoxMinion:
   jobname: "狐憑き（{{jobname}}）"
 
+GotChocolateTrue:
+  jobname: "本命（{{jobname}}）"
+
 FanOfIdol:
   name: "ファン"
   # message when his idol is dead.
