@@ -2647,6 +2647,8 @@ class Player
     getTypeDisp:->@type
     # 役職名を得る
     getJobname:->@jobname
+    # サブ役職の情報を除いた役職名を得る
+    getMainJobname:-> @getJobname()
     # 村人かどうか
     isHuman:->!@isWerewolf()
     # 人狼かどうか
@@ -3601,7 +3603,7 @@ class WolfDiviner extends Werewolf
         if p?
             @results.push {
                 player: p.publicinfo()
-                result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.jobname}
+                result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.getMainJobname()}
             }
             @addGamelog game,"wolfdivine",null,@flag  # 占った
             if p.getTeam()=="Werewolf" && p.isHuman()
@@ -3828,7 +3830,7 @@ class Spy2 extends Player
             
     publishdocument:(game)->
         str=game.players.map (x)->
-            "#{x.name}:#{x.jobname}"
+            "#{x.name}:#{x.getMainJobname()}"
         .join " "
         log=
             mode:"system"
@@ -4075,7 +4077,7 @@ class Stalker extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Stalker.select", {name: @name, target: pl.name, job: pl.jobname}
+            comment: game.i18n.t "roles:Stalker.select", {name: @name, target: pl.name, job: pl.getMainJobname()}
         splashlog game.id,game,log
         @setFlag playerid  # ストーキング対象プレイヤー
         null
@@ -5909,7 +5911,7 @@ class FrankensteinsMonster extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:FrankensteinsMonster.drain", {name: @name, target: pl.name, jobname: pl.getJobname()}
+                comment: game.i18n.t "roles:FrankensteinsMonster.drain", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
             splashlog game.id,game,log
 
             # 同じ能力を
@@ -7352,7 +7354,7 @@ class TongueWolf extends Werewolf
                 continue unless pl?
                 results.push {
                     player: pl.publicinfo()
-                    jobname: pl.jobname
+                    jobname: pl.getMainJobname()
                     isHuman: pl.isJobType "Human"
                 }
             @setFlag {
@@ -7574,7 +7576,7 @@ class XianFox extends Fox
             # if pl is Human, result is not available.
             @setFlag null
         else
-            @setFlag pl.getJobname()
+            @setFlag pl.getMainJobname()
         @addGamelog game, "xianresult", pl.type, pl.id
 
     sunrise:(game)->
@@ -8398,6 +8400,7 @@ class PhantomStolen extends Complex
         pl.setFlag true # もう盗めない
         pl.sunset game
     getJobname:-> @game.i18n.t "roles:jobname.Phantom" #霊界とかでは既に怪盗化
+    getMainJobname:-> @getJobname()
     # 勝利条件関係は村人化（昼の間だけだし）
     isWerewolf:->false
     isFox:->false
@@ -8702,6 +8705,12 @@ class Chemical extends Complex
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getJobname(), right: @sub.getJobname()}
         else
             @main.getJobname()
+    # same as above but uses getMainJobname.
+    getMainJobname:->
+        if @sub?
+            @game.i18n.t "roles:Chemical.jobname", {left: @main.getMainJobname(), right: @sub.getMainJobname()}
+        else
+            @main.getMainJobname()
     getJobDisp:->
         if @sub?
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getJobDisp(), right: @sub.getJobDisp()}
