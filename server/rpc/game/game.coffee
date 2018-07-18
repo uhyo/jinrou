@@ -1183,6 +1183,11 @@ class Game
                     player.sunset this
                 else
                     player.deadsunset this
+
+            #sunset後の死体処理
+            @bury "other"
+            return if @judge()
+
             # 忍者のデータを作る
             @ninja_data = {}
             for player in @players
@@ -1271,6 +1276,8 @@ class Game
 
 
             # 投票リセット処理
+            # Votingbox should be initialized before sunrise()
+            # because roles like TroubleMaker may modify it.
             @votingbox.init()
             alives=[]
             deads=[]
@@ -1287,17 +1294,20 @@ class Game
                 else
                     player.deadsunrise this
 
+            # sunrise後の死体処理
+            @bury "other"
+            return if @judge()
+
             alives = @players.filter (x)->!x.dead
 
             @votingbox.setCandidates alives
             for pl in alives
                 pl.votestart this
             @revote_num=0   # 再投票の回数は0にリセット
+
             # New year messageの処理
             end_date = new Date
             end_date.setTime(end_date.getTime() + @rule.day * 1000)
-            # debug
-            # end_date.setTime(end_date.getTime() + 145*60*1000)
             if (new Date).getFullYear() == @currentyear && end_date.getFullYear() > @currentyear
                 # 昼時間中に変わるので専用タイマー
                 end_date.setMonth 0
@@ -1310,7 +1320,6 @@ class Game
                 # end_date.setTime(end_date.getTime() - 145*60*1000)
                 current_day = @day
                 setTimeout (()=>
-                    console.log 'time!', @finished, @phase
                     if !@finished && @day == current_day && @phase in [Phase.day, Phase.day_remain, Phase.day_voting]
                         @currentyear++
                         log=
@@ -1319,9 +1328,6 @@ class Game
                         splashlog @id,this,log
                 ), end_date.getTime() - Date.now()
 
-        #死体処理
-        @bury "other"
-        return if @judge()
         @splashjobinfo()
         if night
             @checkjobs()
