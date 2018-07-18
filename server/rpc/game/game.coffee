@@ -4823,8 +4823,8 @@ class Lover extends Player
         @setFlag true
         # 恋人二人が決定した
         
-    
-        plpls=[this,pl]
+        mytop = game.getPlayer @id
+        plpls = [mytop, pl]
         for x,i in plpls
             newpl=Player.factory null, game, x,null,Friend # 恋人だ！
             x.transProfile newpl
@@ -4841,7 +4841,7 @@ class Lover extends Player
             comment: game.i18n.t "roles:Lover.become", {name: pl.name}
         splashlog game.id,game,log
         # 2人とも更新する
-        for pl in [this, pl]
+        for pl in [mytop, pl]
             game.ss.publish.user pl.id,"refresh",{id:game.id}
 
         null
