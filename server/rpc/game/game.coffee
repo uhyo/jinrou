@@ -7822,6 +7822,7 @@ class Complex
 
     
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
+    deadJobdone:(game)-> @mcall(game,@main.deadJobdone,game) && (!@sub?.deadJobdone? || @sub.deadJobdone(game))
     hunterJobdone:(game)-> @mcall(game,@main.hunterJobdone,game) && (!@sub?.hunterJobdone? || @sub.hunterJobdone(game))
     job:(game,playerid,query)-> # どちらの
         # query.jobtypeがない場合は内部処理なのでmainとして処理する?
@@ -8708,6 +8709,7 @@ class Chemical extends Complex
             @main.getJobDisp()
     sleeping:(game)->@main.sleeping(game) && (!@sub? || @sub.sleeping(game))
     jobdone:(game)->@main.jobdone(game) && (!@sub? || @sub.jobdone(game))
+    deadJobdone:(game)->@main.deadJobdone(game) && (!@sub? || @sub.deadJobdone(game))
 
     isHuman:->
         if @sub?
