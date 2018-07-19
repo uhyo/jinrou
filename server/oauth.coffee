@@ -17,7 +17,7 @@ class RateLimits
     isSuspended:(type)-> @suspended[type]
     # examine an error response from Twitter.
     examineError: (type, err, raw)->
-        if err.toString() == "[object Object]"
+        unless Array.isArray(err)
             return
         if @suspended[type]
             # it is already suspended; nothing to do.
@@ -53,7 +53,8 @@ tweet=(message, pass)->
         trim_user: 'true'
     }, (err, data, raw)->
         if err?
-            console.error 'tweet:', err
+            unless Array.isArray(err)
+                console.error 'tweet:', err
             rateLimits.examineError 'tweet', err, raw
         if data?
             console.log 'tweet:', data

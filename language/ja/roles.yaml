@@ -112,6 +112,7 @@ jobname:
   TongueWolf: "舌禍狼"
   BlackCat: "黒猫"
   Idol: "アイドル"
+  XianFox: "仙狐"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -688,6 +689,12 @@ Idol:
   # Result of observation.
   result: "{{name}}の観察の結果、現在の村人陣営の人数は{{count}}人でした。"
 
+XianFox:
+  # Select a target.
+  select: "{{name}}は{{target}}の役職を透視しました。"
+  # Result of skill (announced to everyone).
+  result: "昨晩の仙狐による透視の結果は{{result}}でした。"
+
 GameMaster:
   # Failed to revive.
   reviveFail: "プレイヤーを蘇生できませんでした。"
@@ -751,6 +758,9 @@ KeepedLover:
 
 FoxMinion:
   jobname: "狐憑き（{{jobname}}）"
+
+GotChocolateTrue:
+  jobname: "本命（{{jobname}}）"
 
 FanOfIdol:
   name: "ファン"
