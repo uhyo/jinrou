@@ -3,6 +3,12 @@ import * as xhrBackend from 'i18next-xhr-backend';
 
 export { I18n, I18nInterp, I18nProvider } from './react';
 
+/**
+ * System default language.
+ * TODO make this able to be injected from server
+ */
+let defaultLanguage = 'ja';
+
 i18next.use(xhrBackend).init({
   backend: {
     loadPath: '{{lng}}.{{ns}}',
@@ -10,7 +16,7 @@ i18next.use(xhrBackend).init({
     ajax,
   },
   // XXX language
-  fallbackLng: 'ja',
+  fallbackLng: defaultLanguage,
   ns: ['common', 'roles', 'game_client', 'game_client_form', 'rules'],
 });
 
@@ -43,7 +49,9 @@ export function forLanguage(lng: string): i18next.i18n {
 /**
  * Get an instance of i18next with specified language loaded.
  */
-export function getI18nFor(lng?: string): Promise<i18next.i18n> {
+export function getI18nFor(
+  lng: string = defaultLanguage,
+): Promise<i18next.i18n> {
   return new Promise((resolve, reject) => {
     const res = i18next.cloneInstance();
     if (lng != null) {
