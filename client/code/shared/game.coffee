@@ -615,7 +615,7 @@ exports.jobrules=[
   }
 ]
 # ルールオブジェクトを得る
-exports.getruleobj=(name)->
+getruleobj=(name)->
     # オブジェクトから探す
     if name=="特殊ルール.量子人狼"
         # 特殊だ!
@@ -660,7 +660,7 @@ exports.getrulefunc=(name)->
             ret
 
     # ほかはオブジェクトから探す
-    ruleobj=exports.getruleobj name
+    ruleobj = getruleobj name
     return ruleobj?.rule
 # ルールの名前を書く
 exports.getrulestr=(rule,jobs={})->

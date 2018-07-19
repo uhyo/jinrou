@@ -3,6 +3,7 @@ exports.start=(rolename)->
     JinrouFront.loadI18n()
         .then((i18n)-> i18n.getI18nFor())
         .then((i18n)-> new Promise (resolve, reject)->
+            # load additional resources required for this page.
             i18n.loadNamespaces 'page_casting', (err)->
                 if err?
                     reject err
@@ -12,12 +13,12 @@ exports.start=(rolename)->
             try
                 rolename=decodeURIComponent rolename
             roleid = rolename.replace "-", "."
-            ruleobj=Shared.game.getruleobj roleid
-            func=ruleobj.rule
+            func = Shared.game.getrulefunc roleid
 
             unless func?
                 $("#roletitle").text i18n.t "page_casting:unknownCasting"
                 return
+            # set casting name and title.
             $("#rolename").text i18n.t "rules:castingName.#{roleid}"
             $("#roletitle").text i18n.t "rules:castingTitle.#{roleid}"
 
@@ -33,7 +34,7 @@ exports.start=(rolename)->
                 th=document.createElement "th"
                 a=document.createElement "a"
                 a.href="/manual/job/#{type}"
-                a.textContent=getjobname type
+                a.textContent=getjobname i18n, type
                 th.appendChild a
                 jobs.push type
                 thr.appendChild th
@@ -77,9 +78,6 @@ exports.start=(rolename)->
 
 exports.end=->
 
-getjobname=(type)->
-    for teamname,arr of Shared.game.teams
-        if type in arr
-            return Shared.game.jobinfo[teamname][type].name
-    return null
+getjobname=(i18n, type)->
+    i18n.t "roles:jobname.#{type}"
 
