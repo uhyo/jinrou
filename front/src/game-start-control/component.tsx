@@ -107,10 +107,10 @@ export class Casting extends React.Component<IPropCasting, {}> {
                 ) : null;
               // name of this casting.
               const castingName = t(
-                `rules:castingName.${store.currentCasting.id}`,
+                `casting:castingName.${store.currentCasting.id}`,
               );
               const castingTitle = t(
-                `rules:castingTitle.${store.currentCasting.id}`,
+                `casting:castingTitle.${store.currentCasting.id}`,
               );
               return (
                 <Wrapper>
@@ -138,16 +138,16 @@ export class Casting extends React.Component<IPropCasting, {}> {
                         value={currentCasting.id}
                         getGroupLabel={(x: string) => ({
                           key: x,
-                          label: t(`rules:castingGroupName.${x}._name`),
+                          label: t(`casting:castingGroupName.${x}._name`),
                         })}
                         getOptionKey={({ id }: CastingDefinition) => id}
                         makeOption={(obj: CastingDefinition) => {
                           return (
                             <option
                               value={obj.id}
-                              title={t(`rules:castingTitle.${obj.id}`)}
+                              title={t(`casting:castingTitle.${obj.id}`)}
                             >
-                              {t(`rules:castingName.${obj.id}`)}
+                              {t(`casting:castingName.${obj.id}`)}
                             </option>
                           );
                         }}

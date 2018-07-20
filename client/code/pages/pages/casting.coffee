@@ -19,8 +19,8 @@ exports.start=(rolename)->
                 $("#roletitle").text i18n.t "page_casting:unknownCasting"
                 return
             # set casting name and title.
-            $("#rolename").text i18n.t "rules:castingName.#{roleid}"
-            $("#roletitle").text i18n.t "rules:castingTitle.#{roleid}"
+            $("#rolename").text i18n.t "casting:castingName.#{roleid}"
+            $("#roletitle").text i18n.t "casting:castingTitle.#{roleid}"
 
             jobs=[null] # 出現する役職の一覧
 

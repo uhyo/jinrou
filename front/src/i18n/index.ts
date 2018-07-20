@@ -17,7 +17,14 @@ i18next.use(xhrBackend).init({
   },
   // XXX language
   fallbackLng: defaultLanguage,
-  ns: ['common', 'roles', 'game_client', 'game_client_form', 'rules'],
+  ns: [
+    'common',
+    'roles',
+    'game_client',
+    'game_client_form',
+    'rules',
+    'casting',
+  ],
 });
 
 /**

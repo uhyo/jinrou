@@ -19,12 +19,12 @@ app=(i18n, dl, arr, prefixes=[])->
         rule=obj.rule
         if Array.isArray rule
             # 子がある
-            dt=$("<dt>").text(i18n.t "rules:castingGroupName.#{objid}._name").appendTo dl
+            dt=$("<dt>").text(i18n.t "casting:castingGroupName.#{objid}._name").appendTo dl
             dd=$("<dd>").appendTo dl
             dll=$("<dl>").appendTo dd
             app i18n, dll, rule, objpath
         else
             # 詳細
             dt=$("<dt>").appendTo dl
-            a=$("<a href='/manual/casting/#{objpath.join('-')}'>").text(i18n.t "rules:castingName.#{objid}").appendTo dt
-            dd=$("<dd>").text(i18n.t "rules:castingTitle.#{objid}").appendTo dl
+            a=$("<a href='/manual/casting/#{objpath.join('-')}'>").text(i18n.t "casting:castingName.#{objid}").appendTo dt
+            dd=$("<dd>").text(i18n.t "casting:castingTitle.#{objid}").appendTo dl

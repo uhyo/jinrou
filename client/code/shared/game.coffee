@@ -88,7 +88,7 @@ exports.categories=
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai"]
 
-# deprecated
+# removable
 exports.categoryNames=
     Human:"村人系"
     Werewolf:"人狼系"
@@ -662,7 +662,7 @@ exports.getrulefunc=(name)->
     # ほかはオブジェクトから探す
     ruleobj = getruleobj name
     return ruleobj?.rule
-# ルールの名前を書く
+# removable
 exports.getrulestr=(rule,jobs={})->
     text=""
     if rule=="特殊ルール.闇鍋"

@@ -15,16 +15,16 @@ exports.start=->
                     if Array.isArray obj.rule
                         # さらに子
                         optgroup = document.createElement "optgroup"
-                        optgroup.label = i18n.t "rules:castinGroupgName.#{ruleid.join '.'}"
+                        optgroup.label = i18n.t "casting:castinGroupgName.#{ruleid.join '.'}"
                         parent.appendChild optgroup
                         setjobrule obj.rule, ruleid, optgroup
                     else
                         # option
                         ruleidname = ruleid.join '.'
                         option=document.createElement "option"
-                        option.textContent = i18n.t "rules:castingName.#{ruleidname}"
+                        option.textContent = i18n.t "casting:castingName.#{ruleidname}"
                         option.value = ruleidname
-                        option.title = i18n.t "rules:castingTitle.#{ruleidname}"
+                        option.title = i18n.t "casting:castingTitle.#{ruleidname}"
                         parent.appendChild option
             # TODO definitions of these rules are duplicate.
             setjobrule Shared.game.jobrules.concat([

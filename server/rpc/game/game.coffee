@@ -9342,7 +9342,7 @@ module.exports.actions=(req,res,ss)->
                 # カテゴリも
                 for type of Shared.game.categories
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
-                ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
                 # カテゴリ内の人数の合計がわかる関数
                 countCategory=(categoryname)->
@@ -9355,7 +9355,7 @@ module.exports.actions=(req,res,ss)->
                     # 一部闇鍋のときはこちらで配分可能な役職を数える
                     for job in Shared.game.jobs
                         frees -= joblist[job]
-                ruleinfo_str = Shared.game.getrulestr query.jobrule,joblist
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
 
                 safety={
                     jingais:false   # 人外の数を調整
@@ -10011,7 +10011,7 @@ module.exports.actions=(req,res,ss)->
                 for job of jobs
                     unless joblist[job]?
                         joblist[job]=0
-                ruleinfo_str=Shared.game.getrulestr query.jobrule,list_for_rule
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, list_for_rule
 
 
             else if query.jobrule!="特殊ルール.自由配役"
@@ -10033,7 +10033,7 @@ module.exports.actions=(req,res,ss)->
                         sum-=parseInt joblist["category_#{type}"]
                 # 残りは村人だ！
                 joblist.Human = frees - sum
-                ruleinfo_str=Shared.game.getrulestr query.jobrule,joblist
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
             if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.一部闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
@@ -10630,6 +10630,31 @@ makejobinfo = (game,player,result={})->
             result.will=player.will
 
     result
+
+# ログ用の配役文字列を生成
+getrulestr = (i18n, rule, jobs={})->
+    ruleName = i18n.t "casting:castingName.#{rule}"
+    if rule in ["特殊ルール.闇鍋", "特殊ルール.エンドレス闇鍋"]
+        # just show rule name for these rules.
+        return ruleName
+
+    # make initial part of text.
+    text = "#{ruleName} / "
+
+    # write numbers of each role.
+    for job in Shared.game.jobs
+        num = jobs[job]
+        continue unless parseInt num
+        jobName = i18n.t "roles:jobname.#{job}"
+        text+="#{jobName}#{num} "
+
+    # write number of categories.
+    for type of Shared.game.categories
+        num = jobs["category_#{type}"]
+        if num > 0
+            catName = i18n.t "roles:categoryName.#{type}"
+            text+="#{catName}#{num} "
+    return text
 
 # 配列シャッフル（破壊的）
 shuffle= (arr)->
