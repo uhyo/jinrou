@@ -691,6 +691,7 @@ exports.getjobobj = getjobobj = (job)->
     return null
 # 職の名前
 exports.getjobname = (job)-> getjobobj(job)?.name
+# jobinfo.name can now be removed
 exports.jobinfo=
     Human:
         name:"村人陣営"

@@ -58,10 +58,10 @@ exports.start=->
                 if t.name=="prev"
                     page--
                     if page<0 then page=0
-                    ss.rpc "game.rooms.find", query,page,(rooms)->getroom "log",rooms
+                    ss.rpc "game.rooms.find", query,page,(rooms)->getroom i18n, "log",rooms
                 else if t.name=="next"
                     page++
-                    ss.rpc "game.rooms.find", query,page,(rooms)->getroom "log",rooms
+                    ss.rpc "game.rooms.find", query,page,(rooms)->getroom i18n, "log",rooms
 
             $("#logsform").change (je)->
                 # disable/able
