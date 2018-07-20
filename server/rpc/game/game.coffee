@@ -9355,6 +9355,8 @@ module.exports.actions=(req,res,ss)->
                     # 一部闇鍋のときはこちらで配分可能な役職を数える
                     for job in Shared.game.jobs
                         frees -= joblist[job]
+                    for type of Shared.game.categories
+                        frees -= joblist["category_#{type}"]
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
 
                 safety={
