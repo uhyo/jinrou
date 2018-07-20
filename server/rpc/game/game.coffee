@@ -6366,6 +6366,8 @@ class BadLady extends Player
         null
     makejobinfo:(game,result)->
         super
+        # "BadLady" form does not exist
+        result.forms = result.forms.filter (obj)-> obj.type != "BadLady"
         if !@jobdone(game) && Phase.isNight(game.phase)
             # 夜の選択肢
             fl=@flag ? {}

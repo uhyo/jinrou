@@ -64,7 +64,7 @@ jobinfo:
     spy2s: "スパイⅡは{{names}}です"
     friends: "恋人は{{names}}です"
     cultmembers: "カルトの信者は{{names}}です"
-    vampire: "ヴァンパイアは{{names}}です"
+    vampires: "ヴァンパイアは{{names}}です"
     twins: "双子は{{names}}です"
     stalking: "あなたは{{name}}のストーカーです"
     supporting: "あなたは{{name}}（{{job}}）をサポートしています"

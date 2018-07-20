@@ -150,7 +150,9 @@ export class I18nInterpInner extends React.PureComponent<
     };
   }
   public render() {
-    const { state: { resource } } = this;
+    const {
+      state: { resource },
+    } = this;
     const c = this.props.children as
       | Record<string, React.ReactNode>
       | undefined;
@@ -197,7 +199,11 @@ export class I18nInterpInner extends React.PureComponent<
  */
 function getResource(props: IPropI18nInterpInner): string[] {
   const { i18n, ns, k } = props;
-  const res: string = i18n.getResource(i18n.language, ns, k);
+  const res: string | undefined = i18n.getResource(i18n.language, ns, k);
+  if (res == null) {
+    // If that resource is undefined, return the key itself (same behavior as i18n).
+    return [k];
+  }
   // XXX it cannot handle custom options.
   const result: string[] = [];
   let r;
