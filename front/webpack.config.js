@@ -1,4 +1,20 @@
+// Register CoffeeScript for reading config from app.config.
+require('coffee-script/register');
+
 const path = require('path');
+const webpack = require('webpack');
+
+// system language.
+let systemLanguage;
+try {
+  const config = require('../config/app.coffee');
+
+  systemLanguage = config.language.value;
+} catch(e) {
+  console.error(`Error: '../config/app.coffee' does not exist. Prepare configuration file before building.`);
+
+  throw e;
+}
 
 module.exports = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -26,6 +42,11 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      EXTERNAL_SYSTEM_LANGUAGE: JSON.stringify(systemLanguage),
+    }),
+  ],
   resolve: {
     alias: {
       '@fortawesome/fontawesome-free-solid$':
