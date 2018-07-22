@@ -56,6 +56,15 @@ export const FormAsideText = styled.div`
 `;
 
 /**
+ * Wrapper of error message in a dialog.
+ */
+export const FormErrorMessage = styled.div`
+  margin: 5px 0;
+
+  color: red;
+  font-size: 0.9em;
+`;
+/**
  * Input for form in dialog.
  */
 export const FormInput = styled.input`

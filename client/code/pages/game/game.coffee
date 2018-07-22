@@ -140,21 +140,25 @@ exports.start=(roomid)->
                             }
                 roomControlHandlers:
                     join: (user)->
-                        ss.rpc "game.rooms.join", roomid, user, (result)->
-                            if result?.require == "login"
-                                # ログインが必要
-                                # TODO
-                                Index.util.loginWindow ->
-                                    if Index.app.userid()
-                                        Index.app.refresh()
-                            else if result?.error?
-                                dialog.showErrorDialog {
-                                    modal: true
-                                    message: String result.error
-                                }
-                            else
-                                # succeeded to login
-                                Index.app.refresh()
+                        processJoin = ->
+                            ss.rpc "game.rooms.join", roomid, user, (result)->
+                                if result?.require == "login"
+                                    # ログインが必要
+                                    dialog.showLoginDialog({
+                                        modal: true
+                                        login: Index.app.loginPromise
+                                    }).then (loggedin)->
+                                        if loggedin && Index.app.userid()
+                                            processJoin()
+                                else if result?.error?
+                                    dialog.showErrorDialog {
+                                        modal: true
+                                        message: String result.error
+                                    }
+                                else
+                                    # succeeded to login
+                                    Index.app.refresh()
+                        processJoin()
                     unjoin: ()->
                         # 脱退
                         ss.rpc "game.rooms.unjoin", roomid,(result)->

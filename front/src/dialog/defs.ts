@@ -154,3 +154,14 @@ export interface IChecklistDialog extends IDialogBase {
     }>
   >;
 }
+
+/**
+ * Login dialog.
+ */
+export interface ILoginDialog {
+  modal?: boolean;
+  /**
+   * API to login.
+   */
+  login: (userid: string, password: string) => Promise<boolean>;
+}

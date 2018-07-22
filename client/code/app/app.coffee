@@ -303,6 +303,19 @@ exports.refresh=->showUrl location.pathname, util.searchHash(location.search), t
 exports.login=login=(uid,ups,cb)->
     ss.rpc "user.login", {userid:uid,password:ups},(result)->
         processLoginResult uid, result, cb
+# Promise version of login.
+# Also it saves user into to localStorage.
+exports.loginPromise = (uid, ups)->
+    new Promise (resolve)->
+        login uid, ups, (result)->
+            if result
+                # succeeded to login.
+                localStorage.setItem "userid", uid
+                localStorage.setItem "password", ups
+                resolve true
+            else
+                resolve false
+
 exports.processLoginResult = processLoginResult = (uid, result, cb)->
     if result.banid
         libban.saveBanData result.banid

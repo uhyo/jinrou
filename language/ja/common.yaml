@@ -19,3 +19,19 @@ errorDialog:
   # close button.
   close: "閉じる"
 
+# Text for login form.
+loginForm:
+  # title of login form.
+  title: "ログイン"
+  # button to login.
+  ok: "ログイン"
+  # cancel button.
+  cancel: "キャンセル"
+  # label for userid input.
+  userid: "ユーザーID"
+  # label for password.
+  password: "パスワード"
+  # link to sign up form.
+  signup: "新規登録"
+  # error when login failed.
+  error: "ユーザーIDまたはパスワードが違います。"

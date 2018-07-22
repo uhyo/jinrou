@@ -11,6 +11,7 @@ import {
   IChecklistDialog,
   IErrorDialog,
   IPromptDialog,
+  ILoginDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -24,6 +25,7 @@ import { KickDialog, KickResult } from './components/kick';
 import { ChecklistDialog } from './components/checklist';
 import { BoundFunc } from '../util/cached-binder';
 import { PromptDialog } from './components/prompt';
+import { LoginDialog } from './components/login';
 
 /**
  * Show a message dialog.
@@ -136,6 +138,17 @@ export async function showChecklistDialog(
   const i18n = await getI18nFor();
   return showDialog<string[] | null>(i18n, (open, close) => {
     const dialog = <ChecklistDialog {...d} onSelect={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show a login dialog.
+ */
+export async function showLoginDialog(d: ILoginDialog): Promise<boolean> {
+  const i18n = await getI18nFor();
+  return showDialog<boolean>(i18n, (open, close) => {
+    const dialog = <LoginDialog {...d} onClose={close} />;
     open(dialog);
   });
 }
