@@ -69,6 +69,15 @@ const Title = styled.div`
   font-size: 1.4em;
   font-weight: bold;
 `;
+const CloseButton = styled.span`
+  float: right;
+  line-height: 0;
+  color: #999999;
+  cursor: pointer;
+  &:hover {
+    color: black;
+  }
+`;
 const DialogMain = styled.div`
   margin: 0.8em;
 `;
@@ -87,7 +96,15 @@ export const Buttons = styled.div`
  */
 class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
   public render() {
-    const { className, icon, title, children, form, onSubmit } = this.props;
+    const {
+      className,
+      icon,
+      title,
+      children,
+      form,
+      onSubmit,
+      onCancel,
+    } = this.props;
 
     return (
       <WithRandomIds names={['title', 'desc']}>
@@ -102,6 +119,9 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
               <Title id={titleid}>
                 {icon ? <FontAwesomeIcon icon={icon} /> : null}
                 {title}
+                <CloseButton onClick={onCancel}>
+                  <FontAwesomeIcon icon="times" />
+                </CloseButton>
               </Title>
             ) : null}
             <DialogMain id={desc}>
