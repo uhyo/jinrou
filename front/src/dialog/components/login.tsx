@@ -11,6 +11,7 @@ import {
   FormInput,
   FormControlWrapper,
   FormErrorMessage,
+  FormAsideText,
 } from './parts';
 import { I18n, TranslationFunction } from '../../i18n';
 
@@ -89,6 +90,17 @@ export class LoginDialog extends React.PureComponent<
                   </NoButton>
                   <YesButton>{ok}</YesButton>
                 </>
+              )}
+              afterButtons={() => (
+                <FormAsideText>
+                  <a href="/" onClick={this.handleCancel}>
+                    {t('loginForm.signup')}
+                  </a>
+                  {'　'}
+                  <a href="/manual/login" target="_blank">
+                    {t('loginForm.help')}
+                  </a>
+                </FormAsideText>
               )}
             />
           );

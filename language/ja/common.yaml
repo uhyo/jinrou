@@ -33,5 +33,7 @@ loginForm:
   password: "パスワード"
   # link to sign up form.
   signup: "新規登録"
+  # link to help page.
+  help: "ヘルプ"
   # error when login failed.
   error: "ユーザーIDまたはパスワードが違います。"
