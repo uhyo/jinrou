@@ -14,6 +14,8 @@ import {
   FormName,
   FormContent,
   SelectWrapper,
+  FormStatusLine,
+  FormTypeWrapper,
 } from './elements';
 import { FormContentProps } from './defs';
 
@@ -52,7 +54,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
   protected commandName: string = '';
   public render() {
     const { form, onSubmit } = this.props;
-    const { type, options } = form;
+    const { type, options, formType } = form;
     return (
       <I18n namespace="game_client_form">
         {t => {
@@ -62,6 +64,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
             : t('normalName', {
                 job: t(`roles:jobname.${type}`),
               });
+          const formTypeStr = t(`formType.${formType}`);
           // Make options as renderer.
           const makeOptions = () =>
             options.map(({ name, value }, i) => (
@@ -114,7 +117,12 @@ export class Form extends React.PureComponent<IPropForm, {}> {
           return (
             <FormWrapper>
               <form onSubmit={handleSubmit} onClick={handleClick}>
-                <FormName>{name}</FormName>
+                <FormStatusLine>
+                  <FormName>{name}</FormName>
+                  <FormTypeWrapper formType={formType}>
+                    {formTypeStr}
+                  </FormTypeWrapper>
+                </FormStatusLine>
                 <FormContent>
                   {content}
                   <SelectWrapper>

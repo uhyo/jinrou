@@ -103,6 +103,7 @@ export interface RoleDesc {
    */
   type: string;
 }
+export type FormType = 'required' | 'optional' | 'optionalOnce';
 export interface FormDesc {
   /**
    * Type of this form.
@@ -112,6 +113,10 @@ export interface FormDesc {
    * Options for this form.
    */
   options: FormOption[];
+  /**
+   * Type of requiredness.
+   */
+  formType: FormType;
 }
 export interface FormOption {
   /**

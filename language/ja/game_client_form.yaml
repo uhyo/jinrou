@@ -3,6 +3,12 @@ normalName: "{{job}}の能力"
 # label of button of normal job form.
 normalButton: "選択"
 
+# label for each form type.
+formType:
+  required: "必須"
+  optional: "任意"
+  optionalOnce: "任意（1回のみ）"
+
 # Name forms which is a little special.
 specialName:
   _day: "処刑投票"

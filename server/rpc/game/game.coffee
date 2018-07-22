@@ -83,6 +83,15 @@ GuardReason =
     holy: 'holy'
     # 罠
     trap: 'trap'
+# Type of open forms.
+FormType =
+    # 必須
+    required: 'required'
+    # 任意（毎晩使用可能）
+    optional: 'optional'
+    # 任意（1回のみ）
+    optionalOnce: 'optionalOnce'
+
 
 # 浅いコピー
 copyObject=(obj)->
@@ -2783,6 +2792,8 @@ class Player
     # 対象用の値
     @JOB_T_ALIVE:1  # 生きた人が対象
     @JOB_T_DEAD :2  # 死んだ人が対象
+    # フォームの種類（null or FormType)
+    formType: null
     #人狼に食われて死ぬかどうか
     willDieWerewolf:true
     #占いの結果
@@ -2867,6 +2878,7 @@ class Player
                 obj.forms.push {
                     type: @type
                     options: @makeJobSelection game
+                    formType: @formType
                 }
         else if game.phase == Phase.hunter
             unless @hunterJobdone(game)
@@ -2874,6 +2886,7 @@ class Player
                 obj.forms.push {
                     type: @type
                     options: @makeJobSelection game
+                    formType: @formType
                 }
         # 役職解説のアレ
         obj.desc ?= []
@@ -3090,7 +3103,7 @@ class Werewolf extends Player
                         }
                         i--
 
-
+    formType: FormType.required
     sleeping:(game)->game.werewolf_target_remain<=0 || !Phase.isNight(game.phase)
     job:(game,playerid)->
         tp = game.getPlayer playerid
@@ -3144,6 +3157,7 @@ class Werewolf extends Player
                 result.forms.push {
                     type: "_Werewolf"
                     options: @makeJobSelection game
+                    formType: FormType.required
                 }
             # 人狼の場合は役職固有のやつは一旦閉じる
             result.open = result.open.filter (x)=> x != @type
@@ -3162,6 +3176,7 @@ class Werewolf extends Player
 class Diviner extends Player
     type:"Diviner"
     midnightSort: 100
+    formType: FormType.required
     constructor:->
         super
         @results=[]
@@ -3279,6 +3294,7 @@ class Madman extends Player
 class Guard extends Player
     type:"Guard"
     midnightSort: 80
+    formType: FormType.required
     hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
@@ -3404,6 +3420,7 @@ class TinyFox extends Diviner
     psychicResult: PsychicResult.TinyFox
     team:"Fox"
     midnightSort:100
+    formType: FormType.required
     isHuman:->false
     isFox:->true
     hasDeadResistance:->true
@@ -3477,6 +3494,7 @@ class Slave extends Player
 class Magician extends Player
     type:"Magician"
     midnightSort:100
+    formType: FormType.required
     isReviver:->!@dead
     sunset:(game)->
         @setTarget (if game.day<3 then "" else null)
@@ -3524,6 +3542,7 @@ class Spy extends Player
     type:"Spy"
     team:"Werewolf"
     midnightSort:100
+    formType: FormType.optionalOnce
     sleeping:->true # 能力使わなくてもいい
     jobdone:->@flag in ["spygone","day1"]   # 能力を使ったか
     sunrise:(game)->
@@ -3655,11 +3674,13 @@ class WolfDiviner extends Werewolf
                 result.forms.push {
                     type: @type
                     options: @makeJobSelection game
+                    formType: FormType.optional
                 }
 
 
 class Fugitive extends Player
     type:"Fugitive"
+    formType: FormType.required
     midnightSort:100
     hasDeadResistance:->true
     sunset:(game)->
@@ -3720,6 +3741,7 @@ class Merchant extends Player
     constructor:->
         super
         @setFlag null  # 発送済みかどうか
+    formType: FormType.optionalOnce
     sleeping:->true
     jobdone:(game)->game.day<=1 || @flag?
     job:(game,playerid,query)->
@@ -3785,6 +3807,7 @@ class Neet extends Player
 class Liar extends Player
     type:"Liar"
     midnightSort:100
+    formType: FormType.required
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     constructor:->
         super
@@ -3871,6 +3894,7 @@ class Spy2 extends Player
 class Copier extends Player
     type:"Copier"
     team:""
+    formType: FormType.optionalOnce
     isHuman:->false
     sleeping:->true
     jobdone:->@target?
@@ -3917,6 +3941,7 @@ class Copier extends Player
     isWinner:(game,team)->false # コピーしないと負け
 class Light extends Player
     type:"Light"
+    formType: FormType.optional
     midnightSort:100
     sleeping:->true
     jobdone:(game)->@target? || game.day==1
@@ -4008,6 +4033,7 @@ class ToughGuy extends Player
 class Cupid extends Player
     type:"Cupid"
     team:"Friend"
+    formType: FormType.required
     constructor:->
         super
         @setFlag null  # 恋人1
@@ -4079,6 +4105,7 @@ class Cupid extends Player
 class Stalker extends Player
     type:"Stalker"
     team:""
+    formType: FormType.required
     sunset:(game)->
         super
         if !@flag   # ストーキング先を決めていない
@@ -4214,6 +4241,7 @@ class Diseased extends Player
             game.werewolf_flag.push "Diseased"   # 病人フラグを立てる
 class Spellcaster extends Player
     type:"Spellcaster"
+    formType: FormType.optional
     midnightSort:100
     sleeping:->true
     jobdone:->@target?
@@ -4267,6 +4295,7 @@ class Lycan extends Player
 class Priest extends Player
     type:"Priest"
     midnightSort:70
+    formType: FormType.optionalOnce
     hasDeadResistance:->true
     sleeping:->true
     jobdone:->@flag?
@@ -4486,6 +4515,7 @@ class CultLeader extends Player
     type:"CultLeader"
     team:"Cult"
     midnightSort:100
+    formType: FormType.required
     sleeping:->@target?
     sunset:(game)->
         super
@@ -4531,6 +4561,7 @@ class Vampire extends Player
     willDieWerewolf:false
     fortuneResult: FortuneResult.vampire
     midnightSort:100
+    formType: FormType.required
     sleeping:(game)->@target? || game.day==1
     isHuman:->false
     isVampire:->true
@@ -4578,6 +4609,7 @@ class LoneWolf extends Werewolf
 class Cat extends Poisoner
     type:"Cat"
     midnightSort:100
+    formType: FormType.optional
     isReviver:->true
     sunset:(game)->
         @setTarget (if game.day<2 then "" else null)
@@ -4638,6 +4670,7 @@ class Cat extends Poisoner
 class Witch extends Player
     type:"Witch"
     midnightSort:100
+    formType: FormType.optional
     isReviver:->!@dead
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     sleeping:->true
@@ -4752,6 +4785,7 @@ class Tanner extends Player
 class OccultMania extends Player
     type:"OccultMania"
     midnightSort:100
+    formType: FormType.required
     sleeping:(game)->@target? || game.day<2
     sunset:(game)->
         @setTarget (if game.day>=2 then null else "")
@@ -4822,6 +4856,7 @@ class WhisperingMad extends Fanatic
 class Lover extends Player
     type:"Lover"
     team:"Friend"
+    formType: FormType.required
     constructor:->
         super
         @setTarget null    # 相手
@@ -4879,6 +4914,7 @@ class Lover extends Player
 class MinionSelector extends Player
     type:"MinionSelector"
     team:"Werewolf"
+    formType: FormType.required
     sleeping:(game)->@target? || game.day>1 # 初日のみ
     sunset:(game)->
         @setTarget (if game.day==1 then null else "")
@@ -4919,6 +4955,7 @@ class MinionSelector extends Player
 class Thief extends Player
     type:"Thief"
     team:""
+    formType: FormType.required
     sleeping:(game)->@target? || game.day>1
     sunset:(game)->
         @setTarget (if game.day==1 then null else "")
@@ -4971,6 +5008,7 @@ class Dog extends Player
     fortuneResult: FortuneResult.werewolf
     psychicResult: PsychicResult.werewolf
     midnightSort:80
+    formType: FormType.optionalOnce
     hasDeadResistance:->true
     sunset:(game)->
         super
@@ -5040,6 +5078,7 @@ class Dog extends Player
         null
     makejobinfo:(game,result)->
         super
+        result.forms = result.forms.filter (obj)-> obj.type != "Dog"
         if !@jobdone(game) && Phase.isNight(game.phase)
             if @flag?
                 # 飼い主いる
@@ -5049,7 +5088,8 @@ class Dog extends Player
                         result.open.push "Dog1"
                         result.forms.push {
                             type: "Dog1"
-                            options: @makeJobSelection game
+                            options: []
+                            formType: FormType.optionalOnce
                         }
                     result.dogOwner=pl.publicinfo()
 
@@ -5057,7 +5097,8 @@ class Dog extends Player
                 result.open.push "Dog2"
                 result.forms.push {
                     type: "Dog2"
-                    options: []
+                    options: @makeJobSelection game
+                    formType: FormType.required
                 }
     makeJobSelection:(game)->
         # 噛むときは対象選択なし
@@ -5066,6 +5107,7 @@ class Dog extends Player
         else super
 class Dictator extends Player
     type:"Dictator"
+    formType: FormType.optionalOnce
     sleeping:->true
     jobdone:(game)->@flag? || !Phase.isDay(game.phase)
     chooseJobDay:(game)->true
@@ -5116,6 +5158,7 @@ class SeersMama extends Player
 class Trapper extends Player
     type:"Trapper"
     midnightSort:81
+    formType: FormType.required
     hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
@@ -5162,6 +5205,7 @@ class Trapper extends Player
 class WolfBoy extends Madman
     type:"WolfBoy"
     midnightSort:90
+    formType: FormType.optional
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
@@ -5194,6 +5238,7 @@ class WolfBoy extends Madman
 class Hoodlum extends Player
     type:"Hoodlum"
     team:""
+    formType: FormType.required
     constructor:->
         super
         @setFlag "[]"  # 殺したい対象IDを入れておく
@@ -5244,6 +5289,7 @@ class Hoodlum extends Player
 class QuantumPlayer extends Player
     type:"QuantumPlayer"
     midnightSort:100
+    formType: FormType.required
     getJobname:->
         flag=JSON.parse(@flag||"{}")
         jobname=null
@@ -5411,12 +5457,14 @@ class QuantumPlayer extends Player
             result.forms.push {
                 type: "_Quantum_Diviner"
                 options: @makeJobSelection game
+                forms: FormType.required
             }
         unless tarobj.Werewolf?
             result.open.push "_Quantum_Werewolf"
             result.forms.push {
                 type: "_Quantum_Werewolf"
                 options: @makeJobSelection game
+                forms: FormType.required
             }
         if game.rule.quantumwerewolf_table=="anonymous"
             # 番号がある
@@ -5474,6 +5522,7 @@ class RedHood extends Player
 class Counselor extends Player
     type:"Counselor"
     midnightSort:100
+    formType: FormType.optional
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
@@ -5526,6 +5575,7 @@ class Counselor extends Player
 class Miko extends Player
     type:"Miko"
     midnightSort:71
+    formType: FormType.optionalOnce
     hasDeadResistance:->true
     sleeping:->true
     jobdone:->!!@flag
@@ -5586,6 +5636,7 @@ class GreedyWolf extends Werewolf
                 result.forms.push {
                     type: "GreedyWolf"
                     options: []
+                    formType: FormType.optionalOnce
                 }
     makeJobSelection:(game)->
         if Phase.isNight(game.phase) && @sleeping(game) && !@jobdone(game)
@@ -5662,6 +5713,7 @@ class FascinatingWolf extends Werewolf
                 result.forms.push {
                     type: "FascinatingWolf"
                     options: @makeJobSelection game
+                    formType: FormType.required
                 }
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
@@ -5732,6 +5784,7 @@ class ToughWolf extends Werewolf
             result.forms.push {
                 type: @type
                 options: @makeJobSelection game
+                formType: FormType.optionalOnce
             }
 
 class ThreateningWolf extends Werewolf
@@ -5787,11 +5840,18 @@ class ThreateningWolf extends Werewolf
         t.transform game,newpl,true
 
         super
+    makejobinfo:(game, result)->
+        super
+        # XXX adjust form type.
+        result.forms.forEach (obj)->
+            if obj.type == "ThreateningWolf"
+                obj.formType = FormType.optionalOnce
 class HolyMarked extends Human
     type:"HolyMarked"
 class WanderingGuard extends Player
     type:"WanderingGuard"
     midnightSort:80
+    formType: FormType.required
     hasDeadResistance:->true
     sleeping:->@target?
     sunset:(game)->
@@ -5877,6 +5937,7 @@ class WanderingGuard extends Player
 class ObstructiveMad extends Madman
     type:"ObstructiveMad"
     midnightSort:90
+    formType: FormType.required
     sleeping:->@target?
     sunset:(game)->
         super
@@ -5913,6 +5974,7 @@ class ObstructiveMad extends Madman
 class TroubleMaker extends Player
     type:"TroubleMaker"
     midnightSort:100
+    formType: FormType.optionalOnce
     sleeping:->true
     jobdone:->!!@flag
     makeJobSelection:(game)->
@@ -5986,6 +6048,7 @@ class FrankensteinsMonster extends Player
             game.splashjobinfo [thispl]
 class BloodyMary extends Player
     type:"BloodyMary"
+    formType: FormType.optional
     isReviver:->true
     getJobname:->if @flag then @jobname else @game.i18n.t("roles:BloodyMary.mary")
     getJobDisp:->@getJobname()
@@ -6069,6 +6132,7 @@ class BloodyMary extends Player
             obj.forms.push {
                 type: "BloodyMary"
                 options: @makeJobSelection game
+                formType: FormType.optional
             }
 
 class King extends Player
@@ -6107,6 +6171,7 @@ class PsychoKiller extends Madman
 class SantaClaus extends Player
     type:"SantaClaus"
     midnightSort:100
+    formType: FormType.required
     sleeping:->@target?
     constructor:->
         super
@@ -6214,6 +6279,7 @@ class SantaClaus extends Player
 #怪盗
 class Phantom extends Player
     type:"Phantom"
+    formType: FormType.required
     sleeping:->@target?
     sunset:(game)->
         if @flag==true
@@ -6294,6 +6360,7 @@ class Phantom extends Player
 class BadLady extends Player
     type:"BadLady"
     team:"Friend"
+    formType: FormType.required
     sleeping:->@flag?.set
     sunset:(game)->
         unless @flag?.set
@@ -6378,6 +6445,7 @@ class BadLady extends Player
                     result.forms.push {
                         type: "BadLady1"
                         options: @makeJobSelection game
+                        formType: FormType.required
                     }
                 else if !fl.keep
                     # 手玉に取る
@@ -6385,6 +6453,7 @@ class BadLady extends Player
                     result.forms.push {
                         type: "BadLady2"
                         options: @makeJobSelection game
+                        formType: FormType.required
                     }
 # 看板娘
 class DrawGirl extends Player
@@ -6439,6 +6508,7 @@ class CautiousWolf extends Werewolf
 # 花火師
 class Pyrotechnist extends Player
     type:"Pyrotechnist"
+    formType: FormType.optionalOnce
     sleeping:->true
     jobdone:(game)->@flag? || !Phase.isDay(game.phase)
     chooseJobDay:(game)->true
@@ -6492,6 +6562,7 @@ class Baker extends Player
 class Bomber extends Madman
     type:"Bomber"
     midnightSort:81
+    formType: FormType.optional
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
@@ -6526,6 +6597,7 @@ class Blasphemy extends Player
     type:"Blasphemy"
     team:"Fox"
     midnightSort:90
+    formType: FormType.required
     sleeping:(game)->@target? || @flag
     constructor:->
         super
@@ -6586,6 +6658,7 @@ class Blasphemy extends Player
 class Ushinotokimairi extends Madman
     type:"Ushinotokimairi"
     midnightSort:90
+    formType: FormType.optional
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
@@ -6635,6 +6708,7 @@ class Ushinotokimairi extends Madman
 class Patissiere extends Player
     type: "Patissiere"
     team:"Friend"
+    formType: FormType.required
     midnightSort:100
     sunset:(game)->
         unless @flag?
@@ -6724,6 +6798,7 @@ class Patissiere extends Player
 class GotChocolate extends Player
     type: "GotChocolate"
     midnightSort:90
+    formType: FormType.optional
     sleeping:->true
     jobdone:(game)-> @flag!="unselected"
     job_target:0
@@ -6880,6 +6955,7 @@ class MadDog extends Madman
     fortuneResult: FortuneResult.werewolf
     psychicResult: PsychicResult.werewolf
     midnightSort:100
+    formType: FormType.optional
     jobdone:(game)->@target? || @flag
     sleeping:->true
     constructor:->
@@ -6921,6 +6997,7 @@ class MadDog extends Madman
 class Hypnotist extends Madman
     type:"Hypnotist"
     midnightSort:50
+    formType: FormType.optional
     jobdone:(game)->@target? || @flag
     sleeping:->true
     constructor:->
@@ -7031,6 +7108,7 @@ class CraftyWolf extends Werewolf
             result.forms.push {
                 type: "CraftyWolf2"
                 options: []
+                formType: FormType.optional
             }
         else if Phase.isNight(game.phase)
             # 死んだふりボタン
@@ -7038,6 +7116,7 @@ class CraftyWolf extends Werewolf
             result.forms.push {
                 type: "CraftyWolf"
                 options: []
+                formType: FormType.optional
             }
         return result
     makeJobSelection:(game)->
@@ -7057,6 +7136,7 @@ class CraftyWolf extends Werewolf
 class Shishimai extends Player
     type:"Shishimai"
     team:""
+    formType: FormType.optional
     sleeping:->true
     jobdone:(game)->@target?
     isWinner:(game,team)->
@@ -7127,6 +7207,7 @@ class Shishimai extends Player
 class Pumpkin extends Madman
     type: "Pumpkin"
     midnightSort: 90
+    formType: FormType.required
     sleeping:->@target?
     sunset:(game)->
         super
@@ -7162,6 +7243,7 @@ class Pumpkin extends Madman
 class MadScientist extends Madman
     type:"MadScientist"
     midnightSort:100
+    formType: FormType.optionalOnce
     isReviver:->!@dead && @flag!="done"
     sleeping:->true
     jobdone:->@flag=="done" || @target?
@@ -7219,6 +7301,7 @@ class SpiritPossessed extends Player
 class Forensic extends Player
     type:"Forensic"
     mdinightSort:100
+    formType: FormType.required
     sleeping:->@target?
     job_target: Player.JOB_T_DEAD
     sunset:(game)->
@@ -7276,6 +7359,7 @@ class TinyGhost extends Player
 
 class Ninja extends Player
     type:"Ninja"
+    formType: FormType.required
     sleeping:->@target?
     sunset:(game)->
         @setFlag null
@@ -7337,6 +7421,7 @@ class Twin extends Player
 
 class Hunter extends Player
     type:"Hunter"
+    formType: FormType.required
     sleeping:(game)-> true
     hunterJobdone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     dying:(game, found)->
@@ -7495,6 +7580,7 @@ class BlackCat extends Madman
 
 class Idol extends Player
     type:"Idol"
+    formType: FormType.required
     sunset:(game)->
         super
         if !@flag
@@ -7623,6 +7709,7 @@ class XianFox extends Fox
     type:"XianFox"
     # moves early so that jobname is obtained before target changes its job.
     midnightSort: 75
+    formType: FormType.optional
     jobdone:(game)->@target?
     sleeping:->true
     sunset:(game)->
@@ -7677,6 +7764,7 @@ class XianFox extends Fox
 class GameMaster extends Player
     type:"GameMaster"
     team:""
+    formType: FormType.optional
     jobdone:->false
     sleeping:->true
     job_target: Player.JOB_T_ALIVE | Player.JOB_T_DEAD
@@ -7757,6 +7845,7 @@ class GameMaster extends Player
 class Helper extends Player
     type:"Helper"
     team:""
+    formType: FormType.optionalOnce
     jobdone:->@flag?
     sleeping:->true
     voted:(game,votingbox)->true
@@ -7816,6 +7905,7 @@ class Helper extends Player
 class Waiting extends Player
     type:"Waiting"
     team:""
+    formType: FormType.required
     sleeping:(game)->game.phase != Phase.rolerequesting || game.rolerequesttable[@id]?
     isListener:(game,log)->
        if log.mode=="audience"
@@ -7831,6 +7921,7 @@ class Waiting extends Player
             result.forms.push {
                 type: "Waiting"
                 options: @makeJobSelection game
+                formType: FormType.required
             }
     makeJobSelection:(game)->
         if game.day==0 && game.phase == Phase.rolerequesting
@@ -10602,6 +10693,7 @@ makejobinfo = (game,player,result={})->
                     result.forms.push {
                         type: "_day"
                         options: player.makeJobSelection game
+                        formType: FormType.required
                     }
                     result.sleeping=false
                 if player.chooseJobDay game

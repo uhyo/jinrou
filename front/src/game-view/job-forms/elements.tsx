@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { FormType } from '../defs';
+import { withProps } from '../../util/styled';
 
 /**
  * Wrapper of all forms.
@@ -21,14 +23,29 @@ export const FormWrapper = styled.div`
 `;
 
 /**
+ * Wrapper of form top line.
+ */
+export const FormStatusLine = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  form-size: smaller;
+`;
+
+/**
  * Wrapper of form name.
  */
 export const FormName = styled.div`
-  width: fit-content;
-  margin: 0 auto 0 0;
+  flex: auto 0 0;
   padding: 3px 5px;
   background-color: #dddddd;
-  font-size: smaller;
+`;
+/**
+ * Wrapper of form type.
+ */
+export const FormTypeWrapper = withProps<{ formType: FormType }>()(styled.div)`
+  flex: auto 0 0;
+  padding: 3px 5px;
+  color: ${({ formType }) => (formType === 'required' ? '#ff0000' : '#555555')};
 `;
 /**
  * Wrapper of form main content.
