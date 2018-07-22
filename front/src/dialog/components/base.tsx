@@ -129,11 +129,12 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
 }
 
 const DialogBase = styled(DialogBaseInner)`
-  background-color: white;
-  box-shadow: 4px 4px 4px 2px rgba(0, 0, 0, 0.4);
-  pointer-events: auto;
-
   padding: 5px;
+  box-shadow: 4px 4px 4px 2px rgba(0, 0, 0, 0.4);
+
+  background-color: white;
+  color: black;
+  pointer-events: auto;
 
   a {
     color: #666666;
