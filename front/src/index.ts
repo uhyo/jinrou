@@ -29,3 +29,10 @@ export function loadGameStartControl() {
 export function loadGameView() {
   return import('./game-view');
 }
+
+/**
+ * Asynchronously load the manual module.
+ */
+export function loadManual() {
+  return import('./manual');
+}

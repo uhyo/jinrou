@@ -26,6 +26,7 @@
     "@types/react-transition-group": "^2.0.11",
     "json-loader": "^0.5.7",
     "npm-run-all": "^4.1.2",
+    "pug-loader": "^2.4.0",
     "rimraf": "^2.6.2",
     "source-map-loader": "^0.2.3",
     "typescript": "^2.9.1",
