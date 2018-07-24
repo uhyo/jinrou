@@ -174,7 +174,7 @@ export type IPropDialog = IPropDialogWrapper &
     /**
      * Message to show in a dialog.
      */
-    message: string;
+    message?: string;
     /**
      * function to render buttons.
      */
@@ -212,7 +212,7 @@ export function Dialog({
         form={form}
         onSubmit={onSubmit}
       >
-        <p>{message}</p>
+        {message != null ? <p>{message}</p> : null}
         {contents ? contents() : null}
         <Buttons>{buttons()}</Buttons>
         {afterButtons ? afterButtons() : null}

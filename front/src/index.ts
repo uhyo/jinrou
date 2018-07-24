@@ -34,5 +34,5 @@ export function loadGameView() {
  * Asynchronously load the manual module.
  */
 export function loadManual() {
-  return import('./manual');
+  return import(/* webpackMode: "eager"*/ './manual');
 }

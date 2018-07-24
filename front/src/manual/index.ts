@@ -10,8 +10,8 @@ export type HTMLRenderer = (locals?: {}) => string;
  * Load an HTML renderer for one role.
  */
 export function loadRoleManual(
-  language: string,
   role: string,
+  language: string = EXTERNAL_SYSTEM_LANGUAGE,
 ): Promise<HTMLRenderer> {
   if (language === EXTERNAL_SYSTEM_LANGUAGE) {
     // Special support of system language for smaller load size.
@@ -19,13 +19,15 @@ export function loadRoleManual(
       webpackMode: "lazy-once",
       webpackChunkName:"manual-syslang-data",
       */
-    `../../../manual/${EXTERNAL_SYSTEM_LANGUAGE}/jobs/${role}.jade`);
+    `../../../manual/${EXTERNAL_SYSTEM_LANGUAGE}/jobs/${role}.jade`).then(
+      mod => mod.default,
+    );
   } else {
     // Fall back to include-all chunk.
     return import(/*
       webpackMode: "lazy-once",
       webpackChunkName:"manual-all-data",
       */
-    `../../../manual/${language}/jobs/${role}.jade`);
+    `../../../manual/${language}/jobs/${role}.jade`).then(mod => mod.default);
   }
 }
