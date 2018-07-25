@@ -7897,10 +7897,9 @@ class Complex
         unless type
             throw "there must be a JOBTYPE"
         ret = []
-        if @main.isMainJobType(type)
-            if !subonly
-                ret.push this
-            ret.push (@main.accessByJobTypeAll(type, true))...
+        if !subonly && @main.isMainJobType(type)
+            ret.push this
+        ret.push (@main.accessByJobTypeAll(type, true))...
         if @sub?
             ret.push (@sub.accessByJobTypeAll(type))...
         return ret
