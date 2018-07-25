@@ -7946,7 +7946,7 @@ class Complex
     
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result,@main.getJobDisp()
+        @main.makejobinfo game, result, @main.getJobDisp()
     beforebury:(game,type,deads)->
         @mcall game,@main.beforebury,game,type,deads
         @sub?.beforebury? game,type,deads
