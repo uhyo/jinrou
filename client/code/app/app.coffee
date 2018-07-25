@@ -269,11 +269,17 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                 # ユーザー
                 page "user-view",null,Index.user.view,userid
             else if result=url.match /^\/manual\/job\/(\w+)$/
-                # ジョブ情報
-                win=util.blankWindow {
-                    title: "役職説明"
-                }
-                $(JT["jobs-#{result[1]}"]()).appendTo win
+                # ジョブ情報を表示
+                Promise.all([
+                    JinrouFront.loadManual().then((m)-> m.loadRoleManual(result[1])),
+                    JinrouFront.loadDialog(),
+                ]).then ([renderContent, dialog])->
+                    console.log renderContent
+                    dialog.showRoleDescDialog {
+                        modal: false
+                        role: result[1]
+                        renderContent: renderContent
+                    }
                 return
             else if result=url.match /^\/manual\/casting\/(.*)$/
                 # キャスティング情報

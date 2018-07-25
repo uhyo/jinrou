@@ -12,6 +12,7 @@ import {
   IErrorDialog,
   IPromptDialog,
   ILoginDialog,
+  IRoleDescDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -26,6 +27,7 @@ import { ChecklistDialog } from './components/checklist';
 import { BoundFunc } from '../util/cached-binder';
 import { PromptDialog } from './components/prompt';
 import { LoginDialog } from './components/login';
+import { RoleDescDialog } from './components/role-desc';
 
 /**
  * Show a message dialog.
@@ -149,6 +151,17 @@ export async function showLoginDialog(d: ILoginDialog): Promise<boolean> {
   const i18n = await getI18nFor();
   return showDialog<boolean>(i18n, (open, close) => {
     const dialog = <LoginDialog {...d} onClose={close} />;
+    open(dialog);
+  });
+}
+
+/**
+ * Show a role description dialog.
+ */
+export async function showRoleDescDialog(d: IRoleDescDialog): Promise<void> {
+  const i18n = await getI18nFor();
+  return showDialog<void>(i18n, (open, close) => {
+    const dialog = <RoleDescDialog {...d} onClose={close} />;
     open(dialog);
   });
 }

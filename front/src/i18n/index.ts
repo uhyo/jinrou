@@ -1,6 +1,5 @@
 import * as i18next from 'i18next';
 import * as xhrBackend from 'i18next-xhr-backend';
-import { systemLanguage } from '../external';
 
 export { I18n, I18nInterp, I18nProvider } from './react';
 
@@ -10,7 +9,7 @@ i18next.use(xhrBackend).init({
     parse: (data: any) => data,
     ajax,
   },
-  fallbackLng: systemLanguage,
+  fallbackLng: EXTERNAL_SYSTEM_LANGUAGE,
   ns: [
     'common',
     'roles',
@@ -51,7 +50,7 @@ export function forLanguage(lng: string): i18next.i18n {
  * Get an instance of i18next with specified language loaded.
  */
 export function getI18nFor(
-  lng: string = systemLanguage,
+  lng: string = EXTERNAL_SYSTEM_LANGUAGE,
 ): Promise<i18next.i18n> {
   return new Promise((resolve, reject) => {
     const res = i18next.cloneInstance();

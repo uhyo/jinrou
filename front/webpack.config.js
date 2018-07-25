@@ -40,6 +40,10 @@ module.exports = {
         test: /\.yaml$/,
         use: ['json-loader', 'yaml-loader'],
       },
+      {
+        test: /\.(?:pug|jade)$/,
+        use: ['pug-loader'],
+      },
     ],
   },
   plugins: [

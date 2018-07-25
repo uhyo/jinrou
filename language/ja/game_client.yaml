@@ -288,3 +288,11 @@ kick:
     message: "参加禁止を解除したい人を全て選択してください。"
     # message when kicked list user is empty.
     empty: "現在参加禁止になっている人はいません。"
+
+# role description dialog
+roleDesc:
+  # title of role description dialog.
+  title: "役職説明 - {{role}}"
+  # close button
+  close: "閉じる"
+

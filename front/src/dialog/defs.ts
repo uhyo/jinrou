@@ -165,3 +165,19 @@ export interface ILoginDialog {
    */
   login: (userid: string, password: string) => Promise<boolean>;
 }
+
+/**
+ * Role description dialog.
+ */
+export interface IRoleDescDialog {
+  modal?: boolean;
+  /**
+   * ID of role.
+   * e.g. "Human", "Werewolf"
+   */
+  role: string;
+  /**
+   * Renderer of raw html content.
+   */
+  renderContent: () => string;
+}
