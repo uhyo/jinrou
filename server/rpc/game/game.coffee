@@ -4454,6 +4454,7 @@ class Sorcerer extends Diviner
     divineeffect:(game)->
 class Doppleganger extends Player
     type:"Doppleganger"
+    formType: FormType.optional
     sleeping:->true
     jobdone:->@flag?
     team:"" # 最初はチームに属さない!
