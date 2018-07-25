@@ -7933,7 +7933,12 @@ class Complex
         @sub?.sunrise? game
     votestart:(game)->
         @mcall game,@main.votestart,game
-    voted:(game,votingbox)->@mcall game,@main.voted,game,votingbox
+    voted:(game,votingbox)->
+        # as a Neet may claim that he is already voted.
+        result = @mcall game, @main.voted, game, votingbox
+        if @sub?
+            result = result || @sub.voted game, votingbox
+        result
     dovote:(game,target)->
         @mcall game,@main.dovote,game,target
     voteafter:(game,target)->
