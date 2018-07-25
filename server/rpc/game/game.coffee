@@ -3851,7 +3851,7 @@ class Spy2 extends Player
 class Copier extends Player
     type:"Copier"
     team:""
-    isHuman:->false
+    humanCount:-> 0
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
@@ -8746,7 +8746,10 @@ class Chemical extends Complex
         else if @isVampire()
             0
         else if @isHuman()
-            1
+            if @sub?
+                Math.max @main.humanCount(), @sub.humanCount()
+            else
+                @main.humanCount()
         else
             0
     werewolfCount:->
