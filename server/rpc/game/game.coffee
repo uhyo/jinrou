@@ -3,6 +3,7 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
+libarray     = require '../../libs/array.coffee'
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
@@ -52,6 +53,7 @@ FortuneResult =
     pumpkin: "pumpkin"
 
 # Code of psychic result.
+# Actual result may be string of array of string.
 PsychicResult =
     # Human
     human: "human"
@@ -61,6 +63,41 @@ PsychicResult =
     BigWolf: "BigWolf"
     # TinyFox
     TinyFox: "TinyFox"
+    # priority of resutls in chemical.
+    _chemicalPriority:
+        human: 0
+        werewolf: 1
+        BigWolf: 2
+        TinyFox: 2
+    # function to combine two results in chemical.
+    # filter out low priority results.
+    combineChemical: (res1, res2)->
+        # convert string result into array result.
+        res1 = if "string" == typeof res1
+            [res1]
+        else
+            res1
+        res2 = if "string" == typeof res2
+            [res2]
+        else
+            res2
+        both = res1.concat res2
+        maxPriority = Math.max both.map((res)-> PsychicResult._chemicalPriority[res])...
+        filtered = both.filter (res)-> maxPriority == PsychicResult._chemicalPriority[res]
+        result = libarray.sortedUnique filtered.sort()
+        # If singleton, return as string.
+        if result.length == 1
+            result[0]
+        else
+            result
+    # render psychic result to string.
+    renderToString: (res, i18n)->
+        # string is just rendered.
+        if "string" == typeof res
+            return i18n.t "roles:psychic.#{res}"
+        # if array, join them using delimiter.
+        delimiter = i18n.t "roles:psychic._delimiter"
+        return res.map((r)-> i18n.t "roles:psychic.#{r}").join delimiter
 
 # guard_logにおける襲撃の種類
 AttackKind =
@@ -1674,7 +1711,7 @@ class Game
                     # GM霊能
                     log=
                         mode:"system"
-                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: @i18n.t "roles:psychic.#{player.getPsychicResult()}"}
+                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: PsychicResult.renderToString player.getPsychicResult(), @i18n}
                     splashlog @id,this,log
                 
             @votingbox.remains--
@@ -3252,7 +3289,11 @@ class Psychic extends Player
     beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
-            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {name: @name, target: x.name, result: game.i18n.t "roles:psychic.#{x.getPsychicResult()}"}) + "\n"
+            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {
+                name: @name
+                target: x.name
+                result: PsychicResult.renderToString x.getPsychicResult(), game.i18n
+            }) + "\n"
 
 class Madman extends Player
     type:"Madman"
@@ -8789,11 +8830,11 @@ class Chemical extends Complex
             FortuneResult.human
     getPsychicResult:->
         fsm = @main.getPsychicResult()
-        fss = @sub?.getPsychicResult()
-        if PsychicResult.werewolf in [fsm, fss]
-            PsychicResult.werewolf
+        if @sub?
+            fss = @sub.getPsychicResult()
+            PsychicResult.combineChemical fsm, fss
         else
-            PsychicResult.human
+            fsm
     getTeam:->
         myt = null
         maint = @main.getTeam()

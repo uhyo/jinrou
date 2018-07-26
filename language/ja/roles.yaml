@@ -131,6 +131,8 @@ psychic:
   werewolf: "人狼"
   BigWolf: "大狼"
   TinyFox: "子狐"
+  # delimiter of multiple result in chemical.
+  _delimiter: "×"
 
 
 
