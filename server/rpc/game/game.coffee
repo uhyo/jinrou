@@ -4350,6 +4350,7 @@ class Prince extends Player
 # Paranormal Investigator
 class PI extends Diviner
     type:"PI"
+    formType: FormType.optionalOnce
     sleeping:->true
     jobdone:->@flag?
     job:(game,playerid)->
