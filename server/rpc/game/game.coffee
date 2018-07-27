@@ -3,6 +3,7 @@ Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
 
+libarray     = require '../../libs/array.coffee'
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
@@ -52,6 +53,7 @@ FortuneResult =
     pumpkin: "pumpkin"
 
 # Code of psychic result.
+# Actual result may be string of array of string.
 PsychicResult =
     # Human
     human: "human"
@@ -61,6 +63,41 @@ PsychicResult =
     BigWolf: "BigWolf"
     # TinyFox
     TinyFox: "TinyFox"
+    # priority of resutls in chemical.
+    _chemicalPriority:
+        human: 0
+        werewolf: 1
+        BigWolf: 2
+        TinyFox: 2
+    # function to combine two results in chemical.
+    # filter out low priority results.
+    combineChemical: (res1, res2)->
+        # convert string result into array result.
+        res1 = if "string" == typeof res1
+            [res1]
+        else
+            res1
+        res2 = if "string" == typeof res2
+            [res2]
+        else
+            res2
+        both = res1.concat res2
+        maxPriority = Math.max both.map((res)-> PsychicResult._chemicalPriority[res])...
+        filtered = both.filter (res)-> maxPriority == PsychicResult._chemicalPriority[res]
+        result = libarray.sortedUnique filtered.sort()
+        # If singleton, return as string.
+        if result.length == 1
+            result[0]
+        else
+            result
+    # render psychic result to string.
+    renderToString: (res, i18n)->
+        # string is just rendered.
+        if "string" == typeof res
+            return i18n.t "roles:psychic.#{res}"
+        # if array, join them using delimiter.
+        delimiter = i18n.t "roles:psychic._delimiter"
+        return res.map((r)-> i18n.t "roles:psychic.#{r}").join delimiter
 
 # guard_logにおける襲撃の種類
 AttackKind =
@@ -1159,6 +1196,7 @@ class Game
                 else
                     werewolf_flag_result.push fl
             @werewolf_flag=werewolf_flag_result
+            @checkWerewolfTarget()
 
             # Fireworks should be lit at just before sunset.
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
@@ -1683,7 +1721,7 @@ class Game
                     # GM霊能
                     log=
                         mode:"system"
-                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: @i18n.t "roles:psychic.#{player.getPsychicResult()}"}
+                        comment: @i18n.t "system.gmPsychic", {name: player.name, result: PsychicResult.renderToString player.getPsychicResult(), @i18n}
                     splashlog @id,this,log
 
             @votingbox.remains--
@@ -1835,6 +1873,15 @@ class Game
                 @dorevote "onemore"
             else
                 console.error "unknown nextScene: #{@nextScene}"
+    # check werewolf targets to stop werewolf attack
+    # when no target is alive.
+    checkWerewolfTarget:->
+        if @werewolf_target_remain > 0
+            # list up Werewolf-attackable player.
+            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.werewolfattack=="ok")
+            if targets.length == 0
+                # no food is remaining!!!
+                @werewolf_target_remain = 0
 
     # 勝敗決定
     judge:->
@@ -3117,6 +3164,7 @@ class Werewolf extends Player
             to:playerid
         }
         game.werewolf_target_remain--
+        game.checkWerewolfTarget()
         tp.touched game,@id
         log=
             mode:"wolfskill"
@@ -3189,7 +3237,7 @@ class Diviner extends Player
 
         if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.fortuneResult == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -3283,7 +3331,11 @@ class Psychic extends Player
     beforebury:(game,type,deads)->
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
-            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {name: @name, target: x.name, result: game.i18n.t "roles:psychic.#{x.getPsychicResult()}"}) + "\n"
+            @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {
+                name: @name
+                target: x.name
+                result: PsychicResult.renderToString x.getPsychicResult(), game.i18n
+            }) + "\n"
 
 class Madman extends Player
     type:"Madman"
@@ -3895,7 +3947,7 @@ class Copier extends Player
     type:"Copier"
     team:""
     formType: FormType.optionalOnce
-    isHuman:->false
+    humanCount:-> 0
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
@@ -7980,6 +8032,7 @@ class Complex
     cmplType:"Complex"  # 複合親そのものの名前
     isComplex:->true
     getJobname:->@main.getJobname()
+    getMainJobname:->@main.getMainJobname()
     getJobDisp:->@main.getJobDisp()
     midnightSort: 100
 
@@ -8072,10 +8125,9 @@ class Complex
         unless type
             throw "there must be a JOBTYPE"
         ret = []
-        if @main.isMainJobType(type)
-            if !subonly
-                ret.push this
-            ret.push (@main.accessByJobTypeAll(type, true))...
+        if !subonly && @main.isMainJobType(type)
+            ret.push this
+        ret.push (@main.accessByJobTypeAll(type, true))...
         if @sub?
             ret.push (@sub.accessByJobTypeAll(type))...
         return ret
@@ -8109,7 +8161,12 @@ class Complex
         @sub?.sunrise? game
     votestart:(game)->
         @mcall game,@main.votestart,game
-    voted:(game,votingbox)->@mcall game,@main.voted,game,votingbox
+    voted:(game,votingbox)->
+        # as a Neet may claim that he is already voted.
+        result = @mcall game, @main.voted, game, votingbox
+        if @sub?
+            result = result || @sub.voted game, votingbox
+        result
     dovote:(game,target)->
         @mcall game,@main.dovote,game,target
     voteafter:(game,target)->
@@ -8122,7 +8179,7 @@ class Complex
 
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result,@main.getJobDisp()
+        @main.makejobinfo game, result, @main.getJobDisp()
     beforebury:(game,type,deads)->
         @mcall game,@main.beforebury,game,type,deads
         @sub?.beforebury? game,type,deads
@@ -8467,7 +8524,7 @@ class TrapGuarded extends Complex
 # 黙らされた人
 class Lycanized extends Complex
     cmplType:"Lycanized"
-    fortuneResult: FortuneResult.werewolf
+    getFortuneResult:-> FortuneResult.werewolf
     sunset:(game)->
         # 一日しか効かない
         @sub?.sunset? game
@@ -8770,19 +8827,19 @@ class GotChocolateFalse extends Complex
 # 黒になった
 class Blacked extends Complex
     cmplType:"Blacked"
-    fortuneResult: FortuneResult.werewolf
-    psychicResult: PsychicResult.werewolf
+    getFortuneResult:-> FortuneResult.werewolf
+    getPsychicResult:-> PsychicResult.werewolf
 
 # 白になった
 class Whited extends Complex
     cmplType:"Whited"
-    fortuneResult: FortuneResult.human
-    psychicResult: PsychicResult.human
+    getFortuneResult:-> FortuneResult.human
+    getPsychicResult:-> PsychicResult.human
 
 # 占い結果ヴァンパイア化
 class VampireBlooded extends Complex
     cmplType:"VampireBlooded"
-    fortuneResult: FortuneResult.vampire
+    getFortuneResult:-> FortuneResult.vampire
 
 # 催眠術をかけられた
 class UnderHypnosis extends Complex
@@ -8817,7 +8874,7 @@ class VoteGuarded extends Complex
 # かぼちゃ魔の呪い
 class PumpkinCostumed extends Complex
     cmplType:"PumpkinCostumed"
-    fortuneResult: FortuneResult.pumpkin
+    getFortuneResult:-> FortuneResult.pumpkin
 # ファンになった人
 class FanOfIdol extends Complex
     cmplType:"FanOfIdol"
@@ -8921,7 +8978,10 @@ class Chemical extends Complex
         else if @isVampire()
             0
         else if @isHuman()
-            1
+            if @sub?
+                Math.max @main.humanCount(), @sub.humanCount()
+            else
+                @main.humanCount()
         else
             0
     werewolfCount:->
@@ -8957,11 +9017,11 @@ class Chemical extends Complex
             FortuneResult.human
     getPsychicResult:->
         fsm = @main.getPsychicResult()
-        fss = @sub?.getPsychicResult()
-        if PsychicResult.werewolf in [fsm, fss]
-            PsychicResult.werewolf
+        if @sub?
+            fss = @sub.getPsychicResult()
+            PsychicResult.combineChemical fsm, fss
         else
-            PsychicResult.human
+            fsm
     getTeam:->
         myt = null
         maint = @main.getTeam()
