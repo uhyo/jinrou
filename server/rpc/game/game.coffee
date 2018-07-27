@@ -1538,8 +1538,6 @@ class Game
     #   "night": 夜になったタイミング
     #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
-        # 閻魔が生存しているフラグ
-        emma_flag = @players.some (x)-> !x.dead && x.isJobType("Emma")
         # 瞳狼が生存しているフラグ
         eyes_flag = @players.some (x)-> !x.dead && x.isJobType("EyesWolf")
 
@@ -1570,6 +1568,8 @@ class Game
             if newdeads.length == 0
                 # もう新しく死んだ人はいない
                 break
+        # 生存している閻魔の一覧
+        emma_alive = @players.filter (x)-> !x.dead && x.isJobType("Emma")
         # 霊界で役職表示してよいかどうか更新
         switch @rule.heavenview
             when "view"
@@ -1613,7 +1613,7 @@ class Game
                 mode:"system"
                 comment:situation
             splashlog @id,this,log
-            if emma_flag
+            if emma_alive.length > 0
                 # 閻魔用のログも出す
                 emma_log=switch x.found
                     when "werewolf","werewolf2","crafty"
@@ -1646,9 +1646,11 @@ class Game
                     else
                         null
                 if emma_log?
+                    # emma log is delivered to alive emmas.
                     log=
                         mode:"emmaskill"
                         comment: @i18n.t "roles:Emma.result.#{emma_log}", {name: x.name}
+                        to: emma_alive.map (pl)-> pl.id
                     splashlog @id,this,log
 
             @addGamelog {   # 死んだときと死因を記録
@@ -5773,8 +5775,9 @@ class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
     sleeping:(game)-> !@flag || super
     isListener:(game,log)->
-        if (log.mode in ["werewolf","wolfskill"]) && (log.to != @id)
+        if log.mode in ["werewolf","wolfskill"]
             # 狼の声は聞こえない（自分のスキルは除く）
+            log.to? && isLogTarget(log.to, this)
             false
         else super
     job:(game,playerid,query)->
@@ -10696,14 +10699,22 @@ islogOK=(game,player,log)->
     else if log.mode=="heaven" && log.possess_name?
         # 悪霊憑きについている霊界発言
         false
-    else if log.to? && log.to!=player.id
-        # 個人宛
-        if player.isJobType "Helper"
-            log.to==player.flag # ヘルプ先のも見える
-        else
-            false
+    else if log.to? && !isLogTarget(log.to, player)
+        # I'm not the target of this log
+        false
     else
         player.isListener game,log
+# check whether player is a target of log.
+isLogTarget = (to, player)->
+    # targettable ids.
+    # his own id and ids of helper targets.
+    ids = [player.id].concat player.accessByJobTypeAll("Helper").map((pl)-> pl.flag)
+    if Array.isArray to
+        # to is an array of user ids!
+        ids.some (id)-> id in to
+    else
+        # otherwise to is a string.
+        to in ids
 #job情報を
 makejobinfo = (game,player,result={})->
     result.type= if player? then player.getTypeDisp() else null
