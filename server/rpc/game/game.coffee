@@ -1529,8 +1529,6 @@ class Game
     #   "night": 夜になったタイミング
     #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
-        # 閻魔が生存しているフラグ
-        emma_flag = @players.some (x)-> !x.dead && x.isJobType("Emma")
         # 瞳狼が生存しているフラグ
         eyes_flag = @players.some (x)-> !x.dead && x.isJobType("EyesWolf")
 
@@ -1561,6 +1559,8 @@ class Game
             if newdeads.length == 0
                 # もう新しく死んだ人はいない
                 break
+        # 生存している閻魔の一覧
+        emma_alive = @players.filter (x)-> !x.dead && x.isJobType("Emma")
         # 霊界で役職表示してよいかどうか更新
         switch @rule.heavenview
             when "view"
@@ -1604,7 +1604,7 @@ class Game
                 mode:"system"
                 comment:situation
             splashlog @id,this,log
-            if emma_flag
+            if emma_alive.length > 0
                 # 閻魔用のログも出す
                 emma_log=switch x.found
                     when "werewolf","werewolf2","crafty"
@@ -1637,9 +1637,11 @@ class Game
                     else
                         null
                 if emma_log?
+                    # emma log is delivered to alive emmas.
                     log=
                         mode:"emmaskill"
                         comment: @i18n.t "roles:Emma.result.#{emma_log}", {name: x.name}
+                        to: emma_alive.map (pl)-> pl.id
                     splashlog @id,this,log
 
             @addGamelog {   # 死んだときと死因を記録
