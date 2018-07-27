@@ -8349,7 +8349,7 @@ class TrapGuarded extends Complex
 # 黙らされた人
 class Lycanized extends Complex
     cmplType:"Lycanized"
-    fortuneResult: FortuneResult.werewolf
+    getFortuneResult:-> FortuneResult.werewolf
     sunset:(game)->
         # 一日しか効かない
         @sub?.sunset? game
@@ -8652,19 +8652,19 @@ class GotChocolateFalse extends Complex
 # 黒になった
 class Blacked extends Complex
     cmplType:"Blacked"
-    fortuneResult: FortuneResult.werewolf
-    psychicResult: PsychicResult.werewolf
+    getFortuneResult:-> FortuneResult.werewolf
+    getPsychicResult:-> PsychicResult.werewolf
 
 # 白になった
 class Whited extends Complex
     cmplType:"Whited"
-    fortuneResult: FortuneResult.human
-    psychicResult: PsychicResult.human
+    getFortuneResult:-> FortuneResult.human
+    getPsychicResult:-> PsychicResult.human
 
 # 占い結果ヴァンパイア化
 class VampireBlooded extends Complex
     cmplType:"VampireBlooded"
-    fortuneResult: FortuneResult.vampire
+    getFortuneResult:-> FortuneResult.vampire
 
 # 催眠術をかけられた
 class UnderHypnosis extends Complex
@@ -8699,7 +8699,7 @@ class VoteGuarded extends Complex
 # かぼちゃ魔の呪い
 class PumpkinCostumed extends Complex
     cmplType:"PumpkinCostumed"
-    fortuneResult: FortuneResult.pumpkin
+    getFortuneResult:-> FortuneResult.pumpkin
 # ファンになった人
 class FanOfIdol extends Complex
     cmplType:"FanOfIdol"
