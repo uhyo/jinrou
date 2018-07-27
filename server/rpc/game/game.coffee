@@ -771,10 +771,10 @@ class Game
                     all_wolves += num
                 if job in Shared.game.categories.Fox
                     all_foxes += num
+        # 無限ループ防止用カウンタ
+        loop_count = 0
         for job,num of joblist
             i=0
-            # 無限ループ防止用カウンタ
-            loop_count = 0
             while i++<num
                 r=Math.floor Math.random()*players.length
                 if @rule.chemical == "on" && gotjs[r].length == 1
@@ -785,7 +785,9 @@ class Game
                            # 人狼×妖狐はまずい
                            i--
                            if loop_count++ >= 100
-                               break
+                               # 配役失敗
+                               res @i18n.t "error.gamestart.castingFailed"
+                               return
                            continue
                 gotjs[r].push job
                 if gotjs[r].length >= jobperpl
@@ -818,10 +820,6 @@ class Game
                     if pl.scapegoat
                         # 身代わりくん
                         newpl.scapegoat=true
-        if loop_count >= 100
-            # 配役失敗
-            res @i18n.t "error.gamestart.castingFailed"
-            return
         if joblist.Thief>0
             # 盗人がいる場合
             thieves=@players.filter (x)->x.isJobType "Thief"
