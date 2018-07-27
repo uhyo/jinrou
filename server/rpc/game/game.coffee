@@ -1187,7 +1187,8 @@ class Game
                 else
                     werewolf_flag_result.push fl
             @werewolf_flag=werewolf_flag_result
-            
+            @checkWerewolfTarget()
+
             # Fireworks should be lit at just before sunset.
             x = @players.filter((pl)->pl.isJobType("Pyrotechnist") && pl.accessByJobType("Pyrotechnist")?.flag == "using")
             if x.length
@@ -1863,6 +1864,15 @@ class Game
                 @dorevote "onemore"
             else
                 console.error "unknown nextScene: #{@nextScene}"
+    # check werewolf targets to stop werewolf attack
+    # when no target is alive.
+    checkWerewolfTarget:->
+        if @werewolf_target_remain > 0
+            # list up Werewolf-attackable player.
+            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.werewolfattack=="ok")
+            if targets.length == 0
+                # no food is remaining!!!
+                @werewolf_target_remain = 0
 
     # 勝敗決定
     judge:->
@@ -3133,6 +3143,7 @@ class Werewolf extends Player
             to:playerid
         }
         game.werewolf_target_remain--
+        game.checkWerewolfTarget()
         tp.touched game,@id
         log=
             mode:"wolfskill"
@@ -7846,6 +7857,7 @@ class Complex
     cmplType:"Complex"  # 複合親そのものの名前
     isComplex:->true
     getJobname:->@main.getJobname()
+    getMainJobname:->@main.getMainJobname()
     getJobDisp:->@main.getJobDisp()
     midnightSort: 100
 
