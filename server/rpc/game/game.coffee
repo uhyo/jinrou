@@ -5675,8 +5675,9 @@ class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
     sleeping:(game)-> !@flag || super
     isListener:(game,log)->
-        if (log.mode in ["werewolf","wolfskill"]) && (log.to != @id)
+        if log.mode in ["werewolf","wolfskill"]
             # 狼の声は聞こえない（自分のスキルは除く）
+            log.to? && isLogTarget(log.to, this)
             false
         else super
     job:(game,playerid,query)->
@@ -10519,14 +10520,22 @@ islogOK=(game,player,log)->
     else if log.mode=="heaven" && log.possess_name?
         # 悪霊憑きについている霊界発言
         false
-    else if log.to? && log.to!=player.id
-        # 個人宛
-        if player.isJobType "Helper"
-            log.to==player.flag # ヘルプ先のも見える
-        else
-            false
+    else if log.to? && !isLogTarget(log.to, player)
+        # I'm not the target of this log
+        false
     else
         player.isListener game,log
+# check whether player is a target of log.
+isLogTarget = (to, player)->
+    # targettable ids.
+    # his own id and ids of helper targets.
+    ids = [player.id].concat player.accessByJobTypeAll("Helper").map((pl)-> pl.flag)
+    if Array.isArray to
+        # to is an array of user ids!
+        ids.some (id)-> id in to
+    else
+        # otherwise to is a string.
+        to in ids
 #job情報を
 makejobinfo = (game,player,result={})->
     result.type= if player? then player.getTypeDisp() else null
