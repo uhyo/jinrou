@@ -181,3 +181,18 @@ export interface IRoleDescDialog {
    */
   renderContent: () => string;
 }
+
+/**
+ * Sudden death punishment dialog.
+ */
+export interface ISuddenDeathPunishDialog {
+  modal?: boolean;
+  /**
+   * Ban time (in minute) per one vote.
+   */
+  time: number;
+  options: Array<{
+    id: string;
+    label: string;
+  }>;
+}

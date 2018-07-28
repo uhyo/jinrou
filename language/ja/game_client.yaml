@@ -296,3 +296,10 @@ roleDesc:
   # close button
   close: "閉じる"
 
+# sudden death punishment dialog.
+suddenDeathPunish:
+  title: "突然死の罰"
+  message: "以下の参加者はこのゲームで突然死しました。処罰すべきだと考える参加者に投票してください。1票は{{count}}分間の参加禁止に相当します。"
+  ok: "投票"
+  cancel: "閉じる"
+

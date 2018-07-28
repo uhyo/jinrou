@@ -13,6 +13,7 @@ import {
   IPromptDialog,
   ILoginDialog,
   IRoleDescDialog,
+  ISuddenDeathPunishDialog,
 } from './defs';
 
 import { MessageDialog } from './components/message';
@@ -144,6 +145,34 @@ export async function showChecklistDialog(
   });
 }
 
+/**
+ * Show a sudden death punishment dialog.
+ */
+export async function showSuddenDeathPunishDialog({
+  modal,
+  time,
+  options,
+}: ISuddenDeathPunishDialog): Promise<string[] | null> {
+  // get i18n instance with system language.
+  const i18n = await getI18nFor();
+  return showDialog<string[] | null>(i18n, (open, close) => {
+    const dialog = (
+      <ChecklistDialog
+        modal={modal}
+        options={Promise.resolve(options)}
+        title={i18n.t('game_client:suddenDeathPunish.title')}
+        message={i18n.t('game_client:suddenDeathPunish.message', {
+          time,
+        })}
+        ok={i18n.t('game_client:suddenDeathPunish.ok')}
+        cancel={i18n.t('game_client:suddenDeathPunish.cancel')}
+        empty=""
+        onSelect={close}
+      />
+    );
+    open(dialog);
+  });
+}
 /**
  * Show a login dialog.
  */

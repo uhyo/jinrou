@@ -959,13 +959,24 @@ exports.start=(roomid)->
         # show TO BAN list to players
         socket_ids.push Index.socket.on 'punishalert',null,(msg,channel)->
             if msg.id==roomid && my_player_id? && msg.userlist.every((x)-> x.userid != my_player_id)
-                Index.util.punish "突然死の罰",msg,(banIDs)->
-                    ss.rpc "game.rooms.suddenDeathPunish", roomid,banIDs,(result)->
+                dialog.showSuddenDeathPunishDialog({
+                    time: msg.time
+                    options: msg.userlist.map (user)-> {
+                        id: user.userid
+                        label: user.name
+                    }
+                }).then (banIDs)->
+                    unless banIDs?
+                        return
+                    ss.rpc "game.rooms.suddenDeathPunish", roomid, banIDs, (result)->
                         if result?
                             if result.error?
-                                Index.util.message "突然死の罰",result.error
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
                                 return
-                            Index.util.message "突然死の罰",result
+                            console.log result
                             return
         # show result. reported as disturbing, so only show result in console.
         socket_ids.push Index.socket.on 'punishresult',null,(msg,channel)->
