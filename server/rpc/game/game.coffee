@@ -7884,7 +7884,7 @@ class Complex
     setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
     setNorevive:(@norevive)->@main.setNorevive @norevive
 
-    
+    sleeping:(game)-> @mcall game, @main.sleeping, game
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     deadJobdone:(game)-> @mcall(game,@main.deadJobdone,game) && (!@sub?.deadJobdone? || @sub.deadJobdone(game))
     hunterJobdone:(game)-> @mcall(game,@main.hunterJobdone,game) && (!@sub?.hunterJobdone? || @sub.hunterJobdone(game))
