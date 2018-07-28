@@ -94,40 +94,42 @@ exports.restore = (id, cb)->
 # ユーザーのログインをハンドル
 exports.handleLogin = (userid, ip, cb)->
     # このユーザーはアク禁されているか?
-    M.blacklist.findOne {
+    # non-forgiven document comes before forgiven document
+    M.blacklist.find({
         $or: [
             {userid: userid},
             {ip: ip}
         ]
-    }, {
-        # non-forgiven document comes before forgiven document
-        sort: [['forgiveDate', 1]]
-    }, (err, doc)->
-        if err?
-            cb {
-                error: err
-            }
-            return
-        unless doc?
-            # アク禁ではない
-            cb null
-            return
-        if doc.forgiveDate?
-            cb {
-                forgive: true
-            }
-            return
-        if doc.expires? && doc.expires.getTime() < Date.now()
-            # 期限が過ぎている
-            cb null
-            return
-        cb doc
-        # IPアドレスで判定
-        updateq = updateBanQuery userid, ip, doc
-        if updateq?
-            M.blacklist.update {
-                _id: doc._id
-            }, updateq
+    })
+        .sort([['forgiveDate', 1], ['expires', -1]])
+        .limit(1)
+        .next (err, doc)->
+            console.log 'handleLogin', userid, doc
+            if err?
+                cb {
+                    error: err
+                }
+                return
+            unless doc?
+                # アク禁ではない
+                cb null
+                return
+            if doc.forgiveDate?
+                cb {
+                    forgive: true
+                }
+                return
+            if doc.expires? && doc.expires.getTime() < Date.now()
+                # 期限が過ぎている
+                cb null
+                return
+            cb doc
+            # IPアドレスで判定
+            updateq = updateBanQuery userid, ip, doc
+            if updateq?
+                M.blacklist.update {
+                    _id: doc._id
+                }, updateq
 
 # docに新しい情報を追加するクエリ
 updateBanQuery = (userid, ip, doc)->
@@ -186,31 +188,34 @@ exports.handleHello = (ip, cb)->
     query = {
         ip: ip
     }
-    M.blacklist.findOne query, (err, doc)->
-        if err?
-            cb {
-                error: err
-            }
-            return
-        unless doc?
-            cb null
-            return
-        if doc.forgiveDate?
-            cb {
-                forgive: true
-            }
-            return
-        if doc.expires? && doc.expires.getTime() < Date.now()
-            # 期限が過ぎている
-            cb null
-            return
-        # アク禁されていた
-        cb doc
-        updateq = updateBanQuery null, ip, doc
-        if updateq?
-            M.blacklist.update {
-                _id: doc._id
-            }, updateq
+    M.blacklist.find(query)
+        .sort([['forgiveDate', 1], ['expires', -1]])
+        .limit(1)
+        .next (err, doc)->
+            if err?
+                cb {
+                    error: err
+                }
+                return
+            unless doc?
+                cb null
+                return
+            if doc.forgiveDate?
+                cb {
+                    forgive: true
+                }
+                return
+            if doc.expires? && doc.expires.getTime() < Date.now()
+                # 期限が過ぎている
+                cb null
+                return
+            # アク禁されていた
+            cb doc
+            updateq = updateBanQuery null, ip, doc
+            if updateq?
+                M.blacklist.update {
+                    _id: doc._id
+                }, updateq
 # 自分をBANしてほしいひとがきた
 exports.handleBanRequest = (banid, userid, ip, cb)->
     M.blacklist.findOne {
@@ -343,7 +348,7 @@ exports.extendBlacklist = (query, cb)->
                 d.setMinutes d.getMinutes()+banMinutes
                 updateQuery.$set.id = id
                 updateQuery.$set.expires=d
-            
+
             M.blacklist.update {
                 id: id
             }, updateQuery, {w: 1, upsert: true}, (err)->
