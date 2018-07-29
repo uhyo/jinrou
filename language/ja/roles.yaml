@@ -132,6 +132,7 @@ categoryName:
 teamName:
   Human: "村人陣営"
   Werewolf: "人狼陣営"
+  LoneWolf: "人狼陣営"
   Fox: "妖狐陣営"
   Friend: "恋人陣営"
   Devil: "悪魔くん"
