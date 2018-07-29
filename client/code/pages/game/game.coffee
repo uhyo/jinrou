@@ -597,14 +597,14 @@ exports.start=(roomid)->
             icon.classList.add 'fa'
             icon.classList.add 'fa-fw'
             icon.classList.add 'fa-lock'
-            icon.title = 'パスワードあり'
+            icon.title = i18n.t "game_client:roominfo.password"
             iconlist.appendChild icon
         if room.blind
             icon = document.createElement 'i'
             icon.classList.add 'fa'
             icon.classList.add 'fa-fw'
             icon.classList.add 'fa-user-secret'
-            icon.title = if room.blind == 'complete' then '覆面（最後まで非公開）' else '覆面（終了後に公開）'
+            icon.title = i18n.t(if room.blind == 'complete' then 'game_client:roominfo.blindComplete' else 'game_client:roominfo.blind')
             iconlist.appendChild icon
         if room.comment
             icon = document.createElement 'i'

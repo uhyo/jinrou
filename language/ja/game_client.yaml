@@ -1,3 +1,11 @@
+# room info bar.
+roominfo:
+  # has room password
+  password: "パスワードあり"
+  # blind mode
+  blind: "覆面（終了後に公開）"
+  # complete blind mode
+  blindComplete: "覆面（終了後も非公開）"
 # Game start control.
 gamestart:
   # information shown to an owner.
