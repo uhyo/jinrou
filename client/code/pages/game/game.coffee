@@ -309,7 +309,7 @@ exports.start=(roomid)->
                             day: obj.game.day
                             status: if room.mode == "waiting"
                                 "waiting"
-                            else if obj.game.finished
+                            else if room.mode == "end" || obj.game.finished
                                 "finished"
                             else
                                 "playing"
