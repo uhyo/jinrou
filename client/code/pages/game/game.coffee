@@ -338,7 +338,7 @@ exports.start=(roomid)->
                         {
                             type: 'postlude'
                         }
-                    else if obj.game?.rule.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
+                    else if obj.game?.rule?.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
                         # join the game button can be shown when endless
                         {
                             type: 'prelude'
