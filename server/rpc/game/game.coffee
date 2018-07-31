@@ -1246,6 +1246,7 @@ class Game
                     pl=alives[r]
                     sub=Player.factory "Light", this  # 副を作る
                     pl.transProfile sub
+                    sub.setFlag "onenight"
                     sub.sunset this
                     newpl=Player.factory null, this, pl,sub,Complex
                     pl.transProfile newpl
@@ -3974,7 +3975,8 @@ class Light extends Player
         t.die game,"deathnote"
         
         # 誰かに移る処理
-        @uncomplex game,true    # 自分からは抜ける
+        if @flag == "onenight"
+            @uncomplex game,true    # 自分からは抜ける
 class Fanatic extends Madman
     type:"Fanatic"
     makejobinfo:(game,result)->
