@@ -8904,7 +8904,7 @@ class Chemical extends Complex
 
     die:(game, found, from)->
         return if @dead
-        if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
+        if found=="werewolf" && (!@willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
             # 人狼に対する襲撃耐性
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return
