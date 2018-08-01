@@ -6567,6 +6567,7 @@ class Pyrotechnist extends Player
     sleeping:->true
     jobdone:(game)->@flag? || !Phase.isDay(game.phase)
     chooseJobDay:(game)->true
+    job_target: 0
     job:(game,playerid,query)->
         if @flag?
             return game.i18n.t "error.common.alreadyUsed"
