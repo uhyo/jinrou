@@ -1255,6 +1255,7 @@ class Game
                     pl=alives[r]
                     sub=Player.factory "Light", this  # 副を作る
                     pl.transProfile sub
+                    sub.setFlag "onenight"
                     sub.sunset this
                     newpl=Player.factory null, this, pl,sub,Complex
                     pl.transProfile newpl
@@ -2853,7 +2854,7 @@ class Player
     team: "Human"
     #勝利かどうか team:勝利陣営名
     isWinner:(game,team)->
-        team==@team # 自分の陣営かどうか
+        team==@getTeam() # 自分の陣営かどうか
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
@@ -2951,7 +2952,7 @@ class Player
         # 重複を取り除くのはクライアント側にやってもらおうかな…
 
         # 女王観戦者が見える
-        if @team=="Human"
+        if @getTeam()=="Human"
             obj.queens=game.players.filter((x)->x.isJobType "QueenSpectator").map (x)->
                 x.publicinfo()
         else
@@ -3534,7 +3535,7 @@ class Slave extends Player
     type:"Slave"
     isWinner:(game,team)->
         nobles=game.players.filter (x)->!x.dead && x.isJobType "Noble"
-        if team==@team && nobles.length==0
+        if team==@getTeam() && nobles.length==0
             true    # 村人陣営の勝ちで貴族は死んだ
         else
             false
@@ -3618,7 +3619,7 @@ class Spy extends Player
             @die game,"spygone"
     job_target:0
     isWinner:(game,team)->
-        team==@team && @dead && @flag=="spygone"    # 人狼が勝った上で自分は任務完了の必要あり
+        team==@getTeam() && @dead && @flag=="spygone"    # 人狼が勝った上で自分は任務完了の必要あり
     makejobinfo:(game,result)->
         super
         # スパイは人狼が分かる
@@ -3787,7 +3788,7 @@ class Fugitive extends Player
             @die game,"vampire2"
 
     isWinner:(game,team)->
-        team==@team && !@dead   # 村人勝利で生存
+        team==@getTeam() && !@dead   # 村人勝利で生存
 class Merchant extends Player
     type:"Merchant"
     constructor:->
@@ -3915,7 +3916,7 @@ class Liar extends Player
                 player: p.publicinfo()
                 result: game.i18n.t "roles:fortune.#{result}"
             }
-    isWinner:(game,team)->team==@team && !@dead # 村人勝利で生存
+    isWinner:(game,team)->team==@getTeam() && !@dead # 村人勝利で生存
 class Spy2 extends Player
     type:"Spy2"
     team:"Werewolf"
@@ -3942,7 +3943,7 @@ class Spy2 extends Player
             comment:str
         splashlog game.id,game,log2
 
-    isWinner:(game,team)-> team==@team && !@dead
+    isWinner:(game,team)-> team==@getTeam() && !@dead
 class Copier extends Player
     type:"Copier"
     team:""
@@ -4019,7 +4020,8 @@ class Light extends Player
         t.die game,"deathnote"
 
         # 誰かに移る処理
-        @uncomplex game,true    # 自分からは抜ける
+        if @flag == "onenight"
+            @uncomplex game,true    # 自分からは抜ける
 class Fanatic extends Madman
     type:"Fanatic"
     makejobinfo:(game,result)->
@@ -4061,7 +4063,7 @@ class Devil extends Player
                 super
         else
             super
-    isWinner:(game,team)->team==@team && @flag=="winner"
+    isWinner:(game,team)->team==@getTeam() && @flag=="winner"
 class ToughGuy extends Player
     type:"ToughGuy"
     hasDeadResistance:->true
@@ -4659,7 +4661,7 @@ class Vampire extends Player
 class LoneWolf extends Werewolf
     type:"LoneWolf"
     team:"LoneWolf"
-    isWinner:(game,team)->team==@team && !@dead
+    isWinner:(game,team)->team==@getTeam() && !@dead
 class Cat extends Poisoner
     type:"Cat"
     midnightSort:100
@@ -6163,7 +6165,7 @@ class BloodyMary extends Player
         if @flag=="punish"
             team in ["Werewolf","LoneWolf"]
         else
-            team==@team
+            team==@getTeam()
     makeJobSelection:(game)->
         if Phase.isNight(game.phase)
             pls=[]
@@ -8108,8 +8110,7 @@ class Complex
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
     isMainJobType:(type)-> @main.isMainJobType type
-    # Those like Friend return their own @team, these like Guarded return @main.getTeam()
-    getTeam:-> if @team then @team else @main.getTeam()
+    getTeam:-> @main.getTeam()
     #An access to @main.flag, etc.
     accessByJobType:(type)->
         unless type
@@ -8269,7 +8270,7 @@ class Friend extends Complex    # 恋人
     # cmplFlag: 相方のid
     cmplType:"Friend"
     isFriend:->true
-    team:"Friend"
+    getTeam:-> "Friend"
     getJobname:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobDisp()}
 
@@ -8535,7 +8536,7 @@ class Lycanized extends Complex
 # カウンセラーによって更生させられた人
 class Counseled extends Complex
     cmplType:"Counseled"
-    team:"Human"
+    getTeam:-> "Human"
     getJobname:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobDisp()}
 
@@ -9078,7 +9079,7 @@ class Chemical extends Complex
 
     die:(game, found, from)->
         return if @dead
-        if found=="werewolf" && (!@main.willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
+        if found=="werewolf" && (!@willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
             # 人狼に対する襲撃耐性
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return
