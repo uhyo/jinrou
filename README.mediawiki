@@ -10,22 +10,34 @@ Are you a werewolf?
 * MongoDB >= 3.2
 
 == usage ==
-# `git clone git://github.com/uhyo/jinrou.git`
-# `cd jinrou`
-# `npm install`
-# Build front scripts
+# Copy the source code
+## `git clone git://github.com/uhyo/jinrou.git`
+# Install dependencies
+## `cd jinrou`
+## `npm install`
+# Configure
+## `cp -r config.default config`
+## edit `config/app.coffee`
+# Build front-end scripts
 ## `cd front`
 ## `npm install`
 ## `npm run production-build`
 ## `cd ..`
-# run mongodb
-# run redis
-# SS_ENV=production SS_PACK=1 node app.js
+# Run databases
+## run MongoDB
+## run redis
+# Run the application serverj
+## SS_ENV=production SS_PACK=1 node app.js
 
 == development ==
 To run in development mode, just run `node app.js`.
 
-Also, to keep updating the front-end assets, run `npm run watch` in the `front` directory.
+=== notes on front-end scripts ===
+Built assets will be placed at `client/static/front-assets`. Also, intermediate files are placed at `front/dist-esm`.
+
+Building procedures are cpu- and memory- expensive. If you do not want to build on your server, you can build locally and copy the results to the server.
+
+For development, use `npm run watch` in the `front/` directory to keey updating the front-end assets.
 
 == jobs ==
 全80種くらい?
