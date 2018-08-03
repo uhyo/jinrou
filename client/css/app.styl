@@ -288,6 +288,41 @@ body.heaven
   font-size 1.2rem
   letter-spacing 0.1rem
 
+//logs (for lobby)
+#logs
+  //display table
+  width 100%
+  > div
+    margin 0
+    padding 1px
+    display table-row
+    width 100%
+    line-height 100%
+    time
+      font-size x-small
+      //opacity 0.5
+      margin-left 2em
+    div.icon
+      border none
+    div.name
+      font-weight bold
+      display table-cell
+      //max-width 10em
+      overflow:hidden
+      white-space nowrap
+      max-width 10em
+      word-wrap break-word
+      text-align right
+    div.comment
+      display table-cell
+      width 100%
+    time.time
+      display table-cell
+      white-space nowrap
+      max-width 22ex
+
+
+
 //prizeedit
 .profile
   li
