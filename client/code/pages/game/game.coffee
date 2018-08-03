@@ -338,7 +338,10 @@ exports.start=(roomid)->
                     ss.rpc "game.game.getlog",roomid,sentlog
         sentlog=(result)->
             if result.error?
-                Index.util.message "エラー",result.error
+                dialog.showErrorDialog {
+                    modal: true
+                    message: String result.error
+                }
             else
                 getjobinfo result
                 # TODO
