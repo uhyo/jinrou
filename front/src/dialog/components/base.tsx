@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Draggable from 'react-draggable';
 import styled, { keyframes, withProps } from '../../util/styled';
 import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
@@ -150,7 +151,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
 
 const DialogBase = styled(DialogBaseInner)`
   padding: 5px;
-  box-shadow: 4px 4px 4px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px 4px rgba(0, 0, 0, 0.4);
 
   background-color: white;
   color: black;
@@ -205,18 +206,22 @@ export function Dialog({
 }: IPropDialog) {
   return (
     <DialogWrapper modal={modal}>
-      <DialogBase
-        title={title}
-        icon={icon}
-        onCancel={onCancel}
-        form={form}
-        onSubmit={onSubmit}
-      >
-        {message != null ? <p>{message}</p> : null}
-        {contents ? contents() : null}
-        <Buttons>{buttons()}</Buttons>
-        {afterButtons ? afterButtons() : null}
-      </DialogBase>
+      <Draggable bounds="body">
+        <div>
+          <DialogBase
+            title={title}
+            icon={icon}
+            onCancel={onCancel}
+            form={form}
+            onSubmit={onSubmit}
+          >
+            {message != null ? <p>{message}</p> : null}
+            {contents ? contents() : null}
+            <Buttons>{buttons()}</Buttons>
+            {afterButtons ? afterButtons() : null}
+          </DialogBase>
+        </div>
+      </Draggable>
     </DialogWrapper>
   );
 }
