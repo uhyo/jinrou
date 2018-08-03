@@ -274,9 +274,9 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                     JinrouFront.loadManual().then((m)-> m.loadRoleManual(result[1])),
                     JinrouFront.loadDialog(),
                 ]).then ([renderContent, dialog])->
-                    console.log renderContent
                     dialog.showRoleDescDialog {
                         modal: false
+                        name: query.jobname || undefined
                         role: result[1]
                         renderContent: renderContent
                     }

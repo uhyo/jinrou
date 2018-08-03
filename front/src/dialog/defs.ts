@@ -177,6 +177,10 @@ export interface IRoleDescDialog {
    */
   role: string;
   /**
+   * Name of role if provided.
+   */
+  name?: string;
+  /**
    * Renderer of raw html content.
    */
   renderContent: () => string;

@@ -20,13 +20,13 @@ export class RoleDescDialog extends React.PureComponent<
 > {
   protected button: HTMLElement | undefined;
   public render() {
-    const { modal, role, renderContent } = this.props;
+    const { modal, name, role, renderContent } = this.props;
 
     return (
       <I18n namespace="game_client">
         {t => {
           // name of role.
-          const roleName = t(`roles:jobname.${role}`);
+          const roleName = name != null ? name : t(`roles:jobname.${role}`);
           const title = t('roleDesc.title', {
             role: roleName,
           });

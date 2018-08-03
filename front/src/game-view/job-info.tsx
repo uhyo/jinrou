@@ -63,7 +63,12 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                   : [
                       ...mapJoin(desc, '・', (obj, idx) => (
                         <React.Fragment key={`${idx}-${obj.type}`}>
-                          <a href={`/manual/job/${obj.type}`}>
+                          <a
+                            href={`/manual/job/${
+                              obj.type
+                            }?jobname=${encodeURIComponent(obj.name)}`}
+                            data-jobname={obj.name}
+                          >
                             {desc.length === 1 ? '詳細' : `${obj.name}の詳細`}
                           </a>
                         </React.Fragment>
