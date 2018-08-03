@@ -61,6 +61,9 @@ jobinfo:
     none: "あなたの陣営はありません"
     # other.
     message: "あなたの陣営は{{team}}です"
+  # detail of jobs.
+  detail_one: "詳細"
+  detail: "{{job}}の詳細"
   # Info of peers.
   peers:
     wolves: "仲間の人狼は{{names}}です"
