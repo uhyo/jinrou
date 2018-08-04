@@ -39,6 +39,8 @@ Building procedures are cpu- and memory- expensive. If you do not want to build 
 
 For development, use `npm run watch` in the `front/` directory to keey updating the front-end assets.
 
+In production mode, contents of `client/static/front-assets/` can be served with `Cache-Control: immutable`. This will increace the effect of caches.
+
 == jobs ==
 全80種くらい?
 
