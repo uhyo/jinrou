@@ -5,6 +5,26 @@ const path = require('path');
 const cpx = require('cpx');
 const ss = require('socketstream');
 
+/**
+ * Load manifest file from builclient-side assets.
+ */
+let manifestMain;
+try {
+  const manifest = require('./client/static/front-assets/manifest.json');
+  manifestMain = manifest['main.js'];
+
+} catch (e) {
+  // Failed to load the manifest file.
+  console.error(`Error: failed to load the manifest file.
+It is not likely that front-end assets are not built.
+See build instructions in README for details.`);
+  throw e;
+}
+// Validate manifestMain.
+if ('string' !== typeof manifestMain) {
+  throw new Error('Manifest data is somehow invalid');
+}
+
 ss.client.define('main', {
   view: 'app.jade',
   css: ['libs', 'app.styl'],
@@ -16,8 +36,17 @@ ss.http.router.on('/', function(req, res) {
   res.serveClient('main');
 });
 
+/**
+ * Config object for jade formatter.
+ */
+const jadeConfig = {
+  locals: {
+    bundle: manifestMain,
+  },
+};
+
 ss.client.formatters.add(require('ss-latest-coffee'));
-ss.client.formatters.add(require('ss-jade'));
+ss.client.formatters.add(require('ss-jade'), jadeConfig);
 ss.client.formatters.add(require('ss-stylus'));
 
 ss.client.templateEngine.use(require('ss-clientjade'));
