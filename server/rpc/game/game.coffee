@@ -3096,6 +3096,7 @@ class Player
         return unless newpl?
         newpl.scapegoat=@scapegoat
         newpl.setDead @dead,@found
+        newpl.setNorevive @norevive
         
             
 
