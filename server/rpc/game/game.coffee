@@ -3940,11 +3940,13 @@ class Copier extends Player
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type, game
+        # TODO: we want to apply sunset to only newly-craeted role,
+        # ideally after it is in role tree.
+        newpl.sunset game   # 初期化してあげる
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
         pl=game.getPlayer @id
-        pl.sunset game   # 初期化してあげる
 
         
         #game.ss.publish.user newpl.id,"refresh",{id:game.id}
