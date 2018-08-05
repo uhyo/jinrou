@@ -3528,10 +3528,12 @@ class Magician extends Player
         if game.day<3
             # まだ発動できない
             return game.i18n.t "error.common.cannotUseSkillNow"
-        @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
         pl.touched game,@id
         
         log=
@@ -4627,8 +4629,12 @@ class Cat extends Poisoner
         if game.day<2
             # まだ発動できない
             return game.i18n.t "error.common.cannotUseSkillNow"
-        @setTarget playerid
         pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
         pl.touched game,@id
         
         log=
