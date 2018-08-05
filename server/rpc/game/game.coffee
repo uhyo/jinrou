@@ -580,7 +580,7 @@ class Game
         jnumber = 0
         for job, num of joblist
             n = parseInt num, 10
-            if Number.isNaN n || n < 0
+            if Number.isNaN(n) || n < 0
                 return @i18n.t "error.gamestart.playerNumberInvalid1", {job: job, num: num}
             jnumber += n
         if jnumber != jallnum
