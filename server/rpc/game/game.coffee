@@ -5194,8 +5194,9 @@ class WolfBoy extends Madman
         @setTarget null
         if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
+            alives=game.players.filter (x)=>!x.dead
+            r=Math.floor Math.random()*alives.length
+            if @job game,alives[r].id,{}
                 @sunset game
     job:(game,playerid)->
         @setTarget playerid
