@@ -589,7 +589,7 @@ class Game
         jnumber = 0
         for job, num of joblist
             n = parseInt num, 10
-            if Number.isNaN n || n < 0
+            if Number.isNaN(n) || n < 0
                 return @i18n.t "error.gamestart.playerNumberInvalid1", {job: job, num: num}
             jnumber += n
         if jnumber != jallnum
@@ -3564,10 +3564,12 @@ class Magician extends Player
         if game.day<3
             # まだ発動できない
             return game.i18n.t "error.common.cannotUseSkillNow"
-        @setTarget playerid
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
         pl.touched game,@id
 
         log=
@@ -3984,11 +3986,13 @@ class Copier extends Player
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type, game
+        # TODO: we want to apply sunset to only newly-craeted role,
+        # ideally after it is in role tree.
+        newpl.sunset game   # 初期化してあげる
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
         pl=game.getPlayer @id
-        pl.sunset game   # 初期化してあげる
 
 
         #game.ss.publish.user newpl.id,"refresh",{id:game.id}
@@ -4683,8 +4687,12 @@ class Cat extends Poisoner
         if game.day<2
             # まだ発動できない
             return game.i18n.t "error.common.cannotUseSkillNow"
-        @setTarget playerid
         pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
         pl.touched game,@id
 
         log=
