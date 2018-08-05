@@ -3117,6 +3117,9 @@ class Player
         return unless newpl?
         newpl.scapegoat=@scapegoat
         newpl.setDead @dead,@found
+        newpl.setNorevive @norevive
+
+
 
 
 
@@ -5268,8 +5271,9 @@ class WolfBoy extends Madman
         @setTarget null
         if @scapegoat
             # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
+            alives=game.players.filter (x)=>!x.dead
+            r=Math.floor Math.random()*alives.length
+            if @job game,alives[r].id,{}
                 @sunset game
     job:(game,playerid)->
         @setTarget playerid
@@ -5778,7 +5782,6 @@ class SolitudeWolf extends Werewolf
         if log.mode in ["werewolf","wolfskill"]
             # 狼の声は聞こえない（自分のスキルは除く）
             log.to? && isLogTarget(log.to, this)
-            false
         else super
     job:(game,playerid,query)->
         if !@flag
@@ -5791,11 +5794,17 @@ class SolitudeWolf extends Werewolf
         if !@flag && attackers.length==0
             # 襲えるやつ誰もいない
             @setFlag true
-            log=
-                mode:"skill"
-                to:@id
-                comment: game.i18n.t "roles:SolitudeWolf.turn", {name: @name}
-            splashlog game.id,game,log
+            # check whether succeed
+            p=game.getPlayer @id
+            if p.isAttacker()
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:SolitudeWolf.turn", {name: @name}
+                splashlog game.id,game,log
+            else
+                # try next sunset
+                @setFlag false
         else if @flag && attackers.length>1
             # 複数いるのでやめる
             @setFlag false
