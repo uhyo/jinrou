@@ -2010,14 +2010,16 @@ class Game
                 # 全員信者
                 team="Cult"
             # 悪魔くん判定
-            isDevilWinner = (pl)->
+            isDevilWinner = (pl)=>
                 # 悪魔くんが勝利したか判定する
                 return false unless pl?
-                return false unless pl.isJobType "Devil"
-                if pl.isComplex()
-                    return isDevilWinner(pl.sub) || (pl.getTeam() == "Devil" && isDevilWinner(pl.main))
-                else
-                    return pl.flag == "winner"
+                # check whether some of devils in pl produce winning flag.
+                devils = pl.accessByJobTypeAll "Devil"
+                winning_devils = devils.some (d)-> d.flag == "winner"
+                return false unless winning_devils
+                # but, if this player is not winning with Devil for some reason
+                # (e.g., by Counselor), ignore his winningness.
+                return pl.isWinner this, "Devil"
             if @players.some(isDevilWinner)
                 team="Devil"
 
