@@ -6,12 +6,16 @@ const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
+// config values ----------
 // system language.
 let systemLanguage;
+// publicPath.
+let publicPath;
 try {
   const config = require('../config/app.coffee');
 
   systemLanguage = config.language.value;
+  publicPath = config.front.publicPath;
 } catch (e) {
   console.error(
     `Error: '../config/app.coffee' does not exist. Prepare configuration file before building.`,
@@ -29,7 +33,7 @@ module.exports = {
   output: {
     library: 'JinrouFront',
     path: path.join(__dirname, '..', 'client/static/front-assets/'),
-    publicPath: '/front-assets/',
+    publicPath,
     crossOriginLoading: 'anonymous',
     // for production, include hash information.
     filename: isProduction ? 'bundle.[chunkhash].js' : 'bundle.js',

@@ -1,5 +1,4 @@
 module.exports =
-
   name: "月下人狼"
   # HTTP server
   http:
@@ -67,7 +66,7 @@ module.exports =
         icon: "lock"
       }
     ]
-    
+
   twitter:
     # twitter提携用
     oauth:
@@ -122,4 +121,10 @@ module.exports =
     value: "ja"
     # Fallback language: should be fixed to "ja"
     fallback: "ja"
+  # front-end scripts
+  front:
+    # place where front-end scripts are placed.
+    # set to webpack's `output.publicPath` option.
+    # full URL like `https://cdn.someserver.com/` is allowed.
+    publicPath: "/front-assets/"
 
