@@ -4,6 +4,7 @@ require('coffee-script/register');
 const path = require('path');
 const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 // system language.
 let systemLanguage;
@@ -56,6 +57,10 @@ module.exports = {
       EXTERNAL_SYSTEM_LANGUAGE: JSON.stringify(systemLanguage),
     }),
     new ManifestPlugin(),
+    new BundleAnalyzerPlugin({
+      analyzerMode: isProduction ? 'static' : 'server',
+      openAnalyzer: !isProduction,
+    }),
   ],
   resolve: {
     alias: {
