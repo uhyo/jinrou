@@ -12,6 +12,7 @@ import {
   RoomControlInfo,
 } from './defs';
 import { LogStore } from './logs/log-store';
+import { arrayShallowEqual } from '../util/array-shallow-equal';
 
 /**
  * Query of updating the store.
@@ -148,15 +149,13 @@ export class GameStore {
       this.logPickup = logPickup;
     }
     // Check consistency.
-    if (
-      roleInfo != null &&
-      roleInfo.dead &&
-      !(prevRoleInfo && prevRoleInfo.dead) &&
-      roleInfo.speak.includes('day')
-    ) {
-      // If you became non-dead from dead,
-      // reset speek kind to 'day'.
-      this.speakState.kind = 'day';
+    if (roleInfo != null) {
+      if (
+        this.roleInfo == null ||
+        !arrayShallowEqual(roleInfo.speak, this.roleInfo.speak)
+      ) {
+        this.speakState.kind = roleInfo.speak[0] || '';
+      }
     } else if (
       this.roleInfo != null &&
       !this.roleInfo.speak.includes(this.speakState.kind)
