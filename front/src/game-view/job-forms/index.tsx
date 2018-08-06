@@ -83,10 +83,12 @@ export class Form extends React.PureComponent<IPropForm, {}> {
           const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
             e.preventDefault();
             const form = e.currentTarget;
-            // Retrieve a key/value pairs of the form.
-            const data = new FormData(form);
             // Make a plain object from it.
             const query: Record<string, string> = {};
+            /*
+            // this nice code does not work for Edge now...
+            // Retrieve a key/value pairs of the form.
+            const data = new FormData(form);
             for (const [key, value] of data.entries()) {
               // value is either string or File.
               // File should not occur here.
@@ -94,6 +96,16 @@ export class Form extends React.PureComponent<IPropForm, {}> {
                 query[key] = value;
               } else {
                 console.warn('File', value);
+              }
+            }
+            */
+            for (const elm of Array.from(form.elements)) {
+              const e = elm as any;
+              if (e.name != null) {
+                if (e.type === 'radio' && !e.checked) {
+                  continue;
+                }
+                query[e.name] = e.value;
               }
             }
             // add special parameters
