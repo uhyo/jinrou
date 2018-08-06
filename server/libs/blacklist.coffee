@@ -104,7 +104,6 @@ exports.handleLogin = (userid, ip, cb)->
         .sort([['forgiveDate', 1], ['expires', -1]])
         .limit(1)
         .next (err, doc)->
-            console.log 'handleLogin', userid, doc
             if err?
                 cb {
                     error: err
