@@ -474,6 +474,8 @@ TroubleMaker:
 FrankensteinsMonster:
   # Drained a role from a body.
   drain: "{{name}}は{{target}}の死体から{{jobname}}の能力を吸収しました。"
+  # separator ob jobs.
+  separator: "，"
 
 BloodyMary:
   # Select a target.

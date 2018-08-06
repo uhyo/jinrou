@@ -6101,24 +6101,39 @@ class FrankensteinsMonster extends Player
         # 吸収する
         thispl=this
         for pl in founds
+            # extract absorbable jobs.
+            extracted = []
+            rec = (pl)->
+                if pl.isComplex()
+                    # main is absorbable.
+                    rec pl.main
+                    # if Chemical, absorb both.
+                    if pl.cmplType == "Chemical" && pl.sub?
+                        rec pl.sub
+                else
+                    extracted.push pl.type
+            rec pl
+            # List up name of extracted jobs.
+            jobnames = extracted.map((e)-> game.i18n.t "roles:jobname.#{e}").join(game.i18n.t "roles:FrankensteinsMonster.separator")
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:FrankensteinsMonster.drain", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
+                comment: game.i18n.t "roles:FrankensteinsMonster.drain", {name: @name, target: pl.name, jobname: jobnames}
             splashlog game.id,game,log
 
-            # 同じ能力を
-            subpl = Player.factory pl.type, game
-            thispl.transProfile subpl
+            # 全て合成
+            for newtype in extracted
+                subpl = Player.factory newtype, game
+                thispl.transProfile subpl
 
-            newpl=Player.factory null, game, thispl,subpl,Complex    # 合成する
-            thispl.transProfile newpl
+                newpl=Player.factory null, game, thispl,subpl,Complex    # 合成する
+                thispl.transProfile newpl
 
-            # 置き換える
-            thispl.transform game,newpl,true
-            thispl=newpl
+                # 置き換える
+                thispl.transform game,newpl,true
+                thispl=newpl
 
-            thispl.addGamelog game,"frankeneat",pl.type,pl.id
+                thispl.addGamelog game,"frankeneat",newtype,pl.id
 
         if founds.length>0
             game.splashjobinfo [thispl]

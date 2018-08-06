@@ -315,6 +315,10 @@ exports.start=(roomid)->
                 icons: player_icons
             }
 
+            if obj.dead
+                document.body.classList.add "heaven"
+            else
+                document.body.classList.remove "heaven"
             if game=obj.game
                 if game.finished
                     # 終了
