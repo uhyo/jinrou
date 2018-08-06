@@ -30,8 +30,8 @@ export function getQuery(
   }
   // Add job inclusion param.
   for (const role of roles) {
-    const include = jobInclusions.get(role) || true;
-    result[`job_use_${role}`] = include ? 'on' : '';
+    const include = jobInclusions.get(role);
+    result[`job_use_${role}`] = include !== false ? 'on' : '';
   }
   // Add rule param.
   for (const [rule, value] of rules) {
