@@ -10271,7 +10271,7 @@ module.exports.actions=(req,res,ss)->
                                 teamcount[team] += num
                 for team of Shared.game.jobinfo
                     if teamcount[team]>0
-                        teaminfos.push "#{i18n.t "roles:categoryName.#{team}"}#{teamcount[team]}"    #陣営名
+                        teaminfos.push "#{i18n.t "roles:teamName.#{team}"}#{teamcount[team]}"    #陣営名
 
                 log=
                     mode:"system"
