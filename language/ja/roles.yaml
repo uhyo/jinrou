@@ -118,6 +118,30 @@ jobname:
   Waiting: "待機中"
   Watching: "観戦者"
 
+# Name of categories.
+categoryName:
+  Human: "村人系"
+  Werewolf: "人狼系"
+  Fox: "妖狐系"
+  Madman: "狂人系"
+  Immoral: "背徳者系"
+  Switching: "役職変化系"
+  Others: "第三陣営系"
+
+# Name of teams.
+teamName:
+  Human: "村人陣営"
+  Werewolf: "人狼陣営"
+  LoneWolf: "人狼陣営"
+  Fox: "妖狐陣営"
+  Friend: "恋人陣営"
+  Devil: "悪魔くん"
+  Vampire: "ヴァンパイア陣営"
+  Cult: "カルトリーダー陣営"
+  Neet: "ニート"
+  Others: "その他"
+
+
 # Fortune result.
 fortune:
   human: "村人"
@@ -450,6 +474,8 @@ TroubleMaker:
 FrankensteinsMonster:
   # Drained a role from a body.
   drain: "{{name}}は{{target}}の死体から{{jobname}}の能力を吸収しました。"
+  # separator ob jobs.
+  separator: "，"
 
 BloodyMary:
   # Select a target.

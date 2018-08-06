@@ -1,37 +1,48 @@
 exports.start=(query={})->
     mode = query.mode
-    page = query.page || 0
-    if page < 0
-        page = 0
-    getroom=Index.game.rooms.getroom
-    gr=(rooms)->
-        getroom mode,rooms
 
-    reqRpc = ()->
-        if mode == "my"
-            ss.rpc "game.rooms.getMyRooms", page, gr
-        else
-            ss.rpc "game.rooms.getRooms", mode, page, gr
-    reqRpc()
+    # if query mode is "my", load i18n for showing
+    # job names.
+    p = if mode == "my"
+        JinrouFront.loadI18n()
+            .then((i18n)-> i18n.getI18nFor())
+    else
+        Promise.resolve null
 
-    $("#pager").click (je)->
-        t=je.target
-        if t.name=="prev"
-            page--
-            if page<0 then page=0
-            reqRpc()
-            Index.app.pushState location.pathname, {
-                page: page
-            }
-        else if t.name=="next"
-            page++
-            reqRpc()
-            Index.app.pushState location.pathname, {
-                page: page
-            }
+    p.then (i18n)->
+        page = query.page || 0
+        if page < 0
+            page = 0
+        getroom=Index.game.rooms.getroom
+        gr=(rooms)->
+            getroom i18n, mode, rooms
 
-#mode: "old","log"など
-exports.getroom=(mode,rooms)->
+        reqRpc = ()->
+            if mode == "my"
+                ss.rpc "game.rooms.getMyRooms", page, gr
+            else
+                ss.rpc "game.rooms.getRooms", mode, page, gr
+        reqRpc()
+
+        $("#pager").click (je)->
+            t=je.target
+            if t.name=="prev"
+                page--
+                if page<0 then page=0
+                reqRpc()
+                Index.app.pushState location.pathname, {
+                    page: page
+                }
+            else if t.name=="next"
+                page++
+                reqRpc()
+                Index.app.pushState location.pathname, {
+                    page: page
+                }
+
+# mode: "old","log"など
+# mode: "my"のときはi18nを渡す
+exports.getroom=(i18n, mode, rooms)->
     tb=$("#roomlist").get(0)
     if rooms.error?
         console.error rooms.error
@@ -39,7 +50,7 @@ exports.getroom=(mode,rooms)->
         return
     while tb.rows.length>0
         tb.deleteRow 0
-        
+
     rooms.forEach (obj)->
         # TODO myのときとそれ以外で構造が違う
         room =
@@ -51,7 +62,7 @@ exports.getroom=(mode,rooms)->
         tr=tb.insertRow -1
         if room.needpassword
             tr.classList.add "lock"
-    
+
         #No.
         td=tr.insertCell -1
         a=document.createElement "a"
@@ -89,7 +100,7 @@ exports.getroom=(mode,rooms)->
                 sq.style.color = job.color
                 sq.textContent = "■"
                 td.appendChild sq
-                td.appendChild document.createTextNode job.name
+                td.appendChild document.createTextNode i18n.t "roles:jobname.#{obj.job}"
             else if obj.job == "Helper"
                 td.textContent = "ヘルパー"
             else if obj.job == "GameMaster"
@@ -128,7 +139,7 @@ exports.getroom=(mode,rooms)->
                     "終了"
                 else
                     "不明"
-        
+
         #owner
         td=tr.insertCell -1
         if room.owner?
@@ -139,17 +150,17 @@ exports.getroom=(mode,rooms)->
             td.appendChild a
         else
             td.textContent="???"
-        
+
         #ルール
         td=tr.insertCell -1
         td.textContent="#{room.number}人"
-        
+
         #日時
         td=tr.insertCell -1
         if room.made?
             td.appendChild Index.util.timeFromDate new Date room.made
-        
+
         #コメント
         td=tr.insertCell -1
         td.textContent=room.comment
-            
+

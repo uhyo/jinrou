@@ -2,43 +2,62 @@ app=require '/app'
 util=require '/util'
 
 exports.start=->
-    ss.rpc "user.getMyuserlog", (result)->
-        if result.error?
-            Index.util.message "エラー", result.error
-            return
-        userlog = result.userlog
-        usersummary = result.usersummary
+    JinrouFront.loadI18n()
+        .then((i18n)-> i18n.getI18nFor())
+        .then (i18n)->
+            ss.rpc "user.getMyuserlog", (result)->
+                if result.error?
+                    Index.util.message "エラー", result.error
+                    return
+                userlog = result.userlog
+                usersummary = result.usersummary
 
-        showUserlog userlog
-        showUserSummary usersummary
+                showUserlog i18n, userlog
+                showUserSummary usersummary
 
-        if result.data_open_recent
-            $("#open-recent").prop "checked", true
-        if result.data_open_all
-            $("#open-all").prop "checked", true
+                if result.data_open_recent
+                    $("#open-recent").prop "checked", true
+                if result.data_open_all
+                    $("#open-all").prop "checked", true
 
-        # 戦績が少ないとアレだ
-        for i in document.querySelectorAll 'i.mylog-desc-of-open'
-            i.title += "戦績を公開するには総対戦数#{result.dataOpenBarrier}以上が必要です。"
-        unless userlog?.counter?.allgamecount >= result.dataOpenBarrier
-            # 戦績が足りない
-            for elm in document.querySelectorAll 'label.mylog-open'
-                elm.classList.add 'mylog-open-disabled'
-        else
-            # 戦績足りてる
-            $("#open-recent")
-                .prop "disabled", false
-                .change (je)->
-                    changeOpenSetting 'open-recent', je.target
-            $("#open-all")
-                .prop "disabled", false
-                .change (je)->
-                    changeOpenSetting 'open-all', je.target
+                # 戦績が少ないとアレだ
+                for i in document.querySelectorAll '.mylog-desc-of-open'
+                    i.title += "戦績を公開するには総対戦数#{result.dataOpenBarrier}以上が必要です。"
+                unless userlog?.counter?.allgamecount >= result.dataOpenBarrier
+                    # 戦績が足りない
+                    for elm in document.querySelectorAll 'label.mylog-open'
+                        elm.classList.add 'mylog-open-disabled'
+                else
+                    # 戦績足りてる
+                    $("#open-recent")
+                        .prop "disabled", false
+                        .change (je)->
+                            changeOpenSetting 'open-recent', je.target
+                    $("#open-all")
+                        .prop "disabled", false
+                        .change (je)->
+                            changeOpenSetting 'open-all', je.target
 
 exports.end=->
 
+# make a jobinfo object with names added
+namedJobinfo = (i18n)->
+    jobinfo = Shared.game.jobinfo
+    result = {}
+    for team, obj of jobinfo
+        result[team] = {
+            name: i18n.t "roles:teamName.#{team}"
+            color: obj.color
+        }
+        for job, obj2 of obj
+            continue if job == "color"
+            result[team][job] = {
+                name: i18n.t "roles:jobname.#{job}"
+                color: obj2.color
+            }
+    result
 
-showUserlog = (userlog)->
+showUserlog = (i18n, userlog)->
     # 全期間データを表示
     unless userlog?
         $("#alldata")
@@ -54,7 +73,7 @@ showUserlog = (userlog)->
         .append(grapharea)
 
     # グラフも表示
-    makeGraph userlog, grapharea
+    makeGraph i18n, userlog, grapharea
 
 showUserSummary = (usersummary)->
     # 直近データを表示
@@ -95,11 +114,11 @@ changeOpenSetting = (mode, input)->
 
 
 # 戦績グラフを作る
-makeGraph = (userlog, grapharea)->
+makeGraph = (i18n, userlog, grapharea)->
     wincount = userlog.wincount ? {}
     losecount = userlog.losecount ? {}
     # 陣営の色
-    teamcolors = merge Shared.game.jobinfo, {}
+    teamcolors = merge namedJobinfo(i18n), {}
 
     grp=(title,size=200)->
         # 新しいグラフ作成して追加まで
@@ -145,7 +164,7 @@ makeGraph = (userlog, grapharea)->
     names=merge teamcolors,{}   #コピー
     for team of names
         gs[team]={}
-        
+
         for type of names[team]
             continue if type in ["name","color"]
             names[team][type].win=

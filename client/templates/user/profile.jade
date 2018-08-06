@@ -13,11 +13,11 @@ section.profile
       p.userid=userid
       h2
         | 名前
-        i.fa.fa-question-circle-o(data-helpicon, title="ゲームの参加時に表示される名前です。")
+        i.far.fa-question-circle(data-helpicon, title="ゲームの参加時に表示される名前です。")
       p.edit(data-pname="name",data-type="text",data-maxlength="20",data-required="required")=name
       h2
         | コメント
-        i.fa.fa-question-circle-o(data-helpicon, title="自分のプロフィール画面に表示されます。")
+        i.far.fa-question-circle(data-helpicon, title="自分のプロフィール画面に表示されます。")
       p.edit(data-pname="comment",data-type="text",data-maxlength="100")=comment
       h2 メールアドレス
       p.edit(data-pname="mail",data-type="text",data-maxlength="50")=mail.address
@@ -26,17 +26,17 @@ section.profile
           | 変更中 (
           = mail.new
           | )
-          i.fa.fa-question-circle-o(data-helpicon, title="メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。")
+          i.far.fa-question-circle(data-helpicon, title="メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。")
       else if !mail.address
         p
           | 未登録
-          i.fa.fa-question-circle-o(data-helpicon, title="メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。")
+          i.far.fa-question-circle(data-helpicon, title="メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。")
       else if mail.verified
         p 確認済
       else
         p
           | 未確認
-          i.fa.fa-question-circle-o(data-helpicon, title="入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。")
+          i.far.fa-question-circle(data-helpicon, title="入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。")
       h2 アイコン
       p
         input(type="hidden",name="icon",value="")
@@ -54,7 +54,7 @@ section.profile
         label
           | パスワード・メールアドレスをロック
           input(type="checkbox",name="mailconfirmsecurity", value="on", checked=mailconfirmsecurity)
-        i.fa.fa-question-circle-o(data-helpicon, title="このオプションがONの間、パスワード・メールアドレスを変更できません。このオプションを解除するには登録メールアドレスの確認が必要です。")
+        i.far.fa-question-circle(data-helpicon, title="このオプションがONの間、パスワード・メールアドレスを変更できません。このオプションを解除するには登録メールアドレスの確認が必要です。")
       p
         input#mailconfirmsecuritybutton(type="button",value="変更を保存")
   fieldset

@@ -1,5 +1,6 @@
 config/
 node_modules/
 /client/static/assets/main
+/client/static/front-assets
 /server/themes
 /language/*/*.missing.json

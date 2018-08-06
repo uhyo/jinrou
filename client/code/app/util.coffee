@@ -22,11 +22,11 @@ makeIconHTML = (icon)->
     unless icon?
         return ''
     if 'string' == typeof icon
-        return "<i class='fa fa-#{icon}'></i>"
+        return FontAwesome.icon({iconName: icon}).html
     if icon instanceof Array
         result = "<span class='fa-stack'>"
         for name in icon
-            result += "<i class='fa fa-#{name}'></i>"
+            result += FontAwesome.icon({iconName: name}).html
         result += "</span>"
         return result
     return ''
@@ -369,22 +369,16 @@ exports.setHTTPSicon = setHTTPSicon = (img, url, cacheObject)->
 # Font Awesomeアイコンを一時的にloadingに変える
 exports.LoadingIcon = class LoadingIcon
     constructor:(@icon)->
-        @iconclasses = []
-        # fa-系アイコンを列挙
-        for cl in @icon.classList
-            if (/^fa-/.test cl) && cl != 'fa-fw'
-                @iconclasses.push cl
+        # spinnerアイコンを作成
+        @newicon = FontAwesome.icon({iconName: 'spinner'}, {
+            classes: ['fa-fw', 'fa-pulse', 'fa-spinner']
+        }).node[0]
     start:()->
-        # アイコンを変更
-        for cl in @iconclasses
-            @icon.classList.remove cl
-        @icon.classList.add 'fa-pulse'
-        @icon.classList.add 'fa-spinner'
+        # 一時的に古いアイコンを隠す
+        @icon.parentNode.replaceChild @newicon, @icon
     stop:()->
-        @icon.classList.remove 'fa-pulse'
-        @icon.classList.remove 'fa-spinner'
-        for cl in @iconclasses
-            @icon.classList.add cl
+        # 戻す
+        @newicon.parentNode.replaceChild @icon, @newicon
 
 #突然死の罰
 exports.punish=(title,message,cb)->

@@ -33,14 +33,14 @@ h2
   text-shadow 2px 2px 2px rgba(140,140,140,0.25)
   font-weight bold
   margin 0.5em 0
-  
+
 h3
   font-size 1.1em
   text-shadow 1px 1px 1px rgba(100,100,100,0.4)
   text-shadow 2px 2px 2px rgba(140,140,140,0.25)
   margin 0.2em 0
   font-weight bold
-  
+
 h4
   margin 0.15em 0
   font-weight bold
@@ -50,7 +50,7 @@ small
   font-size smaller
 strong
   font-weight bold
-  
+
 fieldset
   border 1px dashed #888888
   padding 0.8em
@@ -60,7 +60,7 @@ input[type="number"]
   width 5ex
 
 // help icon
-i[data-helpicon]
+*[data-helpicon]
   display inline-block
   padding 3px
   font-size 1.2em
@@ -140,14 +140,14 @@ body > .notice
   background-color rgba(240,240,240,0.88)
   color #000000
   max-width 20em
-  
+
   overflow hidden
   a
     color #0000FF !important
-  
+
 .window.login
   width 20em
-  
+
 .window > h1
   margin 0 -0.6em
   font-size 1.2em
@@ -170,7 +170,7 @@ body > .notice
   cursor pointer
 .window div.window-content
   margin 1em 0.25em
-  
+
 .window p.window-aside
   text-align right
 button.link-like
@@ -181,8 +181,8 @@ button.link-like
   cursor pointer
   font-size 0.9em
 
-  
-  
+
+
 //user-profile
 section.profile
   p
@@ -254,23 +254,23 @@ div.graph-area
 #roomlist td
   img
     vertical-align text-bottom
-   
+
 //lobby
 .lobby #users li
   display inline-block
   margin-right 1em
-    
+
 //game
 body.night
   background-color #000044
   color #ffffff
   a
     color #ffffff
-  
+
 body.day
   //background-color rgb(255,217,83)
   background-color #f0e68c
-  
+
 body.heaven
   background-color rgb(255,255,240)
   color #000000
@@ -287,72 +287,8 @@ body.heaven
   margin-left 0.3rem
   font-size 1.2rem
   letter-spacing 0.1rem
-    
-.game
-  .players
-    h1
-      font-size 1.2em
-.game #playernumberinfo
-  font-size 0.8em
-//players
-#players li
-  display inline-block
-  vertical-align top
-  margin-left 0.5em
-  min-width 5em
-  min-height 2em
-  p.job,p.outcome
-    font-weight bold
-  p.outcome.win
-    color:#ff0000
-  p.outcome.lose
-    color:#0000ff
-  figure.icon
-    float left
-#players li.dead figure.icon .avatar
-  position:absolute
-  /* Firefox 10+, Firefox on Android */
-  filter: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnPjxmaWx0ZXIgaWQ9J2dyYXlzY2FsZSc+PGZlQ29sb3JNYXRyaXggdHlwZT0nbWF0cml4JyB2YWx1ZXM9JzAuMzMzMyAwLjMzMzMgMC4zMzMzIDAgMCAwLjMzMzMgMC4zMzMzIDAuMzMzMyAwIDAgMC4zMzMzIDAuMzMzMyAwLjMzMzMgMCAwIDAgMCAwIDEgMCcvPjwvZmlsdGVyPjwvc3ZnPg==#grayscale");
-  /*
-    Chrome 19+,
-    Safari 6+,
-    Safari 6+ iOS,
-    Opera 15+
-    */
-  -webkit-filter: grayscale(100%)
-  filter: grayscale(100%)
-#players li.dead figure.icon img.dead_mark
-  position:relative
-  float:left
-#players li:not(.dead) figure.icon img.dead_mark
-  display:none
-.infobox
-    border 2px dashed currentColor
-    padding 8px
-    margin 5px
-#players li.icon
-  min-width 8em
-#players li.dead
-  background-color rgba(0,0,0,0.1)
-  p.name
-    text-decoration line-through
-#form_players li.dead
-  text-decoration line-through
 
-#form_players li
-  display inline-block
-  margin-left 0.8em
-#speakform
-  border-top 1px solid currentColor
-  padding-top 5px
-  textarea
-    vertical-align top
-#gamestart label
-  mergin-right 0.6em
-  border-left 2px dashed #ffffff
-  padding-left 0.4em
-
-//logs
+//logs (for lobby)
 #logs
   //display table
   width 100%
@@ -380,183 +316,13 @@ body.heaven
     div.comment
       display table-cell
       width 100%
-	  /*div
-        //white-space pre-wrap
-        white-space -moz-pre-wrap
-        white-space -webkit-pre-wrap
-        white-space pre-line
-        word-wrap break-word
-        max-width 600px*/
-    div.comment.big
-      font-size larger
-      font-weight bold
-      line-height 1
-    div.comment.small
-      font-size smaller
     time.time
       display table-cell
       white-space nowrap
       max-width 22ex
-  .day
-    background-color #f0e68c
-    //borderud 1px dashed rgb(255,234,90)
-    color #000000
-  .half-day
-    background-color rgb(248, 243, 190)
-    color #999999
-  .system
-    background-color #cccccc
-    borderud 1px dashed #aaaaaa
-    font-weight bold
-    color #000000
-  .werewolf,.monologue
-    background-color #000044
-    borderud 1px dashed #000066
-    color #ffffff
-  .heavenmonologue
-    background-color #8888aa
-    color #ffffff
-  .heaven,.prepare
-    background-color rgb(255,255,240)
-    borderud 1px dashed #fffff8
-    color #000000
-  .skill,.wolfskill,.emmaskill,.eyeswolfskill
-    background-color #cc0000
-    borderud 2px dashed #700000
-    color #ffffff
-    font-weight bold
-  .voteto
-    background-color #009900
-    borderud 2px dashed #004000
-    color #ffffff
-    font-weight bold
-  .nextturn
-    background-color #eeeeee
-    borderud 1px dashed #aaaaaa
-    font-weight bold
-    color #000000
-  .audience
-    background-color #ddffdd
-    borderud 1px dashed #eeffee
-    color #000000
-  .couple
-    background-color #ddddff
-    borderud 1px dashed #eeffee
-    color #000000
-  .madcouple
-    background-color #e2e2c0
-    borderud 1px dashed #eeffee
-    color #000000
-  .fox
-    background-color #934293
-    color #ffffff
-  .will
-    background-color #222222
-    color #ffffff
-  .gm,.gmreply
-    background-color #ffd1d1
-    borderud 1px dashed #ffa8a8
-    color #000000
-  .gmheaven,.gmaudience,.gmmonologue
-    background-color #ffe5c9
-    borderud 1px dashed #ffc68a
-    color #000000
-  .helperwhisper
-    background-color #fff799
-    borderud 1px dashed #e8e000
-    color #000000
-  .inlog
-    background-color #a6daff
-    borderud 1px dashed #00dce8
-    color #000000
-    font-weight bold
-  .userinfo
-    background-color #0000cc
-    borderud 1px dashed #000070
-    color #ffffff
-    font-weight bold
-  .voteresult
-    display table-row
-    div.name
-      display table-cell
-    table
-      display inline-table
-//jobs
-dl.jobs
-  dt.jobs-cat
-    display block
-    margin 0.2em
-    padding 2px
-    background-color rgba(255,255,255,.6)
 
-    text-align center
-    font-weight bold
-  dd.jobs-cat
-    display flex
-    flex-flow row wrap
-    justify-content flex-start
-    margin auto
-  div.jobs-job
-    flex 8.6em 0 0
-    background-color rgba(255,255,255,.3)
-    margin 0.25em
-    padding 0.3em
-    display flex
-    flex-flow column nowrap
-    justify-content space-between
 
-    &.jobs-job-active
-      background-color rgba(255,255,255,.82)
-    b
-      display flex
-      flex-flow row nowrap
-      margin-bottom 0.25em
-      span
-        flex 1 1 auto
-        text-align center
-      a
-        flex 0 0 auto
-        color rgba(0,0,0,.7)
-        text-decoration none
-        margin-left 0.15em
-    &.jobs-job-inactive
-      background-color rgba(255,255,255,.15)
-      b span
-        color rgba(0,0,0,.4)
-    &.jobs-job-error
-      background-color rgba(255,0,0,.82)
 
-    span.jobs-job-controls
-      word-wrap nowrap
-      text-align center
-      display flex
-      input.jobs-job-controls-check
-        flex 0 0 auto
-      span.jobs-job-controls-number-span
-        flex 1 0 2.8em
-        padding 0 1ex
-        input
-          box-sizing border-box
-          width 100%
-      button.jobs-job-controls-button
-        border none
-        padding 2px
-        margin 0 0.2em
-        background transparent
-
-        font-size 1.05em
-        color rgba(0,0,0,.6)
-        cursor pointer
-  div.jobs-job[data-job="Human"] span.jobs-job-controls
-    text-align right
-  &[data-checkboxes="no"]
-    span.jobs-job-controls input.jobs-job-controls-check
-      display none
-  &:not([data-checkboxes="no"])
-    div.jobs-job[data-job="Human"]
-      display none
-
-    
 //prizeedit
 .profile
   li
@@ -592,12 +358,12 @@ dl.jobs
   li:empty
     min-width 1em
     min-height 1.2em
-    
+
 b
   font-weight bold
 dt
   font-weight bold
-  
+
 table
   border-collapse collapse
   td,th

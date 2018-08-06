@@ -1,0 +1,6 @@
+# data for casting page in manual.
+
+# this casting is unknown.
+unknownCasting: "その配役表は利用できません。"
+# label for number of players.
+playerNumber: "人数"

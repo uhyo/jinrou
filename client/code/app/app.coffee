@@ -8,7 +8,7 @@ ss.server.on 'disconnect', ->
 ss.server.on 'reconnect', ->
     util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
 libban = require '/ban'
-    
+
 
 # 全体告知
 ss.event.on 'grandalert', (msg)->
@@ -22,18 +22,23 @@ ss.event.on 'forcereload', ()->
 # cached values
 my_userid=null
 application_config=null
+# Callbacks waiting for application_config.
+application_config_callbacks = []
 
 exports.init = ->
     # 固定リンク
     $("a").live "click", (je)->
         t=je.currentTarget
         return if je.isDefaultPrevented()
+        # Flag to prevent link feature to work
+        return if t.classList.contains "no-jump"
+
         href = t.href
         unless t.classList.contains "mode-change-link"
-            if application_config?.modes?
+            if application_config?.application?.modes?
                 curidx = -1
                 hrefidx = -1
-                modes = application_config.modes
+                modes = application_config.application.modes
                 for mode, i in modes
                     if location.href.indexOf(mode.url) == 0
                         curidx = i
@@ -52,9 +57,9 @@ exports.init = ->
         app.showUrl href
         return
     # ヘルプアイコン
-    $("i[data-helpicon]").live "click", (je)->
+    $("*[data-helpicon]").live "click", (je)->
         t = je.currentTarget
-        util.message "ヘルプ", t.title
+        util.message "ヘルプ", t.getAttribute 'title'
 
     # 自動ログイン
     if localStorage.userid && localStorage.password
@@ -89,7 +94,7 @@ exports.init = ->
     ),false
     # application configを取得
     loadApplicationConfig()
-  
+
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
     jQuery.data(cdom,"end")?()
@@ -106,7 +111,7 @@ manualpage=(pagename)->
         jQuery.data(cdom,"end")?()
         jQuery.removeData cdom,"end"
         $("#content").empty()
-        
+
         $(tmp).appendTo("#content")
         pageobj=Index.manual
         if pageobj
@@ -160,7 +165,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             else
                 location.href=url
                 return
-    
+
     switch url
         when "/my"
             # プロフィールとか
@@ -254,6 +259,8 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
         else
             if result=url.match /^\/room\/-?(\d+)$/
                 # ルーム
+                # preload game-start-control assets.
+                JinrouFront.loadGameStartControl()
                 page "game-game",null,Index.game.game,parseInt result[1]
             else if result=url.match /^\/user\/(\w+|身代わりくん|%E8%BA%AB%E4%BB%A3%E3%82%8F%E3%82%8A%E3%81%8F%E3%82%93)$/
                 userid = result[1]
@@ -262,11 +269,17 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                 # ユーザー
                 page "user-view",null,Index.user.view,userid
             else if result=url.match /^\/manual\/job\/(\w+)$/
-                # ジョブ情報
-                win=util.blankWindow {
-                    title: "役職説明"
-                }
-                $(JT["jobs-#{result[1]}"]()).appendTo win
+                # ジョブ情報を表示
+                Promise.all([
+                    JinrouFront.loadManual().then((m)-> m.loadRoleManual(result[1])),
+                    JinrouFront.loadDialog(),
+                ]).then ([renderContent, dialog])->
+                    dialog.showRoleDescDialog {
+                        modal: false
+                        name: query.jobname || undefined
+                        role: result[1]
+                        renderContent: renderContent
+                    }
                 return
             else if result=url.match /^\/manual\/casting\/(.*)$/
                 # キャスティング情報
@@ -289,13 +302,26 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
 
 exports.pushState=pushState=(url, query)->
     history.pushState null, null, "#{url}#{util.hashSearch query}"
-                    
-                    
+
+
 exports.refresh=->showUrl location.pathname, util.searchHash(location.search), true
 
 exports.login=login=(uid,ups,cb)->
     ss.rpc "user.login", {userid:uid,password:ups},(result)->
         processLoginResult uid, result, cb
+# Promise version of login.
+# Also it saves user into to localStorage.
+exports.loginPromise = (uid, ups)->
+    new Promise (resolve)->
+        login uid, ups, (result)->
+            if result
+                # succeeded to login.
+                localStorage.setItem "userid", uid
+                localStorage.setItem "password", ups
+                resolve true
+            else
+                resolve false
+
 exports.processLoginResult = processLoginResult = (uid, result, cb)->
     if result.banid
         libban.saveBanData result.banid
@@ -361,7 +387,7 @@ exports.useColorProfile=useColorProfile=(cp)->
         # 設定されているものを利用
         while sheet.cssRules.length>0
             sheet.deleteRule 0
-            
+
     else
         # 新規に作る
         st=$("<style id='profilesheet'>").appendTo(document.head).get 0
@@ -386,16 +412,35 @@ body.heaven, #logs .heaven, #logs .prepare {
     background-color: #{cp.heaven.bg};
     color: #{cp.heaven.color};
 }""",3
+    # テーマを更新
+    JinrouFront.themeStore.update cp
     return
 
-exports.getApplicationConfig = ()-> application_config
+# Returns a Promise which resolves to the application config.
+exports.getApplicationConfig = getApplicationConfig = ()->
+    if application_config?
+        return Promise.resolve application_config
+    else
+        return new Promise((resolve)->
+            application_config_callbacks.push(resolve))
+
+# Returns a Promise which resolves to an i18n instance with appropreate language setting.
+exports.getI18n = ()->
+    Promise.all([
+        getApplicationConfig()
+        JinrouFront.loadI18n()
+    ])
+        .then(([ac, i18n])-> i18n.getI18nFor(ac.language.value))
 
 loadApplicationConfig = ()->
     ss.rpc "app.applicationconfig", (conf)->
         application_config = conf
+        # call callbacks.
+        for f in application_config_callbacks
+            f conf
         # HTTP/HTTPS切り替えのための
         # ツールバーを設定
-        modes = application_config.modes
+        modes = application_config.application.modes
         if modes?
             for m in modes
                 if location.href.indexOf(m.url) != 0
@@ -412,12 +457,9 @@ loadApplicationConfig = ()->
                     a.appendChild(document.createTextNode "#{m.name}へ移動")
                     span.appendChild a
                     $("#toolbar").append span
-                ###
-                else
-                    span.classList.add "tool-disabled"
-                    span.appendChild(document.createTextNode "現在#{m.name}です")
-                ###
-
+        # preload front-end assets
+        JinrouFront.loadI18n()
+            .then((i18n)-> i18n.preload conf.language.value)
 checkBanData = ()->
     libban.loadBanData (data)->
         if data?

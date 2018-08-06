@@ -1,6 +1,39 @@
 # Common language fragments.
 error:
+  # Common heading indicating error.
+  error: "エラー"
   # You need to log in.
   needLogin: "ログインしてください。"
   # Input is invalid.
   invalidInput: "入力が不正です。"
+
+# Message dialog.
+messageDialog:
+  # close button.
+  close: "閉じる"
+
+# Error dialog.
+errorDialog:
+  # title.
+  title: "エラー"
+  # close button.
+  close: "閉じる"
+
+# Text for login form.
+loginForm:
+  # title of login form.
+  title: "ログイン"
+  # button to login.
+  ok: "ログイン"
+  # cancel button.
+  cancel: "キャンセル"
+  # label for userid input.
+  userid: "ユーザーID"
+  # label for password.
+  password: "パスワード"
+  # link to sign up form.
+  signup: "新規登録"
+  # link to help page.
+  help: "ヘルプ"
+  # error when login failed.
+  error: "ユーザーIDまたはパスワードが違います。"

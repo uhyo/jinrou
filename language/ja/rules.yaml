@@ -1,0 +1,340 @@
+# texts related to game rule settings.
+# each rule object has `name` and `label` fields.
+# type=select rules have `labels` and `descriptions` field.
+# type=checkbox & type=hidden rules have `yes` and `no` fields.
+# `yes` and `no` fields may be empty.
+# other fields are used by `getstr` functions.
+rule:
+  yaminabe_safety:
+    name: "闇鍋セーフティ"
+    label: "配役にどれくらい気をつけるか指定します。"
+    labels:
+      supersuper: "走召(α2)"
+      super: "超(β2)"
+      high: "高"
+      middle: "中"
+      low: "低"
+      none: "なし"
+      reverse: "逆(α)"
+    descriptions:
+      supersuper: "強さのバランスを調整するかもしれません。"
+      super: "強さのバランスを調整します。"
+      high: "出現役職どうしの兼ね合いも考慮します。"
+      middle: "各陣営の割合を調整します。"
+      low: "人狼・妖狐の数をちょうどいい数に調整します。"
+      none: "まったく気をつけません。人狼系1が保証される以外は全てランダムです。"
+      reverse: "バランスが悪くなりますが、人外数の調整は行われます。"
+  hide_singleton_teams:
+    name: "単独陣営を隠す"
+    label: "ありの場合、悪魔くん・ヴァンパイア・カルトリーダーは陣営一覧でその他陣営としてカウントされます。"
+    yes: "あり"
+    no: ""
+  decider:
+    name: "決定者"
+    label: "昼の処刑投票のときに、同数の場合決定者が投票した人が優先されます。誰が決定者かは分かりません。"
+    yes: "あり"
+    no: ""
+  authority:
+    name: "権力者"
+    label: "昼の処刑投票のときに投票が2票分になります。誰が権力者かは分かりません。"
+    yes: "あり"
+    no: ""
+  deathnote:
+    name: "死神の手帳"
+    label: "毎晩死神の手帳が移動します。死神の手帳を持った人は一人殺すことができます。"
+    yes: "あり"
+    no: ""
+  wolfminion:
+    name: "狼の子分"
+    label: "初日の夜に人狼が狼の子分を指定します。狼の子分になった場合能力はそのままで人狼陣営になります。"
+    yes: "あり"
+    no: ""
+  drunk:
+    name: "酔っ払い"
+    label: "誰かが酔っ払いになります。酔っ払いは3日目の夜まで自分が村人だと思い込んでいます。"
+    yes: "あり"
+    no: ""
+  scapegoat:
+    name: "身代わりくん"
+    label: "身代わりくんは1日目の夜に殺されるためのNPCです。"
+    labels:
+      on: "あり"
+      off: "なし（参加者が死ぬ）"
+      no: "なし（誰も死なない）"
+    descriptions:
+      on: ""
+      off: ""
+      no: ""
+  day:
+    name: "昼"
+    label: "昼の長さを設定します。"
+  night:
+    name: "夜"
+    label: "夜の長さを設定します。"
+  remain:
+    name: "猶予時間"
+    label: "猶予時間の長さを設定します。"
+  voting:
+    name: "投票専用時間"
+    label: "投票専用時間を設定すると、昼間の議論中には投票できなくなり、投票専用時間に投票することになります。"
+  will:
+    name: "遺言"
+    label: "遺言が有効な場合各参加者は遺言を設定することができ、死んだ際に公開されます。"
+    yes: "あり"
+    no: "なし"
+  heavenview:
+    name: "霊界表示"
+    label: "ありの場合、霊界で役職一覧が見られ、夜の発言なども全て見ることができます。"
+    labels:
+      view: "常にあり"
+      norevive: "あり"
+      "": "なし"
+    descriptions:
+      view: "蘇生役職が存在する場合でも常に公開します。"
+      norevive: "表示しますが、誰かが蘇生する可能性がある場合は表示しません。"
+      "": "ゲーム終了まで非公開にします。"
+  votemyself:
+    name: "自分に投票できる"
+    label: "ありの場合、処刑投票で自分に投票可能になります。"
+    yes: "あり"
+    no: "なし"
+  voteresult:
+    name: "投票結果を隠す"
+    label: "ありの場合、処刑投票で誰が誰に投票したか分からなくなります。"
+    yes: "あり"
+    no: "なし"
+  waitingnight:
+    name: "夜は時間切れまで待つ"
+    label: ""
+    yes: "あり"
+    no: "なし"
+  safety:
+    name: "身代わりセーフティ"
+    label: "「なし」や「なんでもあり」にすると身代わりくんが人狼になったりします。"
+    labels:
+      full: "あり"
+      no: "なし"
+      free: "なんでもあり"
+    # {{safety_excluded_jobs}} is provided by getOptionStr
+    descriptions:
+      full: "身代わりくんは人外、{{safety_excluded_jobs}}になりません。"
+      no: "身代わりくんは人外になりません。"
+      free: ""
+  noticebitten:
+    name: "噛まれたら分かる"
+    label: "人狼に襲われたときに襲われた側に知らせます。"
+    yes: "あり"
+    no: "なし"
+  GMpsychic:
+    name: "GM霊能"
+    label: "ありにすると、処刑された人の霊能結果が全員に公開されます。"
+    yes: "あり"
+    no: "なし"
+  silentrule:
+    name: "n秒ルール"
+    label: "1以上にすると、朝になってからその時間の間は発言できません。"
+  runoff:
+    name: "決選投票"
+    label: "ありの場合、処刑投票時に上位候補で決選投票を行います。"
+    labels:
+      no: "なし"
+      revote: "再投票時"
+      yes: "常に行う"
+    descriptions:
+      no: ""
+      revote: ""
+      yes: ""
+  drawvote:
+    name: "投票同数時の処理"
+    label: "投票で同数になった場合の処理を設定します。"
+    labels:
+      revote: "再投票"
+      random: "ランダムに処刑"
+      none: "誰も処刑しない"
+      all: "全員処刑"
+    descriptions:
+      revote: ""
+      random: ""
+      none: ""
+      all: ""
+  yaminabe_hidejobs:
+    name: "配役公開"
+    label: "配役の公開方法を指定します。"
+    labels:
+      "": "役職一覧を公開"
+      team: "陣営ごとの数のみ公開"
+      "2": "非公開"
+    descriptions:
+      "": "ゲーム開始時、出現役職の一覧が公開されます。"
+      team: "各陣営の数のみ公開されます。"
+      "2": "出現役職の一覧は分からなくなります。"
+  losemode:
+    name: "敗北村"
+    label: "負けることを目指す人狼です。"
+    yes: "あり"
+    no: ""
+  rolerequest:
+    name: "希望役職制"
+    label: "各参加者はなりたい役職を選択できます。"
+    yes: "あり"
+    no: ""
+  chemical:
+    name: "ケミカル人狼"
+    label: "1人につき役職が2つ割り当てられる特殊ルールです。"
+    yes: "あり"
+    no: ""
+  wolfsound:
+    name: "人狼の遠吠えが聞こえる"
+    label: "ありにすると夜の人狼たちの会話が遠吠えとして聞こえます。"
+    yes: "あり"
+    no: "なし"
+  wolfattack:
+    name: "人狼は人狼を襲撃対象に選択できる"
+    label: ""
+    yes: "あり"
+    no: ""
+  divineresult:
+    name: "占い結果"
+    label: "夜に行った占いの結果が表示されるタイミングを調整できます。"
+    labels:
+      immediate: "すぐ分かる"
+      sunrise: "翌朝分かる"
+    descriptions:
+      immediate: ""
+      sunrise: ""
+  firstnightdivine:
+    name: "占いの初日白通知"
+    label: "ありにすると、初日の占い先は占い結果が「村人」の人の中からランダムに選択されます。"
+    labels:
+      auto: "あり"
+      manual: "なし"
+    descriptions:
+      auto: ""
+      manual: ""
+  psychicresult:
+    name: "霊能結果"
+    label: "夜に行った霊能の結果が表示されるタイミングを調整できます。"
+    labels:
+      sunset: "すぐ分かる"
+      sunrise: "翌朝分かる"
+    descriptions:
+      sunset: ""
+      sunrise: ""
+  couplesound:
+    name: "共有者の小声が聞こえる"
+    label: "ありにすると、共有者・叫迷狂人が夜に喋った場合ひそひそ声が聞こえます。"
+    yes: "あり"
+    no: "なし"
+  guardmyself:
+    name: "狩人は自分を守れる"
+    label: "ありにすると、狩人・風来狩人・コスプレイヤーは自分を護衛することができるようになります。"
+    yes: "あり"
+    no: ""
+  gjmessage:
+    name: "護衛成功通知"
+    label: "ありにすると、狩人・風来狩人・コスプレイヤーが護衛成功したときに狩人にメッセージが表示されます。"
+    yes: "あり"
+    no: ""
+  consecutiveguard:
+    name: "連続護衛"
+    label: "狩人・風来狩人・コスプレイヤーが連続して同じ人を守れるかどうか設定します。"
+    labels:
+      yes: "あり"
+      no: "なし"
+    descriptions:
+      yes: ""
+      no: ""
+  deadfox:
+    name: "呪殺は襲撃と区別が付く"
+    label: "有効な場合、妖狐が呪殺されたときのログが狼の襲撃と異なるようになります。"
+    yes: "あり"
+    no: "なし"
+  hunter_lastattack:
+    name: "ラス撃ち"
+    label: "ラス撃ちありの場合、ハンターの死亡後勝利判定より前にハンターの能力を発動します。"
+    labels:
+      yes: "あり"
+      no: "なし"
+    descriptions:
+      yes: ""
+      no: ""
+  poisonwolf:
+    name: "人狼の毒持ち襲撃"
+    label: "人狼が埋毒者・猫又を襲撃した場合の動作を設定します。"
+    labels:
+      selector: "襲撃者を道連れ"
+      "": "ランダムに道連れ"
+    descriptions:
+      selector: ""
+      "": ""
+  friendsjudge:
+    name: "恋人陣営の勝利条件"
+    label: ""
+    labels:
+      alive: "終了時に生存"
+      ruin: "恋人だけ生存"
+    descriptions:
+      alive: "妖狐と同じです。"
+      ruin: ""
+  friendssplit:
+    name: "恋人はそれぞれ独立する"
+    label: "恋人が複数組できた場合、勝利条件と後追いが恋人全体ではなく組ごとになります。"
+    yes: "あり"
+    no: "なし"
+  quantumwerewolf_table:
+    name: "確率表"
+    label: "確率表の表示方法を設定します。"
+    labels:
+      open: "プレイヤー名を表示"
+      anonymous: "プレイヤー番号を表示"
+    descriptions:
+      open: ""
+      anonymous: "自分以外のプレイヤー番号は分かりません。"
+  quantumwerewolf_dead:
+    name: "死亡率を表示しない"
+    label: "確率表に死亡率を表示しないルールです。表示するのが普通です。"
+    yes: "あり"
+    no: "なし"
+  quantumwerewolf_diviner:
+    name: "占い師の確率も表示する"
+    label: "確率表に占い師の確率も表示します。表示しないのが普通のルールです。"
+    yes: "あり"
+    no: "なし"
+  quantumwerewolf_firstattack:
+    name: "初日の襲撃"
+    label: "ありの場合初日から襲撃対象を選択します。"
+    yes: "あり"
+    no: "なし"
+
+# texts related to rule groups.
+ruleGroup:
+  yaminabe_option:
+    name: "闇鍋オプション"
+  normal_rules:
+    name: "一般設定"
+  werewolf:
+    name: "人狼系の設定"
+  diviner:
+    name: "占い師の設定"
+  psychic:
+    name: "霊能者の設定"
+  couple:
+    name: "共有者の設定"
+  guard:
+    name: "狩人などの設定"
+  fox:
+    name: "妖狐の設定"
+  hunter:
+    name: "ハンターの設定"
+  poison:
+    name: "埋毒者・猫又の設定"
+  lover:
+    name: "恋人の設定"
+  quantum:
+    name: "量子人狼の設定"
+
+# rule-related string.
+common:
+  minutes: "分"
+  seconds: "秒"
+  none: "なし"
