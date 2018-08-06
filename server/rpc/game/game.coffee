@@ -8346,7 +8346,7 @@ class Friend extends Complex    # 恋人
             # みんないっしょ
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
-    isWinner:(game,team)->@team==team && !@dead
+    isWinner:(game,team)->@getTeam()==team && !@dead
     # 相手のIDは?
     getPartner:->
         if @cmplType=="Friend"
@@ -8424,7 +8424,7 @@ class Muted extends Complex
 # 狼の子分
 class WolfMinion extends Complex
     cmplType:"WolfMinion"
-    team:"Werewolf"
+    getTeam:->"Werewolf"
     getJobname:-> @game.i18n.t "roles:WolfMinion.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:WolfMinion.jobname", {jobname: @main.getJobDisp()}
     makejobinfo:(game,result)->
@@ -8434,7 +8434,7 @@ class WolfMinion extends Complex
             name: @game.i18n.t "roles:WolfMinion.name"
             type:"WolfMinion"
         }
-    isWinner:(game,team)->@team==team
+    isWinner:(game,team)->@getTeam()==team
 # 酔っ払い
 class Drunk extends Complex
     cmplType:"Drunk"
@@ -8575,7 +8575,7 @@ class Counseled extends Complex
     getJobname:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobDisp()}
 
-    isWinner:(game,team)->@team==team
+    isWinner:(game,team)->@getTeam()==team
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @mcall game,@main.makejobinfo,game,result
