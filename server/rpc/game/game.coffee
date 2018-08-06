@@ -2922,6 +2922,7 @@ class Player
     makejobinfo:(game,obj,jobdisp)->
         # 開くべきフォームを配列で（生きている場合）
         obj.open ?=[]
+        obj.forms ?= []
         if Phase.isNight(game.phase) || @chooseJobDay(game)
             unless @jobdone(game)
                 obj.open.push @type
