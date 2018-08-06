@@ -36,6 +36,7 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
               innerRef={this.inputRef}
               type={password ? 'password' : 'text'}
               autoComplete={autocomplete}
+              onClick={this.handleInputClick}
             />
           </FormControlWrapper>
         )}
@@ -52,6 +53,13 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
   }
   public componentDidMount() {
     // focus on the input.
+    if (this.inputRef.current != null) {
+      this.inputRef.current.focus();
+    }
+  }
+  @bind
+  protected handleInputClick() {
+    // for Chrome's weird behaviour.
     if (this.inputRef.current != null) {
       this.inputRef.current.focus();
     }

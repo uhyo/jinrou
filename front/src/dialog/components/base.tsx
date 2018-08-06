@@ -49,6 +49,10 @@ interface IPropDialogBase {
   title?: string;
   icon?: IconProp;
   /**
+   * className set to title.
+   */
+  titleClassName?: string;
+  /**
    * Handler of canceling the dialog.
    */
   onCancel?(): void;
@@ -101,6 +105,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
       className,
       icon,
       title,
+      titleClassName,
       children,
       form,
       onSubmit,
@@ -117,7 +122,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
             aria-describedby={desc}
           >
             {title ? (
-              <Title id={titleid}>
+              <Title id={titleid} className={titleClassName}>
                 {icon ? <FontAwesomeIcon icon={icon} /> : null}
                 {title}
                 <CloseButton onClick={onCancel}>
@@ -205,23 +210,28 @@ export function Dialog({
   afterButtons,
 }: IPropDialog) {
   return (
-    <DialogWrapper modal={modal}>
-      <Draggable bounds="body">
-        <div>
-          <DialogBase
-            title={title}
-            icon={icon}
-            onCancel={onCancel}
-            form={form}
-            onSubmit={onSubmit}
-          >
-            {message != null ? <p>{message}</p> : null}
-            {contents ? contents() : null}
-            <Buttons>{buttons()}</Buttons>
-            {afterButtons ? afterButtons() : null}
-          </DialogBase>
-        </div>
-      </Draggable>
-    </DialogWrapper>
+    <WithRandomIds names={['titleClassName']}>
+      {({ titleClassName }) => (
+        <DialogWrapper modal={modal}>
+          <Draggable bounds="body" handle={`.${titleClassName}`}>
+            <div>
+              <DialogBase
+                title={title}
+                titleClassName={titleClassName}
+                icon={icon}
+                onCancel={onCancel}
+                form={form}
+                onSubmit={onSubmit}
+              >
+                {message != null ? <p>{message}</p> : null}
+                {contents ? contents() : null}
+                <Buttons>{buttons()}</Buttons>
+                {afterButtons ? afterButtons() : null}
+              </DialogBase>
+            </div>
+          </Draggable>
+        </DialogWrapper>
+      )}
+    </WithRandomIds>
   );
 }
