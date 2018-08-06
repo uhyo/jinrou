@@ -127,4 +127,8 @@ module.exports =
     # set to webpack's `output.publicPath` option.
     # full URL like `https://cdn.someserver.com/` is allowed.
     publicPath: "/front-assets/"
+    # URL of not-supported-browser page.
+    # This page can set localStorage "jinrou-not-supported-confirm" key to truthy value, so that automatic jump to not-supported-browser page is disabled.
+    # Set null to disable this feature.
+    notSupportedPage: null
 

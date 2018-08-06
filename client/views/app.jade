@@ -8,6 +8,9 @@ html
     link(rel="icon",sizes="16x16",href="/favicon.ico")
     link(rel="icon",sizes="144x144",href="/icons/icon-144x144.png")
     //- script(src="https://use.fontawesome.com/e0e7afd227.js",async)
+    if notSupportedPage
+      script!= 'var _global_notSupportedPage = ' + JSON.stringify(notSupportedPage)
+      script(src="/feature-check.js")
     script(src=bundle)
     != SocketStream
   body

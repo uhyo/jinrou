@@ -36,16 +36,31 @@ ss.http.router.on('/', function(req, res) {
   res.serveClient('main');
 });
 
+ss.client.formatters.add(require('ss-latest-coffee'));
+
+// Load config file.
+// pull時にはコンフィグファイルないので・・・
+try {
+  global.Config = require('./config/app.coffee');
+} catch (e) {
+  console.error('Failed to load config file.');
+  console.error(
+    'Copy config.default/app.coffee to config/app.coffee, edit app.coffee, and retry.',
+  );
+  console.error(e.trace || e);
+  process.exit(1);
+}
+
 /**
  * Config object for jade formatter.
  */
 const jadeConfig = {
   locals: {
     bundle: manifestMain,
+    notSupportedPage: Config.front.notSupportedPage
   },
 };
 
-ss.client.formatters.add(require('ss-latest-coffee'));
 ss.client.formatters.add(require('ss-jade'), jadeConfig);
 ss.client.formatters.add(require('ss-stylus'));
 
@@ -70,19 +85,6 @@ if (isProduction) {
     },
   });
 }
-
-//pull時にはコンフィグファイルないので・・・
-try {
-  global.Config = require('./config/app.coffee');
-} catch (e) {
-  console.error('Failed to load config file.');
-  console.error(
-    'Copy config.default/app.coffee to config/app.coffee, edit app.coffee, and retry.',
-  );
-  console.error(e.trace || e);
-  process.exit(1);
-}
-
 //---- Middleware
 const middleware = require('./server/middleware.coffee');
 ss.http.middleware.prepend(middleware.jsonapi);
