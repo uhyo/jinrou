@@ -199,6 +199,10 @@ playerbox:
     gm: "GM"
     helper: "helper"
     norevive: "蘇生辞退"
+  # label for alive numbers.
+  aliveNum: "生存: {{count}}人"
+  # label for dead numbers.
+  deadNum: "死亡: {{count}}人"
 
 # Room control buttons.
 room:
