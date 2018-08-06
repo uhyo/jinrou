@@ -149,7 +149,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
             )}
             {supporting == null ? null : (
               <p>
-                <I18nInterp ns="game_client" k="jobinfo.peers.supprting">
+                <I18nInterp ns="game_client" k="jobinfo.peers.supporting">
                   {{
                     name: <b>{supporting.name}</b>,
                     job: <b>{supporting.supportingJob}</b>,
