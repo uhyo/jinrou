@@ -115,11 +115,11 @@ class RuleItems extends React.PureComponent<
           // non-setting or hidden rule is not displayed
           return null;
         }
-        const { label, value } = getRuleExpression(
-          t,
-          ruledef,
-          rules.get(ruledef.id) || '',
-        );
+        const re = getRuleExpression(t, ruledef, rules.get(ruledef.id) || '');
+        if (re == null) {
+          return null;
+        }
+        const { label, value } = re;
         return value ? (
           <tr key={`item-${ruledef.id}`}>
             <td>{label}</td>

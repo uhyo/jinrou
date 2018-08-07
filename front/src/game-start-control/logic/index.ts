@@ -80,7 +80,11 @@ function suggestionMessage(
   switch (suggestion.type) {
     case 'string': {
       // get a rulestring for this suggestion.
-      const { label, value } = getRuleExpression(t, rule, suggestion.value);
+      const re = getRuleExpression(t, rule, suggestion.value);
+      if (re == null) {
+        throw new Error('Suggestion of rule is null');
+      }
+      const { label, value } = re;
 
       lbl = label;
       sug = i18n.t(
@@ -96,6 +100,9 @@ function suggestionMessage(
       if (min != null && max != null) {
         const minobj = getRuleExpression(t, rule, String(min));
         const maxobj = getRuleExpression(t, rule, String(max));
+        if (minobj == null || maxobj == null) {
+          throw new Error('expression of rule suggestion is null');
+        }
 
         lbl = minobj.label;
         sug = i18n.t(
@@ -107,6 +114,9 @@ function suggestionMessage(
         );
       } else if (min != null) {
         const minobj = getRuleExpression(t, rule, String(min));
+        if (minobj == null) {
+          throw new Error('expression of rule suggestion is null');
+        }
 
         lbl = minobj.label;
         sug = i18n.t(
@@ -115,6 +125,9 @@ function suggestionMessage(
         );
       } else if (max != null) {
         const maxobj = getRuleExpression(t, rule, String(max));
+        if (maxobj == null) {
+          throw new Error('expression of rule suggestion is null');
+        }
 
         lbl = maxobj.label;
         sug = i18n.t(

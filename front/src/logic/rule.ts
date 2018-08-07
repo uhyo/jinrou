@@ -3,6 +3,7 @@
 import { OptionSuggestion } from '../defs/casting-definition';
 import { RuleDefinition, SelectRule } from '../defs/rule-definition';
 import { TranslationFunction } from '../i18n';
+import { createDeflate } from 'zlib';
 
 /**
  * Check the suggestion to rules.
@@ -62,17 +63,19 @@ export interface RuleExpression {
 }
 /**
  * Get an expression of one rule setting as a name-value object.
+ * If rule value is invalid or has no expression, return null.
  */
 export function getRuleExpression(
   t: TranslationFunction,
   rule: RuleDefinition,
   value: string,
-): RuleExpression {
+): RuleExpression | null {
+  // Check validity of rule.
+  if (!checkRuleValidity(rule, value)) {
+    return null;
+  }
   if (rule.type === 'separator') {
-    return {
-      label: '',
-      value: '',
-    };
+    return null;
   }
   if (rule.getstr != null) {
     const gotstr = rule.getstr(t, value);
@@ -96,6 +99,33 @@ export function getRuleExpression(
       label: t(`rules:rule.${rule.id}.name`),
       value: getRuleValue(t, rule, value),
     };
+  }
+}
+
+/**
+ * Check validity of given value of rule.
+ */
+export function checkRuleValidity(
+  rule: RuleDefinition,
+  value: string,
+): boolean {
+  switch (rule.type) {
+    case 'checkbox': {
+      return value === '' || value === rule.value;
+    }
+    case 'hidden':
+      return true;
+    case 'integer':
+      return Number.isFinite(parseInt(value, 10));
+    case 'select': {
+      return rule.values.includes(value);
+    }
+    case 'separator':
+      return false;
+    case 'time': {
+      const num = parseInt(value, 10);
+      return Number.isFinite(num) && num >= 0;
+    }
   }
 }
 
