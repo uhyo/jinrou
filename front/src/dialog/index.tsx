@@ -162,7 +162,7 @@ export async function showSuddenDeathPunishDialog({
         options={Promise.resolve(options)}
         title={i18n.t('game_client:suddenDeathPunish.title')}
         message={i18n.t('game_client:suddenDeathPunish.message', {
-          time,
+          count: time,
         })}
         ok={i18n.t('game_client:suddenDeathPunish.ok')}
         cancel={i18n.t('game_client:suddenDeathPunish.cancel')}
