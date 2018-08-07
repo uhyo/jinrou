@@ -1259,11 +1259,7 @@ class Game
                     sub.sunset this
                     newpl=Player.factory null, this, pl,sub,Complex
                     pl.transProfile newpl
-                    @players.forEach (x,i)=>    # 入れ替え
-                        if x.id==newpl.id
-                            @players[i]=newpl
-                        else
-                            x
+                    pl.transform this, newpl, true
             # エンドレス闇鍋用途中参加処理
             if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
                 exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
@@ -8263,9 +8259,9 @@ class Complex
         result
     checkJobValidity:(game,query)->
         if query.jobtype=="_day"
-            return @mcall(game,@main.checkJobValidity,game,query)
-        if @mcall(game,@main.isJobType,query.jobtype) && !@mcall(game,@main.jobdone,game)
-            return @mcall(game,@main.checkJobValidity,game,query)
+            return @main.checkJobValidity game, query
+        if @main.isJobType(query.jobtype) && !@main.jobdone(game)
+            return @main.checkJobValidity game, query
         else if @sub?.isJobType?(query.jobtype) && !@sub?.jobdone?(game)
             return @sub.checkJobValidity game,query
         else
@@ -10542,8 +10538,6 @@ module.exports.actions=(req,res,ss)->
             res {error:"お前は既に死んでいる"}
             return
         ###
-        jt=player.getjob_target()
-        sl=player.makeJobSelection game
         unless player.checkJobValidity game,query
             res {error: game.i18n.t "error.job.invalid"}
             return
