@@ -9144,7 +9144,7 @@ class Chemical extends Complex
         else
             pl.setDead false, null
     touched:(game, from)->
-        @main.touched game, from
+        @mcall game, @main.touched, game, from
         @sub?.touched game, from
     makejobinfo:(game,result)->
         @main.makejobinfo game,result
