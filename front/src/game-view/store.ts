@@ -151,12 +151,13 @@ export class GameStore {
     // Check consistency.
     if (roleInfo != null) {
       if (
-        this.roleInfo == null ||
-        !arrayShallowEqual(roleInfo.speak, this.roleInfo.speak)
+        prevRoleInfo == null ||
+        !arrayShallowEqual(roleInfo.speak, prevRoleInfo.speak)
       ) {
         this.speakState.kind = roleInfo.speak[0] || '';
       }
-    } else if (
+    }
+    if (
       this.roleInfo != null &&
       !this.roleInfo.speak.includes(this.speakState.kind)
     ) {

@@ -90,7 +90,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
 
     // list of speech kind.
     const speaks = roleInfo != null ? roleInfo.speak : ['day'];
-
     return (
       <I18n>
         {t => (
