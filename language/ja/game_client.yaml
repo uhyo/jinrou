@@ -112,7 +112,7 @@ speak:
     # announce from GM to everyone.
     gm: "全員へ"
     # announce from GM to the heaven.
-    heaven: "霊界へ"
+    gmheaven: "霊界へ"
     # announce from GM to audience.
     gmaudience: "観戦者へ"
     # monologue of GM.
