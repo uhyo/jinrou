@@ -4021,9 +4021,9 @@ class Light extends Player
         null
     midnight:(game,midnightSort)->
         t=game.getPlayer @target
-        return unless t?
-        return if t.dead
-        t.die game,"deathnote"
+        # デスノートで殺す
+        if t? && !t.dead
+            t.die game,"deathnote"
 
         # 誰かに移る処理
         if @flag == "onenight"
