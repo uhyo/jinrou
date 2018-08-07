@@ -2811,6 +2811,8 @@ class Player
             @dovote game,alives[r].id
 
     # 夜のはじまり（死体処理よりも前）
+    # Note: people should not die at sunset,
+    # with FrankensteinsMonster and Pyrotechnist in mind
     sunset:(game)->
     deadsunset:(game)->
     # 夜にもう寝たか
@@ -4088,8 +4090,7 @@ class ToughGuy extends Player
         super
         if @flag=="bitten"
             @setFlag "dying"   # 死にそう！
-    sunset:(game)->
-        super
+    midnight:(game)->
         if @flag=="dying"
             # 噛まれた次の夜
             @setFlag null
