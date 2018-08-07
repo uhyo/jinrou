@@ -19,8 +19,8 @@
     // Check Array.includes.
     ['a', 'b', 'c'].includes('b');
     // Check basic DOM feature.
-    document.body.classList.contains;
-    document.body.dataset.foobar;
+    document.documentElement.classList.contains;
+    document.documentElement.dataset.foobar;
   } catch(e) {
     // If error, supported feature is not enough.
     location.href = _global_notSupportedPage;
