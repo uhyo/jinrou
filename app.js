@@ -5,26 +5,6 @@ const path = require('path');
 const cpx = require('cpx');
 const ss = require('socketstream');
 
-/**
- * Load manifest file from builclient-side assets.
- */
-let manifestMain;
-try {
-  const manifest = require('./client/static/front-assets/manifest.json');
-  manifestMain = manifest['main.js'];
-
-} catch (e) {
-  // Failed to load the manifest file.
-  console.error(`Error: failed to load the manifest file.
-It is not likely that front-end assets are not built.
-See build instructions in README for details.`);
-  throw e;
-}
-// Validate manifestMain.
-if ('string' !== typeof manifestMain) {
-  throw new Error('Manifest data is somehow invalid');
-}
-
 ss.client.define('main', {
   view: 'app.jade',
   css: ['libs', 'app.styl'],
@@ -52,12 +32,41 @@ try {
 }
 
 /**
+ * Load manifest file from builclient-side assets.
+ */
+let manifestMain;
+let legacyManifestMain;
+let manifestFeatureCheck;
+try {
+  const manifest = require('./client/static/front-assets/manifest.json');
+  manifestMain = manifest['main.js'];
+  manifestFeatureCheck = manifest['feature-check.js'];
+
+  if (Config.front.legacyBuilds) {
+    const legacyManifest = require('./client/static/front-assets/legacy/manifest.json');
+    legacyManifestMain = legacyManifest['main.js'];
+  }
+} catch (e) {
+  // Failed to load the manifest file.
+  console.error(`Error: failed to load the manifest file.
+It is not likely that front-end assets are not built.
+See build instructions in README for details.`);
+  throw e;
+}
+// Validate manifestMain.
+if ('string' !== typeof manifestMain) {
+  throw new Error('Manifest data is somehow invalid');
+}
+/**
  * Config object for jade formatter.
  */
 const jadeConfig = {
   locals: {
     bundle: manifestMain,
-    notSupportedPage: Config.front.notSupportedPage
+    legacyBundle: legacyManifestMain,
+    featureCheckJs: manifestFeatureCheck,
+    notSupportedPage: Config.front.notSupportedPage,
+    legacyBuilds: Config.front.legacyBuilds,
   },
 };
 
