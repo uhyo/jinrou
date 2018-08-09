@@ -8,10 +8,20 @@ html
     link(rel="icon",sizes="16x16",href="/favicon.ico")
     link(rel="icon",sizes="144x144",href="/icons/icon-144x144.png")
     //- script(src="https://use.fontawesome.com/e0e7afd227.js",async)
-    if notSupportedPage
-      script!= 'var _global_notSupportedPage = ' + JSON.stringify(notSupportedPage)
-      script(src="/feature-check.js")
+    //- load feature-check script if needed.
     script(src=bundle)
+    if legacyBuilds || notSupportedPage
+      script(src=featureCheckJs)
+    if legacyBuilds
+      script.
+        if(_global_legacy_browser==='legacy'){
+            document.write('<script src="' + !{JSON.stringify(legacyBundle)} + '"></' + 'script>');
+        }
+    else if notSupportedPage
+      script.
+        if(_global_legacy_browser){
+            location.href = !{JSON.stringify(notSupportedPage)};
+        }
     != SocketStream
   body
     header

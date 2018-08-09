@@ -131,4 +131,7 @@ module.exports =
     # This page can set localStorage "jinrou-not-supported-confirm" key to truthy value, so that automatic jump to not-supported-browser page is disabled.
     # Set null to disable this feature.
     notSupportedPage: null
-
+    # Whether to use "legacy builds" feature.
+    # If set to true, browsers other than latest ones will use fallback (legacy) build of front-end scripts.
+    # If this is set to true, "notSupportedPage" feature is automatically disabled.
+    legacyBuilds: true
