@@ -1,3 +1,11 @@
+/**
+ * Webpack config script
+ *
+ * inputs as environment variables:
+ * NODE_ENV: 'production' if production build
+ * LEGACY_ONLY: truthy if build only legacy build
+ */
+
 // Register CoffeeScript for reading config from app.config.
 require('coffee-script/register');
 
@@ -24,16 +32,16 @@ try {
   throw e;
 }
 
-const isProduction = process.env.NODE_ENV === 'production';
-
-module.exports = {
+const makeConfig = (isProduction, isLegacyBuild) => ({
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? undefined : 'eval-source-map',
   entry: './dist-esm/index.js',
   output: {
     library: 'JinrouFront',
-    path: path.join(__dirname, '..', 'client/static/front-assets/'),
-    publicPath,
+    path: !isLegacyBuild
+      ? path.join(__dirname, '..', 'client/static/front-assets/')
+      : path.join(__dirname, '..', 'client/static/front-assets/legacy/'),
+    publicPath: !isLegacyBuild ? publicPath : addPathSeg(publicPath, 'legacy'),
     crossOriginLoading: 'anonymous',
     // for production, include hash information.
     filename: isProduction ? 'bundle.[chunkhash].js' : 'bundle.js',
@@ -43,8 +51,34 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: ['source-map-loader'],
-        enforce: 'pre',
+        exclude: /node_modules/,
+        rules: [
+          {
+            use: ['source-map-loader'],
+            enforce: 'pre',
+          },
+        ].concat(
+          isLegacyBuild
+            ? [
+                {
+                  loader: 'babel-loader',
+                  options: {
+                    cacheDirectory: true,
+                    plugins: ['@babel/plugin-syntax-dynamic-import'],
+                    presets: [
+                      [
+                        '@babel/preset-env',
+                        {
+                          useBuiltIns: 'usage',
+                          modules: false,
+                        },
+                      ],
+                    ],
+                  },
+                },
+              ]
+            : [],
+        ),
       },
       {
         test: /\.yaml$/,
@@ -74,4 +108,28 @@ module.exports = {
         '@fortawesome/fontawesome-free-regular/shakable.es.js',
     },
   },
-};
+});
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Config for main build.
+const mainConfig = makeConfig(isProduction, false);
+// Config for legacy build.
+const legacyConfig = makeConfig(isProduction, true);
+
+module.exports = process.env.LEGACY_ONLY
+  ? legacyConfig
+  : isProduction
+    ? [mainConfig, legacyConfig]
+    : mainConfig;
+
+/**
+ * add a path segment to URL or path.
+ */
+function addPathSeg(path, seg) {
+  if (/\/$/.test(path)) {
+    return `${path}${seg}/`;
+  } else {
+    return `${path}/${seg}/`;
+  }
+}
