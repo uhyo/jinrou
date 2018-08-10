@@ -3,7 +3,8 @@
  *
  * inputs as environment variables:
  * NODE_ENV: 'production' if production build
- * LEGACY_ONLY: truthy if build only legacy build
+ * MEASURE: truthy if build time should be measured
+ * LEGACY: 'only' if build only legacy build, 'off' if no legacy build
  */
 
 // Register CoffeeScript for reading config from app.config.
@@ -14,6 +15,7 @@ const webpack = require('webpack');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
 // config values ----------
 // system language.
@@ -142,11 +144,18 @@ const mainConfig = makeConfig(isProduction, false);
 // Config for legacy build.
 const legacyConfig = makeConfig(isProduction, true);
 
-module.exports = process.env.LEGACY_ONLY
-  ? legacyConfig
-  : isProduction && legacyBuilds
-    ? [mainConfig, legacyConfig]
-    : mainConfig;
+const smp = new SpeedMeasurePlugin({
+  // measure when environment variable `MEASURE` is set,
+  disable: !process.env.MEASURE,
+});
+
+module.exports = smp.wrap(
+  process.env.LEGACY === 'only'
+    ? legacyConfig
+    : isProduction && legacyBuilds && process.env.LEGACY !== 'off'
+      ? [mainConfig, legacyConfig]
+      : mainConfig,
+);
 
 /**
  * add a path segment to URL or path.
