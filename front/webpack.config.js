@@ -74,7 +74,7 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
                         '@babel/preset-env',
                         {
                           targets: {
-                            browsers: 'IE 11',
+                            browsers: ['IE 11', 'ios 5'],
                           },
                           useBuiltIns: 'entry',
                           modules: false,
