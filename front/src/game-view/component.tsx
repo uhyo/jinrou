@@ -121,6 +121,7 @@ export class Game extends React.Component<IPropGame, {}> {
             <SpeakForm
               gameInfo={gameInfo}
               roleInfo={roleInfo}
+              players={players}
               logVisibility={logVisibility}
               rule={rule != null}
               timer={timer}

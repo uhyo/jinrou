@@ -10,11 +10,13 @@ import {
   LogVisibility,
   SpeakQuery,
   TimerInfo,
+  PlayerInfo,
 } from '../defs';
 
 import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
 import { Timer } from './timer';
+import { makeMapByKey } from '../../util/map-by-key';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -25,6 +27,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Info of roles.
    */
   roleInfo: RoleInfo | null;
+  /**
+   * List of players currently in the room.
+   */
+  players: PlayerInfo[];
   /**
    * Info of log visibility.
    */
@@ -79,6 +85,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     const {
       gameInfo,
       roleInfo,
+      players,
       size,
       kind,
       multiline,
@@ -90,6 +97,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
 
     // list of speech kind.
     const speaks = roleInfo != null ? roleInfo.speak : ['day'];
+    const playersMap = makeMapByKey(players, 'id');
     return (
       <I18n>
         {t => (
@@ -136,8 +144,9 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   // special handling of speech kind.
                   let label;
                   if (value.startsWith('gmreply_')) {
+                    const playerObj = playersMap.get(value.slice(8));
                     label = t('game_client:speak.kind.gmreply', {
-                      target: value.slice(8),
+                      target: playerObj != null ? playerObj.name : '',
                     });
                   } else if (value.startsWith('helperwhisper_')) {
                     label = t('game_client:speak.kind.helperwhisper');

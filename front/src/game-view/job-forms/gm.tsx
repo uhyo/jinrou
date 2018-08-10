@@ -25,12 +25,12 @@ export function makeGameMasterForm({ t }: FormContentProps) {
         <input
           name="longer"
           type="submit"
-          value={t('game_client_form:GameMaster.longer')}
+          value={t('game_client_form:GameMaster.longer', { count: 30 })}
         />
         <input
           name="shorter"
           type="submit"
-          value={t('game_client_form:GameMaster.shorter')}
+          value={t('game_client_form:GameMaster.shorter', { count: 30 })}
         />
       </p>
     </>
