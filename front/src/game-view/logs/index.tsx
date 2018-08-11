@@ -126,9 +126,11 @@ const LogWrapper = withProps<{
   display: table;
 
   ${({ logClass, logPickup }) =>
+    // logPickup should not contain `"` because it is an user id.
+    // XXX safer solution?
     logPickup != null
       ? css`
-    .${logClass}:not([data-userid=${logPickup}]) {
+    .${logClass}:not([data-userid="${logPickup}"]) {
       opacity: 0.3;
     }
   `
