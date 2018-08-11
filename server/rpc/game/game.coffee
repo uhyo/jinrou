@@ -5527,20 +5527,22 @@ class QuantumPlayer extends Player
             false
     makejobinfo:(game,result)->
         super
+        # QuantumPlayer has custom forms
+        result.forms = result.forms.filter (obj)-> obj.type != "QuantumPlayer"
         tarobj=JSON.parse(@target||"{}")
         unless tarobj.Diviner?
             result.open.push "_Quantum_Diviner"
             result.forms.push {
                 type: "_Quantum_Diviner"
                 options: @makeJobSelection game
-                forms: FormType.required
+                formType: FormType.required
             }
         unless tarobj.Werewolf?
             result.open.push "_Quantum_Werewolf"
             result.forms.push {
                 type: "_Quantum_Werewolf"
                 options: @makeJobSelection game
-                forms: FormType.required
+                formType: FormType.required
             }
         if game.rule.quantumwerewolf_table=="anonymous"
             # 番号がある

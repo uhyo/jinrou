@@ -69,7 +69,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
     } else if (log.mode === 'probability_table') {
       // log of probability table for Quantum Werewwolf
       return (
-        <div className={logClass}>
+        <logComponents.probability_table className={logClass}>
           <I18n namespace="game_client">
             {t => (
               <>
@@ -127,7 +127,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
               </>
             )}
           </I18n>
-        </div>
+        </logComponents.probability_table>
       );
     } else {
       const Cmp = logComponents[log.mode];
