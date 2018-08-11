@@ -186,9 +186,15 @@ function loadSavedRules(
   for (const key in rule) {
     // XXX we have to ignore some keys.
     if (
-      ['number', 'maxnumber', 'blind', 'gm', 'jobrule', '_jobquery'].includes(
-        key,
-      )
+      [
+        'number',
+        'maxnumber',
+        'blind',
+        'gm',
+        'jobrule',
+        '_jobquery',
+        'quantum_joblist',
+      ].includes(key)
     ) {
       continue;
     }
