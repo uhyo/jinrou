@@ -2925,22 +2925,23 @@ class Player
         # 開くべきフォームを配列で（生きている場合）
         obj.open ?=[]
         obj.forms ?= []
-        if Phase.isNight(game.phase) || @chooseJobDay(game)
-            unless @jobdone(game)
-                obj.open.push @type
-                obj.forms.push {
-                    type: @type
-                    options: @makeJobSelection game
-                    formType: @formType
-                }
-        else if game.phase == Phase.hunter
-            unless @hunterJobdone(game)
-                obj.open.push @type
-                obj.forms.push {
-                    type: @type
-                    options: @makeJobSelection game
-                    formType: @formType
-                }
+        unless @dead
+            if Phase.isNight(game.phase) || @chooseJobDay(game)
+                unless @jobdone(game)
+                    obj.open.push @type
+                    obj.forms.push {
+                        type: @type
+                        options: @makeJobSelection game
+                        formType: @formType
+                    }
+            else if game.phase == Phase.hunter
+                unless @hunterJobdone(game)
+                    obj.open.push @type
+                    obj.forms.push {
+                        type: @type
+                        options: @makeJobSelection game
+                        formType: @formType
+                    }
         # 役職解説のアレ
         obj.desc ?= []
         type = @getTypeDisp()
