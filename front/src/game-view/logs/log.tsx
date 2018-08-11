@@ -66,7 +66,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
           </I18n>
         </logComponents.voteresult>
       );
-    } else if (log.mode === 'probabilitytable') {
+    } else if (log.mode === 'probability_table') {
       // log of probability table for Quantum Werewwolf
       return (
         <div className={logClass}>
@@ -94,7 +94,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
                         /* 人間 */
                         <th>{t('log.probabilityTable.Human')}</th>
                       )}
-                      /* 人狼 */
+                      {/* 人狼 */}
                       <th>{t('log.probabilityTable.Werewolf')}</th>
                       {rule &&
                       rule.rules.get('quantumwerewolf_dead') !== 'no' ? (
@@ -367,7 +367,7 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
       border-bottom: 1px dashed #fffff8;
     }
   `,
-  probabilitytable: LogBox,
+  probability_table: LogBox,
   system: styled(LogBox)`
     background-color: #cccccc;
     font-weight: bold;

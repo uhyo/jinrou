@@ -391,7 +391,7 @@ export interface VoteResultLog extends LogBase {
  * Probability table log.
  */
 export interface ProbabilityTableLog extends LogBase {
-  mode: 'probabilitytable';
+  mode: 'probability_table';
   /**
    * Probability table attached to this log.
    */
