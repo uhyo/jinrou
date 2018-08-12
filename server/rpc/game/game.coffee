@@ -4538,7 +4538,7 @@ class Doppleganger extends Player
     type:"Doppleganger"
     formType: FormType.optional
     sleeping:->true
-    jobdone:->@flag?
+    jobdone:-> @flag?.done
     team:"" # 最初はチームに属さない!
     job:(game,playerid)->
         pl=game.getPlayer playerid
@@ -4554,37 +4554,53 @@ class Doppleganger extends Player
             to:@id
             comment: game.i18n.t "roles:Doppleganger.select", {name: @name, target: game.getPlayer(playerid).name}
         splashlog game.id,game,log
-        @setFlag playerid  # ドッペルゲンガー先
+        # ID of player object which will transform.
+        # null if this is the first transform.
+        ownerid = @flag?.ownerid ? null
+        @setFlag {
+            done: true
+            ownerid: ownerid
+            target: playerid  # ドッペルゲンガー先
+        }
         null
     beforebury:(game,type,deads)->
         # 対象が死んだら移る
-        if deads.some((x)=>x.id==@flag)
-            p=game.getPlayer @flag  # その人
+        targetid = @flag?.target
+        if deads.some((x)=> x.id == targetid)
+            p=game.getPlayer targetid  # その人
 
             newplmain=Player.factory p.type, game
             @transProfile newplmain
             @transferData newplmain
 
-            me=game.getPlayer @id
             # まだドッペルゲンガーできる
             sub=Player.factory "Doppleganger", game
             @transProfile sub
+            # 同じところが変わる
+            sub.setFlag {
+                done: false
+                ownerid: newplmain.objid
+                target: null
+            }
 
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
 
-            pa=@getParent game  # 親を得る
-            unless pa?
-                # 親はいない
-                @transform game,newpl,false
+            # 変化する
+            ownerid = @flag.ownerid
+            if ownerid?
+                # 自分は消滅してその人を変化させる
+                @uncomplex game, true
+                me=game.getPlayer @id
+                transpl = me.accessByObjid ownerid
+                unless transpl?
+                    # ???
+                    return
+                transpl.transform game, newpl, false
             else
-                # 親がいる
-                if pa.sub==this
-                    # subなら親ごと置換
-                    pa.transform game,newpl,false
-                else
-                    # mainなら自分だけ置換
-                    @transform game,newpl,false
+                # 初めてなので自分が変化する
+                @transform game, newpl, false
+
             log=
                 mode:"skill"
                 to:@id
