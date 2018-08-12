@@ -117,6 +117,10 @@ export interface FormDesc {
    * Type of requiredness.
    */
   formType: FormType;
+  /**
+   * ID of owner of this form.
+   */
+  objid: string;
 }
 export interface FormOption {
   /**
