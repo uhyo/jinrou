@@ -8180,10 +8180,14 @@ class Complex
         if @sub?
             ret.push (@sub.accessByJobTypeAll(type))...
         return ret
-    accessByObjid:(objid)->
+    accessByObjid:(objid, subonly=false)->
         # objid is unique per game.
-        if @objid == objid
+        # when `subonly` is true, main objid is not checked.
+        if !subonly && @objid == objid
             return this
+        ret = @main.accessByObjid objid, true
+        if ret?
+            return ret
         if @sub?
             return @sub.accessByObjid objid
         return null
