@@ -2938,6 +2938,7 @@ class Player
                         type: @type
                         options: @makeJobSelection game
                         formType: @formType
+                        objid: @objid
                     }
             else if game.phase == Phase.hunter
                 unless @hunterJobdone(game)
@@ -2946,6 +2947,7 @@ class Player
                         type: @type
                         options: @makeJobSelection game
                         formType: @formType
+                        objid: @objid
                     }
         # 役職解説のアレ
         obj.desc ?= []
@@ -3221,6 +3223,7 @@ class Werewolf extends Player
                     type: "_Werewolf"
                     options: @makeJobSelection game
                     formType: FormType.required
+                    objid: @objid
                 }
             # 人狼の場合は役職固有のやつは一旦閉じる
             result.open = result.open.filter (x)=> x != @type
@@ -3744,6 +3747,7 @@ class WolfDiviner extends Werewolf
                     type: @type
                     options: @makeJobSelection game
                     formType: FormType.optional
+                    objid: @objid
                 }
 
 
@@ -5171,6 +5175,7 @@ class Dog extends Player
                             type: "Dog1"
                             options: []
                             formType: FormType.optionalOnce
+                            objid: @objid
                         }
                     result.dogOwner=pl.publicinfo()
 
@@ -5180,6 +5185,7 @@ class Dog extends Player
                     type: "Dog2"
                     options: @makeJobSelection game
                     formType: FormType.required
+                    objid: @objid
                 }
     makeJobSelection:(game)->
         # 噛むときは対象選択なし
@@ -5542,6 +5548,7 @@ class QuantumPlayer extends Player
                 type: "_Quantum_Diviner"
                 options: @makeJobSelection game
                 formType: FormType.required
+                objid: @objid
             }
         unless tarobj.Werewolf?
             result.open.push "_Quantum_Werewolf"
@@ -5549,6 +5556,7 @@ class QuantumPlayer extends Player
                 type: "_Quantum_Werewolf"
                 options: @makeJobSelection game
                 formType: FormType.required
+                objid: @objid
             }
         if game.rule.quantumwerewolf_table=="anonymous"
             # 番号がある
@@ -5721,6 +5729,7 @@ class GreedyWolf extends Werewolf
                     type: "GreedyWolf"
                     options: []
                     formType: FormType.optionalOnce
+                    objid: @objid
                 }
     makeJobSelection:(game)->
         if Phase.isNight(game.phase) && @sleeping(game) && !@jobdone(game)
@@ -5798,6 +5807,7 @@ class FascinatingWolf extends Werewolf
                     type: "FascinatingWolf"
                     options: @makeJobSelection game
                     formType: FormType.required
+                    objid: @objid
                 }
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
@@ -5875,6 +5885,7 @@ class ToughWolf extends Werewolf
                 type: @type
                 options: @makeJobSelection game
                 formType: FormType.optionalOnce
+                objid: @objid
             }
 
 class ThreateningWolf extends Werewolf
@@ -6238,6 +6249,7 @@ class BloodyMary extends Player
                 type: "BloodyMary"
                 options: @makeJobSelection game
                 formType: FormType.optional
+                objid: @objid
             }
 
 class King extends Player
@@ -6551,6 +6563,7 @@ class BadLady extends Player
                         type: "BadLady1"
                         options: @makeJobSelection game
                         formType: FormType.required
+                        objid: @objid
                     }
                 else if !fl.keep
                     # 手玉に取る
@@ -6559,6 +6572,7 @@ class BadLady extends Player
                         type: "BadLady2"
                         options: @makeJobSelection game
                         formType: FormType.required
+                        objid: @objid
                     }
 # 看板娘
 class DrawGirl extends Player
@@ -7215,6 +7229,7 @@ class CraftyWolf extends Werewolf
                 type: "CraftyWolf2"
                 options: []
                 formType: FormType.optional
+                objid: @objid
             }
         else if Phase.isNight(game.phase)
             # 死んだふりボタン
@@ -7223,6 +7238,7 @@ class CraftyWolf extends Werewolf
                 type: "CraftyWolf"
                 options: []
                 formType: FormType.optional
+                objid: @objid
             }
         return result
     makeJobSelection:(game)->
@@ -8028,6 +8044,7 @@ class Waiting extends Player
                 type: "Waiting"
                 options: @makeJobSelection game
                 formType: FormType.required
+                objid: @objid
             }
     makeJobSelection:(game)->
         if game.day==0 && game.phase == Phase.rolerequesting
@@ -10813,6 +10830,7 @@ makejobinfo = (game,player,result={})->
                         type: "_day"
                         options: player.makeJobSelection game
                         formType: FormType.required
+                        objid: player.objid
                     }
                     result.sleeping=false
                 if player.chooseJobDay game
