@@ -548,7 +548,8 @@ exports.start=(roomid)->
                 console.log "room:",msg.id,msg
         # プレイヤー一覧の情報を開始フォームに反映
         forminfo=()->
-            number = room.players.length
+            # TODO: same logic appears twice
+            number = room.players.filter((x)->x.mode=="player").length
             game_start_control?.store.setPlayersNumber number
 
     #ログをもらった
