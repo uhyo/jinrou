@@ -8182,9 +8182,8 @@ class Complex
         return ret
     accessByObjid:(objid)->
         # objid is unique per game.
-        ret = @main.accessByObjid objid
-        if ret?
-            return ret
+        if @objid == objid
+            return this
         if @sub?
             return @sub.accessByObjid objid
         return null
