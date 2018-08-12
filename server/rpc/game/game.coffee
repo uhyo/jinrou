@@ -2587,6 +2587,9 @@ class Player
         @originalType=@type
         # 蘇生辞退
         @norevive=false
+        # ID unique to this object.
+        # Set by Player.factory.
+        @objid=null
 
 
     @factory:(type,game,main=null,sub=null,cmpl=null)->
@@ -2609,11 +2612,13 @@ class Player
             p.cmplFlag=null
         else if !jobs[type]?
             p=new Player game
+            p.objid = generateObjId()
         else
             p=new jobs[type] game
             # Add `jobname` property
             p.jobname = game.i18n.t "roles:jobname.#{type}"
             p.originalJobname = p.getJobname()
+            p.objid = generateObjId()
         p
     serialize:->
         r=
@@ -10865,6 +10870,10 @@ getrulestr = (i18n, rule, jobs={})->
             catName = i18n.t "roles:categoryName.#{type}"
             text+="#{catName}#{num} "
     return text
+
+# Generate an ID for use as Player objid.
+generateObjId = ->
+    "pl" + Math.random().toString(36).slice(2)
 
 # 配列シャッフル（破壊的）
 shuffle= (arr)->
