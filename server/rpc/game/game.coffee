@@ -2784,6 +2784,12 @@ class Player
             return [this]
         else
             return []
+    # access by objid.
+    # If not existent, returns null.
+    accessByObjid:(objid)->
+        if @objid == objid
+            return this
+        return null
     gatherMidnightSort:->
         return [@midnightSort]
     # complexのJobTypeを調べる
@@ -8131,34 +8137,9 @@ class Complex
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
     deadJobdone:(game)-> @mcall(game,@main.deadJobdone,game) && (!@sub?.deadJobdone? || @sub.deadJobdone(game))
     hunterJobdone:(game)-> @mcall(game,@main.hunterJobdone,game) && (!@sub?.hunterJobdone? || @sub.hunterJobdone(game))
-    job:(game,playerid,query)-> # どちらの
-        # query.jobtypeがない場合は内部処理なのでmainとして処理する?
-
-        unless query?
-            query={}
-        unless query.jobtype?
-            query.jobtype=@main.type
-        if @main.isJobType(query.jobtype)
-            jdone =
-                if game.phase == Phase.hunter
-                    @main.hunterJobdone(game)
-                else if @main.dead
-                    @main.deadJobdone(game)
-                else
-                    @main.jobdone(game)
-            unless jdone
-                return @mcall game,@main.job,game,playerid,query
-        if @sub?.isJobType?(query.jobtype)
-            jdone =
-                if game.phase == Phase.hunter
-                    @sub.hunterJobdone(game)
-                else if @sub.dead
-                    @sub.deadJobdone(game)
-                else
-                    @sub.jobdone(game)
-            unless jdone
-                return @sub.job game,playerid,query
-        return null
+    job:(game,playerid,query)->
+        # main役職が役職実行対象を選択した
+        return @mcall game,@main.job,game,playerid,query
     # Am I Walking Dead?
     isDead:->
         isMainDead = @main.isDead()
@@ -8199,6 +8180,14 @@ class Complex
         if @sub?
             ret.push (@sub.accessByJobTypeAll(type))...
         return ret
+    accessByObjid:(objid)->
+        # objid is unique per game.
+        ret = @main.accessByObjid objid
+        if ret?
+            return ret
+        if @sub?
+            return @sub.accessByObjid objid
+        return null
     gatherMidnightSort:->
         mids=[@midnightSort]
         mids=mids.concat @main.gatherMidnightSort()
@@ -10567,32 +10556,35 @@ module.exports.actions=(req,res,ss)->
         unless player in game.participants
             res {error: game.i18n.t "error.common.notPlayer"}
             return
-        ###
-        if player.dead && player.deadJobdone game
-            res {error:"お前は既に死んでいる"}
+
+        plobj = player.accessByObjid query.objid
+        unless plobj?
+            res {error: game.i18n.t "common:error.invalidInput"}
             return
-        ###
-        unless player.checkJobValidity game,query
-            res {error: game.i18n.t "error.job.invalid"}
-            return
+        # check whether this query is valid.
         if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
             # 夜
+            unless plobj.checkJobValidity game,query
+                res {error: game.i18n.t "error.job.invalid"}
+                return
+            # Error-check whether his job is already done.
             jdone =
                 if game.phase == Phase.hunter
-                    player.hunterJobdone(game)
+                    plobj.hunterJobdone(game)
                 else if player.dead
-                    player.deadJobdone(game)
+                    plobj.deadJobdone(game)
                 else
-                    player.jobdone(game)
+                    plobj.jobdone(game)
             if jdone
                 res {error: game.i18n.t "error.job.done"}
                 return
-            unless player.isJobType query.jobtype
+            # Error-check for jobtype
+            unless plobj.isMainJobType query.jobtype
                 res {error: game.i18n.t "error.job.invalid"}
                 return
-            # エラーメッセージ
-            if ret=player.job game,query.target,query
-                console.log "err!",ret
+            # Other error message caused by the job
+            if ret=plobj.job game,query.target,query
+                console.log "job err!",ret
                 res {error:ret}
                 return
             # 能力発動を記録
@@ -10603,13 +10595,13 @@ module.exports.actions=(req,res,ss)->
                 event:"job"
             }
 
-            # 能力をすべて発動したかどうかチェック
-            #res {sleeping:player.jobdone(game)}
             res makejobinfo game,player
             if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter
+                # 能力をすべて発動したかどうかチェック
                 game.checkjobs()
         else
             # 投票
+            # voting is done against main player.
             unless player.checkJobValidity game,query
                 res {error: game.i18n.t "error.voting.noTarget"}
                 return
