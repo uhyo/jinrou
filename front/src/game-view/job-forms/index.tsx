@@ -54,7 +54,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
   protected commandName: string = '';
   public render() {
     const { form, onSubmit } = this.props;
-    const { type, options, formType } = form;
+    const { type, options, formType, objid } = form;
     return (
       <I18n namespace="game_client_form">
         {t => {
@@ -113,6 +113,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
               query.commandname = this.commandName;
             }
             query.jobtype = toJobType(type);
+            query.objid = objid;
             // query is generated
             console.log(query);
             onSubmit(query);
