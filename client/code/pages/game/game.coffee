@@ -744,7 +744,7 @@ convertToJobNumbers = (obj) ->
 # Convert game.players to PlayerInfo
 convertGamePlayerToPlayerInfo = (pl) ->
     {
-        id: pl.id
+        id: if pl.realid then pl.realid else pl.id
         anonymous: !pl.realid
         name: pl.name
         dead: pl.dead
