@@ -9179,8 +9179,6 @@ class Chemical extends Complex
         # 女王観戦者は村人陣営×村人陣営じゃないと見えない
         if result.queens? && (@main.getTeam() != "Human" || @sub?.getTeam() != "Human")
             delete result.queens
-        # 陣営情報
-        result.myteam = @getTeam()
 
 
 
@@ -10813,6 +10811,11 @@ makejobinfo = (game,player,result={})->
         # 投票が終了したかどうか（フォーム表示するかどうか判断）
         if plpl?
             # 参加者として
+
+            # If Chemical, tell player's team.
+            if game.rule?.chemical == "on"
+                result.myteam = plpl.getTeam()
+
             if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
                 if player.dead
                     result.sleeping=player.deadJobdone game
