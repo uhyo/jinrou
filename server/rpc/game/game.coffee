@@ -3047,7 +3047,11 @@ class Player
         jobname = pl.getJobname()
         orig_name = pl.originalJobname
 
-        [mainParent, complexChain, main] = getSubParentAndMainChain pl, this
+        res = getSubParentAndMainChain pl, this
+        unless res?
+            # This should never happen
+            return
+        [mainParent, complexChain, main] = res
         # If override flag is set, replaced pl is just newpl.
         # otherwise, reconstruct player object structure.
         replacepl =
@@ -8109,9 +8113,11 @@ class Complex
             # そのまま
             return method.apply @main,args
         # 他は親が必要
-        top=game.participants.filter((x)=>x.id==@id)[0]
-        if top?
-            return method.apply top,args
+        root = game.participants.filter((x)=>x.id==@id)[0]
+        res = searchPlayerInTree root, this
+        if res?
+            [_, _, myTop] = res
+            return method.apply myTop, args
         return null
 
     setDead:(@dead,@found)->
@@ -10880,22 +10886,26 @@ getrulestr = (i18n, rule, jobs={})->
 generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
 
+# Search a specific object in Player structure.
+# Returns its parent and its top face.
+searchPlayerInTree = (root, target)->
+    # perform depth-first search.
+    stack = [[root, null, root]]
+    while stack.length > 0
+        [pl, plParent, plTop] = stack.pop()
+        if pl == target
+            # Target is found.
+            return [pl, plParent, plTop]
+        # otherwise, search its child,
+        if pl.isComplex()
+            if pl.sub?
+                stack.push [pl.sub, pl, pl.sub]
+            stack.push [pl.main, pl, plTop]
+    # Player was not found.
+    return null
 # Dig Player structure to find main-chain and its parent.
 # If the main job is the target, parent would be null.
 getSubParentAndMainChain = (top, target)->
-    searchTop = ->
-        # perform depth-first search.
-        stack = [[top, null]]
-        while stack.length > 0
-            [pl, plParent] = stack.pop()
-            if pl == target
-                # Target is found.
-                return [pl, plParent]
-            # otherwise, search its child,
-            if pl.isComplex()
-                if pl.sub?
-                    stack.push [pl.sub, pl]
-                stack.push [pl.main, pl]
     # construct a chain of Complexes.
     constructChain = (top)->
         result = []
@@ -10904,8 +10914,10 @@ getSubParentAndMainChain = (top, target)->
             top = top.main
         return [result, top]
 
-
-    [mainTop, mainParent] = searchTop()
+    res = searchPlayerInTree top, target
+    unless res?
+        return null
+    [mainTop, mainParent] = res
     # construct a chain of Complexes.
     [complexChain, main] = constructChain mainTop
     return [mainParent, complexChain, main]
