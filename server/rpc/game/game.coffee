@@ -8754,7 +8754,14 @@ class WatchingFireworks extends Complex
         if pl?
             #pl.sunset game
             pl.sunrise game
-    deadsunrise:(game)->@sunrise game
+    deadsunrise:(game)->
+        @sub?.deadsunrise? game
+        @uncomplex game
+        pl=game.getPlayer @id
+        if pl?
+            #pl.sunset game
+            pl.deadsunrise game
+
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
