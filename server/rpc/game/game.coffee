@@ -3046,7 +3046,26 @@ class Player
         pl = game.getPlayer @id
         jobname = pl.getJobname()
         orig_name = pl.originalJobname
-        @transform_inner game, newpl, override, initial
+
+        [mainParent, complexChain, main] = getSubParentAndMainChain pl, this
+        # If override flag is set, replaced pl is just newpl.
+        # otherwise, reconstruct player object structure.
+        replacepl =
+            if override
+                newpl
+            else
+                Player.reconstruct complexChain, newpl, game
+        # replace old object with new one.
+        if mainParent?
+            mainParent.sub = replacepl
+        else
+            for x, i in game.players
+                if x.id == @id
+                    game.players[i] = replacepl
+            for x, i in game.participants
+                if x.id == @id
+                    game.participants[i] = replacepl
+
         pl = game.getPlayer @id
         jobname2 = pl.getJobname()
         if jobname != jobname2
@@ -3057,49 +3076,6 @@ class Player
             else
                 # ふつうの変化
                 pl.setOriginalJobname "#{orig_name}→#{jobname2}"
-    # transformの本体処理
-    transform_inner:(game,newpl,override)->
-        @addGamelog game,"transform",newpl.type
-        # 役職変化ログ
-        if override || !@isComplex()
-            # 全部取っ払ってnewplになる
-            pa=@getParent game
-            unless pa?
-                # 親なんていない
-                game.players.forEach (x,i)=>
-                    if x.id==@id
-                        game.players[i]=newpl
-                game.participants.forEach (x,i)=>
-                    if x.id==@id
-                        game.participants[i]=newpl
-            else
-                # 親がいた
-                if pa.main==this
-                    # 親書き換え
-                    newparent=Player.factory null, game, newpl,pa.sub,complexes[pa.cmplType]
-                    newparent.cmplFlag=pa.cmplFlag
-                    newpl.transProfile newparent
-
-                    pa.transform_inner game,newparent,override # たのしい再帰
-                else
-                    # サブだった
-                    pa.sub=newpl
-        else
-            # 中心のみ変える
-            pa=game.getPlayer @id
-            chain=[pa]
-            while pa.main.isComplex()
-                pa=pa.main
-                chain.push pa
-            # pa.mainはComplexではない
-            toppl=Player.reconstruct chain, newpl, game
-            # 親なんていない
-            game.players.forEach (x,i)=>
-                if x.id==@id
-                    game.players[i]=toppl
-            game.participants.forEach (x,i)=>
-                if x.id==@id
-                    game.participants[i]=toppl
     getParent:(game)->
         chk=(parent,name)=>
             if parent[name]?.isComplex?()
@@ -4576,21 +4552,21 @@ class Doppleganger extends Player
             # まだドッペルゲンガーできる
             sub=Player.factory "Doppleganger", game
             @transProfile sub
-            # 同じところが変わる
-            sub.setFlag {
-                done: false
-                ownerid: newplmain.objid
-                target: null
-            }
 
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
+
+            # 同じところが変わる
+            sub.setFlag {
+                done: false
+                ownerid: newpl.objid
+                target: null
+            }
 
             # 変化する
             ownerid = @flag.ownerid
             if ownerid?
                 # 自分は消滅してその人を変化させる
-                @uncomplex game, true
                 me=game.getPlayer @id
                 transpl = me.accessByObjid ownerid
                 unless transpl?
@@ -10903,6 +10879,36 @@ getrulestr = (i18n, rule, jobs={})->
 # Generate an ID for use as Player objid.
 generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
+
+# Dig Player structure to find main-chain and its parent.
+# If the main job is the target, parent would be null.
+getSubParentAndMainChain = (top, target)->
+    searchTop = ->
+        # perform depth-first search.
+        stack = [[top, null]]
+        while stack.length > 0
+            [pl, plParent] = stack.pop()
+            if pl == target
+                # Target is found.
+                return [pl, plParent]
+            # otherwise, search its child,
+            if pl.isComplex()
+                if pl.sub?
+                    stack.push [pl.sub, pl]
+                stack.push [pl.main, pl]
+    # construct a chain of Complexes.
+    constructChain = (top)->
+        result = []
+        while top.isComplex()
+            result.push top
+            top = top.main
+        return [result, top]
+
+
+    [mainTop, mainParent] = searchTop()
+    # construct a chain of Complexes.
+    [complexChain, main] = constructChain mainTop
+    return [mainParent, complexChain, main]
 
 # 配列シャッフル（破壊的）
 shuffle= (arr)->
