@@ -7509,7 +7509,7 @@ class Ninja extends Player
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
         if pl.id == "身代わりくん"
-            return game.i18n.t "error.common.noScapeGoat"
+            return game.i18n.t "error.common.noScapegoat"
         pl.touched game, @id
         @setTarget playerid
         log=
