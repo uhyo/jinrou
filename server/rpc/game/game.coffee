@@ -3231,7 +3231,7 @@ class Diviner extends Player
     formType: FormType.required
     constructor:->
         super
-        @results=[]
+        @setFlag []
             # {player:Player, result:String}
     sunset:(game)->
         super
@@ -3293,13 +3293,13 @@ class Diviner extends Player
     dodivine:(game)->
         p=game.getPlayer @target
         if p?
-            @results.push {
+            @setFlag @flag.concat {
                 player: p.publicinfo()
                 result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
-        r=@results[@results.length-1]
+        r=@flag[@flag.length-1]
         return unless r?
         log=
             mode:"skill"
@@ -3491,13 +3491,13 @@ class TinyFox extends Diviner
             success= Math.random()<0.5  # 成功したかどうか
             key = if success then "roles:TinyFox.resultlog_success" else "roles:TinyFox.resultlog_fail"
             re = game.i18n.t key, {name: @name, target: p.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
-            @results.push {
+            @setFlag @flag.concat {
                 player: p.publicinfo()
                 result: re
             }
             @addGamelog game,"foxdivine",success,p.id
     showdivineresult:(game)->
-        r=@results[@results.length-1]
+        r=@flag[@flag.length-1]
         return unless r?
         log=
             mode:"skill"
@@ -3640,26 +3640,35 @@ class WolfDiviner extends Werewolf
     midnightSort:100
     constructor:->
         super
-        @results=[]
-            # {player:Player, result:String}
+        @setFlag {
+            # 占い結果のリスト
+            results: []
+            # 占い対象
+            target: null
+        }
     sunset:(game)->
         @setTarget null
-        @setFlag null  # 占い対象
-        @result=null    # 占い結果
+        @setFlag {
+            results: @flag.results
+            target: null
+        }
         super
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
-    jobdone:(game)->game.werewolf_target_remain<=0 && @flag?
+    jobdone:(game)->game.werewolf_target_remain<=0 && @flag.target?
     job:(game,playerid,query)->
         if query.jobtype!="WolfDiviner"
             # 人狼の仕事
             return super
         # 占い
-        if @flag?
+        if @flag.target?
             return game.i18n.t "error.common.alreadyUsed"
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
-        @setFlag playerid
+        @setFlag {
+            results: @flag.results
+            target: playerid
+        }
         unless pl.getTeam()=="Werewolf" && pl.isHuman()
             # 狂人は変化するので
             pl.touched game,@id
@@ -3683,14 +3692,14 @@ class WolfDiviner extends Werewolf
             @dodivine game
     #占った影響を与える
     divineeffect:(game)->
-        p=game.getPlayer @flag
+        p=game.getPlayer @flag.target
         if p?
             p.divined game,this
             if p.isJobType "Diviner"
                 # 逆呪殺
                 @die game,"curse"
     showdivineresult:(game)->
-        r=@results[@results.length-1]
+        r=@flag.results[@flag.results.length-1]
         return unless r?
         log=
             mode:"skill"
@@ -3698,13 +3707,16 @@ class WolfDiviner extends Werewolf
             comment:r.result
         splashlog game.id,game,log
     dodivine:(game)->
-        p=game.getPlayer @flag
+        p=game.getPlayer @flag.target
         if p?
-            @results.push {
-                player: p.publicinfo()
-                result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.getMainJobname()}
+            @setFlag {
+                results: @flag.results.concat {
+                    player: p.publicinfo()
+                    result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.getMainJobname()}
+                }
+                target: @flag.target
             }
-            @addGamelog game,"wolfdivine",null,@flag  # 占った
+            @addGamelog game,"wolfdivine",null,@flag.target  # 占った
             if p.getTeam()=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
@@ -3725,13 +3737,13 @@ class WolfDiviner extends Werewolf
                         to:p.id
                         comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
                     splashlog game.id,game,log
-                p=game.getPlayer @flag
+                p=game.getPlayer @flag.target
                 p.sunset game
                 game.splashjobinfo [game.getPlayer p.id]
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
-            unless @flag?
+            unless @flag.target?
                 # 占いが可能
                 result.open.push @type
                 result.forms.push {
@@ -3875,7 +3887,7 @@ class Liar extends Player
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     constructor:->
         super
-        @results=[]
+        @setFlag []
     sunset:(game)->
         @setTarget null
         if @scapegoat
@@ -3900,11 +3912,12 @@ class Liar extends Player
         null
     sunrise:(game)->
         super
-        return if !@results? || @results.length==0
+        return if !@flag? || @flag.length==0
+        resultobj = @flag[@flag.length-1]
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Liar.resultlog", {target: @results[@results.length-1].player.name, result: @results[@results.length-1].result}
+            comment: game.i18n.t "roles:Liar.resultlog", {target: resultobj.player.name, result: resultobj.result}
         splashlog game.id,game,log
     midnight:(game,midnightSort)->
         p=game.getPlayer @target
@@ -3923,7 +3936,7 @@ class Liar extends Player
                         FortuneResult.human
                     else
                         fr
-            @results.push {
+            @setFlag @flag.concat {
                 player: p.publicinfo()
                 result: game.i18n.t "roles:fortune.#{result}"
             }
@@ -4418,7 +4431,7 @@ class PI extends Diviner
     type:"PI"
     formType: FormType.optionalOnce
     sleeping:->true
-    jobdone:->@flag?
+    jobdone:->@flag.length > 0
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
@@ -4431,7 +4444,6 @@ class PI extends Diviner
         if game.rule.divineresult=="immediate"
             @dodivine game
             @showdivineresult game
-        @setFlag "done"    # 能力一回限り
         null
     #占い実行
     dodivine:(game)->
@@ -4469,12 +4481,12 @@ class PI extends Diviner
                 @addGamelog game,"PIdivine",false,tpl.id
                 game.i18n.t "roles:PI.notfound", {name: @name, target: tpl.name}
 
-            @results.push {
+            @setFlag @flag.concat {
                 player:game.getPlayer(@target).publicinfo()
                 result:resultstring
             }
     showdivineresult:(game)->
-        r=@results[@results.length-1]
+        r=@flag[@flag.length-1]
         return unless r?
         log=
             mode:"skill"
@@ -4506,12 +4518,12 @@ class Sorcerer extends Diviner
                 game.i18n.t "roles:Sorcerer.found", {name: @name, target: pl.name}
             else
                 game.i18n.t "roles:Sorcerer.notfound", {name: @name, target: pl.name}
-            @results.push {
+            @setFlag @flag.concat {
                 player: game.getPlayer(@target).publicinfo()
                 result: resultstring
             }
     showdivineresult:(game)->
-        r=@results[@results.length-1]
+        r=@flag[@flag.length-1]
         return unless r?
         log=
             mode:"skill"
