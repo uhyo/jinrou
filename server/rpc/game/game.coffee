@@ -3051,7 +3051,7 @@ class Player
         unless res?
             # This should never happen
             return
-        [mainParent, complexChain, main] = res
+        [topParent, complexChain, main] = res
         # If override flag is set, replaced pl is just newpl.
         # otherwise, reconstruct player object structure.
         replacepl =
@@ -3060,8 +3060,8 @@ class Player
             else
                 Player.reconstruct complexChain, newpl, game
         # replace old object with new one.
-        if mainParent?
-            mainParent.sub = replacepl
+        if topParent?
+            topParent.sub = replacepl
         else
             for x, i in game.players
                 if x.id == @id
@@ -3708,21 +3708,26 @@ class WolfDiviner extends Werewolf
             if p.getTeam()=="Werewolf" && p.isHuman()
                 # 狂人変化
                 jobnames=Object.keys jobs
-                newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                plobj=p.serialize()
-                plobj.type=newjob
-                newpl=Player.unserialize plobj, game  # 新生狂人
-                newpl.setFlag null
-                p.transferData newpl
-                p.transform game,newpl,false
+                # inspect all target roles.
+                for targetpl in getAllMainRoles p
+                    # check whether this target should change.
+                    unless targetpl.getTeam()=="Werewolf" && targetpl.isHuman()
+                        continue
+                    newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                    # convert this to new pl.
+                    newpl = Player.factory newjob, game
+                    targetpl.transProfile newpl
+                    targetpl.transferData newpl
+
+                    targetpl.transform game,newpl,false
+                    log=
+                        mode:"skill"
+                        to:p.id
+                        comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
+                    splashlog game.id,game,log
                 p=game.getPlayer @flag
                 p.sunset game
-                log=
-                    mode:"skill"
-                    to:p.id
-                    comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
-                splashlog game.id,game,log
-                game.splashjobinfo [game.getPlayer newpl.id]
+                game.splashjobinfo [game.getPlayer p.id]
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
@@ -8116,7 +8121,7 @@ class Complex
         root = game.participants.filter((x)=>x.id==@id)[0]
         res = searchPlayerInTree root, this
         if res?
-            [_, _, myTop] = res
+            [_, myTop] = res
             return method.apply myTop, args
         return null
 
@@ -10897,40 +10902,55 @@ generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
 
 # Search a specific object in Player structure.
-# Returns its parent and its top face.
+# Returns its parent, its top of main chain, and parent of the top.
 searchPlayerInTree = (root, target)->
     # perform depth-first search.
-    stack = [[root, null, root]]
+    stack = [[root, null, root, null]]
     while stack.length > 0
-        [pl, plParent, plTop] = stack.pop()
+        [pl, plParent, plTop, topParent] = stack.pop()
         if pl == target
             # Target is found.
-            return [pl, plParent, plTop]
+            return [plParent, plTop, topParent]
         # otherwise, search its child,
         if pl.isComplex()
             if pl.sub?
-                stack.push [pl.sub, pl, pl.sub]
-            stack.push [pl.main, pl, plTop]
+                stack.push [pl.sub, pl, pl.sub, pl]
+            stack.push [pl.main, pl, plTop, topParent]
     # Player was not found.
     return null
 # Dig Player structure to find main-chain and its parent.
 # If the main job is the target, parent would be null.
 getSubParentAndMainChain = (top, target)->
-    # construct a chain of Complexes.
-    constructChain = (top)->
+    # construct a chain of Complexes from mainTop to target.
+    constructChain = (topParent, target)->
         result = []
-        while top.isComplex()
-            result.push top
-            top = top.main
-        return [result, top]
+        while topParent.isComplex()
+            if topParent == target
+                break
+            result.push topParent
+            topParent = topParent.main
+        return result
 
     res = searchPlayerInTree top, target
     unless res?
         return null
-    [mainTop, mainParent] = res
+    [_, chainTop, topParent] = res
     # construct a chain of Complexes.
-    [complexChain, main] = constructChain mainTop
-    return [mainParent, complexChain, main]
+    complexChain = constructChain chainTop, target
+    return [topParent, complexChain, target]
+# List up all main roles in given player.
+getAllMainRoles = (top)->
+    results = []
+    stack = [top]
+    while stack.length > 0
+        pl = stack.pop()
+        if pl.isComplex()
+            if pl.sub?
+                stack.push pl.sub
+            stack.push pl.main
+        else
+            results.push pl
+    return results
 
 # 配列シャッフル（破壊的）
 shuffle= (arr)->
