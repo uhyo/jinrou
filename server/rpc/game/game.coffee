@@ -4431,7 +4431,7 @@ class PI extends Diviner
     type:"PI"
     formType: FormType.optionalOnce
     sleeping:->true
-    jobdone:->@flag.length > 0
+    jobdone:->@target? || @flag.length > 0
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
@@ -8443,18 +8443,18 @@ class Guarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
-        @mcall game,@main.sunrise,game
 # 黙らされた人
 class Muted extends Complex
     cmplType:"Muted"
 
     sunset:(game)->
         # 一日しか効かない
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
-        @mcall game,@main.sunset,game
         game.ss.publish.user @id,"refresh",{id:game.id}
     getSpeakChoiceDay:(game)->
         ["monologue"]   # 全員に喋ることができない
@@ -8590,21 +8590,18 @@ class TrapGuarded extends Complex
 
     sunrise:(game)->
         # 一日しか守られない
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         @uncomplex game
-        pl=game.getPlayer @id
-        if pl?
-            #pl.sunset game
-            pl.sunrise game
 # 黙らされた人
 class Lycanized extends Complex
     cmplType:"Lycanized"
     getFortuneResult:-> FortuneResult.werewolf
     sunset:(game)->
         # 一日しか効かない
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
-        @mcall game,@main.sunset,game
 # カウンセラーによって更生させられた人
 class Counseled extends Complex
     cmplType:"Counseled"
@@ -8634,9 +8631,9 @@ class MikoProtected extends Complex
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
     sunset:(game)->
         # 一日しか効かない
+        @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
-        @mcall game,@main.sunset,game
 # 威嚇する人狼に威嚇された
 class Threatened extends Complex
     cmplType:"Threatened"
@@ -8647,11 +8644,9 @@ class Threatened extends Complex
 
     sunrise:(game)->
         # この昼からは戻る
+        @mcall game,@main.sunrise,game
+        @sub?.sunrise? game
         @uncomplex game
-        pl=game.getPlayer @id
-        if pl?
-            #pl.sunset game
-            pl.sunrise game
     sunset:(game)->
     midnight:(game,midnightSort)->
     job:(game,playerid,query)->
@@ -8671,9 +8666,9 @@ class DivineObstructed extends Complex
     cmplType:"DivineObstructed"
     sunset:(game)->
         # 一日しか守られない
-        @sub?.sunrise? game
-        @uncomplex game
         @mcall game,@main.sunset,game
+        @sub?.sunset? game
+        @uncomplex game
     # 占いの影響なし
     divineeffect:(game)->
     showdivineresult:(game)->
@@ -8764,20 +8759,14 @@ class WatchingFireworks extends Complex
     isAttacker:->false
 
     sunrise:(game)->
+        @mcall game,@main.sunrise,game
         @sub?.sunrise? game
         # もう終了
         @uncomplex game
-        pl=game.getPlayer @id
-        if pl?
-            #pl.sunset game
-            pl.sunrise game
     deadsunrise:(game)->
+        @mcall game,@main.deadsunrise,game
         @sub?.deadsunrise? game
         @uncomplex game
-        pl=game.getPlayer @id
-        if pl?
-            #pl.sunset game
-            pl.deadsunrise game
 
     makejobinfo:(game,result)->
         super
@@ -8881,8 +8870,9 @@ class DivineCursed extends Complex
     cmplType:"DivineCursed"
     sunset:(game)->
         # 1日で消える
-        @uncomplex game
         @mcall game,@main.sunset,game
+        @sub?.sunset? game
+        @uncomplex game
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @die game,"curse"
@@ -8928,10 +8918,8 @@ class UnderHypnosis extends Complex
     cmplType:"UnderHypnosis"
     sunrise:(game)->
         # 昼になったら戻る
+        @mcall game,@main.sunrise,game
         @uncomplex game
-        pl=game.getPlayer @id
-        if pl?
-            pl.sunrise game
     midnight:(game,midnightSort)->
     die:(game,found,from)->
         Human.prototype.die.call @,game,found,from
