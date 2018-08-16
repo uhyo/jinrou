@@ -553,6 +553,14 @@ class Game
         @players.filter((x)->x.id==id)[0]
     getPlayerReal:(realid)->
         @participants.filter((x)->x.realid==realid)[0]
+    # 指定したIDのプレイヤーを設定
+    setPlayer:(id, pl)->
+        for x, i in @players
+            if x.id == id
+                @players[i] = pl
+        for x, i in @participants
+            if x.id == id
+                @participants[i] = pl
     # DBにセーブ
     save:->
         M.games.update {id:@id},{
@@ -2996,48 +3004,43 @@ class Player
     # 自分宛の投票を書き換えられる
     modifyMyVote:(game, vote)-> vote
     # Complexから抜ける
-    uncomplex:(game,flag=false)->
+    uncomplex:(game, flag=false)->
         #flag: 自分がComplexで自分が消滅するならfalse 自分がmainまたはsubで親のComplexを消すならtrue(その際subは消滅）
 
         befpl=game.getPlayer @id
+        orig_jobname = befpl.originalJobname
+        jobname1 = befpl.getJobname()
 
-        # objがPlayerであること calleeは呼び出し元のオブジェクト chainは継承連鎖
-        # index: game.playersの番号
-        chk=(obj,index,callee,chain)->
-            return unless obj?
-            chc=chain.concat obj
-            if obj.isComplex()
-                if flag
-                    # mainまたはsubである
-                    if obj.main==callee || obj.sub==callee
-                        # 自分は消える
-                        game.players[index]=Player.reconstruct chain, obj.main, game
-                    else
-                        chk obj.main,index,callee,chc
-                        # TODO これはよくない
-                        chk obj.sub,index,callee,chc
-                else
-                    # 自分がComplexである
-                    if obj==callee
-                        game.players[index]=Player.reconstruct chain, obj.main, game
-                    else
-                        chk obj.main,index,callee,chc
-                        # TODO これはよくない
-                        chk obj.sub,index,callee,chc
+        res = getSubParentAndMainChain befpl, this
+        unless res?
+            return
+        [topParent, complexChain, main] = res
 
-        game.players.forEach (x,i)=>
-            if x.id==@id
-                chk x,i,this,[]
-                # participantsも
-                for pl,j in game.participants
-                    if pl.id==@id
-                        game.participants[j]=game.players[i]
-                        break
+        if flag
+            if complexChain.length > 0
+                # Remove the most recent parent.
+                complexChain.pop()
+            else
+                # fallback to top parent.
+                if topParent?
+                    topParent.uncomplex game, false
+                return
+        else
+            # Remove myself from the chain.
+            complexChain = complexChain.filter (c)=> c != this
+        # reconstruct the player object.
+        newpl = Player.reconstruct complexChain, main
+
+        if topParent?
+            topParent.sub = newpl
+        else
+            game.setPlayer @id, newpl
 
         aftpl=game.getPlayer @id
+        jobname2 = aftpl.getJobname()
         #前と後で比較
-        if befpl.getJobname()!=aftpl.getJobname()
-            aftpl.setOriginalJobname "#{befpl.originalJobname}→#{aftpl.getJobname()}"
+        if jobname1 != jobname2
+            aftpl.setOriginalJobname "#{orig_jobname}→#{jobname2}"
 
     # 自分自身を変える
     transform:(game,newpl,override,initial=false)->
@@ -3063,12 +3066,7 @@ class Player
         if topParent?
             topParent.sub = replacepl
         else
-            for x, i in game.players
-                if x.id == @id
-                    game.players[i] = replacepl
-            for x, i in game.participants
-                if x.id == @id
-                    game.participants[i] = replacepl
+            game.setPlayer @id, replacepl
 
         pl = game.getPlayer @id
         jobname2 = pl.getJobname()
@@ -4594,6 +4592,7 @@ class Doppleganger extends Player
                     # ???
                     return
                 transpl.transform game, newpl, false
+                @uncomplex game, true
             else
                 # 初めてなので自分が変化する
                 @transform game, newpl, false
@@ -10922,22 +10921,20 @@ searchPlayerInTree = (root, target)->
 # If the main job is the target, parent would be null.
 getSubParentAndMainChain = (top, target)->
     # construct a chain of Complexes from mainTop to target.
-    constructChain = (topParent, target)->
+    constructChain = (topParent)->
         result = []
         while topParent.isComplex()
-            if topParent == target
-                break
             result.push topParent
             topParent = topParent.main
-        return result
+        return [result, topParent]
 
     res = searchPlayerInTree top, target
     unless res?
         return null
     [_, chainTop, topParent] = res
     # construct a chain of Complexes.
-    complexChain = constructChain chainTop, target
-    return [topParent, complexChain, target]
+    [complexChain, main] = constructChain chainTop
+    return [topParent, complexChain, main]
 # List up all main roles in given player.
 getAllMainRoles = (top)->
     results = []
