@@ -4006,9 +4006,9 @@ class Copier extends Player
         newpl=Player.factory p.type, game
         # TODO: we want to apply sunset to only newly-craeted role,
         # ideally after it is in role tree.
-        newpl.sunset game   # 初期化してあげる
         @transProfile newpl
         @transferData newpl
+        newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
         pl=game.getPlayer @id
 
