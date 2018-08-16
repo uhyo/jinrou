@@ -2891,6 +2891,7 @@ class Player
     # 死んだとき
     dying:(game,found)->
     # 行きかえる
+    # XXX This method must be call for top of player.
     revive:(game)->
         # logging: ログを表示するか
         if @norevive
@@ -5624,7 +5625,8 @@ class RedHood extends Player
             w=game.getPlayer @flag
             if w?.dead
                 # 殺した狼が死んだ!復活する
-                @revive game
+                pl = game.getPlayer @id
+                pl.revive game
     deadsunrise:(game)->
         # 同じ
         @deadsunset game
