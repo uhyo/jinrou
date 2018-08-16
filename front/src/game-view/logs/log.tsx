@@ -201,7 +201,8 @@ interface IPropProbabilityTr {
  * Tr element for dead player's probability.
  */
 const ProbabilityTr = withProps<IPropProbabilityTr>()(styled.tr)`
-  background-color: ${dead => (dead ? 'rgba(0, 0, 0, 0.3)' : 'transparent')};
+  background-color: ${({ dead }) => (dead ? '#bbbbbb' : 'transparent')};
+  color: ${({ dead }) => (dead ? 'black' : 'inherit')};
 `;
 
 interface IPropProbTd {
@@ -367,7 +368,9 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
       border-bottom: 1px dashed #fffff8;
     }
   `,
-  probability_table: LogBox,
+  probability_table: styled(LogBox)`
+    background-color: #eeeeee;
+  `,
   system: styled(LogBox)`
     background-color: #cccccc;
     font-weight: bold;
