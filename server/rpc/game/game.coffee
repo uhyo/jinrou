@@ -3055,6 +3055,7 @@ class Player
         unless res?
             # This should never happen
             return
+        @addGamelog game, "transform", newpl.type
         [topParent, complexChain, main] = res
         # If override flag is set, replaced pl is just newpl.
         # otherwise, reconstruct player object structure.
