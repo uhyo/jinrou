@@ -135,7 +135,8 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
       const comment = autolink(
-        log.comment,
+        // server's bug? comment may actually be null
+        log.comment || '',
         [
           'url',
           {
