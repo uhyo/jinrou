@@ -3,7 +3,7 @@ Are you a werewolf?
 
 [http://jinrou.uhyohyo.net/ 月下人狼サーバー]稼働中!
 == version ==
-1.13.8
+1.13.9
 
 == requirements ==
 * Redis
