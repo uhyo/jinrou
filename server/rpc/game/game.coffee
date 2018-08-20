@@ -3743,7 +3743,7 @@ class WolfDiviner extends Werewolf
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
-            unless @flag.target?
+            unless @flag?.target?
                 # 占いが可能
                 result.open.push @type
                 result.forms.push {
