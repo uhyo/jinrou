@@ -21,13 +21,27 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
   public render() {
     const {
       t,
-      player: { id, icon, name, anonymous, dead, jobname, winner, flags },
+      player: {
+        id,
+        realid,
+        icon,
+        name,
+        anonymous,
+        dead,
+        jobname,
+        winner,
+        flags,
+      },
     } = this.props;
     return (
       <Wrapper dead={dead} hasIcon={icon != null}>
         <Icon t={t} icon={icon} dead={dead} />
         <Name dead={dead}>
-          {anonymous ? name : <a href={`/user/${id}`}>{name}</a>}
+          {anonymous ? (
+            name
+          ) : (
+            <a href={`/user/${realid ? realid : id}`}>{name}</a>
+          )}
         </Name>
         <ToolIcons>
           <span onClick={this.handleFilterClick}>

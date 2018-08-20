@@ -210,7 +210,11 @@ export interface PlayerInfo {
    * userid of player.
    */
   id: string;
-  /**Whether this p
+  /**
+   * realid of player.
+   */
+  realid: string | null;
+  /**
    * Whether this player is anonymized.
    */
   anonymous: boolean;
