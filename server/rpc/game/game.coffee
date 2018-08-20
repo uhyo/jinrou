@@ -4291,7 +4291,7 @@ class Cursed extends Player
                 game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isVampire()
             # 自分も知らせる
             #game.ss.publish.user newpl.realid,"refresh",{id:game.id}
-            game.splashjobinfo [this]
+            game.splashjobinfo [game.getPlayer @id]
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     beforebury:(game)->
