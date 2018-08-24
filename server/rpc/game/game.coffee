@@ -2755,6 +2755,8 @@ class Player
     isDead:->{dead:@dead,found:@found}
     # get my team
     getTeam:-> @team
+    # Display of my team.
+    getTeamDisp:-> @getTeam()
     # 終了時の人間カウント
     humanCount:->
         if !@isFox() && @isHuman()
@@ -8149,6 +8151,7 @@ class Complex
         @main.isJobType(type) || @sub?.isJobType?(type)
     isMainJobType:(type)-> @main.isMainJobType type
     getTeam:-> @main.getTeam()
+    getTeamDisp:-> @getTeam()
     #An access to @main.flag, etc.
     accessByJobType:(type)->
         unless type
@@ -8454,6 +8457,7 @@ class Drunk extends Complex
     cmplType:"Drunk"
     getJobname:-> @game.i18n.t "roles:Drunk.jobname", {jobname: @main.getJobname()}
     getTypeDisp:->"Human"
+    getTeamDisp:->"Human"
     getJobDisp:->
         if @game.rule.chemical == "on"
             @game.i18n.t "roles:Chemical.jobname", {
@@ -10803,7 +10807,7 @@ makejobinfo = (game,player,result={})->
 
             # If Chemical, tell player's team.
             if game.rule?.chemical == "on"
-                result.myteam = plpl.getTeam()
+                result.myteam = plpl.getTeamDisp()
 
             if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
                 if player.dead
