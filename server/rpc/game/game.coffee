@@ -6437,8 +6437,9 @@ class Phantom extends Player
             sup=super
             for obj in sup
                 pl=game.getPlayer obj.value
-                unless pl?.scapegoat
-                    res.push obj
+                continue unless pl?
+                continue if pl.scapegoat || pl.id == @id
+                res.push obj
             return res
         else
             super
