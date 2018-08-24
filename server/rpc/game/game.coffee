@@ -2733,6 +2733,8 @@ class Player
     isWerewolf:->false
     # 妖狐かどうか
     isFox:->false
+    # 人狼の仲間として見えるかどうか
+    isWerewolfVisible:->@isWerewolf()
     # 妖狐の仲間としてみえるか
     isFoxVisible:->false
     # 恋人かどうか
@@ -3217,7 +3219,7 @@ class Werewolf extends Player
             result.open = result.open.filter (x)=> x != @type
             result.forms = result.forms.filter (x)=> x.type != @type
         # 人狼は仲間が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
             x.publicinfo()
         # スパイ2も分かる
         result.spy2s=game.players.filter((x)->x.isJobType "Spy2").map (x)->
@@ -3630,7 +3632,7 @@ class Spy extends Player
     makejobinfo:(game,result)->
         super
         # スパイは人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
             x.publicinfo()
     makeJobSelection:(game)->
         # 夜は投票しない
@@ -3949,7 +3951,7 @@ class Spy2 extends Player
     makejobinfo:(game,result)->
         super
         # スパイは人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
             x.publicinfo()
 
     dying:(game,found)->
@@ -4055,7 +4057,7 @@ class Fanatic extends Madman
     makejobinfo:(game,result)->
         super
         # 狂信者は人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolf()).map (x)->
+        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
             x.publicinfo()
 class Immoral extends Player
     type:"Immoral"
@@ -7879,6 +7881,9 @@ class XianFox extends Fox
             splashlog game.id, game, log
             @setFlag null
 
+class LurkingMad extends Madman
+    type: "LurkingMad"
+    isWerewolfVisible:-> true
 
 # ============================
 # 処理上便宜的に使用
@@ -8310,6 +8315,7 @@ class Complex
     isWerewolf:->@main.isWerewolf()
     isFox:->@main.isFox()
     isVampire:->@main.isVampire()
+    isWerewolfVisible:->@main.isWerewolfVisible()
     isWinner:(game,team)->@main.isWinner game, team
     hasDeadResistance:(game)->
         if @mcall game, @main.hasDeadResistance, game
@@ -9026,6 +9032,7 @@ class Chemical extends Complex
             @main.isHuman()
     isWerewolf:-> @main.isWerewolf() || @sub?.isWerewolf()
     isFox:-> @main.isFox() || @sub?.isFox()
+    isWerewolfVisible:-> @main.isWerewolfVisible() || @sub?.isWerewolfVisible()
     isFoxVisible:-> @main.isFoxVisible() || @sub?.isFoxVisible()
     isVampire:-> @main.isVampire() || @sub?.isVampire()
     isAttacker:-> @main.isAttacker?() || @sub?.isAttacker?()
@@ -9309,6 +9316,7 @@ jobs=
     BlackCat:BlackCat
     Idol:Idol
     XianFox:XianFox
+    LurkingMad:LurkingMad
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -9462,6 +9470,7 @@ jobStrength=
     BlackCat:19
     Idol:12
     XianFox:35
+    LurkingMad:9
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
