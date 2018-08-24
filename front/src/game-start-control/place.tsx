@@ -14,6 +14,11 @@ import { i18n } from '../i18n';
 import { findLabeledGroupItem } from '../util/labeled-group';
 
 /**
+ * Key of session storage to temporally save rule.
+ */
+const sessionStorageRuleKey = 'lastSavedRule';
+
+/**
  * Options to place.
  */
 export interface IPlaceOptions {
@@ -73,7 +78,15 @@ export function place({
   runInAction(() => {
     store.setCurrentCasting(initialCasting);
     setInitialRules(rules, store);
-    loadSavedRules(castings, categories, roles, store);
+    if ('string' === typeof sessionStorage[sessionStorageRuleKey]) {
+      // load last saved key.
+      store.loadSerializedRule(
+        sessionStorage[sessionStorageRuleKey],
+        castingId => findCastingDefinition(castings, castingId) || null,
+      );
+    } else {
+      loadSavedRules(castings, categories, roles, store);
+    }
   });
 
   // XXX ad-hoc but exclude hidden roles.
@@ -93,9 +106,17 @@ export function place({
 
   ReactDOM.render(com, node);
 
+  // Set unload event to save current settings on reload.
+  const unloadHandler = () => {
+    const serializedRule = store.serializedRule;
+    sessionStorage[sessionStorageRuleKey] = serializedRule;
+  };
+  window.addEventListener('unload', unloadHandler);
+
   return {
     store,
     unmount: () => {
+      window.removeEventListener('unload', unloadHandler);
       ReactDOM.unmountComponentAtNode(node);
     },
   };
@@ -178,7 +199,7 @@ function loadSavedRules(
   const rule = JSON.parse(savedRule);
   // First, set casting.
   const castingId = rule.jobrule;
-  const casting = findLabeledGroupItem(castings, item => item.id === castingId);
+  const casting = findCastingDefinition(castings, castingId);
   if (casting != null) {
     store.setCurrentCasting(casting);
   }
@@ -219,4 +240,13 @@ function loadSavedRules(
   }
 
   localStorage.removeItem('savedRule');
+}
+/**
+ * Find casting definition from id.
+ */
+function findCastingDefinition(
+  castings: LabeledGroup<CastingDefinition, string>,
+  castingId: string,
+) {
+  return findLabeledGroupItem(castings, item => item.id === castingId);
 }
