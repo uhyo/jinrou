@@ -8454,7 +8454,14 @@ class Drunk extends Complex
     cmplType:"Drunk"
     getJobname:-> @game.i18n.t "roles:Drunk.jobname", {jobname: @main.getJobname()}
     getTypeDisp:->"Human"
-    getJobDisp:-> @game.i18n.t "roles:jobname.Human"
+    getJobDisp:->
+        if @game.rule.chemical == "on"
+            @game.i18n.t "roles:Chemical.jobname", {
+                left: @game.i18n.t "roles:jobname.Human"
+                right: @game.i18n.t "roles:jobname.Human"
+            }
+        else
+            @game.i18n.t "roles:jobname.Human"
     sleeping:->true
     jobdone:->true
     isListener:(game,log)->
