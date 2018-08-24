@@ -1482,7 +1482,7 @@ class Game
             continue unless t?
             # 噛まれた
             t.addGamelog this,"bitten"
-            if @rule.noticebitten=="notice" || t.isJobType "Devil"
+            if @rule.noticebitten=="notice"
                 log=
                     mode:"skill"
                     to:t.id
@@ -4083,6 +4083,12 @@ class Devil extends Player
             unless @flag
                 # まだ噛まれていない
                 @setFlag "bitten"
+                # 専用ログを出す
+                log=
+                    mode: "skill"
+                    to: @id
+                    comment: game.i18n.t "roles:Devil.attacked", {name: @name}
+                splashlog game.id, game, log
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.devil
         else if found=="punish"
             # 処刑されたぞ！

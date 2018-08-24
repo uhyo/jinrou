@@ -256,6 +256,12 @@ Light:
   # Selected a target.
   select: "{{name}}が{{target}}の名前を死神の手帳に書きました。"
 
+# Devil
+Devil:
+  # attacked by a werewolf.
+  attacked: "{{name}}は人狼に襲われて悪魔の力を増大させました。"
+
+
 # Cupid
 Cupid:
   # First select.
