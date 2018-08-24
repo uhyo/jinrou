@@ -6500,7 +6500,7 @@ class BadLady extends Player
         unless @flag?.set
             # まだ恋人未設定
             if @scapegoat
-                @flag={
+                @setFlag {
                     set:true
                 }
     job:(game,playerid,query)->
