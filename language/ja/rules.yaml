@@ -310,6 +310,8 @@ rule:
 ruleGroup:
   yaminabe_option:
     name: "闇鍋オプション"
+  show_roles_option:
+    name: "配役表示の設定"
   normal_rules:
     name: "一般設定"
   werewolf:

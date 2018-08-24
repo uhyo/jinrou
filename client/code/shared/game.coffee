@@ -887,7 +887,7 @@ exports.new_rules=[
         type: 'group'
         label:
             id: 'yaminabe_option'
-            visible: (rule)->rule.casting in ['特殊ルール.闇鍋','特殊ルール.一部闇鍋','特殊ルール.エンドレス闇鍋']
+            visible: (rule)-> isYaminabe rule
         items: [
             {
                 type: 'item'
@@ -905,6 +905,20 @@ exports.new_rules=[
                         "reverse"
                     ]
             }
+        ]
+    }
+    # 配役表示
+    {
+        type: 'group'
+        label:
+            id: 'show_roles_option'
+            visible: (rule)->
+                return false unless rule.rules.get('yaminabe_hidejobs') == 'team'
+                return true if isYaminabe(rule)
+                for job in ["Vampire","Devil","CultLeader"]
+                    if rule.jobNumbers[job]>0
+                        return true
+        items: [
             {
                 type: 'item'
                 value:
