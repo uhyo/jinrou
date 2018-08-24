@@ -10555,6 +10555,9 @@ module.exports.actions=(req,res,ss)->
         unless player in game.participants
             res {error: game.i18n.t "error.common.notPlayer"}
             return
+        if game.finished
+            res {error: game.i18n.t "error.common.alreadyFinished"}
+            return
 
         plobj = player.accessByObjid query.objid
         unless plobj?

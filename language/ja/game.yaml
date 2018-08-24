@@ -36,6 +36,8 @@ error:
     needLogin: "ログインしてください。"
     # given query is invalid.
     invalidQuery: "不正な操作です。"
+    # Game has already finished.
+    alreadyFinished: "そのゲームはすでに終了しています。"
   # Error during gamestart operation
   gamestart:
     # Player number is invalid (invalid number is passed as a number of a role)
