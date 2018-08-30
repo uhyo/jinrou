@@ -4095,6 +4095,7 @@ class Devil extends Player
             if @flag=="bitten"
                 # 噛まれたあと処刑された
                 @setFlag "winner"
+                super
             else
                 super
         else
