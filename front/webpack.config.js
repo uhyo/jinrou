@@ -79,6 +79,7 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
                             browsers: ['IE 11', 'ios 5'],
                           },
                           useBuiltIns: 'entry',
+                          forceAllTransforms: true,
                           modules: false,
                         },
                       ],
@@ -131,9 +132,12 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
         '@fortawesome/fontawesome-free-solid/shakable.es.js',
       '@fortawesome/fontawesome-free-regular':
         '@fortawesome/fontawesome-free-regular/shakable.es.js',
-      // if not legacy Mode, remove @babel/polyfill dependency.
+      // if not legacy Mode, remove polyfills.
       '@babel/polyfill': isLegacyBuild
         ? '@babel/polyfill'
+        : path.join(__dirname, 'build/empty.js'),
+      _polyfills: isLegacyBuild
+        ? path.join(__dirname, 'dist-esm/polyfills/index.js')
         : path.join(__dirname, 'build/empty.js'),
     },
   },

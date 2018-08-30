@@ -134,4 +134,4 @@ module.exports =
     # Whether to use "legacy builds" feature.
     # If set to true, browsers other than latest ones will use fallback (legacy) build of front-end scripts.
     # If this is set to true, "notSupportedPage" feature is automatically disabled.
-    legacyBuilds: true
+    legacyBuilds: process.env.NODE_ENV == 'production'

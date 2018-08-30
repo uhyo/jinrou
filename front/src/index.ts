@@ -1,4 +1,5 @@
 import '@babel/polyfill';
+import '_polyfills';
 import './init-icons';
 import { ThemeStore, themeStore } from './theme';
 export { themeStore };
