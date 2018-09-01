@@ -7410,6 +7410,7 @@ class MadScientist extends Madman
 
         @setFlag "done"
         @setTarget playerid
+        pl.touched game, @id
 
         log=
             mode:"skill"
