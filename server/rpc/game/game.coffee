@@ -5144,6 +5144,13 @@ class Dog extends Player
                 else
                     @setFlag ""
                     @setTarget ""
+        else
+            # 飼い主がいる
+            pl = game.getPlayer @flag
+            if pl?
+                # 飼い主が死んでいたら対象選択しない
+                if pl.dead
+                    @setTarget ""
     sleeping:->@flag?
     jobdone:->@target?
     job:(game,playerid,query)->
