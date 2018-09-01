@@ -8167,7 +8167,7 @@ class Complex
         @main.isJobType(type) || @sub?.isJobType?(type)
     isMainJobType:(type)-> @main.isMainJobType type
     getTeam:-> @main.getTeam()
-    getTeamDisp:-> @getTeam()
+    getTeamDisp:-> @main.getTeamDisp()
     #An access to @main.flag, etc.
     accessByJobType:(type)->
         unless type
@@ -8340,6 +8340,7 @@ class Friend extends Complex    # 恋人
     cmplType:"Friend"
     isFriend:->true
     getTeam:-> "Friend"
+    getTeamDisp:-> "Friend"
     getJobname:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobDisp()}
 
@@ -8483,6 +8484,7 @@ class Drunk extends Complex
             }
         else
             @game.i18n.t "roles:jobname.Human"
+    getMainJobDisp:-> @getJobDisp()
     sleeping:->true
     jobdone:->true
     isListener:(game,log)->
@@ -8739,6 +8741,7 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
     cmplType:"KeepedLover"
     getJobname:-> @game.i18n.t "roles:KeepedLover.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:KeepedLover.fakeJobname", {jobname: @main.getJobDisp()}
+    getTeamDisp:->"Friend"
 
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
