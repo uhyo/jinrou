@@ -3372,7 +3372,7 @@ class Guard extends Player
                 return false
             if game.rule.consecutiveguard=="no" && pl.id == @flag
                 return false
-            return true
+            return !pl.dead
 
         if pls.length == 0
             @setTarget ""
@@ -4631,9 +4631,12 @@ class CultLeader extends Player
         super
         @setTarget null
         if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            @job game,game.players[r].id,{}
+            alives = game.players.filter (pl)-> !pl.dead
+            if alives.length == 0
+                @setTarget ""
+                return
+            r=Math.floor Math.random()*alives.length
+            @job game,alives[r].id,{}
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
