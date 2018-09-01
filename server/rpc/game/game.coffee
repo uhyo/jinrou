@@ -6570,6 +6570,7 @@ class BadLady extends Player
             plm.transProfile newpl
             plm.transform game,newpl,true  # 入れ替え
             # キープ
+            pl = game.getPlayer playerid
             newpl=Player.factory null, game, pl,null,KeepedLover # 恋人か？
             newpl.cmplFlag=@id
             pl.transProfile newpl
