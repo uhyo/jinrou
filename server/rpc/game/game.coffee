@@ -2727,6 +2727,8 @@ class Player
     getJobname:->@jobname
     # サブ役職の情報を除いた役職名を得る
     getMainJobname:-> @getJobname()
+    # getMainJobnameのjobDisp版
+    getMainJobDisp:-> @getJobDisp()
     # 村人かどうか
     isHuman:->!@isWerewolf()
     # 人狼かどうか
@@ -6468,7 +6470,7 @@ class Phantom extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getJobDisp()}
+            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobDisp()}
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
@@ -8114,6 +8116,7 @@ class Complex
     getJobname:->@main.getJobname()
     getMainJobname:->@main.getMainJobname()
     getJobDisp:->@main.getJobDisp()
+    getMainJobDisp:->@main.getMainJobDisp()
     midnightSort: 100
 
     #@mainのやつを呼ぶ
@@ -9028,6 +9031,11 @@ class Chemical extends Complex
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getJobDisp(), right: @sub.getJobDisp()}
         else
             @main.getJobDisp()
+    getMainJobDisp:->
+        if @sub?
+            @game.i18n.t "roles:Chemical.jobname", {left: @main.getMainJobDisp(), right: @sub.getMainJobDisp()}
+        else
+            @main.getMainJobDisp()
     sleeping:(game)->@main.sleeping(game) && (!@sub? || @sub.sleeping(game))
     jobdone:(game)->@main.jobdone(game) && (!@sub? || @sub.jobdone(game))
     deadJobdone:(game)->@main.deadJobdone(game) && (!@sub? || @sub.deadJobdone(game))
