@@ -150,9 +150,6 @@ export class I18nInterpInner extends React.PureComponent<
     };
   }
   public render() {
-    const {
-      state: { resource },
-    } = this;
     const c = this.props.children as
       | Record<string, React.ReactNode>
       | undefined;

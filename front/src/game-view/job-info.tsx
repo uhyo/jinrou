@@ -106,7 +106,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                 return null;
               }
               // If this field exists, list up name of players.
-              const names = pls.map(({ id, name }) => <b key={id}>{name}</b>);
+              const names = pls.map(({ name }, i) => <b key={i}>{name}</b>);
               return (
                 <p key={`peers-${key}`}>
                   <I18nInterp ns="game_client" k={`jobinfo.peers.${key}`}>
