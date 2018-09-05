@@ -9751,8 +9751,11 @@ module.exports.actions=(req,res,ss)->
                         if frees <= 0
                             break
                         r = Math.random()
-                        if r<0.55 && !nonavs.Fox
+                        if r<0.35 && !nonavs.Fox
                             joblist.Fox++
+                            frees--
+                        else if r < 0.55 && !nonavs.XianFox
+                            joblist.XianFox++
                             frees--
                         else if r<0.85 && !nonavs.TinyFox
                             joblist.TinyFox++
@@ -9789,8 +9792,9 @@ module.exports.actions=(req,res,ss)->
 
 
                 if safety.jingais || safety.jobs
-                    if joblist.Fox==0 && joblist.TinyFox==0
-                        exceptions.push "Immoral"   # 狐がいないのに背徳は出ない
+                    # 狐が誰も居ないときは背徳は出ない
+                    if Shared.game.categories.Fox.every((j)-> joblist[j]==0)
+                        exceptions.push "Immoral"
 
 
                 nonavs = {}
