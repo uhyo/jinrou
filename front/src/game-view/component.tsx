@@ -22,6 +22,7 @@ import { ShowRule } from './rule';
 import { showConfirmDialog } from '../dialog';
 import { Players } from './players';
 import { RoomControls } from './room-controls';
+import { lightA } from '../styles/a';
 
 interface IPropGame {
   /**
@@ -291,6 +292,10 @@ const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
 
   background-color: #ffd1f2;
   color: black;
+
+  a {
+    ${lightA}
+  }
 `;
 
 const RuleStickyWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
