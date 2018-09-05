@@ -37,6 +37,7 @@ Phase =
     # ハンター選択中
     hunter: 'hunter'
     # フェイズ判定メソッド
+    isBeforeStart: (phase)-> phase in [Phase.preparing, Phase.rolerequesting]
     isDay: (phase)-> phase in [Phase.day, Phase.day_remain, Phase.day_voting]
     isNight: (phase)-> phase in [Phase.night, Phase.night_remain]
     isRemain: (phase)-> phase in [Phase.day_remain, Phase.night_remain]
@@ -10862,8 +10863,8 @@ makejobinfo = (game,player,result={})->
         if plpl?
             # 参加者として
 
-            # If Chemical, tell player's team.
-            if game.rule?.chemical == "on"
+            # tell player's team.
+            unless Phase.isBeforeStart(game.phase)
                 result.myteam = plpl.getTeamDisp()
 
             if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
