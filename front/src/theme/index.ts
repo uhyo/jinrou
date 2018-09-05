@@ -1,14 +1,14 @@
 import { computed, observable, action, runInAction, set } from 'mobx';
 
-import { Theme } from './theme';
-export { Theme };
+import { UserTheme, Theme } from './theme';
+export { UserTheme, Theme };
 
 /**
- * Store of theme.
+ * Store of user-defined theme.
  */
 export class ThemeStore {
   @observable
-  public themeObject: Theme = {
+  public themeObject: UserTheme = {
     day: {
       bg: '#ffd953',
       color: '#000000',
@@ -24,10 +24,10 @@ export class ThemeStore {
   };
 
   @action
-  public update(obj: { [K in keyof Theme]: Theme[K] }): void {
+  public update(obj: { [K in keyof UserTheme]: UserTheme[K] }): void {
     runInAction(() => {
       for (const k in obj) {
-        const key = k as keyof Theme;
+        const key = k as keyof UserTheme;
         set(this.themeObject, key, obj[key]);
       }
     });

@@ -288,8 +288,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   day: styled(LogBox)`
-    background-color: ${props => props.theme.day.bg};
-    color: ${props => props.theme.day.color};
+    background-color: ${props => props.theme.user.day.bg};
+    color: ${props => props.theme.user.day.color};
   `,
   fox: styled(LogBox)`
     background-color: #934293;
@@ -301,8 +301,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
   gmmonologue: GM2Box,
   gmreply: GM1Box,
   heaven: styled(LogBox)`
-    background-color: ${props => props.theme.heaven.bg};
-    color: ${props => props.theme.heaven.color};
+    background-color: ${props => props.theme.user.heaven.bg};
+    color: ${props => props.theme.user.heaven.color};
 
     > * {
       border-top: 1px dashed #fffff8;
@@ -343,8 +343,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   monologue: styled(LogBox)`
-    background-color: ${props => props.theme.night.bg};
-    color: ${props => props.theme.night.color};
+    background-color: ${props => props.theme.user.night.bg};
+    color: ${props => props.theme.user.night.color};
 
     > * {
       border-top: 1px dashed #000066;
@@ -361,8 +361,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   prepare: styled(LogBox)`
-    background-color: ${props => props.theme.heaven.bg};
-    color: ${props => props.theme.heaven.color};
+    background-color: ${props => props.theme.user.heaven.bg};
+    color: ${props => props.theme.user.heaven.color};
 
     > * {
       border-top: 1px dashed #fffff8;
@@ -392,8 +392,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   voteresult: styled(LogBox)`
-    background-color: ${props => props.theme.day.bg};
-    color: ${props => props.theme.day.color};
+    background-color: ${props => props.theme.user.day.bg};
+    color: ${props => props.theme.user.day.color};
   `,
   voteto: styled(LogBox)`
     background-color: #009900;
@@ -405,8 +405,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   werewolf: styled(LogBox)`
-    background-color: ${props => props.theme.night.bg};
-    color: ${props => props.theme.night.color};
+    background-color: ${props => props.theme.user.night.bg};
+    color: ${props => props.theme.user.night.color};
     > * {
       border-top: 1px dashed #000066;
       border-bottom: 1px dashed #000066;

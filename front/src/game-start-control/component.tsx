@@ -31,7 +31,7 @@ const StatusLine = styled.div`
   top: 0;
 
   padding: 0.3em;
-  background-color: ${props => props.theme.day.bg || 'transparent'};
+  background-color: ${props => props.theme.user.day.bg || 'transparent'};
 `;
 
 interface IPropCasting {
@@ -89,8 +89,14 @@ export class Casting extends React.Component<IPropCasting, {}> {
       {}
     > = SelectLabeledGroup;
 
+    // XXX some of themes are not provided!
+    const theme = {
+      user: themeStore.themeObject,
+      teamColors: {},
+    };
+
     return (
-      <ThemeProvider theme={themeStore.themeObject}>
+      <ThemeProvider theme={theme}>
         <I18nProvider i18n={i18n}>
           <I18n namespace="game_client">
             {t => {

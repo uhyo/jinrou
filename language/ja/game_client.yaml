@@ -61,6 +61,10 @@ jobinfo:
     none: "あなたの陣営はありません"
     # other.
     message: "あなたの陣営は{{team}}です"
+    # short message for no team.
+    none_short: "陣営：なし"
+    # short message for usual team.
+    message_short: "陣営：{{team}}"
   # detail of jobs.
   detail_one: "詳細"
   detail: "{{job}}の詳細"

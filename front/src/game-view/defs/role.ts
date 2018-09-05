@@ -74,6 +74,10 @@ export type RoleOtherPlayerInfo = Record<
   PublicPlayerInfo | undefined
 >;
 
+/**
+ * Description of one role.
+ * @package
+ */
 export interface RoleDesc {
   /**
    * Name of role.
