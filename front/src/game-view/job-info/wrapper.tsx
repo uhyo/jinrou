@@ -28,9 +28,11 @@ const WrapperInner: React.StatelessComponent<{
     : t('game_client:jobinfo.team.none_short');
   return (
     <WrapperElement borderColor={borderColor}>
-      <WrapperHeader teamColor={teamColor} textColor={teamTextColor}>
-        {teamString}
-      </WrapperHeader>
+      {team != null ? (
+        <WrapperHeader teamColor={teamColor} textColor={teamTextColor}>
+          {teamString}
+        </WrapperHeader>
+      ) : null}
       <Content backColor={backColor}>{children}</Content>
     </WrapperElement>
   );

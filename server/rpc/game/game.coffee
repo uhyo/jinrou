@@ -9148,6 +9148,7 @@ class Chemical extends Complex
         else
             myt = ""
         return myt
+    getTeamDisp:->@getTeam()
     isWinner:(game,team)->
         myt = @getTeam()
         win = false
