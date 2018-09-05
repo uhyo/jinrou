@@ -13,9 +13,17 @@ const {
   injectGlobal,
   keyframes,
   ThemeProvider,
+  withTheme,
 } = styledComponents as ThemedStyledComponentsModule<Theme>;
 
-export { css, injectGlobal, keyframes, ThemeProvider, StyledFunction };
+export {
+  css,
+  injectGlobal,
+  keyframes,
+  ThemeProvider,
+  withTheme,
+  StyledFunction,
+};
 export default styled;
 
 // https://github.com/styled-components/styled-components/issues/630#issuecomment-317277803

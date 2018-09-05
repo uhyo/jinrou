@@ -34,6 +34,10 @@ export interface IPlaceOptions {
    */
   rules: RuleGroup;
   /**
+   * Color of teams.
+   */
+  teamColors: Record<string, string | undefined>;
+  /**
    * Handle a speak event.
    */
   onSpeak: (query: SpeakQuery) => void;
@@ -79,6 +83,7 @@ export function place({
   roomid,
   roles,
   rules,
+  teamColors,
   onSpeak,
   onRefuseRevival,
   onJobQuery,
@@ -96,6 +101,7 @@ export function place({
       store={store}
       roles={roles}
       ruleDefs={rules}
+      teamColors={teamColors}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}

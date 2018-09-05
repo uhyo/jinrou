@@ -1,7 +1,7 @@
 /**
  * Theme that are provided to styled components.
  */
-export interface Theme {
+export interface UserTheme {
   /**
    * Color scheme of day.
    */
@@ -23,4 +23,18 @@ export interface Theme {
     bg: string;
     color: string;
   };
+}
+
+/**
+ * Theme object.
+ */
+export interface Theme {
+  /**
+   * Theme specified by the user.
+   */
+  user: UserTheme;
+  /**
+   * Color of teams.
+   */
+  teamColors: Record<string, string | undefined>;
 }

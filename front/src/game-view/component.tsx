@@ -45,6 +45,10 @@ interface IPropGame {
    */
   ruleDefs: RuleGroup;
   /**
+   * Color of each team.
+   */
+  teamColors: Record<string, string | undefined>;
+  /**
    * Handle a speak event.
    */
   onSpeak: (query: SpeakQuery) => void;
@@ -75,6 +79,7 @@ export class Game extends React.Component<IPropGame, {}> {
       store,
       roles,
       ruleDefs,
+      teamColors,
       onJobQuery,
       onWillChange,
       roomControlHandlers,
@@ -91,8 +96,14 @@ export class Game extends React.Component<IPropGame, {}> {
       roomControls,
       logPickup,
     } = store;
+
+    const theme = {
+      user: themeStore.themeObject,
+      teamColors,
+    };
+
     return (
-      <ThemeProvider theme={themeStore.themeObject}>
+      <ThemeProvider theme={theme}>
         <I18nProvider i18n={i18n}>
           <div>
             {/* List of players. */}

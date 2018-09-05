@@ -62,6 +62,7 @@ exports.start=(roomid)->
                 node: $("#game-app").get(0)
                 roles: Shared.game.jobs
                 rules: Shared.game.new_rules
+                teamColors: makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
                         if result?
@@ -777,3 +778,9 @@ getPlayerInfoFlags = (ready, mode) ->
     if ready
         flags.push 'ready'
     flags
+# make team color map from jobinfo
+makeTeamColors = ->
+    result = {}
+    for team, obj of Shared.game.jobinfo
+        result[team] = obj.color
+    result
