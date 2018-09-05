@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Transition } from 'react-transition-group';
-import { i18n, I18n } from '../../i18n';
+import { I18n } from '../../i18n';
 import { bind } from '../../util/bind';
 
 import {
@@ -17,6 +17,7 @@ import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
 import { Timer } from './timer';
 import { makeMapByKey } from '../../util/map-by-key';
+import { SpeakKindSelect } from './speak-kind-select';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -139,27 +140,13 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 <option value="big">{t('game_client:speak.size.big')}</option>
               </select>
               {/* Speech kind selection. */}
-              <select value={kind} onChange={this.handleKindChange}>
-                {speaks.map(value => {
-                  // special handling of speech kind.
-                  let label;
-                  if (value.startsWith('gmreply_')) {
-                    const playerObj = playersMap.get(value.slice(8));
-                    label = t('game_client:speak.kind.gmreply', {
-                      target: playerObj != null ? playerObj.name : '',
-                    });
-                  } else if (value.startsWith('helperwhisper_')) {
-                    label = t('game_client:speak.kind.helperwhisper');
-                  } else {
-                    label = t(`game_client:speak.kind.${value}`);
-                  }
-                  return (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  );
-                })}
-              </select>
+              <SpeakKindSelect
+                kinds={speaks}
+                current={kind}
+                t={t}
+                playersMap={playersMap}
+                onChange={this.handleKindChange}
+              />
               {/* Multiline checkbox. */}
               <label>
                 <input
@@ -282,9 +269,9 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
    * Handle a change of speech kind.
    */
   @bind
-  protected handleKindChange(e: React.SyntheticEvent<HTMLSelectElement>): void {
+  protected handleKindChange(kind: string): void {
     this.props.onUpdate({
-      kind: e.currentTarget.value || '',
+      kind,
     });
   }
   /**
