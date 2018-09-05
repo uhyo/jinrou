@@ -10481,7 +10481,7 @@ module.exports.actions=(req,res,ss)->
                 return
         # 発言できない時間帯
         if !game.finished  && Phase.isRemain(game.phase)   # 投票猶予時間は発言できない
-            if player && !player.dead && !player.isJobType("GameMaster")
+            if player && !player.dead && !player.isJobType("GameMaster") && !player.isJobType("Helper")
                 res null
                 return  #まだ死んでいないプレイヤーの場合は発言できないよ!
 
