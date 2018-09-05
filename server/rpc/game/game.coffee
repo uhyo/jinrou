@@ -2041,7 +2041,15 @@ class Game
             @finish_time=new Date
             @last_time=@finish_time.getTime()
             @winner=team
-            if team!="Draw"
+            if team == "Draw"
+                # 引き分けのときは突然死の人だけ負けにする
+                @players.forEach (x)=>
+                    if @gamelogs.some((log)->
+                        log.id==x.id && log.event=="found" && log.flag in ["gone-day","gone-night"]
+                    )
+                        x.setWinner false
+                        M.users.update {userid:x.realid},{$push: {lose:@id}}
+            else
                 @players.forEach (x)=>
                     iswin=x.isWinner this,team
                     if @rule.losemode
