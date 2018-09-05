@@ -3250,7 +3250,7 @@ class Diviner extends Player
     constructor:->
         super
         @setFlag []
-            # {player:Player, result:String}
+            # {player:Player, result:String, day: number}
     sunset:(game)->
         super
         @setTarget null
@@ -3314,11 +3314,20 @@ class Diviner extends Player
             @setFlag @flag.concat {
                 player: p.publicinfo()
                 result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: p.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
+                day: game.day
             }
             @addGamelog game,"divine",p.type,@target    # 占った
     showdivineresult:(game)->
         r=@flag[@flag.length-1]
         return unless r?
+        # result of which day to show?
+        resday = (
+            if game.rule.divineresult == "immediate"
+                game.day
+            else
+                game.day - 1)
+        return if r.day != resday
+
         log=
             mode:"skill"
             to:@id
@@ -3512,16 +3521,9 @@ class TinyFox extends Diviner
             @setFlag @flag.concat {
                 player: p.publicinfo()
                 result: re
+                day: game.day
             }
             @addGamelog game,"foxdivine",success,p.id
-    showdivineresult:(game)->
-        r=@flag[@flag.length-1]
-        return unless r?
-        log=
-            mode:"skill"
-            to:@id
-            comment:r.result
-        splashlog game.id,game,log
     divineeffect:(game)->
 
 
@@ -3719,6 +3721,14 @@ class WolfDiviner extends Werewolf
     showdivineresult:(game)->
         r=@flag.results[@flag.results.length-1]
         return unless r?
+
+        resday = (
+            if game.rule.divineresult == "immediate"
+                game.day
+            else
+                game.day - 1)
+        return if r.day != resday
+
         log=
             mode:"skill"
             to:@id
@@ -3731,6 +3741,7 @@ class WolfDiviner extends Werewolf
                 results: @flag.results.concat {
                     player: p.publicinfo()
                     result: game.i18n.t "roles:WolfDiviner.resultlog", {name: @name, target: p.name, result: p.getMainJobname()}
+                    day: game.day
                 }
                 target: @flag.target
             }
@@ -4509,15 +4520,8 @@ class PI extends Diviner
             @setFlag @flag.concat {
                 player:game.getPlayer(@target).publicinfo()
                 result:resultstring
+                day: game.day
             }
-    showdivineresult:(game)->
-        r=@flag[@flag.length-1]
-        return unless r?
-        log=
-            mode:"skill"
-            to:@id
-            comment:r.result
-        splashlog game.id,game,log
 class Sorcerer extends Diviner
     type:"Sorcerer"
     team:"Werewolf"
@@ -4546,15 +4550,8 @@ class Sorcerer extends Diviner
             @setFlag @flag.concat {
                 player: game.getPlayer(@target).publicinfo()
                 result: resultstring
+                day: game.day
             }
-    showdivineresult:(game)->
-        r=@flag[@flag.length-1]
-        return unless r?
-        log=
-            mode:"skill"
-            to:@id
-            comment:r.result
-        splashlog game.id,game,log
     divineeffect:(game)->
 class Doppleganger extends Player
     type:"Doppleganger"
