@@ -292,6 +292,7 @@ const RuleStickyWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
 
 const RuleInnerWrapper = styled.div`
   box-sizing: border-box;
+  max-height: 100vh;
   width: 20em;
   padding: 5px;
 `;
