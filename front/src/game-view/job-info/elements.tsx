@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { withProps } from '../../util/styled';
 import * as Color from 'color';
+import { lightA } from '../../styles/a';
 
 /**
  * Wrapper of the job info component.
@@ -8,9 +9,11 @@ import * as Color from 'color';
  */
 export const WrapperElement = withProps<{
   borderColor: Color;
+  backColor: Color;
 }>()(styled.div)`
   margin: 5px 0;
   border: 1px solid ${props => props.borderColor.string()};
+  background-color: ${props => props.backColor.string()};
 `;
 
 /**
@@ -33,10 +36,11 @@ export const WrapperHeader = withProps<{
  * wrapper of content.
  * @package
  */
-export const Content = withProps<{
-  backColor: Color;
-}>()(styled.div)`
+export const Content = styled.div`
   padding: 8px;
-  background-color: ${props => props.backColor.string()};
   color: black;
+
+  a {
+    ${lightA};
+  }
 `;

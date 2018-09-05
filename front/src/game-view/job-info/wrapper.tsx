@@ -18,7 +18,9 @@ const WrapperInner: React.StatelessComponent<{
   const teamTextColor = teamColor.isDark()
     ? Color('#ffffff')
     : Color('#000000');
-  const backColor = teamColor.mix(Color('#ffffff'), 0.9).rgb();
+  const backColorBase = teamColor.mix(Color('#ffffff'), 0.9).rgb();
+  // if team is undefined, fade to mix to background color.
+  const backColor = team == null ? backColorBase.fade(0.4) : backColorBase;
   const borderColor = teamColor.mix(Color('#000000'), 0.4).rgb();
 
   const teamString = team
@@ -27,13 +29,13 @@ const WrapperInner: React.StatelessComponent<{
       })
     : t('game_client:jobinfo.team.none_short');
   return (
-    <WrapperElement borderColor={borderColor}>
+    <WrapperElement borderColor={borderColor} backColor={backColor}>
       {team != null ? (
         <WrapperHeader teamColor={teamColor} textColor={teamTextColor}>
           {teamString}
         </WrapperHeader>
       ) : null}
-      <Content backColor={backColor}>{children}</Content>
+      <Content>{children}</Content>
     </WrapperElement>
   );
 };

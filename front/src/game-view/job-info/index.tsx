@@ -53,24 +53,6 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
           return (
             <Wrapper t={t} team={myteam}>
               <JobStatus t={t} jobname={jobname} desc={desc} />
-              {/* Team info when provided. */}
-              {myteam != null ? (
-                <p>
-                  {myteam === '' ? (
-                    t('jobinfo.team.none')
-                  ) : (
-                    <I18nInterp ns="game_client" k="jobinfo.team.message">
-                      {{
-                        team: (
-                          <b>
-                            <I18nInterp ns="roles" k={`teamName.${myteam}`} />
-                          </b>
-                        ),
-                      }}
-                    </I18nInterp>
-                  )}
-                </p>
-              ) : null}
               {/* Info of peers. */}
               {peers.map(key => {
                 const pls = this.props[key];
