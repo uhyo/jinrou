@@ -2132,7 +2132,10 @@ class Game
                     voterCount: 0
                 message =
                     id:@id
+                    # target of punishment.
                     userlist:[]
+                    # list of voters.
+                    voters:[]
                     time: 0
                 for x in @players
                     if x.id != "身代わりくん"
@@ -2146,6 +2149,7 @@ class Game
                                 name: x.name
                             }
                         else
+                            message.voters.push x.id
                             @suddenDeathPunishment.voters[x.realid] = true
                             @suddenDeathPunishment.voterCount++
                 # deternime banMinutes.

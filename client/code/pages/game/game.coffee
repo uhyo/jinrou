@@ -521,7 +521,7 @@ exports.start=(roomid)->
 
         # show TO BAN list to players
         socket_ids.push Index.socket.on 'punishalert',null,(msg,channel)->
-            if msg.id==roomid && my_player_id? && msg.userlist.every((x)-> x.userid != my_player_id)
+            if msg.id==roomid && my_player_id? && (my_player_id in msg.voters)
                 dialog.showSuddenDeathPunishDialog({
                     time: msg.time
                     options: msg.userlist.map (user)-> {
