@@ -3706,9 +3706,7 @@ class WolfDiviner extends Werewolf
             results: @flag.results
             target: playerid
         }
-        unless pl.getTeam()=="Werewolf" && pl.isHuman()
-            # 狂人は変化するので
-            pl.touched game,@id
+        pl.touched game,@id
         log=
             mode:"skill"
             to:@id
