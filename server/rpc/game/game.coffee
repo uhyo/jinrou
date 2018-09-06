@@ -5695,10 +5695,9 @@ class Counselor extends Player
     midnight:(game,midnightSort)->
         t=game.getPlayer @target
         return unless t?
-        return if t.dead
         tteam = t.getTeam()
+        # 人狼とかヴァンパイアを襲ったら殺される
         if t.isWerewolf() && tteam != "Human"
-            # 人狼とかヴァンパイアを襲ったら殺される
             @die game,"werewolf2"
             @addGamelog game,"counselKilled",t.type,@target
             return
@@ -5706,21 +5705,23 @@ class Counselor extends Player
             @die game,"vampire2"
             @addGamelog game,"counselKilled",t.type,@target
             return
-        if tteam!="Human"
-            log=
-                mode:"skill"
-                to:t.id
-                comment: game.i18n.t "roles:Counselor.rehabilitate", {name: t.name}
-            splashlog game.id,game,log
+        if !t.dead
+            if tteam!="Human"
+                # それ以外で村人陣営以外の場合はカウンセリング成功
+                log=
+                    mode:"skill"
+                    to:t.id
+                    comment: game.i18n.t "roles:Counselor.rehabilitate", {name: t.name}
+                splashlog game.id,game,log
 
-            @addGamelog game,"counselSuccess",t.type,@target
-            # 複合させる
+                @addGamelog game,"counselSuccess",t.type,@target
+                # 複合させる
 
-            newpl=Player.factory null, game, t,null,Counseled  # カウンセリングされた
-            t.transProfile newpl
-            t.transform game,newpl,true
-        else
-            @addGamelog game,"counselFailure",t.type,@target
+                newpl=Player.factory null, game, t,null,Counseled  # カウンセリングされた
+                t.transProfile newpl
+                t.transform game,newpl,true
+            else
+                @addGamelog game,"counselFailure",t.type,@target
 # 巫女
 class Miko extends Player
     type:"Miko"
