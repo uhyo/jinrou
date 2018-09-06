@@ -5677,7 +5677,7 @@ class RedHood extends Player
 
 class Counselor extends Player
     type:"Counselor"
-    midnightSort:100
+    midnightSort:120
     formType: FormType.optional
     sleeping:->true
     jobdone:->@target?
