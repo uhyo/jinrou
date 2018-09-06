@@ -1456,7 +1456,8 @@ class Game
         alives=[]
         deads=[]
         pids=[]
-        mids=[]
+        # 狼の襲撃: 105
+        mids=[105]
         for player in @players
             pids.push player.id
             # gather all midnightSort
@@ -1474,6 +1475,9 @@ class Game
         # 処理順はmidnightSortでソート
         pids = shuffle pids
         for mid in midsu
+            if mid == 105
+                # 人狼の襲撃処理を挟む
+                @midnightWolfAttack()
             for pid in pids
                 player=@getPlayer pid
                 pmids = player.gatherMidnightSort()
@@ -1484,6 +1488,8 @@ class Game
                     if mid in pmids
                         player.deadnight this,mid
 
+    # 夜の狼の攻撃を処理する
+    midnightWolfAttack:->
         # 狼の処理
         for target in @werewolf_target
             t=@getPlayer target.to
