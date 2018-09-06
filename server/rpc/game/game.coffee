@@ -3674,7 +3674,7 @@ class Spy extends Player
         else super
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
-    midnightSort:100
+    midnightSort:120
     constructor:->
         super
         @setFlag {
@@ -5677,7 +5677,7 @@ class RedHood extends Player
 
 class Counselor extends Player
     type:"Counselor"
-    midnightSort:120
+    midnightSort:110
     formType: FormType.optional
     sleeping:->true
     jobdone:->@target?
@@ -6324,7 +6324,7 @@ class King extends Player
         game.votingbox.votePower this,1
 class PsychoKiller extends Madman
     type:"PsychoKiller"
-    midnightSort:110
+    midnightSort:104
     constructor:->
         super
         @flag="[]"
