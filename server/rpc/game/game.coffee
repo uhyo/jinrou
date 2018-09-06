@@ -520,6 +520,9 @@ class Game
             if game.day>0 && Phase.isDay(game.phase)
                 # 昼の場合投票箱をつくる
                 game.votingbox.setCandidates game.players.filter (x)->!x.dead
+            if game.day>0 && Phase.isNight(game.phase)
+                # 夜の場合は夜の開始処理を行っておく
+                game.runSunset()
             if game.phase == Phase.hunter
                 # XXX hunterの場合あれを捏造
                 game.nextScene = "nextturn"
@@ -1224,19 +1227,7 @@ class Game
                     newpl.cmplFlag=x[0].id
                     pl.transform this,newpl,true
 
-            alives=[]
-            deads=[]
-            for player in @players
-                if player.dead
-                    deads.push player.id
-                else
-                    alives.push player.id
-            for i in (shuffle [0...(@players.length)])
-                player=@players[i]
-                if player.id in alives
-                    player.sunset this
-                else
-                    player.deadsunset this
+            @runSunset()
 
             #sunset後の死体処理
             @bury "other"
@@ -1388,6 +1379,22 @@ class Game
                 @silentexpires=Date.now()+@rule.silentrule*1000 # これまでは黙っていよう！
         @save()
         @timer()
+    # 各プレイヤーのsunset処理を行う
+    runSunset:->
+        alives=[]
+        deads=[]
+        for player in @players
+            if player.dead
+                deads.push player.id
+            else
+                alives.push player.id
+        for i in (shuffle [0...(@players.length)])
+            player=@players[i]
+            if player.id in alives
+                player.sunset this
+            else
+                player.deadsunset this
+
     #全員に状況更新 pls:状況更新したい人を指定する場合の配列
     splashjobinfo:(pls)->
         unless pls?
