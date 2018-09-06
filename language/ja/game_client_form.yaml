@@ -25,7 +25,6 @@ specialName:
 messages:
   _day: "処刑したい人に投票してください"
   Waiting: "希望する役職を選択してください"
-  _Werewolf: "襲撃する相手を選択してください"
   WolfDiviner: "占う相手を選択してください"
   GreedyWolf: "今晩欲張る場合は選択してください"
   Diviner: "占う相手を選択してください"
@@ -103,6 +102,11 @@ GameMaster:
   time: "時間延長/短縮"
   longer: "{{count}}秒延長"
   shorter: "{{count}}秒短縮"
+
+# Texts for _Werewolf form.
+_Werewolf:
+  description: "襲撃する相手を選択してください"
+  remains: "残り襲撃可能数：{{count}}"
 
 # Texts for Merchant form.
 Merchant:

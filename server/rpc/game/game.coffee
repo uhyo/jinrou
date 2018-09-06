@@ -3229,6 +3229,9 @@ class Werewolf extends Player
                     options: @makeJobSelection game
                     formType: FormType.required
                     objid: @objid
+                    # 襲撃可能人数のデータ
+                    data:
+                        remains: game.werewolf_target_remain
                 }
             # 人狼の場合は役職固有のやつは一旦閉じる
             result.open = result.open.filter (x)=> x != @type

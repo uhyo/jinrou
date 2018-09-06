@@ -5,11 +5,11 @@ import { TranslationFunction } from 'i18next';
 /**
  * Props to form content renderer.
  */
-export interface FormContentProps {
+export interface FormContentProps<FormType extends string = string> {
   /**
    * Definition of this form.
    */
-  form: FormDesc;
+  form: FormDesc & { type: FormType };
   t: TranslationFunction;
   /**
    * Function to render list of options.

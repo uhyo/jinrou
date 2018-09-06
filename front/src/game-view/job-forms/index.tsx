@@ -1,5 +1,4 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import { FormDesc } from '../defs';
 import { I18n, TranslationFunction } from '../../i18n';
 
@@ -18,6 +17,7 @@ import {
   FormTypeWrapper,
 } from './elements';
 import { FormContentProps } from './defs';
+import { makeWerewolfForm } from './werewolf';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -187,6 +187,10 @@ function makeSpecialContent(props: FormContentProps) {
     }
     case 'Witch': {
       otherContents = makeWitchForm(props);
+      break;
+    }
+    case '_Werewolf': {
+      otherContents = makeWerewolfForm(props as FormContentProps<'_Werewolf'>);
       break;
     }
     default: {

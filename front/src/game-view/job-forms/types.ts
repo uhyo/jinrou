@@ -20,7 +20,12 @@ export const specialNamedTypes = [
 /**
  * Type of forms which has special content of form.
  */
-export const specialContentTypes = ['GameMaster', 'Merchant', 'Witch'];
+export const specialContentTypes = [
+  'GameMaster',
+  'Merchant',
+  'Witch',
+  '_Werewolf',
+];
 
 /**
  * Convert a form type into type of jobs.
