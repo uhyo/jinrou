@@ -114,6 +114,7 @@ jobname:
   Idol: "アイドル"
   XianFox: "仙狐"
   LurkingMad: "暗躍者"
+  SnowLover: "雪女"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -687,6 +688,8 @@ EyesWolf:
     holy: "{{name}}への襲撃は聖なる力に阻まれました。"
     # Guard by a trap
     trap: "{{name}}への襲撃は罠に阻まれました。"
+    # Guard by a SnowLover
+    snow: "{{name}}への襲撃は雪の力に阻まれました。"
 
 TongueWolf:
   # Result of TongueWolf skill.
@@ -707,6 +710,12 @@ XianFox:
   select: "{{name}}は{{target}}の役職を透視しました。"
   # Result of skill (announced to everyone).
   result: "昨晩の仙狐による透視の結果は{{result}}でした。"
+
+SnowLover:
+  # Select a target.
+  select: "{{name}}は{{target}}に求愛しました。"
+  # Become a lover.
+  become: "{{name}}は求愛されて恋人になりました。"
 
 GameMaster:
   # Failed to revive.

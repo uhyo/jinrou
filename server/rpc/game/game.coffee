@@ -121,6 +121,8 @@ GuardReason =
     holy: 'holy'
     # 罠
     trap: 'trap'
+    # 雪女
+    snow: 'snow'
 # Type of open forms.
 FormType =
     # 必須
@@ -7931,6 +7933,71 @@ class LurkingMad extends Madman
     type: "LurkingMad"
     isWerewolfVisible:-> true
 
+class SnowLover extends Player
+    type: "SnowLover"
+    team: "Friend"
+    formType: FormType.required
+    sleeping:(game)-> @flag || @target?
+    sunset:(game)->
+        unless @flag?
+            # まだ求愛していない
+            if @scapegoat
+                # 身代わりくんは求愛しない
+                @setFlag true
+                @setTarget ""
+            else
+                @setTarget null
+    job:(game, playerid, query)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game,@id
+
+        @setTarget playerid
+        @setFlag true
+
+        # 自分を恋人にする
+        mytop = game.getPlayer @id
+        newpl = Player.factory null, game, mytop, null, Friend
+        mytop.transProfile newpl
+        mytop.transferData newpl
+        newpl.cmplFlag = playerid
+        mytop.transform game, newpl, true
+        # 相手を恋人にする
+        newpl1 = Player.factory null, game, pl, null, Friend
+        pl.transProfile newpl1
+        pl.transferData newpl1
+        newpl1.cmplFlag = @id
+        # さらに雪で守る
+        newpl2 = Player.factory null, game, newpl1, null, SnowGuarded
+        newpl1.transProfile newpl2
+        newpl1.transferData newpl2
+        newpl2.cmplFlag = @id
+        pl.transform game, newpl2, true
+
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:SnowLover.select", {name: @name, target: newpl2.name}
+        splashlog game.id,game,log
+        log=
+            mode:"skill"
+            to:newpl2.id
+            comment: game.i18n.t "roles:SnowLover.become", {name: newpl2.name}
+        splashlog game.id,game,log
+        # 2人とも更新する
+        game.splashjobinfo [newpl, newpl2]
+
+        null
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -9032,6 +9099,22 @@ class FanOfIdol extends Complex
         pl = game.getPlayer @cmplFlag
         result.fanof = pl?.publicinfo()
 
+# 雪女に守られた人
+class SnowGuarded extends Complex
+    # cmplFlag: 護衛元
+    cmplType:"SnowGuarded"
+    die:(game, found, from)->
+        # 一回耐える 死なない代わりに元に戻る
+        unless found in ["werewolf", "vampire"]
+            @mcall game, @main.die, game, found. from
+        else
+            # 襲撃に1回耐える
+            game.getPlayer(@cmplFlag).addGamelog game,"snowGJ", found, @id
+            if found == "werewolf"
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
+
+            @uncomplex game
+
 
 # 決定者
 class Decider extends Complex
@@ -9373,6 +9456,7 @@ jobs=
     Idol:Idol
     XianFox:XianFox
     LurkingMad:LurkingMad
+    SnowLover:SnowLover
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -9413,6 +9497,7 @@ complexes=
     Chemical:Chemical
     PumpkinCostumed:PumpkinCostumed
     FanOfIdol:FanOfIdol
+    SnowGuarded:SnowGuarded
 
     # 役職ごとの強さ
 jobStrength=
@@ -9527,6 +9612,7 @@ jobStrength=
     Idol:12
     XianFox:35
     LurkingMad:9
+    SnowLover:30
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -9885,35 +9971,44 @@ module.exports.actions=(req,res,ss)->
                             if Math.random()<0.1 && !nonavs.Cupid
                                 joblist.Cupid++
                                 frees--
-                            else if Math.random()<0.09 && !nonavs.Lover
+                            else if Math.random()<0.04 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.07 && !nonavs.BadLady
+                            else if Math.random()<0.06 && !nonavs.SnowLover
+                                joblist.SnowLover++
+                                frees--
+                            else if Math.random()<0.06 && !nonavs.BadLady
                                 joblist.BadLady++
                                 frees--
                         else if 12>=playersnumber>=8
-                            if Math.random()<0.085 && !nonavs.Lover
+                            if Math.random()<0.06 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.03 && !nonavs.Cupid
+                            else if Math.random()<0.035 && !nonavs.SnowLover
+                                joblist.SnowLover++
+                                frees--
+                            else if Math.random()<0.015 && !nonavs.Cupid
                                 joblist.Cupid++
                                 frees--
                         else if playersnumber>=17
                             rval = 1
                             while Math.random() < rval
-                                if Math.random()<0.14 && !nonavs.Cupid
+                                if Math.random()<0.13 && !nonavs.Cupid
                                     joblist.Cupid++
                                     frees--
-                                else if Math.random()<0.12 && !nonavs.Lover
+                                else if Math.random()<0.08 && !nonavs.Lover
                                     joblist.Lover++
                                     frees--
-                                else if Math.random()<0.1 && !nonavs.BadLady
+                                else if Math.random()<0.09 && !nonavs.SnowLover
+                                    joblist.SnowLover++
+                                    frees--
+                                else if Math.random()<0.06 && !nonavs.BadLady
                                     joblist.BadLady++
                                     frees--
                                 else
                                     break
                                 rval *= 0.6
-                    exceptions.push "Cupid", "Lover", "BadLady", "Patissiere"
+                    exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover"
 
                 # 占い確定
                 if safety.teams || safety.jobs
@@ -10629,72 +10724,76 @@ module.exports.actions=(req,res,ss)->
             res {error: game.i18n.t "error.common.alreadyFinished"}
             return
 
-        plobj = player.accessByObjid query.objid
-        unless plobj?
-            res {error: game.i18n.t "common:error.invalidInput"}
-            return
-        # check whether this query is valid.
-        if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
-            # 夜
-            unless plobj.checkJobValidity game,query
-                res {error: game.i18n.t "error.job.invalid"}
+        try
+            plobj = player.accessByObjid query.objid
+            unless plobj?
+                res {error: game.i18n.t "common:error.invalidInput"}
                 return
-            # Error-check whether his job is already done.
-            jdone =
-                if game.phase == Phase.hunter
-                    plobj.hunterJobdone(game)
-                else if player.dead
-                    plobj.deadJobdone(game)
-                else
-                    plobj.jobdone(game)
-            if jdone
-                res {error: game.i18n.t "error.job.done"}
-                return
-            # Error-check for jobtype
-            unless plobj.isMainJobType query.jobtype
-                res {error: game.i18n.t "error.job.invalid"}
-                return
-            # Other error message caused by the job
-            if ret=plobj.job game,query.target,query
-                console.log "job err!",ret
-                res {error:ret}
-                return
-            # 能力発動を記録
-            game.addGamelog {
-                id:player.id
-                type:query.jobtype
-                target:query.target
-                event:"job"
-            }
+            # check whether this query is valid.
+            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
+                # 夜
+                unless plobj.checkJobValidity game,query
+                    res {error: game.i18n.t "error.job.invalid"}
+                    return
+                # Error-check whether his job is already done.
+                jdone =
+                    if game.phase == Phase.hunter
+                        plobj.hunterJobdone(game)
+                    else if player.dead
+                        plobj.deadJobdone(game)
+                    else
+                        plobj.jobdone(game)
+                if jdone
+                    res {error: game.i18n.t "error.job.done"}
+                    return
+                # Error-check for jobtype
+                unless plobj.isMainJobType query.jobtype
+                    res {error: game.i18n.t "error.job.invalid"}
+                    return
+                # Other error message caused by the job
+                if ret=plobj.job game,query.target,query
+                    console.log "job err!",ret
+                    res {error:ret}
+                    return
+                # 能力発動を記録
+                game.addGamelog {
+                    id:player.id
+                    type:query.jobtype
+                    target:query.target
+                    event:"job"
+                }
 
-            res makejobinfo game,player
-            if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter
-                # 能力をすべて発動したかどうかチェック
-                game.checkjobs()
-        else
-            # 投票
-            # voting is done against main player.
-            unless player.checkJobValidity game,query
-                res {error: game.i18n.t "error.voting.noTarget"}
-                return
-            if game.rule.voting > 0 && game.phase == Phase.day
-                # 投票専用時間ではない
-                res {error: game.i18n.t "error.voting.notNow"}
-                return
-            err=player.dovote game,query.target
-            if err?
-                res {error:err}
-                return
-            #player.dovote query.target
-            # 投票が終わったかチェック
-            game.addGamelog {
-                id:player.id
-                type:player.type
-                target:query.target
-                event:"vote"
-            }
-            res makejobinfo game,player
-            game.execute()
+                res makejobinfo game,player
+                if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter
+                    # 能力をすべて発動したかどうかチェック
+                    game.checkjobs()
+            else
+                # 投票
+                # voting is done against main player.
+                unless player.checkJobValidity game,query
+                    res {error: game.i18n.t "error.voting.noTarget"}
+                    return
+                if game.rule.voting > 0 && game.phase == Phase.day
+                    # 投票専用時間ではない
+                    res {error: game.i18n.t "error.voting.notNow"}
+                    return
+                err=player.dovote game,query.target
+                if err?
+                    res {error:err}
+                    return
+                #player.dovote query.target
+                # 投票が終わったかチェック
+                game.addGamelog {
+                    id:player.id
+                    type:player.type
+                    target:query.target
+                    event:"vote"
+                }
+                res makejobinfo game,player
+                game.execute()
+        catch e
+            console.error e
+            res {error: String e}
     #遺言
     will:(roomid,will)->
         game=games[roomid]

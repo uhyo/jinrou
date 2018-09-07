@@ -92,6 +92,7 @@ messages:
   MadHunter: "銃撃する対象を選択してください"
   Idol: "ファンにする人を選択してください"
   XianFox: "透視する対象を選択してください"
+  SnowLover: "恋人にする相手を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.
