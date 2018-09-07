@@ -9164,7 +9164,7 @@ class SnowGuarded extends Complex
     die:(game, found, from)->
         # 一回耐える 死なない代わりに元に戻る
         unless found in ["werewolf", "vampire"]
-            @mcall game, @main.die, game, found. from
+            @mcall game, @main.die, game, found, from
         else
             # 襲撃に1回耐える
             game.getPlayer(@cmplFlag).addGamelog game,"snowGJ", found, @id
