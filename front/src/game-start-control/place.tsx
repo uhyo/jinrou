@@ -84,6 +84,7 @@ export function place({
         sessionStorage[sessionStorageRuleKey],
         castingId => findCastingDefinition(castings, castingId) || null,
       );
+      sessionStorage.removeItem(sessionStorageRuleKey);
     } else {
       loadSavedRules(castings, categories, roles, store);
     }
@@ -91,6 +92,19 @@ export function place({
 
   // XXX ad-hoc but exclude hidden roles.
   const cs = excludeHiddenRoles(categories, roles);
+
+  // Set unload event to save current settings on reload.
+  const unloadHandler = () => {
+    const serializedRule = store.serializedRule;
+    sessionStorage[sessionStorageRuleKey] = serializedRule;
+  };
+  window.addEventListener('unload', unloadHandler);
+
+  // make start handler.
+  const startHandler = (query: Record<string, string>) => {
+    window.removeEventListener('unload', unloadHandler);
+    onStart(query);
+  };
 
   const com = (
     <Casting
@@ -100,18 +114,11 @@ export function place({
       castings={castings}
       categories={cs}
       ruledefs={rules}
-      onStart={onStart}
+      onStart={startHandler}
     />
   );
 
   ReactDOM.render(com, node);
-
-  // Set unload event to save current settings on reload.
-  const unloadHandler = () => {
-    const serializedRule = store.serializedRule;
-    sessionStorage[sessionStorageRuleKey] = serializedRule;
-  };
-  window.addEventListener('unload', unloadHandler);
 
   return {
     store,
