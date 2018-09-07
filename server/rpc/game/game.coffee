@@ -10366,6 +10366,15 @@ module.exports.actions=(req,res,ss)->
                                     # 2人いるとうるさい
                                     if joblist.SpiritPossessed > 0
                                         continue
+                                when "Raven"
+                                    # 鴉は最低2人セット
+                                    if joblist.Raven == 0
+                                        unless init "Raven","Others"
+                                            continue
+                                        if playersnumber >= 16
+                                            # 16人以上だと3人セットにしちゃう
+                                            init "Raven", "Others"
+
 
                         joblist[job]++
                         # ひとつ追加
