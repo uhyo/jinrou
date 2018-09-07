@@ -1295,6 +1295,7 @@ exports.new_rules=[
         label:
             id: 'couple'
             visible:(rule)->
+                console.log 'rule!', rule
                 return true if isYaminabe rule
                 return rule.jobNumbers.Couple>0 || rule.jobNumbers.MadCouple>0
         items:[
@@ -1542,4 +1543,10 @@ exports.jobinfos=[
 ]
 
 # 判定
-isYaminabe=(rule)-> (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+isYaminabe=(rule)->
+   if (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+       return true
+   if rule.rules.get("yaminabe_hidejobs") != ""
+       # 役職が隠されている場合もtrue
+       return true
+   return false
