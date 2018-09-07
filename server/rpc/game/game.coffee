@@ -10517,7 +10517,7 @@ module.exports.actions=(req,res,ss)->
                         continue if num==0
                         if obj[job]?
                             # この陣営だ
-                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult"]
+                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult", "Raven"]
                                 # count as その他
                                 teamcount["Others"] += num
                             else
