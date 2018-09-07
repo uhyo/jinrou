@@ -22,6 +22,8 @@ const peers: Array<keyof RolePeersInfo> = [
   'cultmembers',
   'vampires',
   'twins',
+  'myfans',
+  'ravens',
 ];
 /**
  * Keys of RoleOtherPlayerINfo for use in JobInfo.
@@ -29,6 +31,7 @@ const peers: Array<keyof RolePeersInfo> = [
 const otherPlayerKeys: Array<keyof RoleOtherPlayerInfo> = [
   'stalking',
   'dogOwner',
+  'fanof',
 ];
 
 export interface IPropJobInfo extends RoleInfo {}

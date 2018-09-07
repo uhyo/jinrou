@@ -1984,6 +1984,13 @@ class Game
                 # 妖狐判定
                 if @players.some((x)->!x.dead && x.isFox())
                     team="Fox"
+                # 鴉判定
+                ravenn = @players.filter((x)-> x.isJobType "Raven").length
+                if ravenn >= 2
+                    # 鴉陣営勝利の可能性
+                    aliveRavens = @players.filter((x)-> x.isJobType("Raven") && !x.dead).length
+                    if aliveRavens == 1
+                        team = "Raven"
                 # 恋人判定
                 if @players.some((x)->x.isFriend())
                     # 終了時に恋人生存
@@ -2100,6 +2107,8 @@ class Game
                     [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
                 when "Fox"
                     [@i18n.t("judge.fox"),@i18n.t("judge.short.fox")]
+                when "Raven"
+                    [@i18n.t("judge.raven"),@i18n.t("judge.short.raven")]
                 when "Devil"
                     [@i18n.t("judge.devil"),@i18n.t("judge.short.devil")]
                 when "Friend"
@@ -7997,6 +8006,55 @@ class SnowLover extends Player
 
         null
 
+class Raven extends Player
+    type: "Raven"
+    team: "Raven"
+    constructor:->
+        super
+        @setFlag null
+    isWinner:(game, team)->
+        ravens = game.players.filter (x)-> x.isJobType "Raven"
+        if ravens.length > 1
+            # 鴉勝利かつ生存
+            team == @team && !@dead
+        else
+            # 単独の場合は生存でOK
+            !@dead
+    sunrise:(game)->
+
+        # もうログを出していたらやめる
+        return if @flag
+
+        # 最初の1人がログを管理する
+        ravens = game.players.filter (x)-> x.isJobType "Raven"
+        firstRaven = ravens[0]
+        return unless firstRaven?.id == @id
+
+        # ケミカルで鴉が複数いる場合の対策
+        objs = firstRaven.accessByJobTypeAll "Raven"
+        return unless objs[0]?.objid == @objid
+
+        # 鴉の生存数を数える
+        alives = ravens.filter((x)-> !x.dead).length
+        if alives <= 1
+            # 鴉が残り1人以下なのでログを出す
+            if ravens.length > 1
+                # ただしもともと1人の場合は静かにしている
+                log=
+                    mode: "system"
+                    comment: game.i18n.t "roles:Raven.message"
+                splashlog game.id, game, log
+            # ログ出し終わったフラグ
+            @setFlag true
+    deadsunrise:(game)->
+        @sunrise game
+    makejobinfo:(game, result)->
+        # 鴉の一覧を知ることができる
+        super
+        result.ravens =
+            game.players.filter((x)-> x.isJobType "Raven").map (x)->
+                x.publicinfo()
+
 
 # ============================
 # 処理上便宜的に使用
@@ -9234,6 +9292,8 @@ class Chemical extends Complex
             myt = "Cult"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
+        else if maint=="Raven" || subt=="Raven"
+            myt = "Raven"
         else if maint=="Fox" || subt=="Fox"
             myt = "Fox"
         else if maint=="Vampire" || subt=="Vampire"
@@ -9457,6 +9517,7 @@ jobs=
     XianFox:XianFox
     LurkingMad:LurkingMad
     SnowLover:SnowLover
+    Raven:Raven
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

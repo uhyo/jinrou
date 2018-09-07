@@ -264,6 +264,9 @@ exports.start=(roomid)->
                             supporting: obj.supporting
                             dogOwner: obj.dogOwner
                             twins: obj.twins
+                            myfans: obj.myfans
+                            fanof: obj.fanof
+                            ravens: obj.ravens
                         }
                     else
                         null

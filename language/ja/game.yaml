@@ -223,6 +223,7 @@ judge:
   cult: "村はカルトに支配されました。"
   vampire: "ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去っていった……"
   lonewolf: "人狼は最後の村人を喰い殺すと次の獲物を求めて独り去っていくのだった……"
+  raven: "村は鴉に支配されました。"
   draw: "引き分けになりました。"
   # short summary
   short:
@@ -234,6 +235,7 @@ judge:
     cult: "カルトリーダー勝利"
     vampire: "ヴァンパイア陣営勝利"
     lonewolf: "一匹狼勝利"
+    raven: "鴉勝利"
 
 
 # Terms for quantum werewolf

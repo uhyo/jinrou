@@ -63,14 +63,16 @@ export type RolePeersInfo = Record<
   | 'friends'
   | 'cultmembers'
   | 'vampires'
-  | 'twins',
+  | 'twins'
+  | 'myfans'
+  | 'ravens',
   PublicPlayerInfo[] | undefined
 >;
 /**
  * Part of RoleInfo which consists of information of one other player.
  */
 export type RoleOtherPlayerInfo = Record<
-  'stalking' | 'dogOwner',
+  'stalking' | 'dogOwner' | 'fanof',
   PublicPlayerInfo | undefined
 >;
 

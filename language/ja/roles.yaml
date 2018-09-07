@@ -115,6 +115,7 @@ jobname:
   XianFox: "仙狐"
   LurkingMad: "暗躍者"
   SnowLover: "雪女"
+  Raven: "鴉"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -140,6 +141,7 @@ teamName:
   Devil: "悪魔くん"
   Vampire: "ヴァンパイア陣営"
   Cult: "カルトリーダー陣営"
+  Raven: "鴉陣営"
   Neet: "ニート"
   Others: "その他"
 
@@ -716,6 +718,10 @@ SnowLover:
   select: "{{name}}は{{target}}に求愛しました。"
   # Become a lover.
   become: "{{name}}は求愛されて恋人になりました。"
+
+Raven:
+  # message when 1 or less Ravens are alive.
+  message: "鴉がカァと鳴く声が村に響きました。"
 
 GameMaster:
   # Failed to revive.

@@ -49,7 +49,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # わんないと人狼
 "Phantom",
 # 月夜の人狼
-"DrawGirl","CautiousWolf","SnowLover",
+"DrawGirl","CautiousWolf","SnowLover","Raven",
 # 人狼HOUSE
 "Hypnotist",
 # 人狼ジャッジメント
@@ -75,6 +75,7 @@ exports.teams=teams=
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover"]
     Vampire:["Vampire"]
     Cult:["CultLeader"]
+    Raven:["Raven"]
     Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
     Neet:["Neet"]
 
@@ -86,7 +87,7 @@ exports.categories=
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
-    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover","Raven"]
 
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
 normal1=(number)->
@@ -859,6 +860,10 @@ exports.jobinfo=
         color: "#b09d87"
         CultLeader:
             color:"#b09d87"
+    Raven:
+        color: "#444466"
+        Raven:
+            color: "#444466"
     Others:
         color:"#cccccc"
         Bat:
@@ -1530,6 +1535,9 @@ exports.jobinfos=[
     }
     {
         name:"fanof"
+    }
+    {
+        name:"ravens"
     }
 ]
 

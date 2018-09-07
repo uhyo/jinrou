@@ -81,10 +81,13 @@ jobinfo:
     cultmembers: "カルトの信者は{{names}}です"
     vampires: "ヴァンパイアは{{names}}です"
     twins: "双子は{{names}}です"
+    myfans: "ファンは{{names}}です"
+    ravens: "鴉は{{names}}です"
     stalking: "あなたは{{name}}のストーカーです"
     supporting: "あなたは{{name}}（{{job}}）をサポートしています"
     dogOwner: "あなたの飼い主は{{name}}です"
     quantumwerewolfNumber: "あなたのプレイヤー番号は{{number}}です"
+    fanof: "あなたは{{name}}のファンです"
 
 
 # game-view: speak form.
