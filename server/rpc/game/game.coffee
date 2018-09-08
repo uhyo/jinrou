@@ -10023,19 +10023,24 @@ module.exports.actions=(req,res,ss)->
                         addCategoryToExceptions "Human"
 
                     # 妖狐陣営
-                    if frees>0 && joblist.Fox>0
-                        if joblist.Fox==1
+                    if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0)
+                        if joblist.Fox + joblist.TinyFox + joblist.XianFox == 1
                             if playersnumber>=14
                                 # 1人くらいは…
                                 if Math.random()<0.25 && !nonavs.Immoral
                                     joblist.Immoral++
                                     frees--
+                                if playersnumber <= 17
+                                    exceptions.push "Immoral"
                             else
                                 # サプライズ的に…
                                 if Math.random()<0.06 && !nonavs.Immoral
                                     joblist.Immoral++
                                     frees--
-                        # 背徳者系
+                                exceptions.push "Immoral"
+                        else if playersnumber <= 17
+                            exceptions.push "Immoral"
+                    else
                         exceptions.push "Immoral"
                     # 恋人陣営
                     if frees>0
