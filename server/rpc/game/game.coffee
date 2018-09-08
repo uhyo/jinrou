@@ -7107,6 +7107,7 @@ class GotChocolate extends Player
                 if topl?
                     newpl = Player.factory "Stalker", game
                     top.transProfile newpl
+                    top.transferData newpl
                     # ストーカー先
                     newpl.setFlag re[1]
                     top.transform game, newpl, true
