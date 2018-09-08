@@ -9685,6 +9685,7 @@ jobStrength=
     XianFox:35
     LurkingMad:9
     SnowLover:30
+    Raven:18
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
