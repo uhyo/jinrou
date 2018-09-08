@@ -10825,6 +10825,9 @@ module.exports.actions=(req,res,ss)->
                     console.log "job err!",ret
                     res {error:ret}
                     return
+
+                # プレイヤーを再読込
+                player=game.getPlayerReal req.session.userId
                 # 能力発動を記録
                 game.addGamelog {
                     id:player.id
