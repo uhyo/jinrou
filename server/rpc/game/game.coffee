@@ -6784,7 +6784,10 @@ class Bomber extends Madman
             return
         newpl=Player.factory null, game, pl,null,BombTrapped
         pl.transProfile newpl
-        newpl.cmplFlag=@id  # 護衛元cmplFlag
+        newpl.cmplFlag = {
+            used: false #爆弾が爆発したかどうか
+            bomber: @id # 護衛元
+        }
         pl.transform game,newpl,true
 
         @addGamelog game,"bomber_set",pl.type,@target
@@ -8960,11 +8963,12 @@ class BombTrapped extends Complex
         result=@checkGuard game,wholepl
         if result
             # 狩人がいた!（罠も無効）
-            @uncomplex game
+            @cmplFlag.used = true
     # bomb would explode for only once
     deadsunrise:(game)->
         super
-        @uncomplex game
+        if @cmplFlag.used
+            @uncomplex game
     # midnight処理用
     checkGuard:(game,pl)->
         return false unless pl.isComplex()
@@ -8982,7 +8986,7 @@ class BombTrapped extends Complex
             # cmplFlag: 護衛元の狩人
             gu=game.getPlayer pl.cmplFlag
             if gu?
-                tr = game.getPlayer @cmplFlag   #爆弾魔
+                tr = game.getPlayer @cmplFlag.bomber   #爆弾魔
                 if tr?
                     tr.addGamelog game,"bombTrappedGuard",null,@id
                 # 護衛元が死ぬ
@@ -9009,6 +9013,8 @@ class BombTrapped extends Complex
                     if pl?
                         pl.die game,"trap"
                         @addGamelog game,"bombkill",null,pl.id
+                        # 爆弾使用済
+                        @cmplFlag.used = true
         else if found in ["werewolf","vampire"]
             # 狼に噛まれた場合は襲撃者を巻き添えにする
             bomber=game.getPlayer @cmplFlag
@@ -9019,6 +9025,9 @@ class BombTrapped extends Complex
             if wl?
                 wl.die game,"trap"
                 @addGamelog game,"bombkill",null,wl.id
+                # 爆弾使用済
+                @cmplFlag.used = true
+
         # 自分もちゃんと死ぬ
         @mcall game,@main.die,game,found,from
 
