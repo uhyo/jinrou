@@ -8525,7 +8525,7 @@ class Friend extends Complex    # 恋人
             @die game,"friendsuicide"
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result
+        @main.makejobinfo game, result
         # 恋人が分かる
         result.desc?.push {
             name: game.i18n.t "roles:Friend.name"
@@ -8781,7 +8781,7 @@ class Counseled extends Complex
     isWinner:(game,team)->@getTeam()==team
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result
+        @main.makejobinfo game, result
         result.desc?.push {
             name: @game.i18n.t "roles:Counseled.name"
             type:"Counseled"
@@ -8907,7 +8907,7 @@ class KeepedLover extends Complex    # 悪女に手玉にとられた（見た�
 
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result
+        @main.makejobinfo game, result
         # 恋人が分かる
         result.desc?.push {
             name: game.i18n.t "roles:KeepedLover.fakeName"
@@ -9061,7 +9061,7 @@ class GotChocolateTrue extends Friend
     makejobinfo:(game,result)->
         # 恋人情報はでない
         @sub?.makejobinfo? game,result
-        @mcall game,@main.makejobinfo,game,result
+        @main.makejobinfo game, result
 # 本命ではない
 class GotChocolateFalse extends Complex
     cmplType:"GotChocolateFalse"
@@ -9145,7 +9145,7 @@ class FanOfIdol extends Complex
         super
     makejobinfo:(game, result)->
         @sub?.makejobinfo? game, result
-        @mcall game, @main.makejobinfo, game, result
+        @main.makejobinfo game, result
 
         # add description of fan.
         result.desc?.push {
