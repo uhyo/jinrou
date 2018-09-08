@@ -3160,6 +3160,7 @@ class Player
         newpl.scapegoat=@scapegoat
         newpl.setDead @dead,@found
         newpl.setNorevive @norevive
+        newpl.setWill @will
 
 
 
