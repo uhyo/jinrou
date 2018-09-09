@@ -2841,6 +2841,12 @@ class Player
         if @objid == objid
             return this
         return null
+    # access to all "main"-level player.
+    accessMainLevel:(subonly)->
+        if subonly
+            return []
+        else
+            return [this]
     gatherMidnightSort:->
         return [@midnightSort]
     # complexのJobTypeを調べる
@@ -3058,7 +3064,14 @@ class Player
         res = getSubParentAndMainChain befpl, this
         unless res?
             return
-        [topParent, complexChain, main] = res
+        [topParent, complexChain] = res
+        # 自分以下のchainを作る
+        res = constructMainChain this
+        unless res?
+            return
+        [complexChain2, main] = res
+        # チェインをひとつにまとめる
+        complexChain = complexChain.concat complexChain2
 
         if flag
             if complexChain.length > 0
@@ -3099,14 +3112,18 @@ class Player
             # This should never happen
             return
         @addGamelog game, "transform", newpl.type
-        [topParent, complexChain, main] = res
+        [topParent, complexChain] = res
         # If override flag is set, replaced pl is just newpl.
         # otherwise, reconstruct player object structure.
-        replacepl =
-            if override
-                newpl
-            else
-                Player.reconstruct complexChain, newpl, game
+        replacepl = null
+        if override
+            replacepl = newpl
+        else
+            res = constructMainChain this
+            unless res?
+                return
+            [complexChain2, main] = res
+            replacepl = Player.reconstruct [complexChain..., complexChain2...], newpl, game
         # replace old object with new one.
         if topParent?
             topParent.sub = replacepl
@@ -6151,10 +6168,14 @@ class ObstructiveMad extends Madman
         pl = game.getPlayer @target
         unless pl?
             return
-        newpl=Player.factory null, game, pl,null,DivineObstructed
-        pl.transProfile newpl
-        newpl.cmplFlag=@id  # 邪魔元cmplFlag
-        pl.transform game,newpl,true
+        pls = pl.accessMainLevel()
+        # すべてのメイン級役職に影響
+        for pl in pls
+            newpl=Player.factory null, game, pl,null,DivineObstructed
+            pl.transProfile newpl
+            newpl.cmplFlag=@id  # 邪魔元cmplFlag
+            pl.transform game,newpl,true
+            console.log 'obst', pl.type, game.getPlayer @target
         null
 class TroubleMaker extends Player
     type:"TroubleMaker"
@@ -8387,6 +8408,14 @@ class Complex
         if @sub?
             return @sub.accessByObjid objid
         return null
+    accessMainLevel:(subonly)->
+        result =
+            if subonly
+                []
+            else
+                [this]
+        result.push (@main.accessMainLevel true)...
+        result
     gatherMidnightSort:->
         mids=[@midnightSort]
         mids=mids.concat @main.gatherMidnightSort()
@@ -9249,6 +9278,17 @@ class Chemical extends Complex
     sleeping:(game)->@main.sleeping(game) && (!@sub? || @sub.sleeping(game))
     jobdone:(game)->@main.jobdone(game) && (!@sub? || @sub.jobdone(game))
     deadJobdone:(game)->@main.deadJobdone(game) && (!@sub? || @sub.deadJobdone(game))
+    accessMainLevel:(subonly)->
+        # ケミカルでは両方メイン級として扱う
+        result =
+            if subonly
+                []
+            else
+                [this]
+        result.push (@main.accessMainLevel true)...
+        if @sub?
+            result.push (@sub.accessMainLevel false)...
+        result
 
     isHuman:->
         if @sub?
@@ -11186,24 +11226,30 @@ searchPlayerInTree = (root, target)->
             stack.push [pl.main, pl, plTop, topParent]
     # Player was not found.
     return null
+# Construct a main chain from top and sub.
+# If target is null, make a complete chain.
+constructMainChain = (top, target)->
+    result = []
+    while top.isComplex() && (!target? || top != target)
+        result.push top
+        top = top.main
+    if !target? || top == target
+        # found a chain.
+        return [result, top]
+    return null
 # Dig Player structure to find main-chain and its parent.
 # If the main job is the target, parent would be null.
 getSubParentAndMainChain = (top, target)->
-    # construct a chain of Complexes from mainTop to target.
-    constructChain = (topParent)->
-        result = []
-        while topParent.isComplex()
-            result.push topParent
-            topParent = topParent.main
-        return [result, topParent]
-
     res = searchPlayerInTree top, target
     unless res?
         return null
     [_, chainTop, topParent] = res
     # construct a chain of Complexes.
-    [complexChain, main] = constructChain chainTop
-    return [topParent, complexChain, main]
+    res = constructMainChain chainTop, target
+    unless res?
+        return null
+    [complexChain, _] = res
+    return [topParent, complexChain]
 # List up all main roles in given player.
 getAllMainRoles = (top)->
     results = []
