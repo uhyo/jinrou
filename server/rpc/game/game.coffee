@@ -6277,7 +6277,9 @@ class BloodyMary extends Player
                 # 変わった!
                 before = game.i18n.t "roles:BloodyMary.mary"
                 after = game.i18n.t "roles:jobname.BloodyMary"
-                @setOriginalJobname @originalJobname.replace(after,before).replace(before,after)
+                top = game.getPlayer @id
+                if top?
+                    top.setOriginalJobname top.originalJobname.replace(after,before).replace(before,after)
         super
     sunset:(game)->
         @setTarget null
@@ -6304,6 +6306,13 @@ class BloodyMary extends Player
         pl.die game,"marycurse",@id
     # 蘇生できない
     revive:->
+    getTeam:->
+        if @flag == "punish"
+            # 処刑されたので人狼陣営
+            "Werewolf"
+        else
+            # 他は村人陣営
+            "Human"
     isWinner:(game,team)->
         if @flag=="punish"
             team in ["Werewolf","LoneWolf"]
