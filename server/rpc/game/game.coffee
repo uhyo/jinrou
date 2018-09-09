@@ -4924,12 +4924,21 @@ class Witch extends Player
             pl.die game,"witch"
 class Oldman extends Player
     type:"Oldman"
-    midnight:(game,midnightSort)->
-        # 夜の終わり
+    beforebury:(game, type)->
+        # 老衰は朝になったタイミングのみ
+        return unless type == "day"
+
+        if "number" == typeof @flag && game.day <= @flag
+            # もう今日の老衰処理は終わった
+            return
+
+        # 人狼を数える
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
-        if wolves.length*2<=game.day
+        if wolves.length*2 < game.day
             # 寿命
             @die game,"infirm"
+        # 今日の処理はおわり
+        @setFlag game.day
 class Tanner extends Player
     type:"Tanner"
     team:""
