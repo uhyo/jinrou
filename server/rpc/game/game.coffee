@@ -5636,6 +5636,19 @@ class QuantumPlayer extends Player
         else
             # よくわからないぞ!
             false
+    getTeamDisp:->
+        flag = JSON.parse @flag
+        unless flag?
+            # ???
+            return ""
+        if flag.Werewolf == 1
+            # 人狼に確定しているので人狼陣営
+            return "Werewolf"
+        if flag.Werewolf == 0
+            # 人狼でないことが確定しているので村人陣営
+            return "Human"
+        # 未確定なのでなし
+        return ""
     makejobinfo:(game,result)->
         super
         # QuantumPlayer has custom forms
@@ -8674,6 +8687,7 @@ class Muted extends Complex
 class WolfMinion extends Complex
     cmplType:"WolfMinion"
     getTeam:->"Werewolf"
+    getTeamDisp:-> "Werewolf"
     getJobname:-> @game.i18n.t "roles:WolfMinion.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:WolfMinion.jobname", {jobname: @main.getJobDisp()}
     makejobinfo:(game,result)->
@@ -8827,6 +8841,7 @@ class Lycanized extends Complex
 class Counseled extends Complex
     cmplType:"Counseled"
     getTeam:-> "Human"
+    getTeamDisp:-> "Human"
     getJobname:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:Counseled.jobname", {jobname: @main.getJobDisp()}
 
