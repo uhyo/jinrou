@@ -3751,9 +3751,9 @@ class WolfDiviner extends Werewolf
             @showdivineresult game
     midnight:(game,midnightSort)->
         super
-        @divineeffect game
         unless game.rule.divineresult=="immediate"
             @dodivine game
+        @divineeffect game
     #占った影響を与える
     divineeffect:(game)->
         p=game.getPlayer @flag.target
