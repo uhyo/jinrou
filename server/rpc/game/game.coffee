@@ -9397,10 +9397,14 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "" || maint == "Devil"
+        if maint == myt || maint == "Devil"
             win = win || @main.isWinner(game,team)
-        if subt == myt || subt == "" || subt == "Devil"
+        # if it has team-independent winningness, adopt it.
+        win = win || @main.isWinner(game, "")
+        if subt == myt || subt == "Devil"
             win = win || @sub.isWinner(game,team)
+        if @sub?
+            win = win || @sub.isWinner(game, "")
         return win
     isWinnerStalk:(game,team,ids)->
         if @id in ids
