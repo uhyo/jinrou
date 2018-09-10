@@ -3751,17 +3751,42 @@ class WolfDiviner extends Werewolf
             @showdivineresult game
     midnight:(game,midnightSort)->
         super
-        @divineeffect game
         unless game.rule.divineresult=="immediate"
             @dodivine game
+        @divineeffect game
     #占った影響を与える
     divineeffect:(game)->
         p=game.getPlayer @flag.target
         if p?
+            # 占いの影響を受ける
             p.divined game,this
+            # 占い師を占っていたら逆呪殺
             if p.isJobType "Diviner"
-                # 逆呪殺
                 @die game,"curse"
+        p=game.getPlayer @flag.target
+        # 狂人変化（死亡時は変化しない）
+        if p?.getTeam() == "Werewolf" && p.isHuman() && !p.dead
+            jobnames=Object.keys jobs
+            # inspect all target roles.
+            for targetpl in getAllMainRoles p
+                # check whether this target should change.
+                unless targetpl.getTeam()=="Werewolf" && targetpl.isHuman()
+                    continue
+                newjob=jobnames[Math.floor Math.random()*jobnames.length]
+                # convert this to new pl.
+                newpl = Player.factory newjob, game
+                targetpl.transProfile newpl
+                targetpl.transferData newpl
+
+                targetpl.transform game,newpl,false
+                log=
+                    mode:"skill"
+                    to:p.id
+                    comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
+                splashlog game.id,game,log
+            p=game.getPlayer @flag.target
+            p.sunset game
+
     showdivineresult:(game)->
         r=@flag.results[@flag.results.length-1]
         return unless r?
@@ -3781,6 +3806,7 @@ class WolfDiviner extends Werewolf
     dodivine:(game)->
         p=game.getPlayer @flag.target
         if p?
+            # 占い結果を記録
             @setFlag {
                 results: @flag.results.concat {
                     player: p.publicinfo()
@@ -3790,29 +3816,6 @@ class WolfDiviner extends Werewolf
                 target: @flag.target
             }
             @addGamelog game,"wolfdivine",null,@flag.target  # 占った
-            if p.getTeam()=="Werewolf" && p.isHuman()
-                # 狂人変化
-                jobnames=Object.keys jobs
-                # inspect all target roles.
-                for targetpl in getAllMainRoles p
-                    # check whether this target should change.
-                    unless targetpl.getTeam()=="Werewolf" && targetpl.isHuman()
-                        continue
-                    newjob=jobnames[Math.floor Math.random()*jobnames.length]
-                    # convert this to new pl.
-                    newpl = Player.factory newjob, game
-                    targetpl.transProfile newpl
-                    targetpl.transferData newpl
-
-                    targetpl.transform game,newpl,false
-                    log=
-                        mode:"skill"
-                        to:p.id
-                        comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
-                    splashlog game.id,game,log
-                p=game.getPlayer @flag.target
-                p.sunset game
-                game.splashjobinfo [game.getPlayer p.id]
     makejobinfo:(game,result)->
         super
         if Phase.isNight(game.phase)
