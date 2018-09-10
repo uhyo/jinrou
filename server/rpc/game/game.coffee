@@ -10345,9 +10345,17 @@ module.exports.actions=(req,res,ss)->
                     #wolf_teams=countCategory "Werewolf"
                     wolf_teams=0
                     frees=first_frees
+                    category = null
+                    job = null
                     while true
-                        category=null
-                        job=null
+                        if category?
+                            # 前のループで確保したものが残っていたら返す
+                            joblist[category]++
+                        else if job?
+                            # jobが決まったけど使われなかった
+                            frees++
+                        category = null
+                        job = null
                         #カテゴリ役職がまだあるか探す
                         for type,arr of Shared.game.categories
                             if joblist["category_#{type}"]>0
@@ -10357,9 +10365,12 @@ module.exports.actions=(req,res,ss)->
                                     r=Math.floor Math.random()*arr2.length
                                     job=arr2[r]
                                     category="category_#{type}"
+                                    # カテゴリを先に消費
+                                    joblist[category]--
                                     break
                                 else
                                     # これもう無理だわ
+                                    frees += joblist["category_#{type}"]
                                     joblist["category_#{type}"] = 0
                         unless job?
                             # もうカテゴリがない
@@ -10368,6 +10379,8 @@ module.exports.actions=(req,res,ss)->
                                 break
                             r=Math.floor Math.random()*possibility.length
                             job=possibility[r]
+                            # 一般枠を使ったのでfreesを消費
+                            frees--
                         if safety.teams && !category?
                             if job in Shared.game.teams.Werewolf
                                 if wolf_teams+1>=plsh
@@ -10474,14 +10487,17 @@ module.exports.actions=(req,res,ss)->
 
 
                         joblist[job]++
-                        # ひとつ追加
-                        if category?
-                            joblist[category]--
-                        else
-                            frees--
 
                         if safety.teams && (job in Shared.game.teams.Werewolf)
                             wolf_teams++    # 人狼陣営が増えた
+
+                        # ひとつ追加
+                        if category?
+                            # カテゴリの消費に成功した
+                            category = null
+                        # 追加に成功した
+                        job = null
+
                     # セーフティ超の場合判定が入る
                     if safety.strength
                         # ポイントを計算する
