@@ -3764,8 +3764,8 @@ class WolfDiviner extends Werewolf
             if p.isJobType "Diviner"
                 @die game,"curse"
         p=game.getPlayer @flag.target
-        # 狂人変化
-        if p?.getTeam() == "Werewolf" && p.isHuman()
+        # 狂人変化（死亡時は変化しない）
+        if p?.getTeam() == "Werewolf" && p.isHuman() && !p.dead
             jobnames=Object.keys jobs
             # inspect all target roles.
             for targetpl in getAllMainRoles p
