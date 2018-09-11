@@ -1777,6 +1777,9 @@ class Game
         #   "onemore" - まだ処刑するひとがいる場合
         if mode in ["revote", "gone"]
             @revote_num++
+        else if mode == "onemore"
+            # 再投票カウントを戻す
+            @revote_num = 0
         if @revote_num>=4   # 4回再投票
             @judge()
             return
