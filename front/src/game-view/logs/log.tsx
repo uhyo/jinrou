@@ -82,7 +82,7 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
                     <tr>
                       <th>{t('log.probabilityTable.name')}</th>
                       {rule &&
-                      rule.rules.get('uuantumwerewolf_diviner') === 'on' ? (
+                      rule.rules.get('quantumwerewolf_diviner') === 'on' ? (
                         // Show probability for Diviner and Human separately.
                         <>
                           {/* 村人 */}
