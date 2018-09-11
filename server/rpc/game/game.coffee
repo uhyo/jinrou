@@ -3067,9 +3067,9 @@ class Player
         res = getSubParentAndMainChain befpl, this
         unless res?
             return
-        [topParent, complexChain] = res
+        [topParent, complexChain, thisInTree] = res
         # 自分以下のchainを作る
-        res = constructMainChain this
+        res = constructMainChain thisInTree
         unless res?
             return
         [complexChain2, main] = res
@@ -3115,14 +3115,14 @@ class Player
             # This should never happen
             return
         @addGamelog game, "transform", newpl.type
-        [topParent, complexChain] = res
+        [topParent, complexChain, thisInTree] = res
         # If override flag is set, replaced pl is just newpl.
         # otherwise, reconstruct player object structure.
         replacepl = null
         if override
             replacepl = newpl
         else
-            res = constructMainChain this
+            res = constructMainChain thisInTree
             unless res?
                 return
             [complexChain2, main] = res
@@ -11250,16 +11250,29 @@ getrulestr = (i18n, rule, jobs={})->
 generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
 
+# Check equality of player object,
+# based on cmplId and objId
+playerEqualityById = (left, right)->
+    if left.isComplex()
+        # check based on cmplId.
+        return right.isComplex() && left.cmplId == right.cmplId
+    # otherwise, check using objid.
+    # check for right not being complex is necessary
+    # because its parent has same objid.
+    return !right.isComplex() && left.objid == right.objid
+
+
 # Search a specific object in Player structure.
-# Returns its parent, its top of main chain, and parent of the top.
+# Returns its parent, the top of its main chain, parent of the top,
+# and the target (in tree) itself.
 searchPlayerInTree = (root, target)->
     # perform depth-first search.
     stack = [[root, null, root, null]]
     while stack.length > 0
         [pl, plParent, plTop, topParent] = stack.pop()
-        if pl == target
+        if playerEqualityById(pl, target)
             # Target is found.
-            return [plParent, plTop, topParent]
+            return [plParent, plTop, topParent, pl]
         # otherwise, search its child,
         if pl.isComplex()
             if pl.sub?
@@ -11284,13 +11297,13 @@ getSubParentAndMainChain = (top, target)->
     res = searchPlayerInTree top, target
     unless res?
         return null
-    [_, chainTop, topParent] = res
+    [_, chainTop, topParent, targetInTree] = res
     # construct a chain of Complexes.
-    res = constructMainChain chainTop, target
+    res = constructMainChain chainTop, targetInTree
     unless res?
         return null
     [complexChain, _] = res
-    return [topParent, complexChain]
+    return [topParent, complexChain, targetInTree]
 # List up all main roles in given player.
 getAllMainRoles = (top)->
     results = []
