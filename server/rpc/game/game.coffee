@@ -2655,6 +2655,8 @@ class Player
             p.main=main
             p.sub=sub
             p.cmplFlag=null
+            # 固有のIDを与える
+            p.cmplId = generateObjId()
         else if !jobs[type]?
             p=new Player game
             p.objid = generateObjId()
@@ -2720,6 +2722,7 @@ class Player
                     newpl[ok]=cmpl[ok]
             ###
             newpl.cmplFlag=cmpl.cmplFlag
+            newpl.cmplId = cmpl.cmplId
             base=newpl
         base
 
