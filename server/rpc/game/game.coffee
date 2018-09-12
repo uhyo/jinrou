@@ -5106,6 +5106,7 @@ class Lover extends Player
 class MinionSelector extends Player
     type:"MinionSelector"
     team:"Werewolf"
+    midnightSort: 100
     formType: FormType.required
     sleeping:(game)->@target? || game.day>1 # 初日のみ
     sunset:(game)->
@@ -5127,22 +5128,28 @@ class MinionSelector extends Player
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
 
-        # 複合させる
-        newpl=Player.factory null, game, pl,null,WolfMinion    # WolfMinion
-        pl.transProfile newpl
-        pl.transform game,newpl,true
         log=
             mode:"wolfskill"
             comment: game.i18n.t "roles:MinionSelector.select", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
         splashlog game.id,game,log
 
+        null
+    midnight:(game)->
+        pl = game.getPlayer @target
+        unless pl?
+            return
+
+        # 狼の子分と複合させる
+        newpl=Player.factory null, game, pl,null,WolfMinion    # WolfMinion
+        pl.transProfile newpl
+        pl.transform game,newpl,true
+        # 変化を知らせる
         log=
             mode:"skill"
             to:pl.id
             comment: game.i18n.t "roles:MinionSelector.become", {name: pl.name}
         splashlog game.id,game,log
 
-        null
 # 盗人
 class Thief extends Player
     type:"Thief"
