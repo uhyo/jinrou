@@ -1027,6 +1027,7 @@ exports.new_rules=[
                     type:"time"
                     id: 'remain'
                     defaultValue: 120
+                    minValue: 60
             }
             {
                 type: 'item'

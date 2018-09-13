@@ -59,6 +59,7 @@ export interface CheckboxRule extends RuleDefinitionBase {
 export interface TimeRule extends RuleDefinitionBase {
   type: 'time';
   defaultValue: number;
+  minValue?: number;
 }
 
 export interface Separator {

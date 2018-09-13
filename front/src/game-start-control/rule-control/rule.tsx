@@ -249,9 +249,12 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
   }
   @bind
   protected handleChange() {
+    // calculate current value.
     const minutes = this.minutes ? Number(this.minutes.value) : 0;
     const seconds = this.seconds ? Number(this.seconds.value) : 0;
     const value = minutes * 60 + seconds;
-    this.props.onChange(String(value >= 0 ? value : 0));
+    // retrieve minimum value.
+    const minimum = this.props.item.minValue || 0;
+    this.props.onChange(String(value >= minimum ? value : minimum));
   }
 }

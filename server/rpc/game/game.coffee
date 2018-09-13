@@ -8179,7 +8179,7 @@ class GameMaster extends Player
             when "shorter"
                 # 時間短縮
                 remains = game.timer_start + game.timer_remain - Date.now()/1000
-                if remains <= 30
+                if remains <= 30 || Phase.isRemain(game.phase) && remains <= 60
                     return game.i18n.t "roles:GameMaster.shortenFail"
                 clearTimeout game.timerid
                 game.timer remains-30
