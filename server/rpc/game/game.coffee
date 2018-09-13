@@ -3839,7 +3839,7 @@ class WolfDiviner extends Werewolf
 class Fugitive extends Player
     type:"Fugitive"
     formType: FormType.required
-    midnightSort:100
+    midnightSort:95
     hasDeadResistance:->true
     sunset:(game)->
         @setTarget null
@@ -3887,9 +3887,9 @@ class Fugitive extends Player
         # 人狼の家に逃げていたら即死
         pl=game.getPlayer @target
         return unless pl?
-        if !pl.dead && pl.isWerewolf() && pl.getTeam() != "Human"
+        if pl.isWerewolf() && pl.getTeam() != "Human"
             @die game,"werewolf2"
-        else if !pl.dead && pl.isVampire() && pl.getTeam() != "Human"
+        else if pl.isVampire() && pl.getTeam() != "Human"
             @die game,"vampire2"
 
     isWinner:(game,team)->
