@@ -1913,6 +1913,10 @@ class Game
 
     # 勝敗決定
     judge:->
+        # 既に終了している場合は再度判定しない
+        if @finished
+            return
+
         aliveps=@players.filter (x)->!x.dead    # 生きている人を集める
         # 数える
         alives=aliveps.length
