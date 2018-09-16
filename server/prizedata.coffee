@@ -141,7 +141,7 @@ makeOtherPrize=(result)->
             names: prizedata.counter.divineblack2
             func:(game,pl)->
                 game.gamelogs.filter((x)->x.id==pl.id && x.event=="divine" && x.flag in Shared.game.blacks).length
-            
+
         # GJ判定
         GJ:
             names: prizedata.counter.GJ
@@ -188,7 +188,7 @@ makeOtherPrize=(result)->
                 game.gamelogs.filter((x)->
                     x.id==pl.id && x.event=="found" && x.flag=="punish" && x.day==2
                 ).length
-            
+
         # 総試合数
         allgamecount:
             names: prizedata.counter.allgamecount
@@ -249,6 +249,10 @@ getType=(pl)->
         pl.type
 # もともとの役職を調べる
 getOriginalType=(game,userid)->
+    # originalType情報を使用
+    pl = getpl game, userid
+    if pl?.originalType
+        return pl.originalType
     getTypeAtTime game,userid,0
 # あるプレイヤーのある時点での役職を調べる
 getTypeAtTime=(game,userid,day)->
