@@ -3040,13 +3040,6 @@ class Player
         obj.job_selection=obj.job_selection.concat @makeJobSelection game
         # 重複を取り除くのはクライアント側にやってもらおうかな…
 
-        # 女王観戦者が見える
-        if @getTeam()=="Human"
-            obj.queens=game.players.filter((x)->x.isJobType "QueenSpectator").map (x)->
-                x.publicinfo()
-        else
-            # セットなどによる漏洩を防止
-            delete obj.queens
     # 昼でも対象選択を行えるか
     chooseJobDay:(game)->false
     # 仕事先情報を教える
@@ -3429,9 +3422,6 @@ class Psychic extends Player
 class Madman extends Player
     type:"Madman"
     team:"Werewolf"
-    makejobinfo:(game,result)->
-        super
-        delete result.queens
 class Guard extends Player
     type:"Guard"
     midnightSort: 80
@@ -9487,12 +9477,6 @@ class Chemical extends Complex
     makejobinfo:(game,result)->
         @main.makejobinfo game,result
         @sub?.makejobinfo? game,result
-        # 女王観戦者は村人陣営×村人陣営じゃないと見えない
-        if result.queens? && (@main.getTeam() != "Human" || @sub?.getTeam() != "Human")
-            delete result.queens
-
-
-
 
 games={}
 
@@ -11186,6 +11170,10 @@ makejobinfo = (game,player,result={})->
             # tell player's team.
             unless Phase.isBeforeStart(game.phase)
                 result.myteam = plpl.getTeamDisp()
+                # 女王観戦者の情報
+                if plpl.getTeam() == "Human"
+                    result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
+                        x.publicinfo()
 
             if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
                 if player.dead
