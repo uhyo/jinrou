@@ -2038,11 +2038,13 @@ class Game
                         else if friends.length==alives
                             team="Friend"
                     else if friends_count>1
-                        if alives==friendsn
-                            team="Friend"
-                        else if @rule.friendssplit=="split"
+                        if @rule.friendssplit != "split" || alives == friendsn
+                            # 恋人の独立がなければ恋人勝利
+                            # 全員生存の場合も恋人勝利
+                            team = "Friend"
+                        else
                             # 恋人バトル
-                            team=null
+                            team = null
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
                 # 全員信者
