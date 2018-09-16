@@ -6545,6 +6545,7 @@ class Phantom extends Player
     type:"Phantom"
     formType: FormType.required
     sleeping:->@target?
+    midnightSort: 125
     sunset:(game)->
         if @flag==true
             # もう交換済みだ
@@ -6593,7 +6594,7 @@ class Phantom extends Player
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
-    sunrise:(game)->
+    midnight:(game)->
         @setFlag true
         pl=game.getPlayer @target
         unless pl?

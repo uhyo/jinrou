@@ -47,5 +47,6 @@ Player#midnightSort
 カウンセラー 110
 
 人狼占い 120
+怪盗 125
 
 
