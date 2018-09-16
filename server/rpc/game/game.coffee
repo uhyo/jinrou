@@ -1373,6 +1373,7 @@ class Game
                 ), end_date.getTime() - Date.now()
 
         @splashjobinfo()
+        @timer()
         if night
             @checkjobs()
         else
@@ -1380,7 +1381,6 @@ class Game
             if @rule.silentrule>0
                 @silentexpires=Date.now()+@rule.silentrule*1000 # これまでは黙っていよう！
         @save()
-        @timer()
     # 各プレイヤーのsunset処理を行う
     runSunset:->
         alives=[]
