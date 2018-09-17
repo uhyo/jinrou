@@ -9262,7 +9262,7 @@ class SnowGuarded extends Complex
             # 襲撃に1回耐える
             game.getPlayer(@cmplFlag).addGamelog game,"snowGJ", found, @id
             if found == "werewolf"
-                game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.snow
 
             @uncomplex game
 
