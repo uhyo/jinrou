@@ -1526,8 +1526,8 @@ class Game
                         tw = @getPlayer res[1]
                         t=@getPlayer target.to
                         if t?
-                            t.setDead true,"werewolf2"
-                            t.dying this,"werewolf2",tw.id
+                            t.setDead true,"werewolf"
+                            t.dying this,"werewolf",tw.id
                             flg_flg=true
                             if tw?
                                 unless tw.dead
