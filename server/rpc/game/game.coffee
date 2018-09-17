@@ -2952,12 +2952,16 @@ class Player
     # 死んだとき
     dying:(game,found)->
     # 行きかえる
-    # XXX This method must be call for top of player.
+    # XXX This method must be called for top of player.
     revive:(game)->
         # logging: ログを表示するか
         if @norevive
             # 蘇生しない
             return
+        unless @dead
+            # 生きている
+            return
+
         @setDead false,null
         p=@getParent game
         unless p?.sub==this
@@ -8513,6 +8517,9 @@ class Complex
         @mcall game,@main.dying,game,found,from
         @sub?.dying game,found,from
     revive:(game)->
+        unless @dead
+            # 生きている
+            return
         # まずsubを蘇生
         if @sub?
             @sub.revive game
