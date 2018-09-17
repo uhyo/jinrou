@@ -1396,6 +1396,10 @@ class Game
                 player.sunset this
             else
                 player.deadsunset this
+        # 身代わりくんの自動投票処理
+        for player in @players
+            if player.scapegoat
+                scapegoatRunJobs this, player.id
 
     #全員に状況更新 pls:状況更新したい人を指定する場合の配列
     splashjobinfo:(pls)->
@@ -3184,6 +3188,7 @@ class Player
     transferData:(newpl)->
         return unless newpl?
         newpl.scapegoat=@scapegoat
+        newpl.setOriginalType @originalType
         newpl.setDead @dead,@found
         newpl.setNorevive @norevive
         newpl.setWill @will
@@ -3201,30 +3206,17 @@ class Werewolf extends Player
     type:"Werewolf"
     sunset:(game)->
         @setTarget null
-        unless game.day==1 && game.rule.scapegoat!="off"
-            if @scapegoat && @isAttacker() && game.players.filter((x)->!x.dead && x.isWerewolf() && x.isAttacker()).length==1
-                # 自分しか人狼がいない
-                hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
-                while hus.length>0 && game.werewolf_target_remain>0
-                    r=Math.floor Math.random()*hus.length
-                    @job game,hus[r].id,{
-                        jobtype: "_Werewolf"
-                    }
-                    hus.splice r,1
-                if game.werewolf_target_remain>0
-                    # 襲撃したい人全員襲撃したけどまだ襲撃できるときは重複襲撃
-                    hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
-                    # safety counter
-                    i = 100
-                    while hus.length>0 && game.werewolf_target_remain>0 && i > 0
-                        r=Math.floor Math.random()*hus.length
-                        @job game,hus[r].id,{
-                            jobtype: "_Werewolf"
-                        }
-                        i--
 
     formType: FormType.required
-    sleeping:(game)->game.werewolf_target_remain<=0 || !Phase.isNight(game.phase)
+    sleeping:(game)->
+        # もう襲撃選択終了しているときはtrue
+        if game.werewolf_target_remain<=0 || !Phase.isNight(game.phase)
+            return true
+        # 身代わりくんは他に襲撃可能な人狼がいないときのみ行動可能
+        if @scapegoat
+            unless @isAttacker() && game.players.filter((x)->!x.dead && x.isWerewolf() && x.isAttacker()).length == 1
+                return true
+        return false
     job:(game,playerid)->
         tp = game.getPlayer playerid
         if game.werewolf_target_remain<=0
@@ -3450,13 +3442,6 @@ class Guard extends Player
         if pls.length == 0
             @setTarget ""
             return
-
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*pls.length
-            if @job game,pls[r].id,{}
-                # 失敗した
-                @setTarget ""
     job:(game,playerid)->
         if playerid==@id && game.rule.guardmyself!="ok"
             return game.i18n.t "error.common.noSelectSelf"
@@ -3628,10 +3613,6 @@ class Magician extends Player
         @setTarget (if game.day<3 then "" else null)
         if game.players.every((x)->!x.dead)
             @setTarget ""  # 誰も死んでいないなら能力発動しない
-        if !@target? && @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            @job game,game.players[r].id,{}
     job:(game,playerid)->
         if game.day<3
             # まだ発動できない
@@ -3845,15 +3826,11 @@ class Fugitive extends Player
         @setTarget null
         if game.day<=1 && game.rule.scapegoat!="off"    # 一日目は逃げない
             @setTarget ""
-        else if @scapegoat
-            # 身代わり君の自動占い
-            als=game.players.filter (x)=>!x.dead && x.id!=@id
-            if als.length==0
-                @setTarget ""
-                return
-            r=Math.floor Math.random()*als.length
-            if @job game,als[r].id,{}
-                @setTarget ""
+        # 可能な逃走先がいない場合
+        als=game.players.filter (x)=>!x.dead && x.id!=@id
+        if als.length==0
+            @setTarget ""
+            return
     sleeping:->@target?
     job:(game,playerid)->
         # 逃亡先
@@ -3972,10 +3949,6 @@ class Liar extends Player
         @setFlag []
     sunset:(game)->
         @setTarget null
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            @job game,game.players[r].id,{}
     sleeping:->@target?
     job:(game,playerid,query)->
         # 占い
@@ -4059,19 +4032,6 @@ class Copier extends Player
     jobdone:->@target?
     sunset:(game)->
         @setTarget null
-        if @scapegoat
-            # 身代わりくんはコピーを自動選択
-            alives = []
-            for x in game.players
-                unless x.dead
-                    # 除外役職は他に比べて当選確率が4分の1
-                    if x.type in SAFETY_EXCLUDED_JOBS
-                        alives.push x
-                    else
-                        alives.push x, x, x, x
-            r=Math.floor Math.random()*alives.length
-            pl=alives[r]
-            @job game,pl.id,{}
 
     job:(game,playerid,query)->
         # コピー先
@@ -4093,8 +4053,9 @@ class Copier extends Player
         @transferData newpl
         newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
-        pl=game.getPlayer @id
-
+        # 身代わりくんの場合を考えて対象選択を入れる
+        if @scapegoat
+            scapegoatRunJobs game, @id
 
         #game.ss.publish.user newpl.id,"refresh",{id:game.id}
         game.splashjobinfo [game.getPlayer @id]
@@ -4214,14 +4175,6 @@ class Cupid extends Player
         else
             @setFlag null
             @setTarget null
-            if @scapegoat
-                # 身代わり君の自動占い
-                alives=game.players.filter (x)->!x.dead
-                i=0
-                while i++<2
-                    r=Math.floor Math.random()*alives.length
-                    @job game,alives[r].id,{}
-                    alives.splice r,1
     sleeping:->@flag? && @target?
     job:(game,playerid,query)->
         if @flag? && @target?
@@ -4278,11 +4231,6 @@ class Stalker extends Player
         super
         if !@flag   # ストーキング先を決めていない
             @setTarget null
-            if @scapegoat
-                alives=game.players.filter (x)->!x.dead
-                r=Math.floor Math.random()*alives.length
-                pl=alives[r]
-                @job game,pl.id,{}
         else
             @setTarget ""
     sleeping:->@flag?
@@ -4692,13 +4640,6 @@ class CultLeader extends Player
     sunset:(game)->
         super
         @setTarget null
-        if @scapegoat
-            alives = game.players.filter (pl)-> !pl.dead
-            if alives.length == 0
-                @setTarget ""
-                return
-            r=Math.floor Math.random()*alives.length
-            @job game,alives[r].id,{}
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
@@ -4743,11 +4684,6 @@ class Vampire extends Player
     hasDeadResistance:->true
     sunset:(game)->
         @setTarget null
-        if game.day>1 && @scapegoat
-            targets=game.players.filter (x)->!x.dead
-            r=Math.floor Math.random()*targets.length
-            if @job game,targets[r].id,{}
-                @setTarget ""
     job:(game,playerid,query)->
         # 襲う先
         if @target?
@@ -4794,11 +4730,6 @@ class Cat extends Poisoner
         @setTarget (if game.day<2 then "" else null)
         if game.players.every((x)->!x.dead)
             @setTarget ""  # 誰も死んでいないなら能力発動しない
-        if !@target? && @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
-                @setTarget ""
     job:(game,playerid)->
         if game.day<2
             # まだ発動できない
@@ -4981,11 +4912,6 @@ class OccultMania extends Player
     sleeping:(game)->@target? || game.day<2
     sunset:(game)->
         @setTarget (if game.day>=2 then null else "")
-        if !@target? && @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
-                @setTarget ""
     job:(game,playerid)->
         if game.day<2
             # まだ発動できない
@@ -5111,12 +5037,6 @@ class MinionSelector extends Player
     sleeping:(game)->@target? || game.day>1 # 初日のみ
     sunset:(game)->
         @setTarget (if game.day==1 then null else "")
-        if !@target? && @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*game.players.length
-            if @job game,game.players[r].id,{}
-                @setTarget ""
-
     job:(game,playerid)->
         if game.day!=1
             # まだ発動できない
@@ -5169,10 +5089,6 @@ class Thief extends Player
                 to:@id
                 comment: game.i18n.t "roles:Thief.candidates", {name: @name, jobnames: jobnames.join(",")}
             splashlog game.id,game,log
-            if @scapegoat
-                # 身代わり君
-                r=Math.floor Math.random()*arr.length
-                @job game,arr[r]
     job:(game,target)->
         @setTarget target
         unless jobs[target]?
@@ -5212,17 +5128,7 @@ class Dog extends Player
     sunset:(game)->
         super
         @setTarget null    # 1日目:飼い主選択 選択後:かみ殺す人選択
-        if !@flag?   # 飼い主を決めていない
-            if @scapegoat
-                alives=game.players.filter (x)=>!x.dead && x.id!=@id
-                if alives.length>0
-                    r=Math.floor Math.random()*alives.length
-                    pl=alives[r]
-                    @job game,pl.id,{}
-                else
-                    @setFlag ""
-                    @setTarget ""
-        else
+        if @flag?
             # 飼い主がいる
             pl = game.getPlayer @flag
             if pl?
@@ -5374,15 +5280,11 @@ class Trapper extends Player
         if game.day==1
             # 一日目は護衛しない
             @setTarget ""  # 誰も守らない
-        else if @scapegoat
-            # 身代わり君の自動占い
-            targets = game.players.filter (pl)-> !pl.dead
-            if targets.length == 0
-                @setTarget ""
-                return
-            r=Math.floor Math.random()*targets.length
-            if @job game,targets[r].id,{}
-                @sunset game
+        # 護衛対象がいない
+        targets = game.players.filter (pl)-> !pl.dead
+        if targets.length == 0
+            @setTarget ""
+            return
     job:(game,playerid)->
         unless playerid==@id && game.rule.guardmyself!="ok"
             if playerid==@flag
@@ -5448,16 +5350,7 @@ class Hoodlum extends Player
         @setTarget null
     sunset:(game)->
         unless @target?
-            # 2人選んでもらう
             @setTarget null
-            if @scapegoat
-                # 身代わり
-                alives=game.players.filter (x)=>!x.dead && x!=this
-                i=0
-                while i++<2 && alives.length>0
-                    r=Math.floor Math.random()*alives.length
-                    @job game,alives[r].id,{}
-                    alives.splice r,1
     sleeping:->@target?
     job:(game,playerid,query)->
         if @target?
@@ -5529,19 +5422,6 @@ class QuantumPlayer extends Player
             tarobj.Werewolf=""
 
         @setTarget JSON.stringify tarobj
-        if @scapegoat
-            # 身代わり君の自動占い
-            unless tarobj.Diviner?
-                r=Math.floor Math.random()*game.players.length
-                @job game,game.players[r].id,{
-                    jobtype:"_Quantum_Diviner"
-                }
-            unless tarobj.Werewolf?
-                nonme =game.players.filter (pl)=> pl!=this
-                r=Math.floor Math.random()*nonme.length
-                @job game,nonme[r].id,{
-                    jobtype:"_Quantum_Werewolf"
-                }
     isJobType:(type)->
         # 便宜的
         if type=="_Quantum_Diviner" || type=="_Quantum_Werewolf"
@@ -5877,14 +5757,10 @@ class FascinatingWolf extends Werewolf
     sleeping:(game)->super && @flag?
     sunset:(game)->
         super
-        if @scapegoat && !@flag?
-            # 誘惑する
-            hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
-            if hus.length>0
-                r=Math.floor Math.random()*hus.length
-                @job game,hus[r].id,{jobtype:"FascinatingWolf"}
-            else
-                @setFlag ""
+        # 誘惑可能対象がいないと選択肢ない
+        hus=game.players.filter (x)->!x.dead && !x.isWerewolf()
+        if hus.length == 0
+            @setFlag ""
     job:(game,playerid,query)->
         if query.jobtype!="FascinatingWolf"
             # 人狼の仕事
@@ -6105,13 +5981,6 @@ class WanderingGuard extends Player
         if alives.length == 0
             # もう護衛対象がいない
             @setTarget ""
-            return
-
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*alives.length
-            if @job game,alives[r].id,{}
-                @setTarget ""
     job:(game,playerid)->
         fl=JSON.parse(@flag ? "[null]")
         if playerid==@id && game.rule.guardmyself!="ok"
@@ -6173,13 +6042,9 @@ class ObstructiveMad extends Madman
     sunset:(game)->
         super
         @setTarget null
-        if @scapegoat
-            alives=game.players.filter (x)->!x.dead
-            if alives.length>0
-                r=Math.floor Math.random()*alives.length
-                @job game,alives[r].id,{}
-            else
-                @setTarget ""
+        alives=game.players.filter (x)->!x.dead
+        if alives.length == 0
+            @setTarget ""
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
@@ -6446,13 +6311,6 @@ class SantaClaus extends Player
         fl=JSON.parse(@flag ? "[]")
         if game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
             @setTarget null
-            if @scapegoat
-                cons=game.players.filter((x)=>!x.dead && x.id!=@id && !(x.id in fl))
-                if cons.length>0
-                    r=Math.floor Math.random()*cons.length
-                    @job game,cons[r].id,{}
-                else
-                    @setTarget ""
         else
             @setTarget ""
     sunrise:(game)->
@@ -6548,13 +6406,6 @@ class Phantom extends Player
             @setTarget ""
         else
             @setTarget null
-            if @scapegoat
-                rs=@makeJobSelection game
-                if rs.length>0
-                    r=Math.floor Math.random()*rs.length
-                    @job game,rs[r].value,{
-                        jobtype:@type
-                    }
     makeJobSelection:(game)->
         if Phase.isNight(game.phase)
             res=[{
@@ -6876,12 +6727,6 @@ class Blasphemy extends Player
             @setTarget ""
         else
             @setTarget null
-            if @scapegoat
-                # 身代わりくん
-                alives=game.players.filter (x)->!x.dead
-                r=Math.floor Math.random()*alives.length
-                if @job game,alives[r].id,{}
-                    @setTarget ""
     beforebury:(game)->
         if @flag
             # まだ狐を作ってないときは耐える
@@ -7472,14 +7317,11 @@ class Pumpkin extends Madman
     sleeping:->@target?
     sunset:(game)->
         super
-        @setTarget null
-        if @scapegoat
-            alives = game.players.filter (x)->!x.dead
-            if alives.length == 0
-                @setTarget ""
-            else
-                r=Math.floor Math.random()*alives.length
-                @job game,alives[r].id ,{}
+        alives = game.players.filter (x)->!x.dead
+        if alives.length == 0
+            @setTarget ""
+        else
+            @setTarget null
     job:(game,playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
@@ -7576,11 +7418,6 @@ class Forensic extends Player
             @setTarget ""
             return
         @setTarget null
-        if @scapegoat
-            # 身代わりくん
-            r = Math.floor Math.random()*targets.length
-            @setTarget ""
-            @job game, targets[r].id, {}
     job:(game,playerid)->
         if game.day < 2
             return game.i18n.t "error.common.cannotUseSkillNow"
@@ -7630,11 +7467,6 @@ class Ninja extends Player
             @setTarget ""
             return
         @setTarget null
-        if @scapegoat
-            # 身代わりくん
-            r = Math.floor Math.random()*targets.length
-            @setTarget ""
-            @job game, targets[r].id, {}
     job:(game,playerid)->
         pl = game.getPlayer playerid
         unless pl?
@@ -7848,14 +7680,10 @@ class Idol extends Player
         if !@flag
             # Choose a fan.
             @setTarget null
-            if @scapegoat
-                # 自分以外から選ぶ
-                targets = game.players.filter (x)=> !x.dead && x.id != @id
-                if targets.length > 0
-                    r = Math.floor Math.random() * targets.length
-                    @job game, targets[r].id, {}
-                else
-                    @setTarget ""
+            # 自分以外から選ぶ
+            targets = game.players.filter (x)=> !x.dead && x.id != @id
+            if targets.length == 0
+                @setTarget ""
         else
             @setTarget ""
     sleeping:->@flag?
@@ -11329,6 +11157,38 @@ getAllMainRoles = (top)->
         else
             results.push pl
     return results
+
+# automatically run all forms as scapegoat.
+scapegoatRunJobs = (game, id)->
+    counter = 0
+    # 無限ループ防止
+    while counter++ < 100
+        pl = game.getPlayer id
+        return unless pl?
+
+        jobinfo = {}
+        pl.makejobinfo game, jobinfo
+        run = false
+        for form in (jobinfo.forms ? [])
+            if form.formType == FormType.required || form.type == "Copier"
+                # Use this form because it is required.
+                plobj = pl.accessByObjid form.objid
+                unless plobj?
+                    continue
+                run = true
+                if form.options.length > 0
+                    r = Math.floor(Math.random() * form.options.length)
+                    plobj.job game, form.options[r].value, {}
+                else
+                    plobj.job game, "", {}
+        unless run
+            # フォームが無かったらやめる
+            break
+
+
+
+
+
 
 # 配列シャッフル（破壊的）
 shuffle= (arr)->
