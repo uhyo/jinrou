@@ -9,6 +9,7 @@ i18next.use(xhrBackend).init({
     parse: (data: any) => data,
     ajax,
   },
+  escapeValue: false,
   fallbackLng: EXTERNAL_SYSTEM_LANGUAGE,
   ns: [
     'common',
@@ -18,7 +19,7 @@ i18next.use(xhrBackend).init({
     'rules',
     'casting',
   ],
-});
+} as any);
 
 /**
  * Reexport type of i18n.
