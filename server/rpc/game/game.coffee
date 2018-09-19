@@ -8580,6 +8580,7 @@ class Drunk extends Complex
             game.ss.publish.user @realid,"refresh",{id:game.id}
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
+        obj.forms = []
     isDrunk:->true
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
@@ -8742,6 +8743,7 @@ class Threatened extends Complex
     voteafter:(game,target)->
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
+        obj.forms = []
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
 # 邪魔狂人に邪魔された(未完成)
@@ -8856,6 +8858,7 @@ class WatchingFireworks extends Complex
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
+        result.forms = []
 # 爆弾魔に爆弾を仕掛けられた人
 class BombTrapped extends Complex
     # cmplFlag: 護衛元ID
