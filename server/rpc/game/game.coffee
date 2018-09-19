@@ -3755,7 +3755,7 @@ class WolfDiviner extends Werewolf
         if p?.getTeam() == "Werewolf" && p.isHuman() && !p.dead
             jobnames=Object.keys jobs
             # inspect all target roles.
-            for targetpl in getAllMainRoles p
+            for targetpl in p.accessMainLevel()
                 # check whether this target should change.
                 unless targetpl.getTeam()=="Werewolf" && targetpl.isHuman()
                     continue
