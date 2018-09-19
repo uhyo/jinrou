@@ -8580,6 +8580,7 @@ class Drunk extends Complex
             game.ss.publish.user @realid,"refresh",{id:game.id}
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
+        obj.forms = []
     isDrunk:->true
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
@@ -8742,6 +8743,7 @@ class Threatened extends Complex
     voteafter:(game,target)->
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
+        obj.forms = []
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
 # 邪魔狂人に邪魔された(未完成)
@@ -8856,6 +8858,7 @@ class WatchingFireworks extends Complex
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
+        result.forms = []
 # 爆弾魔に爆弾を仕掛けられた人
 class BombTrapped extends Complex
     # cmplFlag: 護衛元ID
@@ -10758,13 +10761,7 @@ module.exports.actions=(req,res,ss)->
                     res {error: game.i18n.t "error.job.invalid"}
                     return
                 # Error-check whether his job is already done.
-                jdone =
-                    if game.phase == Phase.hunter
-                        plobj.hunterJobdone(game)
-                    else if player.dead
-                        plobj.deadJobdone(game)
-                    else
-                        plobj.jobdone(game)
+                jdone = playerIsJobDone game, plobj
                 if jdone
                     res {error: game.i18n.t "error.job.done"}
                     return
@@ -11010,16 +11007,9 @@ makejobinfo = (game,player,result={})->
                     result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
                         x.publicinfo()
 
-            if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
-                if player.dead
-                    result.sleeping=player.deadJobdone game
-                else
-                    result.sleeping=player.jobdone game
-            else if game.phase == Phase.hunter
-                result.sleeping = player.hunterJobdone game
-            else if Phase.isDay(game.phase)
+            result.sleeping = playerIsJobDone game, player
+            if Phase.isDay(game.phase)
                 # 昼
-                result.sleeping=true
                 unless player.dead || (game.rule.voting > 0 && game.phase == Phase.day) || game.votingbox.isVoteFinished player
                     # 投票ボックスオープン!!!
                     result.voteopen=true
@@ -11030,9 +11020,6 @@ makejobinfo = (game,player,result={})->
                         objid: player.objid
                     }
                     result.sleeping=false
-                if player.chooseJobDay game
-                    # 昼でも能力発動できる人
-                    result.sleeping &&= player.jobdone game
         else
             # それ以外（participants）
             if Phase.isNight(game.phase) || Phase.isDay(game.phase) && player.chooseJobDay(game)
@@ -11175,6 +11162,8 @@ scapegoatRunJobs = (game, id)->
                 plobj = pl.accessByObjid form.objid
                 unless plobj?
                     continue
+                if playerIsJobDone game, plobj
+                    continue
                 run = true
                 if form.options.length > 0
                     r = Math.floor(Math.random() * form.options.length)
@@ -11185,6 +11174,25 @@ scapegoatRunJobs = (game, id)->
             # フォームが無かったらやめる
             break
 
+# check whether player's job is done.
+playerIsJobDone = (game, player)->
+    if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
+        # 夜フェイズ
+        if player.dead
+            return player.deadJobdone game
+        else
+            return player.jobdone game
+    else if game.phase == Phase.hunter
+        # ハンターフェイズ
+        return player.hunterJobdone game
+    else if Phase.isDay(game.phase)
+        # 昼
+        if player.chooseJobDay(game) && !player.jobdone(game)
+            # 昼でも能力発動できるけど発動していない
+            return false
+        return true
+    else
+        true
 
 
 
