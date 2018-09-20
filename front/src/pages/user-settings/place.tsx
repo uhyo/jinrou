@@ -27,7 +27,7 @@ export async function place({
   await addResource('user_settings_client', i18n);
   i18n.setDefaultNamespace('user_settings_client');
 
-  const store = new UserSettingsStore();
+  const store = new UserSettingsStore(i18n);
 
   const com = <UserSettings i18n={i18n} store={store} />;
 

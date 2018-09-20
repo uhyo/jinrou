@@ -2,3 +2,21 @@
 
 # title of page.
 title: "ユーザー設定"
+
+# colors.
+color:
+  # default name of profile (without number).
+  profile: "プロファイル"
+  # title of colors tab.
+  title: "色設定"
+  # text color.
+  textColor: "文字色"
+  # background color.
+  backgroundColor: "背景色"
+  # sample text
+  sampleText: "サンプル表示"
+  # name of each color settings.
+  colorSetting:
+    day: "昼の背景色と文字色"
+    night: "夜の背景色と文字色"
+    heaven: "霊界の背景色と文字色"

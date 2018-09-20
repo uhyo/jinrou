@@ -11,7 +11,7 @@ exports.start = ->
             userSettings.place({
                 i18n: i18n
                 node: node
-            }).then (u)-> unmount = u
+            }).then (u)-> unmount = u.unmount
 
 exports.end = ->
     if unmount?
