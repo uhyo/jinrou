@@ -198,6 +198,10 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             page "user-mylog", {
                 loggedin: my_userid?
             }, Index.user.mylog, null
+        when "/my/settings"
+            # ユーザー設定
+            page "user-settings", {
+            }, Index.user.settings, null
         when "/reset"
             # 找回密码
             page "reset",null,Index.reset, null

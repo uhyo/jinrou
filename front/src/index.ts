@@ -33,6 +33,13 @@ export function loadGameView() {
 }
 
 /**
+ * Asynchronoulsly load the user settings module.
+ */
+export function loadUserSettings() {
+  return import('./pages/user-settings');
+}
+
+/**
  * Asynchronously load the manual module.
  */
 export function loadManual() {
