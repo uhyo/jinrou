@@ -22,14 +22,14 @@ export function loadDialog() {
  * Asynchronously load the game-start-control module.
  */
 export function loadGameStartControl() {
-  return import('./game-start-control');
+  return import('./pages/game-start-control');
 }
 
 /**
  * Asynchronously load the game-view module.
  */
 export function loadGameView() {
-  return import('./game-view');
+  return import('./pages/game-view');
 }
 
 /**
