@@ -4560,6 +4560,7 @@ class Doppleganger extends Player
     sleeping:->true
     jobdone:-> @flag?.done
     team:"" # 最初はチームに属さない!
+    isWinner:->false
     job:(game,playerid)->
         pl=game.getPlayer playerid
         unless pl?
