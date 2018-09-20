@@ -6443,6 +6443,8 @@ class Phantom extends Player
         null
     midnight:(game)->
         @setFlag true
+        # 自分が死亡していたらもう変化しない
+        return if @dead
         pl=game.getPlayer @target
         unless pl?
             return
