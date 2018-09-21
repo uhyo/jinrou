@@ -5,6 +5,7 @@ import styled, { withProps } from '../../../util/styled';
  */
 export const ColorsTable = styled.table`
   border-collapse: collapse;
+  user-select: none;
 
   th,
   td {

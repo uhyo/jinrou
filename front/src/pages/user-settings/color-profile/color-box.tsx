@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as Color from 'color';
-import { ChromePicker } from 'react-color';
+import { ChromePicker, ColorResult } from 'react-color';
 import styled from '../../../util/styled';
 
+export { ColorResult };
 /**
  * Box of color.
  */
@@ -24,6 +25,14 @@ export class ColorBox extends React.PureComponent<
      * Callback for focusing.
      */
     onFocus(): void;
+    /**
+     * Callback for real-time color update.
+     */
+    onColorChange(color: ColorResult): void;
+    /**
+     * Callback for final color update.
+     */
+    onColorChangeComplete(color: ColorResult): void;
   },
   {}
 > {
@@ -31,7 +40,14 @@ export class ColorBox extends React.PureComponent<
     displayColorPicker: false,
   };
   public render() {
-    const { color, label, onFocus, showPicker } = this.props;
+    const {
+      color,
+      label,
+      onFocus,
+      showPicker,
+      onColorChange,
+      onColorChangeComplete,
+    } = this.props;
     // determine foreground color depending on background color.
     const colorObj = new Color(color);
     const fg = colorObj.isDark() ? '#f0f0f0' : 'black';
@@ -46,7 +62,12 @@ export class ColorBox extends React.PureComponent<
         </Box>
         {!showPicker ? null : (
           <PickerContainer>
-            <ChromePicker disableAlpha color={colorObj.rgb().string()} />
+            <ChromePicker
+              disableAlpha
+              color={colorObj.rgb().string()}
+              onChange={onColorChange}
+              onChangeComplete={onColorChangeComplete}
+            />
           </PickerContainer>
         )}
       </Wrapper>

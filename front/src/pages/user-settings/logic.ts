@@ -1,5 +1,6 @@
 import { ColorName } from './defs';
 import { UserSettingsStore } from './store';
+import { ColorResult } from './color-profile/color-box';
 
 /**
  * Logic when focus is requested.
@@ -36,4 +37,16 @@ export function requestFocusLogic(
       return tab;
     }
   });
+}
+
+/**
+ * Logic when color is changed (realtime).
+ */
+export function colorChangeLogic(
+  store: UserSettingsStore,
+  colorName: ColorName,
+  type: 'color' | 'bg',
+  color: ColorResult,
+): void {
+  store.updateCurrentColor(colorName, type, color.hex);
 }

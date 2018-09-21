@@ -3,10 +3,12 @@ import { withHandlers } from 'recompose';
 import { I18n } from '../../../i18n';
 import { OneColor } from '../../../defs';
 import { observer } from 'mobx-react';
-import { ColorBox } from './color-box';
+import { ColorBox, ColorResult } from './color-box';
 import { SampleTextWrapper } from './elements';
+import { TranslationFunction } from 'i18next';
 
 export interface IPropOneColorDisp {
+  t: TranslationFunction;
   /**
    * name of this color setting.
    */
@@ -27,6 +29,14 @@ export interface IPropOneColorDisp {
    * Callback for focusing on one color box.
    */
   onFocus(type: 'color' | 'bg'): void;
+  /**
+   * Callback for changing color.
+   */
+  onColorChange(type: 'color' | 'bg', color: ColorResult): void;
+  /**
+   * Callback for color is fixed.
+   */
+  onColorChangeComplete(type: 'color' | 'bg', color: ColorResult): void;
 }
 
 const handlersComposer = withHandlers({
@@ -36,43 +46,60 @@ const handlersComposer = withHandlers({
   onBgFocus: (props: IPropOneColorDisp) => () => {
     props.onFocus('bg');
   },
+  onFgChange: (props: IPropOneColorDisp) => (color: ColorResult) => {
+    props.onColorChange('color', color);
+  },
+  onBgChange: (props: IPropOneColorDisp) => (color: ColorResult) => {
+    props.onColorChange('bg', color);
+  },
+  onFgChangeComplete: (props: IPropOneColorDisp) => (color: ColorResult) => {
+    props.onColorChangeComplete('color', color);
+  },
+  onBgChangeComplete: (props: IPropOneColorDisp) => (color: ColorResult) => {
+    props.onColorChangeComplete('bg', color);
+  },
 });
 
-export const OneColorDisp = observer(
-  handlersComposer(
+export const OneColorDisp = handlersComposer(
+  observer(
     ({
+      t,
       name,
       bold,
       currentFocus,
       onFgFocus,
       onBgFocus,
+      onFgChange,
+      onBgChange,
+      onFgChangeComplete,
+      onBgChangeComplete,
       data: { color, bg },
     }) => {
       return (
-        <I18n>
-          {t => (
-            <>
-              <th>{t(`color.colorSetting.${name}`)}</th>
-              <td>
-                <ColorBox
-                  color={bg}
-                  label={t('color.backgroundColor')}
-                  showPicker={currentFocus === 'bg'}
-                  onFocus={onBgFocus}
-                />
-                <ColorBox
-                  color={color}
-                  label={t('color.textColor')}
-                  showPicker={currentFocus === 'color'}
-                  onFocus={onFgFocus}
-                />
-                <SampleText color={color} bg={bg} bold={bold}>
-                  {t('color.sampleText')}
-                </SampleText>
-              </td>
-            </>
-          )}
-        </I18n>
+        <>
+          <th>{t(`color.colorSetting.${name}`)}</th>
+          <td>
+            <ColorBox
+              color={bg}
+              label={t('color.backgroundColor')}
+              showPicker={currentFocus === 'bg'}
+              onFocus={onBgFocus}
+              onColorChange={onBgChange}
+              onColorChangeComplete={onBgChangeComplete}
+            />
+            <ColorBox
+              color={color}
+              label={t('color.textColor')}
+              showPicker={currentFocus === 'color'}
+              onFocus={onFgFocus}
+              onColorChange={onFgChange}
+              onColorChangeComplete={onFgChangeComplete}
+            />
+            <SampleText color={color} bg={bg} bold={bold}>
+              {t('color.sampleText')}
+            </SampleText>
+          </td>
+        </>
       );
     },
   ),

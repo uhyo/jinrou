@@ -14,7 +14,8 @@ import { ColorsTable } from './elements';
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
 import { arrayMapToObject } from '../../../util/array-map-to-object';
-import { requestFocusLogic } from '../logic';
+import { requestFocusLogic, colorChangeLogic } from '../logic';
+import { ColorResult } from './color-box';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
@@ -30,6 +31,18 @@ const addProps = withPropsOnChange(
     >(colorNames, name => (type: 'color' | 'bg') => {
       requestFocusLogic(store, name, type);
     }),
+    onColorChange: arrayMapToObject<
+      ColorName,
+      Record<ColorName, (type: 'color' | 'bg', color: ColorResult) => void>
+    >(colorNames, colorName => (type: 'color' | 'bg', color) => {
+      colorChangeLogic(store, colorName, type, color);
+    }),
+    onColorChangeComplete: arrayMapToObject<
+      ColorName,
+      Record<ColorName, (type: 'color' | 'bg', color: ColorResult) => void>
+    >(colorNames, colorName => (type: 'color' | 'bg', color) => {
+      // TODO
+    }),
   }),
 );
 
@@ -37,7 +50,7 @@ const addProps = withPropsOnChange(
  * Component of color profile.
  */
 export const ColorProfileDisp = observer(
-  addProps(({ page, store, onFocus }) => {
+  addProps(({ page, store, onFocus, onColorChange, onColorChangeComplete }) => {
     const profile = store.currentProfile;
     return (
       <I18n>
@@ -50,10 +63,13 @@ export const ColorProfileDisp = observer(
                 {colorNames.map(name => (
                   <tr key={name}>
                     <OneColorDisp
+                      t={t}
                       name={name}
                       data={profile.profile[name]}
                       bold={sampleIsBold[name]}
                       onFocus={onFocus[name]}
+                      onColorChange={onColorChange[name]}
+                      onColorChangeComplete={onColorChangeComplete[name]}
                       currentFocus={
                         page.colorFocus && page.colorFocus.key === name
                           ? page.colorFocus.type
