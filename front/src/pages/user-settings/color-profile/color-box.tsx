@@ -58,6 +58,7 @@ const Wrapper = styled.div`
   display: inline-block;
   width: 64px;
   height: 64px;
+  margin: 4px;
   vertical-align: middle;
 `;
 
@@ -68,7 +69,6 @@ const Box = styled.button`
   height: 64px;
   cursor: pointer;
 
-  margin: 4px;
   padding: 1ex;
   border: 1px solid #888888;
   font-size: x-small;
