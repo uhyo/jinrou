@@ -1,6 +1,11 @@
 import { ColorProfile } from '../../defs';
 
 /**
+ * Type of color profile color names.
+ */
+export type ColorName = keyof ColorProfile;
+
+/**
  * Content of tabs.
  * @package
  */
@@ -15,6 +20,13 @@ export interface ColorSettingTab {
    * Whether current profile is being edited.
    */
   editing: boolean;
+  /**
+   * Currently edited color.
+   */
+  colorFocus: null | {
+    key: ColorName;
+    type: 'color' | 'bg';
+  };
 }
 
 /**
@@ -35,11 +47,6 @@ export interface ColorProfileData {
    */
   profile: ColorProfile;
 }
-
-/**
- * Type of color profile color names.
- */
-export type ColorName = keyof ColorProfile;
 
 /**
  * Data of whether sample of each color should be displayed in bold.

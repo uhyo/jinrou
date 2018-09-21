@@ -14,6 +14,7 @@ export class UserSettingsStore {
   public tab: Tab = {
     page: 'color',
     editing: false,
+    colorFocus: null,
   };
   /**
    * Current profile of colors.
@@ -30,5 +31,12 @@ export class UserSettingsStore {
   @action
   public setTab(tab: Tab): void {
     this.tab = tab;
+  }
+  /**
+   * Update a tab.
+   */
+  @action
+  public updateTab(updator: (t: Tab) => Tab): void {
+    this.tab = updator(this.tab);
   }
 }
