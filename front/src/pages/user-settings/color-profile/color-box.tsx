@@ -46,7 +46,7 @@ export class ColorBox extends React.PureComponent<
         </Box>
         {!showPicker ? null : (
           <PickerContainer>
-            <ChromePicker color={colorObj.rgb().string()} />
+            <ChromePicker disableAlpha color={colorObj.rgb().string()} />
           </PickerContainer>
         )}
       </Wrapper>
@@ -55,6 +55,9 @@ export class ColorBox extends React.PureComponent<
 }
 
 const Wrapper = styled.div`
+  position: relative;
+  top: 0;
+  left: 0;
   display: inline-block;
   width: 64px;
   height: 64px;
@@ -69,6 +72,7 @@ const Box = styled.button`
   height: 64px;
   cursor: pointer;
 
+  margin: 0;
   padding: 1ex;
   border: 1px solid #888888;
   font-size: x-small;
@@ -79,9 +83,8 @@ const Box = styled.button`
  */
 const PickerContainer = styled.div`
   display: inline-block;
-  position: relative;
+  position: absolute;
   left: 0;
-  top: 0;
-  width: 0;
-  height: 0;
+  top: 64px;
+  z-index: 10;
 `;
