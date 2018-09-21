@@ -4,11 +4,29 @@ import { UserSettingsStore } from './store';
 import { observer } from 'mobx-react';
 import { I18nProvider, i18n } from '../../i18n';
 import { ColorProfileDisp } from './color-profile';
+import { makeRouter } from '../../common/router';
+import { Tab } from './defs';
 
 export interface IPropUserSettings {
   i18n: i18n;
   store: UserSettingsStore;
 }
+
+/**
+ * router for each tab.
+ */
+const TabRouter = makeRouter<
+  {
+    store: UserSettingsStore;
+  },
+  Tab,
+  'page'
+>(
+  {
+    color: ColorProfileDisp,
+  },
+  'page',
+);
 
 @observer
 export class UserSettings extends React.Component<IPropUserSettings, {}> {
@@ -17,7 +35,7 @@ export class UserSettings extends React.Component<IPropUserSettings, {}> {
     return (
       <I18nProvider i18n={i18n}>
         <h1>{i18n.t('title')}</h1>
-        <ColorProfileDisp profile={store.currentProfile} />
+        <TabRouter page={store.tab} store={store} />
       </I18nProvider>
     );
   }

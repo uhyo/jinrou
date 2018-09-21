@@ -1,17 +1,25 @@
 import * as React from 'react';
 import { I18n } from '../../../i18n';
-import { colorNames, ColorProfileData, sampleIsBold } from '../defs';
+import {
+  colorNames,
+  ColorProfileData,
+  sampleIsBold,
+  ColorSettingTab,
+} from '../defs';
 import { OneColorDisp } from './one-color';
 import { ColorProfile } from '../../../defs';
 import { observer } from 'mobx-react';
 import { ColorsTable } from './elements';
+import { UserSettingsStore } from '../store';
 
 /**
  * Component of color profile.
  */
 const ColorProfileDispInner: React.StatelessComponent<{
-  profile: ColorProfileData;
-}> = ({ profile }) => {
+  page: ColorSettingTab;
+  store: UserSettingsStore;
+}> = ({ store }) => {
+  const profile = store.currentProfile;
   return (
     <I18n>
       {t => (

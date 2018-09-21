@@ -1,10 +1,21 @@
 import { ColorProfile } from '../../defs';
 
 /**
- * Tabs of user settings.
+ * Content of tabs.
  * @package
  */
-export type Tab = 'color';
+export type Tab = ColorSettingTab;
+
+/**
+ * Color setting tab.
+ */
+export interface ColorSettingTab {
+  page: 'color';
+  /**
+   * Whether current profile is being edited.
+   */
+  editing: boolean;
+}
 
 /**
  * Color profile object.

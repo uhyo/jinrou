@@ -10,7 +10,11 @@ export class UserSettingsStore {
   /**
    * Current tab.
    */
-  @observable public tab: Tab = 'color';
+  @observable
+  public tab: Tab = {
+    page: 'color',
+    editing: false,
+  };
   /**
    * Current profile of colors.
    */
