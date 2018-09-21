@@ -3,6 +3,7 @@ import { Tab, ColorProfileData, defaultColorProfile1, ColorName } from './defs';
 import { ColorProfile } from '../../defs';
 import { i18n } from '../../i18n';
 import { deepClone } from '../../util/deep-clone';
+import { TranslationFunction } from 'i18next';
 
 /**
  * States of user settings page.
@@ -20,13 +21,23 @@ export class UserSettingsStore {
   /**
    * Current profile of colors.
    */
-  @observable
-  public currentProfile: ColorProfileData = deepClone(defaultColorProfile1);
+  @observable public currentProfile: ColorProfileData;
 
   constructor(i18n: i18n) {
-    this.currentProfile.name = i18n.t('color.profile') + ' 1';
+    this.currentProfile = defaultColorProfile1(i18n.t.bind(i18n));
   }
+  /**
+   * Saved color profiles.
+   */
+  @observable public savedColorProfiles: ColorProfileData[] | null = null;
 
+  /**
+   * Set saved profiles.
+   */
+  @action
+  public updateSavedProfiles(profiles: ColorProfileData[]): void {
+    this.savedColorProfiles = profiles;
+  }
   /**
    * Go to another tab.
    */

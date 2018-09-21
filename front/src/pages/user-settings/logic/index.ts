@@ -1,7 +1,19 @@
-import { ColorName } from './defs';
-import { UserSettingsStore } from './store';
-import { ColorResult } from './color-profile/color-box';
+import { ColorName } from '../defs';
+import { UserSettingsStore } from '../store';
+import { ColorResult } from '../color-profile/color-box';
+import { UserSettingDatabase } from './indexeddb';
 
+/**
+ * Logic which loads profiles from db.
+ */
+export function loadProfilesLogic(store: UserSettingsStore): void {
+  const db = new UserSettingDatabase();
+  db.transaction('r', db.color, () => db.color.toArray())
+    .then(profiles => {
+      store.updateSavedProfiles(profiles);
+    })
+    .catch(console.error);
+}
 /**
  * Logic when focus is requested.
  */
@@ -49,4 +61,16 @@ export function colorChangeLogic(
   color: ColorResult,
 ): void {
   store.updateCurrentColor(colorName, type, color.hex);
+}
+
+/**
+ * Logic run when color is decided.
+ */
+export function colorChangeCompleteLogic(
+  store: UserSettingsStore,
+  colorName: ColorName,
+  type: 'color' | 'bg',
+  color: ColorResult,
+): void {
+  // TODO
 }

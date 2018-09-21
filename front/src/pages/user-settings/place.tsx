@@ -4,6 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { UserSettingsStore } from './store';
 import { UserSettings } from './component';
 import { i18n, addResource } from '../../i18n';
+import { loadProfilesLogic } from './logic';
 
 /**
  * Options to place.
@@ -28,6 +29,9 @@ export async function place({
   i18n.setDefaultNamespace('user_settings_client');
 
   const store = new UserSettingsStore(i18n);
+
+  // Parallely load data from IndexedDB.
+  loadProfilesLogic(store);
 
   const com = <UserSettings i18n={i18n} store={store} />;
 

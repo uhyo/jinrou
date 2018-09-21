@@ -1,11 +1,16 @@
 import * as React from 'react';
-import { withHandlers } from 'recompose';
+import {
+  withHandlers,
+  compose,
+  InferableComponentEnhancerWithProps,
+} from 'recompose';
 import { I18n } from '../../../i18n';
 import { OneColor } from '../../../defs';
 import { observer } from 'mobx-react';
 import { ColorBox, ColorResult } from './color-box';
 import { SampleTextWrapper } from './elements';
 import { TranslationFunction } from 'i18next';
+import { observerify } from '../../../util/mobx-react';
 
 export interface IPropOneColorDisp {
   t: TranslationFunction;
@@ -60,49 +65,47 @@ const handlersComposer = withHandlers({
   },
 });
 
-export const OneColorDisp = handlersComposer(
-  observer(
-    ({
-      t,
-      name,
-      bold,
-      currentFocus,
-      onFgFocus,
-      onBgFocus,
-      onFgChange,
-      onBgChange,
-      onFgChangeComplete,
-      onBgChangeComplete,
-      data: { color, bg },
-    }) => {
-      return (
-        <>
-          <th>{t(`color.colorSetting.${name}`)}</th>
-          <td>
-            <ColorBox
-              color={bg}
-              label={t('color.backgroundColor')}
-              showPicker={currentFocus === 'bg'}
-              onFocus={onBgFocus}
-              onColorChange={onBgChange}
-              onColorChangeComplete={onBgChangeComplete}
-            />
-            <ColorBox
-              color={color}
-              label={t('color.textColor')}
-              showPicker={currentFocus === 'color'}
-              onFocus={onFgFocus}
-              onColorChange={onFgChange}
-              onColorChangeComplete={onFgChangeComplete}
-            />
-            <SampleText color={color} bg={bg} bold={bold}>
-              {t('color.sampleText')}
-            </SampleText>
-          </td>
-        </>
-      );
-    },
-  ),
+export const OneColorDisp = observerify(handlersComposer)(
+  ({
+    t,
+    name,
+    bold,
+    currentFocus,
+    onFgFocus,
+    onBgFocus,
+    onFgChange,
+    onBgChange,
+    onFgChangeComplete,
+    onBgChangeComplete,
+    data: { color, bg },
+  }) => {
+    return (
+      <>
+        <th>{t(`color.colorSetting.${name}`)}</th>
+        <td>
+          <ColorBox
+            color={bg}
+            label={t('color.backgroundColor')}
+            showPicker={currentFocus === 'bg'}
+            onFocus={onBgFocus}
+            onColorChange={onBgChange}
+            onColorChangeComplete={onBgChangeComplete}
+          />
+          <ColorBox
+            color={color}
+            label={t('color.textColor')}
+            showPicker={currentFocus === 'color'}
+            onFocus={onFgFocus}
+            onColorChange={onFgChange}
+            onColorChangeComplete={onFgChangeComplete}
+          />
+          <SampleText color={color} bg={bg} bold={bold}>
+            {t('color.sampleText')}
+          </SampleText>
+        </td>
+      </>
+    );
+  },
 );
 
 const SampleText: React.StatelessComponent<{

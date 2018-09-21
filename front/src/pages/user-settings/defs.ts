@@ -1,4 +1,5 @@
 import { ColorProfile } from '../../defs';
+import { TranslationFunction } from 'i18next';
 
 /**
  * Type of color profile color names.
@@ -41,7 +42,7 @@ export interface ColorProfileData {
    * ID of this profile.
    * null if it is built-in.
    */
-  id: string | null;
+  id: number | null;
   /**
    * Color profile values.
    */
@@ -65,8 +66,10 @@ export const colorNames: ColorName[] = ['day', 'night', 'heaven'];
 /**
  * Default color profile.
  */
-export const defaultColorProfile1: ColorProfileData = {
-  name: '',
+export const defaultColorProfile1: (
+  t: TranslationFunction,
+) => ColorProfileData = t => ({
+  name: t('color.defaultProfile') + '1',
   id: null,
   profile: {
     day: {
@@ -82,4 +85,11 @@ export const defaultColorProfile1: ColorProfileData = {
       color: '#000000',
     },
   },
-};
+});
+
+/**
+ * Default profiles.
+ */
+export const defaultProfiles = (t: TranslationFunction) => [
+  defaultColorProfile1(t),
+];

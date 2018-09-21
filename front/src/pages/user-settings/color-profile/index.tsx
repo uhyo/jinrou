@@ -6,22 +6,31 @@ import {
   sampleIsBold,
   ColorSettingTab,
   ColorName,
+  defaultProfiles,
 } from '../defs';
 import { OneColorDisp } from './one-color';
 import { ColorProfile } from '../../../defs';
 import { observer } from 'mobx-react';
-import { ColorsTable } from './elements';
+import {
+  ColorsTable,
+  WholeWrapper,
+  MainTableWrapper,
+  ProfileListWrapper,
+} from './elements';
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
 import { arrayMapToObject } from '../../../util/array-map-to-object';
 import { requestFocusLogic, colorChangeLogic } from '../logic';
 import { ColorResult } from './color-box';
+import { OneProfile } from './one-profile';
+import { TranslationFunction } from 'i18next';
+import { observable } from 'mobx';
+import { observerify } from '../../../util/mobx-react';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
   store: UserSettingsStore;
 }
-
 const addProps = withPropsOnChange(
   ['store'],
   ({ store }: IPropColorProfileDisp) => ({
@@ -46,17 +55,26 @@ const addProps = withPropsOnChange(
   }),
 );
 
-/**
- * Component of color profile.
- */
-export const ColorProfileDisp = observer(
-  addProps(({ page, store, onFocus, onColorChange, onColorChangeComplete }) => {
+const ColorProfileDispInner = observerify(
+  withPropsOnChange(['t'], ({ t }: IPropColorProfileDispInner) => ({
+    defaultProfiles: defaultProfiles(t),
+  })),
+)(
+  ({
+    t,
+    page,
+    store,
+    onFocus,
+    onColorChange,
+    onColorChangeComplete,
+    defaultProfiles,
+  }) => {
     const profile = store.currentProfile;
     return (
-      <I18n>
-        {t => (
-          <section>
-            <h2>{t('color.title')}</h2>
+      <section>
+        <h2>{t('color.title')}</h2>
+        <WholeWrapper>
+          <MainTableWrapper>
             <p>{profile.name}</p>
             <ColorsTable>
               <tbody>
@@ -80,9 +98,43 @@ export const ColorProfileDisp = observer(
                 ))}
               </tbody>
             </ColorsTable>
-          </section>
-        )}
-      </I18n>
+          </MainTableWrapper>
+          <ProfileListWrapper>
+            {store.savedColorProfiles == null
+              ? t('loading')
+              : store.savedColorProfiles
+                  .concat(defaultProfiles)
+                  .map(profile => (
+                    <OneProfile
+                      key={profile.id + profile.name}
+                      profile={profile}
+                    />
+                  ))}
+          </ProfileListWrapper>
+        </WholeWrapper>
+      </section>
     );
-  }),
+  },
 );
+
+/**
+ * Component of color profile.
+ */
+export const ColorProfileDisp = addProps(props => {
+  return <I18n>{t => <ColorProfileDispInner t={t} {...props} />}</I18n>;
+});
+
+interface IPropColorProfileDispInner {
+  t: TranslationFunction;
+  page: ColorSettingTab;
+  store: UserSettingsStore;
+  onFocus: Record<ColorName, (type: 'color' | 'bg') => void>;
+  onColorChange: Record<
+    ColorName,
+    (type: 'color' | 'bg', color: ColorResult) => void
+  >;
+  onColorChangeComplete: Record<
+    ColorName,
+    (type: 'color' | 'bg', color: ColorResult) => void
+  >;
+}

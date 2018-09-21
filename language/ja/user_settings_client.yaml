@@ -3,10 +3,13 @@
 # title of page.
 title: "ユーザー設定"
 
+# loading text.
+loading: "読込中…"
+
 # colors.
 color:
   # default name of profile (without number).
-  profile: "プロファイル"
+  defaultProfile: "デフォルトプロファイル"
   # title of colors tab.
   title: "色設定"
   # text color.
