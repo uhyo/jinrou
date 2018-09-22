@@ -78,10 +78,46 @@ export const defaultColorProfile1: DefaultColorProfileData = {
     },
   },
 };
+const defaultColorProfile2: DefaultColorProfileData = {
+  id: null,
+  profile: {
+    day: {
+      bg: '#f0e68c',
+      color: '#000000',
+    },
+    night: {
+      bg: '#000044',
+      color: '#ffffff',
+    },
+    heaven: {
+      bg: '#fffff0',
+      color: '#000000',
+    },
+  },
+};
+const defaultColorProfile3: DefaultColorProfileData = {
+  id: null,
+  profile: {
+    day: {
+      bg: '#ffffff',
+      color: '#000000',
+    },
+    night: {
+      bg: '#000044',
+      color: '#ffffff',
+    },
+    heaven: {
+      bg: '#e3e3e3',
+      color: '#000000',
+    },
+  },
+};
 
 /**
  * Default profiles.
  */
 export const defaultProfiles: DefaultColorProfileData[] = [
   defaultColorProfile1,
+  defaultColorProfile2,
+  defaultColorProfile3,
 ];

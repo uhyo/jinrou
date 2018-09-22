@@ -164,9 +164,10 @@ const ColorProfileDispInner = addDefaultProerties(
                       t={t}
                       key={profile.id + profile.name}
                       profile={profile}
-                      used={
-                        themeStore.savedTheme.colorProfile.id === profile.id
-                      }
+                      used={isProfileUsed(
+                        themeStore.savedTheme.colorProfile,
+                        profile,
+                      )}
                       edited={
                         page.editing && store.currentProfile.id === profile.id
                       }
@@ -187,3 +188,21 @@ const ColorProfileDispInner = addDefaultProerties(
 export const ColorProfileDisp = withTranslationFunction(
   addProps(ColorProfileDispInner),
 );
+
+/**
+ * Return whether given profile is used.
+ */
+function isProfileUsed(
+  currentProfile: ColorProfileData,
+  checkedProfile: ColorProfileData,
+): boolean {
+  if (checkedProfile.id != null) {
+    return currentProfile.id === checkedProfile.id;
+  }
+  // if id is null (default profile), check all values.
+  return colorNames.every(
+    key =>
+      currentProfile.profile[key].bg === checkedProfile.profile[key].bg &&
+      currentProfile.profile[key].color === checkedProfile.profile[key].color,
+  );
+}
