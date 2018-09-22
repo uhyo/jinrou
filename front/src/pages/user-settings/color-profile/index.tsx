@@ -26,6 +26,7 @@ import { TranslationFunction } from 'i18next';
 import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
 import { ColorProfileData, defaultProfiles } from '../../../defs/color-profile';
+import { ThemeStore, themeStore } from '../../../theme';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
@@ -34,6 +35,7 @@ export interface IPropColorProfileDisp {
 const addProps = withPropsOnChange(
   ['store'],
   ({ store, t }: IPropColorProfileDisp & { t: TranslationFunction }) => ({
+    themeStore,
     onFocus: arrayMapToObject<
       ColorName,
       Record<ColorName, (type: 'color' | 'bg') => void>
@@ -71,6 +73,7 @@ interface IPropColorProfileDispInner {
   t: TranslationFunction;
   page: ColorSettingTab;
   store: UserSettingsStore;
+  themeStore: ThemeStore;
   onFocus: Record<ColorName, (type: 'color' | 'bg') => void>;
   onColorChange: Record<
     ColorName,
@@ -99,6 +102,7 @@ const ColorProfileDispInner = addDefaultProerties(
     t,
     page,
     store,
+    themeStore,
     onFocus,
     onColorChange,
     onColorChangeComplete,
@@ -151,6 +155,12 @@ const ColorProfileDispInner = addDefaultProerties(
                       t={t}
                       key={profile.id + profile.name}
                       profile={profile}
+                      used={
+                        themeStore.savedTheme.colorProfile.id === profile.id
+                      }
+                      edited={
+                        page.editing && store.currentProfile.id === profile.id
+                      }
                       onEdit={onEdit}
                       onDelete={onDelete}
                       onUse={onUse}

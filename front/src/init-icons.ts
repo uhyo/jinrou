@@ -22,6 +22,7 @@ import {
   faBan,
   faPen,
   faTrashAlt,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -44,6 +45,7 @@ library.add(
   faSearch,
   faPen,
   faTrashAlt,
+  faCheck,
 );
 
 // Publish to global.

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ProfileWrapper, ProfileName, Button } from './elements';
+import { ProfileWrapper, ProfileName, Button, ActiveButton } from './elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { withProps } from 'recompose';
 import { TranslationFunction } from 'i18next';
@@ -8,6 +8,14 @@ import { ColorProfileData } from '../../../defs/color-profile';
 export interface IPropOneProfile {
   t: TranslationFunction;
   profile: ColorProfileData;
+  /**
+   * Whether this profile is currently used.
+   */
+  used: boolean;
+  /**
+   * Whether this profile is currently edited.
+   */
+  edited: boolean;
   /**
    * Request an edit of this profile.
    */
@@ -34,17 +42,31 @@ const mapProps = withProps(
 );
 
 export const OneProfile = mapProps(
-  ({ t, profile, onEditButton, onDeleteButton, onUseButton }) => {
+  ({ t, profile, used, edited, onEditButton, onDeleteButton, onUseButton }) => {
     const isDefaultProfile = profile.id == null;
     return (
       <ProfileWrapper defaultProfile={isDefaultProfile}>
         <ProfileName>{profile.name}</ProfileName>
         <div>
-          <Button onClick={onUseButton}>{t('color.useButton')}</Button>
-          <Button onClick={onEditButton}>
-            <FontAwesomeIcon icon="pen" />
-            {t('color.editButton')}
-          </Button>
+          {used ? (
+            <ActiveButton disabled>
+              <FontAwesomeIcon icon="check" />
+              {t('color.usedButtonLabel')}
+            </ActiveButton>
+          ) : (
+            <Button onClick={onUseButton}>{t('color.useButton')}</Button>
+          )}
+          {edited ? (
+            <ActiveButton onClick={onEditButton}>
+              <FontAwesomeIcon icon="pen" />
+              {t('color.editButton')}
+            </ActiveButton>
+          ) : (
+            <Button onClick={onEditButton}>
+              <FontAwesomeIcon icon="pen" />
+              {t('color.editButton')}
+            </Button>
+          )}
           <Button disabled={isDefaultProfile} onClick={onDeleteButton}>
             <FontAwesomeIcon icon="trash-alt" />
             {t('color.deleteButton')}

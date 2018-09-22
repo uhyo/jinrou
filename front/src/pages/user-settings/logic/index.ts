@@ -123,6 +123,8 @@ export async function colorChangeCompleteLogic(
     throw new Error('Cannot update profile when not editing');
   }
   const currentId = currentProfile.id;
+  // save into store.
+  store.updateProfileById(currentId, currentProfile);
   // then, save into the db.
   const db = new UserSettingDatabase();
   await db.transaction('rw', db.color, () =>
@@ -131,6 +133,13 @@ export async function colorChangeCompleteLogic(
       id: currentId,
     }),
   );
+  // if this is currently used theme, set into current theme.
+  if (themeStore.savedTheme.colorProfile.id === currentId) {
+    themeStore.update({
+      colorProfile: currentProfile,
+    });
+    themeStore.saveToStorage();
+  }
 }
 
 /**
@@ -197,7 +206,7 @@ export async function startEditLogic(
 }
 
 /**
- * Logic to delete profile.
+ * Logic to delete profile./
  */
 export async function deleteProfileLogic(
   t: TranslationFunction,

@@ -82,4 +82,20 @@ export class UserSettingsStore {
   ): void {
     this.currentProfile.profile[colorName][type] = color;
   }
+  /**
+   * Update profile by id.
+   */
+  @action
+  public updateProfileById(id: number, profile: ColorProfileData): void {
+    const { savedColorProfiles } = this;
+    if (savedColorProfiles == null) {
+      return;
+    }
+    for (let i = 0; i < savedColorProfiles.length; i++) {
+      if (savedColorProfiles[i].id === id) {
+        savedColorProfiles[i] = profile;
+        break;
+      }
+    }
+  }
 }

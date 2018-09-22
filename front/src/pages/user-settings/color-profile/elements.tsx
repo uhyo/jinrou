@@ -84,3 +84,11 @@ export const Button = styled.button`
   border-radius: 3px;
   padding: 8px 10px;
 `;
+
+/**
+ * Button with pretty background.
+ */
+export const ActiveButton = styled(Button)`
+  background-color: #009900;
+  color: white;
+`;
