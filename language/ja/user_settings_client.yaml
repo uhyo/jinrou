@@ -22,6 +22,14 @@ color:
   sampleText: "サンプル表示"
   # text that indicates currently color is edited
   editing: "編集中"
+  # button to edit profile.
+  editButton: "編集"
+  # button to delete profile,
+  deleteButton: "削除"
+  # button to use this profile.
+  useButton: "この設定を使用"
+  # button label when this is currently used.
+  usedButtonLabel: "使用中"
   # new name dialog.
   profileNameDialog:
     title: "設定を編集"

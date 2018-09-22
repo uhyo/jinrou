@@ -15,13 +15,12 @@ export const WholeWrapper = styled.div`
 
 export const MainTableWrapper = styled.div`
   flex: auto 0 1;
-  margin-right: 20px;
+  padding-right: 20px;
+  border-right: 1px solid ${borderColor};
 `;
 export const ProfileListWrapper = styled.div`
-  flex: auto 0 0;
-
-  border-left: 1px solid ${borderColor};
-  padding-left: 20px;
+  flex: 300px 0 1;
+  margin: 0 20px;
 `;
 
 /**
@@ -58,8 +57,6 @@ export const SampleTextWrapper = styled.div`
 export const ProfileWrapper = withProps<{
   defaultProfile: boolean;
 }>()(styled.div)`
-  box-sizing: border-box;
-  width: 200px;
   margin: 1em 0;
   border: 1px solid ${borderColor};
   padding: 8px;

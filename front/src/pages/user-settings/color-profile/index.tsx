@@ -145,6 +145,7 @@ const ColorProfileDispInner = addDefaultProerties(
                   .concat(defaultProfiles)
                   .map(profile => (
                     <OneProfile
+                      t={t}
                       key={profile.id + profile.name}
                       profile={profile}
                       onEdit={onEdit}

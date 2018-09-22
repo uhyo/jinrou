@@ -3,8 +3,10 @@ import { ColorProfileData } from '../defs';
 import { ProfileWrapper, ProfileName, Button } from './elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { withProps } from 'recompose';
+import { TranslationFunction } from 'i18next';
 
 export interface IPropOneProfile {
+  t: TranslationFunction;
   profile: ColorProfileData;
   /**
    * Request an edit of this profile.
@@ -27,19 +29,23 @@ const mapProps = withProps(
 );
 
 export const OneProfile = mapProps(
-  ({ profile, onEditButton, onDeleteButton }) => {
+  ({ t, profile, onEditButton, onDeleteButton }) => {
     const isDefaultProfile = profile.id == null;
     return (
       <ProfileWrapper defaultProfile={isDefaultProfile}>
         <ProfileName>{profile.name}</ProfileName>
         <div>
+          <Button>
+            <FontAwesomeIcon icon="pen" />
+            {t('color.useButton')}
+          </Button>
           <Button onClick={onEditButton}>
             <FontAwesomeIcon icon="pen" />
-            編集
+            {t('color.editButton')}
           </Button>
           <Button disabled={isDefaultProfile} onClick={onDeleteButton}>
             <FontAwesomeIcon icon="trash-alt" />
-            削除
+            {t('color.deleteButton')}
           </Button>
         </div>
       </ProfileWrapper>
