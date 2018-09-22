@@ -28,6 +28,12 @@ color:
     newMessage: "新しい設定の名前を入力してください。"
     ok: "決定"
     cancel: "キャンセル"
+  # delete profile dialog.
+  deleteProfileDialog:
+    title: "設定の消去"
+    message: "設定「{{name}}」を削除してもよろしいですか？"
+    ok: "削除"
+    cancel: "キャンセル"
   # name of each color settings.
   colorSetting:
     day: "昼の背景色と文字色"

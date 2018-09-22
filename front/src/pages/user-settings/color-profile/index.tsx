@@ -25,6 +25,7 @@ import {
   colorChangeLogic,
   startEditLogic,
   colorChangeCompleteLogic,
+  deleteProfileLogic,
 } from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
@@ -61,6 +62,10 @@ const addProps = withPropsOnChange(
       // edit button is pressed.
       startEditLogic(t, store, profile);
     },
+    onDelete: (profile: ColorProfileData) => {
+      // delete button is pressed.
+      deleteProfileLogic(t, store, profile);
+    },
   }),
 );
 
@@ -78,6 +83,7 @@ interface IPropColorProfileDispInner {
     (type: 'color' | 'bg', color: ColorResult) => void
   >;
   onEdit: (profile: ColorProfileData) => void;
+  onDelete: (profile: ColorProfileData) => void;
 }
 
 const addDefaultProerties = observerify(
@@ -95,6 +101,7 @@ const ColorProfileDispInner = addDefaultProerties(
     onColorChange,
     onColorChangeComplete,
     onEdit,
+    onDelete,
     defaultProfiles,
   }) => {
     const profile = store.currentProfile;
@@ -141,6 +148,7 @@ const ColorProfileDispInner = addDefaultProerties(
                       key={profile.id + profile.name}
                       profile={profile}
                       onEdit={onEdit}
+                      onDelete={onDelete}
                     />
                   ))}
           </ProfileListWrapper>

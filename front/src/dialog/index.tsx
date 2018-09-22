@@ -71,6 +71,7 @@ export function showPromptDialog(d: IPromptDialog): Promise<string | null> {
 
 /**
  * Show a confirmation dialog.
+ * Resolves to true if user answered yes.
  */
 export function showConfirmDialog(d: IConfirmDialog): Promise<boolean> {
   return showDialog(null, (open, close) => {

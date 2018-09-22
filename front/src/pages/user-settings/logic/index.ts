@@ -2,7 +2,7 @@ import { ColorName, ColorProfileData } from '../defs';
 import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
 import { UserSettingDatabase, ColorDocWithoutId } from './indexeddb';
-import { showPromptDialog } from '../../../dialog';
+import { showPromptDialog, showConfirmDialog } from '../../../dialog';
 import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
 import { runInAction } from 'mobx';
@@ -176,4 +176,39 @@ export async function startEditLogic(
     });
   }
   return true;
+}
+
+/**
+ * Logic to delete profile.
+ */
+export async function deleteProfileLogic(
+  t: TranslationFunction,
+  store: UserSettingsStore,
+  profile: ColorProfileData,
+): Promise<void> {
+  const profileId = profile.id;
+  if (profileId == null) {
+    throw new Error('Cannot delete default profile');
+  }
+  // prompt user.
+  const res = await showConfirmDialog({
+    modal: true,
+    title: t('color.deleteProfileDialog.title'),
+    message: t('color.deleteProfileDialog.message', { name: profile.name }),
+    yes: t('color.deleteProfileDialog.ok'),
+    no: t('color.deleteProfileDialog.cancel'),
+  });
+  if (!res) {
+    // if user canceled, return.
+    return;
+  }
+  // if current profile became invalid, reset.
+  if (store.currentProfile.id === profileId) {
+    resetColorProfileLogic(store);
+  }
+
+  const db = new UserSettingDatabase();
+  await db.transaction('rw', db.color, () => db.color.delete(profileId));
+  // reload profiles.
+  await loadProfilesLogic(store);
 }
