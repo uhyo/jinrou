@@ -71,13 +71,28 @@ export function colorChangeLogic(
 /**
  * Logic run when color is decided.
  */
-export function colorChangeCompleteLogic(
+export async function colorChangeCompleteLogic(
   store: UserSettingsStore,
   colorName: ColorName,
   type: 'color' | 'bg',
   color: ColorResult,
-): void {
-  // TODO
+): Promise<void> {
+  // update profile with current data.
+  colorChangeLogic(store, colorName, type, color);
+  const { currentProfile } = store;
+  if (currentProfile.id == null) {
+    // this cannot be saved!?
+    throw new Error('Cannot update default profile');
+  }
+  const currentId = currentProfile.id;
+  // then, save into the db.
+  const db = new UserSettingDatabase();
+  await db.transaction('rw', db.color, () =>
+    db.color.put({
+      ...currentProfile,
+      id: currentId,
+    }),
+  );
 }
 
 /**

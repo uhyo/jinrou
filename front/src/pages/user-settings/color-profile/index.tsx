@@ -20,7 +20,12 @@ import {
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
 import { arrayMapToObject } from '../../../util/array-map-to-object';
-import { requestFocusLogic, colorChangeLogic, startEditLogic } from '../logic';
+import {
+  requestFocusLogic,
+  colorChangeLogic,
+  startEditLogic,
+  colorChangeCompleteLogic,
+} from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
 import { TranslationFunction } from 'i18next';
@@ -50,7 +55,7 @@ const addProps = withPropsOnChange(
       ColorName,
       Record<ColorName, (type: 'color' | 'bg', color: ColorResult) => void>
     >(colorNames, colorName => (type: 'color' | 'bg', color) => {
-      // TODO
+      colorChangeCompleteLogic(store, colorName, type, color);
     }),
     onEdit: (profile: ColorProfileData) => {
       // edit button is pressed.
