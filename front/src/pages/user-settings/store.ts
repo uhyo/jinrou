@@ -53,6 +53,13 @@ export class UserSettingsStore {
     this.tab = updator(this.tab);
   }
   /**
+   * Update whole profile.
+   */
+  @action
+  public setCurrentProfile(profile: ColorProfileData): void {
+    this.currentProfile = profile;
+  }
+  /**
    * Update current color.
    */
   @action

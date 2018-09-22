@@ -20,12 +20,12 @@ import {
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
 import { arrayMapToObject } from '../../../util/array-map-to-object';
-import { requestFocusLogic, colorChangeLogic } from '../logic';
+import { requestFocusLogic, colorChangeLogic, startEditLogic } from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
 import { TranslationFunction } from 'i18next';
-import { observable } from 'mobx';
 import { observerify } from '../../../util/mobx-react';
+import { withTranslationFunction } from '../../../i18n/react';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
@@ -33,7 +33,7 @@ export interface IPropColorProfileDisp {
 }
 const addProps = withPropsOnChange(
   ['store'],
-  ({ store }: IPropColorProfileDisp) => ({
+  ({ store, t }: IPropColorProfileDisp & { t: TranslationFunction }) => ({
     onFocus: arrayMapToObject<
       ColorName,
       Record<ColorName, (type: 'color' | 'bg') => void>
@@ -52,14 +52,36 @@ const addProps = withPropsOnChange(
     >(colorNames, colorName => (type: 'color' | 'bg', color) => {
       // TODO
     }),
+    onEdit: (profile: ColorProfileData) => {
+      // edit button is pressed.
+      startEditLogic(t, store, profile);
+    },
   }),
 );
 
-const ColorProfileDispInner = observerify(
+interface IPropColorProfileDispInner {
+  t: TranslationFunction;
+  page: ColorSettingTab;
+  store: UserSettingsStore;
+  onFocus: Record<ColorName, (type: 'color' | 'bg') => void>;
+  onColorChange: Record<
+    ColorName,
+    (type: 'color' | 'bg', color: ColorResult) => void
+  >;
+  onColorChangeComplete: Record<
+    ColorName,
+    (type: 'color' | 'bg', color: ColorResult) => void
+  >;
+  onEdit: (profile: ColorProfileData) => void;
+}
+
+const addDefaultProerties = observerify(
   withPropsOnChange(['t'], ({ t }: IPropColorProfileDispInner) => ({
     defaultProfiles: defaultProfiles(t),
   })),
-)(
+);
+
+const ColorProfileDispInner = addDefaultProerties(
   ({
     t,
     page,
@@ -67,6 +89,7 @@ const ColorProfileDispInner = observerify(
     onFocus,
     onColorChange,
     onColorChangeComplete,
+    onEdit,
     defaultProfiles,
   }) => {
     const profile = store.currentProfile;
@@ -75,7 +98,10 @@ const ColorProfileDispInner = observerify(
         <h2>{t('color.title')}</h2>
         <WholeWrapper>
           <MainTableWrapper>
-            <p>{profile.name}</p>
+            <p>
+              {page.editing ? t('color.editing') + '：' : null}
+              {profile.name}
+            </p>
             <ColorsTable>
               <tbody>
                 {colorNames.map(name => (
@@ -109,6 +135,7 @@ const ColorProfileDispInner = observerify(
                     <OneProfile
                       key={profile.id + profile.name}
                       profile={profile}
+                      onEdit={onEdit}
                     />
                   ))}
           </ProfileListWrapper>
@@ -117,25 +144,9 @@ const ColorProfileDispInner = observerify(
     );
   },
 );
-
 /**
  * Component of color profile.
  */
-export const ColorProfileDisp = addProps(props => {
-  return <I18n>{t => <ColorProfileDispInner t={t} {...props} />}</I18n>;
-});
-
-interface IPropColorProfileDispInner {
-  t: TranslationFunction;
-  page: ColorSettingTab;
-  store: UserSettingsStore;
-  onFocus: Record<ColorName, (type: 'color' | 'bg') => void>;
-  onColorChange: Record<
-    ColorName,
-    (type: 'color' | 'bg', color: ColorResult) => void
-  >;
-  onColorChangeComplete: Record<
-    ColorName,
-    (type: 'color' | 'bg', color: ColorResult) => void
-  >;
-}
+export const ColorProfileDisp = withTranslationFunction(
+  addProps(ColorProfileDispInner),
+);

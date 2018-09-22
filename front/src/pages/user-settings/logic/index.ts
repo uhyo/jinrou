@@ -1,14 +1,19 @@
-import { ColorName } from '../defs';
+import { ColorName, ColorProfileData } from '../defs';
 import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
-import { UserSettingDatabase } from './indexeddb';
+import { UserSettingDatabase, ColorDocWithoutId } from './indexeddb';
+import { showPromptDialog } from '../../../dialog';
+import { TranslationFunction } from 'i18next';
+import { deepClone } from '../../../util/deep-clone';
+import { runInAction } from 'mobx';
 
 /**
  * Logic which loads profiles from db.
  */
-export function loadProfilesLogic(store: UserSettingsStore): void {
+export function loadProfilesLogic(store: UserSettingsStore): Promise<void> {
   const db = new UserSettingDatabase();
-  db.transaction('r', db.color, () => db.color.toArray())
+  return db
+    .transaction('r', db.color, () => db.color.toArray())
     .then(profiles => {
       store.updateSavedProfiles(profiles);
     })
@@ -73,4 +78,57 @@ export function colorChangeCompleteLogic(
   color: ColorResult,
 ): void {
   // TODO
+}
+
+/**
+ * Logic to start editing a profile.
+ */
+export async function startEditLogic(
+  t: TranslationFunction,
+  store: UserSettingsStore,
+  profile: ColorProfileData,
+) {
+  // if profileId is null, this is a default one.
+  if (profile.id == null) {
+    const newName = await showPromptDialog({
+      modal: true,
+      title: t('color.profileNameDialog.title'),
+      message: t('color.profileNameDialog.newMessage'),
+      ok: t('color.profileNameDialog.ok'),
+      cancel: t('color.profileNameDialog.cancel'),
+    });
+    if (!newName) {
+      // canceled.
+      return;
+    }
+    // otherwise, new data is made.
+    const newProfile: ColorDocWithoutId = {
+      name: newName,
+      profile: deepClone(profile.profile),
+    };
+    // write to DB.
+    const db = new UserSettingDatabase();
+    const addedId = await db.transaction('rw', db.color, () =>
+      db.color.add(newProfile as any),
+    );
+    // reload the store.
+    await loadProfilesLogic(store);
+    // then update the store to editing mode.
+    runInAction(() => {
+      store.updateTab(tab => {
+        if (tab.page === 'color') {
+          return {
+            ...tab,
+            editing: true,
+          };
+        } else {
+          return tab;
+        }
+      });
+      store.setCurrentProfile({
+        id: addedId,
+        ...newProfile,
+      });
+    });
+  }
 }

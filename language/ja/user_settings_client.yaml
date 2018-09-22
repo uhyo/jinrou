@@ -20,6 +20,14 @@ color:
   backgroundColor: "背景色"
   # sample text
   sampleText: "サンプル表示"
+  # text that indicates currently color is edited
+  editing: "編集中"
+  # new name dialog.
+  profileNameDialog:
+    title: "設定を編集"
+    newMessage: "新しい設定の名前を入力してください。"
+    ok: "決定"
+    cancel: "キャンセル"
   # name of each color settings.
   colorSetting:
     day: "昼の背景色と文字色"

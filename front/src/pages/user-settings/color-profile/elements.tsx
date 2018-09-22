@@ -55,10 +55,17 @@ export const SampleTextWrapper = styled.div`
 /**
  * Wrapper of profile.
  */
-export const ProfileWrapper = styled.div`
+export const ProfileWrapper = withProps<{
+  defaultProfile: boolean;
+}>()(styled.div)`
+  box-sizing: border-box;
+  width: 200px;
   margin: 1em 0;
   border: 1px solid ${borderColor};
   padding: 8px;
+
+  background-color: ${({ defaultProfile }) =>
+    defaultProfile ? '#f0f0f0' : 'transparent'};
 `;
 
 /**
@@ -73,8 +80,10 @@ export const ProfileName = styled.div`
  * Reusable button.
  */
 export const Button = styled.button`
+  display: inline-block;
+  margin: 6px;
   background-color: white;
   border: 1px solid ${borderColor};
   border-radius: 3px;
-  padding: 4px;
+  padding: 8px 10px;
 `;

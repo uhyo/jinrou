@@ -20,6 +20,8 @@ import {
   faUserTimes,
   faUserSecret,
   faBan,
+  faPen,
+  faTrashAlt,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -40,6 +42,8 @@ library.add(
   faUserSecret,
   faBan,
   faSearch,
+  faPen,
+  faTrashAlt,
 );
 
 // Publish to global.

@@ -24,6 +24,8 @@ export interface ColorDoc {
   profile: ColorProfile;
 }
 
+export type ColorDocWithoutId = Pick<ColorDoc, Exclude<keyof ColorDoc, 'id'>>;
+
 /**
  * Database of user setting.
  */
