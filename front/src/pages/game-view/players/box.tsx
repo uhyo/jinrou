@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { PlayerInfo } from '../defs';
-import styled from 'styled-components';
+import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import { Icon } from './icon';
 import { TranslationFunction } from 'i18next';

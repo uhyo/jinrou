@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css } from '../../../util/styled';
 import { observer } from 'mobx-react';
 import { Log, LogVisibility } from '../defs';
 import { Rule } from '../../../defs';

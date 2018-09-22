@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import * as Color from 'color';
 import { lightA } from '../../../styles/a';

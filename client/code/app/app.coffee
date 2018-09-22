@@ -84,8 +84,6 @@ exports.init = ->
                 checkBanData()
 
         showUrl location.href
-    # ユーザーCSS指定
-    cp=useColorProfile getCurrentColorProfile()
 
     # 履歴の移動
     window.addEventListener "popstate",((e)->
@@ -385,6 +383,8 @@ exports.setCurrentColorProfile=(cp)->
     localStorage.colorProfile=JSON.stringify cp
 # カラー設定反映
 exports.useColorProfile=useColorProfile=(cp)->
+    console.warn "deprecated"
+    ###
     st=$("#profilesheet").get 0
     if st?
         sheet=st.sheet
@@ -418,6 +418,7 @@ body.heaven, #logs .heaven, #logs .prepare {
 }""",3
     # テーマを更新
     JinrouFront.themeStore.update cp
+    ###
     return
 
 # Returns a Promise which resolves to the application config.

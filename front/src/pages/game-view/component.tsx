@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled from 'styled-components';
+import styled from '../../util/styled';
 import { Transition } from 'react-transition-group';
 
 import { ThemeProvider, withProps } from '../../util/styled';
@@ -19,10 +19,10 @@ import { JobForms } from './job-forms';
 import { Logs } from './logs';
 import { ShowRule } from './rule';
 
-import { showConfirmDialog } from '../../dialog';
 import { Players } from './players';
 import { RoomControls } from './room-controls';
 import { lightA } from '../../styles/a';
+import { GlobalStyle } from './global-style';
 
 interface IPropGame {
   /**
@@ -102,6 +102,16 @@ export class Game extends React.Component<IPropGame, {}> {
       user: themeStore.themeObject,
       teamColors,
     };
+
+    const styleMode = gameInfo.finished
+      ? null
+      : roleInfo == null
+        ? 'day'
+        : roleInfo.dead
+          ? 'heaven'
+          : gameInfo.night
+            ? 'night'
+            : 'day';
 
     return (
       <ThemeProvider theme={theme}>
@@ -184,6 +194,7 @@ export class Game extends React.Component<IPropGame, {}> {
               </LogsWrapper>
             </MainWrapper>
           </div>
+          {styleMode != null ? <GlobalStyle mode={styleMode} /> : null}
         </I18nProvider>
       </ThemeProvider>
     );

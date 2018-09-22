@@ -14,6 +14,14 @@ export interface GameInfo {
    */
   day: number;
   /**
+   * Whether it is night.
+   */
+  night: boolean;
+  /**
+   * Whether game is finished.
+   */
+  finished: boolean;
+  /**
    * Status of game.
    */
   status: 'waiting' | 'playing' | 'finished';
