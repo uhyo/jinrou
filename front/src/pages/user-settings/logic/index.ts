@@ -61,7 +61,7 @@ export async function requestFocusLogic(
   if (tab.page !== 'color') {
     return;
   }
-  const { colorFocus } = tab;
+  const { colorFocus, editing } = tab;
   if (
     colorFocus != null &&
     colorFocus.key === colorName &&
@@ -74,21 +74,21 @@ export async function requestFocusLogic(
     });
     return;
   }
-  if (currentProfile.id == null) {
-    // this is default one; cannot edited.
+  if (currentProfile.id == null || !editing) {
+    // this  cannot edited now.
     const ch = await startEditLogic(t, store, currentProfile);
     if (!ch) {
       return;
     }
   }
   // give them focus.
-  store.setTab({
+  store.updateTab(tab => ({
     ...tab,
     colorFocus: {
       key: colorName,
       type,
     },
-  });
+  }));
 }
 
 /**

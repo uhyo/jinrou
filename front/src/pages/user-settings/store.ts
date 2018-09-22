@@ -34,7 +34,7 @@ export class UserSettingsStore {
   constructor(i18n: i18n) {
     this.defaultProfile = {
       ...defaultColorProfile1,
-      name: i18n.t('color.defaultProfile1'),
+      name: i18n.t('color.defaultProfile'),
     };
     this.currentProfile = deepClone(this.defaultProfile);
   }
