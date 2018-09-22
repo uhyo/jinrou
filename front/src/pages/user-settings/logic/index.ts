@@ -7,8 +7,12 @@ import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
 import { runInAction } from 'mobx';
 import { startEditUpdator, endEditUpdator } from './tab-updator';
-import { ColorProfileData } from '../../../defs/color-profile';
+import {
+  ColorProfileData,
+  defaultColorProfile1,
+} from '../../../defs/color-profile';
 import { themeStore } from '../../../theme';
+import { deepExtend } from '../../../util/deep-extend';
 
 /**
  * Reset store's color profile.
@@ -177,7 +181,12 @@ export async function startEditLogic(
     }
     // profileData was loaded.
     runInAction(() => {
-      store.setCurrentProfile(profileData);
+      // fill in case new color is introduced.
+      const pd = {
+        ...profileData,
+        profile: deepExtend(profileData.profile, defaultColorProfile1.profile),
+      };
+      store.setCurrentProfile(pd);
       store.updateTab(startEditUpdator());
     });
   }

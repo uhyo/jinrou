@@ -107,7 +107,7 @@ function loadFromStorage(): SavedTheme {
 }
 
 function treatColorProfile(colorProfile: any): any {
-  return deepExtend({}, defaultColorProfile1, colorProfile);
+  return deepExtend(defaultColorProfile1, colorProfile);
 }
 
 export const themeStore = new ThemeStore();
