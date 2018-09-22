@@ -30,6 +30,8 @@ color:
   useButton: "この設定を使用"
   # button label when this is currently used.
   usedButtonLabel: "使用中"
+  # button to add a new profile.
+  addButton: "追加"
   # new name dialog.
   profileNameDialog:
     title: "設定を編集"

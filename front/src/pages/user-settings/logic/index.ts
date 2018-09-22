@@ -153,36 +153,15 @@ export async function startEditLogic(
 ): Promise<boolean> {
   // if profileId is null, this is a default one.
   if (profile.id == null) {
-    const newName = await showPromptDialog({
-      modal: true,
-      title: t('color.profileNameDialog.title'),
-      message: t('color.profileNameDialog.newMessage'),
-      ok: t('color.profileNameDialog.ok'),
-      cancel: t('color.profileNameDialog.cancel'),
-    });
-    if (!newName) {
+    const addedProfile = await newProfileLogic(t, store, profile);
+    if (addedProfile == null) {
       // canceled.
       return false;
     }
-    // otherwise, new data is made.
-    const newProfile: ColorDocWithoutId = {
-      name: newName,
-      profile: deepClone(profile.profile),
-    };
-    // write to DB.
-    const db = new UserSettingDatabase();
-    const addedId = await db.transaction('rw', db.color, () =>
-      db.color.add(newProfile as any),
-    );
-    // reload the store.
-    await loadProfilesLogic(store);
     // then update the store to editing mode.
     runInAction(() => {
       store.updateTab(startEditUpdator());
-      store.setCurrentProfile({
-        id: addedId,
-        ...newProfile,
-      });
+      store.setCurrentProfile(addedProfile);
     });
   } else {
     const profileId = profile.id;
@@ -203,6 +182,44 @@ export async function startEditLogic(
     });
   }
   return true;
+}
+
+/**
+ * Logic to add a profile.
+ * Returns new profile if successfully added.
+ */
+export async function newProfileLogic(
+  t: TranslationFunction,
+  store: UserSettingsStore,
+  base: ColorProfileData = store.currentProfile,
+): Promise<ColorProfileData | null> {
+  const newName = await showPromptDialog({
+    modal: true,
+    title: t('color.profileNameDialog.title'),
+    message: t('color.profileNameDialog.newMessage'),
+    ok: t('color.profileNameDialog.ok'),
+    cancel: t('color.profileNameDialog.cancel'),
+  });
+  if (!newName) {
+    // canceled.
+    return null;
+  }
+  // otherwise, new data is made.
+  const newProfile: ColorDocWithoutId = {
+    name: newName,
+    profile: deepClone(base.profile),
+  };
+  // write to DB.
+  const db = new UserSettingDatabase();
+  const addedId = await db.transaction('rw', db.color, () =>
+    db.color.add(newProfile as any),
+  );
+  // reload the store.
+  await loadProfilesLogic(store);
+  return {
+    ...newProfile,
+    id: addedId,
+  };
 }
 
 /**

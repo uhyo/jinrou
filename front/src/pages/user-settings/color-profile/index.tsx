@@ -8,6 +8,7 @@ import {
   WholeWrapper,
   MainTableWrapper,
   ProfileListWrapper,
+  Button,
 } from './elements';
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
@@ -19,6 +20,7 @@ import {
   colorChangeCompleteLogic,
   deleteProfileLogic,
   useProfileLogic,
+  newProfileLogic,
 } from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
@@ -63,8 +65,10 @@ const addProps = withPropsOnChange(
       deleteProfileLogic(t, store, profile);
     },
     onUse: (profile: ColorProfileData) => {
-      // TODO
       useProfileLogic(store, profile);
+    },
+    onNewProfile: () => {
+      newProfileLogic(t, store);
     },
   }),
 );
@@ -86,6 +90,7 @@ interface IPropColorProfileDispInner {
   onEdit: (profile: ColorProfileData) => void;
   onDelete: (profile: ColorProfileData) => void;
   onUse: (profile: ColorProfileData) => void;
+  onNewProfile: () => void;
 }
 
 const addDefaultProerties = observerify(
@@ -109,6 +114,7 @@ const ColorProfileDispInner = addDefaultProerties(
     onEdit,
     onDelete,
     onUse,
+    onNewProfile,
     defaultProfiles,
   }) => {
     const profile = store.currentProfile;
@@ -145,7 +151,10 @@ const ColorProfileDispInner = addDefaultProerties(
             </ColorsTable>
           </MainTableWrapper>
           <ProfileListWrapper>
-            <p>{t('color.savedProfiles')}</p>
+            <p>
+              {t('color.savedProfiles')}
+              <Button onClick={onNewProfile}>{t('color.addButton')}</Button>
+            </p>
             {store.savedColorProfiles == null
               ? t('loading')
               : store.savedColorProfiles
