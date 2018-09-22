@@ -235,9 +235,8 @@ const LogBox = styled.div`
  * スキル関係の汎用的なスタイル
  */
 const SkillBox = styled(LogBox)`
-  background-color: #cc0000;
-
-  color: #ffffff;
+  background-color: ${props => props.theme.user.skill.bg};
+  color: ${props => props.theme.user.skill.color};
   font-weight: bold;
 
   > * {
@@ -250,7 +249,8 @@ const SkillBox = styled(LogBox)`
  * GMのスタイル
  */
 const GM1Box = styled(LogBox)`
-  background-color: #ffd1d1;
+  background-color: ${props => props.theme.user.gm1.bg};
+  color: ${props => props.theme.user.gm1.color};
 
   > * {
     border-top: 1px dashed #ffa8a8;
@@ -262,7 +262,8 @@ const GM1Box = styled(LogBox)`
  * GMのスタイル
  */
 const GM2Box = styled(LogBox)`
-  background-color: #ffe5c9;
+  background-color: ${props => props.theme.user.gm2.bg};
+  color: ${props => props.theme.user.gm2.color};
 
   > * {
     border-top: 1px dashed #ffc68a;
@@ -272,7 +273,8 @@ const GM2Box = styled(LogBox)`
 
 const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
   audience: styled(LogBox)`
-    background-color: #ddffdd;
+    background-color: ${props => props.theme.user.audience.bg};
+    color: ${props => props.theme.user.audience.color};
 
     > * {
       border-top: 1px dashed #eeffee;
@@ -280,7 +282,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   couple: styled(LogBox)`
-    background-color: #ddddff;
+    background-color: ${props => props.theme.user.couple.bg};
+    color: ${props => props.theme.user.couple.color};
 
     > * {
       border-top: 1px dashed #eeffee;
@@ -292,8 +295,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     color: ${props => props.theme.user.day.color};
   `,
   fox: styled(LogBox)`
-    background-color: #934293;
-    color: #ffffff;
+    background-color: ${props => props.theme.user.fox.bg};
+    color: ${props => props.theme.user.fox.color};
   `,
   gm: GM1Box,
   gmaudience: GM2Box,
@@ -310,15 +313,16 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   heavenmonologue: styled(LogBox)`
-    background-color: #8888aa;
-    color: #ffffff;
+    background-color: ${props => props.theme.user.heavenmonologue.bg};
+    color: ${props => props.theme.user.heavenmonologue.color};
   `,
   'half-day': styled(LogBox)`
-    background-color: rgb(248, 243, 190);
-    color: #999999;
+    background-color: ${props => props.theme.user.half_day.bg};
+    color: ${props => props.theme.user.half_day.color};
   `,
   helperwhisper: styled(LogBox)`
-    background-color: #fff799;
+    background-color: ${props => props.theme.user.helperwhisper.bg};
+    color: ${props => props.theme.user.helperwhisper.color};
 
     > * {
       border-top: 1px dashed #e8e000;
@@ -326,8 +330,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   inlog: styled(LogBox)`
-    background-color: #a6daff;
-    font-weight: bold;
+    background-color: ${props => props.theme.user.inlog.bg};
+    color: ${props => props.theme.user.inlog.color};
 
     > * {
       border-top: 1px dashed #00dce8;
@@ -335,7 +339,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   madcouple: styled(LogBox)`
-    background-color: #e2e2c0;
+    background-color: ${props => props.theme.user.madcouple.bg};
+    color: ${props => props.theme.user.madcouple.color};
 
     > * {
       border-top: 1px dashed #eeffee;
@@ -343,8 +348,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   monologue: styled(LogBox)`
-    background-color: ${props => props.theme.user.night.bg};
-    color: ${props => props.theme.user.night.color};
+    background-color: ${props => props.theme.user.monologue.bg};
+    color: ${props => props.theme.user.monologue.color};
 
     > * {
       border-top: 1px dashed #000066;
@@ -352,7 +357,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   nextturn: styled(LogBox)`
-    background-color: #eeeeee;
+    background-color: ${props => props.theme.user.nextturn.bg};
+    color: ${props => props.theme.user.nextturn.color};
     font-weight: bold;
 
     > * {
@@ -370,10 +376,12 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   probability_table: styled(LogBox)`
-    background-color: #eeeeee;
+    background-color: ${props => props.theme.user.probability_table.bg};
+    color: ${props => props.theme.user.probability_table.color};
   `,
   system: styled(LogBox)`
-    background-color: #cccccc;
+    background-color: ${props => props.theme.user.system.bg};
+    color: ${props => props.theme.user.system.color};
     font-weight: bold;
 
     > * {
@@ -382,8 +390,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   userinfo: styled(LogBox)`
-    background-color: #0000cc;
-    color: #ffffff;
+    background-color: ${props => props.theme.user.userinfo.bg};
+    color: ${props => props.theme.user.userinfo.color};
     font-weight: bold;
 
     > * {
@@ -396,8 +404,8 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     color: ${props => props.theme.user.day.color};
   `,
   voteto: styled(LogBox)`
-    background-color: #009900;
-    color: #ffffff;
+    background-color: ${props => props.theme.user.voteto.bg};
+    color: ${props => props.theme.user.voteto.color};
     font-weight: bold;
     > * {
       border-top: 1px dashed #007000;
@@ -405,16 +413,16 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
     }
   `,
   werewolf: styled(LogBox)`
-    background-color: ${props => props.theme.user.night.bg};
-    color: ${props => props.theme.user.night.color};
+    background-color: ${props => props.theme.user.werewolf.bg};
+    color: ${props => props.theme.user.werewolf.color};
     > * {
       border-top: 1px dashed #000066;
       border-bottom: 1px dashed #000066;
     }
   `,
   will: styled(LogBox)`
-    background-color: #222222;
-    color: #ffffff;
+    background-color: ${props => props.theme.user.will.bg};
+    color: ${props => props.theme.user.will.color};
   `,
   emmaskill: SkillBox,
   eyeswolfskill: SkillBox,

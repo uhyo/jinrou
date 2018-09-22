@@ -200,9 +200,12 @@ function isProfileUsed(
     return currentProfile.id === checkedProfile.id;
   }
   // if id is null (default profile), check all values.
-  return colorNames.every(
-    key =>
-      currentProfile.profile[key].bg === checkedProfile.profile[key].bg &&
-      currentProfile.profile[key].color === checkedProfile.profile[key].color,
+  return (
+    currentProfile.id == null &&
+    colorNames.every(
+      key =>
+        currentProfile.profile[key].bg === checkedProfile.profile[key].bg &&
+        currentProfile.profile[key].color === checkedProfile.profile[key].color,
+    )
   );
 }

@@ -1,7 +1,7 @@
 import { ColorName } from '../defs';
 import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
-import { UserSettingDatabase, ColorDocWithoutId } from './indexeddb';
+import { UserSettingDatabase, ColorDocWithoutId, ColorDoc } from './indexeddb';
 import { showPromptDialog, showConfirmDialog } from '../../../dialog';
 import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
@@ -31,7 +31,7 @@ export async function loadProfilesLogic(
   store: UserSettingsStore,
 ): Promise<void> {
   const db = new UserSettingDatabase();
-  const profiles = await db.color.toArray();
+  const profiles = (await db.color.toArray()).map(updateProfileToLatest);
   // Read current theme.
   const currentProfile = themeStore.savedTheme.colorProfile;
   // check whether current theme is in saved profiles.
@@ -182,15 +182,18 @@ export async function startEditLogic(
     // profileData was loaded.
     runInAction(() => {
       // fill in case new color is introduced.
-      const pd = {
-        ...profileData,
-        profile: deepExtend(profileData.profile, defaultColorProfile1.profile),
-      };
-      store.setCurrentProfile(pd);
+      store.setCurrentProfile(updateProfileToLatest(profileData));
       store.updateTab(startEditUpdator());
     });
   }
   return true;
+}
+
+function updateProfileToLatest(profileDoc: ColorDoc): ColorProfileData {
+  return {
+    ...profileDoc,
+    profile: deepExtend(defaultColorProfile1.profile, profileDoc.profile),
+  };
 }
 
 /**
