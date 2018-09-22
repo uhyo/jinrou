@@ -22,37 +22,43 @@ export function loadProfilesLogic(store: UserSettingsStore): Promise<void> {
 /**
  * Logic when focus is requested.
  */
-export function requestFocusLogic(
+export async function requestFocusLogic(
+  t: TranslationFunction,
   store: UserSettingsStore,
   colorName: ColorName,
   type: 'color' | 'bg',
-): void {
-  store.updateTab(tab => {
-    if (tab.page === 'color') {
-      if (
-        tab.colorFocus != null &&
-        tab.colorFocus.key === colorName &&
-        tab.colorFocus.type === type
-      ) {
-        // it has already focus.
-        return {
-          ...tab,
-          colorFocus: null,
-        };
-      } else {
-        // give them focus.
-        return {
-          ...tab,
-          colorFocus: {
-            key: colorName,
-            type,
-          },
-        };
-      }
-    } else {
-      // do not change.
-      return tab;
+): Promise<void> {
+  const { tab, currentProfile } = store;
+  if (tab.page !== 'color') {
+    return;
+  }
+  const { colorFocus } = tab;
+  if (
+    colorFocus != null &&
+    colorFocus.key === colorName &&
+    colorFocus.type === type
+  ) {
+    // it has already focus.
+    store.setTab({
+      ...tab,
+      colorFocus: null,
+    });
+    return;
+  }
+  if (currentProfile.id == null) {
+    // this is default one; cannot edited.
+    const ch = await startEditLogic(t, store, currentProfile);
+    if (!ch) {
+      return;
     }
+  }
+  // give them focus.
+  store.setTab({
+    ...tab,
+    colorFocus: {
+      key: colorName,
+      type,
+    },
   });
 }
 
@@ -79,10 +85,13 @@ export async function colorChangeCompleteLogic(
 ): Promise<void> {
   // update profile with current data.
   colorChangeLogic(store, colorName, type, color);
-  const { currentProfile } = store;
+  const { currentProfile, tab } = store;
   if (currentProfile.id == null) {
     // this cannot be saved!?
     throw new Error('Cannot update default profile');
+  }
+  if (tab.page !== 'color' || !tab.editing) {
+    throw new Error('Cannot update profile when not editing');
   }
   const currentId = currentProfile.id;
   // then, save into the db.
@@ -97,12 +106,13 @@ export async function colorChangeCompleteLogic(
 
 /**
  * Logic to start editing a profile.
+ * Returns Promise which resolves to true if starting is successful.
  */
 export async function startEditLogic(
   t: TranslationFunction,
   store: UserSettingsStore,
   profile: ColorProfileData,
-) {
+): Promise<boolean> {
   // if profileId is null, this is a default one.
   if (profile.id == null) {
     const newName = await showPromptDialog({
@@ -114,7 +124,7 @@ export async function startEditLogic(
     });
     if (!newName) {
       // canceled.
-      return;
+      return false;
     }
     // otherwise, new data is made.
     const newProfile: ColorDocWithoutId = {
@@ -145,5 +155,8 @@ export async function startEditLogic(
         ...newProfile,
       });
     });
+  } else {
+    // TODO
   }
+  return true;
 }

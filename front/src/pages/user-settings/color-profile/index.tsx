@@ -43,7 +43,7 @@ const addProps = withPropsOnChange(
       ColorName,
       Record<ColorName, (type: 'color' | 'bg') => void>
     >(colorNames, name => (type: 'color' | 'bg') => {
-      requestFocusLogic(store, name, type);
+      requestFocusLogic(t, store, name, type);
     }),
     onColorChange: arrayMapToObject<
       ColorName,
