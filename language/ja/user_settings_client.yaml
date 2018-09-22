@@ -6,6 +6,13 @@ title: "ユーザー設定"
 # loading text.
 loading: "読込中…"
 
+# back to mypage link.
+backLink: "マイページに戻る"
+
+# description of settings page.
+description: "ユーザー設定は端末ごとに保存されます。"
+
+
 # colors.
 color:
   # default name of profile (without number).

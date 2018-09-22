@@ -10,7 +10,7 @@ exports.start=(user)->
         $("#changeprofile").get(0).elements["icon"].value=url
     if user?.icon?
         seticon user.icon
-    
+
     $("section.profile p.edit").click (je)->
         transforminput je.target
     transforminput=(t)->
@@ -25,7 +25,7 @@ exports.start=(user)->
         np.appendChild inp
         t.parentNode?.replaceChild np,t
         inp.focus()
-        
+
     $("#changeprofile").submit (je)->
         je.preventDefault()
         q=Index.util.formQuery je.target
@@ -50,7 +50,7 @@ exports.start=(user)->
                             Index.util.message "通知",result.info
                 else
                     pf()
-                    
+
     $("#mailconfirmsecuritybutton").click (je)->
         je.preventDefault()
         ss.rpc "user.changeMailconfirmsecurity", {
@@ -73,17 +73,17 @@ exports.start=(user)->
                     Index.util.message "通知", "パスワードを変更しました。"
                     $("#changepassword").get(0).hidden=true
                     app.page "user-profile",result,Index.user.profile,result
-                    
+
     $("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
         Index.util.iconSelectWindow $("#myicon").attr("src"),(url)->
             seticon url
     ),false
-    
+
     $("#changeprofile").get(0).elements["colorsettingbutton"].addEventListener "click",(e)->
         # 移動
-        app.page "user-color",null,Index.user.color,null
+        app.showUrl "/my/settings"
     ,false
-    
+
     # 称号
     unless user.prizenames?.length>0
         # 称号がない
@@ -136,7 +136,7 @@ exports.start=(user)->
         li.classList.add "deleter"
         li.draggable=true
         ull.append li
-        
+
         # 編集部分
         ull=$("#prizeedit")
         unless user.nowprize?   # 無い場合はデフォルト
@@ -152,7 +152,7 @@ exports.start=(user)->
                     li.classList.add "prizetip"
                 else
                     li.classList.add "conjtip"
-                
+
                 obj=user.nowprize[0]
                 if obj?.type==type
                     # 一致するので入れる
@@ -166,7 +166,7 @@ exports.start=(user)->
                 ull.append li
         $("#prizeedit li").each ->
             @dropzone="copy"
-            
+
         # dragstart
         dragstart=(e)->
             e.dataTransfer.setData 'Text',JSON.stringify {id:e.target.dataset.id, value:e.target.textContent,deleter:e.target.classList.contains "deleter"}
@@ -192,8 +192,8 @@ exports.start=(user)->
                     if t.classList.contains "conjtip"
                         t.textContent=obj.value
         ),false
-        
-            
+
+
         $("#prizearea").submit (je)->
             je.preventDefault()
             que=util.formQuery je.target
@@ -216,12 +216,12 @@ exports.start=(user)->
                             }
                         null
                     query.prize=prize
-                    
+
                     ss.rpc "user.usePrize", query,(result)->
                         if result?.error?
                             util.message "エラー",result.error
-    
-    Index.game.rooms.start()    # ルーム一覧を表示してもらう    
+
+    Index.game.rooms.start()    # ルーム一覧を表示してもらう
     # お知らせ一覧を取得する
     ss.rpc "user.getNews",(docs)->
         if docs.error?
