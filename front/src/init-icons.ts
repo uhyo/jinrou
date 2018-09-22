@@ -1,9 +1,9 @@
 // Init Font Awesome icons.
-import fontawesome from '@fortawesome/fontawesome';
+import { library, dom, icon } from '@fortawesome/fontawesome-svg-core';
 import {
   faQuestionCircle,
   faIdCard,
-} from '@fortawesome/fontawesome-free-regular';
+} from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
   faMinusSquare,
@@ -20,9 +20,9 @@ import {
   faUserTimes,
   faUserSecret,
   faBan,
-} from '@fortawesome/fontawesome-free-solid';
+} from '@fortawesome/free-solid-svg-icons';
 
-fontawesome.library.add(
+library.add(
   faQuestionCircle,
   faIdCard,
   faPlusSquare,
@@ -43,4 +43,9 @@ fontawesome.library.add(
 );
 
 // Publish to global.
-(window as any).FontAwesome = fontawesome;
+(window as any).FontAwesome = {
+  icon,
+};
+
+// currently this is needed.
+dom.watch();
