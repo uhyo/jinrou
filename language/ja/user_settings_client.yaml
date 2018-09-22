@@ -9,7 +9,9 @@ loading: "読込中…"
 # colors.
 color:
   # default name of profile (without number).
-  defaultProfile: "デフォルトプロファイル"
+  defaultProfile: "デフォルト設定"
+  # saved profiles
+  savedProfiles: "保存済みの色設定"
   # title of colors tab.
   title: "色設定"
   # text color.

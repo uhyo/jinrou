@@ -100,6 +100,7 @@ const ColorProfileDispInner = observerify(
             </ColorsTable>
           </MainTableWrapper>
           <ProfileListWrapper>
+            <p>{t('color.savedProfiles')}</p>
             {store.savedColorProfiles == null
               ? t('loading')
               : store.savedColorProfiles

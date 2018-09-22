@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ColorProfileData } from '../defs';
+import { ProfileWrapper, ProfileName, Button } from './elements';
 
 export interface IPropOneProfile {
   profile: ColorProfileData;
@@ -8,5 +9,13 @@ export interface IPropOneProfile {
 export const OneProfile: React.StatelessComponent<IPropOneProfile> = ({
   profile,
 }) => {
-  return <div>{profile.name}</div>;
+  return (
+    <ProfileWrapper>
+      <ProfileName>{profile.name}</ProfileName>
+      <div>
+        <Button>編集</Button>
+        <Button>削除</Button>
+      </div>
+    </ProfileWrapper>
+  );
 };
