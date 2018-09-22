@@ -22,9 +22,14 @@ export class UserSettingsStore {
    * Current profile of colors.
    */
   @observable public currentProfile: ColorProfileData;
+  /**
+   * Profile selected by default.
+   */
+  public defaultProfile: ColorProfileData;
 
   constructor(i18n: i18n) {
-    this.currentProfile = defaultColorProfile1(i18n.t.bind(i18n));
+    this.defaultProfile = defaultColorProfile1(i18n.t.bind(i18n));
+    this.currentProfile = deepClone(this.defaultProfile);
   }
   /**
    * Saved color profiles.

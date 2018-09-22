@@ -6,6 +6,17 @@ import { showPromptDialog } from '../../../dialog';
 import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
 import { runInAction } from 'mobx';
+import { startEditUpdator, endEditUpdator } from './tab-updator';
+
+/**
+ * Reset store's color profile.
+ */
+export function resetColorProfileLogic(store: UserSettingsStore): void {
+  runInAction(() => {
+    store.setCurrentProfile(store.defaultProfile);
+    store.updateTab(endEditUpdator());
+  });
+}
 
 /**
  * Logic which loads profiles from db.
@@ -140,23 +151,29 @@ export async function startEditLogic(
     await loadProfilesLogic(store);
     // then update the store to editing mode.
     runInAction(() => {
-      store.updateTab(tab => {
-        if (tab.page === 'color') {
-          return {
-            ...tab,
-            editing: true,
-          };
-        } else {
-          return tab;
-        }
-      });
+      store.updateTab(startEditUpdator());
       store.setCurrentProfile({
         id: addedId,
         ...newProfile,
       });
     });
   } else {
-    // TODO
+    const profileId = profile.id;
+    // Read from database this setting.
+    const db = new UserSettingDatabase();
+    const profileData = await db.color.get(profileId);
+    if (profileData == null) {
+      // This was already deleted.
+      resetColorProfileLogic(store);
+      // Trigger reload.
+      await loadProfilesLogic(store);
+      return false;
+    }
+    // profileData was loaded.
+    runInAction(() => {
+      store.setCurrentProfile(profileData);
+      store.updateTab(startEditUpdator());
+    });
   }
   return true;
 }
