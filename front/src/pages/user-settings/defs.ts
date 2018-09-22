@@ -31,25 +31,6 @@ export interface ColorSettingTab {
 }
 
 /**
- * Color profile object.
- */
-export interface ColorProfileData {
-  /**
-   * Name of this profile.
-   */
-  name: string;
-  /**
-   * ID of this profile.
-   * null if it is built-in.
-   */
-  id: number | null;
-  /**
-   * Color profile values.
-   */
-  profile: ColorProfile;
-}
-
-/**
  * Data of whether sample of each color should be displayed in bold.
  */
 export const sampleIsBold: Record<ColorName, boolean> = {
@@ -62,34 +43,3 @@ export const sampleIsBold: Record<ColorName, boolean> = {
  * List of color setting names.
  */
 export const colorNames: ColorName[] = ['day', 'night', 'heaven'];
-
-/**
- * Default color profile.
- */
-export const defaultColorProfile1: (
-  t: TranslationFunction,
-) => ColorProfileData = t => ({
-  name: t('color.defaultProfile') + '1',
-  id: null,
-  profile: {
-    day: {
-      bg: '#ffd953',
-      color: '#000000',
-    },
-    night: {
-      bg: '#000044',
-      color: '#ffffff',
-    },
-    heaven: {
-      bg: '#fffff0',
-      color: '#000000',
-    },
-  },
-});
-
-/**
- * Default profiles.
- */
-export const defaultProfiles = (t: TranslationFunction) => [
-  defaultColorProfile1(t),
-];

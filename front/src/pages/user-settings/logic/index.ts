@@ -1,4 +1,4 @@
-import { ColorName, ColorProfileData } from '../defs';
+import { ColorName } from '../defs';
 import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
 import { UserSettingDatabase, ColorDocWithoutId } from './indexeddb';
@@ -7,6 +7,8 @@ import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
 import { runInAction } from 'mobx';
 import { startEditUpdator, endEditUpdator } from './tab-updator';
+import { ColorProfileData } from '../../../defs/color-profile';
+import { themeStore } from '../../../theme';
 
 /**
  * Reset store's color profile.
@@ -21,14 +23,30 @@ export function resetColorProfileLogic(store: UserSettingsStore): void {
 /**
  * Logic which loads profiles from db.
  */
-export function loadProfilesLogic(store: UserSettingsStore): Promise<void> {
+export async function loadProfilesLogic(
+  store: UserSettingsStore,
+): Promise<void> {
   const db = new UserSettingDatabase();
-  return db
-    .transaction('r', db.color, () => db.color.toArray())
-    .then(profiles => {
+  const profiles = await db.color.toArray();
+  // Read current theme.
+  const currentProfile = themeStore.savedTheme.colorProfile;
+  // check whether current theme is in saved profiles.
+  if (profiles.some(p => p.id === currentProfile.id)) {
+    runInAction(() => {
       store.updateSavedProfiles(profiles);
-    })
-    .catch(console.error);
+      store.setCurrentProfile(currentProfile);
+    });
+    return;
+  }
+  // if not the default one, discard its id.
+  runInAction(() => {
+    store.updateSavedProfiles(profiles);
+    store.setCurrentProfile({
+      ...currentProfile,
+      id: null,
+      name: currentProfile.name || '?',
+    });
+  });
 }
 /**
  * Logic when focus is requested.
@@ -211,4 +229,23 @@ export async function deleteProfileLogic(
   await db.transaction('rw', db.color, () => db.color.delete(profileId));
   // reload profiles.
   await loadProfilesLogic(store);
+}
+
+/**
+ * Use a selected profile.
+ */
+export function useProfileLogic(
+  store: UserSettingsStore,
+  profile: ColorProfileData,
+) {
+  // focus in store.
+  runInAction(() => {
+    store.setCurrentProfile(profile);
+    store.updateTab(endEditUpdator());
+  });
+  // set current theme.
+  themeStore.update({
+    colorProfile: profile,
+  });
+  themeStore.saveToStorage();
 }

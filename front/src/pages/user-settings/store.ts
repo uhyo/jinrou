@@ -1,9 +1,13 @@
 import { observable, action } from 'mobx';
-import { Tab, ColorProfileData, defaultColorProfile1, ColorName } from './defs';
+import { Tab, ColorName } from './defs';
 import { ColorProfile } from '../../defs';
 import { i18n } from '../../i18n';
 import { deepClone } from '../../util/deep-clone';
 import { TranslationFunction } from 'i18next';
+import {
+  ColorProfileData,
+  defaultColorProfile1,
+} from '../../defs/color-profile';
 
 /**
  * States of user settings page.
@@ -28,7 +32,10 @@ export class UserSettingsStore {
   public defaultProfile: ColorProfileData;
 
   constructor(i18n: i18n) {
-    this.defaultProfile = defaultColorProfile1(i18n.t.bind(i18n));
+    this.defaultProfile = {
+      ...defaultColorProfile1,
+      name: i18n.t('color.defaultProfile1'),
+    };
     this.currentProfile = deepClone(this.defaultProfile);
   }
   /**

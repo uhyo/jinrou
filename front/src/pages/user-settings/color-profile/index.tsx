@@ -1,13 +1,5 @@
 import * as React from 'react';
-import { I18n } from '../../../i18n';
-import {
-  colorNames,
-  ColorProfileData,
-  sampleIsBold,
-  ColorSettingTab,
-  ColorName,
-  defaultProfiles,
-} from '../defs';
+import { colorNames, sampleIsBold, ColorSettingTab, ColorName } from '../defs';
 import { OneColorDisp } from './one-color';
 import { ColorProfile } from '../../../defs';
 import { observer } from 'mobx-react';
@@ -26,12 +18,14 @@ import {
   startEditLogic,
   colorChangeCompleteLogic,
   deleteProfileLogic,
+  useProfileLogic,
 } from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
 import { TranslationFunction } from 'i18next';
 import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
+import { ColorProfileData, defaultProfiles } from '../../../defs/color-profile';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
@@ -66,6 +60,10 @@ const addProps = withPropsOnChange(
       // delete button is pressed.
       deleteProfileLogic(t, store, profile);
     },
+    onUse: (profile: ColorProfileData) => {
+      // TODO
+      useProfileLogic(store, profile);
+    },
   }),
 );
 
@@ -84,11 +82,15 @@ interface IPropColorProfileDispInner {
   >;
   onEdit: (profile: ColorProfileData) => void;
   onDelete: (profile: ColorProfileData) => void;
+  onUse: (profile: ColorProfileData) => void;
 }
 
 const addDefaultProerties = observerify(
   withPropsOnChange(['t'], ({ t }: IPropColorProfileDispInner) => ({
-    defaultProfiles: defaultProfiles(t),
+    defaultProfiles: defaultProfiles.map((df, idx) => ({
+      ...df,
+      name: t('color.defaultProfile') + ' ' + (idx + 1),
+    })),
   })),
 );
 
@@ -102,6 +104,7 @@ const ColorProfileDispInner = addDefaultProerties(
     onColorChangeComplete,
     onEdit,
     onDelete,
+    onUse,
     defaultProfiles,
   }) => {
     const profile = store.currentProfile;
@@ -150,6 +153,7 @@ const ColorProfileDispInner = addDefaultProerties(
                       profile={profile}
                       onEdit={onEdit}
                       onDelete={onDelete}
+                      onUse={onUse}
                     />
                   ))}
           </ProfileListWrapper>
