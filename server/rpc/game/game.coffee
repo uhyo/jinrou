@@ -7237,7 +7237,7 @@ class CraftyWolf extends Werewolf
                 formType: FormType.optional
                 objid: @objid
             }
-        else if Phase.isNight(game.phase)
+        else if Phase.isNight(game.phase) && @flag != "going"
             # 死んだふりボタン
             result.open.push "CraftyWolf"
             result.forms.push {
