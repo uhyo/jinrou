@@ -162,8 +162,8 @@ export async function startEditLogic(
       // canceled.
       return false;
     }
-    // then update the store to editing mode.
     runInAction(() => {
+      // then update the store to editing mode.
       store.updateTab(startEditUpdator());
       store.setCurrentProfile(addedProfile);
     });
@@ -228,6 +228,12 @@ export async function newProfileLogic(
   );
   // reload the store.
   await loadProfilesLogic(store);
+  const addedProfile = {
+    ...newProfile,
+    id: addedId,
+  };
+  // use this one.
+  useProfileLogic(store, addedProfile);
   return {
     ...newProfile,
     id: addedId,
