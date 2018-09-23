@@ -9293,22 +9293,25 @@ class Chemical extends Complex
 
     die:(game, found, from)->
         return if @dead
-        if found=="werewolf" && (!@willDieWerewolf || (@sub? && !@sub.willDieWerewolf))
-            # 人狼に対する襲撃耐性
-            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
-            return
+        wolfTolerance = false
         # main, subに対してdieをsimulateする（ただしdyingはdummyにする）
         d = Object.getOwnPropertyDescriptor(this, "dying")
         @dying = ()-> null
 
         # どちらかが耐えたら耐える
-        @main.die game, found, from
+        if found == "werewolf" && !@main.willDieWerewolf
+            wolfTolerance = true
+        else
+            @main.die game, found, from
         isdead = @dead
 
         pl = game.getPlayer @id
         pl.setDead false, null
         if @sub?
-            @sub.die game, found, from
+            if found == "werewolf" && !@sub.willDieWerewolf
+                wolfTolerance = true
+            else
+                @sub.die game, found, from
             isdead = isdead && @dead
         if d?
             Object.defineProperty this, "dying", d
@@ -9321,6 +9324,9 @@ class Chemical extends Complex
             pl.setDead true, found
             pl.dying game, found, from
         else
+            if wolfTolerance
+                # 人狼に対する襲撃耐性で耐えた
+                game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             pl.setDead false, null
     touched:(game, from)->
         @mcall game, @main.touched, game, from
