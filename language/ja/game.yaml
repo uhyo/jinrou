@@ -100,6 +100,10 @@ error:
     noWill: "遺言は使えません。"
     # You are already dead.
     alreadyDead: "お前は既に死んでいる"
+  # norevive setting.
+  norevive:
+    # Norevive is already set.
+    done: "既に蘇生辞退しています。"
 
 
 # System Logs

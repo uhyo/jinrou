@@ -10899,6 +10899,10 @@ module.exports.actions=(req,res,ss)->
         player=game.getPlayerReal req.session.userId
         unless player?
             res game.i18n.t "error.common.notPlayer"
+            return
+        if player.norevive
+            res game.i18n.t "error.norevive.done"
+            return
         player.setNorevive true
         log=
             mode:"userinfo"
