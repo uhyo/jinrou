@@ -3763,8 +3763,9 @@ class WolfDiviner extends Werewolf
             jobnames=Object.keys jobs
             # inspect all target roles.
             for targetpl in p.accessMainLevel()
+                [_, mainpl] = constructMainChain targetpl
                 # check whether this target should change.
-                unless targetpl.getTeam()=="Werewolf" && targetpl.isHuman()
+                unless mainpl.getTeam()=="Werewolf" && mainpl.isHuman()
                     continue
                 newjob=jobnames[Math.floor Math.random()*jobnames.length]
                 # convert this to new pl.
