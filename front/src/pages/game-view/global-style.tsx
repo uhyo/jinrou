@@ -46,7 +46,7 @@ export const GlobalStyle = withTheme(
       const sheet = style.sheet as CSSStyleSheet;
       // remove existing styles
       while (sheet.cssRules.length > 0) {
-        sheet.removeRule(0);
+        sheet.deleteRule(0);
       }
       // add styles.
       switch (mode) {

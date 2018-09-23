@@ -3333,12 +3333,12 @@ class Diviner extends Player
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
-            @showdivineresult game
+            @showdivineresult game, @target
         null
     sunrise:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @showdivineresult game
+            @showdivineresult game, @target
 
     midnight:(game,midnightSort)->
         unless game.rule.divineresult=="immediate"
@@ -3359,7 +3359,7 @@ class Diviner extends Player
                 day: game.day
             }
             @addGamelog game,"divine",p.type,@target    # 占った
-    showdivineresult:(game)->
+    showdivineresult:(game, target)->
         r=@flag[@flag.length-1]
         return unless r?
         # result of which day to show?
@@ -3725,12 +3725,12 @@ class WolfDiviner extends Werewolf
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
-            @showdivineresult game
+            @showdivineresult game, playerid
         null
     sunrise:(game)->
         super
         unless game.rule.divineresult=="immediate"
-            @showdivineresult game
+            @showdivineresult game, @flag.target
     midnight:(game,midnightSort)->
         super
         unless game.rule.divineresult=="immediate"
@@ -4475,7 +4475,7 @@ class PI extends Diviner
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
-            @showdivineresult game
+            @showdivineresult game, playerid
         null
     #占い実行
     dodivine:(game)->
@@ -4533,7 +4533,7 @@ class Sorcerer extends Diviner
         splashlog game.id,game,log
         if game.rule.divineresult=="immediate"
             @dodivine game
-            @showdivineresult game
+            @showdivineresult game, playerid
         null
     #占い実行
     dodivine:(game)->
@@ -8757,9 +8757,9 @@ class DivineObstructed extends Complex
         @uncomplex game
     # 占いの影響なし
     divineeffect:(game)->
-    showdivineresult:(game)->
+    showdivineresult:(game, target)->
         # 結果がでなかった
-        pl=game.getPlayer @target
+        pl=game.getPlayer target
         if pl?
             log=
                 mode:"skill"
