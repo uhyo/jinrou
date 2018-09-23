@@ -8823,7 +8823,13 @@ class PhantomStolen extends Complex
         pl=game.getPlayer @id
         pl.setOriginalJobname saved
         pl.setFlag true # もう盗めない
-        pl.sunset game
+        if pl.dead
+            pl.deadsunset game
+        else
+            pl.sunset game
+    deadsunset:(game)->
+        # 死んでいても解除
+        @sunset game
     getJobname:-> @game.i18n.t "roles:jobname.Phantom" #霊界とかでは既に怪盗化
     getMainJobname:-> @getJobname()
     # 勝利条件関係は村人化（昼の間だけだし）
