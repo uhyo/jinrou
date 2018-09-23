@@ -9261,11 +9261,11 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "Devil"
+        if maint == myt || maint == "Devil" || @main.type == "Stalker"
             win = win || @main.isWinner(game,team)
         # if it has team-independent winningness, adopt it.
         win = win || @main.isWinner(game, "")
-        if subt == myt || subt == "Devil"
+        if subt == myt || subt == "Devil" == @sub?.type == "Stalker"
             win = win || @sub.isWinner(game,team)
         if @sub?
             win = win || @sub.isWinner(game, "")
@@ -9279,14 +9279,14 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "" || maint == "Devil"
+        if maint == myt || maint == "" || maint == "Devil" || @main.type == "Stalker"
             if @main.isWinnerStalk?
-                win = win || @main.isWinnerStalk(game, team, ids.concat @id)
+                win = win || @main.isWinnerStalk(game, team, ids)
             else
                 win = win || @main.isWinner(game,team)
-        if subt == myt || subt == "" || subt == "Devil"
+        if subt == myt || subt == "" || subt == "Devil" == @sub?.type == "Stalker"
             if @sub.isWinnerStalk?
-                win = win || @sub.isWinnerStalk(game, team, ids.concat @id)
+                win = win || @sub.isWinnerStalk(game, team, ids)
             else
                 win = win || @sub.isWinner(game,team)
         return win
