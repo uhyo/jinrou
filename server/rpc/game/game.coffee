@@ -6467,7 +6467,7 @@ class Phantom extends Player
         savedobj={}
         pl.makejobinfo game,savedobj
         flagobj={}
-        # jobinfo表示のみ抜粋
+        # jobinfo表示をセーブ
         for value in Shared.game.jobinfos
             if savedobj[value.name]?
                 flagobj[value.name]=savedobj[value.name]
@@ -8830,6 +8830,7 @@ class PhantomStolen extends Complex
     isWerewolf:->false
     isFox:->false
     isVampire:->false
+    isFoxVisible:->false
     #team:"Human" #女王との兼ね合いで
     isWinner:(game,team)->
         team=="Human"
