@@ -3318,11 +3318,6 @@ class Diviner extends Player
                 r=Math.floor Math.random()*targets2.length
                 @job game,targets2[r].id,{}
                 return
-
-        if @scapegoat
-            # 身代わり君の自動占い
-            r=Math.floor Math.random()*targets.length
-            @job game,targets[r].id,{}
     sleeping:->@target?
     job:(game,playerid)->
         pl=game.getPlayer playerid
