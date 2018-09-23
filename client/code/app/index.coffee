@@ -6,6 +6,7 @@ module.exports=
         graph:require '/user/graph'
         color:require '/user/color'
         mylog:require '/user/mylog'
+        settings:require '/user/settings'
     game:
         rooms:require '/game/rooms'
         newroom:require '/game/newroom'
@@ -23,7 +24,7 @@ module.exports=
     app:require '/app'
     util:require '/util'
     socket:require '/socket'
-    
+
 
 
 

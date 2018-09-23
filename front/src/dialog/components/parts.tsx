@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from '../../util/styled';
 
 const ButtonBase = styled.button`
   appearance: none;

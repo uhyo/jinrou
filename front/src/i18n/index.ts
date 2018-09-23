@@ -70,16 +70,33 @@ export function getI18nFor(
 }
 
 /**
+ * Dynamically load a resource bundle and add to it.
+ */
+export async function addResource(
+  namespace: string,
+  target: i18n,
+): Promise<void> {
+  const lng = target.language;
+  if (target.hasResourceBundle(lng, namespace)) {
+    // already loaded.
+    return;
+  }
+  // download the bundle.
+  const bundle = await loadLanguageBundle(lng, namespace);
+  target.addResourceBundle(lng, namespace, bundle);
+}
+
+/**
  * Custom resource loading function which makes use of webpack dynamic loading.
  */
 async function ajax(
   url: string,
-  options: any,
+  _options: any,
   callback: (data: any, status: any) => void,
-): Promise<void> {
+): Promise<unknown> {
   const [lng, ns] = url.split('.');
   try {
-    const data = await import(`../../../language/${lng}/${ns}.yaml`);
+    const data = await loadLanguageBundle(lng, ns);
     callback(data.default, {
       status: '200',
     });
@@ -88,4 +105,14 @@ async function ajax(
       status: '404',
     });
   }
+}
+
+/**
+ * Dynamically load bundle.
+ */
+function loadLanguageBundle(
+  lng: string,
+  ns: string,
+): Promise<{ default: unknown }> {
+  return import(`../../../language/${lng}/${ns}.yaml`);
 }

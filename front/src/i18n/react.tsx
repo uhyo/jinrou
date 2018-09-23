@@ -2,6 +2,7 @@ import * as i18next from 'i18next';
 import * as React from 'react';
 
 import { bind } from '../util/bind';
+import { fromRenderProps } from 'recompose';
 
 // React Context for holding i18n translation function.
 const { Provider, Consumer } = React.createContext<
@@ -214,3 +215,8 @@ function getResource(props: IPropI18nInterpInner): string[] {
   result.push(res.slice(last));
   return result;
 }
+
+/**
+ * Higher-Order Component which reads TranslationFunction from context.
+ */
+export const withTranslationFunction = fromRenderProps(I18n, t => ({ t }));

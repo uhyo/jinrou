@@ -27,8 +27,10 @@
     "@types/i18next-xhr-backend": "^1.4.1",
     "@types/node": "^9.6.7",
     "@types/react": "^16.4.1",
+    "@types/react-color": "^2.13.6",
     "@types/react-dom": "^16.0.5",
     "@types/react-transition-group": "^2.0.11",
+    "@types/recompose": "^0.26.5",
     "babel-loader": "^8.0.0-beta.4",
     "copy-webpack-plugin": "^4.5.2",
     "json-loader": "^0.5.7",
@@ -44,22 +46,25 @@
     "yaml-loader": "^0.5.0"
   },
   "dependencies": {
-    "@fortawesome/fontawesome": "^1.1.5",
-    "@fortawesome/fontawesome-free-regular": "^5.0.10",
-    "@fortawesome/fontawesome-free-solid": "^5.0.10",
-    "@fortawesome/fontawesome-svg-core": "^1.2.0-11",
+    "@fortawesome/fontawesome-free": "^5.3.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.4",
+    "@fortawesome/free-regular-svg-icons": "^5.3.1",
+    "@fortawesome/free-solid-svg-icons": "^5.3.1",
     "@fortawesome/react-fontawesome": "0.1.0-6",
     "bind-decorator": "^1.0.11",
     "color": "^3.0.0",
+    "dexie": "^2.0.4",
     "i18next": "^10.6.0",
     "i18next-xhr-backend": "^1.5.1",
     "mobx": "^4.3.1",
-    "mobx-react": "^5.2.3",
+    "mobx-react": "^5.2.8",
     "my-autolink": "^0.1.0",
     "react": "^16.3.2",
+    "react-color": "^2.14.1",
     "react-dom": "^16.3.2",
     "react-draggable": "^3.0.5",
     "react-transition-group": "^2.3.1",
-    "styled-components": "^3.3.2"
+    "recompose": "^0.30.0",
+    "styled-components": "^3.4.9"
   }
 }

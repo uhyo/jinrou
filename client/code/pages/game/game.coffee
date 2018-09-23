@@ -274,6 +274,8 @@ exports.start=(roomid)->
                     if obj.game?
                         {
                             day: obj.game.day
+                            night: obj.game.night
+                            finished: obj.game.finished
                             status: if room.mode == "waiting"
                                 "waiting"
                             else if room.mode == "end" || obj.game.finished
@@ -319,20 +321,7 @@ exports.start=(roomid)->
                 icons: player_icons
             }
 
-            if obj.dead
-                document.body.classList.add "heaven"
-            else
-                document.body.classList.remove "heaven"
             if game=obj.game
-                if game.finished
-                    # 終了
-                    document.body.classList.add "finished"
-                    document.body.classList.remove x for x in ["day","night"]
-                else
-                    # 昼と夜の色
-                    document.body.classList.add (if game.night then "night" else "day")
-                    document.body.classList.remove (if game.night then "day" else "night")
-
                 if game.players
                     formplayers game.players
                     this_rule=

@@ -128,10 +128,6 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
   ],
   resolve: {
     alias: {
-      '@fortawesome/fontawesome-free-solid$':
-        '@fortawesome/fontawesome-free-solid/shakable.es.js',
-      '@fortawesome/fontawesome-free-regular':
-        '@fortawesome/fontawesome-free-regular/shakable.es.js',
       // if not legacy Mode, remove polyfills.
       '@babel/polyfill': isLegacyBuild
         ? '@babel/polyfill'
