@@ -1919,7 +1919,7 @@ class Game
     judge:->
         # 既に終了している場合は再度判定しない
         if @finished
-            return
+            return true
 
         aliveps=@players.filter (x)->!x.dead    # 生きている人を集める
         # 数える
@@ -7991,6 +7991,8 @@ class GameMaster extends Player
                     if Phase.isNight(game.phase)
                         # 夜のときは夜開始時の処理をしてあげる
                         pl.sunset game
+                        if pl.scapegoat
+                            scapegoatRunJobs game, pl.id
                     else if Phase.isDay(game.phase)
                         # 昼のときは投票可能に
                         pl.votestart game
