@@ -1496,6 +1496,9 @@ exports.jobinfos=[
         name:"wolves"
     }
     {
+        name:"vampires"
+    }
+    {
         name:"peers"
     }
     {
