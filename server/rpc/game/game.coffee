@@ -3016,6 +3016,9 @@ class Player
 
         result
     checkJobValidity:(game,query)->
+        if query.jobtype != "_day" && query.jobtype != @type
+            # this query is not for me.
+            return false
         sl=@makeJobSelection game, query?.jobtype == "_day"
         return sl.length==0 || sl.some((x)->x.value==query.target)
     # 役職情報を載せる
@@ -8057,6 +8060,8 @@ class GameMaster extends Player
             value: pl.id
         })
     checkJobValidity:(game,query)->
+        if query.jobtype != "_day" && query.jobtype != "GameMaster"
+            return false
         switch query?.commandname
             when "longer", "shorter"
                 return true
@@ -10811,10 +10816,6 @@ module.exports.actions=(req,res,ss)->
                 jdone = playerIsJobDone game, plobj
                 if jdone
                     res {error: game.i18n.t "error.job.done"}
-                    return
-                # Error-check for jobtype
-                unless plobj.isMainJobType query.jobtype
-                    res {error: game.i18n.t "error.job.invalid"}
                     return
                 # Other error message caused by the job
                 if ret=plobj.job game,query.target,query
