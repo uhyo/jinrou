@@ -921,12 +921,17 @@ exports.new_rules=[
         type: 'group'
         label:
             id: 'show_roles_option'
-            visible: (rule)->
-                return false unless rule.rules.get('yaminabe_hidejobs') == 'team'
+            visible: (rule, isEditor)->
+                if !isEditor && rule.rules.get('yaminabe_hidejobs') != 'team'
+                    # ルール表示時で配役がチームのみの設定でない場合は隠す
+                    return false
                 return true if isYaminabe(rule)
+                if isEditor && rule.rules.get('yaminabe_hidejobs') != 'team'
+                    return false
                 for job in ["Vampire","Devil","CultLeader"]
                     if rule.jobNumbers[job]>0
                         return true
+                return false
         items: [
             {
                 type: 'item'

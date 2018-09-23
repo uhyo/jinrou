@@ -56,7 +56,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
         {ruledefs.map((rule, i) => {
           if (rule.type === 'group') {
             const { id, visible } = rule.label;
-            const vi = visible(ruleObject);
+            const vi = visible(ruleObject, true);
             if (vi) {
               return (
                 <RuleSetGroup

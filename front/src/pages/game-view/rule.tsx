@@ -97,7 +97,7 @@ class RuleItems extends React.PureComponent<
         const groupdef = item.label;
 
         // check visibility of this group.
-        if (!groupdef.visible(rule)) {
+        if (!groupdef.visible(rule, false)) {
           return null;
         }
 

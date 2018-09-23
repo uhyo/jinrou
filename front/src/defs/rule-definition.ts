@@ -99,8 +99,10 @@ export interface RuleGroupLabel {
   id: string;
   /**
    * Whether this setting is visible for current setting.
+   * @param {Rule} rule current rule
+   * @param {boolean} isEditor whether currently showing a rule editor
    */
-  visible: (rule: Rule) => boolean;
+  visible: (rule: Rule, isEditor: boolean) => boolean;
 }
 
 /**
