@@ -1,5 +1,9 @@
 import { i18n } from '../../../i18n';
-import { showConfirmDialog, showMessageDialog } from '../../../dialog';
+import {
+  showConfirmDialog,
+  showMessageDialog,
+  showErrorDialog,
+} from '../../../dialog';
 
 /**
  * Make a logic to handle refuse revival button.
@@ -20,13 +24,21 @@ export function makeRefuseRevivalLogic(
     if (!res) {
       return;
     }
-    await refuseRevival();
-    // 蘇生辞退結果を表示
-    await showMessageDialog({
-      title: i18n.t('game_client:refuseRevival.title'),
-      message: i18n.t('game_client:refuseRevival.result'),
-      modal: false,
-      ok: i18n.t('game_client:refuseRevival.yes'),
-    });
+    try {
+      await refuseRevival();
+      // 蘇生辞退結果を表示
+      await showMessageDialog({
+        title: i18n.t('game_client:refuseRevival.title'),
+        message: i18n.t('game_client:refuseRevival.result'),
+        modal: false,
+        ok: i18n.t('game_client:refuseRevival.yes'),
+      });
+    } catch (e) {
+      // エラー
+      await showErrorDialog({
+        modal: true,
+        message: String(e),
+      });
+    }
   };
 }
