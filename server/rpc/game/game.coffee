@@ -1584,17 +1584,21 @@ class Game
 
 
         deads=[]
-        loop
+        safety_counter = 0
+        while safety_counter++ < 100
+            next_loop_flag = false
             newdeads=@players.filter (x)->
                 x.dead && x.found && deads.every((y)-> x.id != y.id)
             deads.push newdeads...
 
             alives=@players.filter (x)->!x.dead
             alives.forEach (x)=>
-                x.beforebury this,type,newdeads
+                res = x.beforebury this,type,newdeads
+                if res
+                    next_loop_flag = true
             newdeads=@players.filter (x)->
                 x.dead && x.found && deads.every((y)-> x.id != y.id)
-            if newdeads.length == 0
+            if newdeads.length == 0 && !next_loop_flag
                 # もう新しく死んだ人はいない
                 break
         # 生存している閻魔の一覧
@@ -2978,7 +2982,8 @@ class Player
             @addGamelog game,"revive",null,null
             game.ss.publish.user @id,"refresh",{id:game.id}
     # 埋葬するまえに全員呼ばれる（foundが見られる状況で）
-    beforebury: (game,type,deads)->
+    # もう1回buryチェックをすべき場合はtrueを返す（誰かが死亡した時はfalseでよい）
+    beforebury: (game,type,deads)-> false
     # 占われたとき（結果は別にとられる player:占い元）
     divined:(game,player)->
     # ちょっかいを出されたとき(jobのとき)
@@ -3413,6 +3418,7 @@ class Psychic extends Player
                 target: x.name
                 result: PsychicResult.renderToString x.getPsychicResult(), game.i18n
             }) + "\n"
+        return false
 
 class Madman extends Player
     type:"Madman"
@@ -4104,6 +4110,7 @@ class Immoral extends Player
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game,"foxsuicide"
+        return false
     makejobinfo:(game,result)->
         super
         # 妖狐が分かる
@@ -4349,6 +4356,7 @@ class ApprenticeSeer extends Player
 
             # 更新
             game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+        return false
 class Diseased extends Player
     type:"Diseased"
     dying:(game,found)->
@@ -4633,6 +4641,8 @@ class Doppleganger extends Player
 
 
             game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+            return true
+        return false
 class CultLeader extends Player
     type:"CultLeader"
     team:"Cult"
@@ -4885,11 +4895,11 @@ class Oldman extends Player
     type:"Oldman"
     beforebury:(game, type)->
         # 老衰は朝になったタイミングのみ
-        return unless type == "day"
+        return false unless type == "day"
 
         if "number" == typeof @flag && game.day <= @flag
             # もう今日の老衰処理は終わった
-            return
+            return false
 
         # 人狼を数える
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
@@ -4898,6 +4908,7 @@ class Oldman extends Player
             @die game,"infirm"
         # 今日の処理はおわり
         @setFlag game.day
+        return false
 class Tanner extends Player
     type:"Tanner"
     team:""
@@ -6029,6 +6040,7 @@ class WanderingGuard extends Player
                     fl=JSON.parse(@flag ? "[null]")
                     fl.push pl.id
                     @setFlag JSON.stringify fl
+        return false
     makeJobSelection:(game)->
         if Phase.isNight(game.phase)
             fl=JSON.parse(@flag ? "[null]")
@@ -6163,6 +6175,8 @@ class FrankensteinsMonster extends Player
 
         if founds.length>0
             game.splashjobinfo [thispl]
+            return true
+        return false
 class BloodyMary extends Player
     type:"BloodyMary"
     formType: FormType.optional
@@ -6737,6 +6751,7 @@ class Blasphemy extends Player
             # 狐が全員死んでいたら自殺
             unless game.players.some((x)->!x.dead && x.isFox())
                 @die game,"foxsuicide"
+        return false
     job:(game,playerid)->
         if @flag || @target?
             return game.i18n.t "error.common.alreadyUsed"
@@ -7512,6 +7527,7 @@ class Twin extends Player
         # 死亡状態の双子がいたら死亡
         if game.players.some((x)-> x.dead && x.isJobType "Twin")
             @die game, "twinsuicide"
+        return false
     makejobinfo:(game, result)->
         super
         # 双子が分かる
@@ -8335,13 +8351,14 @@ class Complex
         @sub?.makejobinfo? game,result
         @main.makejobinfo game, result, @main.getJobDisp()
     beforebury:(game,type,deads)->
-        @mcall game,@main.beforebury,game,type,deads
-        @sub?.beforebury? game,type,deads
+        res1 = @mcall game,@main.beforebury,game,type,deads
+        res2 = @sub?.beforebury? game,type,deads
         # deal with Walking Dead
         unless @dead
             isPlDead = @isDead()
             if isPlDead.dead && isPlDead.found
                 @setDead isPlDead.dead,isPlDead.found
+        return res1 || res2
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @sub?.divined? game,player
@@ -8431,8 +8448,8 @@ class Friend extends Complex    # 恋人
     getJobDisp:-> @game.i18n.t "roles:Friend.jobname", {jobname: @main.getJobDisp()}
 
     beforebury:(game,type,deads)->
-        @mcall game,@main.beforebury,game,type,deads
-        @sub?.beforebury? game,type,deads
+        res1 = @mcall game,@main.beforebury,game,type,deads
+        res2 = @sub?.beforebury? game,type,deads
         ato=false
         if game.rule.friendssplit=="split"
             # 独立
@@ -8447,6 +8464,7 @@ class Friend extends Complex    # 恋人
         # 恋人が誰か死んだら自殺
         if ato
             @die game,"friendsuicide"
+        return res1 || res2
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @main.makejobinfo game, result
