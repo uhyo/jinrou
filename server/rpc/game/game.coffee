@@ -1490,9 +1490,11 @@ class Game
                 if player.id in alives
                     if mid in pmids
                         player.midnight this,mid
+                        player.midnightAlways this, mid
                 else
                     if mid in pmids
                         player.deadnight this,mid
+                        player.midnightAlways this, mid
 
     # 夜の狼の攻撃を処理する
     midnightWolfAttack:->
@@ -2923,6 +2925,8 @@ class Player
     midnight:(game,midnightSort)->
     # 夜死んでいたときにmidnightの代わりに呼ばれる
     deadnight:(game,midnightSort)->
+    # midnightの直後に呼ばれる（無効化系に阻害されない）
+    midnightAlways:(game,midnightSort)->
     # 対象
     job_target:1    # ビットフラグ
     # 対象用の値
@@ -4141,7 +4145,8 @@ class ToughGuy extends Player
     die:(game,found)->
         if found=="werewolf"
             # 狼の襲撃に耐える
-            @setFlag "bitten"
+            unless @flag?
+                @setFlag "bitten"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
         else
             super
@@ -4149,9 +4154,10 @@ class ToughGuy extends Player
         super
         if @flag=="bitten"
             @setFlag "dying"   # 死にそう！
-    midnight:(game)->
+    midnightAlways:(game)->
+        # 能力無効化状態でも実行する処理
         if @flag=="dying"
-            # 噛まれた次の夜
+            # 噛まれた次の夜だったら死亡
             @setFlag null
             @setDead true,"werewolf"
 class Cupid extends Player
@@ -8293,6 +8299,11 @@ class Complex
             @mcall game,@main.deadnight,game,midnightSort
         if @sub?.isComplex() || @sub?.midnightSort == midnightSort
             @sub?.deadnight? game,midnightSort
+    midnightAlways:(game,midnightSort)->
+        if @main.isComplex() || @main.midnightSort == midnightSort
+            @mcall game,@main.midnightAlways,game,midnightSort
+        if @sub?.isComplex() || @sub?.midnightSort == midnightSort
+            @sub?.midnightAlways? game,midnightSort
     deadsunset:(game)->
         @mcall game,@main.deadsunset,game
         @sub?.deadsunset? game
