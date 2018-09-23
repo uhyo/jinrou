@@ -8988,6 +8988,8 @@ class GotChocolateTrue extends Friend
     cmplType:"GotChocolateTrue"
     getJobname:-> @game.i18n.t "roles:GotChocolateTrue.jobname", {jobname: @main.getJobname()}
     getJobDisp:->@main.getJobDisp()
+    # まだ自分の陣営は不明
+    getTeamDisp:-> @main.getTeamDisp()
     getPartner:->
         if @cmplType=="GotChocolateTrue"
             return @cmplFlag
