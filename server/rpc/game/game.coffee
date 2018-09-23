@@ -2841,6 +2841,8 @@ class Player
     isJobType:(type)->type==@type
     # メイン役職のjobtypeを判定
     isMainJobType:(type)->@isJobType type
+    # jobのtargetとして適切かどうか調べる
+    isFormTarget:(jobtype)-> jobtype == @type
     #An access to @flag, etc.
     accessByJobType:(type)->
         unless type
@@ -3016,9 +3018,6 @@ class Player
 
         result
     checkJobValidity:(game,query)->
-        if query.jobtype != "_day" && query.jobtype != @type
-            # this query is not for me.
-            return false
         sl=@makeJobSelection game, query?.jobtype == "_day"
         return sl.length==0 || sl.some((x)->x.value==query.target)
     # 役職情報を載せる
@@ -3263,11 +3262,11 @@ class Werewolf extends Player
         if log.mode in ["werewolf","wolfskill"]
             true
         else super
-    isJobType:(type)->
-        # 便宜的
-        if type=="_Werewolf"
+    isFormTarget:(jobtype)->
+        if jobtype == "_Werewolf"
             return true
-        super
+        else
+            super
 
     willDieWerewolf:false
     fortuneResult: FortuneResult.werewolf
@@ -5438,9 +5437,8 @@ class QuantumPlayer extends Player
             tarobj.Werewolf=""
 
         @setTarget JSON.stringify tarobj
-    isJobType:(type)->
-        # 便宜的
-        if type=="_Quantum_Diviner" || type=="_Quantum_Werewolf"
+    isFormTarget:(jobtype)->
+        if jobtype=="_Quantum_Diviner" || jobtype=="_Quantum_Werewolf"
             return true
         super
     job:(game,playerid,query)->
@@ -8060,8 +8058,6 @@ class GameMaster extends Player
             value: pl.id
         })
     checkJobValidity:(game,query)->
-        if query.jobtype != "_day" && query.jobtype != "GameMaster"
-            return false
         switch query?.commandname
             when "longer", "shorter"
                 return true
@@ -8402,6 +8398,8 @@ class Complex
         else
             # 蘇生できた
             @setDead false, null
+    isFormTarget:(jobtype)->
+        return @main.isFormTarget jobtype
     makeJobSelection:(game, isvote)->
         return @main.makeJobSelection game, isvote
     checkJobValidity:(game,query)->
@@ -10809,6 +10807,9 @@ module.exports.actions=(req,res,ss)->
             # check whether this query is valid.
             if game.phase == Phase.rolerequesting || Phase.isNight(game.phase) || game.phase == Phase.hunter || query.jobtype!="_day"  # 昼の投票
                 # 夜
+                unless plobj.isFormTarget query.jobtype
+                    res {error: game.i18n.t "error.job.invalid"}
+                    return
                 unless plobj.checkJobValidity game,query
                     res {error: game.i18n.t "error.job.invalid"}
                     return
