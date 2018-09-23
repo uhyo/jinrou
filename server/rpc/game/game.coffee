@@ -8847,6 +8847,8 @@ class PhantomStolen extends Complex
         else
             super
     dying:(game,found)->
+    voted:(game, votingbox)-> Player.prototype.voted.call this, game, votingbox
+    voteafter:->
     makejobinfo:(game,obj)->
         super
         for key,value of @cmplFlag
