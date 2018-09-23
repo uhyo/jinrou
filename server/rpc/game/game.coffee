@@ -10329,6 +10329,9 @@ module.exports.actions=(req,res,ss)->
 
 
                         joblist[job]++
+                        if job == "MadWolf"
+                            # 狂人狼は2人以上出さない調整
+                            possibility = possibility.filter (x)-> x != "MadWolf"
 
                         if safety.teams && (job in Shared.game.teams.Werewolf)
                             wolf_teams++    # 人狼陣営が増えた
