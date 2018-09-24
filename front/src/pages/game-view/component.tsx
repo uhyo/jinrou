@@ -105,9 +105,9 @@ export class Game extends React.Component<IPropGame, {}> {
 
     const styleMode = gameInfo.finished
       ? null
-      : roleInfo == null
+      : gameInfo.status === 'waiting'
         ? 'day'
-        : roleInfo.dead
+        : roleInfo != null && roleInfo.dead
           ? 'heaven'
           : gameInfo.night
             ? 'night'
