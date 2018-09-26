@@ -525,6 +525,7 @@ class Game
             if game.day>0 && Phase.isNight(game.phase)
                 # 夜の場合は夜の開始処理を行っておく
                 game.runSunset()
+                game.runScapegoatJobs()
             if game.phase == Phase.hunter
                 # XXX hunterの場合あれを捏造
                 game.nextScene = "nextturn"
@@ -1235,6 +1236,8 @@ class Game
             @bury "other"
             return if @judge()
 
+            @runScapegoatJobs()
+
             # 忍者のデータを作る
             @ninja_data = {}
             for player in @players
@@ -1396,7 +1399,8 @@ class Game
                 player.sunset this
             else
                 player.deadsunset this
-        # 身代わりくんの自動投票処理
+    # 身代わりくんの自動投票処理を行う
+    runScapegoatJobs:->
         for player in @players
             if player.scapegoat
                 scapegoatRunJobs this, player.id
