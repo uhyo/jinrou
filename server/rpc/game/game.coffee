@@ -1811,6 +1811,7 @@ class Game
         # 必要がある場合は候補者を再設定
         if mode != "runoff"
             @votingbox.setCandidates @players.filter ((x)->!x.dead)
+            @votingbox.resetRunoff()
 
         @votingbox.start()
         for player in @players
@@ -2463,6 +2464,8 @@ class VotingBox
         @votes=[]   #{player:Player, to:Player}
     setCandidates:(@candidates)->
         # 候補者をセットする[Player]
+    resetRunoff:->
+        @runoffmode = false
     isVoteFinished:(player)->@votes.some (x)->x.player.id==player.id
     vote:(player,voteto)->
         # power: 票数
