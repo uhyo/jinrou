@@ -4171,7 +4171,8 @@ class ToughGuy extends Player
         if @flag=="dying"
             # 噛まれた次の夜だったら死亡
             @setFlag null
-            @setDead true,"werewolf"
+            unless @dead
+                @setDead true,"werewolf"
 class Cupid extends Player
     type:"Cupid"
     team:"Friend"
