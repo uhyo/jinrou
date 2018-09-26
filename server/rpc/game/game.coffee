@@ -1608,7 +1608,7 @@ class Game
             when "view"
                 @heavenview=true
             when "norevive"
-                @heavenview=!@players.some((x)->x.isReviver())
+                @heavenview = @rule.jobrule != "特殊ルール.エンドレス闇鍋" && !@players.some((x)->x.isReviver())
             else
                 @heavenview=false
         deads=shuffle deads # 順番バラバラ
