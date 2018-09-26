@@ -3550,7 +3550,6 @@ class TinyFox extends Diviner
     formType: FormType.required
     isHuman:->false
     isFox:->true
-    hasDeadResistance:->true
     makejobinfo:(game,result)->
         super
         # 子狐は妖狐が分かる
@@ -7877,6 +7876,7 @@ class SnowLover extends Player
     type: "SnowLover"
     team: "Friend"
     formType: FormType.required
+    hasDeadResistance:->true
     sleeping:(game)-> @flag || @target?
     sunset:(game)->
         unless @flag?
