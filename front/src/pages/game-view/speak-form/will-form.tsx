@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Transition } from 'react-transition-group';
 import styled, { withProps } from '../../../util/styled';
 import { bind } from '../../../util/bind';
 import { TranslationFunction } from 'i18next';
@@ -28,7 +29,7 @@ export class WillForm extends React.PureComponent<
   IPropWillForm,
   IStateWillForm
 > {
-  protected textareaRef: React.RefObject<HTMLTextAreaElement>;
+  protected textareaRef = React.createRef<HTMLTextAreaElement>();
   static getDerivedStateFromProps(props: IPropWillForm, state: IStateWillForm) {
     if (props.open === false) {
       return { changed: false };
@@ -41,7 +42,6 @@ export class WillForm extends React.PureComponent<
     this.state = {
       changed: false,
     };
-    this.textareaRef = React.createRef();
   }
   public render() {
     const { t, open } = this.props;
@@ -67,13 +67,14 @@ export class WillForm extends React.PureComponent<
     );
   }
   public componentDidUpdate(prevProps: IPropWillForm): void {
+    const { current } = this.textareaRef;
     if (
       this.props.will !== prevProps.will ||
       (this.props.open && !prevProps.open)
     ) {
       // Changed will causes a forced update to DOM.
-      if (this.textareaRef.current) {
-        this.textareaRef.current.value = this.props.will || '';
+      if (current != null) {
+        current.value = this.props.will || '';
       }
     }
   }
@@ -102,12 +103,9 @@ export class WillForm extends React.PureComponent<
 /**
  * Wrapper of will form.
  */
-const Wrapper = withProps<{
-  open: boolean;
-}>()(styled.form)`
+const Wrapper = withProps<{ open: boolean }>()(styled.form)`
   transition: height 250ms ease-out;
-  height: ${({ open }) => (open ? '7em' : '0')};
-
+  display: ${({ open }) => (open ? 'block' : 'none')};
   background-color: #636363;
   color: #ffffff;
   overflow-y: hidden;

@@ -187,16 +187,12 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                 {t('game_client:speak.refuseRevival')}
               </button>
             </form>
-            <Transition in={willOpen} timeout={250}>
-              {(state: string) => (
-                <WillForm
-                  t={t}
-                  open={willOpen}
-                  will={(roleInfo && roleInfo.will) || undefined}
-                  onWillChange={this.handleWillChange}
-                />
-              )}
-            </Transition>
+            <WillForm
+              t={t}
+              open={willOpen}
+              will={(roleInfo && roleInfo.will) || undefined}
+              onWillChange={this.handleWillChange}
+            />
           </>
         )}
       </I18n>
