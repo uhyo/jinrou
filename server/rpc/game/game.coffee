@@ -1707,13 +1707,17 @@ class Game
                 splashlog @id,this,log
         # 蘇生のログも表示
         if type != "punish"
-            for n in @revive_log
-                log=
-                    mode: "system"
-                    comment: @i18n.t "system.revive", {name: n}
-                splashlog @id, this, log
-            @revive_log = []
+            @showReviveLogs()
         return deads.length
+    # 蘇生ログを表示
+    showReviveLogs:->
+        for n in @revive_log
+            log=
+                mode: "system"
+                comment: @i18n.t "system.revive", {name: n}
+            splashlog @id, this, log
+        @revive_log = []
+
 
     # 投票終わりチェック
     # 返り値: 処刑が終了したらtrue
@@ -8057,6 +8061,8 @@ class GameMaster extends Player
                     else if Phase.isDay(game.phase)
                         # 昼のときは投票可能に
                         pl.votestart game
+                    # 蘇生ログ
+                    game.showReviveLogs()
                 else
                     return game.i18n.t "roles:GameMaster.reviveFail"
                 return null
