@@ -3127,7 +3127,7 @@ class Player
                 return
         else
             # Remove myself from the chain.
-            complexChain = complexChain.filter (c)=> c != this
+            complexChain = complexChain.filter (c)=> !playerEqualityById(c, this)
         # reconstruct the player object.
         newpl = Player.reconstruct complexChain, main
 
