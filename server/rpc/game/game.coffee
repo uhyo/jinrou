@@ -6487,8 +6487,15 @@ class Phantom extends Player
             if savedobj[value.name]?
                 flagobj[value.name]=savedobj[value.name]
 
+        # 盗んだ役職
+        newtype = pl.type
+        # ただし既に怪盗に盗まれていたら怪盗を盗んだことにする
+        newch = constructMainChain pl
+        if newch?[0].some((cm)-> cm.cmplType == "PhantomStolen")
+            newtype = "Phantom"
+
         # 自分はその役職に変化する
-        newpl=Player.factory pl.type, game
+        newpl=Player.factory newtype, game
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
