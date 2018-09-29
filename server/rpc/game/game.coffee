@@ -6499,6 +6499,12 @@ class Phantom extends Player
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
+        # 自分が怪盗に盗まれていたらキャンセル（役職が増殖しない整合性のため）
+        mych = constructMainChain(game.getPlayer @id)
+        if mych?
+            for cm in mych[0]
+                if cm.cmplType == "PhantomStolen"
+                    cm.uncomplex game
         log=
             mode:"skill"
             to:@id
