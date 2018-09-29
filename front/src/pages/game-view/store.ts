@@ -10,9 +10,11 @@ import {
   TimerInfo,
   PlayerInfo,
   RoomControlInfo,
+  getSpeakKindPriority,
 } from './defs';
 import { LogStore } from './logs/log-store';
 import { arrayShallowEqual } from '../../util/array-shallow-equal';
+import { sortBy } from '../../util/sort-by';
 
 /**
  * Query of updating the store.
@@ -125,6 +127,10 @@ export class GameStore {
     const prevRoleInfo = this.roleInfo;
     if (roleInfo !== undefined) {
       // roleInfo is either null or RoleInfo object.
+      // sort speak kinds by priority.
+      if (roleInfo != null) {
+        roleInfo.speak = sortBy(roleInfo.speak, getSpeakKindPriority);
+      }
       this.roleInfo = roleInfo;
     }
     if (speakState != null) {

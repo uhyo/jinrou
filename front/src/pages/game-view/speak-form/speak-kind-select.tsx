@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { TranslationFunction } from '../../../i18n';
-import { PlayerInfo, getSpeakKindPriority } from '../defs';
-import { sortBy } from '../../../util/sort-by';
+import { PlayerInfo } from '../defs';
 
 /**
  * Speak kind select control.
@@ -28,11 +27,9 @@ export const SpeakKindSelect: React.StatelessComponent<{
    */
   onChange: (kind: string) => void;
 }> = ({ kinds, current, playersMap, t, onChange }) => {
-  // sort kinds by its priority.
-  const sortedKinds = sortBy(kinds, getSpeakKindPriority);
   return (
     <select value={current} onChange={e => onChange(e.currentTarget.value)}>
-      {sortedKinds.map(value => {
+      {kinds.map(value => {
         // special handling of speech kind.
         let label;
         if (value.startsWith('gmreply_')) {
