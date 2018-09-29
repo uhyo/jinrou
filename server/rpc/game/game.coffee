@@ -3183,6 +3183,9 @@ class Player
             else
                 # ふつうの変化
                 pl.setOriginalJobname "#{orig_name}→#{jobname2}"
+        else
+            # 再セット
+            pl.setOriginalJobname orig_name
     getParent:(game)->
         chk=(parent,name)=>
             if parent[name]?.isComplex?()
