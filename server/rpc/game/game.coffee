@@ -3183,6 +3183,9 @@ class Player
             else
                 # ふつうの変化
                 pl.setOriginalJobname "#{orig_name}→#{jobname2}"
+        else
+            # 再セット
+            pl.setOriginalJobname orig_name
     getParent:(game)->
         chk=(parent,name)=>
             if parent[name]?.isComplex?()
@@ -6487,11 +6490,24 @@ class Phantom extends Player
             if savedobj[value.name]?
                 flagobj[value.name]=savedobj[value.name]
 
+        # 盗んだ役職
+        newtype = pl.type
+        # ただし既に怪盗に盗まれていたら怪盗を盗んだことにする
+        newch = constructMainChain pl
+        if newch?[0].some((cm)-> cm.cmplType == "PhantomStolen")
+            newtype = "Phantom"
+
         # 自分はその役職に変化する
-        newpl=Player.factory pl.type, game
+        newpl=Player.factory newtype, game
         @transProfile newpl
         @transferData newpl
         @transform game,newpl,false
+        # 自分が怪盗に盗まれていたらキャンセル（役職が増殖しない整合性のため）
+        mych = constructMainChain(game.getPlayer @id)
+        if mych?
+            for cm in mych[0]
+                if cm.cmplType == "PhantomStolen"
+                    cm.uncomplex game
         log=
             mode:"skill"
             to:@id
@@ -8853,6 +8869,7 @@ class PhantomStolen extends Complex
     isWerewolf:->false
     isFox:->false
     isVampire:->false
+    isWerewolfVisible:->false
     isFoxVisible:->false
     # 怪盗のふりをする
     isJobType:(type)-> type == "Phantom"
