@@ -8866,6 +8866,7 @@ class PhantomStolen extends Complex
     isWerewolf:->false
     isFox:->false
     isVampire:->false
+    isWerewolfVisible:->false
     isFoxVisible:->false
     # 怪盗のふりをする
     isJobType:(type)-> type == "Phantom"
