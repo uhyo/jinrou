@@ -2331,7 +2331,7 @@ class Game
                             x.setNorevive true
                             revoting=true
                         @bury("other")
-                        @judge()
+                        return if @judge()
                         if revoting
                             @dorevote "gone"
                         else
@@ -2382,7 +2382,7 @@ class Game
                         x.setNorevive true
                         revoting=true
                     @bury("other")
-                    @judge()
+                    return if @judge()
                     if revoting
                         @dorevote "gone"
                     else
