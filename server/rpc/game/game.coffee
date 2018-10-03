@@ -4812,7 +4812,7 @@ class Cat extends Poisoner
         pl.revive game
     deadnight:(game,midnightSort)->
         @setTarget @id
-        @midnight game, midnightSort
+        Cat::midnight.call this, game, midnightSort
 
     job_target:Player.JOB_T_DEAD
     makejobinfo:(game,result)->
@@ -5653,7 +5653,7 @@ class RedHood extends Player
                 pl.revive game
     deadsunrise:(game)->
         # 同じ
-        @deadsunset game
+        RedHood::deadsunset.call this, game
 
 class Counselor extends Player
     type:"Counselor"
@@ -6146,7 +6146,8 @@ class TroubleMaker extends Player
             # 不発だった
             @setFlag "done"
 
-    deadsunrise:(game)->@sunrise game
+    deadsunrise:(game)->
+        TroubleMaker::sunrise.call this, game
 
 class FrankensteinsMonster extends Player
     type:"FrankensteinsMonster"
@@ -6237,7 +6238,7 @@ class BloodyMary extends Player
     sunset:(game)->
         @setTarget null
     deadsunset:(game)->
-        @sunset game
+        BloodyMary::sunset.call this, game
     job:(game,playerid)->
         unless @flag in ["punish","werewolf"]
             return game.i18n.t "error.common.cannotUseSkillNow"
@@ -6330,7 +6331,7 @@ class PsychoKiller extends Madman
                 pl.die game,"psycho",@id
         @setFlag "[]"
     deadnight:(game,midnightSort)->
-        @midnight game, midnightSort
+        PsychoKiller::midnight.call this, game, midnightSort
 class SantaClaus extends Player
     type:"SantaClaus"
     midnightSort:100
@@ -6735,7 +6736,7 @@ class Baker extends Player
                 @setFlag "done"
 
     deadsunrise:(game)->
-        @sunrise game
+        Baker::sunrise.call this, game
 class Bomber extends Madman
     type:"Bomber"
     midnightSort:81
@@ -8018,7 +8019,7 @@ class Raven extends Player
             # ログ出し終わったフラグ
             @setFlag true
     deadsunrise:(game)->
-        @sunrise game
+        Raven::sunrise.call this, game
     makejobinfo:(game, result)->
         # 鴉の一覧を知ることができる
         super
@@ -8874,7 +8875,7 @@ class PhantomStolen extends Complex
             pl.sunset game
     deadsunset:(game)->
         # 死んでいても解除
-        @sunset game
+        PhantomStolen::sunset.call this, game
     getJobname:-> @game.i18n.t "roles:jobname.Phantom" #霊界とかでは既に怪盗化
     getMainJobname:-> @getJobname()
     # 勝利条件関係は村人化（昼の間だけだし）
