@@ -7117,6 +7117,12 @@ class GotChocolate extends Player
                 newpl = Player.factory null, game, top, sub, Complex
                 top.transProfile newpl
                 top.transform game, newpl, true
+    midnightAlways:(game, midnightSort)->
+        # disable chocolate selection
+        # even if skill is disabled.
+        if /^selected:(.+)$/.test(@flag)
+            @setFlag "done"
+            @uncomplex game, true
 
 class MadDog extends Madman
     type:"MadDog"
