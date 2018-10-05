@@ -8401,6 +8401,11 @@ class Complex
 
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
+        # make all forms optional.
+        if Array.isArray result.forms
+            for obj in result.forms
+                if obj.formType == FormType.required
+                    obj.formType = FormType.optional
         @main.makejobinfo game, result, @main.getJobDisp()
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
