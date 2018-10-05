@@ -1059,7 +1059,7 @@ class Game
         @bury(if night then "night" else "day")
 
         return if @rule.hunter_lastattack == "no" && @judge()
-        unless @hunterCheck "day"
+        unless @hunterCheck(if night then "night" else "day")
             # ハンターフェイズの割り込みがなければターン開始
 
             @beginturn()
@@ -1836,6 +1836,7 @@ class Game
     # nextScene:
     #   "nextturn": 次のターンへ
     #   "day": 昼のターン開始処理
+    #   "night": 夜のターン開始処理
     #   "vote": 次の投票へ
     hunterCheck:(nextScene)->
         # まずハンターを列挙
@@ -1914,6 +1915,9 @@ class Game
                 @nextturn()
             when "day"
                 @phase = Phase.day
+                @beginturn()
+            when "night"
+                @phase = Phase.night
                 @beginturn()
             when "vote"
                 @phase = Phase.day_voting
