@@ -8951,7 +8951,8 @@ class WatchingFireworks extends Complex
     makejobinfo:(game,result)->
         super
         result.watchingfireworks=true
-        result.forms = []
+        if Phase.isNight(game.phase)
+            result.forms = []
 # 爆弾魔に爆弾を仕掛けられた人
 class BombTrapped extends Complex
     # cmplFlag: 護衛元ID
