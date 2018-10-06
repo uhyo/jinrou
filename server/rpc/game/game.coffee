@@ -3307,16 +3307,17 @@ class Werewolf extends Player
         if Phase.isNight(game.phase)
             if game.werewolf_target_remain>0
                 # まだ襲える
-                result.open.push "_Werewolf"
-                result.forms.push {
-                    type: "_Werewolf"
-                    options: @makeJobSelection game, false
-                    formType: FormType.required
-                    objid: @objid
-                    # 襲撃可能人数のデータ
-                    data:
-                        remains: game.werewolf_target_remain
-                }
+                if @isAttacker()
+                    result.open.push "_Werewolf"
+                    result.forms.push {
+                        type: "_Werewolf"
+                        options: @makeJobSelection game, false
+                        formType: FormType.required
+                        objid: @objid
+                        # 襲撃可能人数のデータ
+                        data:
+                            remains: game.werewolf_target_remain
+                    }
             # 人狼の場合は役職固有のやつは一旦閉じる
             result.open = result.open.filter (x)=> x != @type
             result.forms = result.forms.filter (x)=> x.type != @type
