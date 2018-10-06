@@ -5926,13 +5926,15 @@ class ToughWolf extends Werewolf
         super
         unless @sleeping game
             # 襲撃可能なときは一途な狼の能力も発動可能
-            result.open.push @type
-            result.forms.push {
-                type: @type
-                options: @makeJobSelection game, false
-                formType: FormType.optionalOnce
-                objid: @objid
-            }
+            unless @flag
+                # 能力はまだ使用されていない
+                result.open.push @type
+                result.forms.push {
+                    type: @type
+                    options: @makeJobSelection game, false
+                    formType: FormType.optionalOnce
+                    objid: @objid
+                }
 
 class ThreateningWolf extends Werewolf
     type:"ThreateningWolf"
