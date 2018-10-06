@@ -3,10 +3,31 @@
 # Bind to socket events
 app=require '/app'
 util=require '/util'
+
+# placement of server connection info.
+serverConnectionPlace = null
+# 少し待って初期化
+setTimeout (()->
+    Promise.all([
+        getI18n()
+        JinrouFront.loadServerConnection()
+    ]).then(([i18n, sc])->
+        serverConnectionPlace = sc.place {
+            i18n: i18n,
+            node: document.getElementById 'serverconnection'
+            connected: navigator.onLine ? true
+        }
+    )), 100
 ss.server.on 'disconnect', ->
     util.message "サーバー","接続が切断されました。"
+    if serverConnectionPlace?
+        console.log 'hi'
+        serverConnectionPlace.store.setConnection false
 ss.server.on 'reconnect', ->
-    util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
+    if serverConnectionPlace?
+        serverConnectionPlace.store.setConnection true
+    else
+        util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
 libban = require '/ban'
 
 
@@ -430,7 +451,7 @@ exports.getApplicationConfig = getApplicationConfig = ()->
             application_config_callbacks.push(resolve))
 
 # Returns a Promise which resolves to an i18n instance with appropreate language setting.
-exports.getI18n = ()->
+exports.getI18n = getI18n = ()->
     Promise.all([
         getApplicationConfig()
         JinrouFront.loadI18n()

@@ -1,21 +1,21 @@
 import '@babel/polyfill';
 import '_polyfills';
 import './init-icons';
-import { ThemeStore, themeStore } from './theme';
+import { themeStore } from './theme';
 export { themeStore };
 
 /**
  * Asynchronously load the i18n module.
  */
 export function loadI18n() {
-  return import('./i18n');
+  return import(/* webpackPrefetch: true */ './i18n');
 }
 
 /**
  * Asynchronously load the dialog module.
  */
 export function loadDialog() {
-  return import('./dialog');
+  return import(/* webpackPrefetch: true */ './dialog');
 }
 
 /**
@@ -44,4 +44,11 @@ export function loadUserSettings() {
  */
 export function loadManual() {
   return import(/* webpackMode: "eager"*/ './manual');
+}
+
+/**
+ * Asynchronously load the sever-connection module.
+ */
+export function loadServerConnection() {
+  return import(/* webpackPrefetch: true */ './pages/server-connection-info');
 }
