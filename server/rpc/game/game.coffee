@@ -1567,7 +1567,7 @@ class Game
     # 死んだ人を処理する type: タイミング
     # type:
     #   "day": 夜が明けたタイミング
-    #   "punish": 処刑後
+    #   "punish": 処刑後（ターンが変わる前）
     #   "night": 夜になったタイミング
     #   "other":その他(ターン変わり時の能力で死んだやつなど）
     bury:(type)->
@@ -1596,7 +1596,7 @@ class Game
             deads.push newdeads...
 
             alives=@players.filter (x)->!x.dead
-            alives.forEach (x)=>
+            @players.forEach (x)=>
                 res = x.beforebury this,type,newdeads
                 if res
                     next_loop_flag = true
@@ -1706,8 +1706,7 @@ class Game
                     comment:x.will
                 splashlog @id,this,log
         # 蘇生のログも表示
-        if type != "punish"
-            @showReviveLogs()
+        @showReviveLogs()
         return deads.length
     # 蘇生ログを表示
     showReviveLogs:->
@@ -1750,7 +1749,13 @@ class Game
                 mode:"system"
                 comment: @i18n.t "system.voting.nopunish"
             splashlog @id,this,log
-            @nextturn()
+            @bury "punish"
+            return true if @rule.hunter_lastattack == "no" && @judge()
+            # ハンターフェイズ割り込みがあるかもしれない
+            unless @hunterCheck("nextturn")
+                if @rule.hunter_lastattack == "yes"
+                    return if @judge()
+                @nextturn()
             return true
         else if mode=="punish"
             # 投票
@@ -1779,12 +1784,13 @@ class Game
                 return false
             # ターン移る前に死体処理
             @bury "punish"
-            return true if @rule.hunter_lastcheck == "no" && @judge()
+            return true if @rule.hunter_lastattack == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
+                if @rule.hunter_lastattack == "yes"
+                    return true if @judge()
                 @nextturn()
-            if @rule.hunter_lastcheck == "yes"
-                @judge()
+            # this judge is needed?
         return true
     # 再投票
     dorevote:(mode)->
@@ -3444,6 +3450,7 @@ class Psychic extends Player
 
     # 処刑で死んだ人を調べる
     beforebury:(game,type,deads)->
+        return false if @dead
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
             @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {
@@ -4137,6 +4144,7 @@ class Immoral extends Player
     type:"Immoral"
     team:"Fox"
     beforebury:(game)->
+        return false if @dead
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game,"foxsuicide"
@@ -4330,9 +4338,10 @@ class Cursed extends Player
             return true
         else
             return false
-    sunset:(game)->
-        if @flag in ["bitten","vampire"]
-            # この夜から変化する
+    beforebury:(game, type)->
+        return false if @dead
+        if type == "punish" && @flag in ["bitten", "vampire"]
+            # 投票後（夜になる直前）のタイミングで狼に変化
             log=null
             newpl=null
             if @flag=="bitten"
@@ -4356,19 +4365,10 @@ class Cursed extends Player
             newpl.sunset game
 
             splashlog game.id,game,log
-            if @flag=="bitten"
-                # 人狼側に知らせる
-                #game.ss.publish.channel "room#{game.id}_werewolf","refresh",{id:game.id}
-                game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
-            else
-                # ヴァンパイアに知らせる
-                game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isVampire()
-            # 自分も知らせる
-            #game.ss.publish.user newpl.realid,"refresh",{id:game.id}
-            game.splashjobinfo [game.getPlayer @id]
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     beforebury:(game)->
+        return false if @dead
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner", game
@@ -4623,6 +4623,7 @@ class Doppleganger extends Player
         }
         null
     beforebury:(game,type,deads)->
+        return false if @dead
         # 対象が死んだら移る
         targetid = @flag?.target
         if deads.some((x)=> x.id == targetid)
@@ -4923,6 +4924,7 @@ class Witch extends Player
 class Oldman extends Player
     type:"Oldman"
     beforebury:(game, type)->
+        return false if @dead
         # 老衰は朝になったタイミングのみ
         return false unless type == "day"
 
@@ -5285,12 +5287,12 @@ class Dictator extends Player
         pl.die game,"punish",[@id]
         # XXX executeの中と同じことが書いてある
         game.bury "punish"
-        return if game.rule.hunter_lastcheck == "no" && game.judge()
+        return if game.rule.hunter_lastattack == "no" && game.judge()
         # 次のターンへ移行
         unless game.hunterCheck("nextturn")
+            if game.rule.hunter_lastattack == "yes"
+                return if game.judge()
             game.nextturn()
-        if game.rule.hunter_lastcheck == "yes"
-            game.judge()
         return null
 class SeersMama extends Player
     type:"SeersMama"
@@ -5649,16 +5651,15 @@ class RedHood extends Player
             @setFlag from
         else
             @setFlag null
-    deadsunset:(game)->
-        if @flag
+    beforebury:(game, type)->
+        # 自分を食った狼が死んだら即座に蘇生
+        if @flag && @dead
             w=game.getPlayer @flag
             if w?.dead
-                # 殺した狼が死んだ!復活する
                 pl = game.getPlayer @id
                 pl.revive game
-    deadsunrise:(game)->
-        # 同じ
-        RedHood::deadsunset.call this, game
+                return true
+        return false
 
 class Counselor extends Player
     type:"Counselor"
@@ -6055,6 +6056,7 @@ class WanderingGuard extends Player
         pl.transform game,newpl,true
         null
     beforebury:(game,type)->
+        return false if @dead
         if type=="day"
             # 昼になったとき
             if game.players.filter((x)->x.dead && x.found).length==0
@@ -6164,6 +6166,7 @@ class FrankensteinsMonster extends Player
             # 処刑で死んだらもうひとり処刑できる
             game.votingbox.addPunishedNumber 1
     beforebury:(game,type,deads)->
+        return false if @dead
         # 新しく死んだひとたちで村人陣営ひとたち
         founds=deads.filter (x)->x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
         # 吸収する
@@ -6796,6 +6799,7 @@ class Blasphemy extends Player
         else
             @setTarget null
     beforebury:(game)->
+        return false if @dead
         if @flag
             # まだ狐を作ってないときは耐える
             # 狐が全員死んでいたら自殺
@@ -7580,6 +7584,7 @@ class Ninja extends Player
 class Twin extends Player
     type:"Twin"
     beforebury:(game)->
+        return false if @dead
         # 死亡状態の双子がいたら死亡
         if game.players.some((x)-> x.dead && x.isJobType "Twin")
             @die game, "twinsuicide"
@@ -8506,20 +8511,21 @@ class Friend extends Complex    # 恋人
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
-        ato=false
-        if game.rule.friendssplit=="split"
-            # 独立
-            pl=game.getPlayer @cmplFlag
-            if pl? && pl.dead && pl.isFriend()
-                ato=true
-        else
-            # みんな
-            friends=game.players.filter (x)->x.isFriend()   #恋人たち
-            if friends.length>1 && friends.some((x)->x.dead)
-                ato=true
-        # 恋人が誰か死んだら自殺
-        if ato
-            @die game,"friendsuicide"
+        unless @dead
+            ato=false
+            if game.rule.friendssplit=="split"
+                # 独立
+                pl=game.getPlayer @cmplFlag
+                if pl? && pl.dead && pl.isFriend()
+                    ato=true
+            else
+                # みんな
+                friends=game.players.filter (x)->x.isFriend()   #恋人たち
+                if friends.length>1 && friends.some((x)->x.dead)
+                    ato=true
+            # 恋人が誰か死んだら自殺
+            if ato
+                @die game,"friendsuicide"
         return res1 || res2
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
