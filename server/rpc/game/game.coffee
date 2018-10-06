@@ -399,6 +399,7 @@ class Game
         @werewolf_flag=[] # 人狼襲撃に関するフラグ
 
         @revive_log = [] # 蘇生した人の記録
+        @nextturn_deferred_log = []
         @guard_log = []  # 襲撃阻止の記録（for 瞳狼）
         @ninja_data =
 
@@ -1054,6 +1055,8 @@ class Game
                 name:null
                 comment: @i18n.t "system.phase.#{if night then 'night' else 'day'}", {day: @day}
             splashlog @id,this,log
+
+        @showNextturnDeferredLogs()
 
         #死体処理
         @bury(if night then "night" else "day")
@@ -1716,7 +1719,14 @@ class Game
                 comment: @i18n.t "system.revive", {name: n}
             splashlog @id, this, log
         @revive_log = []
-
+    # 遅延されているログを表示
+    showNextturnDeferredLogs:->
+        for log in @nextturn_deferred_log
+            splashlog @id, this, log
+        @nextturn_deferred_log = []
+    # ログを次のターン開始時まで遅延
+    deferLogToNextturn:(log)->
+        @nextturn_deferred_log.push log
 
     # 投票終わりチェック
     # 返り値: 処刑が終了したらtrue
@@ -2098,6 +2108,9 @@ class Game
 
         if team?
             # 勝敗決定
+
+            @showNextturnDeferredLogs()
+
             @finished=true
             @finish_time=new Date
             @last_time=@finish_time.getTime()
@@ -4358,6 +4371,8 @@ class Cursed extends Player
                     comment: game.i18n.t "roles:Cursed.becomeVampire", {name: @name}
 
                 newpl=Player.factory "Vampire", game
+            # show log at the beginning of next trun.
+            game.deferLogToNextturn log
 
             @transProfile newpl
             @transferData newpl
