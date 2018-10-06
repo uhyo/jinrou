@@ -23,6 +23,7 @@ import {
   faPen,
   faTrashAlt,
   faCheck,
+  faSignal,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -46,6 +47,7 @@ library.add(
   faPen,
   faTrashAlt,
   faCheck,
+  faSignal,
 );
 
 // Publish to global.

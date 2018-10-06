@@ -19,10 +19,10 @@ setTimeout (()->
         }
     )), 100
 ss.server.on 'disconnect', ->
-    util.message "サーバー","接続が切断されました。"
     if serverConnectionPlace?
-        console.log 'hi'
         serverConnectionPlace.store.setConnection false
+    else
+        util.message "サーバー","接続が切断されました。"
 ss.server.on 'reconnect', ->
     if serverConnectionPlace?
         serverConnectionPlace.store.setConnection true
