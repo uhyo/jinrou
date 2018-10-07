@@ -5131,22 +5131,21 @@ class MinionSelector extends Player
 # 盗人
 class Thief extends Player
     type:"Thief"
-    team:""
+    isWinner:-> false
     formType: FormType.required
-    sleeping:(game)->@target? || game.day>1
+    sleeping:(game)->@target?
     sunset:(game)->
-        @setTarget (if game.day==1 then null else "")
+        @setTarget null
         # @flag:JSONの役職候補配列
-        if !target?
-            arr=JSON.parse(@flag ? '["Human"]')
-            jobnames=arr.map (x)->
-                testpl = Player.factory x, game
-                testpl.getJobDisp()
-            log=
-                mode:"skill"
-                to:@id
-                comment: game.i18n.t "roles:Thief.candidates", {name: @name, jobnames: jobnames.join(",")}
-            splashlog game.id,game,log
+        arr=JSON.parse(@flag ? '["Human"]')
+        jobnames=arr.map (x)->
+            testpl = Player.factory x, game
+            testpl.getJobDisp()
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Thief.candidates", {name: @name, jobnames: jobnames.join(",")}
+        splashlog game.id,game,log
     job:(game,target)->
         @setTarget target
         unless jobs[target]?
@@ -5163,7 +5162,7 @@ class Thief extends Player
             comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
         splashlog game.id,game,log
 
-        game.ss.publish.user newpl.id,"refresh",{id:game.id}
+        game.splashjobinfo [game.getPlayer @id]
         null
     makeJobSelection:(game, isvote)->
         unless isvote
