@@ -1,5 +1,6 @@
 import styled, { withProps } from '../../util/styled';
 import { duration } from './def';
+import { keyframes } from 'styled-components';
 
 /**
  * Box of server connection information.
@@ -38,13 +39,30 @@ export const Wrapper = withProps<{
   }
 `;
 
+const blinkingAnimation = keyframes`
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1.0;
+  }
+`;
+
 /**
  * Icon part of information.
  */
-export const IconContainer = styled.div`
+export const IconContainer = withProps<{
+  connected: boolean;
+}>()(styled.div)`
   flex: auto 0 0;
   align-self: center;
   margin-right: 1.5rem;
+  ${({ connected }) =>
+    connected
+      ? ''
+      : `
+    animation: ${blinkingAnimation} 3s ease-in-out infinite alternate;
+  `}
 `;
 
 /**

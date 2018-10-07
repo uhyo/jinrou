@@ -45,7 +45,7 @@ export class ServerConnection extends React.Component<
             role={connection ? undefined : 'alert'}
             onClick={this.clickHandler}
           >
-            <IconContainer>
+            <IconContainer connected={connection}>
               <FontAwesomeIcon
                 icon={connection ? 'check' : 'signal'}
                 size="3x"
