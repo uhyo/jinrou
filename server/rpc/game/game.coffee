@@ -11009,6 +11009,7 @@ makelogsFor=(game,player,log)->
             otherslog=
                 mode:"half-day"
                 comment: log.comment
+                userid: log.possess_id
                 name: log.possess_name
                 time: log.time
                 size: log.size
@@ -11037,6 +11038,8 @@ makelogsFor=(game,player,log)->
         otherslog =
             mode:"day"
             comment: log.comment
+            # 偽のuserid
+            userid: log.possess_id
             name:log.possess_name
             time:log.time
             size:log.size
