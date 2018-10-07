@@ -10794,7 +10794,12 @@ module.exports.actions=(req,res,ss)->
                 when "heaven"
                     # 霊界の発言は悪霊憑きの発言になるかも
                     if game.phase == Phase.day && !(game.silentexpires && game.silentexpires >= Date.now())
-                        possessions = game.players.filter (x)-> !x.dead && x.isJobType "SpiritPossessed"
+                        possessions = game.players.filter (x)->
+                            if x.dead || !x.isJobType("SpiritPossessed")
+                                return false
+                            # SpiritPossessed alive!
+                            # if it is muted, it cannot be target.
+                            return "day" in x.getSpeakChoiceDay game
                         if possessions.length > 0
                             # 悪魔憑き
                             r = Math.floor (Math.random()*possessions.length)
@@ -11009,6 +11014,7 @@ makelogsFor=(game,player,log)->
             otherslog=
                 mode:"half-day"
                 comment: log.comment
+                userid: log.possess_id
                 name: log.possess_name
                 time: log.time
                 size: log.size
@@ -11037,6 +11043,8 @@ makelogsFor=(game,player,log)->
         otherslog =
             mode:"day"
             comment: log.comment
+            # 偽のuserid
+            userid: log.possess_id
             name:log.possess_name
             time:log.time
             size:log.size
