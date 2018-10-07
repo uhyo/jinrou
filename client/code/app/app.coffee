@@ -27,6 +27,11 @@ ss.server.on 'disconnect', ->
 ss.server.on 'reconnect', ->
     if serverConnectionPlace?
         serverConnectionPlace.store.setConnection true
+        # activate the registed reconnect event.
+        cdom = $("#content").get 0
+        reconnect = jQuery.data cdom, "reconnect"
+        if reconnect?
+            reconnect()
     else
         # fallback to legacy way of notifying user
         util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
@@ -119,12 +124,15 @@ exports.init = ->
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
     jQuery.data(cdom,"end")?()
-    jQuery.removeData cdom,"end"
+    jQuery.removeData cdom, "end"
+    jQuery.removeData cdom, "reconnect"
     $("#content").empty()
     $(JT["#{templatename}"](params)).appendTo("#content")
     if pageobj
         pageobj.start(startparam)
         jQuery.data cdom, "end", pageobj.end
+        if pageobj.reconnect?
+            jQuery.data cdom, "reconnect", pageobj.reconnect
 # マニュアルを表示
 manualpage=(pagename)->
     resp=(tmp)->
