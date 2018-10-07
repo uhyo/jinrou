@@ -20,6 +20,7 @@ i18next.use(xhrBackend).init({
     'game_client_form',
     'rules',
     'casting',
+    'server_connection_client',
   ],
 });
 

@@ -1,0 +1,11 @@
+# Language file for server connection information box.
+
+# unconnected message
+unconnected: "サーバーに接続されていません。"
+# connected message
+connected: "サーバーに接続されました"
+
+# message that says reconnection is attemted.
+connecting: "再接続されるまでお待ちください……"
+# message that internet connection itself is offline.
+offline: "インターネットに接続されていません"

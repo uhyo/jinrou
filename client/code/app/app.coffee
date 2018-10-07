@@ -3,10 +3,38 @@
 # Bind to socket events
 app=require '/app'
 util=require '/util'
+
+# placement of server connection info.
+serverConnectionPlace = null
+# 少し待って初期化
+setTimeout (()->
+    Promise.all([
+        getI18n()
+        JinrouFront.loadServerConnection()
+    ]).then(([i18n, sc])->
+        serverConnectionPlace = sc.place {
+            i18n: i18n,
+            node: document.getElementById 'serverconnection'
+            connected: navigator.onLine ? true
+        }
+    )), 100
 ss.server.on 'disconnect', ->
-    util.message "サーバー","接続が切断されました。"
+    if serverConnectionPlace?
+        serverConnectionPlace.store.setConnection false
+    else
+        # fallback to legacy way of notifying user
+        util.message "サーバー","接続が切断されました。"
 ss.server.on 'reconnect', ->
-    util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
+    if serverConnectionPlace?
+        serverConnectionPlace.store.setConnection true
+        # activate the registed reconnect event.
+        cdom = $("#content").get 0
+        reconnect = jQuery.data cdom, "reconnect"
+        if reconnect?
+            reconnect()
+    else
+        # fallback to legacy way of notifying user
+        util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
 libban = require '/ban'
 
 
@@ -96,12 +124,15 @@ exports.init = ->
 exports.page=page=(templatename,params=null,pageobj,startparam)->
     cdom=$("#content").get(0)
     jQuery.data(cdom,"end")?()
-    jQuery.removeData cdom,"end"
+    jQuery.removeData cdom, "end"
+    jQuery.removeData cdom, "reconnect"
     $("#content").empty()
     $(JT["#{templatename}"](params)).appendTo("#content")
     if pageobj
         pageobj.start(startparam)
         jQuery.data cdom, "end", pageobj.end
+        if pageobj.reconnect?
+            jQuery.data cdom, "reconnect", pageobj.reconnect
 # マニュアルを表示
 manualpage=(pagename)->
     resp=(tmp)->
@@ -430,7 +461,7 @@ exports.getApplicationConfig = getApplicationConfig = ()->
             application_config_callbacks.push(resolve))
 
 # Returns a Promise which resolves to an i18n instance with appropreate language setting.
-exports.getI18n = ()->
+exports.getI18n = getI18n = ()->
     Promise.all([
         getApplicationConfig()
         JinrouFront.loadI18n()
