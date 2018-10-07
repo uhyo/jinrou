@@ -11100,6 +11100,7 @@ makejobinfo = (game,player,result={})->
             unless actpl?
                 #あれっ
                 actpl=player
+    is_helper = player?.isJobType("Helper")
     is_gm = actpl?.isJobType("GameMaster")
     openjob_flag=game.finished || (actpl?.dead && game.heavenview) || is_gm
     result.openjob_flag = openjob_flag
@@ -11158,7 +11159,7 @@ makejobinfo = (game,player,result={})->
         result.winner=player.winner
         if player.dead
             result.speak =player.getSpeakChoiceHeaven game
-        else if is_gm
+        else if is_gm || is_helper
             result.speak =player.getSpeakChoice game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
             result.speak =player.getSpeakChoice game
