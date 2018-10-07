@@ -22,11 +22,13 @@ ss.server.on 'disconnect', ->
     if serverConnectionPlace?
         serverConnectionPlace.store.setConnection false
     else
+        # fallback to legacy way of notifying user
         util.message "サーバー","接続が切断されました。"
 ss.server.on 'reconnect', ->
     if serverConnectionPlace?
         serverConnectionPlace.store.setConnection true
     else
+        # fallback to legacy way of notifying user
         util.message "サーバー","接続が回復しました。ページの更新を行ってください。"
 libban = require '/ban'
 

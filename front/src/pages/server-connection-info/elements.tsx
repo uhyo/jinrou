@@ -7,6 +7,7 @@ import { duration } from './def';
  */
 export const Wrapper = withProps<{
   open: boolean;
+  delay: number;
 }>()(styled.div)`
   position: fixed;
   top: ${({ open }) => (open ? '4rem' : '-10rem')};
@@ -15,7 +16,7 @@ export const Wrapper = withProps<{
   width: 26em;
   max-width: calc(100vw - 2rem);
   height: 6rem;
-  transition: top ${duration}ms ease-in-out 1800ms;
+  transition: top ${duration}ms ease-in-out ${({ delay }) => delay}ms;
 
   padding: 1.2rem 0.9rem;
   border-radius: 0.9rem;

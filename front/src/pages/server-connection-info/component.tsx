@@ -18,8 +18,10 @@ export class ServerConnection extends React.Component<
     store: ServerConnectionStore;
   },
   {
-    // whether connection to internet is available
-    // (though it just relies on online/offline event)
+    /**
+     *  whether connection to internet is available
+     * (though it just relies on online/offline event)
+     */
     internetConnection: boolean;
   }
 > {
@@ -29,17 +31,19 @@ export class ServerConnection extends React.Component<
   public render() {
     const {
       i18n,
-      store: { connection },
+      store: { connection, open, delay },
     } = this.props;
     const { internetConnection } = this.state;
 
     return (
-      <Transition timeout={duration} in={!connection} appear>
+      <Transition timeout={duration} in={open} appear>
         {(state: string) => (
           <Wrapper
             open={state === 'entering' || state === 'entered'}
+            delay={delay}
             // give the 'alert' role when connection is lost.
             role={connection ? undefined : 'alert'}
+            onClick={this.clickHandler}
           >
             <IconContainer>
               <FontAwesomeIcon
@@ -80,6 +84,10 @@ export class ServerConnection extends React.Component<
   public componentWillUnmount() {
     document.removeEventListener('online', this.onlineHandler, false);
     document.removeEventListener('offline', this.onlineHandler, false);
+  }
+  @bind
+  private clickHandler(): void {
+    this.props.store.setUserClosed();
   }
   @bind
   private onlineHandler(e: Event): void {
