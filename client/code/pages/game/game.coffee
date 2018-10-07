@@ -5,6 +5,8 @@ socket_ids=[]
 
 this_rule=null  # ルールオブジェクトがある
 enter_result=null #enter
+# when set, function to reload the game.
+reload_room = null
 
 # GameStartControlのインスタンス
 game_start_control = null
@@ -332,7 +334,7 @@ exports.start=(roomid)->
                 this_openjob_flag=true
                 unless obj.logs?
                     # ログをもらってない場合はもらいたい
-                    ss.rpc "game.game.getlog",roomid,sentlog
+                    reload_room()
         sentlog=(result)->
             if result.error?
                 dialog.showErrorDialog {
@@ -356,8 +358,9 @@ exports.start=(roomid)->
                         }
                     else
                         gettimer parseInt(result.timer),result.timer_mode if result.timer?
-
-        ss.rpc "game.game.getlog", roomid,sentlog
+        reload_room = ->
+            ss.rpc "game.game.getlog", roomid,sentlog
+        reload_room()
         # 新しいゲーム
         newgamebutton = ->
             # GameStartControlコンポーネントを設置
@@ -500,7 +503,7 @@ exports.start=(roomid)->
             if msg.id==roomid
                 #Index.app.refresh()
                 ss.rpc "game.rooms.enter", roomid,sessionStorage.roompassword ? null,(result)->
-                    ss.rpc "game.game.getlog", roomid,sentlog
+                    reload_room()
                 ss.rpc "game.rooms.oneRoom", roomid,(r)->room=r
         # 投票フォームオープン
         socket_ids.push Index.socket.on "voteform",null,(msg,channel)->
@@ -578,6 +581,11 @@ exports.end=->
             return
     alloff socket_ids...
     document.body.classList.remove x for x in ["day","night","finished","heaven"]
+
+exports.reconnect=->
+    if reload_room?
+        console.log "reloading"
+        reload_room()
 
 #ソケットを全部off
 alloff= (ids...)->
