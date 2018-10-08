@@ -117,5 +117,7 @@ function loadLanguageBundle(
   lng: string,
   ns: string,
 ): Promise<{ default: unknown }> {
-  return import(`../../../language/${lng}/${ns}.yaml`);
+  return import(/*
+    webpackChunkName: "language-data-[request]"
+  */ `../../../language/${lng}/${ns}.yaml`);
 }

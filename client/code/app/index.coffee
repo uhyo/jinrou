@@ -4,7 +4,6 @@ module.exports=
         profile:require '/user/profile'
         view:require '/user/view'
         graph:require '/user/graph'
-        color:require '/user/color'
         mylog:require '/user/mylog'
         settings:require '/user/settings'
     game:

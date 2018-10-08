@@ -17,6 +17,15 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
 
+/**
+ * Priority of chunks.
+ */
+const Priority = {
+  lib: 10,
+  page: 50,
+  vendor: 100,
+};
+
 // config values ----------
 // system language.
 let systemLanguage;
@@ -51,7 +60,7 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
     crossOriginLoading: 'anonymous',
     // for production, include hash information.
     filename: isProduction ? 'bundle.[chunkhash].js' : 'bundle.js',
-    chunkFilename: '[id].[chunkhash].bundle.js',
+    chunkFilename: '[name].[chunkhash].bundle.js',
   },
   module: {
     rules: [
@@ -125,7 +134,8 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
         return file;
       },
     }),
-  ],
+    isProduction ? new webpack.HashedModuleIdsPlugin() : null,
+  ].filter(plug => plug != null),
   resolve: {
     alias: {
       // if not legacy Mode, remove polyfills.
@@ -135,6 +145,96 @@ const makeConfig = (isProduction, isLegacyBuild) => ({
       _polyfills: isLegacyBuild
         ? path.join(__dirname, 'dist-esm/polyfills/index.js')
         : path.join(__dirname, 'build/empty.js'),
+    },
+  },
+  optimization: {
+    moduleIds: 'named',
+    splitChunks: {
+      maxAsyncRequests: 16,
+      cacheGroups: {
+        dialog: {
+          test: /[\\\/]dist-esm[\\\/]dialog[\\\/]/,
+          name: 'dialog',
+          chunks: 'all',
+          priority: Priority.lib,
+        },
+        page_game_view: {
+          test: /[\\\/]dist-esm[\\\/]pages[\\\/]game-view[\\\/]/,
+          name: 'game-view',
+          chunks: 'all',
+          priority: Priority.page,
+        },
+        page_game_start_control: {
+          test: /[\\\/]dist-esm[\\\/]pages[\\\/]game-start-control[\\\/]/,
+          name: 'game-start-control',
+          chunks: 'all',
+          priority: Priority.page,
+        },
+        page_user_settings: {
+          test: /[\\\/]dist-esm[\\\/]pages[\\\/]user-settings[\\\/]/,
+          name: 'user-settings',
+          chunks: 'all',
+          priority: Priority.page,
+        },
+        vendor_react: {
+          // react family and its dependencies.
+          test: vendorRegexp(
+            'react',
+            'react-dom',
+            'react-transition-group',
+            'styled-components',
+            'recompose',
+            'stylis',
+            'fbjs',
+            'react-is',
+            'object-assign',
+            'prop-types',
+            'stylis-rule-sheet',
+            'hoist-non-react-statics',
+          ),
+          name: 'vendor_react',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        vendor_react_draggable: {
+          test: /[\\\/]node_modules[\\\/]react-draggable[\\\/]/,
+          name: 'vendor_react_draggable',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        vendor_mobx: {
+          test: /[\\\/]node_modules[\\\/]mobx[\\\/]/,
+          name: 'vendor_mobx',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        vendor_mobx_react: {
+          test: /[\\\/]node_modules[\\\/]mobx-react[\\\/]/,
+          name: 'vendor_mobx_react',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        vendor_i18next: {
+          test: /[\\\/]node_modules[\\\/]i18next(?:-xhr-backend)?[\\\/]/,
+          name: 'vendor_i18next',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        vendor_for_settings: {
+          test: /[\\\/]node_modules[\\\/](?:react-color|dexie|lodash)[\\\/]/,
+          name: 'vendor_for_settings',
+          chunks: 'all',
+          priority: Priority.vendor,
+        },
+        /*
+        vendors: {
+          test: /[\\\/]node_modules[\\\/]/,
+          minChunks: 2,
+          reuseExistingChunk: true,
+          chunks: 'all',
+        },
+        */
+      },
     },
   },
 });
@@ -168,4 +268,13 @@ function addPathSeg(path, seg) {
   } else {
     return `${path}/${seg}/`;
   }
+}
+
+/**
+ * Make a regexp for selecting vendor modules.
+ */
+function vendorRegexp(...vendors) {
+  return new RegExp(
+    String.raw`[\\\/]node_modules[\\\/](?:${vendors.join('|')})[\\\/]`,
+  );
 }
