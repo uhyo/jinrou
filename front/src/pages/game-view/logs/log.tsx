@@ -332,6 +332,7 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
   inlog: styled(LogBox)`
     background-color: ${props => props.theme.user.inlog.bg};
     color: ${props => props.theme.user.inlog.color};
+    font-weight: bold;
 
     > * {
       border-top: 1px dashed #00dce8;
