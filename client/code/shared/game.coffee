@@ -1493,6 +1493,9 @@ exports.new_rules=[
 # 情報表示(makejobinfoで付加するやつ)
 exports.jobinfos=[
     {
+        name:"supporting"
+    }
+    {
         name:"wolves"
     }
     {
@@ -1524,9 +1527,6 @@ exports.jobinfos=[
     }
     {
         name:"cultmembers"
-    }
-    {
-        name:"supporting"
     }
     {
         name:"dogOwner"

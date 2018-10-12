@@ -8191,6 +8191,7 @@ class Helper extends Player
         if pl?
             helpedinfo={}
             pl.makejobinfo game,helpedinfo
+
             result.supporting=pl?.publicinfo()
             # This is for old client
             result.supportingJob=pl?.getJobDisp()
@@ -8198,6 +8199,7 @@ class Helper extends Player
             for value in Shared.game.jobinfos
                 if helpedinfo[value.name]?
                     result[value.name]=helpedinfo[value.name]
+            writeGlobalJobInfo game, pl, result
         null
 
 # 開始前のやつだ!!!!!!!!
@@ -11088,6 +11090,15 @@ isLogTarget = (to, player)->
     else
         # otherwise to is a string.
         to in ids
+# add global player information to jobinfo
+writeGlobalJobInfo = (game, player, result={})->
+    unless Phase.isBeforeStart(game.phase)
+        result.myteam = player.getTeamDisp()
+        # 女王観戦者の情報
+        if player.getTeam() == "Human"
+            result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
+                x.publicinfo()
+
 #job情報を
 makejobinfo = (game,player,result={})->
     result.type= if player? then player.getTypeDisp() else null
@@ -11125,13 +11136,7 @@ makejobinfo = (game,player,result={})->
         if plpl?
             # 参加者として
 
-            # tell player's team.
-            unless Phase.isBeforeStart(game.phase)
-                result.myteam = plpl.getTeamDisp()
-                # 女王観戦者の情報
-                if plpl.getTeam() == "Human"
-                    result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
-                        x.publicinfo()
+            writeGlobalJobInfo game, plpl, result
 
             result.sleeping = playerIsJobDone game, player
             if Phase.isDay(game.phase)

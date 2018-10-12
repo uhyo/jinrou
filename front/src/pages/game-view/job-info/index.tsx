@@ -56,6 +56,16 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
           return (
             <Wrapper t={t} team={myteam}>
               <JobStatus t={t} jobname={jobname} desc={desc} />
+              {supporting == null ? null : (
+                <p>
+                  <I18nInterp ns="game_client" k="jobinfo.peers.supporting">
+                    {{
+                      name: <b>{supporting.name}</b>,
+                      job: <b>{supporting.supportingJob}</b>,
+                    }}
+                  </I18nInterp>
+                </p>
+              )}
               {/* Info of peers. */}
               {peers.map(key => {
                 const pls = this.props[key];
@@ -100,16 +110,6 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                   >
                     {{
                       number: quantumwerewolf_number,
-                    }}
-                  </I18nInterp>
-                </p>
-              )}
-              {supporting == null ? null : (
-                <p>
-                  <I18nInterp ns="game_client" k="jobinfo.peers.supporting">
-                    {{
-                      name: <b>{supporting.name}</b>,
-                      job: <b>{supporting.supportingJob}</b>,
                     }}
                   </I18nInterp>
                 </p>
