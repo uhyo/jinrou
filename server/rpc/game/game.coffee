@@ -1410,15 +1410,26 @@ class Game
 
     #全員に状況更新 pls:状況更新したい人を指定する場合の配列
     splashjobinfo:(pls)->
-        unless pls?
+        targets = null
+        if pls?
+            # 対象が定まっている
+            plids = pls.map (pl)-> pl.id
+            targets = plids.map (id)=> @getPlayer id
+            # ヘルパーにも同時に配信
+            for pl in @participants
+                for h in pl.accessByJobTypeAll "Helper"
+                    if h.flag in plids
+                        targets.push pl
+        else
+            # 全員を更新
             # プレイヤー以外にも
             @ss.publish.channel "room#{@id}_audience","getjob",makejobinfo this,null
             # GMにも
             if @gm?
                 @ss.publish.channel "room#{@id}_gamemaster","getjob",makejobinfo this,@getPlayerReal @gm
-            pls=@participants
+            targets = @participants
 
-        pls.forEach (x)=>
+        targets.forEach (x)=>
             @ss.publish.user x.realid,"getjob",makejobinfo this,x
     #全員寝たかチェック 寝たなら処理してtrue
     #timeoutがtrueならば時間切れなので時間でも待たない
@@ -3970,7 +3981,7 @@ class Merchant extends Player
             to:newpl.id
             comment: game.i18n.t "roles:Merchant.delivered", {name: newpl.name, kit: kit_name}
         splashlog game.id,game,log
-        game.ss.publish.user newpl.id,"refresh",{id:game.id}
+        game.splashjobinfo [newpl]
         @setFlag query.Merchant_kit    # 発送済み
         @addGamelog game,"sendkit",@flag,newpl.id
         null
@@ -4112,7 +4123,6 @@ class Copier extends Player
         if @scapegoat
             scapegoatRunJobs game, @id
 
-        #game.ss.publish.user newpl.id,"refresh",{id:game.id}
         game.splashjobinfo [game.getPlayer @id]
         null
     isWinner:(game,team)->false # コピーしないと負け
@@ -4274,8 +4284,7 @@ class Cupid extends Player
                 comment: game.i18n.t "roles:Cupid.become", {name: newpl.name}
             splashlog game.id,game,log
         # 2人とも更新する
-        for pl in [game.getPlayer(@flag), game.getPlayer(@target)]
-            game.ss.publish.user pl.id,"refresh",{id:game.id}
+        game.splashjobinfo [game.getPlayer(@flag), game.getPlayer(@target)]
 
         null
 # ストーカー
@@ -4398,7 +4407,7 @@ class ApprenticeSeer extends Player
             @transform game,newpl,false
 
             # 更新
-            game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+            game.splashjobinfo [newpl]
         return false
 class Diseased extends Player
     type:"Diseased"
@@ -4684,8 +4693,7 @@ class Doppleganger extends Player
             splashlog game.id,game,log
             @addGamelog game,"dopplemove",newpl.type,newpl.id
 
-
-            game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+            game.splashjobinfo [newpl]
             return true
         return false
 class CultLeader extends Player
@@ -5010,7 +5018,7 @@ class OccultMania extends Player
             comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
         splashlog game.id,game,log
 
-        game.ss.publish.user newpl.realid,"refresh",{id:game.id}
+        # game.ss.publish.user newpl.realid,"refresh",{id:game.id}
         null
 
 # 狼の子
@@ -5080,8 +5088,7 @@ class Lover extends Player
             comment: game.i18n.t "roles:Lover.become", {name: pl.name}
         splashlog game.id,game,log
         # 2人とも更新する
-        for pl in [mytop, pl]
-            game.ss.publish.user pl.id,"refresh",{id:game.id}
+        game.splashjobinfo [mytop, pl]
 
         null
 
@@ -7038,7 +7045,7 @@ class GotChocolate extends Player
                     top.transform game,newpl,true
                     top = game.getPlayer @id
                     flag = true
-                    game.ss.publish.user top.id,"refresh",{id:game.id}
+                    game.splashjobinfo [top]
                     break
             else if top.cmplType=="GotChocolateFalse" && top.sub==this
                 # 義理だ
@@ -8636,7 +8643,6 @@ class Muted extends Complex
         @mcall game,@main.sunset,game
         @sub?.sunset? game
         @uncomplex game
-        game.ss.publish.user @id,"refresh",{id:game.id}
     getSpeakChoiceDay:(game)->
         ["monologue"]   # 全員に喋ることができない
 # 狼の子分
@@ -8685,7 +8691,6 @@ class Drunk extends Complex
                 comment: game.i18n.t "roles:Drunk.awake", {name: @name}
             splashlog game.id,game,log
             @uncomplex game
-            game.ss.publish.user @realid,"refresh",{id:game.id}
     makejobinfo:(game,obj)->
         Human.prototype.makejobinfo.call @,game,obj
         obj.forms = []
