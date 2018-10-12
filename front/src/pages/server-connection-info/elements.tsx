@@ -1,6 +1,7 @@
 import styled, { withProps } from '../../util/styled';
 import { duration } from './def';
 import { keyframes } from 'styled-components';
+import { phone, notPhone } from '../../common/media';
 
 /**
  * Box of server connection information.
@@ -12,12 +13,18 @@ export const Wrapper = withProps<{
 }>()(styled.div)`
   position: fixed;
   top: ${({ open }) => (open ? '4rem' : '-10rem')};
-  right: 2rem;
   box-sizing: border-box;
-  width: 26em;
-  max-width: calc(100vw - 2rem);
-  height: 6rem;
   transition: top ${duration}ms ease-in-out ${({ delay }) => delay}ms;
+  height: 6rem;
+  ${notPhone`
+    right: 2rem;
+    width: 26em;
+    max-width: calc(100vw - 2rem);
+  `}
+  ${phone`
+    width: 86vw;
+    left: 7vw;
+  `}
 
   padding: 1.2rem 0.9rem;
   border-radius: 0.9rem;

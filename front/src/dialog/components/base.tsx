@@ -4,6 +4,7 @@ import styled, { keyframes, withProps } from '../../util/styled';
 import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
 import { IconProp, FontAwesomeIcon } from '../../util/icon';
+import { phone } from '../../common/media';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -166,9 +167,9 @@ const DialogBase = styled(DialogBaseInner)`
     color: #666666;
   }
 
-  @media (min-width: 600px) {
+  ${phone`
     max-width: 60vw;
-  }
+  `};
 `;
 
 export type IPropDialog = IPropDialogWrapper &

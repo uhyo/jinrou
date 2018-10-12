@@ -330,6 +330,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
  * Main input of form.
  */
 const SpeakInput = styled.input`
+  box-sizing: border-box;
   max-width: 100%;
 `;
 
@@ -337,5 +338,6 @@ const SpeakInput = styled.input`
  * Multiline mode form.
  */
 const SpeakTextArea = styled.textarea`
+  box-sizing: border-box;
   max-width: 100%;
 `;

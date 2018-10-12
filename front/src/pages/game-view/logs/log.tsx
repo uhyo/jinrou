@@ -4,6 +4,7 @@ import styled, { withProps } from '../../../util/styled';
 import { Log } from '../defs';
 import { Rule } from '../../../defs';
 import { I18n } from '../../../i18n';
+import { phone } from '../../../common/media';
 
 export interface IPropOneLog {
   /**
@@ -507,4 +508,8 @@ const Time = styled(TimeInner)`
   line-height: 15px;
   text-align: right;
   padding-right: 1ex;
+
+  ${phone`
+    font-size: xx-small;
+  `};
 `;
