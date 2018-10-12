@@ -439,6 +439,7 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
 const Icon = styled.div`
   display: table-cell;
   width: 1em;
+  min-width: 8px;
 
   img {
     width: 1em;

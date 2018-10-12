@@ -120,7 +120,7 @@ export class Game extends React.Component<IPropGame, {}> {
     return (
       <ThemeProvider theme={theme}>
         <I18nProvider i18n={i18n}>
-          <div>
+          <RoomHeader>
             {/* List of players. */}
             <Players players={players} onFilter={this.handleLogFilter} />
             {/* Room control buttons. */}
@@ -159,45 +159,45 @@ export class Game extends React.Component<IPropGame, {}> {
               onWillChange={onWillChange}
               {...speakState}
             />
-            {/* Main game screen. */}
-            <MainWrapper>
-              {/* Rule panel if open. */}
-              <Transition in={rule != null && ruleOpen} timeout={250}>
-                {(state: string) => {
-                  const closed =
-                    state === 'exiting' ||
-                    state === 'exited' ||
-                    state === 'unmounted';
-                  return (
-                    <RuleWrapper closed={closed}>
-                      {rule != null ? (
-                        <RuleStickyWrapper closed={closed}>
-                          <RuleInnerWrapper>
-                            <ShowRule
-                              rule={rule}
-                              categories={categories}
-                              ruleDefs={ruleDefs}
-                            />
-                          </RuleInnerWrapper>
-                        </RuleStickyWrapper>
-                      ) : null}
-                    </RuleWrapper>
-                  );
-                }}
-              </Transition>
-              {/* Logs. */}
-              <LogsWrapper>
-                <Logs
-                  logs={store.logs}
-                  visibility={store.logVisibility}
-                  icons={store.icons}
-                  rule={store.rule}
-                  logPickup={logPickup}
-                  onResetLogPickup={this.handleResetLogPickup}
-                />
-              </LogsWrapper>
-            </MainWrapper>
-          </div>
+          </RoomHeader>
+          {/* Main game screen. */}
+          <MainWrapper>
+            {/* Rule panel if open. */}
+            <Transition in={rule != null && ruleOpen} timeout={250}>
+              {(state: string) => {
+                const closed =
+                  state === 'exiting' ||
+                  state === 'exited' ||
+                  state === 'unmounted';
+                return (
+                  <RuleWrapper closed={closed}>
+                    {rule != null ? (
+                      <RuleStickyWrapper closed={closed}>
+                        <RuleInnerWrapper>
+                          <ShowRule
+                            rule={rule}
+                            categories={categories}
+                            ruleDefs={ruleDefs}
+                          />
+                        </RuleInnerWrapper>
+                      </RuleStickyWrapper>
+                    ) : null}
+                  </RuleWrapper>
+                );
+              }}
+            </Transition>
+            {/* Logs. */}
+            <LogsWrapper>
+              <Logs
+                logs={store.logs}
+                visibility={store.logVisibility}
+                icons={store.icons}
+                rule={store.rule}
+                logPickup={logPickup}
+                onResetLogPickup={this.handleResetLogPickup}
+              />
+            </LogsWrapper>
+          </MainWrapper>
           {styleMode != null ? <GlobalStyle mode={styleMode} /> : null}
         </I18nProvider>
       </ThemeProvider>
@@ -273,6 +273,13 @@ export class Game extends React.Component<IPropGame, {}> {
     this.props.store.update({ logPickup: null });
   }
 }
+
+/**
+ * Wrapper of room header part.
+ */
+const RoomHeader = styled.div`
+  margin: 0 8px 8px;
+`;
 
 /**
  * Wrapper for main game panel.

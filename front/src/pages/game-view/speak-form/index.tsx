@@ -18,6 +18,7 @@ import { WillForm } from './will-form';
 import { Timer } from './timer';
 import { makeMapByKey } from '../../../util/map-by-key';
 import { SpeakKindSelect } from './speak-kind-select';
+import styled from '../../../util/styled';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -106,8 +107,8 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
             <form onSubmit={this.handleSubmit}>
               {/* Comment input form. */}
               {multiline ? (
-                <textarea
-                  ref={e => (this.comment = e)}
+                <SpeakTextArea
+                  innerRef={e => (this.comment = e)}
                   cols={50}
                   rows={4}
                   required
@@ -116,8 +117,8 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   onChange={this.handleCommentChange}
                 />
               ) : (
-                <input
-                  ref={e => (this.comment = e)}
+                <SpeakInput
+                  innerRef={e => (this.comment = e)}
                   type="text"
                   size={50}
                   required
@@ -324,3 +325,17 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     this.props.onRefuseRevival();
   }
 }
+
+/**
+ * Main input of form.
+ */
+const SpeakInput = styled.input`
+  max-width: 100%;
+`;
+
+/**
+ * Multiline mode form.
+ */
+const SpeakTextArea = styled.textarea`
+  max-width: 100%;
+`;
