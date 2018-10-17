@@ -1,3 +1,4 @@
+# TODO: this is almost a copy of the default.
 module.exports =
   name: "月下人狼"
   # HTTP server
@@ -25,12 +26,12 @@ module.exports =
   # db setting
   mongo:
     database: "werewolf"
-    host: "127.0.0.1"
+    host: "mongod"
     port: 27017
     user: "test"
     pass: "test"
   redis:
-    host: "127.0.0.1"
+    host: "redis"
 
   admin:
     # 管理者権限を行使する際のパスワード

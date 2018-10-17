@@ -76,8 +76,8 @@ ss.client.formatters.add(require('ss-stylus'));
 ss.client.templateEngine.use(require('ss-clientjade'));
 
 ss.client.set({ liveReload: false });
-ss.session.store.use('redis');
-ss.publish.transport.use('redis');
+ss.session.store.use('redis', { host: Config.redis.host });
+ss.publish.transport.use('redis', { host: Config.redis.host });
 
 /**
  * Whether this run is in production mode.
