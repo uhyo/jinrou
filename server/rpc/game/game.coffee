@@ -4660,6 +4660,7 @@ class Doppleganger extends Player
             # まだドッペルゲンガーできる
             sub=Player.factory "Doppleganger", game
             @transProfile sub
+            @transferData sub
 
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
