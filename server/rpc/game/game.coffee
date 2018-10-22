@@ -4388,7 +4388,7 @@ class Cursed extends Player
             @transform game,newpl,false
             newpl.sunset game
 
-            splashlog game.id,game,log
+            # splashlog game.id,game,log
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     beforebury:(game)->
