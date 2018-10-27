@@ -91,6 +91,13 @@ exports.categories=
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover","Raven"]
 
+# 配列版のカテゴリリスト
+exports.categoryList = Object.keys(exports.categories)
+    .map (key)-> {
+        id: key
+        roles: exports.categories[key]
+    }
+
 # 役職ルールたち 役職人数一覧を返す（Humanは向こうで補完）
 normal1=(number)->
   ret={}

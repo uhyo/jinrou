@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { I18n, TranslationFunction } from '../../i18n';
-import { RuleGroup, Rule } from '../../defs';
+import { RuleGroup, Rule, RoleCategoryDefinition } from '../../defs';
 
 import { getRuleExpression } from '../../logic/rule';
 
@@ -11,9 +11,9 @@ export interface IPropShowRule {
    */
   rule: Rule;
   /**
-   * Id of roles.
+   * Definition of categories.
    */
-  roles: string[];
+  categories: RoleCategoryDefinition[];
   /**
    * Definition of rules.
    */
@@ -24,13 +24,17 @@ export interface IPropShowRule {
  */
 export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
   public render() {
-    const { roles, rule, ruleDefs } = this.props;
+    const { categories, rule, ruleDefs } = this.props;
     return (
       <I18n>
         {t => (
           <>
             {rule.jobNumbers != null ? (
-              <JobNumbers roles={roles} jobs={rule.jobNumbers} t={t} />
+              <JobNumbers
+                categories={categories}
+                jobs={rule.jobNumbers}
+                t={t}
+              />
             ) : null}
             {rule.rules != null ? (
               <RuleTable>
@@ -51,27 +55,31 @@ export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
  */
 class JobNumbers extends React.PureComponent<
   {
-    roles: string[];
+    categories: RoleCategoryDefinition[];
     jobs: Record<string, number>;
     t: TranslationFunction;
   },
   {}
 > {
   public render() {
-    const { roles, jobs, t } = this.props;
+    const { categories, jobs, t } = this.props;
     return (
       <p>
-        {roles.map(
-          role =>
-            jobs[role] > 0 ? (
-              <React.Fragment key={role}>
-                <a href={`/manual/job/${role}`}>
-                  {t(`roles:jobname.${role}`)}
-                  {jobs[role]}
-                </a>{' '}
-              </React.Fragment>
-            ) : null,
-        )}
+        {categories.map(({ id, roles }) => (
+          <React.Fragment key={id}>
+            {roles.map(
+              role =>
+                jobs[role] > 0 ? (
+                  <React.Fragment key={role}>
+                    <a href={`/manual/job/${role}`}>
+                      {t(`roles:jobname.${role}`)}
+                      {jobs[role]}
+                    </a>{' '}
+                  </React.Fragment>
+                ) : null,
+            )}
+          </React.Fragment>
+        ))}
       </p>
     );
   }

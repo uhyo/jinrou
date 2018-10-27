@@ -5,7 +5,11 @@ import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
 import { Game } from './component';
-import { RuleGroup, RoomControlHandlers } from '../../defs';
+import {
+  RuleGroup,
+  RoomControlHandlers,
+  RoleCategoryDefinition,
+} from '../../defs';
 import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 
@@ -26,9 +30,9 @@ export interface IPlaceOptions {
    */
   roomid: number;
   /**
-   * List of role ids.
+   * Definition of categories.
    */
-  roles: string[];
+  categories: RoleCategoryDefinition[];
   /**
    * Definition of rules.
    */
@@ -81,7 +85,7 @@ export function place({
   i18n,
   node,
   roomid,
-  roles,
+  categories,
   rules,
   teamColors,
   onSpeak,
@@ -99,7 +103,7 @@ export function place({
       i18n={i18n}
       roomid={roomid}
       store={store}
-      roles={roles}
+      categories={categories}
       ruleDefs={rules}
       teamColors={teamColors}
       onSpeak={onSpeak}

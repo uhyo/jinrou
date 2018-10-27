@@ -10,7 +10,11 @@ import { bind } from '../../util/bind';
 import { themeStore } from '../../theme';
 import { I18nProvider, I18n } from '../../i18n';
 
-import { RuleGroup, RoomControlHandlers } from '../../defs';
+import {
+  RuleGroup,
+  RoomControlHandlers,
+  RoleCategoryDefinition,
+} from '../../defs';
 import { SpeakState, LogVisibility, SpeakQuery } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
@@ -38,9 +42,9 @@ interface IPropGame {
    */
   store: GameStore;
   /**
-   * List of role ids.
+   * Definition of categories.
    */
-  roles: string[];
+  categories: RoleCategoryDefinition[];
   /**
    * Definition of rules.
    */
@@ -78,7 +82,7 @@ export class Game extends React.Component<IPropGame, {}> {
       i18n,
       roomid,
       store,
-      roles,
+      categories,
       ruleDefs,
       teamColors,
       onJobQuery,
@@ -171,7 +175,7 @@ export class Game extends React.Component<IPropGame, {}> {
                           <RuleInnerWrapper>
                             <ShowRule
                               rule={rule}
-                              roles={roles}
+                              categories={categories}
                               ruleDefs={ruleDefs}
                             />
                           </RuleInnerWrapper>

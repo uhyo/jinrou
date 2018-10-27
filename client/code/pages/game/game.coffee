@@ -62,8 +62,8 @@ exports.start=(roomid)->
                 i18n: i18n
                 roomid: roomid
                 node: $("#game-app").get(0)
-                roles: Shared.game.jobs.concat Shared.game.hiddenJobs
                 rules: Shared.game.new_rules
+                categories: Shared.game.categoryList
                 teamColors: makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
@@ -381,12 +381,7 @@ exports.start=(roomid)->
                         node: target
                         castings: castings
                         roles: Shared.game.jobs
-                        categories:
-                            Object.keys(Shared.game.categories)
-                                .map((key)-> {
-                                    id: key
-                                    roles: Shared.game.categories[key]
-                                })
+                        categories: Shared.game.categoryList
                         rules: Shared.game.new_rules
                         # XXX ad-hoc!
                         initialCasting: castings[0].items[0].value
