@@ -62,7 +62,7 @@ exports.start=(roomid)->
                 i18n: i18n
                 roomid: roomid
                 node: $("#game-app").get(0)
-                roles: Shared.game.jobs
+                roles: Shared.game.jobs.concat Shared.game.hiddenJobs
                 rules: Shared.game.new_rules
                 teamColors: makeTeamColors()
                 onSpeak: (query)->

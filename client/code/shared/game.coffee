@@ -57,8 +57,10 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # オリジナル
 "SantaClaus","Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad"
 ]
-# ここには入らない役職
-# Light, Neet, MinionSelector,QuantumPlayer, HolyProtected
+# 隠されていて自分で入れることができない役職
+exports.hiddenJobs = [
+    "Light", "Neet", "MinionSelector", "QuantumPlayer", "HolyProtected"
+]
 
 # 人外
 exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox"]
