@@ -10565,9 +10565,12 @@ module.exports.actions=(req,res,ss)->
                 # 残りは村人だ！
                 joblist.Human = frees - sum
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
-            if query.yaminabe_hidejobs!="" && query.jobrule!="特殊ルール.闇鍋" && query.jobrule!="特殊ルール.一部闇鍋" && query.jobrule!="特殊ルール.エンドレス闇鍋"
+            if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
+            if query.yaminabe_hidejobs != "" && query.jobrule == "特殊ルール.自由配役"
+                # ルール名のみ
+                ruleinfo_str = game.i18n.t "casting:castingName.#{query.jobrule}"
             if query.chemical == "on"
                 # ケミカル人狼の場合は表示
                 ruleinfo_str = "#{game.i18n.t "common.chemicalWerewolf"}　" + (ruleinfo_str ? "")

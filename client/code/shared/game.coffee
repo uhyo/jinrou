@@ -905,7 +905,9 @@ exports.new_rules=[
         type: 'group'
         label:
             id: 'yaminabe_option'
-            visible: (rule)-> isYaminabe rule
+            visible: (rule)->
+                # 闇鍋モードのみ
+                (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
         items: [
             {
                 type: 'item'
@@ -934,7 +936,7 @@ exports.new_rules=[
                 if !isEditor && rule.rules.get('yaminabe_hidejobs') != 'team'
                     # ルール表示時で配役がチームのみの設定でない場合は隠す
                     return false
-                return true if isYaminabe(rule)
+                return true if isAllJobsMode(rule)
                 if isEditor && rule.rules.get('yaminabe_hidejobs') != 'team'
                     return false
                 for job in ["Vampire","Devil","CultLeader"]
@@ -1223,7 +1225,7 @@ exports.new_rules=[
         label:
             id: "werewolf"
             visible: (rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 for job in exports.categories.Werewolf
                     if rule.jobNumbers[job]>0
                         return true
@@ -1252,7 +1254,7 @@ exports.new_rules=[
         label:
             id: 'diviner'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 for job in ["Diviner","ApprenticeSeer","WolfDiviner","TinyFox"]
                     if rule.jobNumbers[job]>0
                         return true
@@ -1288,7 +1290,7 @@ exports.new_rules=[
         label:
             id: 'psychic'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 return rule.jobNumbers.Psychic>0
         items:[
             {
@@ -1311,7 +1313,7 @@ exports.new_rules=[
             id: 'couple'
             visible:(rule)->
                 console.log 'rule!', rule
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 return rule.jobNumbers.Couple>0 || rule.jobNumbers.MadCouple>0
         items:[
             {
@@ -1329,7 +1331,7 @@ exports.new_rules=[
         label:
             id: 'guard'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 for job in ["Guard","Trapper","WanderingGuard","Cosplayer"]
                     if rule.jobNumbers[job]>0
                         return true
@@ -1368,7 +1370,7 @@ exports.new_rules=[
         label:
             id: "fox"
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 return rule.jobNumbers.Fox>0
         items:[
             {
@@ -1386,7 +1388,7 @@ exports.new_rules=[
         label:
             id: 'hunter'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 return rule.jobNumbers.Hunter > 0 || rule.jobNumbers.MadHunter > 0
         items:[
             {
@@ -1408,7 +1410,7 @@ exports.new_rules=[
         label:
             id: 'poison'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 return rule.jobNumbers.Poisoner>0 || rule.jobNumbers.Cat>0
         items:[
             {
@@ -1430,7 +1432,7 @@ exports.new_rules=[
         label:
             id: 'lover'
             visible:(rule)->
-                return true if isYaminabe rule
+                return true if isAllJobsMode rule
                 for job in ["Cupid","Lover","BadLady","Patissiere"]
                     if rule.jobNumbers[job]>0
                         return true
@@ -1560,8 +1562,8 @@ exports.jobinfos=[
     }
 ]
 
-# 判定
-isYaminabe=(rule)->
+# 全ての役職が現れる可能性があるモードかどうか
+isAllJobsMode=(rule)->
    if (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
        return true
    if rule.rules.get("yaminabe_hidejobs") != ""
