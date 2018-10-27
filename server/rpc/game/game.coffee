@@ -10616,15 +10616,10 @@ module.exports.actions=(req,res,ss)->
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
                 if query.yaminabe_hidejobs==""
                     # 闇鍋用の役職公開ログ
-                    jobinfos=[]
-                    for job,num of joblist
-                        continue if num==0
-                        jobinfos.push "#{game.i18n.t "roles:jobname.#{job}"}#{num}"
                     log=
                         mode:"system"
-                        comment: game.i18n.t "system.gamestart.roles", {info: jobinfos.join(" ")}
+                        comment: game.i18n.t "system.gamestart.roles", {info: getYaminaleRolesStr game.i18n, joblist}
                     splashlog game.id,game,log
-
 
             for x in ["jobrule",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
@@ -11215,6 +11210,15 @@ getrulestr = (i18n, rule, jobs={})->
             catName = i18n.t "roles:categoryName.#{type}"
             text+="#{catName}#{num} "
     return text
+# 闇鍋用の役職一覧ログを作成
+getYaminaleRolesStr = (i18n, joblist)->
+    jobinfos = []
+    for obj in Shared.game.categoryList
+        for job in obj.roles
+            num = joblist[job]
+            if num > 0
+                jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
+    jobinfos.join " "
 
 # Generate an ID for use as Player objid.
 generateObjId = ->
