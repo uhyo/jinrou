@@ -229,6 +229,8 @@ const LogBox = styled.div`
   margin: 0;
   line-height: 1;
   color: #000000;
+  word-break: break-all;
+  word-break: break-word;
 `;
 
 /**
