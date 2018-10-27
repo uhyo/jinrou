@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FormDesc } from '../defs';
 import { I18n, TranslationFunction } from '../../../i18n';
 
-import { specialNamedTypes, specialContentTypes, toJobType } from './types';
+import { specialNamedTypes, specialContentTypes } from './types';
 import { makeGameMasterForm } from './gm';
 import { makeMerchantForm } from './merchant';
 import { makeWitchForm } from './witch';
@@ -112,7 +112,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
             if (this.commandName !== '') {
               query.commandname = this.commandName;
             }
-            query.jobtype = toJobType(type);
+            query.jobtype = type;
             query.objid = objid;
             // query is generated
             console.log(query);

@@ -5253,6 +5253,8 @@ class Dog extends Player
             pl.die game,"dog"
             pl.touched game,@id
         null
+    isFormTarget:(jobtype)->
+        (jobtype in ["Dog1", "Dog2"]) || super
     makejobinfo:(game,result)->
         super
         result.forms = result.forms.filter (obj)-> obj.type != "Dog"
@@ -6631,6 +6633,8 @@ class BadLady extends Player
             game.splashjobinfo [@id,plm.id,pl.id].map (id)->game.getPlayer id
             @addGamelog game,"badlady_keep",pl.type,playerid
         null
+    isFormTarget:(jobtype)->
+        (jobtype in ["BadLady1", "BadLady2"]) || super
     makejobinfo:(game,result)->
         super
         # "BadLady" form does not exist
@@ -7305,6 +7309,8 @@ class CraftyWolf extends Werewolf
         else
             # 生存フラグが消えた
             @setFlag ""
+    isFormTarget:(jobtype)->
+        jobtype == "CraftyWolf2" || super
     makejobinfo:(game,result)->
         super
         result.open ?= []
