@@ -11304,9 +11304,13 @@ scapegoatRunJobs = (game, id)->
                 run = true
                 if form.options.length > 0
                     r = Math.floor(Math.random() * form.options.length)
-                    plobj.job game, form.options[r].value, {}
+                    plobj.job game, form.options[r].value, {
+                        jobtype: form.type
+                    }
                 else
-                    plobj.job game, "", {}
+                    plobj.job game, "", {
+                        jobtype: form.type
+                    }
         unless run
             # フォームが無かったらやめる
             break
