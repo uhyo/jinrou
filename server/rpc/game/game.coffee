@@ -3156,6 +3156,7 @@ class Player
         else
             ["monologue"]
     # 夜の発言の選択肢を得る
+    # 最初が"-"で始まるのは打ち消しフラグ
     getSpeakChoice:(game)->
         ["monologue"]
     # 霊界発言
@@ -8117,7 +8118,7 @@ class DecoyWolf extends Werewolf
         super
         @setFlag null
     midnightSort: 40
-    sleeping:(game)-> super && (game.day == 1 || @flag)
+    jobdone:(game)-> super && (game.day == 1 || @flag)
     job:(game, playerid, query)->
         if query.jobtype != "DecoyWolf"
             # ふつうの襲撃だ
@@ -8745,7 +8746,8 @@ class Muted extends Complex
         @sub?.sunset? game
         @uncomplex game
     getSpeakChoiceDay:(game)->
-        ["monologue"]   # 全員に喋ることができない
+        base = @main.getSpeakChoiceDay game
+        base.concat ["-day"]
 # 狼の子分
 class WolfMinion extends Complex
     cmplType:"WolfMinion"
@@ -10876,7 +10878,7 @@ module.exports.actions=(req,res,ss)->
                         log.mode="heaven"
                 else if Phase.isDay(game.phase)
                     # 昼
-                    unless query.mode in player.getSpeakChoiceDay game
+                    unless query.mode in processSpeakChoice player.getSpeakChoiceDay game
                         res null
                         return
                     log.mode=query.mode
@@ -10886,7 +10888,7 @@ module.exports.actions=(req,res,ss)->
                         return
                 else if Phase.isNight(game.phase) || player.isJobType("GameMaster") || player.isJobType("Helper")
                     # 夜
-                    unless query.mode in player.getSpeakChoice game
+                    unless query.mode in processSpeakChoice player.getSpeakChoice game
                         query.mode="monologue"
                     log.mode=query.mode
                 else
@@ -10906,7 +10908,7 @@ module.exports.actions=(req,res,ss)->
                                 return false
                             # SpiritPossessed alive!
                             # if it is muted, it cannot be target.
-                            return "day" in x.getSpeakChoiceDay game
+                            return "day" in processSpeakChoice x.getSpeakChoiceDay game
                         if possessions.length > 0
                             # 悪魔憑き
                             r = Math.floor (Math.random()*possessions.length)
@@ -11268,13 +11270,13 @@ makejobinfo = (game,player,result={})->
         result.jobname=player.getJobDisp()
         result.winner=player.winner
         if player.dead
-            result.speak =player.getSpeakChoiceHeaven game
+            result.speak = processSpeakChoice player.getSpeakChoiceHeaven game
         else if is_gm || is_helper
-            result.speak =player.getSpeakChoice game
+            result.speak = processSpeakChoice player.getSpeakChoice game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
-            result.speak =player.getSpeakChoice game
+            result.speak = processSpeakChoice player.getSpeakChoice game
         else if Phase.isDay(game.phase)
-            result.speak =player.getSpeakChoiceDay game
+            result.speak = processSpeakChoice player.getSpeakChoiceDay game
         else if game.phase == Phase.hunter
             result.speak = ["monologue"]
         else
@@ -11318,6 +11320,18 @@ getYaminaleRolesStr = (i18n, joblist)->
             if num > 0
                 jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
     jobinfos.join " "
+
+# getSpeakChoice系メソッドの結果を処理
+# "-"フラグを処理する
+processSpeakChoice = (choices)->
+    positive = []
+    negative = []
+    for ch in choices
+        if ch[0] == "-"
+            negative.push ch.slice(1)
+        else
+            positive.push ch
+    return positive.filter (ch)-> not (ch in negative)
 
 # Generate an ID for use as Player objid.
 generateObjId = ->
