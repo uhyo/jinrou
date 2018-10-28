@@ -1,5 +1,7 @@
 Player#midnightSort
 
+囮狼 40
+
 催眠術師 50
 
 聖職者 70

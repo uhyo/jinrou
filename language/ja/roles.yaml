@@ -116,6 +116,7 @@ jobname:
   LurkingMad: "暗躍者"
   SnowLover: "雪女"
   Raven: "鴉"
+  DecoyWolf: "囮狼"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -722,6 +723,10 @@ SnowLover:
 Raven:
   # message when 1 or less Ravens are alive.
   message: "鴉がカァと鳴く声が村に響きました。"
+
+DecoyWolf:
+  # Use skill.
+  select: "{{name}}は囮となって今晩の能力を引き付けました。"
 
 GameMaster:
   # Failed to revive.
