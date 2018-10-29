@@ -726,7 +726,7 @@ Raven:
 
 DecoyWolf:
   # Use skill.
-  select: "{{name}}は囮となって今晩の能力を引き付けました。"
+  select: "{{name}}は{{target}}の家に忍び込み囮となりました。"
 
 GameMaster:
   # Failed to revive.

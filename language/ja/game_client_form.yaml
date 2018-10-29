@@ -93,7 +93,7 @@ messages:
   Idol: "ファンにする人を選択してください"
   XianFox: "透視する対象を選択してください"
   SnowLover: "恋人にする相手を選択してください"
-  DecoyWolf: "今晩囮になる場合は選択してください"
+  DecoyWolf: "囮になる対象を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.

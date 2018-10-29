@@ -2698,15 +2698,21 @@ class SkillTargetHook
     reset:->
         # forced target of skill.
         @forcedTarget = null
+        # mapping of targets.
+        @targetMapping = new Map
     # get corrected target of midnight skills.
     get:(originalTarget)->
         if @forcedTarget?
             # currently, target is forced.
             return @forcedTarget
-        # otherwise, return original target,
-        return originalTarget
+        # otherwise, find mapped target.
+        # if not found, return original target,
+        return @targetMapping.get(originalTarget) ? originalTarget
     # force today's target of midnight skills.
     force:(@forcedTarget)->
+    # set a mapping from original target to changed target.
+    change:(original, target)->
+        @targetMapping.set original, target
 
 
 class Player
@@ -8129,17 +8135,21 @@ class DecoyWolf extends Werewolf
         if @flag
             # もう使用済なので発動できない
             return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
         # 能力使用したフラグを立てる
         @setFlag "using"
+        @setTarget playerid
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:DecoyWolf.select", {name: @name}
+            comment: game.i18n.t "roles:DecoyWolf.select", {name: @name, target: pl.name}
         splashlog game.id, game, log
         return null
     midnight:(game)->
-        if @flag == "using"
-            # register target hook to force all skill target to myself.
-            game.skillTargetHook.force @id
+        if @flag == "using" && @target?
+            # register target hook to change target of skills.
+            game.skillTargetHook.change @target, @id
             @setFlag "done"
     makejobinfo:(game, result)->
         super
@@ -8147,20 +8157,11 @@ class DecoyWolf extends Werewolf
             # まだ能力を使用可能
             result.forms.push {
                 type: "DecoyWolf"
-                options: []
+                options: @makeJobSelection game, false
                 formType: FormType.optionalOnce
                 objid: @objid
             }
         return result
-    makeJobSelection:(game, isvote)->
-        if !isvote && game.werewolf_target_remain == 0
-            return []
-        else super
-    checkJobValidity:(game, query)->
-        if query.jobtype == "DecoyWolf"
-            # 対象選択は不要
-            return true
-        return super
 
 
 # ============================
