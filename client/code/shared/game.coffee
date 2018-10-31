@@ -84,7 +84,7 @@ exports.teams=teams=
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
-    Human: teams.Human.filter((x)-> x != "GotChocolate")
+    Human: teams.Human.filter((x)-> x != "GotChocolate" && x != "Phantom")
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf"]
     Fox:["Fox","TinyFox","XianFox"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad"]
