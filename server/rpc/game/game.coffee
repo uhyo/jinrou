@@ -3885,8 +3885,6 @@ class WolfDiviner extends Werewolf
                     to:p.id
                     comment: game.i18n.t "system.changeRole", {name: p.name, result: newpl.getJobDisp()}
                 splashlog game.id,game,log
-            p=game.getPlayer @flag.target
-            p.sunset game
 
     showdivineresult:(game)->
         r=@flag.results[@flag.results.length-1]
