@@ -91,6 +91,8 @@ exports.categories=
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
     Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover","Raven"]
+    # Special category for "no category"
+    None:["Neet"]
 
 # 配列版のカテゴリリスト
 exports.categoryList = Object.keys(exports.categories)
