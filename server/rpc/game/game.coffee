@@ -10726,7 +10726,7 @@ module.exports.actions=(req,res,ss)->
                     # 闇鍋用の役職公開ログ
                     log=
                         mode:"system"
-                        comment: game.i18n.t "system.gamestart.roles", {info: getYaminabeRolesStr game.i18n, joblist}
+                        comment: game.i18n.t "system.gamestart.roles", {info: getIncludedRolesStr game.i18n, joblist}
                     splashlog game.id,game,log
 
             for x in ["jobrule",
@@ -11305,11 +11305,8 @@ getrulestr = (i18n, rule, jobs={})->
     text = "#{ruleName} / "
 
     # write numbers of each role.
-    for job in Shared.game.jobs
-        num = jobs[job]
-        continue unless parseInt num
-        jobName = i18n.t "roles:jobname.#{job}"
-        text+="#{jobName}#{num} "
+    text += getIncludedRolesStr i18n, jobs
+    text += " "
 
     # write number of categories.
     for type of Shared.game.categories
@@ -11319,7 +11316,7 @@ getrulestr = (i18n, rule, jobs={})->
             text+="#{catName}#{num} "
     return text
 # 闇鍋用の役職一覧ログを作成
-getYaminabeRolesStr = (i18n, joblist)->
+getIncludedRolesStr = (i18n, joblist)->
     jobinfos = []
     for obj in Shared.game.categoryList
         for job in obj.roles
