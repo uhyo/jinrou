@@ -845,7 +845,9 @@ class Game
             # 盗人がいる場合
             thieves=@players.filter (x)->x.isJobType "Thief"
             for pl in thieves
-                pl.setFlag JSON.stringify thief_jobs.splice 0,2
+                ts = pl.accessByJobTypeAll "Thief"
+                for t in ts
+                    t.setFlag JSON.stringify thief_jobs.splice 0,2
 
         # サブ系
         if options.decider
@@ -5196,6 +5198,8 @@ class Thief extends Player
         @setTarget null
         # @flag:JSONの役職候補配列
         arr=JSON.parse(@flag ? '["Human"]')
+        if arr.length == 0
+            arr.push "Human"
         jobnames=arr.map (x)->
             testpl = Player.factory x, game
             testpl.getJobDisp()
