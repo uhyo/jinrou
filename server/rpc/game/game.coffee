@@ -7319,7 +7319,7 @@ class CraftyWolf extends Werewolf
         # 生存状態で昼になったら死んだふり能力初期化
         @setFlag ""
     job:(game,playerid,query)->
-        if query.jobtype!="CraftyWolf"
+        unless query.jobtype in ["CraftyWolf", "CraftyWolf2"]
             return super
         if @dead
             # 死亡時
