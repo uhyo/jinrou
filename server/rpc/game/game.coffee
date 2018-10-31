@@ -4082,6 +4082,8 @@ class Liar extends Player
         super
         return if !@flag? || @flag.length==0
         resultobj = @flag[@flag.length-1]
+        # Only show today's result.
+        return if resultobj.day != game.day - 1
         log=
             mode:"skill"
             to:@id
@@ -4108,6 +4110,7 @@ class Liar extends Player
             @setFlag @flag.concat {
                 player: origp.publicinfo()
                 result: game.i18n.t "roles:fortune.#{result}"
+                day: game.day
             }
     isWinner:(game,team)->team==@getTeam() && !@dead # 村人勝利で生存
 class Spy2 extends Player
