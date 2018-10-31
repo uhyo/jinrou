@@ -54,7 +54,7 @@ messages:
   Trapper: "護衛する対象を選択してください"
   WolfBoy: "人狼に見せかける人を選択してください"
   MinionSelector: "狼の子分にする人を指定してください"
-  Theif: "なりたい役職を選択してください"
+  Thief: "なりたい役職を選択してください"
   Hoodlum: "恨む相手を1人ずつ選択してください"
   _Quantum_Diviner: "占う相手を選択してください"
   _Quantum_Werewolf: "襲撃する相手を選択してください"
