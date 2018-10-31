@@ -5749,6 +5749,7 @@ class Counselor extends Player
     sleeping:->true
     jobdone:->@target?
     sunset:(game)->
+        @setFlag null
         @setTarget null
         if game.day==1
             # 一日目はカウンセリングできない
@@ -5779,23 +5780,33 @@ class Counselor extends Player
             @die game,"vampire2"
             @addGamelog game,"counselKilled", t.type, target
             return
+        # OK! flag to consel at sunrise.
+        @setFlag t.id
+    sunrise:(game)->
+        return unless @flag?
+        t = game.getPlayer @flag
+        return unless t?
+        # t is to be counseled.
         if !t.dead
+            tteam = t.getTeam()
             if tteam!="Human"
-                # それ以外で村人陣営以外の場合はカウンセリング成功
                 log=
                     mode:"skill"
                     to:t.id
                     comment: game.i18n.t "roles:Counselor.rehabilitate", {name: t.name}
                 splashlog game.id,game,log
 
-                @addGamelog game,"counselSuccess", t.type, target
+                @addGamelog game,"counselSuccess", t.type, t.id
                 # 複合させる
 
                 newpl=Player.factory null, game, t,null,Counseled  # カウンセリングされた
                 t.transProfile newpl
                 t.transform game,newpl,true
             else
-                @addGamelog game,"counselFailure", t.type, target
+                @addGamelog game,"counselFailure", t.type, t.id
+        @setFlag null
+    deadsunrise:(game)->
+        Counselor::sunrise.call this, game
 # 巫女
 class Miko extends Player
     type:"Miko"
