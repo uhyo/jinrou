@@ -8144,6 +8144,7 @@ class DecoyWolf extends Werewolf
         pl = game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game, @id
         # 能力使用したフラグを立てる
         @setFlag "using"
         @setTarget playerid
