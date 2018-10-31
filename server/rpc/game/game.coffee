@@ -3328,6 +3328,8 @@ class Werewolf extends Player
         tp = game.getPlayer playerid
         if game.werewolf_target_remain<=0
             return game.i18n.t "error.common.cannotUseSkillNow"
+        unless tp?
+            return game.i18n.t "error.common.nonexistentPlayer"
         if game.rule.wolfattack!="ok" && tp?.isWerewolf()
             # 人狼は人狼に攻撃できない
             return game.i18n.t "roles:Werewolf.noWolfAttack"
