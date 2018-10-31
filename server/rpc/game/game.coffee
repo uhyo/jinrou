@@ -8706,6 +8706,9 @@ class HolyProtected extends Complex
     # cmplFlag: 護衛元
     cmplType:"HolyProtected"
     checkDeathResistance:(game, found)->
+        if found in ["gone-day", "gone-night"]
+            # If this is a gone death, do not guard.
+            return false
         # 一回耐える 死なない代わりに元に戻る
         log=
             mode:"skill"
@@ -8944,11 +8947,13 @@ class Counseled extends Complex
 class MikoProtected extends Complex
     cmplType:"MikoProtected"
     checkDeathResistance:(game, found)->
-        # 耐える
-        game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # Do not protect gone death.
         # The draw caused by Miko's escape is annoying.
         if found in ["gone-day","gone-night"]
             @addGamelog game,"miko-gone",null,null
+            return false
+        # 耐える
+        game.getPlayer(@id).addGamelog game,"mikoGJ",found
         # 襲撃失敗理由を保存
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
