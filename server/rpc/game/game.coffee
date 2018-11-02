@@ -6658,8 +6658,11 @@ class Phantom extends Player
         splashlog game.id,game,log
 
         # 盗まれた側は怪盗予備軍のフラグを立てる
-        newpl2=Player.factory null, game, pl,null,PhantomStolen
+        # 一番内側に怪盗予備軍をかませる
+        newpl2 = Player.factory null, game, newch[1], null, PhantomStolen
         newpl2.cmplFlag=flagobj
+        newpl2 = Player.reconstruct newch[0], newpl2
+
         pl.transProfile newpl2
         pl.transform game,newpl2,true
 class BadLady extends Player
@@ -9060,7 +9063,7 @@ class PhantomStolen extends Complex
         pl=game.getPlayer @id
         pl.transProfile newpl
         pl.transferData newpl, true
-        pl.transform game,newpl,true
+        pl.transform game, newpl, false
         log=
             mode:"skill"
             to:@id
