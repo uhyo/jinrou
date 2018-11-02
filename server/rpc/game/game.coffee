@@ -4180,6 +4180,35 @@ class Copier extends Player
 
         game.splashjobinfo [game.getPlayer @id]
         null
+    makeJobSelection:(game, isvote)->
+        if !isvote || !@scapegoat
+            return super
+        # 身代わりくんは特別な選択肢表を持つ
+        # （除外役職冷遇）
+        result = []
+        for pl in game.players
+            if pl.dead
+                continue
+            if pl.type in SAFETY_EXCLUDED_JOBS
+                result.push {
+                    name: pl.name
+                    value: pl.id
+                }
+            else
+                result.push {
+                    name: pl.name
+                    value: pl.id
+                }, {
+                    name: pl.name
+                    value: pl.id
+                }, {
+                    name: pl.name
+                    value: pl.id
+                }, {
+                    name: pl.name
+                    value: pl.id
+                }
+        return result
     isWinner:(game,team)->false # コピーしないと負け
 class Light extends Player
     type:"Light"
