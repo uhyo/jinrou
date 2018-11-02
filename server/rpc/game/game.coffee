@@ -1290,7 +1290,7 @@ class Game
                             newjob=jobnames[Math.floor Math.random()*jobnames.length]
                             newpl=Player.factory newjob, this
                             player.transProfile newpl
-                            player.transferData newpl
+                            player.transferData newpl, true
                             # 観戦者を除去
                             @participants=@participants.filter (x)->x!=player
                             # プレイヤーとして追加
@@ -1321,7 +1321,7 @@ class Game
                         newjob=jobnames[Math.floor Math.random()*jobnames.length]
                         newpl=Player.factory newjob, this
                         pl.transProfile newpl
-                        pl.transferData newpl
+                        pl.transferData newpl, true
                         # 蘇生
                         newpl.setDead false
                         pl.transform @,newpl,true
@@ -2850,6 +2850,7 @@ class Player
     setTarget:(@target)->
     setFlag:(@flag)->
     setWill:(@will)->
+    setObjid:(@objid)->
     setOriginalType:(@originalType)->
     setOriginalJobname:(@originalJobname)->
     setNorevive:(@norevive)->
@@ -3302,13 +3303,15 @@ class Player
     transProfile:(newpl)->
         newpl.setProfile this
     # フラグ類を新しいPlayerオブジェクトへ移動
-    transferData:(newpl)->
+    transferData:(newpl, ismain)->
         return unless newpl?
         newpl.scapegoat=@scapegoat
         newpl.setOriginalType @originalType
         newpl.setDead @dead,@found
         newpl.setNorevive @norevive
         newpl.setWill @will
+        if ismain
+            newpl.setObjid @objid
 
 
 
@@ -3883,7 +3886,7 @@ class WolfDiviner extends Werewolf
                 # convert this to new pl.
                 newpl = Player.factory newjob, game
                 targetpl.transProfile newpl
-                targetpl.transferData newpl
+                targetpl.transferData newpl, true
 
                 targetpl.transform game,newpl,false
                 log=
@@ -4171,7 +4174,7 @@ class Copier extends Player
         # TODO: we want to apply sunset to only newly-craeted role,
         # ideally after it is in role tree.
         @transProfile newpl
-        @transferData newpl
+        @transferData newpl, true
         newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
         # 身代わりくんの場合を考えて対象選択を入れる
@@ -4468,7 +4471,7 @@ class Cursed extends Player
             game.deferLogToNextturn log
 
             @transProfile newpl
-            @transferData newpl
+            @transferData newpl, true
             @transform game,newpl,false
             newpl.sunset game
 
@@ -4481,7 +4484,7 @@ class ApprenticeSeer extends Player
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner", game
             @transProfile newpl
-            @transferData newpl
+            @transferData newpl, true
             log=
                 mode:"skill"
                 to:@id
@@ -4742,12 +4745,12 @@ class Doppleganger extends Player
 
             newplmain=Player.factory p.type, game
             @transProfile newplmain
-            @transferData newplmain
+            @transferData newplmain, true
 
             # まだドッペルゲンガーできる
             sub=Player.factory "Doppleganger", game
             @transProfile sub
-            @transferData sub
+            @transferData sub, false
 
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
@@ -5095,7 +5098,7 @@ class OccultMania extends Player
 
         newpl=Player.factory type, game
         @transProfile newpl
-        @transferData newpl
+        @transferData newpl, true
         newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
 
@@ -5249,7 +5252,7 @@ class Thief extends Player
 
         newpl=Player.factory target, game
         @transProfile newpl
-        @transferData newpl
+        @transferData newpl, true
         newpl.sunset game
         @transform game,newpl,false
         log=
@@ -6640,7 +6643,7 @@ class Phantom extends Player
         # 自分はその役職に変化する
         newpl=Player.factory newtype, game
         @transProfile newpl
-        @transferData newpl
+        @transferData newpl, true
         @transform game,newpl,false
         # 自分が怪盗に盗まれていたらキャンセル（役職が増殖しない整合性のため）
         mych = constructMainChain(game.getPlayer @id)
@@ -7057,7 +7060,7 @@ class Patissiere extends Player
                 newpl = Player.factory null, game, p, sub, GotChocolateTrue
                 newpl.cmplFlag=@id
                 p.transProfile newpl
-                p.transferData newpl
+                p.transferData newpl, true
                 p.transform game, newpl, true
                 log=
                     mode:"skill"
@@ -7072,7 +7075,7 @@ class Patissiere extends Player
                 newpl = Player.factory null, game, p, sub, GotChocolateFalse
                 newpl.cmplFlag=@id
                 p.transProfile newpl
-                p.transferData newpl
+                p.transferData newpl, true
                 p.transform game, newpl, true
                 log=
                     mode:"skill"
@@ -7084,7 +7087,7 @@ class Patissiere extends Player
         newpl = Player.factory null, game, top, null, Friend
         newpl.cmplFlag=pl.id
         top.transProfile newpl
-        top.transferData newpl
+        top.transferData newpl, true
         top.transform game,newpl,true
 
         log=
@@ -7218,7 +7221,7 @@ class GotChocolate extends Player
                 if topl?
                     newpl = Player.factory "Stalker", game
                     top.transProfile newpl
-                    top.transferData newpl
+                    top.transferData newpl, true
                     # ストーカー先
                     newpl.setFlag re[1]
                     top.transform game, newpl, true
@@ -8080,18 +8083,18 @@ class SnowLover extends Player
         mytop = game.getPlayer @id
         newpl = Player.factory null, game, mytop, null, Friend
         mytop.transProfile newpl
-        mytop.transferData newpl
+        mytop.transferData newpl, true
         newpl.cmplFlag = playerid
         mytop.transform game, newpl, true
         # 相手を恋人にする
         newpl1 = Player.factory null, game, pl, null, Friend
         pl.transProfile newpl1
-        pl.transferData newpl1
+        pl.transferData newpl1, true
         newpl1.cmplFlag = @id
         # さらに雪で守る
         newpl2 = Player.factory null, game, newpl1, null, SnowGuarded
         newpl1.transProfile newpl2
-        newpl1.transferData newpl2
+        newpl1.transferData newpl2, true
         newpl2.cmplFlag = @id
         pl.transform game, newpl2, true
 
@@ -8456,6 +8459,7 @@ class Complex
     setTarget:(@target)->@main.setTarget @target
     setFlag:(@flag)->@main.setFlag @flag
     setWill:(@will)->@main.setWill @will
+    setObjid:(@objid)->@main.setObjid @objid
     setOriginalType:(@originalType)->@main.setOriginalType @originalType
     setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
     setNorevive:(@norevive)->@main.setNorevive @norevive
@@ -9055,7 +9059,7 @@ class PhantomStolen extends Complex
         @uncomplex game
         pl=game.getPlayer @id
         pl.transProfile newpl
-        pl.transferData newpl
+        pl.transferData newpl, true
         pl.transform game,newpl,true
         log=
             mode:"skill"
