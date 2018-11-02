@@ -199,6 +199,8 @@ phase:
   night: "夜"
   additional: "猶予"
   skill: "対象選択中"
+  # n seconds rule is active
+  silent: "発言禁止"
 
 # Reason of death
 found:

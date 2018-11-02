@@ -1386,13 +1386,13 @@ class Game
                 ), end_date.getTime() - Date.now()
 
         @splashjobinfo()
-        @timer()
-        if night
-            @checkjobs()
-        else
+        if !night
             # 昼は15秒ルールがあるかも
             if @rule.silentrule>0
                 @silentexpires=Date.now()+@rule.silentrule*1000 # これまでは黙っていよう！
+        @timer()
+        if night
+            @checkjobs()
         @save()
     # 各プレイヤーのsunset処理を行う
     runSunset:->
@@ -2345,46 +2345,55 @@ class Game
                 @checkjobs true
         else if @phase == Phase.day
             # 昼
-            time=@rule.day
-            mode=@i18n.t "phase.day"
-            return unless time
-            func= =>
-                unless @execute()
-                    if @rule.voting
-                        # 投票専用時間がある
-                        @phase = Phase.day_voting
-                        log=
-                            mode:"system"
-                            comment:@i18n.t "system.phase.debateEnd"
-                        splashlog @id, this, log
-                        # 投票箱が開くので通知
-                        @splashjobinfo()
-                        @timer()
-                    else if @rule.remain
-                        # 猶予があるよ
-                        @phase = Phase.day_remain
-                        log=
-                            mode:"system"
-                            comment:@i18n.t "system.phase.debateEnd"
-                        splashlog @id,this,log
-                        @timer()
-                    else
-                        # 突然死
-                        revoting=false
-                        for x in @players
-                            if x.dead || x.voted(this,@votingbox)
-                                continue
-                            x.die this,"gone-day"
-                            x.setNorevive true
-                            revoting=true
-                        @bury("other")
-                        return if @judge()
-                        if revoting
-                            @dorevote "gone"
+            now = Date.now()
+            if @silentexpires? && @silentexpires >= now
+                # 発言禁止時間がある
+                time = Math.ceil((@silentexpires - now) / 1000)
+                time = Math.min time, @rule.day
+                mode = @i18n.t "phase.silent"
+                func = => @timer()
+            else
+                time = @rule.day - (@rule.silentrule ? 0)
+                time = Math.max time, 0
+                mode = @i18n.t "phase.day"
+                return unless @rule.day
+                func= =>
+                    unless @execute()
+                        if @rule.voting
+                            # 投票専用時間がある
+                            @phase = Phase.day_voting
+                            log=
+                                mode:"system"
+                                comment:@i18n.t "system.phase.debateEnd"
+                            splashlog @id, this, log
+                            # 投票箱が開くので通知
+                            @splashjobinfo()
+                            @timer()
+                        else if @rule.remain
+                            # 猶予があるよ
+                            @phase = Phase.day_remain
+                            log=
+                                mode:"system"
+                                comment:@i18n.t "system.phase.debateEnd"
+                            splashlog @id,this,log
+                            @timer()
                         else
-                            @execute()
-                else
-                    return
+                            # 突然死
+                            revoting=false
+                            for x in @players
+                                if x.dead || x.voted(this,@votingbox)
+                                    continue
+                                x.die this,"gone-day"
+                                x.setNorevive true
+                                revoting=true
+                            @bury("other")
+                            return if @judge()
+                            if revoting
+                                @dorevote "gone"
+                            else
+                                @execute()
+                    else
+                        return
         else if @phase == Phase.day_voting
             # 投票専用時間
             time=@rule.voting || @rule.remain || 120
