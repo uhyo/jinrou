@@ -3924,16 +3924,17 @@ class WolfDiviner extends Werewolf
             }
             @addGamelog game,"wolfdivine",null, p.id  # 占った
     getOpenForms:(game)->
+        res = super
         if Phase.isNight(game.phase)
             unless @flag?.target?
                 # 占いが可能
-                return [{
+                res.push {
                     type: @type
                     options: @makeJobSelection game, false
                     formType: FormType.optional
                     objid: @objid
-                }]
-        return []
+                }
+        return res
 
 
 class Fugitive extends Player
@@ -5865,15 +5866,15 @@ class GreedyWolf extends Werewolf
         game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
         null
     getOpenForms:(game)->
+        res = super
         if Phase.isNight(game.phase) && !@flag && game.day >= 2
-            return [{
+            res.push {
                 type: "GreedyWolf"
                 options: []
                 formType: FormType.optionalOnce
                 objid: @objid
-            }]
-        else
-            return []
+            }
+        return res
     makeJobSelection:(game, isvote)->
         if !isvote && @sleeping(game) && !@jobdone(game)
             # 欲張る選択肢のみある
@@ -5937,15 +5938,15 @@ class FascinatingWolf extends Werewolf
             comment: game.i18n.t "roles:FascinatingWolf.affected", {name: pl.name}
         splashlog game.id,game,log
     getOpenForms:(game)->
+        res = super
         if Phase.isNight(game.phase) && !@flag?
-            return [{
+            res.push {
                 type: "FascinatingWolf"
                 options: @makeJobSelection game, false
                 formType: FormType.required
                 objid: @objid
-            }]
-        else
-            return []
+            }
+        return res
 class SolitudeWolf extends Werewolf
     type:"SolitudeWolf"
     sleeping:(game)-> !@flag || super
@@ -6014,17 +6015,18 @@ class ToughWolf extends Werewolf
         splashlog game.id,game,log
         null
     getOpenForms:(game)->
+        res = super
         unless @sleeping game
             # 襲撃可能なときは一途な狼の能力も発動可能
             unless @flag
                 # 能力はまだ使用されていない
-                return [{
+                res.push {
                     type: @type
                     options: @makeJobSelection game, false
                     formType: FormType.optionalOnce
                     objid: @objid
-                }]
-        return []
+                }
+        return res
 
 class ThreateningWolf extends Werewolf
     type:"ThreateningWolf"
