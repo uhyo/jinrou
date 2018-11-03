@@ -9211,6 +9211,7 @@ class BombTrapped extends Complex
             return true
 
     dying:(game, found, from)->
+        super
         if found=="punish"
             # 処刑された場合は処刑者の中から選んでしぬ
             # punishのときはfromがidの配列
