@@ -5,16 +5,18 @@ import {
   StyledFunction,
 } from 'styled-components';
 
-import { Theme } from '../theme';
+import { Theme, UserProvidedTheme } from '../../theme';
 
 const {
   default: styled,
   css,
   injectGlobal,
   keyframes,
-  ThemeProvider,
+  ThemeProvider: InternalThemeProvider,
   withTheme,
 } = styledComponents as ThemedStyledComponentsModule<Theme>;
+
+const ThemeProvider = makeThemeProvider(InternalThemeProvider);
 
 export {
   css,
@@ -28,6 +30,9 @@ export default styled;
 
 // https://github.com/styled-components/styled-components/issues/630#issuecomment-317277803
 import { ThemedStyledFunction } from 'styled-components';
+import { computeGlobalStyle, GlobalStyleMode } from '../../theme/global-style';
+import * as React from 'react';
+import { makeThemeProvider } from './theme';
 
 // usage: const Button = withProps<ButtonProps>()(styled.div)`...`
 export const withProps = <U>() => <P, T, O>(

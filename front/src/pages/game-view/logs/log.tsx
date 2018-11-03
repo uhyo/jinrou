@@ -503,7 +503,7 @@ const TimeInner = ({ time, className }: IPropTime) => {
 const Time = styled(TimeInner)`
   display: table-cell;
   white-space: nowrap;
-  font-size: x-small;
+  font-size: xx-small;
   margin-left: 2em;
   line-height: 15px;
   text-align: right;

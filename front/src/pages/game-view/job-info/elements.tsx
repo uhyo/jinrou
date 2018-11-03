@@ -11,7 +11,7 @@ export const WrapperElement = withProps<{
   borderColor: Color;
   backColor: Color;
 }>()(styled.div)`
-  margin: 5px 0;
+  margin: 0;
   border: 1px solid ${props => props.borderColor.string()};
   background-color: ${props => props.backColor.string()};
 `;

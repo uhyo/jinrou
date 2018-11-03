@@ -96,7 +96,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
     };
 
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme} mode={null}>
         <I18nProvider i18n={i18n}>
           <I18n namespace="game_client">
             {t => {

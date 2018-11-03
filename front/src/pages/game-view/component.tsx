@@ -27,6 +27,9 @@ import { Players } from './players';
 import { RoomControls } from './room-controls';
 import { lightA } from '../../styles/a';
 import { GlobalStyle } from './global-style';
+import { phone } from '../../common/media';
+import { computeGlobalStyle } from '../../theme/global-style';
+import { styleModeOf } from './logic/style-mode';
 
 interface IPropGame {
   /**
@@ -102,103 +105,106 @@ export class Game extends React.Component<IPropGame, {}> {
       logPickup,
     } = store;
 
+    const styleMode = styleModeOf(roleInfo, gameInfo);
     const theme = {
       user: themeStore.themeObject,
       teamColors,
     };
 
-    const styleMode = gameInfo.finished
-      ? null
-      : gameInfo.status === 'waiting'
-        ? 'day'
-        : roleInfo != null && roleInfo.dead
-          ? 'heaven'
-          : gameInfo.night
-            ? 'night'
-            : 'day';
-
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme} mode={styleMode}>
         <I18nProvider i18n={i18n}>
-          <RoomHeader>
+          <AppWrapper>
             {/* List of players. */}
-            <Players players={players} onFilter={this.handleLogFilter} />
+            <RoomHeaderPart>
+              <Players players={players} onFilter={this.handleLogFilter} />
+            </RoomHeaderPart>
             {/* Room control buttons. */}
             {roomControls != null ? (
               <I18n>
                 {t => (
-                  <RoomControls
-                    roomControls={roomControls}
-                    t={t}
-                    roomid={roomid}
-                    players={players}
-                    handlers={roomControlHandlers}
-                  />
+                  <RoomHeaderPart>
+                    <RoomControls
+                      roomControls={roomControls}
+                      t={t}
+                      roomid={roomid}
+                      players={players}
+                      handlers={roomControlHandlers}
+                    />
+                  </RoomHeaderPart>
                 )}
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            {roleInfo != null ? <JobInfo {...roleInfo} /> : null}
+            {roleInfo != null ? (
+              <RoomHeaderPart>
+                <JobInfo {...roleInfo} />
+              </RoomHeaderPart>
+            ) : null}
             {/* Open forms. */}
             {gameInfo.status === 'playing' && roleInfo != null ? (
-              <JobForms forms={roleInfo.forms} onSubmit={onJobQuery} />
+              <RoomHeaderPart>
+                <JobForms forms={roleInfo.forms} onSubmit={onJobQuery} />
+              </RoomHeaderPart>
             ) : null}
             {/* Form for speak and other utilities. */}
-            <SpeakForm
-              gameInfo={gameInfo}
-              roleInfo={roleInfo}
-              players={players}
-              logVisibility={logVisibility}
-              rule={rule != null}
-              timer={timer}
-              onUpdate={this.handleSpeakUpdate}
-              onUpdateLogVisibility={this.handleLogVisibilityUpdate}
-              onSpeak={this.handleSpeak}
-              onRefuseRevival={this.handleRefuseRevival}
-              onRuleOpen={this.handleRuleOpen}
-              onWillChange={onWillChange}
-              {...speakState}
-            />
-          </RoomHeader>
-          {/* Main game screen. */}
-          <MainWrapper>
-            {/* Rule panel if open. */}
-            <Transition in={rule != null && ruleOpen} timeout={250}>
-              {(state: string) => {
-                const closed =
-                  state === 'exiting' ||
-                  state === 'exited' ||
-                  state === 'unmounted';
-                return (
-                  <RuleWrapper closed={closed}>
-                    {rule != null ? (
-                      <RuleStickyWrapper closed={closed}>
-                        <RuleInnerWrapper>
-                          <ShowRule
-                            rule={rule}
-                            categories={categories}
-                            ruleDefs={ruleDefs}
-                          />
-                        </RuleInnerWrapper>
-                      </RuleStickyWrapper>
-                    ) : null}
-                  </RuleWrapper>
-                );
-              }}
-            </Transition>
-            {/* Logs. */}
-            <LogsWrapper>
-              <Logs
-                logs={store.logs}
-                visibility={store.logVisibility}
-                icons={store.icons}
-                rule={store.rule}
-                logPickup={logPickup}
-                onResetLogPickup={this.handleResetLogPickup}
+            <SpeakFormPart>
+              <SpeakForm
+                gameInfo={gameInfo}
+                roleInfo={roleInfo}
+                players={players}
+                logVisibility={logVisibility}
+                rule={rule != null}
+                timer={timer}
+                onUpdate={this.handleSpeakUpdate}
+                onUpdateLogVisibility={this.handleLogVisibilityUpdate}
+                onSpeak={this.handleSpeak}
+                onRefuseRevival={this.handleRefuseRevival}
+                onRuleOpen={this.handleRuleOpen}
+                onWillChange={onWillChange}
+                {...speakState}
               />
-            </LogsWrapper>
-          </MainWrapper>
-          {styleMode != null ? <GlobalStyle mode={styleMode} /> : null}
+            </SpeakFormPart>
+            {/* Main game screen. */}
+            <MainWrapper>
+              {/* Rule panel if open. */}
+              <Transition in={rule != null && ruleOpen} timeout={250}>
+                {(state: string) => {
+                  const closed =
+                    state === 'exiting' ||
+                    state === 'exited' ||
+                    state === 'unmounted';
+                  return (
+                    <RuleWrapper closed={closed}>
+                      {rule != null ? (
+                        <RuleStickyWrapper closed={closed}>
+                          <RuleInnerWrapper>
+                            <ShowRule
+                              rule={rule}
+                              categories={categories}
+                              ruleDefs={ruleDefs}
+                            />
+                          </RuleInnerWrapper>
+                        </RuleStickyWrapper>
+                      ) : null}
+                    </RuleWrapper>
+                  );
+                }}
+              </Transition>
+              {/* Logs. */}
+              <LogsWrapper>
+                <Logs
+                  logs={store.logs}
+                  visibility={store.logVisibility}
+                  icons={store.icons}
+                  rule={store.rule}
+                  logPickup={logPickup}
+                  onResetLogPickup={this.handleResetLogPickup}
+                />
+              </LogsWrapper>
+            </MainWrapper>
+            <GlobalStyle />
+          </AppWrapper>
         </I18nProvider>
       </ThemeProvider>
     );
@@ -275,10 +281,36 @@ export class Game extends React.Component<IPropGame, {}> {
 }
 
 /**
- * Wrapper of room header part.
+ * Wrapper of whole app.
  */
-const RoomHeader = styled.div`
-  margin: 0 8px 8px;
+const AppWrapper = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+`;
+
+/**
+ * Wrapper of each room control.
+ */
+const RoomHeaderPart = styled.div`
+  margin: 4px 0;
+  padding: 0 8px;
+`;
+
+/**
+ * Wrapper of speak form.
+ */
+const SpeakFormPart = styled(RoomHeaderPart)`
+  background-color: ${({ theme }) => theme.globalStyle.background};
+  ${phone`
+    /* On phones, speak form is fixed to the bottom. */
+    order: 5;
+    position: sticky;
+    left: 0;
+    bottom: 0;
+
+    margin: 0;
+    padding: 4px 8px;
+  `};
 `;
 
 /**
