@@ -38,7 +38,9 @@ export class Timer extends React.Component<IPropTimer, IStateTimer> {
 
     if (!enabled) {
       // Render nothing if timer is disabled now.
-      return null;
+      // TODO
+      // return null;
+      return '対象選択中 0:00';
     }
     // Make a string representation of remaining time.
     const timerStr = timerString(remaining >= 0 ? remaining : 0);

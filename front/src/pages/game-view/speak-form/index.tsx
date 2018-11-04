@@ -19,6 +19,17 @@ import { Timer } from './timer';
 import { makeMapByKey } from '../../../util/map-by-key';
 import { SpeakKindSelect } from './speak-kind-select';
 import styled from '../../../util/styled';
+import { phone } from '../../../common/media';
+import {
+  MainForm,
+  SpeakTextArea,
+  SpeakInput,
+  SpeakInputArea,
+  SpeakButtonArea,
+  SpeakControlsArea,
+  TimerArea,
+  OthersArea,
+} from './layout';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -104,90 +115,103 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
       <I18n>
         {t => (
           <>
-            <form onSubmit={this.handleSubmit}>
+            <MainForm onSubmit={this.handleSubmit}>
               {/* Comment input form. */}
-              {multiline ? (
-                <SpeakTextArea
-                  innerRef={e => (this.comment = e)}
-                  cols={50}
-                  rows={4}
-                  required
-                  autoComplete="off"
-                  defaultValue={this.commentString}
-                  onChange={this.handleCommentChange}
-                />
-              ) : (
-                <SpeakInput
-                  innerRef={e => (this.comment = e)}
-                  type="text"
-                  size={50}
-                  required
-                  autoComplete="off"
-                  defaultValue={this.commentString}
-                  onChange={this.handleCommentChange}
-                  onKeyDown={this.handleKeyDownComment}
-                />
-              )}
+              <SpeakInputArea>
+                {multiline ? (
+                  <SpeakTextArea
+                    innerRef={e => (this.comment = e)}
+                    cols={50}
+                    rows={4}
+                    required
+                    autoComplete="off"
+                    defaultValue={this.commentString}
+                    onChange={this.handleCommentChange}
+                  />
+                ) : (
+                  <SpeakInput
+                    innerRef={e => (this.comment = e)}
+                    type="text"
+                    size={50}
+                    required
+                    autoComplete="off"
+                    defaultValue={this.commentString}
+                    onChange={this.handleCommentChange}
+                    onKeyDown={this.handleKeyDownComment}
+                  />
+                )}
+              </SpeakInputArea>
               {/* Speak button. */}
-              <input type="submit" value={t('game_client:speak.say')} />
-              {/* Speak size select control. */}
-              <select value={size} onChange={this.handleSizeChange}>
-                <option value="small">
-                  {t('game_client:speak.size.small')}
-                </option>
-                <option value="normal">
-                  {t('game_client:speak.size.normal')}
-                </option>
-                <option value="big">{t('game_client:speak.size.big')}</option>
-              </select>
-              {/* Speech kind selection. */}
-              <SpeakKindSelect
-                kinds={speaks}
-                current={kind}
-                t={t}
-                playersMap={playersMap}
-                onChange={this.handleKindChange}
-              />
-              {/* Multiline checkbox. */}
-              <label>
-                <input
-                  type="checkbox"
-                  name="multilinecheck"
-                  checked={multiline}
-                  onChange={this.handleMultilineChange}
+              <SpeakButtonArea>
+                <input type="submit" value={t('game_client:speak.say')} />
+              </SpeakButtonArea>
+              {/* Speech-related controls. */}
+              <SpeakControlsArea>
+                {/* Speak size select control. */}
+                <select value={size} onChange={this.handleSizeChange}>
+                  <option value="small">
+                    {t('game_client:speak.size.small')}
+                  </option>
+                  <option value="normal">
+                    {t('game_client:speak.size.normal')}
+                  </option>
+                  <option value="big">{t('game_client:speak.size.big')}</option>
+                </select>
+                {/* Speech kind selection. */}
+                <SpeakKindSelect
+                  kinds={speaks}
+                  current={kind}
+                  t={t}
+                  playersMap={playersMap}
+                  onChange={this.handleKindChange}
                 />
-                {t('game_client:speak.multiline')}
-              </label>
-              {/* Show timer. */} <Timer timer={timer} />
-              {/* Will open button. */}
-              <button type="button" onClick={this.handleWillClick}>
-                {willOpen
-                  ? t('game_client:speak.will.close')
-                  : t('game_client:speak.will.open')}
-              </button>
-              {/* Show rule button. */}
-              <button
-                type="button"
-                onClick={this.handleRuleClick}
-                disabled={!rule}
-              >
-                {t('game_client:speak.rule')}
-              </button>
-              {/* Log visibility control. */}
-              <LogVisibilityControl
-                visibility={logVisibility}
-                day={gameInfo.day}
-                onUpdate={this.handleVisibilityUpdate}
-              />
-              {/* Refuse revival button. */}
-              <button
-                type="button"
-                onClick={this.handleRefuseRevival}
-                disabled={gameInfo.status !== 'playing'}
-              >
-                {t('game_client:speak.refuseRevival')}
-              </button>
-            </form>
+                {/* Multiline checkbox. */}
+                <label>
+                  <input
+                    type="checkbox"
+                    name="multilinecheck"
+                    checked={multiline}
+                    onChange={this.handleMultilineChange}
+                  />
+                  {t('game_client:speak.multiline')}
+                </label>
+              </SpeakControlsArea>
+              <TimerArea>
+                {/* Show timer. */}
+                <Timer timer={timer} />
+              </TimerArea>
+              {/* Other controls. */}
+              <OthersArea>
+                {/* Will open button. */}
+                <button type="button" onClick={this.handleWillClick}>
+                  {willOpen
+                    ? t('game_client:speak.will.close')
+                    : t('game_client:speak.will.open')}
+                </button>
+                {/* Show rule button. */}
+                <button
+                  type="button"
+                  onClick={this.handleRuleClick}
+                  disabled={!rule}
+                >
+                  {t('game_client:speak.rule')}
+                </button>
+                {/* Log visibility control. */}
+                <LogVisibilityControl
+                  visibility={logVisibility}
+                  day={gameInfo.day}
+                  onUpdate={this.handleVisibilityUpdate}
+                />
+                {/* Refuse revival button. */}
+                <button
+                  type="button"
+                  onClick={this.handleRefuseRevival}
+                  disabled={gameInfo.status !== 'playing'}
+                >
+                  {t('game_client:speak.refuseRevival')}
+                </button>
+              </OthersArea>
+            </MainForm>
             <WillForm
               t={t}
               open={willOpen}
@@ -325,19 +349,3 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     this.props.onRefuseRevival();
   }
 }
-
-/**
- * Main input of form.
- */
-const SpeakInput = styled.input`
-  box-sizing: border-box;
-  max-width: 100%;
-`;
-
-/**
- * Multiline mode form.
- */
-const SpeakTextArea = styled.textarea`
-  box-sizing: border-box;
-  max-width: 100%;
-`;

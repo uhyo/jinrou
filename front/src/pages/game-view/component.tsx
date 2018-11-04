@@ -30,6 +30,7 @@ import { GlobalStyle } from './global-style';
 import { phone } from '../../common/media';
 import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
+import { AppStyling } from '../../styles/phone';
 
 interface IPropGame {
   /**
@@ -283,7 +284,7 @@ export class Game extends React.Component<IPropGame, {}> {
 /**
  * Wrapper of whole app.
  */
-const AppWrapper = styled.div`
+const AppWrapper = styled(AppStyling)`
   display: flex;
   flex-flow: column nowrap;
 `;
