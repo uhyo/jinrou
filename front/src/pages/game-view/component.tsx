@@ -139,7 +139,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Information of your role. */}
             {roleInfo != null ? (
               <RoomHeaderPart>
-                <JobInfo {...roleInfo} />
+                <JobInfo {...roleInfo} timer={timer} />
               </RoomHeaderPart>
             ) : null}
             {/* Open forms. */}
@@ -156,7 +156,6 @@ export class Game extends React.Component<IPropGame, {}> {
                 players={players}
                 logVisibility={logVisibility}
                 rule={rule != null}
-                timer={timer}
                 onUpdate={this.handleSpeakUpdate}
                 onUpdateLogVisibility={this.handleLogVisibilityUpdate}
                 onSpeak={this.handleSpeak}

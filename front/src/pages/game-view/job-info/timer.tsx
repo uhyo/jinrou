@@ -3,6 +3,7 @@ import { TimerInfo } from '../defs';
 import { observer } from 'mobx-react';
 import { timerString } from '../../../util/time-string';
 import { bind } from 'bind-decorator';
+import { FontAwesomeIcon } from '../../../util/icon';
 
 export interface IPropTimer {
   timer: TimerInfo;
@@ -40,13 +41,17 @@ export class Timer extends React.Component<IPropTimer, IStateTimer> {
       // Render nothing if timer is disabled now.
       // TODO
       // return null;
-      return '対象選択中 0:00';
+      return (
+        <>
+          <FontAwesomeIcon icon={['far', 'clock']} /> 対象選択中 0:00
+        </>
+      );
     }
     // Make a string representation of remaining time.
     const timerStr = timerString(remaining >= 0 ? remaining : 0);
     return (
       <>
-        {name} {timerStr}
+        <FontAwesomeIcon icon={['far', 'clock']} /> {name} {timerStr}
       </>
     );
   }

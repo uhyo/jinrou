@@ -37,10 +37,28 @@ export const WrapperHeader = withProps<{
  * @package
  */
 export const Content = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
   padding: 8px;
   color: black;
 
   a {
     ${lightA};
   }
+`;
+
+/**
+ * Wrapper of role info.
+ */
+export const RoleInfoPart = styled.div`
+  flex: auto 0 0;
+`;
+
+/**
+ * Wrapper of game info.
+ */
+export const GameInfoPart = styled.div`
+  flex: auto 0 0;
+  align-self: flex-end;
+  padding-left: 4px;
 `;

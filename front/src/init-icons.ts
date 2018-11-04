@@ -3,6 +3,7 @@ import { library, dom, icon } from '@fortawesome/fontawesome-svg-core';
 import {
   faQuestionCircle,
   faIdCard,
+  faClock,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
@@ -48,6 +49,7 @@ library.add(
   faTrashAlt,
   faCheck,
   faSignal,
+  faClock,
 );
 
 // Publish to global.

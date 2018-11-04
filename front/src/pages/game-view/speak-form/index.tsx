@@ -15,11 +15,8 @@ import {
 
 import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
-import { Timer } from './timer';
 import { makeMapByKey } from '../../../util/map-by-key';
 import { SpeakKindSelect } from './speak-kind-select';
-import styled from '../../../util/styled';
-import { phone } from '../../../common/media';
 import {
   MainForm,
   SpeakTextArea,
@@ -52,10 +49,6 @@ export interface IPropSpeakForm extends SpeakState {
    * Whether rule is available now.
    */
   rule: boolean;
-  /**
-   * Timer info.
-   */
-  timer: TimerInfo;
   /**
    * update to a speak form state.
    */
@@ -105,7 +98,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
       willOpen,
       logVisibility,
       rule,
-      timer,
     } = this.props;
 
     // list of speech kind.
@@ -176,10 +168,7 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   {t('game_client:speak.multiline')}
                 </label>
               </SpeakControlsArea>
-              <TimerArea>
-                {/* Show timer. */}
-                <Timer timer={timer} />
-              </TimerArea>
+              <TimerArea />
               {/* Other controls. */}
               <OthersArea>
                 {/* Will open button. */}
