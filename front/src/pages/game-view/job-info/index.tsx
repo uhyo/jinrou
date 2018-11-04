@@ -6,6 +6,7 @@ import {
   RolePeersInfo,
   RoleOtherPlayerInfo,
   TimerInfo,
+  PlayerInfo,
 } from '../defs';
 
 import { I18nInterp, I18n } from '../../../i18n';
@@ -46,6 +47,10 @@ export interface IPropJobInfo extends RoleInfo {
    * Timer info.
    */
   timer: TimerInfo;
+  /**
+   * List of players to show.
+   */
+  players: PlayerInfo[];
 }
 
 /**
@@ -61,7 +66,12 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
       quantumwerewolf_number,
       supporting,
       timer,
+      players,
     } = this.props;
+
+    // count alive and dead players.
+    const aliveNum = players.filter(pl => !pl.dead).length;
+    const deadNum = players.filter(pl => pl.dead).length;
 
     return (
       <I18n namespace="game_client">
@@ -142,8 +152,15 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                 ) : null}
               </RoleInfoPart>
               <GameInfoPart>
-                {/* (TMP) timer. */}
-                <Timer timer={timer} />
+                {/* Show alive/dead player number. */}
+                <p>
+                  {t('game_client:playerbox.aliveNum', { count: aliveNum })} /{' '}
+                  {t('game_client:playerbox.deadNum', { count: deadNum })}
+                </p>
+                {/* timer. */}
+                <p>
+                  <Timer timer={timer} />
+                </p>
               </GameInfoPart>
             </Wrapper>
           );

@@ -12,7 +12,8 @@ export const WrapperElement = withProps<{
   backColor: Color;
 }>()(styled.div)`
   margin: 0;
-  border: 1px solid ${props => props.borderColor.string()};
+  --border-color: ${props => props.borderColor.string()};
+  border: 1px solid var(--border-color);
   background-color: ${props => props.backColor.string()};
 `;
 
@@ -51,7 +52,8 @@ export const Content = styled.div`
  * Wrapper of role info.
  */
 export const RoleInfoPart = styled.div`
-  flex: auto 0 0;
+  flex: auto 0 1;
+  padding-right: 4px;
 `;
 
 /**
@@ -61,4 +63,7 @@ export const GameInfoPart = styled.div`
   flex: auto 0 0;
   align-self: flex-end;
   padding-left: 4px;
+  border-left: 1px dashed var(--border-color);
+
+  font-size: 0.9em;
 `;

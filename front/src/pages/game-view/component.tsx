@@ -139,7 +139,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* Information of your role. */}
             {roleInfo != null ? (
               <RoomHeaderPart>
-                <JobInfo {...roleInfo} timer={timer} />
+                <JobInfo {...roleInfo} timer={timer} players={players} />
               </RoomHeaderPart>
             ) : null}
             {/* Open forms. */}

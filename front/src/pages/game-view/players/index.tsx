@@ -44,16 +44,8 @@ class PlayersInner extends React.Component<
   private filterHandlers = new CachedBinder<string, undefined>();
   public render() {
     const { t, players } = this.props;
-    // count alive and dead.
-    const aliveNum = players.filter(pl => !pl.dead).length;
-    const deadNum = players.filter(pl => pl.dead).length;
     return (
       <Wrapper>
-        {/* Show alive/dead player number. */}
-        <Nums>
-          {t('game_client:playerbox.aliveNum', { count: aliveNum })} /{' '}
-          {t('game_client:playerbox.deadNum', { count: deadNum })}
-        </Nums>
         <div>
           {players.map(pl => {
             const filterHandler = this.filterHandlers.bind(
@@ -81,7 +73,3 @@ class PlayersInner extends React.Component<
 }
 
 const Wrapper = styled.div``;
-
-const Nums = styled.p`
-  font-size: smaller;
-`;
