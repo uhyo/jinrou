@@ -17,20 +17,17 @@ const phoneQuery = `max-width: ${phoneWidth}`;
 /**
  * Media query for smartphones.
  */
-export const phone = (
-  ...args: [TemplateStringsArray, ...SimpleInterpolation[]]
-) => css`
-  @media (${phoneQuery}) {
-    ${css(...args)};
-  }
-`;
+export const phone: typeof css = (...args: [any, ...any[]]) =>
+  css`
+    @media (${phoneQuery}) {
+      ${css(...args)};
+    }
+  `;
 
 /**
  * Media query for non-smartphones.
  */
-export const notPhone = (
-  ...args: [TemplateStringsArray, ...SimpleInterpolation[]]
-) => css`
+export const notPhone: typeof css = (...args: [any, ...any[]]) => css`
   @media (not(${phoneQuery})) {
     ${css(...args)};
   }

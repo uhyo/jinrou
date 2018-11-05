@@ -308,6 +308,7 @@ const SpeakFormPart = styled(RoomHeaderPart)`
 
     margin: 0;
     padding: 4px 8px;
+    border-top: 1px solid ${({ theme }) => theme.globalStyle.color};
   `};
 `;
 
