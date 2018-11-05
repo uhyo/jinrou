@@ -121,127 +121,132 @@ export class SpeakForm extends React.PureComponent<
       <I18n>
         {t => (
           <IsPhone>
-            {isPhone => (
-              <>
-                <MainForm onSubmit={this.handleSubmit}>
-                  {/* Comment input form. */}
-                  <SpeakInputArea>
-                    {multiline ? (
-                      <SpeakTextArea
-                        innerRef={e => (this.comment = e)}
-                        cols={50}
-                        rows={4}
-                        required
-                        autoComplete="off"
-                        defaultValue={this.commentString}
-                        onChange={this.handleCommentChange}
+            {isPhone => {
+              // whether additional controls are actually hidden.
+              const othersHidden = isPhone && !additionalControlsShown;
+              return (
+                <>
+                  <MainForm onSubmit={this.handleSubmit}>
+                    {/* Comment input form. */}
+                    <SpeakInputArea>
+                      {multiline ? (
+                        <SpeakTextArea
+                          innerRef={e => (this.comment = e)}
+                          cols={50}
+                          rows={4}
+                          required
+                          autoComplete="off"
+                          defaultValue={this.commentString}
+                          onChange={this.handleCommentChange}
+                        />
+                      ) : (
+                        <SpeakInput
+                          innerRef={e => (this.comment = e)}
+                          type="text"
+                          size={50}
+                          required
+                          autoComplete="off"
+                          defaultValue={this.commentString}
+                          onChange={this.handleCommentChange}
+                          onKeyDown={this.handleKeyDownComment}
+                        />
+                      )}
+                    </SpeakInputArea>
+                    {/* Speak button. */}
+                    <SpeakButtonArea>
+                      <input type="submit" value={t('game_client:speak.say')} />
+                    </SpeakButtonArea>
+                    {/* Speech-related controls. */}
+                    <SpeakControlsArea>
+                      {/* Speak size select control. */}
+                      <select value={size} onChange={this.handleSizeChange}>
+                        <option value="small">
+                          {t('game_client:speak.size.small')}
+                        </option>
+                        <option value="normal">
+                          {t('game_client:speak.size.normal')}
+                        </option>
+                        <option value="big">
+                          {t('game_client:speak.size.big')}
+                        </option>
+                      </select>
+                      {/* Speech kind selection. */}
+                      <SpeakKindSelect
+                        kinds={speaks}
+                        current={kind}
+                        t={t}
+                        playersMap={playersMap}
+                        onChange={this.handleKindChange}
                       />
-                    ) : (
-                      <SpeakInput
-                        innerRef={e => (this.comment = e)}
-                        type="text"
-                        size={50}
-                        required
-                        autoComplete="off"
-                        defaultValue={this.commentString}
-                        onChange={this.handleCommentChange}
-                        onKeyDown={this.handleKeyDownComment}
+                      {/* Multiline checkbox. */}
+                      <label>
+                        <input
+                          type="checkbox"
+                          name="multilinecheck"
+                          checked={multiline}
+                          onChange={this.handleMultilineChange}
+                        />
+                        {t('game_client:speak.multiline')}
+                      </label>
+                    </SpeakControlsArea>
+                    {/* Other controls. */}
+                    <OthersArea hidden={othersHidden}>
+                      {/* Will open button. */}
+                      <button type="button" onClick={this.handleWillClick}>
+                        {willOpen
+                          ? t('game_client:speak.will.close')
+                          : t('game_client:speak.will.open')}
+                      </button>
+                      {/* Show rule button. */}
+                      <button
+                        type="button"
+                        onClick={this.handleRuleClick}
+                        disabled={!rule}
+                      >
+                        {t('game_client:speak.rule')}
+                      </button>
+                      {/* Log visibility control. */}
+                      <LogVisibilityControl
+                        visibility={logVisibility}
+                        day={gameInfo.day}
+                        onUpdate={this.handleVisibilityUpdate}
                       />
-                    )}
-                  </SpeakInputArea>
-                  {/* Speak button. */}
-                  <SpeakButtonArea>
-                    <input type="submit" value={t('game_client:speak.say')} />
-                  </SpeakButtonArea>
-                  {/* Speech-related controls. */}
-                  <SpeakControlsArea>
-                    {/* Speak size select control. */}
-                    <select value={size} onChange={this.handleSizeChange}>
-                      <option value="small">
-                        {t('game_client:speak.size.small')}
-                      </option>
-                      <option value="normal">
-                        {t('game_client:speak.size.normal')}
-                      </option>
-                      <option value="big">
-                        {t('game_client:speak.size.big')}
-                      </option>
-                    </select>
-                    {/* Speech kind selection. */}
-                    <SpeakKindSelect
-                      kinds={speaks}
-                      current={kind}
-                      t={t}
-                      playersMap={playersMap}
-                      onChange={this.handleKindChange}
-                    />
-                    {/* Multiline checkbox. */}
-                    <label>
-                      <input
-                        type="checkbox"
-                        name="multilinecheck"
-                        checked={multiline}
-                        onChange={this.handleMultilineChange}
-                      />
-                      {t('game_client:speak.multiline')}
-                    </label>
-                  </SpeakControlsArea>
-                  {/* Other controls. */}
-                  <OthersArea hidden={isPhone && !additionalControlsShown}>
-                    {/* Will open button. */}
-                    <button type="button" onClick={this.handleWillClick}>
-                      {willOpen
-                        ? t('game_client:speak.will.close')
-                        : t('game_client:speak.will.open')}
-                    </button>
-                    {/* Show rule button. */}
-                    <button
-                      type="button"
-                      onClick={this.handleRuleClick}
-                      disabled={!rule}
-                    >
-                      {t('game_client:speak.rule')}
-                    </button>
-                    {/* Log visibility control. */}
-                    <LogVisibilityControl
-                      visibility={logVisibility}
-                      day={gameInfo.day}
-                      onUpdate={this.handleVisibilityUpdate}
-                    />
-                    {/* Refuse revival button. */}
-                    <button
-                      type="button"
-                      onClick={this.handleRefuseRevival}
-                      disabled={gameInfo.status !== 'playing'}
-                    >
-                      {t('game_client:speak.refuseRevival')}
-                    </button>
-                  </OthersArea>
-                  <ButtonArea>
-                    {/* TODO */}
-                    <SensitiveButton
-                      type="button"
-                      hidden={!isPhone}
-                      onClick={this.handleAdditionalControls}
-                    >
-                      <FontAwesomeIcon
-                        icon={
-                          additionalControlsShown
-                            ? 'caret-square-down'
-                            : 'caret-square-up'
-                        }
-                      />
-                    </SensitiveButton>
-                  </ButtonArea>
-                </MainForm>
-                <WillForm
-                  t={t}
-                  open={willOpen}
-                  will={(roleInfo && roleInfo.will) || undefined}
-                  onWillChange={this.handleWillChange}
-                />
-              </>
-            )}
+                      {/* Refuse revival button. */}
+                      <button
+                        type="button"
+                        onClick={this.handleRefuseRevival}
+                        disabled={gameInfo.status !== 'playing'}
+                      >
+                        {t('game_client:speak.refuseRevival')}
+                      </button>
+                    </OthersArea>
+                    <ButtonArea>
+                      {/* TODO */}
+                      <SensitiveButton
+                        type="button"
+                        hidden={!isPhone}
+                        onClick={this.handleAdditionalControls}
+                      >
+                        <FontAwesomeIcon
+                          icon={
+                            additionalControlsShown
+                              ? 'caret-square-down'
+                              : 'caret-square-up'
+                          }
+                        />
+                      </SensitiveButton>
+                    </ButtonArea>
+                  </MainForm>
+                  <WillForm
+                    hidden={othersHidden}
+                    t={t}
+                    open={willOpen}
+                    will={(roleInfo && roleInfo.will) || undefined}
+                    onWillChange={this.handleWillChange}
+                  />
+                </>
+              );
+            }}
           </IsPhone>
         )}
       </I18n>
