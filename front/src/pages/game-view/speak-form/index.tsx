@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Transition } from 'react-transition-group';
 import { I18n } from '../../../i18n';
 import { bind } from '../../../util/bind';
 
@@ -9,7 +8,6 @@ import {
   SpeakState,
   LogVisibility,
   SpeakQuery,
-  TimerInfo,
   PlayerInfo,
 } from '../defs';
 
@@ -378,7 +376,7 @@ export class SpeakForm extends React.PureComponent<
    * Handle a click of additional controls button.
    */
   @bind
-  protected handleAdditionalControls(): void {
+  protected handleAdditionalControls(e: React.SyntheticEvent<any>): void {
     this.setState(s => ({
       additionalControlsShown: !s.additionalControlsShown,
     }));

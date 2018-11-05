@@ -106,9 +106,12 @@ export class WillForm extends React.PureComponent<
 const Wrapper = withProps<{ open: boolean }>()(styled.form)`
   transition: height 250ms ease-out;
   display: ${({ open }) => (open ? 'block' : 'none')};
+  margin: 0 -8px;
+
   background-color: #636363;
   color: #ffffff;
   overflow-y: hidden;
+
 `;
 
 const Content = styled.div`
@@ -122,6 +125,7 @@ const Content = styled.div`
 
   textarea {
     width: 40em;
+    max-width: 100%;
     height: 4em;
     vertical-align: text-bottom;
   }
