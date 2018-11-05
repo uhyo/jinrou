@@ -24,9 +24,11 @@ import {
   SpeakInputArea,
   SpeakButtonArea,
   SpeakControlsArea,
-  TimerArea,
   OthersArea,
+  ButtonArea,
 } from './layout';
+import { IsPhone } from '../../../common/media';
+import { FontAwesomeIcon } from '../../../util/icon';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -168,7 +170,6 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   {t('game_client:speak.multiline')}
                 </label>
               </SpeakControlsArea>
-              <TimerArea />
               {/* Other controls. */}
               <OthersArea>
                 {/* Will open button. */}
@@ -200,6 +201,16 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
                   {t('game_client:speak.refuseRevival')}
                 </button>
               </OthersArea>
+              <ButtonArea>
+                {/* TODO */}
+                <IsPhone>
+                  {isPhone => (
+                    <button type="button" hidden={!isPhone}>
+                      <FontAwesomeIcon icon="caret-up" />
+                    </button>
+                  )}
+                </IsPhone>
+              </ButtonArea>
             </MainForm>
             <WillForm
               t={t}

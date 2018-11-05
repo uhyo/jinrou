@@ -63,7 +63,9 @@ export const GameInfoPart = styled.div`
   flex: auto 0 0;
   align-self: flex-end;
   padding-left: 4px;
-  border-left: 1px dashed var(--border-color);
+  &:not(:first-child) {
+    border-left: 1px dashed var(--border-color);
+  }
 
   font-size: 0.9em;
 `;

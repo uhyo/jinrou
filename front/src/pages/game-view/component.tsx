@@ -137,11 +137,9 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            {roleInfo != null ? (
-              <RoomHeaderPart>
-                <JobInfo {...roleInfo} timer={timer} players={players} />
-              </RoomHeaderPart>
-            ) : null}
+            <RoomHeaderPart>
+              <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
+            </RoomHeaderPart>
             {/* Open forms. */}
             {gameInfo.status === 'playing' && roleInfo != null ? (
               <RoomHeaderPart>

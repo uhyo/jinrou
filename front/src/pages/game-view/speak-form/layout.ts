@@ -8,9 +8,9 @@ import { phone } from '../../../common/media';
 export const MainForm = styled.form`
   ${phone`
     display: grid;
-    grid-template: "button input    speakbutton"
-                   "timer  controls controls"
-                   "timer  others   others"
+    grid-template: "button  input    speakbutton"
+                   "button  controls controls"
+                   "others  others   others"
                    / 5ex 1fr 64px;
     gap: 4px;
   `};
@@ -47,22 +47,21 @@ export const SpeakControlsArea = styled.span`
 `;
 
 /**
- * Area for timer.
- * @package
- */
-export const TimerArea = styled.span`
-  ${phone`
-    grid-area: timer;
-  `};
-`;
-
-/**
  * Area for others.
  * @package
  */
 export const OthersArea = styled.span`
   ${phone`
     grid-area: others;
+  `};
+`;
+
+/**
+ * Area for expand button.
+ */
+export const ButtonArea = styled.span`
+  ${phone`
+    grid-area: button;
   `};
 `;
 

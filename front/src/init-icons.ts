@@ -25,6 +25,8 @@ import {
   faTrashAlt,
   faCheck,
   faSignal,
+  faCaretUp,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -50,6 +52,8 @@ library.add(
   faCheck,
   faSignal,
   faClock,
+  faCaretUp,
+  faCaretDown,
 );
 
 // Publish to global.
