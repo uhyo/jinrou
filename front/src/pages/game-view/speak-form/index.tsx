@@ -69,7 +69,7 @@ export interface IPropSpeakForm extends SpeakState {
   /**
    * Push the rule button.
    */
-  onRuleOpen: () => void;
+  onRuleOpen: (scroll: boolean) => void;
   /**
    * Change the will.
    */
@@ -200,7 +200,7 @@ export class SpeakForm extends React.PureComponent<
                       {/* Show rule button. */}
                       <button
                         type="button"
-                        onClick={this.handleRuleClick}
+                        onClick={() => this.handleRuleClick(isPhone)}
                         disabled={!rule}
                       >
                         {t('game_client:speak.rule')}
@@ -360,8 +360,8 @@ export class SpeakForm extends React.PureComponent<
    * Handle a click of rule button.
    */
   @bind
-  protected handleRuleClick(): void {
-    this.props.onRuleOpen();
+  protected handleRuleClick(scroll: boolean): void {
+    this.props.onRuleOpen(scroll);
   }
   /**
    * Handle an update of log visibility.

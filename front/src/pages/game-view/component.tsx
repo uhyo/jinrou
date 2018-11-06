@@ -81,6 +81,7 @@ interface IPropGame {
 
 @observer
 export class Game extends React.Component<IPropGame, {}> {
+  private ruleElement = React.createRef<HTMLElement>();
   public render() {
     const {
       i18n,
@@ -173,33 +174,35 @@ export class Game extends React.Component<IPropGame, {}> {
                     state === 'exited' ||
                     state === 'unmounted';
                   return (
-                    <RuleWrapper closed={closed}>
-                      {rule != null ? (
-                        <RuleStickyWrapper closed={closed}>
-                          <RuleInnerWrapper>
-                            <ShowRule
-                              rule={rule}
-                              categories={categories}
-                              ruleDefs={ruleDefs}
-                            />
-                          </RuleInnerWrapper>
-                        </RuleStickyWrapper>
-                      ) : null}
-                    </RuleWrapper>
+                    <>
+                      <RuleWrapper closed={closed}>
+                        {rule != null ? (
+                          <RuleStickyWrapper closed={closed}>
+                            <RuleInnerWrapper innerRef={this.ruleElement}>
+                              <ShowRule
+                                rule={rule}
+                                categories={categories}
+                                ruleDefs={ruleDefs}
+                              />
+                            </RuleInnerWrapper>
+                          </RuleStickyWrapper>
+                        ) : null}
+                      </RuleWrapper>
+                      {/* Logs. */}
+                      <LogsWrapper ruleOpen={!closed}>
+                        <Logs
+                          logs={store.logs}
+                          visibility={store.logVisibility}
+                          icons={store.icons}
+                          rule={store.rule}
+                          logPickup={logPickup}
+                          onResetLogPickup={this.handleResetLogPickup}
+                        />
+                      </LogsWrapper>
+                    </>
                   );
                 }}
               </Transition>
-              {/* Logs. */}
-              <LogsWrapper>
-                <Logs
-                  logs={store.logs}
-                  visibility={store.logVisibility}
-                  icons={store.icons}
-                  rule={store.rule}
-                  logPickup={logPickup}
-                  onResetLogPickup={this.handleResetLogPickup}
-                />
-              </LogsWrapper>
             </MainWrapper>
             <GlobalStyle />
           </AppWrapper>
@@ -251,12 +254,18 @@ export class Game extends React.Component<IPropGame, {}> {
    * handle the rule open button event.
    */
   @bind
-  protected handleRuleOpen(): void {
+  protected handleRuleOpen(scroll: boolean): void {
     const { store } = this.props;
     // toggle the rule pane.
+    const prevOpen = store.ruleOpen;
     store.update({
-      ruleOpen: !store.ruleOpen,
+      ruleOpen: !prevOpen,
     });
+    if (!prevOpen && scroll && this.ruleElement.current != null) {
+      // if scroll request is positive,
+      // scroll to the rule pane.
+      this.ruleElement.current.scrollIntoView(true);
+    }
   }
   /**
    * Handle update of log pickup filter.
@@ -301,6 +310,7 @@ const SpeakFormPart = styled(RoomHeaderPart)`
   background-color: ${({ theme }) => theme.globalStyle.background};
   ${phone`
     /* On phones, speak form is fixed to the bottom. */
+    z-index: 10;
     order: 5;
     position: sticky;
     left: 0;
@@ -323,9 +333,18 @@ const MainWrapper = styled.div`
 /**
  * Wrapper of logs.
  */
-const LogsWrapper = styled.div`
+const LogsWrapper = withProps<{
+  /**
+   * Whether the rule pane is open.
+   */
+  ruleOpen?: boolean;
+}>()(styled.div)`
   flex: auto 1 1;
   order: 1;
+  ${phone`
+    transition: margin-left 250ms ease-out;
+    margin-left: ${({ ruleOpen }) => (ruleOpen ? '-20em' : '0)')};
+  `}
 `;
 
 interface IPropsRuleWrapper {
@@ -364,4 +383,7 @@ const RuleInnerWrapper = styled.div`
   max-height: 100vh;
   width: 20em;
   padding: 5px;
+  ${phone`
+    max-height: 80vh;
+  `};
 `;
