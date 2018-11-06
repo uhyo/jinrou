@@ -27,7 +27,7 @@ import { Players } from './players';
 import { RoomControls } from './room-controls';
 import { lightA } from '../../styles/a';
 import { GlobalStyle } from './global-style';
-import { phone } from '../../common/media';
+import { phone, notPhone } from '../../common/media';
 import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
@@ -138,9 +138,9 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            <RoomHeaderPart>
+            <JobInfoPart>
               <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
-            </RoomHeaderPart>
+            </JobInfoPart>
             {/* Open forms. */}
             {gameInfo.status === 'playing' && roleInfo != null ? (
               <RoomHeaderPart>
@@ -300,7 +300,9 @@ const AppWrapper = styled(AppStyling)`
  */
 const RoomHeaderPart = styled.div`
   margin: 4px 0;
-  padding: 0 8px;
+  ${notPhone`
+    padding: 0 8px;
+  `};
 `;
 
 /**
@@ -319,6 +321,17 @@ const SpeakFormPart = styled(RoomHeaderPart)`
     margin: 0;
     padding: 4px 8px;
     border-top: 1px solid ${({ theme }) => theme.globalStyle.color};
+  `};
+`;
+
+/**
+ * Wrapper of jobinfo form.
+ */
+const JobInfoPart = styled(RoomHeaderPart)`
+  ${phone`
+    position: sticky;
+    left: 0;
+    top: 0;
   `};
 `;
 
@@ -362,6 +375,7 @@ const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
   width: ${({ closed }) => (closed ? '0' : '20em')};
   order: 2;
 
+  z-index: 2;
   background-color: #ffd1f2;
   color: black;
 

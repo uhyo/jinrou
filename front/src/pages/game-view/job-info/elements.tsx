@@ -2,6 +2,7 @@ import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import * as Color from 'color';
 import { lightA } from '../../../styles/a';
+import { phone } from '../../../common/media';
 
 /**
  * Wrapper of the job info component.
@@ -25,7 +26,7 @@ export const WrapperHeader = withProps<{
   teamColor: Color;
   textColor: Color;
 }>()(styled.div)`
-  padding: 3px;
+  padding: 0.1em;
   background: linear-gradient(to right, ${props =>
     props.teamColor.string()}, ${props => props.teamColor.fade(0.8).string()});
 
@@ -40,7 +41,7 @@ export const WrapperHeader = withProps<{
 export const Content = styled.div`
   display: flex;
   flex-flow: row nowrap;
-  padding: 8px;
+  padding: 0.4em;
   color: black;
 
   a {
@@ -54,6 +55,11 @@ export const Content = styled.div`
 export const RoleInfoPart = styled.div`
   flex: auto 0 1;
   padding-right: 4px;
+
+  ${phone`
+    max-height: 4em;
+    overflow-y: auto;
+  `};
 `;
 
 /**

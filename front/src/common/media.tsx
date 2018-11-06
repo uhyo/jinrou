@@ -7,12 +7,17 @@ import * as React from 'react';
 /**
  * Width of viewport to switch phone mode and pc mode.
  */
-const phoneWidth = '600px';
+const phoneWidth = 600;
 
 /**
  * Query string to switch to phone mode.
  */
-const phoneQuery = `max-width: ${phoneWidth}`;
+const phoneQuery = `max-width: ${phoneWidth}px`;
+
+/**
+ * Inverse of phone query.
+ */
+const notPhoneQuery = `min-width: ${phoneWidth + 1}px`;
 
 /**
  * Media query for smartphones.
@@ -28,7 +33,7 @@ export const phone: typeof css = (...args: [any, ...any[]]) =>
  * Media query for non-smartphones.
  */
 export const notPhone: typeof css = (...args: [any, ...any[]]) => css`
-  @media (not(${phoneQuery})) {
+  @media (${notPhoneQuery}) {
     ${css(...args)};
   }
 `;
