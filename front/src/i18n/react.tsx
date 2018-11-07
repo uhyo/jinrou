@@ -75,6 +75,15 @@ export interface IPropI18n {
  * Give render props a `t`.
  */
 export class I18n extends React.PureComponent<IPropI18n, {}> {
+  /**
+   * Memoized function to generate translation function from i18n and namespance.
+   */
+  private getT = memoizeOne(
+    (i18n: i18next.i18n, namespace: string | undefined) =>
+      namespace != null
+        ? i18n.getFixedT(i18n.language, namespace)
+        : i18n.t.bind(i18n),
+  );
   public render() {
     const { children, namespace } = this.props;
 
@@ -85,11 +94,7 @@ export class I18n extends React.PureComponent<IPropI18n, {}> {
             return null;
           }
           const { i18n } = context;
-          const t =
-            namespace != null
-              ? i18n.getFixedT(i18n.language, namespace)
-              : i18n.t.bind(i18n);
-          return children(t);
+          return children(this.getT(i18n, namespace));
         }}
       </Consumer>
     );
