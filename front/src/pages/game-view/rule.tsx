@@ -96,7 +96,7 @@ class RuleItems extends React.PureComponent<
   },
   {}
 > {
-  public render(): React.ReactNode {
+  public render() {
     const { rule, items, t } = this.props;
     const { rules } = rule;
     return items.map(item => {

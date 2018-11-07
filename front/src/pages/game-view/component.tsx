@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from '../../util/styled';
 import { Transition } from 'react-transition-group';
+import * as Swipeable from 'react-swipeable';
 
 import { ThemeProvider, withProps } from '../../util/styled';
 import { i18n } from 'i18next';
@@ -179,11 +180,16 @@ export class Game extends React.Component<IPropGame, {}> {
                         {rule != null ? (
                           <RuleStickyWrapper closed={closed}>
                             <RuleInnerWrapper innerRef={this.ruleElement}>
-                              <ShowRule
-                                rule={rule}
-                                categories={categories}
-                                ruleDefs={ruleDefs}
-                              />
+                              <Swipeable
+                                onSwipingLeft={this.handleRuleSwipeToLeft}
+                                onSwipingRight={this.handleRuleSwipeToRight}
+                              >
+                                <ShowRule
+                                  rule={rule}
+                                  categories={categories}
+                                  ruleDefs={ruleDefs}
+                                />
+                              </Swipeable>
                             </RuleInnerWrapper>
                           </RuleStickyWrapper>
                         ) : null}
@@ -266,6 +272,26 @@ export class Game extends React.Component<IPropGame, {}> {
       // scroll to the rule pane.
       this.ruleElement.current.scrollIntoView(true);
     }
+  }
+  /**
+   * handle swipe of rule to left.
+   */
+  @bind
+  protected handleRuleSwipeToLeft(): void {
+    // when rule is swiped to left, it is open.
+    this.props.store.update({
+      ruleOpen: true,
+    });
+  }
+  /**
+   * handle swipe of rule to right.
+   */
+  @bind
+  protected handleRuleSwipeToRight(): void {
+    // when rule is swiped to left, rule is closed.
+    this.props.store.update({
+      ruleOpen: false,
+    });
   }
   /**
    * Handle update of log pickup filter.
