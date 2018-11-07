@@ -3,6 +3,7 @@ import * as React from 'react';
 
 import { bind } from '../util/bind';
 import { fromRenderProps } from 'recompose';
+import memoizeOne from 'memoize-one';
 
 // React Context for holding i18n translation function.
 const { Provider, Consumer } = React.createContext<
@@ -13,7 +14,7 @@ export interface IPropI18nProvider {
   i18n: i18next.i18n;
 }
 export interface IStateI18nProvider {
-  context: { i18n: i18next.i18n };
+  i18n: i18next.i18n;
 }
 /**
  * Component which provides an i18n instance to contxet.
@@ -23,15 +24,23 @@ export class I18nProvider extends React.PureComponent<
   IStateI18nProvider
 > {
   // F**k React! https://github.com/facebook/react/issues/12523
-  state = {} as any;
+  public state: IStateI18nProvider = {} as any;
+  /**
+   * Memoized function which converts i18n object to a context.
+   */
+  private toContext = memoizeOne((i18n: i18next.i18n) => ({
+    i18n,
+  }));
   static getDerivedStateFromProps(
     nextProps: IPropI18nProvider,
   ): IStateI18nProvider {
-    return { context: { i18n: nextProps.i18n } };
+    return { i18n: nextProps.i18n };
   }
   public render() {
     return (
-      <Provider value={this.state.context}>{this.props.children}</Provider>
+      <Provider value={this.toContext(this.state.i18n)}>
+        {this.props.children}
+      </Provider>
     );
   }
   public componentDidMount() {
@@ -51,7 +60,7 @@ export class I18nProvider extends React.PureComponent<
   @bind
   protected languageChangedHandler(): void {
     this.setState({
-      context: { i18n: this.props.i18n },
+      i18n: this.props.i18n,
     });
   }
 }
