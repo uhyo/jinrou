@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled, { css } from '../../../util/styled';
-import { observer } from 'mobx-react';
+import { observer, Observer } from 'mobx-react';
 import { Log, LogVisibility } from '../defs';
 import { Rule } from '../../../defs';
 
@@ -9,6 +9,8 @@ import { assertNever } from '../../../util/assert-never';
 import { StoredLog, LogStore } from './log-store';
 import { mapReverse } from '../../../util/map-reverse';
 import { withProps } from '../../../util/styled';
+import { phone } from '../../../common/media';
+import { I18n } from '../../../i18n';
 
 export interface IPropLogs {
   /**
@@ -87,7 +89,6 @@ export class Logs extends React.Component<IPropLogs, {}> {
 /**
  * Show chunk of logs.
  */
-@observer
 class LogChunk extends React.Component<
   {
     logClass: string;
@@ -102,17 +103,26 @@ class LogChunk extends React.Component<
     const { logClass, logs, visible, rule, icons } = this.props;
     return (
       <ChunkWrapper visible={visible}>
-        {mapReverse(logs, log => {
-          return (
-            <OneLog
-              key={`${log.time}-${(log as any).comment || ''}`}
-              logClass={logClass}
-              log={log}
-              rule={rule}
-              icons={icons}
-            />
-          );
-        })}
+        <I18n namespace="game_client">
+          {t => (
+            <Observer>
+              {() =>
+                mapReverse(logs, log => {
+                  return (
+                    <OneLog
+                      key={`${log.time}-${(log as any).comment || ''}`}
+                      t={t}
+                      logClass={logClass}
+                      log={log}
+                      rule={rule}
+                      icons={icons}
+                    />
+                  );
+                })
+              }
+            </Observer>
+          )}
+        </I18n>
       </ChunkWrapper>
     );
   }
@@ -129,6 +139,13 @@ const LogWrapper = withProps<{
     fit-content(10em)
     1fr
     auto;
+  ${phone`
+    grid-template-columns:
+      minmax(8px, max-content)
+      1fr
+      auto;
+    grid-auto-flow: row dense;
+  `}
 
   ${({ logClass, logPickup }) =>
     // logPickup should not contain `"` because it is an user id.
