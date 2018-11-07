@@ -40,27 +40,31 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
               <>
                 <Icon />
                 <Name />
-                <table>
-                  {/* Vote result caption */}
-                  <caption>{t('log.voteResult.caption')}</caption>
-                  <tbody>
-                    {log.voteresult.map(({ id, name, voteto }) => {
-                      const votecount = log.tos[id] || 0;
-                      // Name of vote target
-                      const vt = log.voteresult.filter(x => x.id === voteto)[0];
-                      const targetname = (vt ? vt.name : '') || '';
-                      return (
-                        <tr key={id}>
-                          <td>{name}</td>
-                          <td>
-                            {t('log.voteResult.count', { count: votecount })}
-                          </td>
-                          <td>→{targetname}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <div>
+                  <table>
+                    {/* Vote result caption */}
+                    <caption>{t('log.voteResult.caption')}</caption>
+                    <tbody>
+                      {log.voteresult.map(({ id, name, voteto }) => {
+                        const votecount = log.tos[id] || 0;
+                        // Name of vote target
+                        const vt = log.voteresult.filter(
+                          x => x.id === voteto,
+                        )[0];
+                        const targetname = (vt ? vt.name : '') || '';
+                        return (
+                          <tr key={id}>
+                            <td>{name}</td>
+                            <td>
+                              {t('log.voteResult.count', { count: votecount })}
+                            </td>
+                            <td>→{targetname}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
                 <Time time={new Date(log.time)} />
               </>
             )}
@@ -76,55 +80,58 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
               <>
                 <Icon />
                 <Name />
-                <table>
-                  {/* Probability table caption */}
-                  <caption>{t('log.probabilityTable.caption')}</caption>
-                  <thead>
-                    <tr>
-                      <th>{t('log.probabilityTable.name')}</th>
-                      {rule &&
-                      rule.rules.get('quantumwerewolf_diviner') === 'on' ? (
-                        // Show probability for Diviner and Human separately.
-                        <>
-                          {/* 村人 */}
-                          <th>{t('log.probabilityTable.Villager')}</th>
-                          {/* 占い師 */}
-                          <th>{t('log.probabilityTable.Diviner')}</th>
-                        </>
-                      ) : (
-                        /* 人間 */
-                        <th>{t('log.probabilityTable.Human')}</th>
-                      )}
-                      {/* 人狼 */}
-                      <th>{t('log.probabilityTable.Werewolf')}</th>
-                      {rule &&
-                      rule.rules.get('quantumwerewolf_dead') !== 'no' ? (
-                        /* 死亡 */
-                        <th>{t('log.probabilityTable.dead')}</th>
-                      ) : null}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(log.probability_table).map(id => {
-                      const obj = log.probability_table[id];
-                      return (
-                        <ProbabilityTr dead={obj.dead === 1}>
-                          <td>{obj.name}</td>
-                          <ProbTd prob={obj.Human} />
-                          {rule &&
-                          rule.rules.get('quantumwerewolf_diviner') === 'on' ? (
-                            <ProbTd prob={obj.Diviner} />
-                          ) : null}
-                          <ProbTd prob={obj.Werewolf} />
-                          {rule &&
-                          rule.rules.get('quantumwerewolf_dead') !== 'no' ? (
-                            <ProbTd prob={obj.dead} />
-                          ) : null}
-                        </ProbabilityTr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <div>
+                  <table>
+                    {/* Probability table caption */}
+                    <caption>{t('log.probabilityTable.caption')}</caption>
+                    <thead>
+                      <tr>
+                        <th>{t('log.probabilityTable.name')}</th>
+                        {rule &&
+                        rule.rules.get('quantumwerewolf_diviner') === 'on' ? (
+                          // Show probability for Diviner and Human separately.
+                          <>
+                            {/* 村人 */}
+                            <th>{t('log.probabilityTable.Villager')}</th>
+                            {/* 占い師 */}
+                            <th>{t('log.probabilityTable.Diviner')}</th>
+                          </>
+                        ) : (
+                          /* 人間 */
+                          <th>{t('log.probabilityTable.Human')}</th>
+                        )}
+                        {/* 人狼 */}
+                        <th>{t('log.probabilityTable.Werewolf')}</th>
+                        {rule &&
+                        rule.rules.get('quantumwerewolf_dead') !== 'no' ? (
+                          /* 死亡 */
+                          <th>{t('log.probabilityTable.dead')}</th>
+                        ) : null}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.keys(log.probability_table).map(id => {
+                        const obj = log.probability_table[id];
+                        return (
+                          <ProbabilityTr dead={obj.dead === 1}>
+                            <td>{obj.name}</td>
+                            <ProbTd prob={obj.Human} />
+                            {rule &&
+                            rule.rules.get('quantumwerewolf_diviner') ===
+                              'on' ? (
+                              <ProbTd prob={obj.Diviner} />
+                            ) : null}
+                            <ProbTd prob={obj.Werewolf} />
+                            {rule &&
+                            rule.rules.get('quantumwerewolf_dead') !== 'no' ? (
+                              <ProbTd prob={obj.dead} />
+                            ) : null}
+                          </ProbabilityTr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </>
             )}
           </I18n>
@@ -226,23 +233,26 @@ function ProbTd({ prob }: IPropProbTd) {
  * Basic styling of log box.
  */
 const LogBox = styled.div`
-  display: table-row;
-  margin: 0;
+  display: contents;
   line-height: 1;
   color: #000000;
   word-break: break-all;
   word-break: break-word;
+
+  > * {
+    padding: 1px 0;
+  }
 `;
 
 /**
  * スキル関係の汎用的なスタイル
  */
 const SkillBox = styled(LogBox)`
-  background-color: ${props => props.theme.user.skill.bg};
   color: ${props => props.theme.user.skill.color};
   font-weight: bold;
 
   > * {
+    background-color: ${props => props.theme.user.skill.bg};
     border-top: 1px dashed #800000;
     border-bottom: 1px dashed #800000;
   }
@@ -252,10 +262,10 @@ const SkillBox = styled(LogBox)`
  * GMのスタイル
  */
 const GM1Box = styled(LogBox)`
-  background-color: ${props => props.theme.user.gm1.bg};
   color: ${props => props.theme.user.gm1.color};
 
   > * {
+    background-color: ${props => props.theme.user.gm1.bg};
     border-top: 1px dashed #ffa8a8;
     border-bottom: 1px dashed #ffa8a8;
   }
@@ -265,10 +275,10 @@ const GM1Box = styled(LogBox)`
  * GMのスタイル
  */
 const GM2Box = styled(LogBox)`
-  background-color: ${props => props.theme.user.gm2.bg};
   color: ${props => props.theme.user.gm2.color};
 
   > * {
+    background-color: ${props => props.theme.user.gm2.bg};
     border-top: 1px dashed #ffc68a;
     border-bottom: 1px dashed #ffc68a;
   }
@@ -276,30 +286,36 @@ const GM2Box = styled(LogBox)`
 
 const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
   audience: styled(LogBox)`
-    background-color: ${props => props.theme.user.audience.bg};
     color: ${props => props.theme.user.audience.color};
 
     > * {
+      background-color: ${props => props.theme.user.audience.bg};
       border-top: 1px dashed #eeffee;
       border-bottom: 1px dashed #eeffee;
     }
   `,
   couple: styled(LogBox)`
-    background-color: ${props => props.theme.user.couple.bg};
     color: ${props => props.theme.user.couple.color};
 
     > * {
+      background-color: ${props => props.theme.user.couple.bg};
       border-top: 1px dashed #eeffee;
       border-bottom: 1px dashed #eeffee;
     }
   `,
   day: styled(LogBox)`
-    background-color: ${props => props.theme.user.day.bg};
     color: ${props => props.theme.user.day.color};
+
+    > * {
+      background-color: ${props => props.theme.user.day.bg};
+    }
   `,
   fox: styled(LogBox)`
-    background-color: ${props => props.theme.user.fox.bg};
     color: ${props => props.theme.user.fox.color};
+
+    > * {
+      background-color: ${props => props.theme.user.fox.bg};
+    }
   `,
   gm: GM1Box,
   gmaudience: GM2Box,
@@ -307,126 +323,140 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
   gmmonologue: GM2Box,
   gmreply: GM1Box,
   heaven: styled(LogBox)`
-    background-color: ${props => props.theme.user.heaven.bg};
     color: ${props => props.theme.user.heaven.color};
 
     > * {
-      border-top: 1px dashed #fffff8;
-      border-bottom: 1px dashed #fffff8;
+      background-color: ${props => props.theme.user.heaven.bg};
     }
   `,
   heavenmonologue: styled(LogBox)`
-    background-color: ${props => props.theme.user.heavenmonologue.bg};
     color: ${props => props.theme.user.heavenmonologue.color};
+    > * {
+      background-color: ${props => props.theme.user.heavenmonologue.bg};
+    }
   `,
   'half-day': styled(LogBox)`
-    background-color: ${props => props.theme.user.half_day.bg};
     color: ${props => props.theme.user.half_day.color};
+
+    > * {
+      background-color: ${props => props.theme.user.half_day.bg};
+    }
   `,
   helperwhisper: styled(LogBox)`
-    background-color: ${props => props.theme.user.helperwhisper.bg};
     color: ${props => props.theme.user.helperwhisper.color};
 
     > * {
+      background-color: ${props => props.theme.user.helperwhisper.bg};
       border-top: 1px dashed #e8e000;
       border-bottom: 1px dashed #e8e000;
     }
   `,
   inlog: styled(LogBox)`
-    background-color: ${props => props.theme.user.inlog.bg};
     color: ${props => props.theme.user.inlog.color};
     font-weight: bold;
 
     > * {
+      background-color: ${props => props.theme.user.inlog.bg};
       border-top: 1px dashed #00dce8;
       border-bottom: 1px dashed #00dce8;
     }
   `,
   madcouple: styled(LogBox)`
-    background-color: ${props => props.theme.user.madcouple.bg};
     color: ${props => props.theme.user.madcouple.color};
 
     > * {
+      background-color: ${props => props.theme.user.madcouple.bg};
       border-top: 1px dashed #eeffee;
       border-bottom: 1px dashed #eeffee;
     }
   `,
   monologue: styled(LogBox)`
-    background-color: ${props => props.theme.user.monologue.bg};
     color: ${props => props.theme.user.monologue.color};
 
     > * {
+      background-color: ${props => props.theme.user.monologue.bg};
       border-top: 1px dashed #000066;
       border-bottom: 1px dashed #000066;
     }
   `,
   nextturn: styled(LogBox)`
-    background-color: ${props => props.theme.user.nextturn.bg};
     color: ${props => props.theme.user.nextturn.color};
     font-weight: bold;
 
     > * {
+      background-color: ${props => props.theme.user.nextturn.bg};
       border-top: 1px dashed #aaaaaa;
       border-bottom: 1px dashed #aaaaaa;
     }
   `,
   prepare: styled(LogBox)`
-    background-color: ${props => props.theme.user.heaven.bg};
     color: ${props => props.theme.user.heaven.color};
 
     > * {
+      background-color: ${props => props.theme.user.heaven.bg};
       border-top: 1px dashed #fffff8;
       border-bottom: 1px dashed #fffff8;
     }
   `,
   probability_table: styled(LogBox)`
-    background-color: ${props => props.theme.user.probability_table.bg};
     color: ${props => props.theme.user.probability_table.color};
+
+    > * {
+      background-color: ${props => props.theme.user.probability_table.bg};
+    }
   `,
   system: styled(LogBox)`
-    background-color: ${props => props.theme.user.system.bg};
     color: ${props => props.theme.user.system.color};
     font-weight: bold;
 
     > * {
+      background-color: ${props => props.theme.user.system.bg};
       border-top: 1px dashed #aaaaaa;
       border-bottom: 1px dashed #aaaaaa;
     }
   `,
   userinfo: styled(LogBox)`
-    background-color: ${props => props.theme.user.userinfo.bg};
     color: ${props => props.theme.user.userinfo.color};
     font-weight: bold;
 
     > * {
+      background-color: ${props => props.theme.user.userinfo.bg};
       border-top: 1px dashed #000070;
       border-bottom: 1px dashed #000070;
     }
   `,
   voteresult: styled(LogBox)`
-    background-color: ${props => props.theme.user.day.bg};
     color: ${props => props.theme.user.day.color};
+
+    > * {
+      background-color: ${props => props.theme.user.day.bg};
+    }
   `,
   voteto: styled(LogBox)`
-    background-color: ${props => props.theme.user.voteto.bg};
     color: ${props => props.theme.user.voteto.color};
     font-weight: bold;
+
     > * {
+      background-color: ${props => props.theme.user.voteto.bg};
       border-top: 1px dashed #007000;
       border-bottom: 1px dashed #007000;
     }
   `,
   werewolf: styled(LogBox)`
-    background-color: ${props => props.theme.user.werewolf.bg};
     color: ${props => props.theme.user.werewolf.color};
+
     > * {
+      background-color: ${props => props.theme.user.werewolf.bg};
       border-top: 1px dashed #000066;
       border-bottom: 1px dashed #000066;
     }
   `,
   will: styled(LogBox)`
-    background-color: ${props => props.theme.user.will.bg};
     color: ${props => props.theme.user.will.color};
+
+    > * {
+      background-color: ${props => props.theme.user.will.bg};
+    }
   `,
   emmaskill: SkillBox,
   eyeswolfskill: SkillBox,
@@ -438,8 +468,6 @@ const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
  * Icon box.
  */
 const Icon = styled.div`
-  display: table-cell;
-  width: 1em;
   min-width: 8px;
 
   img {
@@ -453,7 +481,6 @@ const Icon = styled.div`
  * Username box.
  */
 const Name = styled.div`
-  display: table-cell;
   max-width: 10em;
   overflow: hidden;
 
@@ -473,9 +500,6 @@ interface IPropComment {
  * Log comment box.
  */
 const Comment = withProps<IPropComment>()(styled.div)`
-  display: table-cell;
-  width: 100%;
-
   white-space: pre-wrap;
   font-size: ${({ size }) =>
     size === 'big' ? 'larger' : size === 'small' ? 'smaller' : 'medium'};
@@ -501,10 +525,9 @@ const TimeInner = ({ time, className }: IPropTime) => {
  * Show time box.
  */
 const Time = styled(TimeInner)`
-  display: table-cell;
   white-space: nowrap;
   font-size: xx-small;
-  margin-left: 2em;
+  padding-left: 2px;
   line-height: 15px;
   text-align: right;
   padding-right: 1ex;

@@ -123,7 +123,12 @@ const LogWrapper = withProps<{
   logPickup: string | null;
 }>()(styled.div)`
   width: 100%;
-  display: table;
+  display: grid;
+  grid-template-columns:
+    minmax(8px, max-content)
+    fit-content(10em)
+    1fr
+    auto;
 
   ${({ logClass, logPickup }) =>
     // logPickup should not contain `"` because it is an user id.
@@ -138,5 +143,5 @@ const LogWrapper = withProps<{
 `;
 
 const ChunkWrapper = withProps<{ visible: boolean }>()(styled.div)`
-  display: ${props => (props.visible ? 'table-row-group' : 'none')}
+  display: ${props => (props.visible ? 'contents' : 'none')}
 `;
