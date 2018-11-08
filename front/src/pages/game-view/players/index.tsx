@@ -46,22 +46,20 @@ class PlayersInner extends React.Component<
     const { t, players } = this.props;
     return (
       <Wrapper>
-        <div>
-          {players.map(pl => {
-            const filterHandler = this.filterHandlers.bind(
-              pl.id,
-              this.handleFilter,
-            );
-            return (
-              <PlayerBox
-                t={t}
-                key={pl.id}
-                player={pl}
-                onEnableFilter={filterHandler}
-              />
-            );
-          })}
-        </div>
+        {players.map(pl => {
+          const filterHandler = this.filterHandlers.bind(
+            pl.id,
+            this.handleFilter,
+          );
+          return (
+            <PlayerBox
+              t={t}
+              key={pl.id}
+              player={pl}
+              onEnableFilter={filterHandler}
+            />
+          );
+        })}
       </Wrapper>
     );
   }
@@ -72,4 +70,7 @@ class PlayersInner extends React.Component<
   }
 }
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+`;

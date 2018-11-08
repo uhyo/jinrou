@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
+import * as Color from 'color';
 import { PlayerInfo } from '../defs';
 import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
@@ -7,6 +8,7 @@ import { Icon } from './icon';
 import { TranslationFunction } from 'i18next';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { bind } from 'bind-decorator';
+import { notPhone, phone } from '../../../common/media';
 
 export interface IPropPlayerBox {
   t: TranslationFunction;
@@ -78,25 +80,41 @@ const Wrapper = withProps<{
   dead: boolean;
   hasIcon: boolean;
 }>()(styled.div)`
-  display: inline-block;
   min-width: ${props => (props.hasIcon ? '8em' : '5em')};
   min-height: 2em;
-  vertical-align: top;
+
+  margin: 4px 0 4px 0.5em;
+  padding: 0.2em;
+  border: 1px solid ${({ theme }) =>
+    Color(theme.globalStyle.color)
+      .fade(0.6)
+      .string()};
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
 
   background-color: ${props =>
     props.dead ? 'rgba(0, 0, 0, 0.1)' : 'transparent'};
 
-  &:not(:first-child) {
-    margin-left: 0.5em;
-  }
+  ${phone`
+    font-size: small;
+  `}
+  ${notPhone`
+    &:first-child {
+      margin-left: 0;
+    }
+  `}
 `;
 
 const Name = withProps<{ dead: boolean }>()(styled.span)`
+  grid-column: 2;
+  grid-row: 1;
   text-decoration: ${props => (props.dead ? 'line-through' : 'none')};
 `;
 
 const ToolIcons = styled.span`
-  display: inline-block;
+  grid-column: 3;
+  grid-row: 1;
   visibility: hidden;
   cursor: pointer;
   margin: 0 0 0 0.3em;
@@ -107,10 +125,14 @@ const ToolIcons = styled.span`
 `;
 
 const Jobname = styled.div`
+  grid-column: 2 / 4;
+  grid-row: 2;
   font-weight: bold;
 `;
 
 const Winner = withProps<{ winner: boolean }>()(styled.div)`
+  grid-column: 2 / 4;
+  grid-row: 3;
   font-weight: bold;
   color: ${props => (props.winner ? 'red' : 'blue')};
 `;
