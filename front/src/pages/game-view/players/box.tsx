@@ -122,6 +122,10 @@ const ToolIcons = styled.span`
   ${Wrapper}:hover & {
     visibility: visible;
   }
+
+  ${phone`
+    margin-left: 1em;
+  `};
 `;
 
 const Jobname = styled.div`
