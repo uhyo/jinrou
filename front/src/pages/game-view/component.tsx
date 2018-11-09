@@ -126,7 +126,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {roomControls != null ? (
               <I18n>
                 {t => (
-                  <RoomHeaderPart>
+                  <RoomPreludePart>
                     <RoomControls
                       roomControls={roomControls}
                       t={t}
@@ -134,7 +134,7 @@ export class Game extends React.Component<IPropGame, {}> {
                       players={players}
                       handlers={roomControlHandlers}
                     />
-                  </RoomHeaderPart>
+                  </RoomPreludePart>
                 )}
               </I18n>
             ) : null}
@@ -326,8 +326,29 @@ const AppWrapper = styled(AppStyling)`
  */
 const RoomHeaderPart = styled.div`
   margin: 4px 0;
-  ${notPhone`
+  padding: 0 8px;
+  ${phone`
+    padding: 0;
+  `};
+`;
+
+/**
+ * Wrapper of room prelude.
+ */
+const RoomPreludePart = styled(RoomHeaderPart)`
+  display: flex;
+  flex-flow: row wrap;
+
+  > button {
+    margin: 2px;
+  }
+
+  ${phone`
     padding: 0 8px;
+    justify-content: space-between;
+    > button {
+      margin: 3px;
+    }
   `};
 `;
 

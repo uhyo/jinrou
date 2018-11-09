@@ -42,7 +42,7 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
       // Show prelude.
       const { joined, old, owner } = roomControls;
       return (
-        <div>
+        <>
           {joined ? (
             <>
               <button type="button" onClick={handlers.unjoin}>
@@ -86,16 +86,16 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
               {t('game_client:room.discard')}
             </button>
           ) : null}
-        </div>
+        </>
       );
     } else {
       // show postlude.
       return (
-        <div>
+        <>
           <button type="button" onClick={handlers.newRoom}>
             {t('game_client:room.newRoom')}
           </button>
-        </div>
+        </>
       );
     }
   }
