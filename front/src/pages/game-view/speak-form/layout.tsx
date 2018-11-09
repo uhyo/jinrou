@@ -1,5 +1,6 @@
 import styled from '../../../util/styled';
-import { phone } from '../../../common/media';
+import { phone, notPhone } from '../../../common/media';
+import * as React from 'react';
 
 /**
  * Form for styling.
@@ -13,6 +14,11 @@ export const MainForm = styled.form`
                    "others  others   others"
                    / 5ex 1fr 64px;
     gap: 4px;
+  `};
+  ${notPhone`
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-end;
   `};
 `;
 
@@ -43,6 +49,12 @@ export const SpeakButtonArea = styled.span`
 export const SpeakControlsArea = styled.span`
   ${phone`
     grid-area: controls;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: flex-end;
+  `};
+  ${notPhone`
+    display: contents;
   `};
 `;
 
@@ -53,6 +65,14 @@ export const SpeakControlsArea = styled.span`
 export const OthersArea = styled.span`
   ${phone`
     grid-area: others;
+    &:not([hidden]) {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: flex-end;
+    }
+  `};
+  ${notPhone`
+    display: contents;
   `};
 `;
 
@@ -86,5 +106,34 @@ export const SpeakTextArea = styled.textarea`
   max-width: 100%;
   ${phone`
     width: 100%;
+  `};
+`;
+
+/**
+ * Labelled container of one form control.
+ * @package
+ */
+export const LabeledControl = styled<{
+  className?: string;
+  label: string;
+}>(({ children, className, label }) => {
+  return (
+    <label className={className}>
+      <span>{label}</span>
+      <span>{children}</span>
+    </label>
+  );
+})`
+  display: inline-flex;
+  flex-flow: column nowrap;
+
+  span:first-of-type {
+    font-size: xx-small;
+    margin-bottom: 2px;
+    opacity: 0.75;
+  }
+
+  ${notPhone`
+    margin: 0 2px;
   `};
 `;

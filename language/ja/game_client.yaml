@@ -95,11 +95,14 @@ speak:
   say: "発言"
   # size of comment.
   size:
+    # description of size selection.
+    description: "発言の大きさ"
     small: "小さく"
     normal: "普通"
     big: "大きく"
   # kind of speech.
   kind:
+    description: "発言の種類"
     # speech before beginning of game.
     prepare: "全員に発言"
     # say to everyone.
@@ -147,6 +150,8 @@ speak:
   rule: "ルール"
   # log visibility.
   logVisibility:
+    # description of log visibility of control.
+    description: "ログの表示"
     # show all.
     all: "全部"
     # show today's log.

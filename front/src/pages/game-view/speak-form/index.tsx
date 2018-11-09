@@ -24,10 +24,12 @@ import {
   SpeakControlsArea,
   OthersArea,
   ButtonArea,
+  LabeledControl,
 } from './layout';
 import { IsPhone } from '../../../common/media';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { SensitiveButton } from '../../../util/sensitive-button';
+import styled from '../../../util/styled';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -159,25 +161,33 @@ export class SpeakForm extends React.PureComponent<
                     {/* Speech-related controls. */}
                     <SpeakControlsArea>
                       {/* Speak size select control. */}
-                      <select value={size} onChange={this.handleSizeChange}>
-                        <option value="small">
-                          {t('game_client:speak.size.small')}
-                        </option>
-                        <option value="normal">
-                          {t('game_client:speak.size.normal')}
-                        </option>
-                        <option value="big">
-                          {t('game_client:speak.size.big')}
-                        </option>
-                      </select>
+                      <LabeledControl
+                        label={t('game_client:speak.size.description')}
+                      >
+                        <select value={size} onChange={this.handleSizeChange}>
+                          <option value="small">
+                            {t('game_client:speak.size.small')}
+                          </option>
+                          <option value="normal">
+                            {t('game_client:speak.size.normal')}
+                          </option>
+                          <option value="big">
+                            {t('game_client:speak.size.big')}
+                          </option>
+                        </select>
+                      </LabeledControl>
                       {/* Speech kind selection. */}
-                      <SpeakKindSelect
-                        kinds={speaks}
-                        current={kind}
-                        t={t}
-                        playersMap={playersMap}
-                        onChange={this.handleKindChange}
-                      />
+                      <LabeledControl
+                        label={t('game_client:speak.kind.description')}
+                      >
+                        <SpeakKindSelect
+                          kinds={speaks}
+                          current={kind}
+                          t={t}
+                          playersMap={playersMap}
+                          onChange={this.handleKindChange}
+                        />
+                      </LabeledControl>
                       {/* Multiline checkbox. */}
                       <label>
                         <input
@@ -206,11 +216,15 @@ export class SpeakForm extends React.PureComponent<
                         {t('game_client:speak.rule')}
                       </button>
                       {/* Log visibility control. */}
-                      <LogVisibilityControl
-                        visibility={logVisibility}
-                        day={gameInfo.day}
-                        onUpdate={this.handleVisibilityUpdate}
-                      />
+                      <LabeledControl
+                        label={t('game_client:speak.logVisibility.description')}
+                      >
+                        <LogVisibilityControl
+                          visibility={logVisibility}
+                          day={gameInfo.day}
+                          onUpdate={this.handleVisibilityUpdate}
+                        />
+                      </LabeledControl>
                       {/* Refuse revival button. */}
                       <button
                         type="button"
