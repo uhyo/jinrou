@@ -475,7 +475,7 @@ const Icon = withProps<IPropLogPart>()(styled.div)`
   }
 
   ${phone`
-    ${({ noName }) => (noName ? 'display: none;' : '')}
+    grid-row: ${({ noName }) => (noName ? 'span 1' : 'span 2')};
     border-bottom: none;
   `};
 `;
@@ -507,7 +507,7 @@ const Name = withProps<IPropLogPart>()(styled.div)`
 const Main = withProps<IPropLogPart>()(styled.div)`
   grid-column: 3;
   ${phone`
-    grid-column: ${({ noName }) => (noName ? '1 / 3' : '1 / 4')};
+    grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
     border-top: none;
     padding-left: 0.3em;
   `};

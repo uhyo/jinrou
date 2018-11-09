@@ -139,6 +139,16 @@ const LogWrapper = withProps<{
     fit-content(10em)
     1fr
     auto;
+  ${({ logClass, logPickup }) =>
+    // logPickup should not contain `"` because it is an user id.
+    // XXX safer solution?
+    logPickup != null
+      ? css`
+    .${logClass}:not([data-userid="${logPickup}"]) > * {
+      opacity: 0.3;
+    }
+  `
+      : ''}
   ${phone`
     grid-template-columns:
       minmax(8px, max-content)
@@ -147,16 +157,6 @@ const LogWrapper = withProps<{
     grid-auto-flow: row dense;
   `}
 
-  ${({ logClass, logPickup }) =>
-    // logPickup should not contain `"` because it is an user id.
-    // XXX safer solution?
-    logPickup != null
-      ? css`
-    .${logClass}:not([data-userid="${logPickup}"]) {
-      opacity: 0.3;
-    }
-  `
-      : ''}
 `;
 
 const ChunkWrapper = withProps<{ visible: boolean }>()(styled.div)`
