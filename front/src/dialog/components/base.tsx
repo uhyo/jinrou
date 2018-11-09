@@ -5,6 +5,7 @@ import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
 import { IconProp, FontAwesomeIcon } from '../../util/icon';
 import { phone } from '../../common/media';
+import { AppStyling } from '../../styles/phone';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -25,7 +26,7 @@ const opacityAnimation = keyframes`
 /**
  * Wrapper of dialog.
  */
-const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
+const DialogWrapper = withProps<IPropDialogWrapper>()(styled(AppStyling))`
     position: fixed;
     left: 0;
     top: 0;
@@ -156,6 +157,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
 }
 
 const DialogBase = styled(DialogBaseInner)`
+  max-width: 90vw;
   padding: 5px;
   box-shadow: 0 0 6px 4px rgba(0, 0, 0, 0.4);
 
@@ -166,10 +168,6 @@ const DialogBase = styled(DialogBaseInner)`
   a {
     color: #666666;
   }
-
-  ${phone`
-    max-width: 60vw;
-  `};
 `;
 
 export type IPropDialog = IPropDialogWrapper &
