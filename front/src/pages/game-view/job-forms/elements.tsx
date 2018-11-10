@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { FormType } from '../defs';
 import { withProps } from '../../../util/styled';
+import { phone } from '../../../common/media';
 
 /**
  * Wrapper of all forms.
@@ -8,6 +9,10 @@ import { withProps } from '../../../util/styled';
 export const JobFormsWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
+
+  ${phone`
+    flex-flow: column nowrap;
+  `};
 `;
 /**
  * Wrapper of form.

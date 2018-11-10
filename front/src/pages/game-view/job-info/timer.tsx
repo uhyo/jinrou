@@ -39,13 +39,7 @@ export class Timer extends React.Component<IPropTimer, IStateTimer> {
 
     if (!enabled) {
       // Render nothing if timer is disabled now.
-      // TODO
-      // return null;
-      return (
-        <>
-          <FontAwesomeIcon icon={['far', 'clock']} /> 対象選択中 0:00
-        </>
-      );
+      return null;
     }
     // Make a string representation of remaining time.
     const timerStr = timerString(remaining >= 0 ? remaining : 0);
