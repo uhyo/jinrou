@@ -2,10 +2,10 @@
 html
   head
     meta(charset="utf-8")
-    title 月下人狼
+    title= Config.name
     meta(name="viewport",content="width=device-width,initial-scale=1")
-    meta(name="application-name",content="月下人狼")
-    meta(name="description",content="リアルタイムチャットが可能な人狼サーバーです。100種以上の役職が使用可能。")
+    meta(name="application-name",content=Config.name)
+    meta(name="description",content=i18n.t('description'))
     link(rel="icon",sizes="16x16",href="/favicon.ico")
     link(rel="icon",sizes="144x144",href="/icons/icon-144x144.png")
     //- script(src="https://use.fontawesome.com/e0e7afd227.js",async)
@@ -27,25 +27,25 @@ html
   body
     header
       h1
-        a(href="/") 月下人狼
+        a(href="/")= Config.name
       #userinfo
         span#username
       nav
         ul
           li
-            a(href="/my") マイページ
+            a(href="/my")= i18n.t('mypage')
           li
-            a(href="/lobby") ロビー
+            a(href="/lobby")= i18n.t('lobby')
           li
-            a(href="/rooms") ルーム一覧
+            a(href="/rooms")= i18n.t('rooms')
           //li
             a(href="/logs") ログ検索
           li
-            a(href="/manual") マニュアル
+            a(href="/manual")= i18n.t('manual')
           li
-            a(href="/backdoor/home") ホームに戻る
+            a(href="/backdoor/home")= i18n.t('home')
           li
-            a(href="/manual/about") 月下人狼について
+            a(href="/manual/about")= i18n.t('about')
       #toolbar
 
     script(type="text/javascript")
