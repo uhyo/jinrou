@@ -88,6 +88,11 @@ exports.init = ->
     $("*[data-helpicon]").live "click", (je)->
         t = je.currentTarget
         util.message "ヘルプ", t.getAttribute 'title'
+    # メニューの開閉
+    $("#menu-open-icon").click (je)->
+        $("#menu").toggleClass "open"
+    $("#menu").click (je)->
+        $("#menu").removeClass "open"
 
     # 自動ログイン
     if localStorage.userid && localStorage.password

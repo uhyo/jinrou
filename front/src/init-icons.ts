@@ -27,6 +27,7 @@ import {
   faSignal,
   faCaretSquareUp,
   faCaretSquareDown,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -54,6 +55,7 @@ library.add(
   faClock,
   faCaretSquareUp,
   faCaretSquareDown,
+  faBars,
 );
 
 // Publish to global.

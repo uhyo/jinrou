@@ -119,6 +119,68 @@ body > header
         color #ffffff !important
     span.tool-button.tool-disabled
       color #999999
+// menu for smatphones
+#menu
+  display contents
+#menu-open-icon
+  display none
+  margin 0 0.5em 0 auto
+  button
+    appearance none
+    border none
+    background none
+    color white
+@media (max-width: 600px)
+  #menu
+    display flex
+    flex-flow column nowrap
+    position fixed
+    top 0
+    left -100vw
+    width 100vw
+    height 100vh
+    transition left 0.3s ease-in-out
+
+    &.open
+      left 0
+
+
+    color white
+    border 1px solid white
+
+    .menu-back
+      position absolute
+      left 0
+      top 0
+      width 100vw
+      height 100vh
+      background-color rgba(0, 0, 0, 0.1)
+      z-index 999
+
+    nav
+      display block
+      flex auto 0 0
+      width 80vw
+      z-index 1000
+      background-color rgba(0, 0, 0, 0.78)
+      li
+        display block
+    #toolbar
+      flex auto 1 0
+      width 80vw
+      margin-left 0
+      z-index 1000
+      background-color rgba(0, 0, 0, 0.78)
+      text-align left
+
+    nav li a, #toolbar .tool-button
+      display block
+      font-size 1.2em
+      padding 1em 0.1em
+      border-bottom 1px solid white
+  #menu-open-icon
+    display block
+
 //おしらせ
 body > .notice
   margin-left -20px

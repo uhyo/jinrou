@@ -30,24 +30,28 @@ html
         a(href="/")= Config.name
       #userinfo
         span#username
-      nav
-        ul
-          li
-            a(href="/my")= i18n.t('mypage')
-          li
-            a(href="/lobby")= i18n.t('lobby')
-          li
-            a(href="/rooms")= i18n.t('rooms')
-          //li
-            a(href="/logs") ログ検索
-          li
-            a(href="/manual")= i18n.t('manual')
-          li
-            a(href="/backdoor/home")= i18n.t('home')
-          li
-            a(href="/manual/about")= i18n.t('about')
-      #toolbar
-
+      #menu
+        .menu-back
+        nav
+          ul
+            li
+              a(href="/my")= i18n.t('mypage')
+            li
+              a(href="/lobby")= i18n.t('lobby')
+            li
+              a(href="/rooms")= i18n.t('rooms')
+            //li
+              a(href="/logs") ログ検索
+            li
+              a(href="/manual")= i18n.t('manual')
+            li
+              a(href="/backdoor/home")= i18n.t('home')
+            li
+              a(href="/manual/about")= i18n.t('about')
+        #toolbar
+      #menu-open-icon
+        button(aria-label=i18n.t('openMenuLabel'))
+          i.fas.fa-bars.fa-2x
     script(type="text/javascript")
       if((("unknown"===typeof localStorage)||("undefined"===typeof localStorage)||(!document.body.classList)||(!document.body.dataset))&&(navigator.userAgent.indexOf("Googlebot")<0)){
         //要件を満たさない

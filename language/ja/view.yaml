@@ -14,3 +14,5 @@ manual: "マニュアル"
 home: "ホームに戻る"
 # about page
 about: "月下人狼について"
+# label of open menu button
+openMenuLabel: "メニューを開く"
