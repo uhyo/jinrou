@@ -94,12 +94,15 @@ body > header
     a
       text-decoration none
       color #ffffff !important
-  #userinfo,nav
-    display inline-block
-    vertical-align 40%
   #userinfo
     padding 0 5px
-  nav ul li
+// menu for smatphones
+#menu
+  display contents
+  nav
+    display inline-block
+    vertical-align 40%
+  nav li
     display inline-block
     white-space nowrap
     margin-right 1em
@@ -119,9 +122,6 @@ body > header
         color #ffffff !important
     span.tool-button.tool-disabled
       color #999999
-// menu for smatphones
-#menu
-  display contents
 #menu-open-icon
   display none
   margin 0 0.5em 0 auto
@@ -139,7 +139,7 @@ body > header
     left -100vw
     width 100vw
     height 100vh
-    transition left 0.3s ease-in-out
+    transition left 0.2s ease-in-out
 
     &.open
       left 0
@@ -176,7 +176,7 @@ body > header
     nav li a, #toolbar .tool-button
       display block
       font-size 1.2em
-      padding 1em 0.1em
+      padding 1em 0.1em 1em 0.2em
       border-bottom 1px solid white
   #menu-open-icon
     display block

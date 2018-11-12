@@ -33,7 +33,6 @@ const DialogWrapper = withProps<IPropDialogWrapper>()(styled(AppStyling))`
     width: 100vw;
     height: 100vh;
 
-    z-index: 50;
     background-color: ${({ modal }) =>
       modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
     pointer-events: ${({ modal }) => (modal ? 'auto' : 'none')};
@@ -213,21 +212,19 @@ export function Dialog({
       {({ titleClassName }) => (
         <DialogWrapper modal={modal}>
           <Draggable bounds="body" handle={`.${titleClassName}`}>
-            <div>
-              <DialogBase
-                title={title}
-                titleClassName={titleClassName}
-                icon={icon}
-                onCancel={onCancel}
-                form={form}
-                onSubmit={onSubmit}
-              >
-                {message != null ? <p>{message}</p> : null}
-                {contents ? contents() : null}
-                <Buttons>{buttons()}</Buttons>
-                {afterButtons ? afterButtons() : null}
-              </DialogBase>
-            </div>
+            <DialogBase
+              title={title}
+              titleClassName={titleClassName}
+              icon={icon}
+              onCancel={onCancel}
+              form={form}
+              onSubmit={onSubmit}
+            >
+              {message != null ? <p>{message}</p> : null}
+              {contents ? contents() : null}
+              <Buttons>{buttons()}</Buttons>
+              {afterButtons ? afterButtons() : null}
+            </DialogBase>
           </Draggable>
         </DialogWrapper>
       )}

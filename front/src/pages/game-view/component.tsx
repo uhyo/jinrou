@@ -359,7 +359,6 @@ const SpeakFormPart = styled(RoomHeaderPart)`
   background-color: ${({ theme }) => theme.globalStyle.background};
   ${phone`
     /* On phones, speak form is fixed to the bottom. */
-    z-index: 10;
     order: 5;
     position: sticky;
     left: 0;
