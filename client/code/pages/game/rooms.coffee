@@ -1,27 +1,26 @@
 exports.start=(query={})->
     mode = query.mode
+    page = query.page || 0
+    if page < 0
+        page = 0
 
-    # if query mode is "my", load i18n for showing
-    # job names.
-    p = if mode == "my"
-        JinrouFront.loadI18n()
-            .then((i18n)-> i18n.getI18nFor())
-    else
-        Promise.resolve null
+    pi18n = JinrouFront.loadI18n()
+      .then((i18n)-> i18n.getI18nFor())
+    papp = JinrouFront.loadRoomList()
+    prooms = requestRooms mode, page
 
-    p.then (i18n)->
-        page = query.page || 0
-        if page < 0
-            page = 0
+    Promise.all([pi18n, papp]).then ([i18n, app])->
+        rooms_view = app.place {
+          i18n: i18n
+          node: $("#rooms-app").get 0
+        }
+        prooms.then (rooms)->
+          rooms_view.store.setRooms rooms
         getroom=Index.game.rooms.getroom
-        gr=(rooms)->
-            getroom i18n, mode, rooms
 
         reqRpc = ()->
-            if mode == "my"
-                ss.rpc "game.rooms.getMyRooms", page, gr
-            else
-                ss.rpc "game.rooms.getRooms", mode, page, gr
+            requestRooms(mode, page).then (rooms)->
+              getroom i18n, mode, rooms
         reqRpc()
 
         $("#pager").click (je)->
@@ -39,6 +38,13 @@ exports.start=(query={})->
                 Index.app.pushState location.pathname, {
                     page: page
                 }
+# Request rooms and return result as Promise.
+requestRooms = (mode, page)->
+  new Promise (resolve)->
+    if mode == "my"
+      ss.rpc "game.rooms.getMyRooms", page, resolve
+    else
+      ss.rpc "game.rooms.getRooms", mode, page, resolve
 
 # mode: "old","log"など
 # mode: "my"のときはi18nを渡す

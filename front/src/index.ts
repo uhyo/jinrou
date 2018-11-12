@@ -76,3 +76,13 @@ export function loadServerConnection() {
     webpackChunkName: "server-connection-info"
    */ './pages/server-connection-info');
 }
+
+/**
+ * Asynchronously load the roomlist module.
+ */
+export function loadRoomList() {
+  return import(/*
+    webpackPrefetch: true,
+    webpackChunkName: "room-list"
+    */ './pages/room-list');
+}

@@ -21,6 +21,7 @@ i18next.use(xhrBackend).init({
     'rules',
     'casting',
     'server_connection_client',
+    'rooms_client',
   ],
 });
 
