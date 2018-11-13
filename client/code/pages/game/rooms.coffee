@@ -1,3 +1,4 @@
+rooms_view = null
 exports.start=(query={})->
     mode = query.mode
     page = query.page || 0
@@ -177,3 +178,5 @@ exports.getroom=(i18n, mode, rooms)->
         td=tr.insertCell -1
         td.textContent=room.comment
 
+exports.end = ->
+  rooms_view?.unmount()
