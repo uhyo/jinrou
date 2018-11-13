@@ -3,10 +3,12 @@ import * as React from 'react';
 import { I18nProvider, i18n } from '../../i18n';
 import { RoomListStore } from './store';
 import { observer } from 'mobx-react';
-import { RoomListWrapper, Wrapper, NavLinks } from './elements';
-import { Room } from './room';
+import { RoomListWrapper, Wrapper, NavLinks, Navigation } from './elements';
 import { NormalButton } from '../../common/button';
 import { bind } from 'bind-decorator';
+import { Omit } from '../../types/omit';
+import { Room as RoomData, RoomListMode } from './defs';
+import { Room } from './room';
 
 export interface IPropRoomList {
   /**
@@ -26,12 +28,40 @@ export interface IPropRoomList {
 @observer
 export class RoomList extends React.Component<IPropRoomList, {}> {
   public render() {
-    const { i18n, store } = this.props;
-    const { rooms, prevAvailable, nextAvailable, mode } = store;
+    const { i18n, store, onPageMove } = this.props;
     return (
       <I18nProvider i18n={i18n}>
-        <Wrapper>
-          <h1>{i18n.t('rooms_client:title')}</h1>
+        <RoomListInner
+          i18n={i18n}
+          onPageMove={onPageMove}
+          rooms={store.rooms}
+          mode={store.mode}
+          loading={store.loading}
+          prevAvailable={store.prevAvailable}
+          nextAvailable={store.nextAvailable}
+        />
+      </I18nProvider>
+    );
+  }
+}
+
+class RoomListInner extends React.Component<
+  Omit<IPropRoomList, 'store'> & {
+    prevAvailable: boolean;
+    nextAvailable: boolean;
+    mode: RoomListMode;
+    rooms: RoomData[];
+    loading: boolean;
+  },
+  {}
+> {
+  private headerRef = React.createRef<HTMLHeadingElement>();
+  public render() {
+    const { i18n, rooms, prevAvailable, nextAvailable, mode } = this.props;
+    return (
+      <Wrapper>
+        <h1 ref={this.headerRef}>{i18n.t('rooms_client:title')}</h1>
+        <Navigation>
           <NavLinks>
             <a href="/newroom">{i18n.t('rooms_client:link.newRoom')}</a>
             <a href="/rooms">{i18n.t('rooms_client:link.new')}</a>
@@ -58,14 +88,20 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
               </p>
             </>
           )}
-          <RoomListWrapper>
-            {rooms.map(room => (
-              <Room key={room.id} room={room} listMode={mode} />
-            ))}
-          </RoomListWrapper>
-        </Wrapper>
-      </I18nProvider>
+        </Navigation>
+        <RoomListWrapper>
+          {rooms.map(room => (
+            <Room key={room.id} room={room} listMode={mode} />
+          ))}
+        </RoomListWrapper>
+      </Wrapper>
     );
+  }
+  public componentDidUpdate(prevProps: this['props']) {
+    const { current } = this.headerRef;
+    if (!prevProps.loading && !this.props.loading && current != null) {
+      current.scrollIntoView();
+    }
   }
   @bind
   private handlePrevClick() {

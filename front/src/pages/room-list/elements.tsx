@@ -11,6 +11,20 @@ export const Wrapper = styled(AppStyling)`
 `;
 
 /**
+ * Wrapper of navigation.
+ * @package
+ */
+export const Navigation = styled.div`
+  position: sticky;
+  top: 0;
+  left: 0;
+  margin: 0 -20px;
+  padding: 0 20px;
+  z-index: 1;
+
+  background-color: white;
+`;
+/**
  * Wrapper of navigation links.
  * @package
  */
@@ -39,6 +53,10 @@ export const NavLinks = styled.p`
  */
 export const RoomListWrapper = styled.div`
   width: fit-content;
+
+  ${phone`
+    width: 100%;
+  `};
 `;
 
 /**
@@ -50,8 +68,8 @@ export const RoomWrapper = styled.div`
   left: 0;
   top: 0;
   margin: 0.3em 0;
-  padding: 0.8em;
-  box-shadow: 3px 3px 8px #888888;
+  padding: 0.3em 0.8em;
+  box-shadow: 3px 3px 6px #888888;
 `;
 
 /**

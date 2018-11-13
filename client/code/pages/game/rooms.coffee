@@ -26,6 +26,7 @@ exports.start=(query={})->
             }
         }
         prooms.then (rooms)->
+          getroom i18n, mode, rooms
           rooms_view.store.setRooms rooms
         getroom=Index.game.rooms.getroom
 
@@ -33,7 +34,6 @@ exports.start=(query={})->
             requestRooms(mode, page).then (rooms)->
               getroom i18n, mode, rooms
               rooms_view.store.setRooms rooms, page
-        reqRpc()
 
         $("#pager").click (je)->
             t=je.target

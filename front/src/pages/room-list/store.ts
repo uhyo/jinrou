@@ -10,6 +10,11 @@ export class RoomListStore {
     this.mode = mode;
   }
   /**
+   * Flag of loading.
+   */
+  @observable
+  public loading: boolean = true;
+  /**
    * List of rooms.
    */
   @observable
@@ -30,7 +35,7 @@ export class RoomListStore {
    */
   @computed
   get prevAvailable(): boolean {
-    return this.page > 0;
+    return !this.loading || this.page > 0;
   }
   /**
    * Whether next page is available.
@@ -38,7 +43,7 @@ export class RoomListStore {
   @computed
   get nextAvailable(): boolean {
     // XXX this has false positive
-    return this.rooms.length >= this.pageNumber;
+    return !this.loading && this.rooms.length >= this.pageNumber;
   }
   /**
    * Set rooms and page
@@ -47,5 +52,6 @@ export class RoomListStore {
   public setRooms(rooms: Room[], page: number): void {
     this.rooms = rooms;
     this.page = page;
+    this.loading = false;
   }
 }
