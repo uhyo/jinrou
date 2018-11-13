@@ -2,3 +2,25 @@
 
 # title of rooms component
 title: "ルーム一覧"
+
+# message show when no room is avaiable.
+noRoom: "まだ村がありません。"
+
+status:
+  # room is waiting.
+  waiting: "募集中"
+  # room is playing.
+  playing: "対戦中"
+  # room is ended.
+  end: "終了"
+
+# gm is on
+gm: "GMあり"
+
+# player number
+playerNumber: "{{count}}人"
+
+# prefix of owner name
+ownerPrefix: "オーナー："
+# hidden owner name
+ownerHidden: "???"

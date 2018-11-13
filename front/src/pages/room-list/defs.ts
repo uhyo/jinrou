@@ -36,9 +36,13 @@ export interface Room {
     name: string;
   };
   /**
+   * List of players.
+   */
+  players: unknown[];
+  /**
    * blind mode.
    */
-  blind: '' | 'hide' | 'complete';
+  blind: '' | 'yes' | 'complete';
   /**
    * Whether password is needed.
    */
