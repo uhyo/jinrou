@@ -3,7 +3,7 @@ import * as React from 'react';
 import { I18nProvider, i18n } from '../../i18n';
 import { RoomListStore } from './store';
 import { observer } from 'mobx-react';
-import { RoomListWrapper, Wrapper } from './elements';
+import { RoomListWrapper, Wrapper, NavLinks } from './elements';
 import { Room } from './room';
 import { NormalButton } from '../../common/button';
 import { bind } from 'bind-decorator';
@@ -32,6 +32,12 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
       <I18nProvider i18n={i18n}>
         <Wrapper>
           <h1>{i18n.t('rooms_client:title')}</h1>
+          <NavLinks>
+            <a href="/newroom">{i18n.t('rooms_client:link.newRoom')}</a>
+            <a href="/rooms">{i18n.t('rooms_client:link.new')}</a>
+            <a href="/rooms/old">{i18n.t('rooms_client:link.old')}</a>
+            <a href="/rooms/log">{i18n.t('rooms_client:link.log')}</a>
+          </NavLinks>
           {rooms.length === 0 ? (
             <p>{i18n.t('rooms_client:noRoom')}</p>
           ) : (

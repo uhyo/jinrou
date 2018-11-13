@@ -1,5 +1,6 @@
 import styled from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
+import { phone } from '../../common/media';
 
 /**
  * Wrapper of whole app.
@@ -8,6 +9,30 @@ import { AppStyling } from '../../styles/phone';
 export const Wrapper = styled(AppStyling)`
   padding: 0 20px;
 `;
+
+/**
+ * Wrapper of navigation links.
+ * @package
+ */
+export const NavLinks = styled.p`
+  margin: 0;
+  display: flex;
+  flex-flow: row wrap;
+
+  a {
+    display: block;
+    flex: auto 0 0;
+    margin: 0.4em 0;
+    padding: 0 0.3em;
+
+    ${phone`
+      padding: 0 0.6em;
+    `} &:not(:first-of-type) {
+      border-left: 1px solid currentColor;
+    }
+  }
+`;
+
 /**
  * Wrapper of room list.
  * @package

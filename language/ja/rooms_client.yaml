@@ -29,3 +29,10 @@ ownerHidden: "???"
 prevPageButton: "前のページ"
 # next page button
 nextPageButton: "次のページ"
+
+# link to other pages / modes.
+link:
+  newRoom: "新しいルームを作成"
+  new: "稼働中の部屋一覧"
+  old: "古い部屋一覧"
+  log: "終了した部屋一覧"

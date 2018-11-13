@@ -1,10 +1,15 @@
 import styled from 'styled-components';
+import { phone } from './media';
 
 /**
  * Normal button which has proper margin around.
  */
 export const NormalButton = styled.button`
-  margin: 0.8em;
+  margin: 0.4em;
+
+  ${phone`
+    margin: 0.8em;
+  `};
 `;
 
 /**
