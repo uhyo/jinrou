@@ -53,6 +53,7 @@ export const NavLinks = styled.p`
  */
 export const RoomListWrapper = styled.div`
   width: fit-content;
+  padding-bottom: 0.3em;
 
   ${phone`
     width: 100%;
@@ -70,6 +71,9 @@ export const RoomWrapper = styled.div`
   margin: 0.3em 0;
   padding: 0.3em 0.8em;
   box-shadow: 3px 3px 6px #888888;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: baseline;
 `;
 
 /**
@@ -77,8 +81,8 @@ export const RoomWrapper = styled.div`
  * @package
  */
 export const RoomName = styled.a`
+  flex: 100% 0 0;
   display: block;
-  margin: 0 0.2em 0.2em 0;
   word-break: break-all;
   font-size: 1.1em;
   text-decoration: none;
@@ -92,18 +96,41 @@ export const RoomName = styled.a`
     width: 100%;
     height: 100%;
   }
+
+  ${phone`
+    flex: auto 0 1;
+  `};
 `;
 
 /**
  * Status texts.
  * @package
  */
-export const Status = styled.div`
+export const StatusLine = styled.div`
+  flex: 100% 0 0;
   display: flex;
   flex-flow: row wrap;
   margin: 0.2em 0 0 0;
   font-size: 0.9em;
   color: #666666;
+  line-height: 1.1;
+`;
+
+/**
+ * Room status.
+ */
+export const RoomStatusLine = styled(StatusLine)`
+  ${phone`
+    flex: auto 1 1;
+  `};
+`;
+
+/**
+ * Owner info.
+ */
+export const OwnerStatusLine = styled(StatusLine)`
+  ${phone`
+  `};
 `;
 
 /**

@@ -2,7 +2,7 @@ import { Room, RoomListMode } from './defs';
 import {
   RoomWrapper,
   RoomName,
-  Status,
+  StatusLine,
   roomStatus,
   Locked,
   HasGM,
@@ -10,6 +10,8 @@ import {
   RoomOpenTime,
   Comment,
   RoomOwner,
+  RoomStatusLine,
+  OwnerStatusLine,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
@@ -72,7 +74,7 @@ function RoomStatus({
 
   return (
     <>
-      <Status>
+      <RoomStatusLine>
         <RS>
           {t(`status.${mode}`)} ({t('playerNumber', { count: players.length })}{' '}
           / {t('playerNumber', { count: number })})
@@ -107,8 +109,8 @@ function RoomStatus({
             {t('game_client:roominfo.blindComplete')}
           </Blind>
         ) : null}
-      </Status>
-      <Status>
+      </RoomStatusLine>
+      <OwnerStatusLine>
         <RoomOwner>
           {t('ownerPrefix')}
           {owner != null ? (
@@ -117,11 +119,11 @@ function RoomStatus({
             t('ownerHidden')
           )}
         </RoomOwner>
-      </Status>
-      <Status>
+      </OwnerStatusLine>
+      <StatusLine>
         <RoomOpenTime>{new Date(made).toLocaleString()}</RoomOpenTime>
         <Comment>{comment}</Comment>
-      </Status>
+      </StatusLine>
     </>
   );
 }
