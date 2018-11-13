@@ -35,7 +35,7 @@ export class RoomListStore {
    */
   @computed
   get prevAvailable(): boolean {
-    return !this.loading || this.page > 0;
+    return !this.loading && this.page > 0;
   }
   /**
    * Whether next page is available.
