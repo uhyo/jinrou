@@ -21,6 +21,9 @@ exports.start=(query={})->
             if page < 0
               page = 0
             reqRpc()
+            Index.app.pushState location.pathname, {
+              page: page
+            }
         }
         prooms.then (rooms)->
           rooms_view.store.setRooms rooms
