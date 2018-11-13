@@ -52,3 +52,7 @@ export interface Room {
    */
   gm: boolean;
 }
+/**
+ * mode fo roomlist.
+ */
+export type RoomListMode = '' | 'old' | 'log' | 'my';

@@ -27,7 +27,7 @@ export interface IPropRoomList {
 export class RoomList extends React.Component<IPropRoomList, {}> {
   public render() {
     const { i18n, store } = this.props;
-    const { rooms, prevAvailable, nextAvailable } = store;
+    const { rooms, prevAvailable, nextAvailable, mode } = store;
     return (
       <I18nProvider i18n={i18n}>
         <Wrapper>
@@ -54,7 +54,7 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
           )}
           <RoomListWrapper>
             {rooms.map(room => (
-              <Room key={room.id} room={room} />
+              <Room key={room.id} room={room} listMode={mode} />
             ))}
           </RoomListWrapper>
         </Wrapper>

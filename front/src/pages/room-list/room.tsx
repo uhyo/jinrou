@@ -1,4 +1,4 @@
-import { Room } from './defs';
+import { Room, RoomListMode } from './defs';
 import {
   RoomWrapper,
   RoomName,
@@ -19,7 +19,13 @@ import { FontAwesomeIcon } from '../../util/icon';
 /**
  * Component to show one room.
  */
-export function Room({ room }: { room: Room }) {
+export function Room({
+  room,
+  listMode,
+}: {
+  room: Room;
+  listMode: RoomListMode;
+}) {
   const { id, name } = room;
 
   return (
@@ -29,7 +35,7 @@ export function Room({ room }: { room: Room }) {
           {() => (
             <RoomWrapper>
               <RoomName href={`/room/${id}`}>{name}</RoomName>
-              <RoomStatus room={room} t={t} />
+              <RoomStatus room={room} listMode={listMode} t={t} />
             </RoomWrapper>
           )}
         </Observer>
@@ -41,7 +47,15 @@ export function Room({ room }: { room: Room }) {
 /**
  * Show room status.
  */
-function RoomStatus({ room, t }: { room: Room; t: TranslationFunction }) {
+function RoomStatus({
+  room,
+  listMode,
+  t,
+}: {
+  room: Room;
+  listMode: RoomListMode;
+  t: TranslationFunction;
+}) {
   const {
     mode,
     needpassword,
@@ -64,10 +78,17 @@ function RoomStatus({ room, t }: { room: Room; t: TranslationFunction }) {
           / {t('playerNumber', { count: number })})
         </RS>
         {needpassword ? (
-          <Locked>
-            <FontAwesomeIcon icon="lock" />
-            {t('game_client:roominfo.password')}
-          </Locked>
+          listMode === 'old' || listMode === 'log' || listMode === 'my' ? (
+            // lock is outdated.
+            <Locked title={t('game_client:roominfo.password')}>
+              <FontAwesomeIcon icon="unlock" />
+            </Locked>
+          ) : (
+            <Locked>
+              <FontAwesomeIcon icon="lock" />
+              {t('game_client:roominfo.password')}
+            </Locked>
+          )
         ) : null}
         {gm ? (
           <HasGM>

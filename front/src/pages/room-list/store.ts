@@ -1,12 +1,14 @@
 import { observable, action, computed } from 'mobx';
-import { Room } from './defs';
+import { Room, RoomListMode } from './defs';
 
 /**
  * States of room list page.
  * @package
  */
 export class RoomListStore {
-  constructor(private pageNumber: number) {}
+  constructor(private pageNumber: number, mode: RoomListMode) {
+    this.mode = mode;
+  }
   /**
    * List of rooms.
    */
@@ -17,6 +19,11 @@ export class RoomListStore {
    */
   @observable
   public page: number = 0;
+  /**
+   * Current mode of list.
+   */
+  @observable
+  public mode: RoomListMode;
 
   /**
    * Whether previous page is available.

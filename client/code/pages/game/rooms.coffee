@@ -15,6 +15,7 @@ exports.start=(query={})->
           i18n: i18n
           node: $("#rooms-app").get 0
           pageNumber: 10
+          listMode: mode ? ''
           onPageMove: (dist)->
             page += dist
             if page < 0
