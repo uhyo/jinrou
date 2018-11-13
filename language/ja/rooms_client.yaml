@@ -24,3 +24,8 @@ playerNumber: "{{count}}人"
 ownerPrefix: "オーナー："
 # hidden owner name
 ownerHidden: "???"
+
+# previous page button
+prevPageButton: "前のページ"
+# next page button
+nextPageButton: "次のページ"

@@ -5,31 +5,68 @@ import { RoomListStore } from './store';
 import { observer } from 'mobx-react';
 import { RoomListWrapper, Wrapper } from './elements';
 import { Room } from './room';
+import { NormalButton } from '../../common/button';
+import { bind } from 'bind-decorator';
 
 export interface IPropRoomList {
+  /**
+   * i18next instance.
+   */
   i18n: i18n;
+  /**
+   * store.
+   */
   store: RoomListStore;
+  /**
+   * Page move event.
+   */
+  onPageMove: (dist: number) => void;
 }
 
 @observer
 export class RoomList extends React.Component<IPropRoomList, {}> {
   public render() {
     const { i18n, store } = this.props;
-    console.log(store.rooms.length);
+    const { rooms, prevAvailable, nextAvailable } = store;
     return (
       <I18nProvider i18n={i18n}>
         <Wrapper>
           <h1>{i18n.t('rooms_client:title')}</h1>
-          {store.rooms.length === 0 ? (
+          {rooms.length === 0 ? (
             <p>{i18n.t('rooms_client:noRoom')}</p>
-          ) : null}
+          ) : (
+            <>
+              <p>
+                <NormalButton
+                  disabled={!prevAvailable}
+                  onClick={this.handlePrevClick}
+                >
+                  {i18n.t('rooms_client:prevPageButton')}
+                </NormalButton>
+                <NormalButton
+                  disabled={!nextAvailable}
+                  onClick={this.handleNextClick}
+                >
+                  {i18n.t('rooms_client:nextPageButton')}
+                </NormalButton>
+              </p>
+            </>
+          )}
           <RoomListWrapper>
-            {store.rooms.map(room => (
+            {rooms.map(room => (
               <Room key={room.id} room={room} />
             ))}
           </RoomListWrapper>
         </Wrapper>
       </I18nProvider>
     );
+  }
+  @bind
+  private handlePrevClick() {
+    this.props.onPageMove(-1);
+  }
+  @bind
+  private handleNextClick() {
+    this.props.onPageMove(1);
   }
 }

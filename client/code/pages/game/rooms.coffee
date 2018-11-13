@@ -13,6 +13,12 @@ exports.start=(query={})->
         rooms_view = app.place {
           i18n: i18n
           node: $("#rooms-app").get 0
+          pageNumber: 10
+          onPageMove: (dist)->
+            page += dist
+            if page < 0
+              page = 0
+            reqRpc()
         }
         prooms.then (rooms)->
           rooms_view.store.setRooms rooms
@@ -21,6 +27,7 @@ exports.start=(query={})->
         reqRpc = ()->
             requestRooms(mode, page).then (rooms)->
               getroom i18n, mode, rooms
+              rooms_view.store.setRooms rooms, page
         reqRpc()
 
         $("#pager").click (je)->
