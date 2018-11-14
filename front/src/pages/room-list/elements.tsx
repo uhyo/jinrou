@@ -57,6 +57,7 @@ export const NavLinks = styled.p`
  */
 export const RoomListWrapper = styled.div`
   width: 100%;
+  max-width: 1200px;
   padding-bottom: 0.3em;
 `;
 

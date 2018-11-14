@@ -115,7 +115,11 @@ class RoomListInner extends React.Component<
   public componentDidUpdate(prevProps: this['props']) {
     const { current } = this.headerRef;
     if (!prevProps.loading && !this.props.loading && current != null) {
-      current.scrollIntoView();
+      // if header is not in the visible area, then scroll.
+      const box = current.getBoundingClientRect();
+      if (box.top < 0) {
+        current.scrollIntoView(true);
+      }
     }
   }
   @bind
