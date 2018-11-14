@@ -52,12 +52,8 @@ export const NavLinks = styled.p`
  * @package
  */
 export const RoomListWrapper = styled.div`
-  width: fit-content;
+  width: 100%;
   padding-bottom: 0.3em;
-
-  ${phone`
-    width: 100%;
-  `};
 `;
 
 /**
@@ -68,12 +64,15 @@ export const RoomWrapper = styled.div`
   position: relative;
   left: 0;
   top: 0;
-  margin: 0.3em 0;
   padding: 0.3em 0.8em;
-  box-shadow: 3px 3px 6px #888888;
   display: flex;
   flex-flow: row wrap;
   align-items: baseline;
+  border-bottom: 1px solid #999999;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
 `;
 
 /**
@@ -81,11 +80,10 @@ export const RoomWrapper = styled.div`
  * @package
  */
 export const RoomName = styled.a`
-  flex: 100% 0 0;
+  flex: auto 1 1;
   display: block;
   word-break: break-all;
   font-size: 1.1em;
-  text-decoration: none;
 
   /* expand link to whole box. */
   &::after {
@@ -107,11 +105,8 @@ export const RoomName = styled.a`
  * @package
  */
 export const StatusLine = styled.div`
-  flex: 100% 0 0;
-  display: flex;
-  flex-flow: row wrap;
-  margin: 0.2em 0 0 0;
-  font-size: 0.9em;
+  flex: auto 0 1;
+  margin: 0.1em 0 0 0;
   color: #666666;
   line-height: 1.1;
 `;
@@ -120,6 +115,15 @@ export const StatusLine = styled.div`
  * Room status.
  */
 export const RoomStatusLine = styled(StatusLine)`
+  order: -1;
+
+  ${phone`
+    order: 0;
+  `};
+`;
+
+export const RoomTypeLine = styled(StatusLine)`
+  flex: 100% 1 1;
   ${phone`
     flex: auto 1 1;
   `};
@@ -130,6 +134,19 @@ export const RoomStatusLine = styled(StatusLine)`
  */
 export const OwnerStatusLine = styled(StatusLine)`
   ${phone`
+  flex: 100% 1 1;
+  text-align: right;
+`};
+`;
+
+/**
+ * Line of room open time.
+ */
+export const RoomOpenTimeLine = styled(StatusLine)`
+  flex: auto 1 1;
+  text-align: right;
+  ${phone`
+    font-size: 0.9em;
   `};
 `;
 
@@ -188,9 +205,7 @@ export const RoomOwner = styled(StatusTip)`
 /**
  * Wrapper of room opem time
  */
-export const RoomOpenTime = styled(StatusTip)`
-  flex-basis: 22ex;
-`;
+export const RoomOpenTime = styled(StatusTip)``;
 
 /**
  * Wrapper of room commentk

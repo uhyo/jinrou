@@ -12,6 +12,8 @@ import {
   RoomOwner,
   RoomStatusLine,
   OwnerStatusLine,
+  RoomTypeLine,
+  RoomOpenTimeLine,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
@@ -72,6 +74,8 @@ function RoomStatus({
 
   const RS = roomStatus[mode];
 
+  const madeDate = new Date(made);
+
   return (
     <>
       <RoomStatusLine>
@@ -79,6 +83,8 @@ function RoomStatus({
           {t(`status.${mode}`)} ({t('playerNumber', { count: players.length })}{' '}
           / {t('playerNumber', { count: number })})
         </RS>
+      </RoomStatusLine>
+      <RoomTypeLine>
         {needpassword ? (
           listMode === 'old' || listMode === 'log' || listMode === 'my' ? (
             // lock is outdated.
@@ -109,7 +115,7 @@ function RoomStatus({
             {t('game_client:roominfo.blindComplete')}
           </Blind>
         ) : null}
-      </RoomStatusLine>
+      </RoomTypeLine>
       <OwnerStatusLine>
         <RoomOwner>
           {t('ownerPrefix')}
@@ -121,9 +127,15 @@ function RoomStatus({
         </RoomOwner>
       </OwnerStatusLine>
       <StatusLine>
-        <RoomOpenTime>{new Date(made).toLocaleString()}</RoomOpenTime>
         <Comment>{comment}</Comment>
       </StatusLine>
+      <RoomOpenTimeLine>
+        <RoomOpenTime>
+          <time dateTime={madeDate.toISOString()}>
+            {madeDate.toLocaleString()}
+          </time>
+        </RoomOpenTime>
+      </RoomOpenTimeLine>
     </>
   );
 }
