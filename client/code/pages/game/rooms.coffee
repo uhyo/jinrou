@@ -2,6 +2,7 @@ rooms_view = null
 exports.start=(query={})->
     mode = query.mode
     page = query.page || 0
+    noLinks = !!query.noLinks
     if page < 0
         page = 0
 
@@ -16,6 +17,7 @@ exports.start=(query={})->
           node: $("#rooms-app").get 0
           pageNumber: 10
           listMode: mode ? ''
+          noLinks: noLinks
           onPageMove: (dist)->
             page += dist
             if page < 0

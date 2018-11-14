@@ -20,6 +20,10 @@ export interface IPropRoomList {
    */
   store: RoomListStore;
   /**
+   * Flag to hide links to other types of room list.
+   */
+  noLinks: boolean;
+  /**
    * Page move event.
    */
   onPageMove: (dist: number) => void;
@@ -28,11 +32,12 @@ export interface IPropRoomList {
 @observer
 export class RoomList extends React.Component<IPropRoomList, {}> {
   public render() {
-    const { i18n, store, onPageMove } = this.props;
+    const { i18n, store, noLinks, onPageMove } = this.props;
     return (
       <I18nProvider i18n={i18n}>
         <RoomListInner
           i18n={i18n}
+          noLinks={noLinks}
           onPageMove={onPageMove}
           rooms={store.rooms}
           mode={store.mode}
@@ -51,23 +56,33 @@ class RoomListInner extends React.Component<
     nextAvailable: boolean;
     mode: RoomListMode;
     rooms: RoomData[];
+    noLinks: boolean;
     loading: boolean;
   },
   {}
 > {
   private headerRef = React.createRef<HTMLHeadingElement>();
   public render() {
-    const { i18n, rooms, prevAvailable, nextAvailable, mode } = this.props;
+    const {
+      i18n,
+      noLinks,
+      rooms,
+      prevAvailable,
+      nextAvailable,
+      mode,
+    } = this.props;
     return (
       <Wrapper>
         <h1 ref={this.headerRef}>{i18n.t('rooms_client:title')}</h1>
         <Navigation>
-          <NavLinks>
-            <a href="/newroom">{i18n.t('rooms_client:link.newRoom')}</a>
-            <a href="/rooms">{i18n.t('rooms_client:link.new')}</a>
-            <a href="/rooms/old">{i18n.t('rooms_client:link.old')}</a>
-            <a href="/rooms/log">{i18n.t('rooms_client:link.log')}</a>
-          </NavLinks>
+          {noLinks ? null : (
+            <NavLinks>
+              <a href="/newroom">{i18n.t('rooms_client:link.newRoom')}</a>
+              <a href="/rooms">{i18n.t('rooms_client:link.new')}</a>
+              <a href="/rooms/old">{i18n.t('rooms_client:link.old')}</a>
+              <a href="/rooms/log">{i18n.t('rooms_client:link.log')}</a>
+            </NavLinks>
+          )}
           {rooms.length === 0 ? (
             <p>{i18n.t('rooms_client:noRoom')}</p>
           ) : (

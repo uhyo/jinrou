@@ -23,6 +23,10 @@ export const Navigation = styled.div`
   z-index: 1;
 
   background-color: white;
+
+  p {
+    margin: 0;
+  }
 `;
 /**
  * Wrapper of navigation links.

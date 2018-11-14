@@ -24,6 +24,10 @@ export interface IPlaceOptions {
    */
   pageNumber: number;
   /**
+   * When enabled, links are not shown.
+   */
+  noLinks: boolean;
+  /**
    * handler of page move.
    */
   onPageMove: (dist: number) => void;
@@ -38,11 +42,19 @@ export function place({
   node,
   pageNumber,
   listMode,
+  noLinks,
   onPageMove,
 }: IPlaceOptions): IPlaceResult {
   const store = new RoomListStore(pageNumber, listMode);
 
-  const com = <RoomList i18n={i18n} store={store} onPageMove={onPageMove} />;
+  const com = (
+    <RoomList
+      i18n={i18n}
+      store={store}
+      noLinks={noLinks}
+      onPageMove={onPageMove}
+    />
+  );
 
   ReactDOM.render(com, node);
 
