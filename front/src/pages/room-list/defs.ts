@@ -51,8 +51,23 @@ export interface Room {
    * whether this room has gm.
    */
   gm: boolean;
+  /**
+   * Additional info which is available in 'my' mode.
+   */
+  gameinfo?: GameInfo;
 }
 /**
  * mode fo roomlist.
  */
 export type RoomListMode = '' | 'old' | 'log' | 'my';
+
+/**
+ * Additional game information.
+ */
+export interface GameInfo {
+  /**
+   * ID of my job.
+   */
+  job: string;
+  subtype: 'win' | 'lose' | 'draw' | 'gm' | 'helper' | null;
+}

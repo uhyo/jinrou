@@ -7,35 +7,38 @@ exports.start=(query={})->
         page = 0
 
     pi18n = JinrouFront.loadI18n()
-      .then((i18n)-> i18n.getI18nFor())
+        .then((i18n)-> i18n.getI18nFor())
     papp = JinrouFront.loadRoomList()
     prooms = requestRooms mode, page
 
     Promise.all([pi18n, papp]).then ([i18n, app])->
         rooms_view = app.place {
-          i18n: i18n
-          node: $("#rooms-app").get 0
-          pageNumber: 10
-          listMode: mode ? ''
-          noLinks: noLinks
-          onPageMove: (dist)->
-            page += dist
-            if page < 0
-              page = 0
-            reqRpc()
-            Index.app.pushState location.pathname, {
-              page: page
-            }
+            i18n: i18n
+            node: $("#rooms-app").get 0
+            pageNumber: 10
+            listMode: mode ? ''
+            noLinks: noLinks
+            onPageMove: (dist)->
+                page += dist
+                if page < 0
+                    page = 0
+                reqRpc()
+                Index.app.pushState location.pathname, {
+                    page: page
+                }
+            getJobColor: (job)->
+                jobobj = Shared.game.getjobobj job
+                jobobj?.color
         }
         prooms.then (rooms)->
-          getroom i18n, mode, rooms
-          rooms_view.store.setRooms rooms
+            getroom i18n, mode, rooms
+            rooms_view.store.setRooms rooms
         getroom=Index.game.rooms.getroom
 
         reqRpc = ()->
             requestRooms(mode, page).then (rooms)->
-              getroom i18n, mode, rooms
-              rooms_view.store.setRooms rooms, page
+                getroom i18n, mode, rooms
+                rooms_view.store.setRooms rooms, page
 
         $("#pager").click (je)->
             t=je.target
@@ -52,13 +55,26 @@ exports.start=(query={})->
                 Index.app.pushState location.pathname, {
                     page: page
                 }
+
 # Request rooms and return result as Promise.
 requestRooms = (mode, page)->
-  new Promise (resolve)->
-    if mode == "my"
-      ss.rpc "game.rooms.getMyRooms", page, resolve
-    else
-      ss.rpc "game.rooms.getRooms", mode, page, resolve
+    new Promise (resolve, reject)->
+        if mode == "my"
+            ss.rpc "game.rooms.getMyRooms", page, (results)->
+                if results.error?
+                    reject results.error
+                else
+                    resolve results.map (obj)->
+                        # align with other query's object structure
+                        # (with additional properties)
+                        room = obj.room
+                        room.gameinfo = {
+                            job: obj.job
+                            subtype: obj.subtype
+                        }
+                        return room
+        else
+            ss.rpc "game.rooms.getRooms", mode, page, resolve
 
 # mode: "old","log"など
 # mode: "my"のときはi18nを渡す
@@ -71,13 +87,8 @@ exports.getroom=(i18n, mode, rooms)->
     while tb.rows.length>0
         tb.deleteRow 0
 
-    rooms.forEach (obj)->
-        # TODO myのときとそれ以外で構造が違う
-        room =
-            if mode == "my"
-                obj.room
-            else
-                obj
+    rooms.forEach (room)->
+        gameinfo = room.gameinfo
 
         tr=tb.insertRow -1
         if room.needpassword
@@ -114,19 +125,19 @@ exports.getroom=(i18n, mode, rooms)->
         if mode == "my"
             # 自分の戦績情報を入れる
             td = tr.insertCell -1
-            job = Shared.game.getjobobj obj.job
+            job = Shared.game.getjobobj gameinfo.job
             if job?
                 sq = document.createElement "span"
                 sq.style.color = job.color
                 sq.textContent = "■"
                 td.appendChild sq
-                td.appendChild document.createTextNode i18n.t "roles:jobname.#{obj.job}"
-            else if obj.job == "Helper"
+                td.appendChild document.createTextNode i18n.t "roles:jobname.#{gameinfo.job}"
+            else if gameinfo.job == "Helper"
                 td.textContent = "ヘルパー"
-            else if obj.job == "GameMaster"
+            else if gameinfo.job == "GameMaster"
                 td.textContent = "ゲームマスター"
             else
-                td.textContent = obj.job
+                td.textContent = gameinfo.job
             # 自分の名前を探してあれする
             for p in room.players
                 if p.me
@@ -134,7 +145,7 @@ exports.getroom=(i18n, mode, rooms)->
                     break
 
             td = tr.insertCell -1
-            switch obj.subtype
+            switch gameinfo.subtype
                 when "win"
                     span = document.createElement "span"
                     span.classList.add "rooms-td-win"

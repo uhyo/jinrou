@@ -134,6 +134,11 @@ export const RoomTypeLine = styled(StatusLine)`
   `};
 `;
 
+export const GameInfoLine = styled(StatusLine)`
+  flex-basis: 11em;
+  padding-right: 1.5em;
+`;
+
 /**
  * Owner info.
  */
@@ -219,3 +224,18 @@ export const Comment = styled(StatusTip)`
   flex-shrink: 1;
   word-break: break-all;
 `;
+
+/**
+ * Wrapper of game result.
+ */
+export const gameResult = {
+  win: styled.b`
+    color: #cc0000;
+  `,
+  lose: styled.b`
+    color: #0000dd;
+  `,
+  draw: styled.b`
+    color: #777777;
+  `,
+};

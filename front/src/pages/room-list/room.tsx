@@ -1,4 +1,4 @@
-import { Room, RoomListMode } from './defs';
+import { Room, RoomListMode, GameInfo } from './defs';
 import {
   RoomWrapper,
   RoomName,
@@ -14,11 +14,14 @@ import {
   OwnerStatusLine,
   RoomTypeLine,
   RoomOpenTimeLine,
+  GameInfoLine,
+  gameResult,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
 import { Observer } from 'mobx-react';
 import { FontAwesomeIcon } from '../../util/icon';
+import { GetJobColorConsumer } from './get-job-color';
 
 /**
  * Component to show one room.
@@ -70,6 +73,7 @@ function RoomStatus({
     made,
     comment,
     owner,
+    gameinfo,
   } = room;
 
   const RS = roomStatus[mode];
@@ -116,6 +120,11 @@ function RoomStatus({
           </Blind>
         ) : null}
       </RoomTypeLine>
+      {gameinfo != null ? (
+        <GameInfoLine>
+          <GameInfoInner t={t} gameinfo={gameinfo} />
+        </GameInfoLine>
+      ) : null}
       <OwnerStatusLine>
         <RoomOwner>
           {t('ownerPrefix')}
@@ -137,5 +146,46 @@ function RoomStatus({
         </RoomOpenTime>
       </RoomOpenTimeLine>
     </>
+  );
+}
+
+function GameInfoInner({
+  t,
+  gameinfo: { job, subtype },
+}: {
+  t: TranslationFunction;
+  gameinfo: GameInfo;
+}) {
+  return (
+    <GetJobColorConsumer>
+      {getJobColor => {
+        // result of game.
+        let result = null;
+        if (subtype === 'win' || subtype === 'lose' || subtype === 'draw') {
+          const RC = gameResult[subtype];
+          result = <RC>{t(`rooms_client:result.${subtype}`)}</RC>;
+        }
+        const jc = getJobColor(job);
+        const jobSquare =
+          jc != null ? (
+            <span
+              style={{
+                color: jc,
+              }}
+            >
+              ■
+            </span>
+          ) : null;
+        const jobName = t(`roles:jobname.${job}`);
+        return (
+          <>
+            {result}
+            {'　'}
+            {jobSquare}
+            {jobName}
+          </>
+        );
+      }}
+    </GetJobColorConsumer>
   );
 }
