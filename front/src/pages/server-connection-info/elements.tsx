@@ -35,6 +35,8 @@ export const Wrapper = withProps<{
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
 
+  z-index: 1;
+
   p {
     margin: 0.9rem 0;
   }
