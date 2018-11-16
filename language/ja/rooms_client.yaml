@@ -6,6 +6,11 @@ title: "ルーム一覧"
 # message show when no room is avaiable.
 noRoom: "まだ村がありません。"
 
+# loading message
+loading: "読み込み中"
+# error message for loading failure.
+loadFailed: "ルーム一覧を取得できませんでした。"
+
 status:
   # room is waiting.
   waiting: "募集中"

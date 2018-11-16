@@ -41,7 +41,7 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
           onPageMove={onPageMove}
           rooms={store.rooms}
           mode={store.mode}
-          loading={store.loading}
+          loadingState={store.state}
           prevAvailable={store.prevAvailable}
           nextAvailable={store.nextAvailable}
         />
@@ -57,7 +57,7 @@ class RoomListInner extends React.Component<
     mode: RoomListMode;
     rooms: RoomData[];
     noLinks: boolean;
-    loading: boolean;
+    loadingState: RoomListStore['state'];
   },
   {}
 > {
@@ -70,6 +70,7 @@ class RoomListInner extends React.Component<
       prevAvailable,
       nextAvailable,
       mode,
+      loadingState,
     } = this.props;
     return (
       <Wrapper>
@@ -83,7 +84,11 @@ class RoomListInner extends React.Component<
               <a href="/rooms/log">{i18n.t('rooms_client:link.log')}</a>
             </NavLinks>
           )}
-          {rooms.length === 0 ? (
+          {loadingState === 'loading' ? (
+            <p>{i18n.t('rooms_client:loading')}</p>
+          ) : loadingState === 'error' ? (
+            <p>{i18n.t('rooms_client:loadFailed')}</p>
+          ) : rooms.length === 0 ? (
             <p>{i18n.t('rooms_client:noRoom')}</p>
           ) : (
             <>
@@ -114,7 +119,11 @@ class RoomListInner extends React.Component<
   }
   public componentDidUpdate(prevProps: this['props']) {
     const { current } = this.headerRef;
-    if (!prevProps.loading && !this.props.loading && current != null) {
+    if (
+      prevProps.loadingState == 'loading' &&
+      this.props.loadingState === 'loading' &&
+      current != null
+    ) {
       // if header is not in the visible area, then scroll.
       const box = current.getBoundingClientRect();
       if (box.top < 0) {
