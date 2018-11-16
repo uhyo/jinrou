@@ -120,8 +120,8 @@ class RoomListInner extends React.Component<
   public componentDidUpdate(prevProps: this['props']) {
     const { current } = this.headerRef;
     if (
-      prevProps.loadingState == 'loading' &&
-      this.props.loadingState === 'loading' &&
+      prevProps.loadingState === 'loaded' &&
+      this.props.loadingState === 'loaded' &&
       current != null
     ) {
       // if header is not in the visible area, then scroll.
