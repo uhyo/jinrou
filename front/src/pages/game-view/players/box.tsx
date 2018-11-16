@@ -50,11 +50,13 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
             <FontAwesomeIcon icon="search" />
           </span>
         </ToolIcons>
-        {flags.map(flag => (
-          <Jobname key={flag}>
-            [{t(`game_client:playerbox.flags.${flag}`)}]
+        {flags.length > 0 ? (
+          <Jobname>
+            {flags.map(flag => (
+              <div key={flag}>[{t(`game_client:playerbox.flags.${flag}`)}]</div>
+            ))}
           </Jobname>
-        ))}
+        ) : null}
         {jobname ? <Jobname>{jobname}</Jobname> : null}
         {winner != null ? (
           <Winner winner={winner}>
