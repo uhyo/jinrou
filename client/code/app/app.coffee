@@ -87,7 +87,12 @@ exports.init = ->
     # ヘルプアイコン
     $("*[data-helpicon]").live "click", (je)->
         t = je.currentTarget
-        util.message "ヘルプ", t.getAttribute 'title'
+        JinrouFront.loadDialog().then (dialog)->
+            dialog.showMessageDialog {
+                title: "ヘルプ"
+                message: t.getAttribute 'title'
+                ok: "OK"
+            }
     # メニューの開閉
     $("#menu-open-icon").click (je)->
         menu = $ "#menu"
