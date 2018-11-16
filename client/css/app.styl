@@ -140,6 +140,7 @@ body > header
     width 100vw
     height 100vh
     transition left 0.2s ease-in-out
+    z-index 20
 
     &.open
       left 0
@@ -180,6 +181,10 @@ body > header
       border-bottom 1px solid white
   #menu-open-icon
     display block
+
+// class to cancel the padding of body.
+.whole-page
+  margin-left -20px
 
 //おしらせ
 body > .notice
@@ -329,11 +334,6 @@ div.graph-area
 .lobby #users li
   display inline-block
   margin-right 1em
-
-//game
-.game
-  // cancel default margin.
-  margin-left: -20px
 
 #roomname
   margin-left: 8px

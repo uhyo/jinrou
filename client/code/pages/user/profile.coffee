@@ -221,7 +221,9 @@ exports.start=(user)->
                         if result?.error?
                             util.message "エラー",result.error
 
-    Index.game.rooms.start()    # ルーム一覧を表示してもらう
+    Index.game.rooms.start({
+        noLinks: true
+    })    # ルーム一覧を表示してもらう
     # お知らせ一覧を取得する
     ss.rpc "user.getNews",(docs)->
         if docs.error?
@@ -243,3 +245,4 @@ exports.start=(user)->
             $("#newNewsNotice").remove()
 
 exports.end=->
+    Index.game.rooms.end()

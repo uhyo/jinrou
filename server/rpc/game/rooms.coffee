@@ -16,7 +16,7 @@ room: {
   comment: String
   mode: "waiting"/"playing"/"end"
   made: Time(Number)(作成された日時）
-  blind:""/"hide"/"complete"
+  blind:""/"yes"/"complete"
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
   gm: Booelan(trueならオーナーGM)

@@ -1,6 +1,20 @@
 import styled from 'styled-components';
-import * as React from 'react';
+import { phone } from './media';
 
+/**
+ * Normal button which has proper margin around.
+ */
+export const NormalButton = styled.button`
+  margin: 0.4em;
+
+  ${phone`
+    margin: 0.8em;
+  `};
+`;
+
+/**
+ * Button which stretches to whole width.
+ */
 export const WideButton = styled.button`
   appearance: none;
   width: -moz-available;

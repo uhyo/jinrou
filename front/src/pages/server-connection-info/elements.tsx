@@ -2,6 +2,7 @@ import styled, { withProps } from '../../util/styled';
 import { duration } from './def';
 import { keyframes } from 'styled-components';
 import { phone, notPhone } from '../../common/media';
+import { serverConnectionZIndex } from '../../common/z-index';
 
 /**
  * Box of server connection information.
@@ -34,6 +35,8 @@ export const Wrapper = withProps<{
 
   background-color: rgba(0, 0, 0, 0.8);
   color: white;
+
+  z-index: ${serverConnectionZIndex};
 
   p {
     margin: 0.9rem 0;
