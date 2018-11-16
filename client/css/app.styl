@@ -130,7 +130,7 @@ body > header
     border none
     background none
     color white
-@media (max-width: 600px)
+@media (max-width: phone-width)
   #menu
     display flex
     flex-flow column nowrap
@@ -251,11 +251,19 @@ button.link-like
 //top
 #loginform, #newentryform
   display grid
+  box-sizing border-box
   max-width 100%
   grid-template-columns minmax(auto, max-content) minmax(auto, max-content)
   grid-gap 0.15em
   p
     grid-column span 2
+
+@media (max-width: phone-width)
+  #loginform, #newentryform
+    padding-right 1em
+    input[type="text"], input[type="password"]
+      font-size 16px
+
 
 
 //user-profile
@@ -268,8 +276,6 @@ section.profile
     border-radius 3px
   p.edit:empty
     height 1em
-  form#changeprofile > fieldset
-    width 100%
   form input[type="text"],form input[type="url"]
     width 100%
   table
@@ -494,6 +500,7 @@ section.manual
     margin-top 1.4em
   h3
     margin-top 1em
+
 section.manual.long
   section
     margin-left 2em
@@ -514,6 +521,16 @@ section.jobmanual
   h1
     margin-left -1.25em
     font-size 1.6em
+
+@media (max-width: phone-width)
+  section.manual
+    ul
+      line-height 2em
+    padding-right 1em
+  section.jobmanual
+    margin-left 0.5em
+    h1
+      margin-left -0.5em
 section.castlist
   dd
     margin-left 2em

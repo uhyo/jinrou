@@ -5,10 +5,10 @@ section
   form(aciton="/")#loginform
     label(for="loginform-userid")
       | ユーザーID
-    input#loginform-userid(type="text",size="30",name="userid",pattern="\\\\w+",title="ユーザーIDは半角英数字のみ可能です",required)
+    input#loginform-userid(type="text",size="25",name="userid",pattern="\\\\w+",title="ユーザーIDは半角英数字のみ可能です",required)
     label(for="loginform-password")
       | パスワード
-    input#loginform-password(type="password",size="30",name="password",pattern="[\\\\x20-\\\\x7e]+",required,autocomplete="current-password")
+    input#loginform-password(type="password",size="25",name="password",pattern="[\\\\x20-\\\\x7e]+",required,autocomplete="current-password")
     input(type="submit",value="ログイン")
     label
       | ログイン状態を記憶
@@ -21,10 +21,10 @@ section
   form(aciton="/")#newentryform
     label(for="newentryform-userid")
       | ユーザーID
-    input#newentryform-userid(type="text",size="30",name="userid",required)
+    input#newentryform-userid(type="text",size="25",name="userid",required)
     label(for="newentryform-password")
       | パスワード
-    input#newentryform-password(type="password",size="30",name="password",required,autocomplete="new-password")
+    input#newentryform-password(type="password",size="25",name="password",required,autocomplete="new-password")
     input(type="submit",value="登録")
     p#newentryerror.error
 
