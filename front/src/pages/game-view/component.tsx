@@ -8,7 +8,7 @@ import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
 
 import { bind } from '../../util/bind';
-import { themeStore } from '../../theme';
+import { themeStore, UserTheme } from '../../theme';
 import { I18nProvider, I18n } from '../../i18n';
 
 import {
@@ -33,6 +33,9 @@ import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
 import { speakFormZIndex, ruleZIndex } from '../../common/z-index';
+import memoizeOne from 'memoize-one';
+
+type TeamColors = Record<string, string | undefined>;
 
 interface IPropGame {
   /**
@@ -58,7 +61,7 @@ interface IPropGame {
   /**
    * Color of each team.
    */
-  teamColors: Record<string, string | undefined>;
+  teamColors: TeamColors;
   /**
    * Handle a speak event.
    */
@@ -84,6 +87,13 @@ interface IPropGame {
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   private ruleElement = React.createRef<HTMLElement>();
+  /**
+   * memoized function to make theme object from user theme and colors.
+   */
+  private makeTheme = memoizeOne((user: UserTheme, teamColors: TeamColors) => ({
+    user,
+    teamColors,
+  }));
   public render() {
     const {
       i18n,
@@ -111,10 +121,7 @@ export class Game extends React.Component<IPropGame, {}> {
     } = store;
 
     const styleMode = styleModeOf(roleInfo, gameInfo);
-    const theme = {
-      user: themeStore.themeObject,
-      teamColors,
-    };
+    const theme = this.makeTheme(themeStore.themeObject, teamColors);
 
     return (
       <ThemeProvider theme={theme} mode={styleMode}>
