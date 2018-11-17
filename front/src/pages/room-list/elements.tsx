@@ -81,6 +81,20 @@ export const RoomWrapper = styled.div`
 `;
 
 /**
+ * Room number.
+ * @package
+ */
+export const RoomNumber = styled.span`
+  position: absolute;
+  top: 2ex;
+  left: -2.5ex;
+  width: 2.5ex;
+  color: #666666;
+  font-size: 0.8em;
+  text-align: right;
+`;
+
+/**
  * Name of room.
  * @package
  */

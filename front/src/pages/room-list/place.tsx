@@ -29,6 +29,10 @@ export interface IPlaceOptions {
    */
   noLinks: boolean;
   /**
+   * Start number of index of rooms.
+   */
+  indexStart: number;
+  /**
    * handler of page move.
    */
   onPageMove: (dist: number) => void;

@@ -44,6 +44,7 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
           loadingState={store.state}
           prevAvailable={store.prevAvailable}
           nextAvailable={store.nextAvailable}
+          indexStart={store.indexStart}
         />
       </I18nProvider>
     );
@@ -58,6 +59,7 @@ class RoomListInner extends React.Component<
     rooms: RoomData[];
     noLinks: boolean;
     loadingState: RoomListStore['state'];
+    indexStart: number;
   },
   {}
 > {
@@ -66,6 +68,7 @@ class RoomListInner extends React.Component<
     const {
       i18n,
       noLinks,
+      indexStart,
       rooms,
       prevAvailable,
       nextAvailable,
@@ -110,8 +113,13 @@ class RoomListInner extends React.Component<
           )}
         </Navigation>
         <RoomListWrapper>
-          {rooms.map(room => (
-            <Room key={room.id} room={room} listMode={mode} />
+          {rooms.map((room, i) => (
+            <Room
+              key={room.id}
+              room={room}
+              listMode={mode}
+              index={indexStart + i}
+            />
           ))}
         </RoomListWrapper>
       </Wrapper>

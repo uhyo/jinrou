@@ -16,6 +16,7 @@ exports.start=(query={})->
             i18n: i18n
             node: $("#rooms-app").get 0
             pageNumber: 10
+            indexStart: page * 10 + 1
             listMode: mode ? ''
             noLinks: noLinks
             onPageMove: (dist)->
@@ -31,7 +32,7 @@ exports.start=(query={})->
                 jobobj?.color
         }
         prooms.then (rooms)->
-            rooms_view.store.setRooms rooms
+            rooms_view.store.setRooms rooms, page
 
         reqRpc = ()->
             requestRooms(mode, page).then((rooms)->

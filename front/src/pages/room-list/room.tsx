@@ -16,6 +16,7 @@ import {
   RoomOpenTimeLine,
   GameInfoLine,
   gameResult,
+  RoomNumber,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
@@ -29,9 +30,11 @@ import { GetJobColorConsumer } from './get-job-color';
 export function Room({
   room,
   listMode,
+  index,
 }: {
   room: Room;
   listMode: RoomListMode;
+  index: number;
 }) {
   const { id, name } = room;
 
@@ -41,6 +44,7 @@ export function Room({
         <Observer>
           {() => (
             <RoomWrapper>
+              <RoomNumber>{index}</RoomNumber>
               <RoomName href={`/room/${id}`}>{name}</RoomName>
               <RoomStatus room={room} listMode={listMode} t={t} />
             </RoomWrapper>

@@ -46,6 +46,14 @@ export class RoomListStore {
     return this.state === 'loaded' && this.rooms.length >= this.pageNumber;
   }
   /**
+   * Start of page index.
+   */
+  @computed
+  get indexStart(): number {
+    return this.page * this.pageNumber + 1;
+  }
+
+  /**
    * Set rooms and page
    */
   @action
