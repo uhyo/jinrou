@@ -8,7 +8,7 @@ import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
 
 import { bind } from '../../util/bind';
-import { themeStore } from '../../theme';
+import { themeStore, UserTheme } from '../../theme';
 import { I18nProvider, I18n } from '../../i18n';
 
 import {
@@ -33,6 +33,9 @@ import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
 import { speakFormZIndex, ruleZIndex } from '../../common/z-index';
+import memoizeOne from 'memoize-one';
+
+type TeamColors = Record<string, string | undefined>;
 
 interface IPropGame {
   /**
@@ -58,7 +61,7 @@ interface IPropGame {
   /**
    * Color of each team.
    */
-  teamColors: Record<string, string | undefined>;
+  teamColors: TeamColors;
   /**
    * Handle a speak event.
    */
@@ -84,6 +87,13 @@ interface IPropGame {
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   private ruleElement = React.createRef<HTMLElement>();
+  /**
+   * memoized function to make theme object from user theme and colors.
+   */
+  private makeTheme = memoizeOne((user: UserTheme, teamColors: TeamColors) => ({
+    user,
+    teamColors,
+  }));
   public render() {
     const {
       i18n,
@@ -107,13 +117,11 @@ export class Game extends React.Component<IPropGame, {}> {
       players,
       roomControls,
       logPickup,
+      speakFocus,
     } = store;
 
     const styleMode = styleModeOf(roleInfo, gameInfo);
-    const theme = {
-      user: themeStore.themeObject,
-      teamColors,
-    };
+    const theme = this.makeTheme(themeStore.themeObject, teamColors);
 
     return (
       <ThemeProvider theme={theme} mode={styleMode}>
@@ -140,7 +148,7 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            <JobInfoPart>
+            <JobInfoPart speakFocus={speakFocus}>
               <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
             </JobInfoPart>
             {/* Open forms. */}
@@ -163,6 +171,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 onRefuseRevival={this.handleRefuseRevival}
                 onRuleOpen={this.handleRuleOpen}
                 onWillChange={onWillChange}
+                onFocus={this.handleSpeakFocus}
                 {...speakState}
               />
             </SpeakFormPart>
@@ -312,6 +321,15 @@ export class Game extends React.Component<IPropGame, {}> {
   protected handleResetLogPickup(): void {
     this.props.store.update({ logPickup: null });
   }
+  /**
+   * Handle a focus change of speak input.
+   */
+  @bind
+  protected handleSpeakFocus(focus: boolean): void {
+    this.props.store.update({
+      speakFocus: focus,
+    });
+  }
 }
 
 /**
@@ -375,11 +393,17 @@ const SpeakFormPart = styled(RoomHeaderPart)`
 /**
  * Wrapper of jobinfo form.
  */
-const JobInfoPart = styled(RoomHeaderPart)`
+const JobInfoPart = withProps<{
+  /**
+   * Whether speak focus has a focus.
+   */
+  speakFocus: boolean;
+}>()(styled(RoomHeaderPart))`
   ${phone`
     position: sticky;
     left: 0;
     top: 0;
+    ${({ speakFocus }) => (speakFocus ? 'opacity: 0.15;' : '')}
   `};
 `;
 

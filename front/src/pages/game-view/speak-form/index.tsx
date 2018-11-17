@@ -76,6 +76,10 @@ export interface IPropSpeakForm extends SpeakState {
    * Change the will.
    */
   onWillChange: (will: string) => void;
+  /**
+   * Focus/unfocus the speak input.
+   */
+  onFocus: (focus: boolean) => void;
 }
 /**
  * Speaking controls.
@@ -140,6 +144,8 @@ export class SpeakForm extends React.PureComponent<
                           autoComplete="off"
                           defaultValue={this.commentString}
                           onChange={this.handleCommentChange}
+                          onFocus={this.handleFocus}
+                          onBlur={this.handleBlur}
                         />
                       ) : (
                         <SpeakInput
@@ -151,6 +157,8 @@ export class SpeakForm extends React.PureComponent<
                           defaultValue={this.commentString}
                           onChange={this.handleCommentChange}
                           onKeyDown={this.handleKeyDownComment}
+                          onFocus={this.handleFocus}
+                          onBlur={this.handleBlur}
                         />
                       )}
                     </SpeakInputArea>
@@ -399,5 +407,19 @@ export class SpeakForm extends React.PureComponent<
     this.setState(s => ({
       additionalControlsShown: !s.additionalControlsShown,
     }));
+  }
+  /**
+   * Handle a focus of speak input.
+   */
+  @bind
+  protected handleFocus(): void {
+    this.props.onFocus(true);
+  }
+  /**
+   * Handle a blur of speak input.
+   */
+  @bind
+  protected handleBlur(): void {
+    this.props.onFocus(false);
   }
 }

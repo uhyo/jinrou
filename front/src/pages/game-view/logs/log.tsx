@@ -6,6 +6,7 @@ import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
 import { phone } from '../../../common/media';
 import { Theme } from '../../../theme';
+import memoizeOne from 'memoize-one';
 
 export interface IPropOneLog {
   /**
@@ -36,6 +37,45 @@ export interface IPropOneLog {
  * A component which shows one log.
  */
 class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
+  /**
+   * Function to memoize high-cost autolink computation
+   */
+  private autolink = memoizeOne((comment: string) =>
+    autolink(
+      comment,
+      [
+        'url',
+        {
+          pattern() {
+            return /#(\d+)/g;
+          },
+          transform(_1, _2, num) {
+            return {
+              href: `/room/${num}`,
+            };
+          },
+        },
+      ],
+      {
+        url: {
+          attributes: {
+            rel: 'external',
+          },
+          text: url => {
+            // Convert any room URL to room number syntax.
+            const orig = location.origin;
+            if (url.slice(0, orig.length) === orig) {
+              const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
+              if (r != null) {
+                return `#${r[1]}`;
+              }
+            }
+            return url;
+          },
+        },
+      },
+    ),
+  );
   public render() {
     const { t, theme, logClass, log, rule, icons } = this.props;
     if (log.mode === 'voteresult') {
@@ -66,7 +106,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </LogTable>
           </Main>
-          <Time noName time={new Date(log.time)} logStyle={logStyle} />
+          <Time
+            noName
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
         </>
       );
     } else if (log.mode === 'probability_table') {
@@ -133,41 +178,8 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
-      const comment = autolink(
-        // server's bug? comment may actually be null
-        log.comment || '',
-        [
-          'url',
-          {
-            pattern() {
-              return /#(\d+)/g;
-            },
-            transform(_1, _2, num) {
-              return {
-                href: `/room/${num}`,
-              };
-            },
-          },
-        ],
-        {
-          url: {
-            attributes: {
-              rel: 'external',
-            },
-            text: url => {
-              // Convert any room URL to room number syntax.
-              const orig = location.origin;
-              if (url.slice(0, orig.length) === orig) {
-                const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
-                if (r != null) {
-                  return `#${r[1]}`;
-                }
-              }
-              return url;
-            },
-          },
-        },
-      );
+      // Server's bug? comment may actually be null
+      const comment = this.autolink(log.comment || '');
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
@@ -195,7 +207,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             {...props}
             dangerouslySetInnerHTML={{ __html: comment }}
           />
-          <Time noName={noName} time={new Date(log.time)} logStyle={logStyle} />
+          <Time
+            noName={noName}
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
         </>
       );
     }
@@ -454,7 +471,8 @@ const LogPart = withProps<{
       : 'none'};
   font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
 
-  line-height: var(--base-font-size);
+  line-height: 1;
+  word-break: break-all;
   padding: 1px 0;
   font-size: var(--base-font-size);
 `;
@@ -494,7 +512,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
     ${({ noName }) => (noName ? 'display: none;' : '')}
     max-width: none;
     text-align: left;
-    font-size: small;
+    font-size: calc(0.75 * var(--base-font-size));
     border-bottom: none;
   `};
 `;
@@ -504,6 +522,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
  */
 const Main = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 3;
+  line-height: var(--base-font-size);
   ${phone`
     grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
     ${({ noName }) => (noName ? '' : 'border-top: none;')}
@@ -536,7 +555,7 @@ interface IPropTime extends IPropLogPart {
   className?: string;
   logStyle: LogStyle;
 }
-const TimeInner = ({ time, className, logStyle }: IPropTime) => {
+const TimeInner = ({ time, noName, className, logStyle }: IPropTime) => {
   const year = time.getFullYear();
   const month = ('0' + (time.getMonth() + 1)).slice(-2);
   const day = ('0' + time.getDate()).slice(-2);
@@ -546,7 +565,7 @@ const TimeInner = ({ time, className, logStyle }: IPropTime) => {
   const str = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
   return (
     <LogPart logStyle={logStyle} className={className}>
-      <time className={className}>{str}</time>
+      <time>{str}</time>
     </LogPart>
   );
 };
@@ -559,11 +578,11 @@ const Time = styled(TimeInner)`
   white-space: nowrap;
   font-size: xx-small;
   padding-left: 2px;
-  line-height: 15px;
   text-align: right;
   padding-right: 1ex;
 
-  ${phone`
+  ${({ noName }) =>
+    noName ? 'line-height: var(--base-font-size);' : ''} ${phone`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
@@ -575,6 +594,6 @@ const Time = styled(TimeInner)`
  */
 const LogTable = styled.table`
   ${phone`
-    font-size: 0.88em;
+    font-size: calc(0.88 * var(--base-font-size));
   `};
 `;

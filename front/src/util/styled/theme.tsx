@@ -5,6 +5,7 @@ import {
   computeGlobalStyle,
 } from '../../theme';
 import * as React from 'react';
+import memoizeOne from 'memoize-one';
 
 /**
  * Make a Theme provider which does some precomputation.
@@ -17,12 +18,20 @@ export function makeThemeProvider(
   theme: UserProvidedTheme;
   mode: GlobalStyleMode;
 }> {
+  /**
+   * memoized function to make theme object.
+   */
+  const themeMaker = memoizeOne(
+    (theme: UserProvidedTheme, mode: GlobalStyleMode) => {
+      const globalStyle = computeGlobalStyle(theme.user, mode);
+      return {
+        ...theme,
+        globalStyle,
+      };
+    },
+  );
   return ({ theme, mode, children }) => {
-    const globalStyle = computeGlobalStyle(theme.user, mode);
-    const internalTheme = {
-      ...theme,
-      globalStyle,
-    };
+    const internalTheme = themeMaker(theme, mode);
     return (
       <InternalThemeProvider theme={internalTheme}>
         {children}

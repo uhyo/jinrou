@@ -30,6 +30,7 @@ export interface UpdateQuery {
   timer?: TimerInfo;
   roomControls?: RoomControlInfo | null;
   logPickup?: string | null;
+  speakFocus?: boolean;
 }
 /**
  * Store of current game state.
@@ -48,19 +49,23 @@ export class GameStore {
   };
   /**
    */
-  @observable.shallow roomControls: RoomControlInfo | null = null;
+  @observable.shallow
+  roomControls: RoomControlInfo | null = null;
   /**
    * Name of your role.
    */
-  @observable.shallow roleInfo: RoleInfo | null = null;
+  @observable.shallow
+  roleInfo: RoleInfo | null = null;
   /**
    * List of players.
    */
-  @observable players: PlayerInfo[] = [];
+  @observable
+  players: PlayerInfo[] = [];
   /**
    * Currently picked up user in logs.
    */
-  @observable logPickup: string | null = null;
+  @observable
+  logPickup: string | null = null;
   /**
    * State of speaking forms.
    */
@@ -81,15 +86,23 @@ export class GameStore {
   /**
    * URL of icons of users.
    */
-  @observable.shallow icons: Record<string, string | undefined> = {};
+  @observable.shallow
+  icons: Record<string, string | undefined> = {};
   /**
    * Current rule.
    */
-  @observable rule: Rule | undefined = undefined;
+  @observable
+  rule: Rule | undefined = undefined;
   /**
    * Whether the rule information is open.
    */
-  @observable ruleOpen: boolean = false;
+  @observable
+  ruleOpen: boolean = false;
+  /**
+   * Whether the speak input has focus.
+   */
+  @observable
+  speakFocus: boolean = false;
   /**
    * State of timer.
    */
@@ -120,6 +133,7 @@ export class GameStore {
     timer,
     roomControls,
     logPickup,
+    speakFocus,
   }: UpdateQuery): void {
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
@@ -156,6 +170,9 @@ export class GameStore {
     }
     if (logPickup !== undefined) {
       this.logPickup = logPickup;
+    }
+    if (speakFocus != null) {
+      this.speakFocus = speakFocus;
     }
     // Check consistency.
     if (roleInfo != null) {

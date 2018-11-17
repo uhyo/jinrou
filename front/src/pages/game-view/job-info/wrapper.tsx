@@ -35,11 +35,16 @@ const WrapperInner: React.StatelessComponent<{
   return (
     <WrapperElement borderColor={borderColor} backColor={backColor}>
       {team != null ? (
-        <WrapperHeader teamColor={teamColor} textColor={teamTextColor}>
-          {teamString}
+        <WrapperHeader
+          slim={slim}
+          teamColor={teamColor}
+          textColor={teamTextColor}
+        >
+          {/* in slim mode, team string is hidden. */}
+          {slim ? children : teamString}
         </WrapperHeader>
       ) : null}
-      <Content slim={slim}>{children}</Content>
+      {team == null || !slim ? <Content slim={slim}>{children}</Content> : null}
     </WrapperElement>
   );
 };

@@ -145,7 +145,7 @@ const LogWrapper = withProps<{
     // XXX safer solution?
     logPickup != null
       ? css`
-    .${logClass}:not([data-userid="${logPickup}"]) > * {
+    .${logClass}:not([data-userid="${logPickup}"]) {
       opacity: 0.3;
     }
   `
@@ -158,7 +158,7 @@ const LogWrapper = withProps<{
       1fr
       auto;
     grid-auto-flow: row dense;
-    --base-font-size: 0.9rem;
+    --base-font-size: 0.88rem;
   `}
 
 `;

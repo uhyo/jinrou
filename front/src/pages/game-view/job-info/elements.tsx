@@ -25,12 +25,21 @@ export const WrapperElement = withProps<{
 export const WrapperHeader = withProps<{
   teamColor: Color;
   textColor: Color;
+  slim: boolean;
 }>()(styled.div)`
   padding: 0.1em;
   background: linear-gradient(to right, ${props =>
     props.teamColor.string()}, ${props => props.teamColor.fade(0.8).string()});
 
-  font-size: 85%;
+  ${({ slim }) =>
+    slim
+      ? `
+    display: flex;
+    flex-flow: column nowrap;
+  `
+      : `
+    font-size: 85%;
+  `}
   color: ${props => props.textColor.string()};
 `;
 
@@ -51,6 +60,7 @@ export const Content = withProps<{
   }
   ${phone`
     flex-flow: column nowrap;
+    font-size: 0.95em;
   `};
 `;
 
@@ -70,7 +80,7 @@ export const GameInfoPart = styled.div`
   align-self: flex-end;
   padding-left: 4px;
 
-  font-size: 0.9em;
+  font-size: 0.95em;
   ${notPhone`
     &:not(:first-child) {
       border-left: 1px dashed var(--border-color);
@@ -83,6 +93,7 @@ export const GameInfoPart = styled.div`
 
     p {
       margin: 0 0.5em;
+      line-height: 1.2;
     }
   `};
 `;

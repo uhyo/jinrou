@@ -7,6 +7,7 @@ import * as React from 'react';
  * @package
  */
 export const MainForm = styled.form`
+  line-height: 1;
   ${phone`
     display: grid;
     grid-template: "button  input    speakbutton"

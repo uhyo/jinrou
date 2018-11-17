@@ -59,6 +59,7 @@ const NoAppearanceButton = styled.button`
   appearance: none;
   background: none;
   border: none;
+  margin: 0;
   padding: 0;
   color: inherit;
 `;
