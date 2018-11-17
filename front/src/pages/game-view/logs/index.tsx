@@ -150,12 +150,15 @@ const LogWrapper = withProps<{
     }
   `
       : ''}
+
+  --base-font-size: 1rem;
   ${phone`
     grid-template-columns:
       minmax(8px, max-content)
       1fr
       auto;
     grid-auto-flow: row dense;
+    --base-font-size: 0.9rem;
   `}
 
 `;

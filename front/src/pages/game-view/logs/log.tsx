@@ -46,7 +46,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           <Icon noName logStyle={logStyle} className={logClass} />
           <Name noName logStyle={logStyle} className={logClass} />
           <Main noName logStyle={logStyle} className={logClass}>
-            <table>
+            <LogTable>
               {/* Vote result caption */}
               <caption>{t('log.voteResult.caption')}</caption>
               <tbody>
@@ -64,7 +64,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
                   );
                 })}
               </tbody>
-            </table>
+            </LogTable>
           </Main>
           <Time noName time={new Date(log.time)} logStyle={logStyle} />
         </>
@@ -77,7 +77,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           <Icon noName logStyle={logStyle} className={logClass} />
           <Name noName logStyle={logStyle} className={logClass} />
           <Main noName logStyle={logStyle} className={logClass}>
-            <table>
+            <LogTable>
               {/* Probability table caption */}
               <caption>{t('log.probabilityTable.caption')}</caption>
               <thead>
@@ -124,7 +124,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
                   );
                 })}
               </tbody>
-            </table>
+            </LogTable>
           </Main>
         </>
       );
@@ -453,6 +453,10 @@ const LogPart = withProps<{
       ? `1px dashed ${props.logStyle.borderColor}`
       : 'none'};
   font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
+
+  line-height: var(--base-font-size);
+  padding: 1px 0;
+  font-size: var(--base-font-size);
 `;
 
 /**
@@ -519,7 +523,11 @@ interface IPropComment {
 const Comment = withProps<IPropComment>()(styled(Main))`
   white-space: pre-wrap;
   font-size: ${({ size }) =>
-    size === 'big' ? 'larger' : size === 'small' ? 'smaller' : 'medium'};
+    size === 'big'
+      ? 'calc(1.2 * var(--base-font-size))'
+      : size === 'small'
+        ? 'calc(0.8 * var(--base-font-size))'
+        : 'var(--base-font-size)'};
     ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')}
 `;
 
@@ -559,5 +567,14 @@ const Time = styled(TimeInner)`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
+  `};
+`;
+
+/**
+ * Table for logs.
+ */
+const LogTable = styled.table`
+  ${phone`
+    font-size: 0.88em;
   `};
 `;
