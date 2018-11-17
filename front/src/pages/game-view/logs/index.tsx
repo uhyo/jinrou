@@ -145,7 +145,7 @@ const LogWrapper = withProps<{
     // XXX safer solution?
     logPickup != null
       ? css`
-    .${logClass}:not([data-userid="${logPickup}"]) > * {
+    .${logClass}:not([data-userid="${logPickup}"]) {
       opacity: 0.3;
     }
   `

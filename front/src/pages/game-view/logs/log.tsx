@@ -106,7 +106,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </LogTable>
           </Main>
-          <Time noName time={new Date(log.time)} logStyle={logStyle} />
+          <Time
+            noName
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
         </>
       );
     } else if (log.mode === 'probability_table') {
@@ -202,7 +207,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             {...props}
             dangerouslySetInnerHTML={{ __html: comment }}
           />
-          <Time noName={noName} time={new Date(log.time)} logStyle={logStyle} />
+          <Time
+            noName={noName}
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
         </>
       );
     }
