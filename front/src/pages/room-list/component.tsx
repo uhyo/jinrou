@@ -40,6 +40,7 @@ export class RoomList extends React.Component<IPropRoomList, {}> {
           noLinks={noLinks}
           onPageMove={onPageMove}
           rooms={store.rooms}
+          page={store.page}
           mode={store.mode}
           loadingState={store.state}
           prevAvailable={store.prevAvailable}
@@ -56,6 +57,7 @@ class RoomListInner extends React.Component<
     prevAvailable: boolean;
     nextAvailable: boolean;
     mode: RoomListMode;
+    page: number;
     rooms: RoomData[];
     noLinks: boolean;
     loadingState: RoomListStore['state'];
@@ -70,6 +72,7 @@ class RoomListInner extends React.Component<
       noLinks,
       indexStart,
       rooms,
+      page,
       prevAvailable,
       nextAvailable,
       mode,
@@ -93,7 +96,8 @@ class RoomListInner extends React.Component<
             <p>{i18n.t('rooms_client:loadFailed')}</p>
           ) : rooms.length === 0 ? (
             <p>{i18n.t('rooms_client:noRoom')}</p>
-          ) : (
+          ) : null}
+          {loadingState === 'loaded' && (rooms.length > 0 || page !== 0) ? (
             <>
               <p>
                 <NormalButton
@@ -110,7 +114,7 @@ class RoomListInner extends React.Component<
                 </NormalButton>
               </p>
             </>
-          )}
+          ) : null}
         </Navigation>
         <RoomListWrapper>
           {rooms.map((room, i) => (
