@@ -356,37 +356,61 @@ div.graph-area
   letter-spacing 0.1rem
 
 //logs (for lobby)
+#lobbyform
+  input
+    font-size 16px
 #logs
-  //display table
+  padding 5px
+  display grid
+  grid-template-columns fit-content(10em) 1fr auto
   width 100%
   > div
     margin 0
-    padding 1px
-    display table-row
-    width 100%
+    padding 1px 0
     line-height 100%
-    time
-      font-size x-small
-      //opacity 0.5
-      margin-left 2em
-    div.icon
-      border none
+  time
+    font-size x-small
+    //opacity 0.5
+    margin-left 2em
+  div.name
+    grid-column 1
+
+    font-weight bold
+    overflow:hidden
+    white-space nowrap
+    max-width 10em
+    word-wrap break-word
+    text-align right
+  div.comment
+    grid-column 2
+
+  time.time
+    grid-comlumn 3
+    white-space nowrap
+    max-width 22ex
+@media (max-width: phone-width)
+  #logs
+    grid-template-columns 1fr auto
+    grid-auto-flow dense
     div.name
-      font-weight bold
-      display table-cell
-      //max-width 10em
-      overflow:hidden
-      white-space nowrap
-      max-width 10em
-      word-wrap break-word
-      text-align right
+      grid-column 1
+      max-width none
+      text-align left
+      font-size 0.8em
     div.comment
-      display table-cell
-      width 100%
-    time.time
-      display table-cell
-      white-space nowrap
-      max-width 22ex
+      grid-column 1 / 3
+    time
+      grid-column 2
+  #lobbyform
+    p
+      display flex
+      flex-flow row nowrap
+      input[type=text]
+        width: 100%
+        flex auto 1 1
+      input[type=submit]
+        flex auto 0 0
+
 
 
 

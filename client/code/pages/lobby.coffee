@@ -4,31 +4,26 @@ exports.start=->
     getlog=(log,channel)->
         unless(channel=="lobby" || typeof(channel) == "number")
             return
-        p=document.createElement "div"
-        div=document.createElement "div"
-        div.classList.add "icon"
-        p.appendChild div
+        logs = $("#logs")
 
-        div=document.createElement "div"
-        div.classList.add "name"
+        namediv=document.createElement "div"
+        namediv.classList.add "name"
         if log.name?
-            div.textContent="#{log.name}:"
-        p.appendChild div
-        
-        span=document.createElement "div"
-        span.classList.add "comment"
+            namediv.textContent="#{log.name}:"
+
+        commentdiv=document.createElement "div"
+        commentdiv.classList.add "comment"
         wrdv=document.createElement "div"
         wrdv.textContent=log.comment
         Index.game.game.parselognode wrdv
-        span.appendChild wrdv
-        
-        p.appendChild span
+        commentdiv.appendChild wrdv
+
         if log.time?
             time=Index.util.timeFromDate new Date log.time
             time.classList.add "time"
-            p.appendChild time
+            logs.prepend time
 
-        $("#logs").prepend p
+        $("#logs").prepend namediv, commentdiv
     appenduser=(user)->
         li=document.createElement "li"
         a=document.createElement "a"
@@ -45,7 +40,7 @@ exports.start=->
                 false
     heartbeat=->
         ss.rpc "lobby.heartbeat", ->
-    
+
 
     ss.rpc "lobby.enter", (obj)->
         if obj.error?
