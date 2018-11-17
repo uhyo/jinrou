@@ -575,6 +575,6 @@ const Time = styled(TimeInner)`
  */
 const LogTable = styled.table`
   ${phone`
-    font-size: 0.88em;
+    font-size: calc(0.88 * var(--base-font-size));
   `};
 `;

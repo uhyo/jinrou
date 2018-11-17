@@ -17,6 +17,7 @@ import { RoleInfoPart, GameInfoPart, JobInfoButton } from './elements';
 import { SensitiveButton } from '../../../util/sensitive-button';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { bind } from 'bind-decorator';
+import { observer } from 'mobx-react';
 
 /**
  * Keys of RolePeersInfo for use in JobInfo.
@@ -63,7 +64,8 @@ export interface IPropJobInfo {
 /**
  * Player's information.
  */
-export class JobInfo extends React.PureComponent<
+@observer
+export class JobInfo extends React.Component<
   IPropJobInfo,
   {
     /**

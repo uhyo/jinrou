@@ -107,6 +107,7 @@ export class Game extends React.Component<IPropGame, {}> {
       players,
       roomControls,
       logPickup,
+      speakFocus,
     } = store;
 
     const styleMode = styleModeOf(roleInfo, gameInfo);
@@ -140,7 +141,7 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            <JobInfoPart>
+            <JobInfoPart speakFocus={speakFocus}>
               <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
             </JobInfoPart>
             {/* Open forms. */}
@@ -163,6 +164,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 onRefuseRevival={this.handleRefuseRevival}
                 onRuleOpen={this.handleRuleOpen}
                 onWillChange={onWillChange}
+                onFocus={this.handleSpeakFocus}
                 {...speakState}
               />
             </SpeakFormPart>
@@ -312,6 +314,15 @@ export class Game extends React.Component<IPropGame, {}> {
   protected handleResetLogPickup(): void {
     this.props.store.update({ logPickup: null });
   }
+  /**
+   * Handle a focus change of speak input.
+   */
+  @bind
+  protected handleSpeakFocus(focus: boolean): void {
+    this.props.store.update({
+      speakFocus: focus,
+    });
+  }
 }
 
 /**
@@ -375,11 +386,17 @@ const SpeakFormPart = styled(RoomHeaderPart)`
 /**
  * Wrapper of jobinfo form.
  */
-const JobInfoPart = styled(RoomHeaderPart)`
+const JobInfoPart = withProps<{
+  /**
+   * Whether speak focus has a focus.
+   */
+  speakFocus: boolean;
+}>()(styled(RoomHeaderPart))`
   ${phone`
     position: sticky;
     left: 0;
     top: 0;
+    ${({ speakFocus }) => (speakFocus ? 'opacity: 0.15;' : '')}
   `};
 `;
 
