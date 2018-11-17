@@ -555,7 +555,7 @@ interface IPropTime extends IPropLogPart {
   className?: string;
   logStyle: LogStyle;
 }
-const TimeInner = ({ time, className, logStyle }: IPropTime) => {
+const TimeInner = ({ time, noName, className, logStyle }: IPropTime) => {
   const year = time.getFullYear();
   const month = ('0' + (time.getMonth() + 1)).slice(-2);
   const day = ('0' + time.getDate()).slice(-2);
@@ -565,7 +565,7 @@ const TimeInner = ({ time, className, logStyle }: IPropTime) => {
   const str = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
   return (
     <LogPart logStyle={logStyle} className={className}>
-      <time className={className}>{str}</time>
+      <time>{str}</time>
     </LogPart>
   );
 };
@@ -581,7 +581,8 @@ const Time = styled(TimeInner)`
   text-align: right;
   padding-right: 1ex;
 
-  ${phone`
+  ${({ noName }) =>
+    noName ? 'line-height: var(--base-font-size);' : ''} ${phone`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
