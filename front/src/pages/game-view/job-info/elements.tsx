@@ -2,7 +2,7 @@ import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import * as Color from 'color';
 import { lightA } from '../../../styles/a';
-import { phone } from '../../../common/media';
+import { phone, notPhone } from '../../../common/media';
 
 /**
  * Wrapper of the job info component.
@@ -47,6 +47,9 @@ export const Content = styled.div`
   a {
     ${lightA};
   }
+  ${phone`
+    flex-flow: column nowrap;
+  `};
 `;
 
 /**
@@ -55,11 +58,6 @@ export const Content = styled.div`
 export const RoleInfoPart = styled.div`
   flex: auto 0 1;
   padding-right: 4px;
-
-  ${phone`
-    max-height: 4em;
-    overflow-y: auto;
-  `};
 `;
 
 /**
@@ -69,9 +67,29 @@ export const GameInfoPart = styled.div`
   flex: auto 0 0;
   align-self: flex-end;
   padding-left: 4px;
-  &:not(:first-child) {
-    border-left: 1px dashed var(--border-color);
-  }
 
   font-size: 0.9em;
+  ${notPhone`
+    &:not(:first-child) {
+      border-left: 1px dashed var(--border-color);
+    }
+  `} ${phone`
+    flex: 100% 1 1;
+    border-left: none;
+    display: flex;
+    flex-flow: row wrap;
+
+    p {
+      margin: 0 0.5em;
+    }
+  `};
+`;
+
+/**
+ * wrapper of button to open/close jobinfo form.
+ */
+export const JobInfoButton = styled.p`
+  ${notPhone`
+    display: none;
+  `};
 `;

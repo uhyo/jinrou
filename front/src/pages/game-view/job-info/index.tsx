@@ -13,7 +13,10 @@ import { I18nInterp, I18n, TranslationFunction } from '../../../i18n';
 import { JobStatus } from './job-status';
 import { Wrapper } from './wrapper';
 import { Timer } from './timer';
-import { RoleInfoPart, GameInfoPart } from './elements';
+import { RoleInfoPart, GameInfoPart, JobInfoButton } from './elements';
+import { SensitiveButton } from '../../../util/sensitive-button';
+import { FontAwesomeIcon } from '../../../util/icon';
+import { bind } from 'bind-decorator';
 
 /**
  * Keys of RolePeersInfo for use in JobInfo.
@@ -60,9 +63,22 @@ export interface IPropJobInfo {
 /**
  * Player's information.
  */
-export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
+export class JobInfo extends React.PureComponent<
+  IPropJobInfo,
+  {
+    /**
+     * Whether full information is open,
+     * only effective on phone UI.
+     */
+    fullOpen: boolean;
+  }
+> {
+  state = {
+    fullOpen: true,
+  };
   public render() {
     const { roleInfo, timer, players } = this.props;
+    const { fullOpen } = this.state;
 
     // count alive and dead players.
     const aliveNum = players.filter(pl => !pl.dead).length;
@@ -77,7 +93,7 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
           return (
             <Wrapper t={t} team={myteam}>
               {roleInfo != null ? (
-                <RoleInfoPart>
+                <RoleInfoPart hidden={!fullOpen}>
                   <RoleInfoInner t={t} roleInfo={roleInfo} />
                 </RoleInfoPart>
               ) : null}
@@ -91,12 +107,23 @@ export class JobInfo extends React.PureComponent<IPropJobInfo, {}> {
                 <p>
                   <Timer timer={timer} />
                 </p>
+                <JobInfoButton>
+                  <SensitiveButton onClick={this.handleFullClick}>
+                    <FontAwesomeIcon
+                      icon={fullOpen ? 'caret-square-up' : 'caret-square-down'}
+                    />
+                  </SensitiveButton>
+                </JobInfoButton>
               </GameInfoPart>
             </Wrapper>
           );
         }}
       </I18n>
     );
+  }
+  @bind
+  private handleFullClick() {
+    this.setState(({ fullOpen }) => ({ fullOpen: !fullOpen }));
   }
 }
 

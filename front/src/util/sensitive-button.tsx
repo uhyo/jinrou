@@ -20,7 +20,7 @@ export class SensitiveButton extends React.Component<
       >
     >;
     /**
-     * Event of click.j
+     * Event of click.
      */
     onClick?: (e: React.SyntheticEvent<HTMLButtonElement>) => void;
     children?: React.ReactNode;
@@ -40,7 +40,7 @@ export class SensitiveButton extends React.Component<
     // see https://github.com/facebook/react/issues/9809
     const BC = buttonComponent || (appearance ? Button : NoAppearanceButton);
     return (
-      <BC onClick={onClick} onTouchStart={onClick} {...props}>
+      <BC onClick={onClick} /* onTouchStart={onClick} */ {...props}>
         {children}
       </BC>
     );
