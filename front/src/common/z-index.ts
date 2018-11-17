@@ -1,6 +1,15 @@
 // Global z-index hierarchy.
 
 /**
+ * z-index for rule.
+ */
+export const ruleZIndex = 1;
+/**
+ * z-index for speak form.
+ */
+export const speakFormZIndex = 3;
+
+/**
  * z-index for overlay server connection.
  */
 export const serverConnectionZIndex = 10;

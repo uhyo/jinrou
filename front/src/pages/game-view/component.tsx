@@ -32,6 +32,7 @@ import { phone, notPhone } from '../../common/media';
 import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
+import { speakFormZIndex, ruleZIndex } from '../../common/z-index';
 
 interface IPropGame {
   /**
@@ -361,6 +362,7 @@ const SpeakFormPart = styled(RoomHeaderPart)`
     /* On phones, speak form is fixed to the bottom. */
     order: 5;
     position: sticky;
+    z-index: ${speakFormZIndex};
     left: 0;
     bottom: 0;
 
@@ -421,7 +423,7 @@ const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
   width: ${({ closed }) => (closed ? '0' : '20em')};
   order: 2;
 
-  z-index: 2;
+  z-index: ${ruleZIndex};
   background-color: #ffd1f2;
   color: black;
 
