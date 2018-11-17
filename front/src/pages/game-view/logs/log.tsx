@@ -472,6 +472,7 @@ const LogPart = withProps<{
   font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
 
   line-height: 1;
+  word-break: break-all;
   padding: 1px 0;
   font-size: var(--base-font-size);
 `;
@@ -511,7 +512,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
     ${({ noName }) => (noName ? 'display: none;' : '')}
     max-width: none;
     text-align: left;
-    font-size: calc(0.7 * var(--base-font-size));
+    font-size: calc(0.75 * var(--base-font-size));
     border-bottom: none;
   `};
 `;
