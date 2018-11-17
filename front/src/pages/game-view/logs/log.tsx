@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { autolink } from 'my-autolink';
-import styled, { withProps } from '../../../util/styled';
+import styled, { withProps, withTheme } from '../../../util/styled';
 import { Log } from '../defs';
 import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
 import { phone } from '../../../common/media';
+import { Theme } from '../../../theme';
 
 export interface IPropOneLog {
   /**
@@ -12,6 +13,7 @@ export interface IPropOneLog {
    * whose default namespace should be 'game_client'.
    */
   t: TranslationFunction;
+  theme: Theme;
   /**
    * Class name attached to each log.
    */
@@ -33,16 +35,17 @@ export interface IPropOneLog {
 /**
  * A component which shows one log.
  */
-export class OneLog extends React.PureComponent<IPropOneLog, {}> {
+class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
   public render() {
-    const { t, logClass, log, rule, icons } = this.props;
+    const { t, theme, logClass, log, rule, icons } = this.props;
     if (log.mode === 'voteresult') {
       // log of vote result table
+      const logStyle = computeLogStyle('voteresult', theme);
       return (
-        <logComponents.voteresult className={logClass}>
-          <Icon noName />
-          <Name noName />
-          <Main noName>
+        <>
+          <Icon noName logStyle={logStyle} className={logClass} />
+          <Name noName logStyle={logStyle} className={logClass} />
+          <Main noName logStyle={logStyle} className={logClass}>
             <table>
               {/* Vote result caption */}
               <caption>{t('log.voteResult.caption')}</caption>
@@ -63,16 +66,17 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </table>
           </Main>
-          <Time time={new Date(log.time)} />
-        </logComponents.voteresult>
+          <Time noName time={new Date(log.time)} logStyle={logStyle} />
+        </>
       );
     } else if (log.mode === 'probability_table') {
       // log of probability table for Quantum Werewwolf
+      const logStyle = computeLogStyle('probability_table', theme);
       return (
-        <logComponents.probability_table className={logClass}>
-          <Icon noName />
-          <Name noName />
-          <Main noName>
+        <>
+          <Icon noName logStyle={logStyle} className={logClass} />
+          <Name noName logStyle={logStyle} className={logClass} />
+          <Main noName logStyle={logStyle} className={logClass}>
             <table>
               {/* Probability table caption */}
               <caption>{t('log.probabilityTable.caption')}</caption>
@@ -122,10 +126,10 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </table>
           </Main>
-        </logComponents.probability_table>
+        </>
       );
     } else {
-      const Cmp = logComponents[log.mode];
+      const logStyle = computeLogStyle(log.mode, theme);
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
@@ -171,27 +175,34 @@ export class OneLog extends React.PureComponent<IPropOneLog, {}> {
             ? t('log.monologue', { name: log.name }) + ':'
             : log.name + ':';
       const noName = icon == null && !nameText;
+      const props = {
+        logStyle,
+        className: logClass,
+        'data-userid': 'userid' in log ? log.userid : undefined,
+      };
       return (
-        <Cmp
-          className={logClass}
-          data-userid={'userid' in log ? log.userid : undefined}
-        >
+        <>
           {/* icon */}
-          <Icon noName={noName}>
+          <Icon noName={noName} {...props}>
             {icon != null ? <img src={icon} alt="" /> : null}
           </Icon>
-          <Name noName={noName}>{nameText || null}</Name>
+          <Name noName={noName} {...props}>
+            {nameText || null}
+          </Name>
           <Comment
             size={size}
             noName={noName}
+            {...props}
             dangerouslySetInnerHTML={{ __html: comment }}
           />
-          <Time time={new Date(log.time)} />
-        </Cmp>
+          <Time noName={noName} time={new Date(log.time)} logStyle={logStyle} />
+        </>
       );
     }
   }
 }
+
+export const OneLog = withTheme(OneLogInner);
 
 interface IPropProbabilityTr {
   dead: boolean;
@@ -219,240 +230,204 @@ function ProbTd({ prob }: IPropProbTd) {
   }
 }
 
+export interface LogStyle {
+  /**
+   * background color.
+   */
+  background: string;
+  /**
+   * text color.
+   */
+  color: string;
+  /**
+   * border color (if exists).
+   */
+  borderColor: string | null;
+  /**
+   * Whether text is bold.
+   */
+  bold?: true;
+}
 /**
- * Basic styling of log box.
+ * ログ種類から色などを計算
  */
-const LogBox = styled.div`
-  display: contents;
-  line-height: 1;
-  color: #000000;
-  word-break: break-all;
-  word-break: break-word;
-
-  > * {
-    padding: 1px 0;
+export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
+  switch (mode) {
+    case 'audience': {
+      return {
+        background: theme.user.audience.bg,
+        color: theme.user.audience.color,
+        borderColor: '#eeffee',
+      };
+    }
+    case 'couple': {
+      return {
+        background: theme.user.couple.bg,
+        color: theme.user.couple.color,
+        borderColor: '#eeffee',
+      };
+    }
+    case 'day': {
+      return {
+        background: theme.user.day.bg,
+        color: theme.user.day.color,
+        borderColor: null,
+      };
+    }
+    case 'fox': {
+      return {
+        background: theme.user.fox.bg,
+        color: theme.user.fox.color,
+        borderColor: null,
+      };
+    }
+    case 'gm':
+    case 'gmreply': {
+      return {
+        background: theme.user.gm1.bg,
+        color: theme.user.gm1.color,
+        borderColor: '#ffa8a8',
+      };
+    }
+    case 'gmaudience':
+    case 'gmheaven':
+    case 'gmmonologue': {
+      return {
+        background: theme.user.gm2.bg,
+        color: theme.user.gm2.color,
+        borderColor: '#ffc68a',
+      };
+    }
+    case 'heaven': {
+      return {
+        background: theme.user.heaven.bg,
+        color: theme.user.heaven.color,
+        borderColor: null,
+      };
+    }
+    case 'heavenmonologue': {
+      return {
+        background: theme.user.heavenmonologue.bg,
+        color: theme.user.heavenmonologue.color,
+        borderColor: null,
+      };
+    }
+    case 'half-day': {
+      return {
+        background: theme.user.half_day.bg,
+        color: theme.user.half_day.color,
+        borderColor: null,
+      };
+    }
+    case 'helperwhisper': {
+      return {
+        background: theme.user.helperwhisper.bg,
+        color: theme.user.helperwhisper.color,
+        borderColor: '#e8e000',
+      };
+    }
+    case 'inlog': {
+      return {
+        background: theme.user.inlog.bg,
+        color: theme.user.inlog.color,
+        bold: true,
+        borderColor: '#00dce8',
+      };
+    }
+    case 'madcouple': {
+      return {
+        background: theme.user.madcouple.bg,
+        color: theme.user.madcouple.color,
+        borderColor: '#eeffee',
+      };
+    }
+    case 'monologue': {
+      return {
+        background: theme.user.monologue.bg,
+        color: theme.user.monologue.color,
+        borderColor: '#000066',
+      };
+    }
+    case 'nextturn': {
+      return {
+        background: theme.user.nextturn.bg,
+        color: theme.user.nextturn.color,
+        bold: true,
+        borderColor: '#aaaaaa',
+      };
+    }
+    case 'prepare': {
+      return {
+        background: theme.user.heaven.bg,
+        color: theme.user.heaven.color,
+        borderColor: '#fffff8',
+      };
+    }
+    case 'probability_table': {
+      return {
+        background: theme.user.probability_table.bg,
+        color: theme.user.probability_table.color,
+        borderColor: null,
+      };
+    }
+    case 'system': {
+      return {
+        background: theme.user.system.bg,
+        color: theme.user.system.color,
+        bold: true,
+        borderColor: '#aaaaaa',
+      };
+    }
+    case 'userinfo': {
+      return {
+        background: theme.user.userinfo.bg,
+        color: theme.user.userinfo.color,
+        bold: true,
+        borderColor: '#000070',
+      };
+    }
+    case 'voteresult': {
+      return {
+        background: theme.user.day.bg,
+        color: theme.user.day.color,
+        borderColor: null,
+      };
+    }
+    case 'voteto': {
+      return {
+        background: theme.user.voteto.bg,
+        color: theme.user.voteto.color,
+        bold: true,
+        borderColor: '#007000',
+      };
+    }
+    case 'werewolf': {
+      return {
+        background: theme.user.werewolf.bg,
+        color: theme.user.werewolf.color,
+        borderColor: '#000066',
+      };
+    }
+    case 'will': {
+      return {
+        background: theme.user.will.bg,
+        color: theme.user.will.color,
+        borderColor: null,
+      };
+    }
+    case 'skill':
+    case 'emmaskill':
+    case 'wolfskill':
+    case 'eyeswolfskill': {
+      return {
+        background: theme.user.skill.bg,
+        color: theme.user.skill.color,
+        bold: true,
+        borderColor: '#800000',
+      };
+    }
   }
-`;
-
-/**
- * スキル関係の汎用的なスタイル
- */
-const SkillBox = styled(LogBox)`
-  color: ${props => props.theme.user.skill.color};
-  font-weight: bold;
-
-  > * {
-    background-color: ${props => props.theme.user.skill.bg};
-    border-top: 1px dashed #800000;
-    border-bottom: 1px dashed #800000;
-  }
-`;
-
-/**
- * GMのスタイル
- */
-const GM1Box = styled(LogBox)`
-  color: ${props => props.theme.user.gm1.color};
-
-  > * {
-    background-color: ${props => props.theme.user.gm1.bg};
-    border-top: 1px dashed #ffa8a8;
-    border-bottom: 1px dashed #ffa8a8;
-  }
-`;
-
-/**
- * GMのスタイル
- */
-const GM2Box = styled(LogBox)`
-  color: ${props => props.theme.user.gm2.color};
-
-  > * {
-    background-color: ${props => props.theme.user.gm2.bg};
-    border-top: 1px dashed #ffc68a;
-    border-bottom: 1px dashed #ffc68a;
-  }
-`;
-
-const logComponents: Record<Log['mode'], React.ComponentClass<any>> = {
-  audience: styled(LogBox)`
-    color: ${props => props.theme.user.audience.color};
-
-    > * {
-      background-color: ${props => props.theme.user.audience.bg};
-      border-top: 1px dashed #eeffee;
-      border-bottom: 1px dashed #eeffee;
-    }
-  `,
-  couple: styled(LogBox)`
-    color: ${props => props.theme.user.couple.color};
-
-    > * {
-      background-color: ${props => props.theme.user.couple.bg};
-      border-top: 1px dashed #eeffee;
-      border-bottom: 1px dashed #eeffee;
-    }
-  `,
-  day: styled(LogBox)`
-    color: ${props => props.theme.user.day.color};
-
-    > * {
-      background-color: ${props => props.theme.user.day.bg};
-    }
-  `,
-  fox: styled(LogBox)`
-    color: ${props => props.theme.user.fox.color};
-
-    > * {
-      background-color: ${props => props.theme.user.fox.bg};
-    }
-  `,
-  gm: GM1Box,
-  gmaudience: GM2Box,
-  gmheaven: GM2Box,
-  gmmonologue: GM2Box,
-  gmreply: GM1Box,
-  heaven: styled(LogBox)`
-    color: ${props => props.theme.user.heaven.color};
-
-    > * {
-      background-color: ${props => props.theme.user.heaven.bg};
-    }
-  `,
-  heavenmonologue: styled(LogBox)`
-    color: ${props => props.theme.user.heavenmonologue.color};
-    > * {
-      background-color: ${props => props.theme.user.heavenmonologue.bg};
-    }
-  `,
-  'half-day': styled(LogBox)`
-    color: ${props => props.theme.user.half_day.color};
-
-    > * {
-      background-color: ${props => props.theme.user.half_day.bg};
-    }
-  `,
-  helperwhisper: styled(LogBox)`
-    color: ${props => props.theme.user.helperwhisper.color};
-
-    > * {
-      background-color: ${props => props.theme.user.helperwhisper.bg};
-      border-top: 1px dashed #e8e000;
-      border-bottom: 1px dashed #e8e000;
-    }
-  `,
-  inlog: styled(LogBox)`
-    color: ${props => props.theme.user.inlog.color};
-    font-weight: bold;
-
-    > * {
-      background-color: ${props => props.theme.user.inlog.bg};
-      border-top: 1px dashed #00dce8;
-      border-bottom: 1px dashed #00dce8;
-    }
-  `,
-  madcouple: styled(LogBox)`
-    color: ${props => props.theme.user.madcouple.color};
-
-    > * {
-      background-color: ${props => props.theme.user.madcouple.bg};
-      border-top: 1px dashed #eeffee;
-      border-bottom: 1px dashed #eeffee;
-    }
-  `,
-  monologue: styled(LogBox)`
-    color: ${props => props.theme.user.monologue.color};
-
-    > * {
-      background-color: ${props => props.theme.user.monologue.bg};
-      border-top: 1px dashed #000066;
-      border-bottom: 1px dashed #000066;
-    }
-  `,
-  nextturn: styled(LogBox)`
-    color: ${props => props.theme.user.nextturn.color};
-    font-weight: bold;
-
-    > * {
-      background-color: ${props => props.theme.user.nextturn.bg};
-      border-top: 1px dashed #aaaaaa;
-      border-bottom: 1px dashed #aaaaaa;
-    }
-  `,
-  prepare: styled(LogBox)`
-    color: ${props => props.theme.user.heaven.color};
-
-    > * {
-      background-color: ${props => props.theme.user.heaven.bg};
-      border-top: 1px dashed #fffff8;
-      border-bottom: 1px dashed #fffff8;
-    }
-  `,
-  probability_table: styled(LogBox)`
-    color: ${props => props.theme.user.probability_table.color};
-
-    > * {
-      background-color: ${props => props.theme.user.probability_table.bg};
-    }
-  `,
-  system: styled(LogBox)`
-    color: ${props => props.theme.user.system.color};
-    font-weight: bold;
-
-    > * {
-      background-color: ${props => props.theme.user.system.bg};
-      border-top: 1px dashed #aaaaaa;
-      border-bottom: 1px dashed #aaaaaa;
-    }
-  `,
-  userinfo: styled(LogBox)`
-    color: ${props => props.theme.user.userinfo.color};
-    font-weight: bold;
-
-    > * {
-      background-color: ${props => props.theme.user.userinfo.bg};
-      border-top: 1px dashed #000070;
-      border-bottom: 1px dashed #000070;
-    }
-  `,
-  voteresult: styled(LogBox)`
-    color: ${props => props.theme.user.day.color};
-
-    > * {
-      background-color: ${props => props.theme.user.day.bg};
-    }
-  `,
-  voteto: styled(LogBox)`
-    color: ${props => props.theme.user.voteto.color};
-    font-weight: bold;
-
-    > * {
-      background-color: ${props => props.theme.user.voteto.bg};
-      border-top: 1px dashed #007000;
-      border-bottom: 1px dashed #007000;
-    }
-  `,
-  werewolf: styled(LogBox)`
-    color: ${props => props.theme.user.werewolf.color};
-
-    > * {
-      background-color: ${props => props.theme.user.werewolf.bg};
-      border-top: 1px dashed #000066;
-      border-bottom: 1px dashed #000066;
-    }
-  `,
-  will: styled(LogBox)`
-    color: ${props => props.theme.user.will.color};
-
-    > * {
-      background-color: ${props => props.theme.user.will.bg};
-    }
-  `,
-  emmaskill: SkillBox,
-  eyeswolfskill: SkillBox,
-  skill: SkillBox,
-  wolfskill: SkillBox,
-};
+}
 
 interface IPropLogPart {
   /**
@@ -462,9 +437,28 @@ interface IPropLogPart {
 }
 
 /**
+ * Basic style of logcomponents.
+ */
+const LogPart = withProps<{
+  logStyle: LogStyle;
+}>()(styled.div)`
+  background-color: ${props => props.logStyle.background};
+  color: ${props => props.logStyle.color};
+  border-top: ${props =>
+    props.logStyle.borderColor
+      ? `1px dashed ${props.logStyle.borderColor}`
+      : 'none'};
+  border-bottom: ${props =>
+    props.logStyle.borderColor
+      ? `1px dashed ${props.logStyle.borderColor}`
+      : 'none'};
+  font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
+`;
+
+/**
  * Icon box.
  */
-const Icon = withProps<IPropLogPart>()(styled.div)`
+const Icon = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 1;
   min-width: 8px;
 
@@ -476,14 +470,14 @@ const Icon = withProps<IPropLogPart>()(styled.div)`
 
   ${phone`
     grid-row: ${({ noName }) => (noName ? 'span 1' : 'span 2')};
-    border-bottom: none;
+    ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
   `};
 `;
 
 /**
  * Username box.
  */
-const Name = withProps<IPropLogPart>()(styled.div)`
+const Name = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 2;
   max-width: 10em;
   overflow: hidden;
@@ -504,11 +498,11 @@ const Name = withProps<IPropLogPart>()(styled.div)`
 /**
  * comment (main) box.
  */
-const Main = withProps<IPropLogPart>()(styled.div)`
+const Main = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 3;
   ${phone`
     grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
-    border-top: none;
+    ${({ noName }) => (noName ? '' : 'border-top: none;')}
     padding-left: 0.3em;
   `};
 `;
@@ -526,14 +520,15 @@ const Comment = withProps<IPropComment>()(styled(Main))`
   white-space: pre-wrap;
   font-size: ${({ size }) =>
     size === 'big' ? 'larger' : size === 'small' ? 'smaller' : 'medium'};
-  font-weight: ${({ size }) => (size === 'big' ? 'bold' : 'inherit')};
+    ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')}
 `;
 
-interface IPropTime {
+interface IPropTime extends IPropLogPart {
   time: Date;
   className?: string;
+  logStyle: LogStyle;
 }
-const TimeInner = ({ time, className }: IPropTime) => {
+const TimeInner = ({ time, className, logStyle }: IPropTime) => {
   const year = time.getFullYear();
   const month = ('0' + (time.getMonth() + 1)).slice(-2);
   const day = ('0' + time.getDate()).slice(-2);
@@ -541,7 +536,11 @@ const TimeInner = ({ time, className }: IPropTime) => {
   const minute = ('0' + time.getMinutes()).slice(-2);
   const second = ('0' + time.getSeconds()).slice(-2);
   const str = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-  return <time className={className}>{str}</time>;
+  return (
+    <LogPart logStyle={logStyle} className={className}>
+      <time className={className}>{str}</time>
+    </LogPart>
+  );
 };
 
 /**
@@ -559,6 +558,6 @@ const Time = styled(TimeInner)`
   ${phone`
     grid-column: 3;
     font-size: xx-small;
-    border-bottom: none;
+    ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
   `};
 `;

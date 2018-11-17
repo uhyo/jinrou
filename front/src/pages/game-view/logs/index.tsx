@@ -101,29 +101,30 @@ class LogChunk extends React.Component<
 > {
   public render() {
     const { logClass, logs, visible, rule, icons } = this.props;
+    if (!visible) {
+      return null;
+    }
     return (
-      <ChunkWrapper visible={visible}>
-        <I18n namespace="game_client">
-          {t => (
-            <Observer>
-              {() =>
-                mapReverse(logs, log => {
-                  return (
-                    <OneLog
-                      key={`${log.time}-${(log as any).comment || ''}`}
-                      t={t}
-                      logClass={logClass}
-                      log={log}
-                      rule={rule}
-                      icons={icons}
-                    />
-                  );
-                })
-              }
-            </Observer>
-          )}
-        </I18n>
-      </ChunkWrapper>
+      <I18n namespace="game_client">
+        {t => (
+          <Observer>
+            {() =>
+              mapReverse(logs, log => {
+                return (
+                  <OneLog
+                    key={`${log.time}-${(log as any).comment || ''}`}
+                    t={t}
+                    logClass={logClass}
+                    log={log}
+                    rule={rule}
+                    icons={icons}
+                  />
+                );
+              })
+            }
+          </Observer>
+        )}
+      </I18n>
     );
   }
 }
@@ -157,8 +158,4 @@ const LogWrapper = withProps<{
     grid-auto-flow: row dense;
   `}
 
-`;
-
-const ChunkWrapper = withProps<{ visible: boolean }>()(styled.div)`
-  display: ${props => (props.visible ? 'contents' : 'none')}
 `;
