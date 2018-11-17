@@ -126,7 +126,7 @@ export const RoomName = styled.a`
 export const StatusLine = styled.div`
   flex: auto 0 1;
   margin: 0.1em 0 0 0;
-  color: #666666;
+  color: #444444;
   line-height: 1.1;
 `;
 
@@ -153,10 +153,17 @@ export const GameInfoLine = styled(StatusLine)`
   padding-right: 1.5em;
 `;
 
+export const CommentStatusLine = styled(StatusLine)`
+  flex: auto 1 1;
+  ${phone`
+    order: 1;
+  `};
+`;
 /**
  * Owner info.
  */
 export const OwnerStatusLine = styled(StatusLine)`
+  align-self: flex-end;
   ${phone`
   flex: 100% 1 1;
   text-align: right;
@@ -167,10 +174,12 @@ export const OwnerStatusLine = styled(StatusLine)`
  * Line of room open time.
  */
 export const RoomOpenTimeLine = styled(StatusLine)`
-  flex: auto 1 1;
+  flex: 19ch 0 1;
   text-align: right;
+  margin-left: auto;
   ${phone`
     font-size: 0.9em;
+    order: 2;
   `};
 `;
 

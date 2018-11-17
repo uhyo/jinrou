@@ -25,8 +25,8 @@ gm: "GMあり"
 # player number
 playerNumber: "{{count}}人"
 
-# prefix of owner name
-ownerPrefix: "オーナー："
+# title of owner name
+ownerTitle: "作成者"
 # hidden owner name
 ownerHidden: "???"
 
