@@ -91,7 +91,7 @@ export class JobInfo extends React.PureComponent<
       <I18n namespace="game_client">
         {t => {
           return (
-            <Wrapper t={t} team={myteam}>
+            <Wrapper t={t} team={myteam} slim={!fullOpen}>
               {roleInfo != null ? (
                 <RoleInfoPart hidden={!fullOpen}>
                   <RoleInfoInner t={t} roleInfo={roleInfo} />
@@ -107,7 +107,7 @@ export class JobInfo extends React.PureComponent<
                 <p>
                   <Timer timer={timer} />
                 </p>
-                <JobInfoButton>
+                <JobInfoButton hidden={roleInfo == null}>
                   <SensitiveButton onClick={this.handleFullClick}>
                     <FontAwesomeIcon
                       icon={fullOpen ? 'caret-square-up' : 'caret-square-down'}

@@ -38,10 +38,12 @@ export const WrapperHeader = withProps<{
  * wrapper of content.
  * @package
  */
-export const Content = styled.div`
+export const Content = withProps<{
+  slim: boolean;
+}>()(styled.div)`
   display: flex;
   flex-flow: row nowrap;
-  padding: 0.4em;
+  padding: ${({ slim }) => (slim ? '0.2em' : '0.4em')};
   color: black;
 
   a {

@@ -12,7 +12,11 @@ const WrapperInner: React.StatelessComponent<{
    */
   team: string | undefined;
   theme: Theme;
-}> = ({ children, t, team, theme }) => {
+  /**
+   * Whether slim mode is applied.
+   */
+  slim?: boolean;
+}> = ({ children, t, team, slim = false, theme }) => {
   // get the color for this team.
   const teamColor = Color(!team ? '#cccccc' : theme.teamColors[team]);
   const teamTextColor = teamColor.isDark()
@@ -35,7 +39,7 @@ const WrapperInner: React.StatelessComponent<{
           {teamString}
         </WrapperHeader>
       ) : null}
-      <Content>{children}</Content>
+      <Content slim={slim}>{children}</Content>
     </WrapperElement>
   );
 };
