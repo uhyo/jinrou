@@ -2,6 +2,7 @@ import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import * as Color from 'color';
 import { lightA } from '../../../styles/a';
+import { phone, notPhone } from '../../../common/media';
 
 /**
  * Wrapper of the job info component.
@@ -11,8 +12,9 @@ export const WrapperElement = withProps<{
   borderColor: Color;
   backColor: Color;
 }>()(styled.div)`
-  margin: 5px 0;
-  border: 1px solid ${props => props.borderColor.string()};
+  margin: 0;
+  --border-color: ${props => props.borderColor.string()};
+  border: 1px solid var(--border-color);
   background-color: ${props => props.backColor.string()};
 `;
 
@@ -24,7 +26,7 @@ export const WrapperHeader = withProps<{
   teamColor: Color;
   textColor: Color;
 }>()(styled.div)`
-  padding: 3px;
+  padding: 0.1em;
   background: linear-gradient(to right, ${props =>
     props.teamColor.string()}, ${props => props.teamColor.fade(0.8).string()});
 
@@ -36,11 +38,60 @@ export const WrapperHeader = withProps<{
  * wrapper of content.
  * @package
  */
-export const Content = styled.div`
-  padding: 8px;
+export const Content = withProps<{
+  slim: boolean;
+}>()(styled.div)`
+  display: flex;
+  flex-flow: row nowrap;
+  padding: ${({ slim }) => (slim ? '0.2em' : '0.4em')};
   color: black;
 
   a {
     ${lightA};
   }
+  ${phone`
+    flex-flow: column nowrap;
+  `};
+`;
+
+/**
+ * Wrapper of role info.
+ */
+export const RoleInfoPart = styled.div`
+  flex: auto 0 1;
+  padding-right: 4px;
+`;
+
+/**
+ * Wrapper of game info.
+ */
+export const GameInfoPart = styled.div`
+  flex: auto 0 0;
+  align-self: flex-end;
+  padding-left: 4px;
+
+  font-size: 0.9em;
+  ${notPhone`
+    &:not(:first-child) {
+      border-left: 1px dashed var(--border-color);
+    }
+  `} ${phone`
+    flex: 100% 1 1;
+    border-left: none;
+    display: flex;
+    flex-flow: row wrap;
+
+    p {
+      margin: 0 0.5em;
+    }
+  `};
+`;
+
+/**
+ * wrapper of button to open/close jobinfo form.
+ */
+export const JobInfoButton = styled.p`
+  ${notPhone`
+    display: none;
+  `};
 `;

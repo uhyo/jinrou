@@ -94,12 +94,15 @@ body > header
     a
       text-decoration none
       color #ffffff !important
-  #userinfo,nav
-    display inline-block
-    vertical-align 40%
   #userinfo
     padding 0 5px
-  nav ul li
+// menu for smatphones
+#menu
+  display contents
+  nav
+    display inline-block
+    vertical-align 40%
+  nav li
     display inline-block
     white-space nowrap
     margin-right 1em
@@ -119,6 +122,70 @@ body > header
         color #ffffff !important
     span.tool-button.tool-disabled
       color #999999
+#menu-open-icon
+  display none
+  margin 0 0.5em 0 auto
+  button
+    appearance none
+    border none
+    background none
+    color white
+@media (max-width: phone-width)
+  #menu
+    display flex
+    flex-flow column nowrap
+    position fixed
+    top 0
+    left -100vw
+    width 100vw
+    height 100vh
+    transition left 0.2s ease-in-out
+    z-index 20
+
+    &.open
+      left 0
+
+
+    color white
+    border 1px solid white
+
+    .menu-back
+      position absolute
+      left 0
+      top 0
+      width 100vw
+      height 100vh
+      background-color rgba(0, 0, 0, 0.1)
+      z-index 999
+
+    nav
+      display block
+      flex auto 0 0
+      width 80vw
+      z-index 1000
+      background-color rgba(0, 0, 0, 0.78)
+      li
+        display block
+    #toolbar
+      flex auto 1 0
+      width 80vw
+      margin-left 0
+      z-index 1000
+      background-color rgba(0, 0, 0, 0.78)
+      text-align left
+
+    nav li a, #toolbar .tool-button
+      display block
+      font-size 1.2em
+      padding 1em 0.1em 1em 0.2em
+      border-bottom 1px solid white
+  #menu-open-icon
+    display block
+
+// class to cancel the padding of body.
+.whole-page
+  margin-left -20px
+
 //おしらせ
 body > .notice
   margin-left -20px
@@ -181,6 +248,22 @@ button.link-like
   cursor pointer
   font-size 0.9em
 
+//top
+#loginform, #newentryform
+  display grid
+  box-sizing border-box
+  max-width 100%
+  grid-template-columns minmax(auto, max-content) minmax(auto, max-content)
+  grid-gap 0.15em
+  p
+    grid-column span 2
+
+@media (max-width: phone-width)
+  #loginform, #newentryform
+    padding-right 1em
+    input[type="text"], input[type="password"]
+      font-size 16px
+
 
 
 //user-profile
@@ -193,8 +276,6 @@ section.profile
     border-radius 3px
   p.edit:empty
     height 1em
-  form#changeprofile > fieldset
-    width 100%
   form input[type="text"],form input[type="url"]
     width 100%
   table
@@ -260,7 +341,8 @@ div.graph-area
   display inline-block
   margin-right 1em
 
-//game
+#roomname
+  margin-left: 8px
 
 #roomname span.roomname-number
   display inline-block
@@ -418,6 +500,7 @@ section.manual
     margin-top 1.4em
   h3
     margin-top 1em
+
 section.manual.long
   section
     margin-left 2em
@@ -438,6 +521,16 @@ section.jobmanual
   h1
     margin-left -1.25em
     font-size 1.6em
+
+@media (max-width: phone-width)
+  section.manual
+    ul
+      line-height 2em
+    padding-right 1em
+  section.jobmanual
+    margin-left 0.5em
+    h1
+      margin-left -0.5em
 section.castlist
   dd
     margin-left 2em

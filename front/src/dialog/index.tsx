@@ -31,10 +31,15 @@ import { LoginDialog } from './components/login';
 import { RoleDescDialog } from './components/role-desc';
 
 /**
+ * ID of area to place dialogs.
+ */
+const dialogArea = 'dialogs-overlay';
+
+/**
  * Show a message dialog.
  */
 export function showMessageDialog(d: IMessageDialog): Promise<void> {
-  return showDialog(null, (open, close) => {
+  return showDialog(dialogArea, null, (open, close) => {
     const dialog = <MessageDialog {...d} onClose={() => close(undefined)} />;
 
     open(dialog);
@@ -47,7 +52,7 @@ export function showMessageDialog(d: IMessageDialog): Promise<void> {
 export async function showErrorDialog(d: IErrorDialog): Promise<void> {
   // get i18n instance with system language.
   const i18n = await getI18nFor();
-  await showDialog<void>(i18n, (open, close) => {
+  await showDialog<void>(dialogArea, i18n, (open, close) => {
     const dialog = (
       <MessageDialog
         {...d}
@@ -63,7 +68,7 @@ export async function showErrorDialog(d: IErrorDialog): Promise<void> {
  * Show a prompt dialog.
  */
 export function showPromptDialog(d: IPromptDialog): Promise<string | null> {
-  return showDialog(null, (open, close) => {
+  return showDialog(dialogArea, null, (open, close) => {
     const dialog = <PromptDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -74,7 +79,7 @@ export function showPromptDialog(d: IPromptDialog): Promise<string | null> {
  * Resolves to true if user answered yes.
  */
 export function showConfirmDialog(d: IConfirmDialog): Promise<boolean> {
-  return showDialog(null, (open, close) => {
+  return showDialog(dialogArea, null, (open, close) => {
     const dialog = <ConfirmDialog {...d} onSelect={close} />;
 
     open(dialog);
@@ -90,7 +95,7 @@ export function showPlayerDialog(
   name: string;
   icon: string | null;
 } | null> {
-  return showDialog(null, (open, close) => {
+  return showDialog(dialogArea, null, (open, close) => {
     const dialog = <PlayerDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -104,7 +109,7 @@ export async function showIconSelectDialog(
 ): Promise<string | null> {
   // get i18n instance with system language.
   const i18n = await getI18nFor();
-  return showDialog<string | null>(i18n, (open, close) => {
+  return showDialog<string | null>(dialogArea, i18n, (open, close) => {
     const dialog = <IconSelectDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -114,7 +119,7 @@ export async function showIconSelectDialog(
  * Show a select dialog.
  */
 export function showSelectDialog(d: ISelectDialog): Promise<string | null> {
-  return showDialog(null, (open, close) => {
+  return showDialog(dialogArea, null, (open, close) => {
     const dialog = <SelectDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -127,7 +132,7 @@ export async function showKickDialog(
   d: IKickDialog,
 ): Promise<KickResult | null> {
   const i18n = await getI18nFor();
-  return showDialog<KickResult | null>(i18n, (open, close) => {
+  return showDialog<KickResult | null>(dialogArea, i18n, (open, close) => {
     const dialog = <KickDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -140,7 +145,7 @@ export async function showChecklistDialog(
   d: IChecklistDialog,
 ): Promise<string[] | null> {
   const i18n = await getI18nFor();
-  return showDialog<string[] | null>(i18n, (open, close) => {
+  return showDialog<string[] | null>(dialogArea, i18n, (open, close) => {
     const dialog = <ChecklistDialog {...d} onSelect={close} />;
     open(dialog);
   });
@@ -156,7 +161,7 @@ export async function showSuddenDeathPunishDialog({
 }: ISuddenDeathPunishDialog): Promise<string[] | null> {
   // get i18n instance with system language.
   const i18n = await getI18nFor();
-  return showDialog<string[] | null>(i18n, (open, close) => {
+  return showDialog<string[] | null>(dialogArea, i18n, (open, close) => {
     const dialog = (
       <ChecklistDialog
         modal={modal}
@@ -179,7 +184,7 @@ export async function showSuddenDeathPunishDialog({
  */
 export async function showLoginDialog(d: ILoginDialog): Promise<boolean> {
   const i18n = await getI18nFor();
-  return showDialog<boolean>(i18n, (open, close) => {
+  return showDialog<boolean>(dialogArea, i18n, (open, close) => {
     const dialog = <LoginDialog {...d} onClose={close} />;
     open(dialog);
   });
@@ -190,7 +195,7 @@ export async function showLoginDialog(d: ILoginDialog): Promise<boolean> {
  */
 export async function showRoleDescDialog(d: IRoleDescDialog): Promise<void> {
   const i18n = await getI18nFor();
-  return showDialog<void>(i18n, (open, close) => {
+  return showDialog<void>(dialogArea, i18n, (open, close) => {
     const dialog = <RoleDescDialog {...d} onClose={close} />;
     open(dialog);
   });
@@ -200,6 +205,7 @@ export async function showRoleDescDialog(d: IRoleDescDialog): Promise<void> {
  * Inner function to show a dialog.
  */
 function showDialog<T>(
+  areaId: string,
   i18n: i18n | null,
   callback: (
     open: ((dialog: React.ReactElement<any>) => void),
@@ -207,9 +213,10 @@ function showDialog<T>(
   ) => void,
 ): Promise<T> {
   return new Promise(resolve => {
+    const dialogOverlayArea = document.getElementById(areaId) || document.body;
     // Add an area for showing dialog.
     const area = document.createElement('div');
-    document.body.appendChild(area);
+    dialogOverlayArea.appendChild(area);
 
     // show a dialog.
     const open = (dialog: React.ReactElement<any>) => {
@@ -225,7 +232,7 @@ function showDialog<T>(
     // clean up dialog.
     const close = ((result: T) => {
       ReactDOM.unmountComponentAtNode(area);
-      document.body.removeChild(area);
+      dialogOverlayArea.removeChild(area);
       resolve(result);
     }) as BoundFunc<T, void>;
 

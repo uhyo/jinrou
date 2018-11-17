@@ -3,6 +3,7 @@ import { library, dom, icon } from '@fortawesome/fontawesome-svg-core';
 import {
   faQuestionCircle,
   faIdCard,
+  faClock,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
@@ -12,18 +13,22 @@ import {
   faFolderOpen,
   faSpinner,
   faLock,
-  faUnlockAlt,
+  faUnlock,
   faInfoCircle,
   faSearch,
   faTimes,
   faUser,
   faUserTimes,
+  faUserTie,
   faUserSecret,
   faBan,
   faPen,
   faTrashAlt,
   faCheck,
   faSignal,
+  faCaretSquareUp,
+  faCaretSquareDown,
+  faBars,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -36,11 +41,12 @@ library.add(
   faFolderOpen,
   faSpinner,
   faLock,
-  faUnlockAlt,
+  faUnlock,
   faInfoCircle,
   faTimes,
   faUser,
   faUserTimes,
+  faUserTie,
   faUserSecret,
   faBan,
   faSearch,
@@ -48,6 +54,10 @@ library.add(
   faTrashAlt,
   faCheck,
   faSignal,
+  faClock,
+  faCaretSquareUp,
+  faCaretSquareDown,
+  faBars,
 );
 
 // Publish to global.

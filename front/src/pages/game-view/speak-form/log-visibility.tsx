@@ -59,15 +59,17 @@ export class LogVisibilityControl extends React.PureComponent<
           <select value={value} onChange={this.handleUpdate}>
             <option value="all">{t('speak.logVisibility.all')}</option>
             <option value="today">{t('speak.logVisibility.today')}</option>
-            <optgroup label={t('speak.logVisibility.onedayLabel')}>
-              {[...intRange(1, day)].map(day => {
-                return (
-                  <option key={String(day)} value={String(day)}>
-                    {t('speak.logVisibility.oneday', { day })}
-                  </option>
-                );
-              })}
-            </optgroup>
+            {day >= 1 ? (
+              <optgroup label={t('speak.logVisibility.onedayLabel')}>
+                {[...intRange(1, day)].map(day => {
+                  return (
+                    <option key={String(day)} value={String(day)}>
+                      {t('speak.logVisibility.oneday', { day })}
+                    </option>
+                  );
+                })}
+              </optgroup>
+            ) : null}
           </select>
         )}
       </I18n>

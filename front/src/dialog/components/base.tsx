@@ -4,6 +4,8 @@ import styled, { keyframes, withProps } from '../../util/styled';
 import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
 import { IconProp, FontAwesomeIcon } from '../../util/icon';
+import { phone } from '../../common/media';
+import { AppStyling } from '../../styles/phone';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -24,14 +26,13 @@ const opacityAnimation = keyframes`
 /**
  * Wrapper of dialog.
  */
-const DialogWrapper = withProps<IPropDialogWrapper>()(styled.div)`
+const DialogWrapper = withProps<IPropDialogWrapper>()(styled(AppStyling))`
     position: fixed;
     left: 0;
     top: 0;
     width: 100vw;
     height: 100vh;
 
-    z-index: 50;
     background-color: ${({ modal }) =>
       modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
     pointer-events: ${({ modal }) => (modal ? 'auto' : 'none')};
@@ -155,6 +156,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
 }
 
 const DialogBase = styled(DialogBaseInner)`
+  max-width: 90vw;
   padding: 5px;
   box-shadow: 0 0 6px 4px rgba(0, 0, 0, 0.4);
 
@@ -164,10 +166,6 @@ const DialogBase = styled(DialogBaseInner)`
 
   a {
     color: #666666;
-  }
-
-  @media (min-width: 600px) {
-    max-width: 60vw;
   }
 `;
 
@@ -214,21 +212,19 @@ export function Dialog({
       {({ titleClassName }) => (
         <DialogWrapper modal={modal}>
           <Draggable bounds="body" handle={`.${titleClassName}`}>
-            <div>
-              <DialogBase
-                title={title}
-                titleClassName={titleClassName}
-                icon={icon}
-                onCancel={onCancel}
-                form={form}
-                onSubmit={onSubmit}
-              >
-                {message != null ? <p>{message}</p> : null}
-                {contents ? contents() : null}
-                <Buttons>{buttons()}</Buttons>
-                {afterButtons ? afterButtons() : null}
-              </DialogBase>
-            </div>
+            <DialogBase
+              title={title}
+              titleClassName={titleClassName}
+              icon={icon}
+              onCancel={onCancel}
+              form={form}
+              onSubmit={onSubmit}
+            >
+              {message != null ? <p>{message}</p> : null}
+              {contents ? contents() : null}
+              <Buttons>{buttons()}</Buttons>
+              {afterButtons ? afterButtons() : null}
+            </DialogBase>
           </Draggable>
         </DialogWrapper>
       )}

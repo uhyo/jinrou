@@ -33,6 +33,8 @@ export function Icon({
 }
 
 const IconWrapper = styled.div`
+  grid-column: 1;
+  grid-row: 1 / 4;
   position: relative;
   left: 0;
   top: 0;

@@ -1,11 +1,19 @@
 import { computed, observable, action, runInAction, set, toJS } from 'mobx';
 
-import { UserTheme, Theme } from './theme';
+import { UserTheme, Theme, GlobalStyleTheme, UserProvidedTheme } from './theme';
 import { isPrimitive } from '../util/is-primitive';
 import { deepExtend } from '../util/deep-extend';
 import { defaultColorProfile1, ColorProfileData } from '../defs/color-profile';
 import { deepClone } from '../util/deep-clone';
-export { UserTheme, Theme };
+import { GlobalStyleMode, computeGlobalStyle } from './global-style';
+export {
+  UserTheme,
+  Theme,
+  UserProvidedTheme,
+  GlobalStyleTheme,
+  GlobalStyleMode,
+  computeGlobalStyle,
+};
 
 /**
  * Key of localStorage to save theme.
@@ -28,7 +36,8 @@ export interface SavedTheme {
  * Store of user-defined theme.
  */
 export class ThemeStore {
-  @observable public savedTheme!: SavedTheme;
+  @observable
+  public savedTheme!: SavedTheme;
   @computed
   public get themeObject(): UserTheme {
     return this.savedTheme.colorProfile.profile;

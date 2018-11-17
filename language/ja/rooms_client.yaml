@@ -1,0 +1,50 @@
+# Language file for rooms
+
+# title of rooms component
+title: "ルーム一覧"
+
+# message show when no room is avaiable.
+noRoom: "まだ村がありません。"
+
+# loading message
+loading: "読み込み中"
+# error message for loading failure.
+loadFailed: "ルーム一覧を取得できませんでした。"
+
+status:
+  # room is waiting.
+  waiting: "募集中"
+  # room is playing.
+  playing: "対戦中"
+  # room is ended.
+  end: "終了"
+
+# gm is on
+gm: "GMあり"
+
+# player number
+playerNumber: "{{count}}人"
+
+# prefix of owner name
+ownerPrefix: "オーナー："
+# hidden owner name
+ownerHidden: "???"
+
+# previous page button
+prevPageButton: "前のページ"
+# next page button
+nextPageButton: "次のページ"
+
+# link to other pages / modes.
+link:
+  newRoom: "新しいルームを作成"
+  new: "稼働中の部屋一覧"
+  old: "古い部屋一覧"
+  log: "終了した部屋一覧"
+
+# game result.
+result:
+  win: "勝ち"
+  lose: "負け"
+  draw: "引き分け"
+

@@ -1,17 +1,21 @@
+// width to switch to phone mode
+// XXX
+phone-width = 600px
+
 // Helper functions
 
 vendor(prop, args)
   -webkit-{prop} args
   -moz-{prop} args
   {prop} args
-  
+
 round(n)
   vendor border-radius, n
-  
+
 round-corner(tb, lr, n)
   border-{tb}\-{lr}-radius n
   -moz-border-radius-{tb}{lr} n
-  
+
 box-shadow()
   vendor box-shadow, arguments
 
@@ -23,12 +27,12 @@ vertical-gradient(from, to)
   background-color to
   background-image -webkit-gradient(linear, left top, left bottom, from(from), to(to))
   background-image -moz-linear-gradient(top, from, to)
-  
+
 //up down border
 borderudreal()
   border-top arguments
   border-bottom arguments
-  
+
 //u- down border on table-row
 borderud()
   > *

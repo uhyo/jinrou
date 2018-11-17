@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Transition } from 'react-transition-group';
 import { I18n } from '../../../i18n';
 import { bind } from '../../../util/bind';
 
@@ -9,15 +8,28 @@ import {
   SpeakState,
   LogVisibility,
   SpeakQuery,
-  TimerInfo,
   PlayerInfo,
 } from '../defs';
 
 import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
-import { Timer } from './timer';
 import { makeMapByKey } from '../../../util/map-by-key';
 import { SpeakKindSelect } from './speak-kind-select';
+import {
+  MainForm,
+  SpeakTextArea,
+  SpeakInput,
+  SpeakInputArea,
+  SpeakButtonArea,
+  SpeakControlsArea,
+  OthersArea,
+  ButtonArea,
+  LabeledControl,
+} from './layout';
+import { IsPhone } from '../../../common/media';
+import { FontAwesomeIcon } from '../../../util/icon';
+import { SensitiveButton } from '../../../util/sensitive-button';
+import styled from '../../../util/styled';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -41,10 +53,6 @@ export interface IPropSpeakForm extends SpeakState {
    */
   rule: boolean;
   /**
-   * Timer info.
-   */
-  timer: TimerInfo;
-  /**
    * update to a speak form state.
    */
   onUpdate: (obj: Partial<SpeakState>) => void;
@@ -63,7 +71,7 @@ export interface IPropSpeakForm extends SpeakState {
   /**
    * Push the rule button.
    */
-  onRuleOpen: () => void;
+  onRuleOpen: (scroll: boolean) => void;
   /**
    * Change the will.
    */
@@ -72,7 +80,19 @@ export interface IPropSpeakForm extends SpeakState {
 /**
  * Speaking controls.
  */
-export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
+export class SpeakForm extends React.PureComponent<
+  IPropSpeakForm,
+  {
+    /**
+     * Whether additional controls are shown,
+     * only effective on phones UI.
+     */
+    additionalControlsShown: boolean;
+  }
+> {
+  state = {
+    additionalControlsShown: false,
+  };
   protected comment: HTMLInputElement | HTMLTextAreaElement | null = null;
   /**
    * Temporally saved comment.
@@ -93,8 +113,8 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
       willOpen,
       logVisibility,
       rule,
-      timer,
     } = this.props;
+    const { additionalControlsShown } = this.state;
 
     // list of speech kind.
     const speaks = roleInfo != null ? roleInfo.speak : ['day'];
@@ -102,98 +122,146 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
     return (
       <I18n>
         {t => (
-          <>
-            <form onSubmit={this.handleSubmit}>
-              {/* Comment input form. */}
-              {multiline ? (
-                <textarea
-                  ref={e => (this.comment = e)}
-                  cols={50}
-                  rows={4}
-                  required
-                  autoComplete="off"
-                  defaultValue={this.commentString}
-                  onChange={this.handleCommentChange}
-                />
-              ) : (
-                <input
-                  ref={e => (this.comment = e)}
-                  type="text"
-                  size={50}
-                  required
-                  autoComplete="off"
-                  defaultValue={this.commentString}
-                  onChange={this.handleCommentChange}
-                  onKeyDown={this.handleKeyDownComment}
-                />
-              )}
-              {/* Speak button. */}
-              <input type="submit" value={t('game_client:speak.say')} />
-              {/* Speak size select control. */}
-              <select value={size} onChange={this.handleSizeChange}>
-                <option value="small">
-                  {t('game_client:speak.size.small')}
-                </option>
-                <option value="normal">
-                  {t('game_client:speak.size.normal')}
-                </option>
-                <option value="big">{t('game_client:speak.size.big')}</option>
-              </select>
-              {/* Speech kind selection. */}
-              <SpeakKindSelect
-                kinds={speaks}
-                current={kind}
-                t={t}
-                playersMap={playersMap}
-                onChange={this.handleKindChange}
-              />
-              {/* Multiline checkbox. */}
-              <label>
-                <input
-                  type="checkbox"
-                  name="multilinecheck"
-                  checked={multiline}
-                  onChange={this.handleMultilineChange}
-                />
-                {t('game_client:speak.multiline')}
-              </label>
-              {/* Show timer. */} <Timer timer={timer} />
-              {/* Will open button. */}
-              <button type="button" onClick={this.handleWillClick}>
-                {willOpen
-                  ? t('game_client:speak.will.close')
-                  : t('game_client:speak.will.open')}
-              </button>
-              {/* Show rule button. */}
-              <button
-                type="button"
-                onClick={this.handleRuleClick}
-                disabled={!rule}
-              >
-                {t('game_client:speak.rule')}
-              </button>
-              {/* Log visibility control. */}
-              <LogVisibilityControl
-                visibility={logVisibility}
-                day={gameInfo.day}
-                onUpdate={this.handleVisibilityUpdate}
-              />
-              {/* Refuse revival button. */}
-              <button
-                type="button"
-                onClick={this.handleRefuseRevival}
-                disabled={gameInfo.status !== 'playing'}
-              >
-                {t('game_client:speak.refuseRevival')}
-              </button>
-            </form>
-            <WillForm
-              t={t}
-              open={willOpen}
-              will={(roleInfo && roleInfo.will) || undefined}
-              onWillChange={this.handleWillChange}
-            />
-          </>
+          <IsPhone>
+            {isPhone => {
+              // whether additional controls are actually hidden.
+              const othersHidden = isPhone && !additionalControlsShown;
+              return (
+                <>
+                  <MainForm onSubmit={this.handleSubmit}>
+                    {/* Comment input form. */}
+                    <SpeakInputArea>
+                      {multiline ? (
+                        <SpeakTextArea
+                          innerRef={e => (this.comment = e)}
+                          cols={50}
+                          rows={4}
+                          required
+                          autoComplete="off"
+                          defaultValue={this.commentString}
+                          onChange={this.handleCommentChange}
+                        />
+                      ) : (
+                        <SpeakInput
+                          innerRef={e => (this.comment = e)}
+                          type="text"
+                          size={50}
+                          required
+                          autoComplete="off"
+                          defaultValue={this.commentString}
+                          onChange={this.handleCommentChange}
+                          onKeyDown={this.handleKeyDownComment}
+                        />
+                      )}
+                    </SpeakInputArea>
+                    {/* Speak button. */}
+                    <SpeakButtonArea>
+                      <input type="submit" value={t('game_client:speak.say')} />
+                    </SpeakButtonArea>
+                    {/* Speech-related controls. */}
+                    <SpeakControlsArea>
+                      {/* Speak size select control. */}
+                      <LabeledControl
+                        label={t('game_client:speak.size.description')}
+                      >
+                        <select value={size} onChange={this.handleSizeChange}>
+                          <option value="small">
+                            {t('game_client:speak.size.small')}
+                          </option>
+                          <option value="normal">
+                            {t('game_client:speak.size.normal')}
+                          </option>
+                          <option value="big">
+                            {t('game_client:speak.size.big')}
+                          </option>
+                        </select>
+                      </LabeledControl>
+                      {/* Speech kind selection. */}
+                      <LabeledControl
+                        label={t('game_client:speak.kind.description')}
+                      >
+                        <SpeakKindSelect
+                          kinds={speaks}
+                          current={kind}
+                          t={t}
+                          playersMap={playersMap}
+                          onChange={this.handleKindChange}
+                        />
+                      </LabeledControl>
+                      {/* Multiline checkbox. */}
+                      <label>
+                        <input
+                          type="checkbox"
+                          name="multilinecheck"
+                          checked={multiline}
+                          onChange={this.handleMultilineChange}
+                        />
+                        {t('game_client:speak.multiline')}
+                      </label>
+                    </SpeakControlsArea>
+                    {/* Other controls. */}
+                    <OthersArea hidden={othersHidden}>
+                      {/* Will open button. */}
+                      <button type="button" onClick={this.handleWillClick}>
+                        {willOpen
+                          ? t('game_client:speak.will.close')
+                          : t('game_client:speak.will.open')}
+                      </button>
+                      {/* Show rule button. */}
+                      <button
+                        type="button"
+                        onClick={() => this.handleRuleClick(isPhone)}
+                        disabled={!rule}
+                      >
+                        {t('game_client:speak.rule')}
+                      </button>
+                      {/* Log visibility control. */}
+                      <LabeledControl
+                        label={t('game_client:speak.logVisibility.description')}
+                      >
+                        <LogVisibilityControl
+                          visibility={logVisibility}
+                          day={gameInfo.day}
+                          onUpdate={this.handleVisibilityUpdate}
+                        />
+                      </LabeledControl>
+                      {/* Refuse revival button. */}
+                      <button
+                        type="button"
+                        onClick={this.handleRefuseRevival}
+                        disabled={gameInfo.status !== 'playing'}
+                      >
+                        {t('game_client:speak.refuseRevival')}
+                      </button>
+                    </OthersArea>
+                    <ButtonArea>
+                      {/* TODO */}
+                      <SensitiveButton
+                        type="button"
+                        hidden={!isPhone}
+                        onClick={this.handleAdditionalControls}
+                      >
+                        <FontAwesomeIcon
+                          icon={
+                            additionalControlsShown
+                              ? 'caret-square-down'
+                              : 'caret-square-up'
+                          }
+                        />
+                      </SensitiveButton>
+                    </ButtonArea>
+                  </MainForm>
+                  <WillForm
+                    hidden={othersHidden}
+                    t={t}
+                    open={willOpen}
+                    will={(roleInfo && roleInfo.will) || undefined}
+                    onWillChange={this.handleWillChange}
+                  />
+                </>
+              );
+            }}
+          </IsPhone>
         )}
       </I18n>
     );
@@ -306,8 +374,8 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
    * Handle a click of rule button.
    */
   @bind
-  protected handleRuleClick(): void {
-    this.props.onRuleOpen();
+  protected handleRuleClick(scroll: boolean): void {
+    this.props.onRuleOpen(scroll);
   }
   /**
    * Handle an update of log visibility.
@@ -322,5 +390,14 @@ export class SpeakForm extends React.PureComponent<IPropSpeakForm, {}> {
   @bind
   protected handleRefuseRevival(): void {
     this.props.onRefuseRevival();
+  }
+  /**
+   * Handle a click of additional controls button.
+   */
+  @bind
+  protected handleAdditionalControls(e: React.SyntheticEvent<any>): void {
+    this.setState(s => ({
+      additionalControlsShown: !s.additionalControlsShown,
+    }));
   }
 }

@@ -1,4 +1,5 @@
 import styled from '../../util/styled';
+import { phone } from '../../common/media';
 
 const ButtonBase = styled.button`
   appearance: none;
@@ -10,6 +11,10 @@ const ButtonBase = styled.button`
 
   font-size: 1.24em;
   font-weight: bold;
+
+  ${phone`
+    font-size: 1em;
+  `};
 `;
 /**
  * Button with affirmative impression.

@@ -57,16 +57,20 @@ See build instructions in README for details.`);
 if ('string' !== typeof manifestMain) {
   throw new Error('Manifest data is somehow invalid');
 }
+const libi18n = require('./server/libs/i18n.coffee');
+const i18n = libi18n.getWithDefaultNS('view');
 /**
  * Config object for jade formatter.
  */
 const jadeConfig = {
   locals: {
+    Config,
     bundle: manifestMain,
     legacyBundle: legacyManifestMain,
     featureCheckJs: manifestFeatureCheck,
     notSupportedPage: Config.front.notSupportedPage,
     legacyBuilds: Config.front.legacyBuilds,
+    i18n,
   },
 };
 

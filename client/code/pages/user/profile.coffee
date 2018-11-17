@@ -5,6 +5,8 @@ util=require '/util'
 name_length_max=20
 
 exports.start=(user)->
+    dialog = JinrouFront.loadDialog()
+
     seticon=(url)->
         util.setHTTPSicon $("#myicon").get(0), url
         $("#changeprofile").get(0).elements["icon"].value=url
@@ -31,25 +33,45 @@ exports.start=(user)->
         q=Index.util.formQuery je.target
         q.userid=$("p.userid").get(0).textContent
 
-        Index.util.prompt "プロフィール","パスワードを入力してください",{type:"password"},(result)->
-            if result
-                q.password=result
-                pf = ()=>
-                    ss.rpc "user.changeProfile", q,(result)->
-                        if result.error?
-                            Index.util.message "エラー",result.error
-                        else
-                            app.page "user-profile",result,Index.user.profile,result
-                if q.mail?
-                    ss.rpc "user.sendConfirmMail", q,(result)->
-                        if result.error?
-                            Index.util.message "エラー",result.error
-                        else
-                            pf()
-                        if result.info?
-                            Index.util.message "通知",result.info
-                else
-                    pf()
+        dialog.then (dialog)->
+            dialog.showPromptDialog({
+                modal: true
+                password: true
+                autocomplete: "current-password"
+                title: "プロフィール"
+                message: "パスワードを入力してください"
+                ok: "OK"
+                cancel: "キャンセル"
+            }).then (result)->
+                if result
+                    q.password=result
+                    pf = ()=>
+                        ss.rpc "user.changeProfile", q,(result)->
+                            if result.error?
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
+                            else
+                                app.page "user-profile",result,Index.user.profile,result
+                    if q.mail?
+                        ss.rpc "user.sendConfirmMail", q,(result)->
+                            if result.error?
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
+                            else
+                                pf()
+                            if result.info?
+                                dialog.showMessage {
+                                    modal: true
+                                    title: "通知"
+                                    message: result.info
+                                    ok: "OK"
+                                }
+                    else
+                        pf()
 
     $("#mailconfirmsecuritybutton").click (je)->
         je.preventDefault()
@@ -57,9 +79,19 @@ exports.start=(user)->
             mailconfirmsecurity: je.target.form.elements["mailconfirmsecurity"].checked
         }, (result)->
             if result?.error?
-                Index.util.message "エラー",result.error
+                dialog.then (dialog)->
+                    dialog.showErrorDialog {
+                        modal: true
+                        message: String result.error
+                    }
             else
-                Index.util.message "通知", result.info
+                dialog.then (dialog)->
+                    dialog.showMessageDialog {
+                        modal: true
+                        title: "通知"
+                        message: result.info
+                        ok: "OK"
+                    }
                 app.page "user-profile", result, Index.user.profile, result
 
     $("#changepasswordbutton").click (je)->
@@ -68,15 +100,28 @@ exports.start=(user)->
             je.preventDefault()
             ss.rpc "user.changePassword", Index.util.formQuery(je.target),(result)->
                 if result?.error?
-                    Index.util.message "エラー",result.error
+                    dialog.then (dialog)->
+                        dialog.showErrorDialog {
+                            modal: true
+                            message: String result.error
+                        }
                 else
-                    Index.util.message "通知", "パスワードを変更しました。"
+                    dialog.then (dialog)->
+                        dialog.showMessageDialog {
+                            modal: true
+                            title: "通知"
+                            message: "パスワードを変更しました。"
+                            ok: "OK"
+                        }
                     $("#changepassword").get(0).hidden=true
                     app.page "user-profile",result,Index.user.profile,result
 
     $("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
-        Index.util.iconSelectWindow $("#myicon").attr("src"),(url)->
-            seticon url
+        dialog.then (dialog)->
+            dialog.showIconSelectDialog({
+                modal: true
+            }).then (url)->
+                seticon (url ? "")
     ),false
 
     $("#changeprofile").get(0).elements["colorsettingbutton"].addEventListener "click",(e)->
@@ -197,31 +242,45 @@ exports.start=(user)->
         $("#prizearea").submit (je)->
             je.preventDefault()
             que=util.formQuery je.target
-            util.prompt "プロフィール","パスワードを入力してください",{type:"password"},(result)->
-                if result
-                    query=
-                        password:result
-                    prize=[]
-                    $("#prizeedit li").each ->
-                        if @classList.contains "prizetip"
-                            # prizeだ
-                            prize.push {
-                                type:"prize"
-                                value:@dataset.id ? null
-                            }
-                        else
-                            prize.push {
-                                type:"conjunction"
-                                value:@textContent
-                            }
-                        null
-                    query.prize=prize
+            dialog.then (dialog)->
+                dialog.showPromptDialog({
+                    modal: true
+                    password: true
+                    autocomplete: "current-password"
+                    title: "プロフィール"
+                    message: "パスワードを入力してください"
+                    ok: "OK"
+                    cancel: "キャンセル"
+                }).then (result)->
+                    if result
+                        query=
+                            password:result
+                        prize=[]
+                        $("#prizeedit li").each ->
+                            if @classList.contains "prizetip"
+                                # prizeだ
+                                prize.push {
+                                    type:"prize"
+                                    value:@dataset.id ? null
+                                }
+                            else
+                                prize.push {
+                                    type:"conjunction"
+                                    value:@textContent
+                                }
+                            null
+                        query.prize=prize
 
-                    ss.rpc "user.usePrize", query,(result)->
-                        if result?.error?
-                            util.message "エラー",result.error
+                        ss.rpc "user.usePrize", query,(result)->
+                            if result?.error?
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
 
-    Index.game.rooms.start()    # ルーム一覧を表示してもらう
+    Index.game.rooms.start({
+        noLinks: true
+    })    # ルーム一覧を表示してもらう
     # お知らせ一覧を取得する
     ss.rpc "user.getNews",(docs)->
         if docs.error?
@@ -243,3 +302,4 @@ exports.start=(user)->
             $("#newNewsNotice").remove()
 
 exports.end=->
+    Index.game.rooms.end()

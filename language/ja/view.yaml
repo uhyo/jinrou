@@ -1,0 +1,18 @@
+# Language file for views
+
+# description of application.
+description: "リアルタイムチャットが可能な人狼サーバーです。100種以上の役職が使用可能。"
+# name of mypage.
+mypage: "マイページ"
+# name of lobby.
+lobby: "ロビー"
+# rooms page.
+rooms: "ルーム一覧"
+# manual page.
+manual: "マニュアル"
+# back to home link.
+home: "ホームに戻る"
+# about page
+about: "月下人狼について"
+# label of open menu button
+openMenuLabel: "メニューを開く"

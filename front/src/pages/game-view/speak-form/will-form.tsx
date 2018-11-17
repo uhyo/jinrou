@@ -6,6 +6,7 @@ import { TranslationFunction } from 'i18next';
 
 interface IPropWillForm {
   t: TranslationFunction;
+  hidden?: boolean;
   /**
    * Whether the will form is open.
    */
@@ -44,10 +45,14 @@ export class WillForm extends React.PureComponent<
     };
   }
   public render() {
-    const { t, open } = this.props;
+    const { t, hidden, open } = this.props;
     const { changed } = this.state;
     return (
-      <Wrapper open={open} onSubmit={this.handleSubmit}>
+      <Wrapper
+        hidden={hidden}
+        open={!hidden && open}
+        onSubmit={this.handleSubmit}
+      >
         <Content>
           <p>
             {t('game_client:speak.will.message')}
@@ -106,9 +111,12 @@ export class WillForm extends React.PureComponent<
 const Wrapper = withProps<{ open: boolean }>()(styled.form)`
   transition: height 250ms ease-out;
   display: ${({ open }) => (open ? 'block' : 'none')};
+  margin: 0 -8px;
+
   background-color: #636363;
   color: #ffffff;
   overflow-y: hidden;
+
 `;
 
 const Content = styled.div`
@@ -122,6 +130,7 @@ const Content = styled.div`
 
   textarea {
     width: 40em;
+    max-width: 100%;
     height: 4em;
     vertical-align: text-bottom;
   }

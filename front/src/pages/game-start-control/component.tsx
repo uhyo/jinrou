@@ -25,6 +25,7 @@ import { SelectRoles } from './select-roles';
 import { CastingStore } from './store';
 
 import { i18n, I18n, I18nProvider } from '../../i18n';
+import { AppStyling } from '../../styles/phone';
 
 const StatusLine = styled.div`
   position: sticky;
@@ -96,7 +97,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
     };
 
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme} mode={null}>
         <I18nProvider i18n={i18n}>
           <I18n namespace="game_client">
             {t => {
@@ -241,6 +242,6 @@ export class Casting extends React.Component<IPropCasting, {}> {
   }
 }
 
-const Wrapper = styled.div`
+const Wrapper = styled(AppStyling)`
   margin-bottom: 1.2em;
 `;

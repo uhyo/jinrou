@@ -87,7 +87,27 @@ exports.init = ->
     # ヘルプアイコン
     $("*[data-helpicon]").live "click", (je)->
         t = je.currentTarget
-        util.message "ヘルプ", t.getAttribute 'title'
+        JinrouFront.loadDialog().then (dialog)->
+            dialog.showMessageDialog {
+                title: "ヘルプ"
+                message: t.getAttribute 'title'
+                ok: "OK"
+            }
+    # メニューの開閉
+    $("#menu-open-icon").click (je)->
+        menu = $ "#menu"
+        unless menu.hasClass("moved")
+            # weird but move menu to the bottom of page,
+            # for rendering purpose.
+            menu.addClass "moved"
+            $("#menu-overlay").append menu
+            setTimeout(()->
+                menu.toggleClass "open"
+            , 0)
+        else
+            $("#menu").toggleClass "open"
+    $("#menu").click (je)->
+        $("#menu").removeClass "open"
 
     # 自動ログイン
     if localStorage.userid && localStorage.password
