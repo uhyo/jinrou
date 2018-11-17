@@ -25,12 +25,21 @@ export const WrapperElement = withProps<{
 export const WrapperHeader = withProps<{
   teamColor: Color;
   textColor: Color;
+  slim: boolean;
 }>()(styled.div)`
   padding: 0.1em;
   background: linear-gradient(to right, ${props =>
     props.teamColor.string()}, ${props => props.teamColor.fade(0.8).string()});
 
-  font-size: 85%;
+  ${({ slim }) =>
+    slim
+      ? `
+    display: flex;
+    flex-flow: column nowrap;
+  `
+      : `
+    font-size: 85%;
+  `}
   color: ${props => props.textColor.string()};
 `;
 
@@ -83,6 +92,7 @@ export const GameInfoPart = styled.div`
 
     p {
       margin: 0 0.5em;
+      line-height: 1.2;
     }
   `};
 `;

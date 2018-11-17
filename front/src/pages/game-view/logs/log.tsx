@@ -461,7 +461,7 @@ const LogPart = withProps<{
       : 'none'};
   font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
 
-  line-height: var(--base-font-size);
+  line-height: 1;
   padding: 1px 0;
   font-size: var(--base-font-size);
 `;
@@ -501,7 +501,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
     ${({ noName }) => (noName ? 'display: none;' : '')}
     max-width: none;
     text-align: left;
-    font-size: small;
+    font-size: calc(0.7 * var(--base-font-size));
     border-bottom: none;
   `};
 `;
@@ -511,6 +511,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
  */
 const Main = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 3;
+  line-height: var(--base-font-size);
   ${phone`
     grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
     ${({ noName }) => (noName ? '' : 'border-top: none;')}
@@ -566,7 +567,6 @@ const Time = styled(TimeInner)`
   white-space: nowrap;
   font-size: xx-small;
   padding-left: 2px;
-  line-height: 15px;
   text-align: right;
   padding-right: 1ex;
 

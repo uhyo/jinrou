@@ -158,7 +158,7 @@ const LogWrapper = withProps<{
       1fr
       auto;
     grid-auto-flow: row dense;
-    --base-font-size: 0.9rem;
+    --base-font-size: 0.88rem;
   `}
 
 `;
