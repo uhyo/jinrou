@@ -18,6 +18,7 @@ import {
   gameResult,
   RoomNumber,
   CommentStatusLine,
+  RoomOwnerIcon,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
@@ -135,9 +136,9 @@ function RoomStatus({
       </CommentStatusLine>
       <OwnerStatusLine>
         <RoomOwner>
-          <span title={t('ownerTitle')}>
+          <RoomOwnerIcon title={t('ownerTitle')}>
             <FontAwesomeIcon icon="user" />
-          </span>
+          </RoomOwnerIcon>
           {owner != null ? (
             <a href={`/user/${owner.userid}`}>{owner.name}</a>
           ) : (
@@ -148,7 +149,14 @@ function RoomStatus({
       <RoomOpenTimeLine>
         <RoomOpenTime>
           <time dateTime={madeDate.toISOString()}>
-            {madeDate.toLocaleString()}
+            {madeDate.toLocaleString(undefined, {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+            })}
           </time>
         </RoomOpenTime>
       </RoomOpenTimeLine>

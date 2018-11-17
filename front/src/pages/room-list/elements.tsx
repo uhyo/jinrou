@@ -234,6 +234,9 @@ export const RoomOwner = styled(StatusTip)`
     padding: 0.3em;
   }
 `;
+export const RoomOwnerIcon = styled.span`
+  color: #888888;
+`;
 
 /**
  * Wrapper of room opem time
