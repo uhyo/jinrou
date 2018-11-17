@@ -6,6 +6,7 @@ import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
 import { phone } from '../../../common/media';
 import { Theme } from '../../../theme';
+import memoizeOne from 'memoize-one';
 
 export interface IPropOneLog {
   /**
@@ -36,6 +37,45 @@ export interface IPropOneLog {
  * A component which shows one log.
  */
 class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
+  /**
+   * Function to memoize high-cost autolink computation
+   */
+  private autolink = memoizeOne((comment: string) =>
+    autolink(
+      comment,
+      [
+        'url',
+        {
+          pattern() {
+            return /#(\d+)/g;
+          },
+          transform(_1, _2, num) {
+            return {
+              href: `/room/${num}`,
+            };
+          },
+        },
+      ],
+      {
+        url: {
+          attributes: {
+            rel: 'external',
+          },
+          text: url => {
+            // Convert any room URL to room number syntax.
+            const orig = location.origin;
+            if (url.slice(0, orig.length) === orig) {
+              const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
+              if (r != null) {
+                return `#${r[1]}`;
+              }
+            }
+            return url;
+          },
+        },
+      },
+    ),
+  );
   public render() {
     const { t, theme, logClass, log, rule, icons } = this.props;
     if (log.mode === 'voteresult') {
@@ -133,41 +173,8 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
-      const comment = autolink(
-        // server's bug? comment may actually be null
-        log.comment || '',
-        [
-          'url',
-          {
-            pattern() {
-              return /#(\d+)/g;
-            },
-            transform(_1, _2, num) {
-              return {
-                href: `/room/${num}`,
-              };
-            },
-          },
-        ],
-        {
-          url: {
-            attributes: {
-              rel: 'external',
-            },
-            text: url => {
-              // Convert any room URL to room number syntax.
-              const orig = location.origin;
-              if (url.slice(0, orig.length) === orig) {
-                const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
-                if (r != null) {
-                  return `#${r[1]}`;
-                }
-              }
-              return url;
-            },
-          },
-        },
-      );
+      // Server's bug? comment may actually be null
+      const comment = this.autolink(log.comment || '');
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
