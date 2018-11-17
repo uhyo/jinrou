@@ -60,6 +60,7 @@ export const Content = withProps<{
   }
   ${phone`
     flex-flow: column nowrap;
+    font-size: 0.95em;
   `};
 `;
 
@@ -79,7 +80,7 @@ export const GameInfoPart = styled.div`
   align-self: flex-end;
   padding-left: 4px;
 
-  font-size: 0.9em;
+  font-size: 0.95em;
   ${notPhone`
     &:not(:first-child) {
       border-left: 1px dashed var(--border-color);
