@@ -1,4 +1,4 @@
-import styled from '../../util/styled';
+import styled, { withProps } from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
 import { phone } from '../../common/media';
 
@@ -73,7 +73,10 @@ export const RoomWrapper = styled.div`
   display: flex;
   flex-flow: row wrap;
   align-items: baseline;
-  border-bottom: 1px solid #999999;
+  border: 1px solid #999999;
+  &:not(:first-of-type) {
+    border-top: none;
+  }
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
@@ -86,12 +89,11 @@ export const RoomWrapper = styled.div`
  */
 export const RoomNumber = styled.span`
   position: absolute;
-  top: 2ex;
-  left: -2.5ex;
-  width: 2.5ex;
+  top: 3px;
+  left: 3px;
   color: #666666;
   font-size: 0.8em;
-  text-align: right;
+  text-align: left;
 `;
 
 /**
@@ -191,17 +193,22 @@ export const StatusTip = styled.span`
   margin: 0 0.4em;
 `;
 
+export interface IPropRoomStatus {
+  fresh: boolean;
+}
+
 /**
  * Room status components
  */
 export const roomStatus = {
-  waiting: styled(StatusTip)`
-    color: #ff3333;
+  waiting: withProps<IPropRoomStatus>()(styled(StatusTip))`
+    color: ${props => (props.fresh ? '#f33333' : '#d95555')};
+    ${props => (props.fresh ? 'font-weight: bold;' : '')}
   `,
-  playing: styled(StatusTip)`
-    color: #4444ff;
+  playing: withProps<IPropRoomStatus>()(styled(StatusTip))`
+    color: #5555dd;
   `,
-  end: styled(StatusTip)`
+  end: withProps<IPropRoomStatus>()(styled(StatusTip))`
     color: #777777;
   `,
 };

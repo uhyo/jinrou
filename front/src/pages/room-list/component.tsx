@@ -1,13 +1,13 @@
 import * as React from 'react';
 
 import { I18nProvider, i18n } from '../../i18n';
-import { RoomListStore } from './store';
+import { RoomListStore, RoomInStore } from './store';
 import { observer } from 'mobx-react';
 import { RoomListWrapper, Wrapper, NavLinks, Navigation } from './elements';
 import { NormalButton } from '../../common/button';
 import { bind } from 'bind-decorator';
 import { Omit } from '../../types/omit';
-import { Room as RoomData, RoomListMode } from './defs';
+import { RoomListMode } from './defs';
 import { Room } from './room';
 
 export interface IPropRoomList {
@@ -58,7 +58,7 @@ class RoomListInner extends React.Component<
     nextAvailable: boolean;
     mode: RoomListMode;
     page: number;
-    rooms: RoomData[];
+    rooms: RoomInStore[];
     noLinks: boolean;
     loadingState: RoomListStore['state'];
     indexStart: number;

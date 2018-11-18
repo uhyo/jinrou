@@ -25,6 +25,7 @@ import { I18n, TranslationFunction } from '../../i18n';
 import { Observer } from 'mobx-react';
 import { FontAwesomeIcon } from '../../util/icon';
 import { GetJobColorConsumer } from './get-job-color';
+import { RoomInStore } from './store';
 
 /**
  * Component to show one room.
@@ -34,7 +35,7 @@ export function Room({
   listMode,
   index,
 }: {
-  room: Room;
+  room: RoomInStore;
   listMode: RoomListMode;
   index: number;
 }) {
@@ -65,7 +66,7 @@ function RoomStatus({
   listMode,
   t,
 }: {
-  room: Room;
+  room: RoomInStore;
   listMode: RoomListMode;
   t: TranslationFunction;
 }) {
@@ -80,6 +81,7 @@ function RoomStatus({
     comment,
     owner,
     gameinfo,
+    fresh,
   } = room;
 
   const RS = roomStatus[mode];
@@ -89,7 +91,7 @@ function RoomStatus({
   return (
     <>
       <RoomStatusLine>
-        <RS>
+        <RS fresh={fresh}>
           {t(`status.${mode}`)} ({t('playerNumber', { count: players.length })}{' '}
           / {t('playerNumber', { count: number })})
         </RS>

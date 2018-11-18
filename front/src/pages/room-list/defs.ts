@@ -71,3 +71,9 @@ export interface GameInfo {
   job: string;
   subtype: 'win' | 'lose' | 'draw' | 'gm' | 'helper' | null;
 }
+
+/**
+ * Duration where room is considered fresh, in ms.
+ * 1.5 hours
+ */
+export const freshDuration = 1000 * 60 * 90;

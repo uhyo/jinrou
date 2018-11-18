@@ -1,6 +1,12 @@
 import { observable, action, computed } from 'mobx';
-import { Room, RoomListMode } from './defs';
+import { Room, RoomListMode, freshDuration } from './defs';
 
+export interface RoomInStore extends Room {
+  /**
+   * Whether this room is fresh.
+   */
+  fresh: boolean;
+}
 /**
  * States of room list page.
  * @package
@@ -18,7 +24,7 @@ export class RoomListStore {
    * List of rooms.
    */
   @observable
-  public rooms: Room[] = [];
+  public rooms: RoomInStore[] = [];
   /**
    * Number of page.
    */
@@ -58,7 +64,11 @@ export class RoomListStore {
    */
   @action
   public setRooms(rooms: Room[], page: number): void {
-    this.rooms = rooms;
+    const currentTime = Date.now();
+    this.rooms = rooms.map(room => ({
+      ...room,
+      fresh: room.made + freshDuration > currentTime,
+    }));
     this.page = page;
     this.state = 'loaded';
   }
