@@ -6,6 +6,7 @@ import { deepExtend } from '../util/deep-extend';
 import { defaultColorProfile1, ColorProfileData } from '../defs/color-profile';
 import { deepClone } from '../util/deep-clone';
 import { GlobalStyleMode, computeGlobalStyle } from './global-style';
+import { PhoneUISettings } from '../defs';
 export {
   UserTheme,
   Theme,
@@ -26,10 +27,18 @@ const localStorageKey = 'userTheme';
 const localStorageColorProfileKey = 'colorProfile';
 
 /**
+ * Default phone UI settings.
+ */
+const defaultPhoneUISettings: PhoneUISettings = {
+  use: true,
+};
+
+/**
  * Themes saved in user's storage.
  */
 export interface SavedTheme {
   colorProfile: ColorProfileData;
+  phoneUI: PhoneUISettings;
 }
 
 /**
@@ -112,6 +121,7 @@ function loadFromStorage(): SavedTheme {
   };
   return {
     colorProfile: treatColorProfile(colorProfileData),
+    phoneUI: defaultPhoneUISettings,
   };
 }
 

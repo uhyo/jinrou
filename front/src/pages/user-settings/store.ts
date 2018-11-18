@@ -9,7 +9,6 @@ import {
 import { initTab } from './logic/tab-init';
 import { Tab } from './defs/tabs';
 import { ColorName } from './defs/color-profile';
-import { PhoneUISettings } from './defs/phone-ui';
 
 /**
  * States of user settings page.
@@ -42,14 +41,6 @@ export class UserSettingsStore {
    */
   @observable
   public savedColorProfiles: ColorProfileData[] | null = null;
-
-  /**
-   * Whether smartphone UI is active.
-   */
-  @observable
-  public smartphoneUI: PhoneUISettings = {
-    use: true,
-  };
 
   /**
    * Set saved profiles.
@@ -105,10 +96,5 @@ export class UserSettingsStore {
         break;
       }
     }
-  }
-  // ---------- phone UI ----------
-  @action
-  public updatePhoneUISettings(sets: Partial<PhoneUISettings>): void {
-    Object.assign(this.smartphoneUI, sets);
   }
 }

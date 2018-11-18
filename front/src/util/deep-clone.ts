@@ -9,7 +9,10 @@ export function deepClone<T>(obj: T): T {
   }
   const result = {} as T;
   for (const key in obj) {
-    result[key] = deepClone(obj[key]);
+    if (key !== '__proto__') {
+      // prototype pollution attack is totemo kowai
+      result[key] = deepClone(obj[key]);
+    }
   }
   return result;
 }
