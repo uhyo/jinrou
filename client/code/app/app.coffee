@@ -437,6 +437,12 @@ exports.setPhoneUI = setPhoneUI = (use)->
     else
         ""
     $("#viewport-meta").attr "content", content
+    if !use
+        # restore menu's position.
+        menu = $("#menu")
+        if menu.hasClass "moved"
+            menu.removeClass "moved"
+            menu.insertAfter "#userinfo"
 
 loadApplicationConfig = ()->
     ss.rpc "app.applicationconfig", (conf)->
