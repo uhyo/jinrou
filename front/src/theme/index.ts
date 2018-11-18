@@ -38,7 +38,7 @@ const localStorageUsePhoneUIKey = 'usePhoneUI';
 const defaultPhoneUISettings: PhoneUISettings = {
   use: true,
   fontSize: 'normal',
-  speakFormPosition: 'fixed',
+  speakFormPosition: 'normal',
 };
 
 /**
