@@ -6,10 +6,15 @@ import { isPrimitiveOrFunction } from './is-primitive';
 export function deepExtend<T, U>(obj1: T, ...objs: U[]): T & U {
   const result = {} as T & U;
   for (const key in obj1) {
-    (result as any)[key] = obj1[key];
+    if (key !== '__proto__') {
+      (result as any)[key] = obj1[key];
+    }
   }
   for (const obj2 of objs) {
     for (const key in obj2) {
+      if (key === '__proto__') {
+        continue;
+      }
       const v2 = obj2[key];
       if (isPrimitiveOrFunction(v2)) {
         (result as any)[key] = v2;
