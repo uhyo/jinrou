@@ -1,4 +1,4 @@
-import { Tab } from '../defs';
+import { Tab } from '../defs/tabs';
 
 /**
  * Create an update of tab to start editing.

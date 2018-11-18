@@ -1,4 +1,3 @@
-import { ColorName } from '../defs';
 import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
 import { UserSettingDatabase, ColorDocWithoutId, ColorDoc } from './indexeddb';
@@ -13,6 +12,7 @@ import {
 } from '../../../defs/color-profile';
 import { themeStore } from '../../../theme';
 import { deepExtend } from '../../../util/deep-extend';
+import { ColorName } from '../defs/color-profile';
 
 /**
  * Reset store's color profile.

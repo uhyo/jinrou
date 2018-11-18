@@ -76,3 +76,13 @@ color:
     werewolf: "人狼の会話"
     will: "遺言"
 
+# phone-ui.
+phone:
+  # title of phone-ui tab.
+  title: "スマートフォン向け設定"
+  # ui for smartphone.
+  ui:
+    title: "スマートフォン向けUI"
+    yes: "使用する"
+    no: "使用しない"
+

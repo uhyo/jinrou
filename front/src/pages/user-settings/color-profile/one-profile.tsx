@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { ProfileWrapper, ProfileName, Button, ActiveButton } from './elements';
+import { ProfileWrapper, ProfileName } from './elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { withProps } from 'recompose';
 import { TranslationFunction } from 'i18next';
 import { ColorProfileData } from '../../../defs/color-profile';
+import { Button, ActiveButton } from '../commons/button';
 
 export interface IPropOneProfile {
   t: TranslationFunction;
