@@ -108,7 +108,7 @@ export class JobInfo extends React.Component<
                   <RoleInfoInner t={t} roleInfo={roleInfo} />
                 </RoleInfoPart>
               ) : null}
-              <GameInfoPart>
+              <GameInfoPart slim={!fullOpen}>
                 {/* Show alive/dead player number. */}
                 <p>
                   {t('game_client:playerbox.aliveNum', { count: aliveNum })} /{' '}

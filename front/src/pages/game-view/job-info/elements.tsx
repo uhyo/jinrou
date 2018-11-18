@@ -33,6 +33,11 @@ export const WrapperHeader = withProps<{
   background: linear-gradient(to right, ${props =>
     props.teamColor.string()}, ${props => props.teamColor.fade(0.8).string()});
 
+  ${phone`
+    font-size: ${({ slim }) =>
+      slim ? 'var(--base-font-size)' : 'calc(0.85 * var(--base-font-size))'};
+  `}
+
   ${({ slim }) =>
     slim
       ? `
@@ -62,7 +67,7 @@ export const Content = withProps<{
   }
   ${phone`
     flex-flow: column nowrap;
-    font-size: 0.95em;
+    font-size: calc(0.95 * var(--base-font-size));
   `};
 `;
 
@@ -77,12 +82,14 @@ export const RoleInfoPart = styled.div`
 /**
  * Wrapper of game info.
  */
-export const GameInfoPart = styled.div`
+export const GameInfoPart = withProps<{
+  slim: boolean;
+}>()(styled.div)`
   flex: auto 0 0;
   align-self: flex-end;
   padding-left: 4px;
 
-  font-size: 0.95em;
+  ${({ slim }) => (slim ? '' : 'font-size: 0.95em;')}
   ${notPhone`
     &:not(:first-child) {
       border-left: 1px dashed var(--border-color);
@@ -106,5 +113,10 @@ export const GameInfoPart = styled.div`
 export const JobInfoButton = styled.p`
   ${notPhone`
     display: none;
+  `};
+  ${phone`
+    button {
+      font-size: 100%;
+    }
   `};
 `;

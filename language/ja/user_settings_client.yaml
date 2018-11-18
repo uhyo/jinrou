@@ -88,6 +88,7 @@ phone:
   # font size for smartphones.
   fontSize:
     title: "文字の大きさ"
+    description: "ゲーム画面の文字の大きさを設定します。"
     large: "大"
     normal: "中"
     small: "小"
