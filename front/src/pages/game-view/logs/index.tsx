@@ -164,9 +164,9 @@ const LogWrapper = withProps<{
         case 'large':
           return '1rem';
         case 'normal':
-          return '0.88rem';
+          return '0.86rem';
         case 'small':
-          return '0.75rem';
+          return '0.7rem';
       }
     }}
   `}
