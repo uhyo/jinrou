@@ -32,7 +32,11 @@ import { phone, notPhone } from '../../common/media';
 import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
-import { speakFormZIndex, ruleZIndex } from '../../common/z-index';
+import {
+  speakFormZIndex,
+  ruleZIndex,
+  jobinfoZIndex,
+} from '../../common/z-index';
 import memoizeOne from 'memoize-one';
 
 type TeamColors = Record<string, string | undefined>;
@@ -397,16 +401,21 @@ const RoomPreludePart = styled(RoomHeaderPart)`
 const SpeakFormPart = styled(RoomHeaderPart)`
   background-color: ${({ theme }) => theme.globalStyle.background};
   ${phone`
-    /* On phones, speak form is fixed to the bottom. */
-    order: 5;
-    position: sticky;
-    z-index: ${speakFormZIndex};
-    left: 0;
-    bottom: 0;
+    ${({ theme }) =>
+      theme.user.speakFormPosition === 'fixed'
+        ? `
+      /* On phones, speak form is fixed to the bottom. */
+      order: 5;
+      position: sticky;
+      z-index: ${speakFormZIndex};
+      left: 0;
+      bottom: 0;
+      border-top: 1px solid ${theme.globalStyle.color};
+    `
+        : ''}
 
     margin: 0;
     padding: 4px 8px;
-    border-top: 1px solid ${({ theme }) => theme.globalStyle.color};
   `};
 `;
 
@@ -418,6 +427,7 @@ const JobInfoPart = styled(RoomHeaderPart)`
     position: sticky;
     left: 0;
     top: 0;
+    z-index: ${jobinfoZIndex};
   `};
 `;
 

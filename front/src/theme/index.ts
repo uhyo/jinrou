@@ -38,6 +38,7 @@ const localStorageUsePhoneUIKey = 'usePhoneUI';
 const defaultPhoneUISettings: PhoneUISettings = {
   use: true,
   fontSize: 'normal',
+  speakFormPosition: 'fixed',
 };
 
 /**
@@ -59,6 +60,7 @@ export class ThemeStore {
     return {
       ...this.savedTheme.colorProfile.profile,
       phoneFontSize: this.savedTheme.phoneUI.fontSize,
+      speakFormPosition: this.savedTheme.phoneUI.speakFormPosition,
     };
   }
 

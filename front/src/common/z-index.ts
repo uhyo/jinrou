@@ -1,9 +1,13 @@
 // Global z-index hierarchy.
 
 /**
+ * z-index for job info.
+ */
+export const jobinfoZIndex = 1;
+/**
  * z-index for rule.
  */
-export const ruleZIndex = 1;
+export const ruleZIndex = 2;
 /**
  * z-index for speak form.
  */

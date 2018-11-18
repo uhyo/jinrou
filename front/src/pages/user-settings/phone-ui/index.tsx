@@ -6,7 +6,11 @@ import { ThemeStore, themeStore } from '../../../theme';
 import { observerify } from '../../../util/mobx-react';
 import { observer } from 'mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
-import { ControlsWrapper, ControlsName } from '../commons/controls-wrapper';
+import {
+  ControlsWrapper,
+  ControlsName,
+  ControlsDescription,
+} from '../commons/controls-wrapper';
 import { Wrapper } from './elements';
 import { RadioButtons } from '../commons/radio';
 import { PhoneUITab } from '../defs/tabs';
@@ -24,6 +28,7 @@ interface IPropPhoneUIDispInner {
   themeStore: ThemeStore;
   onUIUseChange: (value: string) => void;
   onFontSizeChange: (value: string) => void;
+  onSpeakFormPositionChange: (value: string) => void;
 }
 
 const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
@@ -48,6 +53,15 @@ const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
     });
     themeStore.saveToStorage();
   },
+  onSpeakFormPositionChange: (value: string) => {
+    themeStore.update({
+      phoneUI: {
+        ...themeStore.savedTheme.phoneUI,
+        speakFormPosition: value as any,
+      },
+    });
+    themeStore.saveToStorage();
+  },
 }));
 
 const addDefaultProerties = observer;
@@ -57,6 +71,7 @@ const ColorProfileDispInner = addDefaultProerties(
     t,
     onUIUseChange,
     onFontSizeChange,
+    onSpeakFormPositionChange,
     themeStore,
   }: IPropPhoneUIDispInner) => {
     return (
@@ -80,6 +95,9 @@ const ColorProfileDispInner = addDefaultProerties(
         </ControlsWrapper>
         <ControlsWrapper>
           <ControlsName>{t('phone.fontSize.title')}</ControlsName>
+          <ControlsDescription>
+            {t('phone.fontSize.description')}
+          </ControlsDescription>
           <RadioButtons
             current={themeStore.savedTheme.phoneUI.fontSize}
             options={['large', 'normal', 'small'].map(value => ({
@@ -87,6 +105,20 @@ const ColorProfileDispInner = addDefaultProerties(
               label: t(`phone.fontSize.${value}`),
             }))}
             onChange={onFontSizeChange}
+          />
+        </ControlsWrapper>
+        <ControlsWrapper>
+          <ControlsName>{t('phone.speakFormPosition.title')}</ControlsName>
+          <ControlsDescription>
+            {t('phone.speakFormPosition.description')}
+          </ControlsDescription>
+          <RadioButtons
+            current={themeStore.savedTheme.phoneUI.speakFormPosition}
+            options={['normal', 'fixed'].map(value => ({
+              value,
+              label: t(`phone.speakFormPosition.${value}`),
+            }))}
+            onChange={onSpeakFormPositionChange}
           />
         </ControlsWrapper>
       </Wrapper>

@@ -15,6 +15,7 @@ export const Button = styled.button`
   border: 1px solid ${borderColor};
   border-radius: 3px;
   padding: 8px 10px;
+  font-size: 0.9em;
 `;
 
 /**
