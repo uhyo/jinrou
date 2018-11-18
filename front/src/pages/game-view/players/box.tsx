@@ -101,7 +101,7 @@ const Wrapper = withProps<{
     props.dead ? 'rgba(0, 0, 0, 0.1)' : 'transparent'};
 
   ${phone`
-    font-size: small;
+    font-size: calc(0.9 * var(--base-font-size));
   `}
   ${notPhone`
     &:first-child {
