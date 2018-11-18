@@ -18,7 +18,10 @@ export const WrapperElement = withProps<{
   border: 1px solid var(--border-color);
   background-color: ${props => props.backColor.string()};
   ${phone`
-    ${props => (props.almostHidden ? 'opacity: 0.15;' : '')}
+    ${props =>
+      props.almostHidden && props.theme.user.speakFormPosition === 'fixed'
+        ? 'opacity: 0.15;'
+        : ''}
   `}
 `;
 

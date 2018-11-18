@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { I18n } from '../../../i18n';
+import { I18n, TranslationFunction } from '../../../i18n';
 import { bind } from '../../../util/bind';
 
 import {
@@ -233,13 +233,12 @@ export class SpeakForm extends React.PureComponent<
                           : t('game_client:speak.will.open')}
                       </button>
                       {/* Show rule button. */}
-                      <button
-                        type="button"
-                        onClick={() => this.handleRuleClick(isPhone)}
+                      <RuleButton
+                        t={t}
+                        handleRuleClick={this.props.onRuleOpen}
                         disabled={!rule}
-                      >
-                        {t('game_client:speak.rule')}
-                      </button>
+                        isPhone={isPhone}
+                      />
                       {/* Log visibility control. */}
                       <LabeledControl
                         label={t('game_client:speak.logVisibility.description')}
@@ -395,13 +394,6 @@ export class SpeakForm extends React.PureComponent<
     onWillChange(will);
   }
   /**
-   * Handle a click of rule button.
-   */
-  @bind
-  protected handleRuleClick(scroll: boolean): void {
-    this.props.onRuleOpen(scroll);
-  }
-  /**
    * Handle an update of log visibility.
    */
   @bind
@@ -465,4 +457,30 @@ const ExpandButton = withTheme(
       </SensitiveButton>
     );
   },
+);
+
+const RuleButton = withTheme(
+  ({
+    theme,
+    isPhone,
+    t,
+    handleRuleClick,
+    disabled,
+  }: {
+    theme: Theme;
+    t: TranslationFunction;
+    handleRuleClick: (scroll: boolean) => void;
+    isPhone: boolean;
+    disabled: boolean;
+  }) => (
+    <button
+      type="button"
+      onClick={() =>
+        handleRuleClick(isPhone && theme.user.speakFormPosition === 'fixed')
+      }
+      disabled={disabled}
+    >
+      {t('game_client:speak.rule')}
+    </button>
+  ),
 );
