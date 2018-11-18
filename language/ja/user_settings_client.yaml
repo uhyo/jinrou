@@ -82,7 +82,7 @@ phone:
   title: "スマートフォン向け設定"
   # ui for smartphone.
   ui:
-    title: "スマートフォン向けUI"
+    title: "スマートフォン向け表示"
     yes: "使用する"
     no: "使用しない"
   # font size for smartphones.
