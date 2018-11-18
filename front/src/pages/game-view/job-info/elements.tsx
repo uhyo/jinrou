@@ -17,7 +17,9 @@ export const WrapperElement = withProps<{
   --border-color: ${props => props.borderColor.string()};
   border: 1px solid var(--border-color);
   background-color: ${props => props.backColor.string()};
-  ${props => (props.almostHidden ? 'opacity: 0.15;' : '')}
+  ${phone`
+    ${props => (props.almostHidden ? 'opacity: 0.15;' : '')}
+  `}
 `;
 
 /**
