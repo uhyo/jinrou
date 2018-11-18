@@ -522,7 +522,6 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
  */
 const Main = withProps<IPropLogPart>()(styled(LogPart))`
   grid-column: 3;
-  line-height: var(--base-font-size);
   ${phone`
     grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
     ${({ noName }) => (noName ? '' : 'border-top: none;')}
