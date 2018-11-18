@@ -4,4 +4,4 @@ export { LabeledGroup } from './labeled-group';
 export { RuleGroup, Rule } from './rule-definition';
 export { RoomControlHandlers } from './room-controls';
 export { OneColor, ColorProfile } from './color-profile';
-export { PhoneUISettings } from './phone-ui';
+export { PhoneUISettings, PhoneFontSize } from './phone-ui';

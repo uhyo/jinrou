@@ -37,6 +37,7 @@ const localStorageUsePhoneUIKey = 'usePhoneUI';
  */
 const defaultPhoneUISettings: PhoneUISettings = {
   use: true,
+  fontSize: 'normal',
 };
 
 /**
@@ -55,7 +56,10 @@ export class ThemeStore {
   public savedTheme!: SavedTheme;
   @computed
   public get themeObject(): UserTheme {
-    return this.savedTheme.colorProfile.profile;
+    return {
+      ...this.savedTheme.colorProfile.profile,
+      phoneFontSize: this.savedTheme.phoneUI.fontSize,
+    };
   }
 
   constructor() {

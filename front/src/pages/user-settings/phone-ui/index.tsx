@@ -10,6 +10,7 @@ import { ControlsWrapper, ControlsName } from '../commons/controls-wrapper';
 import { Wrapper } from './elements';
 import { RadioButtons } from '../commons/radio';
 import { PhoneUITab } from '../defs/tabs';
+import { PhoneFontSize } from '../../../defs';
 
 export interface IPropPhoneUIDisp {
   page: PhoneUITab;
@@ -22,6 +23,7 @@ interface IPropPhoneUIDispInner {
   store: UserSettingsStore;
   themeStore: ThemeStore;
   onUIUseChange: (value: string) => void;
+  onFontSizeChange: (value: string) => void;
 }
 
 const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
@@ -37,12 +39,26 @@ const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
     themeStore.saveToStorage();
     store.onChangePhoneUI(use);
   },
+  onFontSizeChange: (value: string) => {
+    themeStore.update({
+      phoneUI: {
+        ...themeStore.savedTheme.phoneUI,
+        fontSize: value as any,
+      },
+    });
+    themeStore.saveToStorage();
+  },
 }));
 
 const addDefaultProerties = observer;
 
 const ColorProfileDispInner = addDefaultProerties(
-  ({ t, page, store, onUIUseChange, themeStore }: IPropPhoneUIDispInner) => {
+  ({
+    t,
+    onUIUseChange,
+    onFontSizeChange,
+    themeStore,
+  }: IPropPhoneUIDispInner) => {
     return (
       <Wrapper>
         <ControlsWrapper>
@@ -60,6 +76,17 @@ const ColorProfileDispInner = addDefaultProerties(
               },
             ]}
             onChange={onUIUseChange}
+          />
+        </ControlsWrapper>
+        <ControlsWrapper>
+          <ControlsName>{t('phone.fontSize.title')}</ControlsName>
+          <RadioButtons
+            current={themeStore.savedTheme.phoneUI.fontSize}
+            options={['large', 'normal', 'small'].map(value => ({
+              value,
+              label: t(`phone.fontSize.${value}`),
+            }))}
+            onChange={onFontSizeChange}
           />
         </ControlsWrapper>
       </Wrapper>

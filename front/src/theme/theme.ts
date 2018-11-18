@@ -1,9 +1,11 @@
-import { ColorProfile } from '../defs';
+import { ColorProfile, PhoneFontSize } from '../defs';
 
 /**
  * Theme that are provided to styled components.
  */
-export interface UserTheme extends ColorProfile {}
+export interface UserTheme extends ColorProfile {
+  phoneFontSize: PhoneFontSize;
+}
 
 /**
  * Calculated style, mainly for global styling.

@@ -158,7 +158,17 @@ const LogWrapper = withProps<{
       1fr
       auto;
     grid-auto-flow: row dense;
-    --base-font-size: 0.88rem;
+    --base-font-size: ${({ theme }) => {
+      const fontSize = theme.user.phoneFontSize;
+      switch (fontSize) {
+        case 'large':
+          return '1rem';
+        case 'normal':
+          return '0.88rem';
+        case 'small':
+          return '0.75rem';
+      }
+    }}
   `}
 
 `;

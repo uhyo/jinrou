@@ -85,4 +85,10 @@ phone:
     title: "スマートフォン向けUI"
     yes: "使用する"
     no: "使用しない"
+  # font size for smartphones.
+  fontSize:
+    title: "文字の大きさ"
+    large: "大"
+    normal: "中"
+    small: "小"
 
