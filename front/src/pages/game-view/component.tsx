@@ -148,8 +148,13 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            <JobInfoPart speakFocus={speakFocus}>
-              <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
+            <JobInfoPart>
+              <JobInfo
+                roleInfo={roleInfo}
+                timer={timer}
+                players={players}
+                speakFocus={speakFocus}
+              />
             </JobInfoPart>
             {/* Open forms. */}
             {gameInfo.status === 'playing' && roleInfo != null ? (
@@ -338,6 +343,21 @@ export class Game extends React.Component<IPropGame, {}> {
 const AppWrapper = styled(AppStyling)`
   display: flex;
   flex-flow: column nowrap;
+
+  --base-font-size: 1rem;
+  ${phone`
+    --base-font-size: ${({ theme }) => {
+      const fontSize = theme.user.phoneFontSize;
+      switch (fontSize) {
+        case 'large':
+          return '1rem';
+        case 'normal':
+          return '0.86rem';
+        case 'small':
+          return '0.7rem';
+      }
+    }}
+  `};
 `;
 
 /**
@@ -393,17 +413,11 @@ const SpeakFormPart = styled(RoomHeaderPart)`
 /**
  * Wrapper of jobinfo form.
  */
-const JobInfoPart = withProps<{
-  /**
-   * Whether speak focus has a focus.
-   */
-  speakFocus: boolean;
-}>()(styled(RoomHeaderPart))`
+const JobInfoPart = styled(RoomHeaderPart)`
   ${phone`
     position: sticky;
     left: 0;
     top: 0;
-    ${({ speakFocus }) => (speakFocus ? 'opacity: 0.15;' : '')}
   `};
 `;
 

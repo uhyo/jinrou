@@ -48,6 +48,10 @@ const otherPlayerKeys: Array<keyof RoleOtherPlayerInfo> = [
 
 export interface IPropJobInfo {
   /**
+   * Whether speak form has focus now.
+   */
+  speakFocus: boolean;
+  /**
    * Role-related info.
    */
   roleInfo: RoleInfo | null;
@@ -79,7 +83,7 @@ export class JobInfo extends React.Component<
     fullOpen: true,
   };
   public render() {
-    const { roleInfo, timer, players } = this.props;
+    const { roleInfo, speakFocus, timer, players } = this.props;
     const { fullOpen } = this.state;
 
     // count alive and dead players.
@@ -93,7 +97,12 @@ export class JobInfo extends React.Component<
       <I18n namespace="game_client">
         {t => {
           return (
-            <Wrapper t={t} team={myteam} slim={!fullOpen}>
+            <Wrapper
+              t={t}
+              team={myteam}
+              slim={!fullOpen}
+              speakFocus={speakFocus}
+            >
               {roleInfo != null ? (
                 <RoleInfoPart hidden={!fullOpen}>
                   <RoleInfoInner t={t} roleInfo={roleInfo} />

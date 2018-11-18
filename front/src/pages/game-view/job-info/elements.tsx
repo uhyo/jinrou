@@ -11,11 +11,13 @@ import { phone, notPhone } from '../../../common/media';
 export const WrapperElement = withProps<{
   borderColor: Color;
   backColor: Color;
+  almostHidden: boolean;
 }>()(styled.div)`
   margin: 0;
   --border-color: ${props => props.borderColor.string()};
   border: 1px solid var(--border-color);
   background-color: ${props => props.backColor.string()};
+  ${props => (props.almostHidden ? 'opacity: 0.15;' : '')}
 `;
 
 /**
