@@ -1,4 +1,5 @@
 import styled, { withProps } from '../../../util/styled';
+import { phone } from '../../../common/media';
 
 /**
  * Color used for borders.
@@ -11,12 +12,18 @@ const borderColor = '#dddddd';
 export const WholeWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
+  ${phone`
+    flex-flow: column nowrap;
+  `};
 `;
 
 export const MainTableWrapper = styled.div`
   flex: auto 0 1;
-  padding-right: 20px;
+  padding: 0 20px;
   border-right: 1px solid ${borderColor};
+  ${phone`
+    order: 1;
+  `};
 `;
 export const ProfileListWrapper = styled.div`
   flex: 300px 0 1;
