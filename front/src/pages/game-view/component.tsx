@@ -91,6 +91,11 @@ interface IPropGame {
 @observer
 export class Game extends React.Component<IPropGame, {}> {
   private ruleElement = React.createRef<HTMLElement>();
+  private playersElement = React.createRef<HTMLElement>();
+  private jobinfoElement = React.createRef<HTMLElement>();
+  private jobinfoMarkerElement = React.createRef<HTMLDivElement>();
+  private speakElement = React.createRef<HTMLElement>();
+  private speakFormRef = React.createRef<SpeakForm>();
   /**
    * memoized function to make theme object from user theme and colors.
    */
@@ -132,7 +137,7 @@ export class Game extends React.Component<IPropGame, {}> {
         <I18nProvider i18n={i18n}>
           <AppWrapper>
             {/* List of players. */}
-            <RoomHeaderPart>
+            <RoomHeaderPart innerRef={this.playersElement}>
               <Players players={players} onFilter={this.handleLogFilter} />
             </RoomHeaderPart>
             {/* Room control buttons. */}
@@ -151,8 +156,10 @@ export class Game extends React.Component<IPropGame, {}> {
                 )}
               </I18n>
             ) : null}
+            {/* marker to jump to jobinfo. */}
+            <div ref={this.jobinfoMarkerElement} />
             {/* Information of your role. */}
-            <JobInfoPart>
+            <JobInfoPart innerRef={this.jobinfoElement}>
               <JobInfo
                 roleInfo={roleInfo}
                 timer={timer}
@@ -167,8 +174,9 @@ export class Game extends React.Component<IPropGame, {}> {
               </RoomHeaderPart>
             ) : null}
             {/* Form for speak and other utilities. */}
-            <SpeakFormPart>
+            <SpeakFormPart innerRef={this.speakElement}>
               <SpeakForm
+                ref={this.speakFormRef}
                 gameInfo={gameInfo}
                 roleInfo={roleInfo}
                 players={players}
@@ -229,6 +237,17 @@ export class Game extends React.Component<IPropGame, {}> {
                 }}
               </Transition>
             </MainWrapper>
+            <NavigationWrapper>
+              <NavigationButton onClick={this.handleNavigationPlayersClick}>
+                {i18n.t('game_client:navigation.players')}
+              </NavigationButton>
+              <NavigationButton onClick={this.handleNavigationSkillClick}>
+                {i18n.t('game_client:navigation.skill')}
+              </NavigationButton>
+              <NavigationButton onClick={this.handleNavigationSpeakClick}>
+                {i18n.t('game_client:navigation.speak')}
+              </NavigationButton>
+            </NavigationWrapper>
             <GlobalStyle />
           </AppWrapper>
         </I18nProvider>
@@ -339,6 +358,54 @@ export class Game extends React.Component<IPropGame, {}> {
       speakFocus: focus,
     });
   }
+  /**
+   * Handle click of go to playersb button.
+   */
+  @bind
+  protected handleNavigationPlayersClick() {
+    const { current } = this.playersElement;
+    if (current != null) {
+      current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
+  @bind
+  protected handleNavigationSkillClick() {
+    const { current } = this.jobinfoMarkerElement;
+    if (current != null) {
+      current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  }
+  @bind
+  protected handleNavigationSpeakClick() {
+    const jobinfo = this.jobinfoElement.current;
+    const speak = this.speakElement.current;
+    if (jobinfo && speak) {
+      const jobinfoh = jobinfo.clientHeight;
+      const bodyBox = document.body.getBoundingClientRect();
+      const speakBox = speak.getBoundingClientRect();
+      const targeth = speakBox.top - bodyBox.top - jobinfoh;
+      // use smooth scrolling on supported platform.
+      if ('scrollBehavior' in document.body.style) {
+        window.scrollTo({
+          behavior: 'smooth',
+          top: targeth,
+          left: window.scrollX,
+        });
+      } else {
+        window.scrollTo(window.scrollX, targeth);
+      }
+      const { current } = this.speakFormRef;
+      if (current != null) {
+        current.setFocus();
+      }
+    }
+  }
 }
 
 /**
@@ -437,6 +504,9 @@ const JobInfoPart = styled(RoomHeaderPart)`
 const MainWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
+  ${phone`
+    margin-bottom: 2em;
+  `};
 `;
 
 /**
@@ -496,4 +566,32 @@ const RuleInnerWrapper = styled.div`
   ${phone`
     max-height: 80vh;
   `};
+`;
+
+const NavigationWrapper = styled.div`
+  display: none;
+  width: 100%;
+  background-color: ${({ theme }) => theme.globalStyle.background};
+  ${phone`
+    ${({ theme }) =>
+      theme.user.speakFormPosition === 'normal'
+        ? `
+      display: flex;
+      flex-flow: row nowrap;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      height: 2em;
+    `
+        : ''}
+  `};
+`;
+
+const NavigationButton = styled.button`
+  flex: auto 1 1;
+  appearance: none;
+  background-color: #f3f3f3;
+  border: 1px solid #888888;
+  margin: 0;
+  color: #333333;
 `;

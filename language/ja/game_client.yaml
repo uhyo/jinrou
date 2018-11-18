@@ -162,6 +162,13 @@ speak:
     oneday: "{{day}}日目"
   # label of refuse revival button.
   refuseRevival: "蘇生辞退"
+
+# navigation shown at the bottom of view on phone.
+navigation:
+  players: "参加者一覧"
+  skill: "能力・投票"
+  speak: "発言"
+
 # Game view: refuse revival.
 refuseRevival:
   # name of the refuse revival feature.

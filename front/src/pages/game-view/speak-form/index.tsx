@@ -290,6 +290,14 @@ export class SpeakForm extends React.PureComponent<
     }
   }
   /**
+   * Forse a focus on speak input.
+   */
+  public setFocus() {
+    if (this.comment != null) {
+      this.comment.focus();
+    }
+  }
+  /**
    * Handle submission of the speak form.
    */
   @bind
