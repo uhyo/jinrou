@@ -27,9 +27,13 @@ interface IPropPhoneUIDispInner {
 const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
   themeStore,
   onUIUseChange: (value: string) => {
-    store.updatePhoneUISettings({
-      use: value === 'yes',
+    themeStore.update({
+      phoneUI: {
+        ...themeStore.savedTheme.phoneUI,
+        use: value === 'yes',
+      },
     });
+    themeStore.saveToStorage();
   },
 }));
 
@@ -37,13 +41,12 @@ const addDefaultProerties = observer;
 
 const ColorProfileDispInner = addDefaultProerties(
   ({ t, page, store, onUIUseChange, themeStore }: IPropPhoneUIDispInner) => {
-    const profile = store.currentProfile;
     return (
       <Wrapper>
         <ControlsWrapper>
           <ControlsName>{t('phone.ui.title')}</ControlsName>
           <RadioButtons
-            current={store.smartphoneUI.use ? 'yes' : 'no'}
+            current={themeStore.savedTheme.phoneUI.use ? 'yes' : 'no'}
             options={[
               {
                 value: 'yes',

@@ -27,6 +27,12 @@ const localStorageKey = 'userTheme';
 const localStorageColorProfileKey = 'colorProfile';
 
 /**
+ * Key of localStorage to communicate with outside of application
+ * for disabling smartphone UI
+ */
+const localStorageUsePhoneUIKey = 'usePhoneUI';
+
+/**
  * Default phone UI settings.
  */
 const defaultPhoneUISettings: PhoneUISettings = {
@@ -83,6 +89,10 @@ export class ThemeStore {
       localStorageKey,
       JSON.stringify(toJS(this.savedTheme)),
     );
+    localStorage.setItem(
+      localStorageUsePhoneUIKey,
+      String(this.savedTheme.phoneUI.use),
+    );
   }
 }
 
@@ -97,6 +107,7 @@ function loadFromStorage(): SavedTheme {
       const savedTheme = JSON.parse(lsk);
       // found the saved theme.
       savedTheme.colorProfile = treatColorProfile(savedTheme.colorProfile);
+      savedTheme.phoneUI = treatPhoneUI(savedTheme.phoneUI);
       return savedTheme;
     } catch (e) {
       console.error(e);
@@ -127,6 +138,9 @@ function loadFromStorage(): SavedTheme {
 
 function treatColorProfile(colorProfile: any): any {
   return deepExtend(defaultColorProfile1, colorProfile);
+}
+function treatPhoneUI(phoneUI: any): any {
+  return deepExtend(defaultPhoneUISettings, phoneUI);
 }
 
 export const themeStore = new ThemeStore();
