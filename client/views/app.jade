@@ -3,7 +3,7 @@ html
   head
     meta(charset="utf-8")
     title= Config.name
-    meta(name="viewport",content="width=device-width,initial-scale=1")
+    meta#viewport-meta(name="viewport",content="width=device-width,initial-scale=1")
     meta(name="application-name",content=Config.name)
     meta(name="description",content=i18n.t('description'))
     link(rel="icon",sizes="16x16",href="/favicon.ico")
@@ -48,6 +48,8 @@ html
               a(href="/backdoor/home")= i18n.t('home')
             li
               a(href="/manual/about")= i18n.t('about')
+            li
+              a(href="/my/settings")= i18n.t('settings')
         #toolbar
       #menu-open-icon
         button(aria-label=i18n.t('openMenuLabel'))

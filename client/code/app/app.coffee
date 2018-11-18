@@ -109,6 +109,14 @@ exports.init = ->
     $("#menu").click (je)->
         $("#menu").removeClass "open"
 
+    # スマートフォンUIのON/OFF
+    window.addEventListener "storage", (e)->
+        if e.key == "usePhoneUI"
+            use = e.newValue != "false"
+            setPhoneUI use
+    setPhoneUI (localStorage.usePhoneUI != "false")
+
+
     # 自動ログイン
     if localStorage.userid && localStorage.password
         login localStorage.userid, localStorage.password,(result)->
@@ -421,6 +429,20 @@ exports.getI18n = getI18n = ()->
         JinrouFront.loadI18n()
     ])
         .then(([ac, i18n])-> i18n.getI18nFor(ac.language.value))
+
+# Dynamically set usage of phone ui.
+exports.setPhoneUI = setPhoneUI = (use)->
+    content = if use
+        "width=device-width,initial-scale=1"
+    else
+        ""
+    $("#viewport-meta").attr "content", content
+    if !use
+        # restore menu's position.
+        menu = $("#menu")
+        if menu.hasClass "moved"
+            menu.removeClass "moved"
+            menu.insertAfter "#userinfo"
 
 loadApplicationConfig = ()->
     ss.rpc "app.applicationconfig", (conf)->

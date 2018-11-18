@@ -5,7 +5,9 @@ import { observer } from 'mobx-react';
 import { I18nProvider, i18n } from '../../i18n';
 import { ColorProfileDisp } from './color-profile';
 import { makeRouter } from '../../common/router';
-import { Tab } from './defs';
+import { PhoneUIDisp } from './phone-ui';
+import { TabSelect } from './tab-select';
+import { Tab } from './defs/tabs';
 
 export interface IPropUserSettings {
   i18n: i18n;
@@ -24,6 +26,7 @@ const TabRouter = makeRouter<
 >(
   {
     color: ColorProfileDisp,
+    phone: PhoneUIDisp,
   },
   'page',
 );
@@ -39,6 +42,7 @@ export class UserSettings extends React.Component<IPropUserSettings, {}> {
           <a href="/my">{i18n.t('backLink')}</a>
         </p>
         <p>{i18n.t('description')}</p>
+        <TabSelect store={store} />
         <TabRouter page={store.tab} store={store} />
       </I18nProvider>
     );

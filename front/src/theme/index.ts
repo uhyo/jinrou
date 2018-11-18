@@ -6,6 +6,7 @@ import { deepExtend } from '../util/deep-extend';
 import { defaultColorProfile1, ColorProfileData } from '../defs/color-profile';
 import { deepClone } from '../util/deep-clone';
 import { GlobalStyleMode, computeGlobalStyle } from './global-style';
+import { PhoneUISettings } from '../defs';
 export {
   UserTheme,
   Theme,
@@ -26,10 +27,26 @@ const localStorageKey = 'userTheme';
 const localStorageColorProfileKey = 'colorProfile';
 
 /**
+ * Key of localStorage to communicate with outside of application
+ * for disabling smartphone UI
+ */
+const localStorageUsePhoneUIKey = 'usePhoneUI';
+
+/**
+ * Default phone UI settings.
+ */
+const defaultPhoneUISettings: PhoneUISettings = {
+  use: true,
+  fontSize: 'normal',
+  speakFormPosition: 'fixed',
+};
+
+/**
  * Themes saved in user's storage.
  */
 export interface SavedTheme {
   colorProfile: ColorProfileData;
+  phoneUI: PhoneUISettings;
 }
 
 /**
@@ -40,7 +57,11 @@ export class ThemeStore {
   public savedTheme!: SavedTheme;
   @computed
   public get themeObject(): UserTheme {
-    return this.savedTheme.colorProfile.profile;
+    return {
+      ...this.savedTheme.colorProfile.profile,
+      phoneFontSize: this.savedTheme.phoneUI.fontSize,
+      speakFormPosition: this.savedTheme.phoneUI.speakFormPosition,
+    };
   }
 
   constructor() {
@@ -74,6 +95,10 @@ export class ThemeStore {
       localStorageKey,
       JSON.stringify(toJS(this.savedTheme)),
     );
+    localStorage.setItem(
+      localStorageUsePhoneUIKey,
+      String(this.savedTheme.phoneUI.use),
+    );
   }
 }
 
@@ -88,6 +113,7 @@ function loadFromStorage(): SavedTheme {
       const savedTheme = JSON.parse(lsk);
       // found the saved theme.
       savedTheme.colorProfile = treatColorProfile(savedTheme.colorProfile);
+      savedTheme.phoneUI = treatPhoneUI(savedTheme.phoneUI);
       return savedTheme;
     } catch (e) {
       console.error(e);
@@ -112,11 +138,15 @@ function loadFromStorage(): SavedTheme {
   };
   return {
     colorProfile: treatColorProfile(colorProfileData),
+    phoneUI: defaultPhoneUISettings,
   };
 }
 
 function treatColorProfile(colorProfile: any): any {
   return deepExtend(defaultColorProfile1, colorProfile);
+}
+function treatPhoneUI(phoneUI: any): any {
+  return deepExtend(defaultPhoneUISettings, phoneUI);
 }
 
 export const themeStore = new ThemeStore();

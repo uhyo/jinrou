@@ -1,9 +1,13 @@
-import { ColorProfile } from '../defs';
+import { ColorProfile, PhoneFontSize } from '../defs';
+import { SpeakFormPosition } from '../defs/phone-ui';
 
 /**
  * Theme that are provided to styled components.
  */
-export interface UserTheme extends ColorProfile {}
+export interface UserTheme extends ColorProfile {
+  phoneFontSize: PhoneFontSize;
+  speakFormPosition: SpeakFormPosition;
+}
 
 /**
  * Calculated style, mainly for global styling.

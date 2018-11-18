@@ -50,14 +50,16 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
             <FontAwesomeIcon icon="search" />
           </span>
         </ToolIcons>
-        {flags.length > 0 ? (
-          <Jobname>
-            {flags.map(flag => (
-              <div key={flag}>[{t(`game_client:playerbox.flags.${flag}`)}]</div>
-            ))}
-          </Jobname>
-        ) : null}
-        {jobname ? <Jobname>{jobname}</Jobname> : null}
+        <Jobname>
+          {flags.length > 0
+            ? flags.map(flag => (
+                <div key={flag}>
+                  [{t(`game_client:playerbox.flags.${flag}`)}]
+                </div>
+              ))
+            : null}
+          {jobname ? <div>{jobname}</div> : null}
+        </Jobname>
         {winner != null ? (
           <Winner winner={winner}>
             {winner
@@ -99,7 +101,7 @@ const Wrapper = withProps<{
     props.dead ? 'rgba(0, 0, 0, 0.1)' : 'transparent'};
 
   ${phone`
-    font-size: small;
+    font-size: calc(0.9 * var(--base-font-size));
   `}
   ${notPhone`
     &:first-child {

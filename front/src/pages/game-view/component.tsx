@@ -32,7 +32,11 @@ import { phone, notPhone } from '../../common/media';
 import { computeGlobalStyle } from '../../theme/global-style';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
-import { speakFormZIndex, ruleZIndex } from '../../common/z-index';
+import {
+  speakFormZIndex,
+  ruleZIndex,
+  jobinfoZIndex,
+} from '../../common/z-index';
 import memoizeOne from 'memoize-one';
 
 type TeamColors = Record<string, string | undefined>;
@@ -148,8 +152,13 @@ export class Game extends React.Component<IPropGame, {}> {
               </I18n>
             ) : null}
             {/* Information of your role. */}
-            <JobInfoPart speakFocus={speakFocus}>
-              <JobInfo roleInfo={roleInfo} timer={timer} players={players} />
+            <JobInfoPart>
+              <JobInfo
+                roleInfo={roleInfo}
+                timer={timer}
+                players={players}
+                speakFocus={speakFocus}
+              />
             </JobInfoPart>
             {/* Open forms. */}
             {gameInfo.status === 'playing' && roleInfo != null ? (
@@ -338,6 +347,21 @@ export class Game extends React.Component<IPropGame, {}> {
 const AppWrapper = styled(AppStyling)`
   display: flex;
   flex-flow: column nowrap;
+
+  --base-font-size: 1rem;
+  ${phone`
+    --base-font-size: ${({ theme }) => {
+      const fontSize = theme.user.phoneFontSize;
+      switch (fontSize) {
+        case 'large':
+          return '1rem';
+        case 'normal':
+          return '0.86rem';
+        case 'small':
+          return '0.7rem';
+      }
+    }}
+  `};
 `;
 
 /**
@@ -377,33 +401,33 @@ const RoomPreludePart = styled(RoomHeaderPart)`
 const SpeakFormPart = styled(RoomHeaderPart)`
   background-color: ${({ theme }) => theme.globalStyle.background};
   ${phone`
-    /* On phones, speak form is fixed to the bottom. */
-    order: 5;
-    position: sticky;
-    z-index: ${speakFormZIndex};
-    left: 0;
-    bottom: 0;
+    ${({ theme }) =>
+      theme.user.speakFormPosition === 'fixed'
+        ? `
+      /* On phones, speak form is fixed to the bottom. */
+      order: 5;
+      position: sticky;
+      z-index: ${speakFormZIndex};
+      left: 0;
+      bottom: 0;
+      border-top: 1px solid ${theme.globalStyle.color};
+    `
+        : ''}
 
     margin: 0;
     padding: 4px 8px;
-    border-top: 1px solid ${({ theme }) => theme.globalStyle.color};
   `};
 `;
 
 /**
  * Wrapper of jobinfo form.
  */
-const JobInfoPart = withProps<{
-  /**
-   * Whether speak focus has a focus.
-   */
-  speakFocus: boolean;
-}>()(styled(RoomHeaderPart))`
+const JobInfoPart = styled(RoomHeaderPart)`
   ${phone`
     position: sticky;
     left: 0;
     top: 0;
-    ${({ speakFocus }) => (speakFocus ? 'opacity: 0.15;' : '')}
+    z-index: ${jobinfoZIndex};
   `};
 `;
 

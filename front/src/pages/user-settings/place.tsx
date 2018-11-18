@@ -15,6 +15,10 @@ export interface IPlaceOptions {
    * Node to place.
    */
   node: HTMLElement;
+  /**
+   * Notify change to usage of phone ui.
+   */
+  onChangePhoneUI(use: boolean): void;
 }
 export interface IPlaceResult {
   unmount: () => void;
@@ -23,12 +27,13 @@ export interface IPlaceResult {
 export async function place({
   i18n,
   node,
+  onChangePhoneUI,
 }: IPlaceOptions): Promise<IPlaceResult> {
   // i18nに必要なリソースを読み込む
   await addResource('user_settings_client', i18n);
   i18n.setDefaultNamespace('user_settings_client');
 
-  const store = new UserSettingsStore(i18n);
+  const store = new UserSettingsStore(i18n, onChangePhoneUI);
 
   // Parallely load data from IndexedDB.
   loadProfilesLogic(store);

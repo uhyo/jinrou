@@ -25,11 +25,14 @@ import {
   OthersArea,
   ButtonArea,
   LabeledControl,
+  SpeakControlsSlim,
 } from './layout';
 import { IsPhone } from '../../../common/media';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { SensitiveButton } from '../../../util/sensitive-button';
-import styled from '../../../util/styled';
+import styled, { withTheme } from '../../../util/styled';
+import { ThemeProvider } from 'styled-components';
+import { Theme } from '../../../theme';
 
 export interface IPropSpeakForm extends SpeakState {
   /**
@@ -167,45 +170,59 @@ export class SpeakForm extends React.PureComponent<
                       <input type="submit" value={t('game_client:speak.say')} />
                     </SpeakButtonArea>
                     {/* Speech-related controls. */}
-                    <SpeakControlsArea>
-                      {/* Speak size select control. */}
-                      <LabeledControl
-                        label={t('game_client:speak.size.description')}
-                      >
-                        <select value={size} onChange={this.handleSizeChange}>
-                          <option value="small">
-                            {t('game_client:speak.size.small')}
-                          </option>
-                          <option value="normal">
-                            {t('game_client:speak.size.normal')}
-                          </option>
-                          <option value="big">
-                            {t('game_client:speak.size.big')}
-                          </option>
-                        </select>
-                      </LabeledControl>
-                      {/* Speech kind selection. */}
-                      <LabeledControl
-                        label={t('game_client:speak.kind.description')}
-                      >
-                        <SpeakKindSelect
-                          kinds={speaks}
-                          current={kind}
-                          t={t}
-                          playersMap={playersMap}
-                          onChange={this.handleKindChange}
-                        />
-                      </LabeledControl>
-                      {/* Multiline checkbox. */}
-                      <label>
-                        <input
-                          type="checkbox"
-                          name="multilinecheck"
-                          checked={multiline}
-                          onChange={this.handleMultilineChange}
-                        />
-                        {t('game_client:speak.multiline')}
-                      </label>
+                    <SpeakControlsArea hidden={othersHidden}>
+                      {othersHidden ? (
+                        <SpeakControlsSlim>
+                          {t('game_client:speak.size.description')}:
+                          {t(`game_client:speak.size.${size}`)}
+                          {'　'}
+                          {t(`game_client:speak.kind.${kind || speaks[0]}`)}
+                        </SpeakControlsSlim>
+                      ) : (
+                        <>
+                          {/* Speak size select control. */}
+                          <LabeledControl
+                            label={t('game_client:speak.size.description')}
+                          >
+                            <select
+                              value={size}
+                              onChange={this.handleSizeChange}
+                            >
+                              <option value="small">
+                                {t('game_client:speak.size.small')}
+                              </option>
+                              <option value="normal">
+                                {t('game_client:speak.size.normal')}
+                              </option>
+                              <option value="big">
+                                {t('game_client:speak.size.big')}
+                              </option>
+                            </select>
+                          </LabeledControl>
+                          {/* Speech kind selection. */}
+                          <LabeledControl
+                            label={t('game_client:speak.kind.description')}
+                          >
+                            <SpeakKindSelect
+                              kinds={speaks}
+                              current={kind}
+                              t={t}
+                              playersMap={playersMap}
+                              onChange={this.handleKindChange}
+                            />
+                          </LabeledControl>
+                          {/* Multiline checkbox. */}
+                          <label>
+                            <input
+                              type="checkbox"
+                              name="multilinecheck"
+                              checked={multiline}
+                              onChange={this.handleMultilineChange}
+                            />
+                            {t('game_client:speak.multiline')}
+                          </label>
+                        </>
+                      )}
                     </SpeakControlsArea>
                     {/* Other controls. */}
                     <OthersArea hidden={othersHidden}>
@@ -243,20 +260,11 @@ export class SpeakForm extends React.PureComponent<
                       </button>
                     </OthersArea>
                     <ButtonArea>
-                      {/* TODO */}
-                      <SensitiveButton
-                        type="button"
-                        hidden={!isPhone}
+                      <ExpandButton
+                        isPhone={isPhone}
+                        additionalControlsShown={additionalControlsShown}
                         onClick={this.handleAdditionalControls}
-                      >
-                        <FontAwesomeIcon
-                          icon={
-                            additionalControlsShown
-                              ? 'caret-square-down'
-                              : 'caret-square-up'
-                          }
-                        />
-                      </SensitiveButton>
+                      />
                     </ButtonArea>
                   </MainForm>
                   <WillForm
@@ -403,7 +411,7 @@ export class SpeakForm extends React.PureComponent<
    * Handle a click of additional controls button.
    */
   @bind
-  protected handleAdditionalControls(e: React.SyntheticEvent<any>): void {
+  protected handleAdditionalControls(): void {
     this.setState(s => ({
       additionalControlsShown: !s.additionalControlsShown,
     }));
@@ -423,3 +431,30 @@ export class SpeakForm extends React.PureComponent<
     this.props.onFocus(false);
   }
 }
+
+const ExpandButton = withTheme(
+  ({
+    theme,
+    isPhone,
+    additionalControlsShown,
+    onClick,
+  }: {
+    theme: Theme;
+    isPhone: boolean;
+    additionalControlsShown: boolean;
+    onClick: () => void;
+  }) => {
+    return (
+      <SensitiveButton type="button" hidden={!isPhone} onClick={onClick}>
+        <FontAwesomeIcon
+          icon={
+            additionalControlsShown !==
+            (theme.user.speakFormPosition === 'normal')
+              ? 'caret-square-down'
+              : 'caret-square-up'
+          }
+        />
+      </SensitiveButton>
+    );
+  },
+);

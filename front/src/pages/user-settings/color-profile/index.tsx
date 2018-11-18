@@ -1,14 +1,11 @@
 import * as React from 'react';
-import { colorNames, sampleIsBold, ColorSettingTab, ColorName } from '../defs';
+import { colorNames, sampleIsBold, ColorName } from '../defs/color-profile';
 import { OneColorDisp } from './one-color';
-import { ColorProfile } from '../../../defs';
-import { observer } from 'mobx-react';
 import {
   ColorsTable,
   WholeWrapper,
   MainTableWrapper,
   ProfileListWrapper,
-  Button,
 } from './elements';
 import { UserSettingsStore } from '../store';
 import { withPropsOnChange } from 'recompose';
@@ -29,6 +26,8 @@ import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
 import { ColorProfileData, defaultProfiles } from '../../../defs/color-profile';
 import { ThemeStore, themeStore } from '../../../theme';
+import { Button } from '../commons/button';
+import { ColorSettingTab } from '../defs/tabs';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;
@@ -119,66 +118,63 @@ const ColorProfileDispInner = addDefaultProerties(
   }) => {
     const profile = store.currentProfile;
     return (
-      <section>
-        <h2>{t('color.title')}</h2>
-        <WholeWrapper>
-          <MainTableWrapper>
-            <p>
-              {page.editing ? t('color.editing') + '：' : null}
-              {profile.name}
-            </p>
-            <ColorsTable>
-              <tbody>
-                {colorNames.map(name => (
-                  <tr key={name}>
-                    <OneColorDisp
-                      t={t}
-                      name={name}
-                      data={profile.profile[name]}
-                      bold={sampleIsBold[name]}
-                      onFocus={onFocus[name]}
-                      onColorChange={onColorChange[name]}
-                      onColorChangeComplete={onColorChangeComplete[name]}
-                      currentFocus={
-                        page.colorFocus && page.colorFocus.key === name
-                          ? page.colorFocus.type
-                          : null
-                      }
-                    />
-                  </tr>
+      <WholeWrapper>
+        <MainTableWrapper>
+          <p>
+            {page.editing ? t('color.editing') + '：' : null}
+            {profile.name}
+          </p>
+          <ColorsTable>
+            <tbody>
+              {colorNames.map(name => (
+                <tr key={name}>
+                  <OneColorDisp
+                    t={t}
+                    name={name}
+                    data={profile.profile[name]}
+                    bold={sampleIsBold[name]}
+                    onFocus={onFocus[name]}
+                    onColorChange={onColorChange[name]}
+                    onColorChangeComplete={onColorChangeComplete[name]}
+                    currentFocus={
+                      page.colorFocus && page.colorFocus.key === name
+                        ? page.colorFocus.type
+                        : null
+                    }
+                  />
+                </tr>
+              ))}
+            </tbody>
+          </ColorsTable>
+        </MainTableWrapper>
+        <ProfileListWrapper>
+          <p>
+            {t('color.savedProfiles')}
+            <Button onClick={onNewProfile}>{t('color.addButton')}</Button>
+          </p>
+          {store.savedColorProfiles == null
+            ? t('loading')
+            : store.savedColorProfiles
+                .concat(defaultProfiles)
+                .map(profile => (
+                  <OneProfile
+                    t={t}
+                    key={profile.id + profile.name}
+                    profile={profile}
+                    used={isProfileUsed(
+                      themeStore.savedTheme.colorProfile,
+                      profile,
+                    )}
+                    edited={
+                      page.editing && store.currentProfile.id === profile.id
+                    }
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onUse={onUse}
+                  />
                 ))}
-              </tbody>
-            </ColorsTable>
-          </MainTableWrapper>
-          <ProfileListWrapper>
-            <p>
-              {t('color.savedProfiles')}
-              <Button onClick={onNewProfile}>{t('color.addButton')}</Button>
-            </p>
-            {store.savedColorProfiles == null
-              ? t('loading')
-              : store.savedColorProfiles
-                  .concat(defaultProfiles)
-                  .map(profile => (
-                    <OneProfile
-                      t={t}
-                      key={profile.id + profile.name}
-                      profile={profile}
-                      used={isProfileUsed(
-                        themeStore.savedTheme.colorProfile,
-                        profile,
-                      )}
-                      edited={
-                        page.editing && store.currentProfile.id === profile.id
-                      }
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                      onUse={onUse}
-                    />
-                  ))}
-          </ProfileListWrapper>
-        </WholeWrapper>
-      </section>
+        </ProfileListWrapper>
+      </WholeWrapper>
     );
   },
 );

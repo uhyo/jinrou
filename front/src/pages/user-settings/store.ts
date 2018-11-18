@@ -1,6 +1,4 @@
 import { observable, action } from 'mobx';
-import { Tab, ColorName } from './defs';
-import { ColorProfile } from '../../defs';
 import { i18n } from '../../i18n';
 import { deepClone } from '../../util/deep-clone';
 import { TranslationFunction } from 'i18next';
@@ -8,6 +6,9 @@ import {
   ColorProfileData,
   defaultColorProfile1,
 } from '../../defs/color-profile';
+import { initTab } from './logic/tab-init';
+import { Tab } from './defs/tabs';
+import { ColorName } from './defs/color-profile';
 
 /**
  * States of user settings page.
@@ -17,21 +18,18 @@ export class UserSettingsStore {
    * Current tab.
    */
   @observable
-  public tab: Tab = {
-    page: 'color',
-    editing: false,
-    colorFocus: null,
-  };
+  public tab: Tab = initTab('color');
   /**
    * Current profile of colors.
    */
-  @observable public currentProfile: ColorProfileData;
+  @observable
+  public currentProfile: ColorProfileData;
   /**
    * Profile selected by default.
    */
   public defaultProfile: ColorProfileData;
 
-  constructor(i18n: i18n) {
+  constructor(i18n: i18n, public onChangePhoneUI: (use: boolean) => void) {
     this.defaultProfile = {
       ...defaultColorProfile1,
       name: i18n.t('color.defaultProfile'),
@@ -41,7 +39,8 @@ export class UserSettingsStore {
   /**
    * Saved color profiles.
    */
-  @observable public savedColorProfiles: ColorProfileData[] | null = null;
+  @observable
+  public savedColorProfiles: ColorProfileData[] | null = null;
 
   /**
    * Set saved profiles.

@@ -76,3 +76,28 @@ color:
     werewolf: "人狼の会話"
     will: "遺言"
 
+# phone-ui.
+phone:
+  # title of phone-ui tab.
+  title: "スマートフォン向け設定"
+  # ui for smartphone.
+  ui:
+    title: "スマートフォン向け表示"
+    yes: "使用する"
+    no: "使用しない"
+  # font size for smartphones.
+  fontSize:
+    title: "文字の大きさ"
+    description: "ゲーム画面の文字の大きさを設定します。"
+    large: "大"
+    normal: "中"
+    small: "小"
+  # position of speak form
+  speakFormPosition:
+    title: "発言フォームの位置"
+    description: "ゲーム画面の発言フォームの位置を設定します。"
+    normal: "通常"
+    fixed: "下に固定"
+
+
+
