@@ -138,3 +138,8 @@ export const LabeledControl = styled<{
     margin: 0 2px;
   `};
 `;
+
+export const SpeakControlsSlim = styled.span`
+  font-size: xx-small;
+  opacity: 0.75;
+`;
