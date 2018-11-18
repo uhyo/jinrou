@@ -27,13 +27,15 @@ interface IPropPhoneUIDispInner {
 const addProps = withProps(({ store }: IPropPhoneUIDisp) => ({
   themeStore,
   onUIUseChange: (value: string) => {
+    const use = value === 'yes';
     themeStore.update({
       phoneUI: {
         ...themeStore.savedTheme.phoneUI,
-        use: value === 'yes',
+        use,
       },
     });
     themeStore.saveToStorage();
+    store.onChangePhoneUI(use);
   },
 }));
 

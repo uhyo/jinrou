@@ -11,6 +11,7 @@ exports.start = ->
             userSettings.place({
                 i18n: i18n
                 node: node
+                onChangePhoneUI: app.setPhoneUI
             }).then (u)-> unmount = u.unmount
 
 exports.end = ->
