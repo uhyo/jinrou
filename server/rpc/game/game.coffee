@@ -9603,6 +9603,12 @@ class Chemical extends Complex
     makejobinfo:(game,result)->
         @main.makejobinfo game,result
         @sub?.makejobinfo? game,result
+    getOpenForms:(game)->
+        res1 = @main.getOpenForms game
+        if @sub?
+            res2 = @sub.getOpenForms game
+            res1.push res2...
+        return res1
 
 games={}
 
