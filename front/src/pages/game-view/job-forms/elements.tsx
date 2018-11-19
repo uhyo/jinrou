@@ -21,6 +21,7 @@ export const FormWrapper = styled.div`
   margin: 4px;
   background-color: rgba(255, 255, 255, 0.9);
   color: #000000;
+  font-size: var(--base-font-size);
 
   p {
     margin: 4px 0;
@@ -78,4 +79,8 @@ export const OptionLabel = styled.label`
     background-color: #eeeebb;
     box-shadow: 0 0 4px 4px #eeeebb;
   }
+
+  ${phone`
+    margin: 0.6em;
+  `};
 `;
