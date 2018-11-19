@@ -6855,21 +6855,23 @@ class Baker extends Player
         firstBakery=bakers[0]
         if firstBakery?.id==@id
             # わ た し だ
-            if bakers.some((x)->!x.dead)
-                # 生存パン屋がいる
-                if @flag=="done"
-                    @setFlag null
-                log=
-                    mode:"system"
-                    comment: game.i18n.t "roles:Baker.alive"
-                splashlog game.id,game,log
-            else if @flag!="done"
-                # 全員死亡していてまたログを出していない
-                log=
-                    mode:"system"
-                    comment: game.i18n.t "roles:Baker.dead"
-                splashlog game.id,game,log
-                @setFlag "done"
+            innerBakers = firstBakery.accessByJobTypeAll "Baker"
+            if innerBakers[0]?.objid == @objid
+                if bakers.some((x)->!x.dead)
+                    # 生存パン屋がいる
+                    if @flag=="done"
+                        @setFlag null
+                    log=
+                        mode:"system"
+                        comment: game.i18n.t "roles:Baker.alive"
+                    splashlog game.id,game,log
+                else if @flag!="done"
+                    # 全員死亡していてまたログを出していない
+                    log=
+                        mode:"system"
+                        comment: game.i18n.t "roles:Baker.dead"
+                    splashlog game.id,game,log
+                    @setFlag "done"
 
     deadsunrise:(game)->
         Baker::sunrise.call this, game
