@@ -8164,8 +8164,8 @@ class Raven extends Player
                     mode: "system"
                     comment: game.i18n.t "roles:Raven.message"
                 splashlog game.id, game, log
-            # ログ出し終わったフラグ
-            @setFlag true
+                # ログ出し終わったフラグ
+                @setFlag true
     deadsunrise:(game)->
         Raven::sunrise.call this, game
     makejobinfo:(game, result)->
