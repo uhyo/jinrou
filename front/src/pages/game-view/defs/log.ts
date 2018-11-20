@@ -124,3 +124,13 @@ export interface ProbabilityTableLog extends LogBase {
  * Type of log.
  */
 export type Log = NormalLog | NextTurnLog | ProbabilityTableLog | VoteResultLog;
+
+/**
+ * Maximum number of rows in one `display: grid` container.
+ * Currently, Google Chrome limits the number of rows to 1000.
+ * cf. https://github.com/rachelandrew/gridbugs/issues/28
+ *
+ * As one log occupies two rows in phone UI, the limit is set to the half of the Chrome limit.
+ * @package
+ */
+export const maxLogsInGrid = 500;

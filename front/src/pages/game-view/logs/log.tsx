@@ -7,6 +7,7 @@ import { TranslationFunction } from '../../../i18n';
 import { phone } from '../../../common/media';
 import { Theme } from '../../../theme';
 import memoizeOne from 'memoize-one';
+import { FixedSizeLogRow } from './elements';
 
 export interface IPropOneLog {
   /**
@@ -19,6 +20,10 @@ export interface IPropOneLog {
    * Class name attached to each log.
    */
   logClass: string;
+  /**
+   * Whether logs are rendered in fixed-size mode.
+   */
+  fixedSize: boolean;
   /**
    * Log to show.
    */
@@ -77,12 +82,16 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
     ),
   );
   public render() {
-    const { t, theme, logClass, log, rule, icons } = this.props;
+    const { t, theme, logClass, fixedSize, log, rule, icons } = this.props;
+
+    const LogLineWrapper = fixedSize ? FixedSizeLogRow : React.Fragment;
+
     if (log.mode === 'voteresult') {
       // log of vote result table
       const logStyle = computeLogStyle('voteresult', theme);
+
       return (
-        <>
+        <LogLineWrapper>
           <Icon noName logStyle={logStyle} className={logClass} />
           <Name noName logStyle={logStyle} className={logClass} />
           <Main noName logStyle={logStyle} className={logClass}>
@@ -112,13 +121,13 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             logStyle={logStyle}
             className={logClass}
           />
-        </>
+        </LogLineWrapper>
       );
     } else if (log.mode === 'probability_table') {
       // log of probability table for Quantum Werewwolf
       const logStyle = computeLogStyle('probability_table', theme);
       return (
-        <>
+        <LogLineWrapper>
           <Icon noName logStyle={logStyle} className={logClass} />
           <Name noName logStyle={logStyle} className={logClass} />
           <Main noName logStyle={logStyle} className={logClass}>
@@ -171,7 +180,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </LogTable>
           </Main>
-        </>
+        </LogLineWrapper>
       );
     } else {
       const logStyle = computeLogStyle(log.mode, theme);
@@ -193,7 +202,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
         'data-userid': 'userid' in log ? log.userid : undefined,
       };
       return (
-        <>
+        <LogLineWrapper>
           {/* icon */}
           <Icon noName={noName} {...props}>
             {icon != null ? <img src={icon} alt="" /> : null}
@@ -213,7 +222,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             logStyle={logStyle}
             className={logClass}
           />
-        </>
+        </LogLineWrapper>
       );
     }
   }
