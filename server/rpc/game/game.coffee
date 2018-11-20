@@ -1689,7 +1689,7 @@ class Game
             else
                 detail = @i18n.t "foundDetail.fallback"
             log=
-                mode:"system"
+                mode:"hidden"
                 to:-1
                 comment: @i18n.t "foundDetail.situation",{name: x.name, detail: detail}
             splashlog @id,this,log
@@ -3672,7 +3672,7 @@ class Poisoner extends Player
         pl.die game,"poison"
         @addGamelog game,"poisonkill",null,pl.id
         log=
-            mode:"skill"
+            mode:"hidden"
             to:-1
             comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
@@ -8783,7 +8783,7 @@ class HolyProtected extends Complex
         game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
         # show invisible detail
         log=
-            mode:"system"
+            mode:"hidden"
             to:-1
             comment: game.i18n.t "roles:Priest.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
         splashlog game.id,game,log
@@ -9029,7 +9029,7 @@ class MikoProtected extends Complex
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
         # show invisible detail
         log=
-            mode:"system"
+            mode:"hidden"
             to:-1
             comment: game.i18n.t "roles:Miko.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
         splashlog game.id,game,log
