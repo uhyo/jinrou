@@ -204,8 +204,13 @@ module.exports=
                 else
                     # 接続
                     pr+=x.value
-            if pr
-                name="#{Server.prize.prizeQuote pr}#{name}"
+        # theme may have built-in prize.
+        if room.blind in ["complete","yes"] && room.theme
+            theme = Server.game.themes.getTheme room.theme
+            if theme != null && player.tpr
+                pr = player.tpr
+        if pr
+            name="#{Server.prize.prizeQuote pr}#{name}"
 
         game = games[room.id]
         unless game && !game.participants.some((p)->p.realid==player.realid)
@@ -364,6 +369,7 @@ Server=
     game:
         game:module.exports
         rooms:require './rooms.coffee'
+        themes:require './themes.coffee'
     prize:require '../../prize.coffee'
     oauth:require '../../oauth.coffee'
     log:require '../../log.coffee'
@@ -2205,6 +2211,10 @@ class Game
                     [@i18n.t("judge.lonewolf"),@i18n.t("judge.short.lonewolf")]
                 when "Draw"
                     [@i18n.t("judge.draw"),""]
+            # 身代わりくん单独勝利
+            winpl = @players.filter (x)->x.winner
+            if(winpl.length==1 && winpl[0].realid=="身代わりくん")
+                resultstring = @i18n.t("judge.scapegoat")
             if teamstring
                 log.comment = @i18n.t "system.judge", {short: teamstring, result: resultstring}
             else
@@ -4527,9 +4537,9 @@ class Spellcaster extends Player
             return game.i18n.t "error.common.alreadyUsed"
         arr=[]
         try
-          arr=JSON.parse @flag
+            arr=JSON.parse @flag
         catch error
-          arr=[]
+            arr=[]
         unless arr instanceof Array
             arr=[]
         if playerid in arr
@@ -6459,18 +6469,18 @@ class PsychoKiller extends Madman
     touched:(game,from)->
         # 殺すリストに追加する
         fl=try
-               JSON.parse @flag || "[]"
-           catch e
-               []
+            JSON.parse @flag || "[]"
+        catch e
+            []
         fl.push from
         @setFlag JSON.stringify fl
     sunset:(game)->
         @setFlag "[]"
     midnight:(game,midnightSort)->
         fl=try
-               JSON.parse @flag || "[]"
-           catch e
-               []
+            JSON.parse @flag || "[]"
+        catch e
+            []
         for id in fl
             pl=game.getPlayer id
             if pl? && !pl.dead
@@ -8377,9 +8387,9 @@ class Waiting extends Player
     formType: FormType.required
     sleeping:(game)->game.phase != Phase.rolerequesting || game.rolerequesttable[@id]?
     isListener:(game,log)->
-       if log.mode=="audience"
-           true
-       else super
+        if log.mode=="audience"
+            true
+        else super
     getSpeakChoice:(game)->
         return ["prepare"]
     getOpenForms:(game)->
@@ -8429,10 +8439,10 @@ class Watching extends Player
     sleeping:(game)->true
     isWinner:(game,team)->true
     isListener:(game,log)->
-       if log.mode in ["audience","inlog"]
-           # 参加前なので
-           true
-       else super
+        if log.mode in ["audience","inlog"]
+            # 参加前なので
+            true
+        else super
     getSpeakChoice:(game)->
         return ["audience"]
     getSpeakChoiceDay:(game)->
@@ -10867,6 +10877,14 @@ module.exports.actions=(req,res,ss)->
                         ss.publish.channel "room#{roomid}","refresh",{id:roomid}
                     else
                         res result
+            # theme may have custom opening
+            if room.blind in ["complete","yes"] && room.theme
+                theme = Server.game.themes.getTheme room.theme
+                if theme != null && theme.opening
+                    log=
+                        mode:"system"
+                        comment:theme.opening
+                    splashlog game.id,game,log
     # 情報を開示
     getlog:(roomid)->
         M.games.findOne {id:roomid}, (err,doc)=>

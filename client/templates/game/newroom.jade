@@ -28,6 +28,10 @@ section.rooms
             option(value="yes") あり（終了後に公開）
             option(value="complete") あり（最後まで非公開）
       p
+        label(title="覆面がありに設定された後、全プレイヤーの名前がサーバーによってランダムに選択されます。")
+          | テーマ
+          select(id="theme",name="theme")
+      p
         label(title="ありにすると、ルームを建てた人はGMになります")
           | GM
           select(name="ownerGM")
