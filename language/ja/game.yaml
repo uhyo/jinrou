@@ -244,7 +244,7 @@ foundDetail:
   gone-night: "夜間突然死"
   crafty: "死んだふり"
   fallback: "不明"
-  situation: "{{name}}の死因は{{detail}}です。"
+  situation: "{{name}}の死因は{{detail}}でした。"
 
 # Result of Game
 judge:
