@@ -3339,6 +3339,8 @@ class Werewolf extends Player
                 return true
         return false
     job:(game,playerid)->
+        if @scapegoat && @sleeping(game)
+            return null
         tp = game.getPlayer playerid
         if game.werewolf_target_remain<=0
             return game.i18n.t "error.common.cannotUseSkillNow"
