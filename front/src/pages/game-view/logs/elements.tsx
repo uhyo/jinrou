@@ -1,0 +1,73 @@
+import styled, { css } from '../../../util/styled';
+import { withProps } from '../../../util/styled';
+import { phone } from '../../../common/media';
+
+/**
+ * Columns definition of fixed-size log layout.
+ */
+const fixedSizeGridColumnsPC = '16px 10em 1fr auto';
+const fixedSizeGridColumnsPhone = '16px 1fr auto';
+/**
+ * Wrapper of whole logs.
+ */
+export const LogWrapper = withProps<{
+  /**
+   * The class attached to each log.
+   */
+  logClass: string;
+  /**
+   * ID of user currently picked up.
+   */
+  logPickup: string | null;
+  /**
+   * Whether the UI is in "fixed-size mode".
+   */
+  fixedSize: boolean;
+}>()(styled.div)`
+  width: 100%;
+  display: ${props => (props.fixedSize ? 'block' : 'grid')};
+  grid-template-columns:
+    minmax(8px, max-content)
+    fit-content(10em)
+    1fr
+    auto;
+  ${({ logClass, logPickup }) =>
+    // logPickup should not contain `"` because it is a user id.
+    // XXX safer solution?
+    logPickup != null
+      ? css`
+    .${logClass}:not([data-userid="${logPickup}"]) {
+      opacity: 0.3;
+    }
+  `
+      : ''}
+
+  ${phone`
+    grid-template-columns:
+      minmax(8px, max-content)
+      1fr
+      auto;
+    grid-auto-flow: row dense;
+  `}
+`;
+
+/**
+ * Wrapper of chunk, used in fixed-size mode.
+ */
+export const FixedSizeChunkWrapper = withProps<{
+  visible: boolean;
+}>()(styled.div)`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+`;
+
+/**
+ * Wrapper of one log line, used in fixed-size layout.
+ */
+export const FixedSizeLogRow = styled.div`
+  display: grid;
+  grid-template-columns: ${fixedSizeGridColumnsPC};
+  ${phone`
+    grid-template-columns: ${fixedSizeGridColumnsPhone};
+    grid-auto-flow: row dense;
+  `};
+`;

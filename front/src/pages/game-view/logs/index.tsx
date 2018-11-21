@@ -1,16 +1,14 @@
 import * as React from 'react';
-import styled, { css } from '../../../util/styled';
 import { observer, Observer } from 'mobx-react';
-import { Log, LogVisibility } from '../defs';
+import { Log, LogVisibility, maxLogsInGrid } from '../defs';
 import { Rule } from '../../../defs';
 
 import { OneLog } from './log';
 import { assertNever } from '../../../util/assert-never';
 import { StoredLog, LogStore } from './log-store';
 import { mapReverse } from '../../../util/map-reverse';
-import { withProps } from '../../../util/styled';
-import { phone } from '../../../common/media';
 import { I18n } from '../../../i18n';
+import { LogWrapper, FixedSizeChunkWrapper } from './elements';
 
 export interface IPropLogs {
   /**
@@ -57,10 +55,13 @@ export class Logs extends React.Component<IPropLogs, {}> {
       onResetLogPickup,
     } = this.props;
 
+    const fixedSize = logs.allLogNumber > maxLogsInGrid;
+
     return (
       <LogWrapper
         logPickup={logPickup}
         logClass={this.logClass}
+        fixedSize={fixedSize}
         onClick={onResetLogPickup}
       >
         {mapReverse(logs.chunks, (chunk, i) => {
@@ -76,6 +77,7 @@ export class Logs extends React.Component<IPropLogs, {}> {
               logClass={this.logClass}
               logs={chunk.logs}
               visible={visible}
+              fixedSize={fixedSize}
               icons={icons}
               rule={rule}
             />
@@ -91,20 +93,39 @@ export class Logs extends React.Component<IPropLogs, {}> {
  */
 class LogChunk extends React.Component<
   {
+    /**
+     * Class attached to each log.
+     */
     logClass: string;
+    /**
+     * Logs to render.
+     */
     logs: StoredLog[];
+    /**
+     * Whether this chunk is visible.
+     */
     visible: boolean;
+    /**
+     * Whether logs are rendered in fixed-size mode.
+     */
+    fixedSize: boolean;
+    /**
+     * Icon of each user.
+     */
     icons: Record<string, string | undefined>;
+    /**
+     * Current rule.
+     */
     rule: Rule | undefined;
   },
   {}
 > {
   public render() {
-    const { logClass, logs, visible, rule, icons } = this.props;
-    if (!visible) {
+    const { logClass, logs, visible, fixedSize, rule, icons } = this.props;
+    if (!visible && !fixedSize) {
       return null;
     }
-    return (
+    const chunkContent = (
       <I18n namespace="game_client">
         {t => (
           <Observer>
@@ -115,6 +136,7 @@ class LogChunk extends React.Component<
                     key={`${log.time}-${(log as any).comment || ''}`}
                     t={t}
                     logClass={logClass}
+                    fixedSize={fixedSize}
                     log={log}
                     rule={rule}
                     icons={icons}
@@ -126,37 +148,14 @@ class LogChunk extends React.Component<
         )}
       </I18n>
     );
+    if (fixedSize) {
+      return (
+        <FixedSizeChunkWrapper visible={visible}>
+          {chunkContent}
+        </FixedSizeChunkWrapper>
+      );
+    } else {
+      return chunkContent;
+    }
   }
 }
-
-const LogWrapper = withProps<{
-  logClass: string;
-  logPickup: string | null;
-}>()(styled.div)`
-  width: 100%;
-  display: grid;
-  grid-template-columns:
-    minmax(8px, max-content)
-    fit-content(10em)
-    1fr
-    auto;
-  ${({ logClass, logPickup }) =>
-    // logPickup should not contain `"` because it is an user id.
-    // XXX safer solution?
-    logPickup != null
-      ? css`
-    .${logClass}:not([data-userid="${logPickup}"]) {
-      opacity: 0.3;
-    }
-  `
-      : ''}
-
-  ${phone`
-    grid-template-columns:
-      minmax(8px, max-content)
-      1fr
-      auto;
-    grid-auto-flow: row dense;
-  `}
-
-`;

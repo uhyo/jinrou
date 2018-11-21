@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx';
+import { observable, action, computed } from 'mobx';
 import { Log, LogVisibility } from '../defs';
 
 /**
@@ -42,6 +42,14 @@ export class LogStore {
    * Last id of log.
    */
   private lastLogId = 0;
+
+  /**
+   * Number of all logs.
+   */
+  @computed
+  public get allLogNumber(): number {
+    return this.chunks.reduce((total, chunk) => total + chunk.logs.length, 0);
+  }
 
   /**
    * Add a log to the store.
