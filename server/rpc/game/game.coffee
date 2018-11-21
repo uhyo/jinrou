@@ -5100,11 +5100,13 @@ class OccultMania extends Player
         p=game.getPlayer game.skillTargetHook.get @target
         return unless p?
         # 変化先決定
-        type="Human"
-        if p.isJobType "Diviner"
-            type="Diviner"
-        else if p.isWerewolf()
-            type="Werewolf"
+        type = "Human"
+        # OccultMania prefers Werewolf to Diviner,
+        # so that selecting Werewolf with Diviner set leads to Werewolf.
+        if p.isWerewolf()
+            type = "Werewolf"
+        else if p.isJobType "Diviner"
+            type = "Diviner"
 
         newpl=Player.factory type, game
         @transProfile newpl
