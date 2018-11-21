@@ -52,6 +52,15 @@ export const LogWrapper = withProps<{
 `;
 
 /**
+ * Wrapper of chunk, used in fixed-size mode.
+ */
+export const FixedSizeChunkWrapper = withProps<{
+  visible: boolean;
+}>()(styled.div)`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+`;
+
+/**
  * Wrapper of one log line, used in fixed-size layout.
  */
 export const FixedSizeLogRow = styled.div`

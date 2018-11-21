@@ -8,7 +8,7 @@ import { assertNever } from '../../../util/assert-never';
 import { StoredLog, LogStore } from './log-store';
 import { mapReverse } from '../../../util/map-reverse';
 import { I18n } from '../../../i18n';
-import { LogWrapper } from './elements';
+import { LogWrapper, FixedSizeChunkWrapper } from './elements';
 
 export interface IPropLogs {
   /**
@@ -122,10 +122,10 @@ class LogChunk extends React.Component<
 > {
   public render() {
     const { logClass, logs, visible, fixedSize, rule, icons } = this.props;
-    if (!visible) {
+    if (!visible && !fixedSize) {
       return null;
     }
-    return (
+    const chunkContent = (
       <I18n namespace="game_client">
         {t => (
           <Observer>
@@ -148,5 +148,14 @@ class LogChunk extends React.Component<
         )}
       </I18n>
     );
+    if (fixedSize) {
+      return (
+        <FixedSizeChunkWrapper visible={visible}>
+          {chunkContent}
+        </FixedSizeChunkWrapper>
+      );
+    } else {
+      return chunkContent;
+    }
   }
 }
