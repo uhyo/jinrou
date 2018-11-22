@@ -67,6 +67,9 @@ export class Logs extends React.Component<IPropLogs, IStateLogs> {
       this.state.renderingState.reset(this.props.logs.allLogNumber);
     }
   }
+  public componentWillUnmount() {
+    this.state.renderingState.dispose();
+  }
   public render() {
     const {
       logs,
