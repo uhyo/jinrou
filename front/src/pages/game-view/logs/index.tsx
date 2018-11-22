@@ -7,7 +7,11 @@ import { OneLog } from './log';
 import { StoredLog, LogStore } from './log-store';
 import { mapReverse } from '../../../util/map-reverse';
 import { I18n } from '../../../i18n';
-import { LogWrapper, FixedSizeChunkWrapper } from './elements';
+import {
+  LogWrapper,
+  FixedSizeChunkWrapper,
+  PendingLogMessage,
+} from './elements';
 import { LogsRenderingState } from './store';
 
 export interface IPropLogs {
@@ -72,6 +76,7 @@ export class Logs extends React.Component<IPropLogs, IStateLogs> {
       logPickup,
       onResetLogPickup,
     } = this.props;
+    const { renderingState } = this.state;
 
     if (!logs.loaded) {
       return null;
@@ -81,8 +86,7 @@ export class Logs extends React.Component<IPropLogs, IStateLogs> {
     /*
      * number of logs to render (not pending).
      */
-    const renderedLogs =
-      logs.allLogNumber - this.state.renderingState.pendingLogNumber;
+    const renderedLogs = logs.allLogNumber - renderingState.pendingLogNumber;
 
     console.log(
       this.props.logs.allLogNumber,
@@ -126,6 +130,9 @@ export class Logs extends React.Component<IPropLogs, IStateLogs> {
             />
           );
         })}
+        {renderingState.pendingLogNumber > 0 ? (
+          <PendingLogMessage>読み込み中...</PendingLogMessage>
+        ) : null}
       </LogWrapper>
     );
   }
