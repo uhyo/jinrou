@@ -345,8 +345,7 @@ exports.start=(roomid)->
                 getjobinfo result
                 # TODO
                 game_view.runInAction ()->
-                    game_view.store.resetLogs()
-                    result.logs.forEach getlog
+                    game_view.store.logs.initializeLogs result.logs
                     if result.game.finished
                         # remove timer.
                         game_view.store.update {
