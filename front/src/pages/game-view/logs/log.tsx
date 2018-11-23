@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { autolink } from 'my-autolink';
+import { autolink, compile } from 'my-autolink';
 import styled, { withProps, withTheme } from '../../../util/styled';
 import { Log } from '../defs';
 import { Rule } from '../../../defs';
@@ -38,6 +38,40 @@ export interface IPropOneLog {
   rule: Rule | undefined;
 }
 
+const autolinkSetting = compile(
+  [
+    'url',
+    {
+      pattern() {
+        return /#(\d+)/g;
+      },
+      transform(_1, _2, num) {
+        return {
+          href: `/room/${num}`,
+        };
+      },
+    },
+  ],
+  {
+    url: {
+      attributes: {
+        rel: 'external',
+      },
+      text: url => {
+        // Convert any room URL to room number syntax.
+        const orig = location.origin;
+        if (url.slice(0, orig.length) === orig) {
+          const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
+          if (r != null) {
+            return `#${r[1]}`;
+          }
+        }
+        return url;
+      },
+    },
+  },
+);
+
 /**
  * A component which shows one log.
  */
@@ -46,40 +80,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
    * Function to memoize high-cost autolink computation
    */
   private autolink = memoizeOne((comment: string) =>
-    autolink(
-      comment,
-      [
-        'url',
-        {
-          pattern() {
-            return /#(\d+)/g;
-          },
-          transform(_1, _2, num) {
-            return {
-              href: `/room/${num}`,
-            };
-          },
-        },
-      ],
-      {
-        url: {
-          attributes: {
-            rel: 'external',
-          },
-          text: url => {
-            // Convert any room URL to room number syntax.
-            const orig = location.origin;
-            if (url.slice(0, orig.length) === orig) {
-              const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
-              if (r != null) {
-                return `#${r[1]}`;
-              }
-            }
-            return url;
-          },
-        },
-      },
-    ),
+    autolink(comment, autolinkSetting),
   );
   public render() {
     const { t, theme, logClass, fixedSize, log, rule, icons } = this.props;

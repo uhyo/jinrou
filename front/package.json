@@ -46,7 +46,6 @@
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-manifest-plugin": "^2.0.3",
-    "worker-loader": "^2.0.0",
     "yaml-loader": "^0.5.0"
   },
   "dependencies": {
@@ -63,7 +62,7 @@
     "memoize-one": "^4.0.3",
     "mobx": "^4.3.1",
     "mobx-react": "^5.2.8",
-    "my-autolink": "^0.1.0",
+    "my-autolink": "^0.2.0",
     "react": "^16.3.2",
     "react-color": "^2.14.1",
     "react-dom": "^16.3.2",
