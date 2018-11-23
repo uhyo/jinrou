@@ -6382,7 +6382,11 @@ class BloodyMary extends Player
                 after = game.i18n.t "roles:jobname.BloodyMary"
                 top = game.getPlayer @id
                 if top?
-                    top.setOriginalJobname top.originalJobname.replace(after,before).replace(before,after)
+                    top.setOriginalJobname replaceAll(
+                        replaceAll(top.originalJobname,after,before),
+                        before,after
+                    )
+
         super
     sunset:(game)->
         @setTarget null
@@ -11540,7 +11544,9 @@ playerIsJobDone = (game, player)->
     else
         true
 
-
+# replace all occurences of given string with new string.
+replaceAll = (str, before, after)->
+    str.split(before).join(after)
 
 
 
