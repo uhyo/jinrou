@@ -2885,6 +2885,7 @@ class Player
     # サブ役職の情報を除いた役職名を得る
     getMainJobname:-> @getJobname()
     # getMainJobnameのjobDisp版
+    # @param chemicalLeft {boolean}: ケミカル役職で左側のみにするかどうか
     getMainJobDisp:-> @getJobDisp()
     # 村人かどうか
     isHuman:->!@isWerewolf()
@@ -6635,7 +6636,7 @@ class Phantom extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobDisp()}
+            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobDisp(true)}
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
@@ -8462,7 +8463,7 @@ class Complex
     getJobname:->@main.getJobname()
     getMainJobname:->@main.getMainJobname()
     getJobDisp:->@main.getJobDisp()
-    getMainJobDisp:->@main.getMainJobDisp()
+    getMainJobDisp:(chemicalLeft)->@main.getMainJobDisp(chemicalLeft)
     midnightSort: 100
 
     #@mainのやつを呼ぶ
@@ -9457,8 +9458,8 @@ class Chemical extends Complex
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getJobDisp(), right: @sub.getJobDisp()}
         else
             @main.getJobDisp()
-    getMainJobDisp:->
-        if @sub?
+    getMainJobDisp:(chemicalLeft)->
+        if @sub? && !chemicalLeft
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getMainJobDisp(), right: @sub.getMainJobDisp()}
         else
             @main.getMainJobDisp()
