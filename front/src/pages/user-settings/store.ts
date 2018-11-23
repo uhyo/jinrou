@@ -18,7 +18,7 @@ export class UserSettingsStore {
    * Current tab.
    */
   @observable
-  public tab: Tab = initTab('color');
+  public tab: Tab = initTab('phone');
   /**
    * Current profile of colors.
    */

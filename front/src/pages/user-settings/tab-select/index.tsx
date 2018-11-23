@@ -21,7 +21,7 @@ interface IPropTabSelectInner extends IPropTabSelect {
 /**
  * List of tabs.
  */
-const tabNames: Array<TabName> = ['color', 'phone'];
+const tabNames: Array<TabName> = ['phone', 'color'];
 
 /**
  * Tab selection component.
