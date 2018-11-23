@@ -4,12 +4,12 @@ import { LogStore } from './log-store';
 /**
  * Number of logs initially rendered.
  */
-const initialLogNumber = 5;
+const initialLogNumber = 50;
 
 /**
  * Number of logs rendered in one period.
  */
-const periodLogNumber = 5;
+const periodLogNumber = 100;
 
 /**
  * Store for log rendering management

@@ -91,12 +91,6 @@ export class Logs extends React.Component<IPropLogs, IStateLogs> {
      */
     const renderedLogs = logs.allLogNumber - renderingState.pendingLogNumber;
 
-    console.log(
-      this.props.logs.allLogNumber,
-      this.state.renderingState.pendingLogNumber,
-      renderedLogs,
-    );
-
     let renderedLogCount = 0;
     return (
       <LogWrapper
