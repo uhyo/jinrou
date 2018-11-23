@@ -124,6 +124,10 @@ export function place({
     store,
     unmount: () => {
       window.removeEventListener('unload', unloadHandler);
+      if (!store.consumed) {
+        // component is unmounted but setting is not saved.
+        unloadHandler();
+      }
       ReactDOM.unmountComponentAtNode(node);
     },
   };

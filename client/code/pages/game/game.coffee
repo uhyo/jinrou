@@ -401,6 +401,7 @@ exports.start=(roomid)->
                                                         ok: i18n.t 'common:messageDialog.close'
                                                     }
                                 else
+                                    game_start_control.store.setConsumed()
                                     game_start_control.unmount()
                     }
                     game_start_control.store.setPlayersNumber room.players.filter((x)->x.mode=="player").length

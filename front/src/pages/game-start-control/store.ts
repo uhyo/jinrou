@@ -23,28 +23,39 @@ export class CastingStore {
   /**
    * Current number of players.
    */
-  @observable public actualPlayersNumber: number = 0;
+  @observable
+  public actualPlayersNumber: number = 0;
   /**
    * Current selected casting.
    */
-  @observable.ref public currentCasting: Readonly<CastingDefinition>;
+  @observable.ref
+  public currentCasting: Readonly<CastingDefinition>;
   /**
    * User input of number of jobs.
    */
-  @observable public userJobNumbers: Map<string, number> = new Map();
+  @observable
+  public userJobNumbers: Map<string, number> = new Map();
   /**
    * Inclusion of roles by user.
    */
-  @observable public jobInclusions: Map<string, boolean> = new Map();
+  @observable
+  public jobInclusions: Map<string, boolean> = new Map();
   /**
    * User input of number of categories.
    */
-  @observable public categoryNumbers: Map<string, number> = new Map();
+  @observable
+  public categoryNumbers: Map<string, number> = new Map();
 
   /**
    * Current rule options.
    */
-  @observable public rules: Map<string, string> = new Map();
+  @observable
+  public rules: Map<string, string> = new Map();
+
+  /**
+   * Whether the setting stored in this is consumed.
+   */
+  public consumed: boolean = false;
 
   constructor(
     roles: string[],
@@ -280,5 +291,11 @@ export class CastingStore {
       console.error(err);
       return;
     }
+  }
+  /**
+   * Set consumed flag of this store.
+   */
+  public setConsumed(): void {
+    this.consumed = true;
   }
 }
