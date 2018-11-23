@@ -3,7 +3,6 @@ import { UserSettingsStore } from '../store';
 import { withPropsOnChange, withProps } from 'recompose';
 import { TranslationFunction } from '../../../i18n';
 import { ThemeStore, themeStore } from '../../../theme';
-import { observerify } from '../../../util/mobx-react';
 import { observer } from 'mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
 import {
@@ -14,7 +13,6 @@ import {
 import { Wrapper } from './elements';
 import { RadioButtons } from '../commons/radio';
 import { PhoneUITab } from '../defs/tabs';
-import { PhoneFontSize } from '../../../defs';
 
 export interface IPropPhoneUIDisp {
   page: PhoneUITab;
@@ -100,7 +98,7 @@ const ColorProfileDispInner = addDefaultProerties(
           </ControlsDescription>
           <RadioButtons
             current={themeStore.savedTheme.phoneUI.fontSize}
-            options={['large', 'normal', 'small'].map(value => ({
+            options={['large', 'normal', 'small', 'very-small'].map(value => ({
               value,
               label: t(`phone.fontSize.${value}`),
             }))}

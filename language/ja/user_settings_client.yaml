@@ -92,6 +92,7 @@ phone:
     large: "大"
     normal: "中"
     small: "小"
+    "very-small": "極小"
   # position of speak form
   speakFormPosition:
     title: "発言フォームの位置"

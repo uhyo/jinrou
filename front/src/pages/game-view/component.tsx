@@ -417,7 +417,7 @@ const AppWrapper = styled(AppStyling)`
 
   --base-font-size: 1rem;
   ${phone`
-    --base-font-size: ${({ theme }) => {
+    --base-font-size: ${({ theme }): string => {
       const fontSize = theme.user.phoneFontSize;
       switch (fontSize) {
         case 'large':
@@ -426,6 +426,8 @@ const AppWrapper = styled(AppStyling)`
           return '0.86rem';
         case 'small':
           return '0.7rem';
+        case 'very-small':
+          return '0.6em';
       }
     }}
   `};

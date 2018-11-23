@@ -584,14 +584,18 @@ const TimeInner = ({ time, noName, className, logStyle }: IPropTime) => {
  */
 const Time = styled(TimeInner)`
   grid-column: 4;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-end;
+  padding-left: 2px;
+  padding-right: 1ex;
+  padding-bottom: 1px;
+
   white-space: nowrap;
   font-size: xx-small;
-  padding-left: 2px;
   text-align: right;
-  padding-right: 1ex;
 
-  ${({ noName }) =>
-    noName ? 'line-height: var(--base-font-size);' : ''} ${phone`
+  ${phone`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}

@@ -1,4 +1,4 @@
-export type PhoneFontSize = 'large' | 'normal' | 'small';
+export type PhoneFontSize = 'large' | 'normal' | 'small' | 'very-small';
 export type SpeakFormPosition = 'normal' | 'fixed';
 /**
  * Setting object for smartphone UI.
