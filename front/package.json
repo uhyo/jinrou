@@ -33,6 +33,7 @@
     "@types/react-swipeable": "^4.2.2",
     "@types/react-transition-group": "^2.0.11",
     "@types/recompose": "^0.26.5",
+    "@types/requestidlecallback": "^0.1.0",
     "babel-loader": "^8.0.0-beta.4",
     "copy-webpack-plugin": "^4.5.2",
     "json-loader": "^0.5.7",
@@ -61,7 +62,7 @@
     "memoize-one": "^4.0.3",
     "mobx": "^4.3.1",
     "mobx-react": "^5.2.8",
-    "my-autolink": "^0.1.0",
+    "my-autolink": "^0.2.0",
     "react": "^16.3.2",
     "react-color": "^2.14.1",
     "react-dom": "^16.3.2",
@@ -69,6 +70,7 @@
     "react-swipeable": "^4.3.0",
     "react-transition-group": "^2.3.1",
     "recompose": "^0.30.0",
+    "requestidlecallback": "^0.3.0",
     "styled-components": "^3.4.9"
   }
 }

@@ -35,6 +35,11 @@ export class LogStore {
     },
   ];
   /**
+   * Whether initial log is loaded.
+   */
+  @observable
+  public loaded: boolean = false;
+  /**
    * Current day of log.
    */
   private currentDay: number = 1;
@@ -87,6 +92,17 @@ export class LogStore {
         logs: [],
       },
     ];
+  }
+  /**
+   * Reset logs with initial data.
+   */
+  @action
+  public initializeLogs(logs: Log[]): void {
+    this.reset();
+    this.loaded = true;
+    for (const l of logs) {
+      this.addLog(l);
+    }
   }
   /**
    * Iterate over all logs.

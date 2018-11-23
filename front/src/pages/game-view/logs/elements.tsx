@@ -71,3 +71,15 @@ export const FixedSizeLogRow = styled.div`
     grid-auto-flow: row dense;
   `};
 `;
+
+/**
+ * Wrapper of log rendering pending indicator.
+ */
+export const PendingLogMessage = styled.div`
+  grid-column: 1 / -1;
+  padding: 0.7em 1em;
+  background-color: #929292;
+  color: #f4f4f4;
+  font-size: calc(0.8 * var(--base-font-size));
+  text-align: center;
+`;
