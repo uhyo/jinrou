@@ -1689,8 +1689,8 @@ class Game
                 "vampire","vampire2","witch","dog","trap",
                 "marycurse","psycho","curse","punish","spygone","deathnote",
                 "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
-                "gmpunish","gone-day","gone-night","crafty"].includes x.found
-                detail = @i18n.t "foundDetail.#{x.found}"
+                "gmpunish","gone-day","gone-night","crafty"].includes obj.found
+                detail = @i18n.t "foundDetail.#{obj.found}"
             else
                 detail = @i18n.t "foundDetail.fallback"
             log=
