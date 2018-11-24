@@ -216,6 +216,36 @@ found:
   goneDay: "{{name}}は投票しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
   goneNight: "{{name}}は夜に能力を発動しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
   fallback: "{{name}}は死にました。"
+
+# Detailed reason of death
+foundDetail:
+  werewolf: "人狼の襲撃"
+  werewolf2: "人狼の襲撃"
+  poison: "毒薬"
+  hinamizawa: "雛見沢症候群"
+  vampire: "ヴァンパイアの襲撃"
+  vampire2: "ヴァンパイアの襲撃"
+  witch: "魔女的毒薬"
+  dog: "犬の襲撃"
+  trap: "罠"
+  marycurse: "メアリーの呪い"
+  psycho: "サイコキラー"
+  curse: "呪殺"
+  punish: "処刑"
+  spygone: "行方不明"
+  deathnote: "心臓麻痺"
+  foxsuicide: "妖狐の後を追って自殺"
+  friendsuicide: "恋人の後を追って自殺"
+  twinsuicide: "双子の後を追って自殺"
+  infirm: "老衰"
+  hunter: "銃殺"
+  gmpunish: "ゲームマスター"
+  gone-day: "昼間突然死"
+  gone-night: "夜間突然死"
+  crafty: "死んだふり"
+  fallback: "不明"
+  situation: "{{name}}の死因は{{detail}}でした。"
+
 # Result of Game
 judge:
   human: "村民達の知恵と勇気により村は平穏を取り戻しました。"

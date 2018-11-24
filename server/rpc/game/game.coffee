@@ -1683,6 +1683,22 @@ class Game
                 mode:"system"
                 comment:situation
             splashlog @id,this,log
+
+            # Show invisible detail of death
+            if ["werewolf","werewolf2","poison","hinamizawa",
+                "vampire","vampire2","witch","dog","trap",
+                "marycurse","psycho","curse","punish","spygone","deathnote",
+                "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
+                "gmpunish","gone-day","gone-night","crafty"].includes x.found
+                detail = @i18n.t "foundDetail.#{x.found}"
+            else
+                detail = @i18n.t "foundDetail.fallback"
+            log=
+                mode:"hidden"
+                to:-1
+                comment: @i18n.t "foundDetail.situation",{name: x.name, detail: detail}
+            splashlog @id,this,log
+
             if emma_alive.length > 0
                 # 閻魔用のログも出す
                 emma_log=switch obj.found
@@ -3661,6 +3677,11 @@ class Poisoner extends Player
         pl=canbedead[r] # 被害者
         pl.die game,"poison"
         @addGamelog game,"poisonkill",null,pl.id
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
 
 class BigWolf extends Werewolf
     type:"BigWolf"
@@ -8772,6 +8793,12 @@ class HolyProtected extends Complex
             comment: game.i18n.t "roles:HolyProtected.guarded", {name: @name}
         splashlog game.id,game,log
         game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Priest.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
 
@@ -9012,6 +9039,12 @@ class MikoProtected extends Complex
             return false
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Miko.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
         # 襲撃失敗理由を保存
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
