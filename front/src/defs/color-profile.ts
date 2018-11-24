@@ -69,6 +69,10 @@ export interface ColorProfile {
    */
   helperwhisper: OneColor;
   /**
+   * Hidden log
+   */
+  hidden: OneColor;
+  /**
    * Color of user's inlog.
    */
   inlog: OneColor;
@@ -172,6 +176,10 @@ const commonDefaults = {
   helperwhisper: {
     bg: '#fff799',
     color: '#000000',
+  },
+  hidden: {
+    bg: '#888888',
+    color: '#eeeeee',
   },
   inlog: {
     bg: '#a6daff',
