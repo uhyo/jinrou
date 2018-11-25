@@ -38,7 +38,8 @@ export interface NormalLog extends LogBase {
     | 'gmaudience'
     | 'gmmonologue'
     | 'helperwhisper'
-    | 'inlog';
+    | 'inlog'
+    | 'hidden';
   /**
    * Content of this log.
    */
