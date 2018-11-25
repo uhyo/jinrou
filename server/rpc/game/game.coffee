@@ -1685,19 +1685,21 @@ class Game
             splashlog @id,this,log
 
             # Show invisible detail of death
-            if ["werewolf","werewolf2","poison","hinamizawa",
-                "vampire","vampire2","witch","dog","trap",
-                "marycurse","psycho","curse","punish","spygone","deathnote",
-                "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
-                "gmpunish","gone-day","gone-night","crafty"].includes obj.found
-                detail = @i18n.t "foundDetail.#{obj.found}"
-            else
-                detail = @i18n.t "foundDetail.fallback"
-            log=
-                mode:"hidden"
-                to:-1
-                comment: @i18n.t "foundDetail.situation",{name: x.name, detail: detail}
-            splashlog @id,this,log
+            # but do not show for obvious type of death.
+            unless (obj.found in ["punish", "infirm", "hunter", "gm", "gone-day", "gone-night"]) || (obj.found == "curse" && @rule.deadfox == "obvious")
+                if ["werewolf","werewolf2","poison","hinamizawa",
+                    "vampire","vampire2","witch","dog","trap",
+                    "marycurse","psycho","curse","punish","spygone","deathnote",
+                    "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
+                    "gmpunish","gone-day","gone-night","crafty"].includes obj.found
+                    detail = @i18n.t "foundDetail.#{obj.found}"
+                else
+                    detail = @i18n.t "foundDetail.fallback"
+                log=
+                    mode:"hidden"
+                    to:-1
+                    comment: @i18n.t "foundDetail.situation",{name: x.name, detail: detail}
+                splashlog @id,this,log
 
             if emma_alive.length > 0
                 # 閻魔用のログも出す
