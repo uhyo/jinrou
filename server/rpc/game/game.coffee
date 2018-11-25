@@ -8259,6 +8259,55 @@ class DecoyWolf extends Werewolf
             }
         return res
 
+class LunaticLover extends Player
+    type: "LunaticLover"
+    team: "Friend"
+    formType: FormType.required
+    isWinner:(game, team)->
+        pl = game.getPlayer @flag
+        unless pl?
+            # 対象選択していないと勝利できない
+            return false
+        # 狂愛対象が生存していれば勝利
+        return !pl.dead
+    sunset:(game)->
+        # 身代わりくんは求愛しない
+        if !@flag? && @scapegoat
+            @setFlag ""
+    sleeping:(game)->@flag?
+    job:(game, playerid, query)->
+        if @flag?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game, @id
+        # 狂愛の対象を決定
+        @setFlag pl.id
+        # 狂愛されているサブ役職を相手に付加
+        newpl = Player.factory null, game, pl, null, LunaticLoved
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+        newpl.cmplFlag = @id
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:LunaticLover.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    beforebury:(game, type, deads)->
+        pl = game.getPlayer @flag
+        unless pl?
+            return false
+        # 狂愛対象が死亡したら後を追う
+        if pl.dead
+            @die game, "friendsuicide"
+            return true
+        return false
 
 # ============================
 # 処理上便宜的に使用
@@ -9455,6 +9504,40 @@ class SnowGuarded extends Complex
             @uncomplex game
             return true
 
+# 狂愛者に愛されている人
+# cmplFlag: 狂愛者
+class LunaticLoved extends Complex
+    cmplType:"LunaticLoved"
+    isWinner:(game, team)->
+        # 生存していれば狂愛陣営として勝利
+        if !@dead
+            return true
+        # 通常の勝利条件
+        return @main.isWinner game, team
+    dying:(game, found, from)->
+        super
+        # 報復の対象
+        unless from?
+            # 対象不在
+            return
+        lover = game.getPlayer @cmplFlag
+        if !lover? || lover.dead
+            return
+
+        targets = if Array.isArray from
+            from
+        else
+            [from]
+        if targets.length == 0
+            return
+        target = targets[Math.floor(Math.random() * targets.length)]
+        pl = game.getPlayer target
+        unless pl?
+            return
+        pl.die game, "lunaticlover", @id
+        lover.addGamelog game, "lunaticloverattack", pl.type, pl.id
+
+
 
 # 決定者
 class Decider extends Complex
@@ -9806,6 +9889,7 @@ jobs=
     SnowLover:SnowLover
     Raven:Raven
     DecoyWolf:DecoyWolf
+    LunaticLover:LunaticLover
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -9847,6 +9931,7 @@ complexes=
     PumpkinCostumed:PumpkinCostumed
     FanOfIdol:FanOfIdol
     SnowGuarded:SnowGuarded
+    LunaticLoved:LunaticLoved
 
     # 役職ごとの強さ
 jobStrength=
@@ -9964,6 +10049,7 @@ jobStrength=
     SnowLover:30
     Raven:18
     DecoyWolf:54
+    LunaticLover:30
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
