@@ -230,7 +230,7 @@ function loadSavedRules(
     ) {
       continue;
     }
-    store.updateRule(key, rule[key]);
+    store.updateRule(key, String(rule[key]));
   }
   // XXX we are following old query-based formats.
   const jobs = rule._jobquery;
