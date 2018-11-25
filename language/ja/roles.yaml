@@ -671,6 +671,8 @@ Emma:
     curse: "{{name}}は呪殺されたようです。"
     # Killed by a PsychoKiller
     psycho: "{{name}}はサイコキラーに殺されたようです。"
+    # Killed a LunaticLover
+    lunaticlover: "{{name}}は狂愛者に殺されたようです。"
     # Suicided after fox
     foxsuicide: "{{name}}は狐の後を追って死亡したようです。"
     # Suicided after friend

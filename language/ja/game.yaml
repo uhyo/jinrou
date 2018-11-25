@@ -243,6 +243,7 @@ foundDetail:
   gone-day: "昼間突然死"
   gone-night: "夜間突然死"
   crafty: "死んだふり"
+  lunaticlover: "狂愛者の襲撃"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
