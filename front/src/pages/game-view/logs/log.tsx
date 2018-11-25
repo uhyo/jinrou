@@ -353,6 +353,13 @@ export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
         borderColor: '#e8e000',
       };
     }
+    case 'hidden': {
+      return {
+        background: theme.user.hidden.bg,
+        color: theme.user.hidden.color,
+        borderColor: null,
+      };
+    }
     case 'inlog': {
       return {
         background: theme.user.inlog.bg,

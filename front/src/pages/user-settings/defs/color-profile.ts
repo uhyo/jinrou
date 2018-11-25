@@ -1,4 +1,5 @@
 import { ColorProfile } from '../../../defs';
+import { allElements } from '../../../util/all-elements';
 
 /**
  * Type of color profile color names.
@@ -20,6 +21,7 @@ export const sampleIsBold: Record<ColorName, boolean> = {
   heavenmonologue: false,
   half_day: false,
   helperwhisper: false,
+  hidden: false,
   inlog: true,
   madcouple: true,
   monologue: false,
@@ -36,7 +38,7 @@ export const sampleIsBold: Record<ColorName, boolean> = {
 /**
  * List of color setting names.
  */
-export const colorNames: ColorName[] = [
+export const colorNames: ColorName[] = allElements<ColorName>()([
   'day',
   'night',
   'heaven',
@@ -57,6 +59,7 @@ export const colorNames: ColorName[] = [
   'gm2',
   'helperwhisper',
   'userinfo',
+  'hidden',
   'will',
   'probability_table',
-];
+]);

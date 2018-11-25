@@ -199,6 +199,10 @@ Guard:
   select: "{{name}}は{{target}}を護衛しました。"
   # Log of GJ
   gj: "{{guard}}が{{name}}の護衛に成功しました。"
+  
+# Poisoner
+Poisoner:
+  select: "{{name}}の毒が{{target}}を襲いました。"
 
 # TinyFox
 TinyFox:
@@ -302,6 +306,7 @@ Spellcaster:
 Priest:
   # Selected a target.
   select: "{{name}}が{{target}}を聖なる力で守りました。"
+  protected: "{{name}}は聖なる力で{{found}}に抵抗しました。"
 
 # Prince
 Prince:
@@ -434,6 +439,7 @@ Counselor:
 Miko:
   # Select a self protection.
   select: "{{name}}が聖なる力で自身を守りました。"
+  protected: "{{name}}は聖なる力で{{found}}に抵抗しました。"
 
 # GreedyWolf
 GreedyWolf:

@@ -1683,6 +1683,24 @@ class Game
                 mode:"system"
                 comment:situation
             splashlog @id,this,log
+
+            # Show invisible detail of death
+            # but do not show for obvious type of death.
+            unless (obj.found in ["punish", "infirm", "hunter", "gm", "gone-day", "gone-night"]) || (obj.found == "curse" && @rule.deadfox == "obvious")
+                if ["werewolf","werewolf2","poison","hinamizawa",
+                    "vampire","vampire2","witch","dog","trap",
+                    "marycurse","psycho","curse","punish","spygone","deathnote",
+                    "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
+                    "gmpunish","gone-day","gone-night","crafty"].includes obj.found
+                    detail = @i18n.t "foundDetail.#{obj.found}"
+                else
+                    detail = @i18n.t "foundDetail.fallback"
+                log=
+                    mode:"hidden"
+                    to:-1
+                    comment: @i18n.t "foundDetail.situation",{name: x.name, detail: detail}
+                splashlog @id,this,log
+
             if emma_alive.length > 0
                 # 閻魔用のログも出す
                 emma_log=switch obj.found
@@ -2503,6 +2521,7 @@ class Game
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
     "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える) / "eyeswolfskill"(瞳狼に見える)
+    "hidden"(終了後/霊界のみ見える追加情報)
     comment: String
     userid:Userid
     name?:String
@@ -3661,6 +3680,11 @@ class Poisoner extends Player
         pl=canbedead[r] # 被害者
         pl.die game,"poison"
         @addGamelog game,"poisonkill",null,pl.id
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
 
 class BigWolf extends Werewolf
     type:"BigWolf"
@@ -8772,6 +8796,12 @@ class HolyProtected extends Complex
             comment: game.i18n.t "roles:HolyProtected.guarded", {name: @name}
         splashlog game.id,game,log
         game.getPlayer(@cmplFlag).addGamelog game,"holyGJ",found,@id
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Priest.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
 
@@ -9012,6 +9042,12 @@ class MikoProtected extends Complex
             return false
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Miko.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
         # 襲撃失敗理由を保存
         if found == "werewolf"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
