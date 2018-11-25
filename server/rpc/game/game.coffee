@@ -8269,8 +8269,14 @@ class LunaticLover extends Player
     type: "LunaticLover"
     team: "Friend"
     formType: FormType.required
+    constructor:->
+        super
+        @setFlag {
+            target: null
+            killTarget: null
+        }
     isWinner:(game, team)->
-        pl = game.getPlayer @flag
+        pl = game.getPlayer @flag?.target
         unless pl?
             # 対象選択していないと勝利できない
             return false
@@ -8278,11 +8284,14 @@ class LunaticLover extends Player
         return !pl.dead
     sunset:(game)->
         # 身代わりくんは求愛しない
-        if !@flag? && @scapegoat
-            @setFlag ""
-    sleeping:(game)->@flag?
+        if !@flag?.target? && @scapegoat
+            @setFlag {
+                target: ""
+                killFlag: null
+            }
+    sleeping:(game)->@flag?.target?
     job:(game, playerid, query)->
-        if @flag?
+        if @flag?.target?
             return game.i18n.t "error.common.alreadyUsed"
         pl = game.getPlayer playerid
 
@@ -8292,7 +8301,10 @@ class LunaticLover extends Player
             return game.i18n.t "error.common.noSelectSelf"
         pl.touched game, @id
         # 狂愛の対象を決定
-        @setFlag pl.id
+        @setFlag {
+            target: pl.id
+            killFlag: null
+        }
         # 狂愛されているサブ役職を相手に付加
         newpl = Player.factory null, game, pl, null, LunaticLoved
         pl.transProfile newpl
@@ -8306,14 +8318,35 @@ class LunaticLover extends Player
         splashlog game.id, game, log
         null
     beforebury:(game, type, deads)->
-        pl = game.getPlayer @flag
+        pl = game.getPlayer @flag?.target
         unless pl?
             return false
+        res = false
+        if !@dead && Array.isArray @flag?.killTarget
+            # 狂愛対象が死亡してしまった！
+            targetpls =
+                @flag.killTarget.map((id)->
+                    game.getPlayer id)
+                .filter (pl) -> pl? && !pl.dead
+            if targetpls.length > 0
+                r = Math.floor(Math.random() * targetpls.length)
+                target = @flag.killTarget[r]
+                targetpl = game.getPlayer target
+                # 道連れ対象を決定
+                if targetpl? && !targetpl.dead
+                    targetpl.die game, "lunaticlover", @id
+                    @addGamelog game, "lunaticloverattack", targetpl.type, targetpl.id
+                    res = true
+            @setFlag {
+                target: @flag.target
+                killTarget: null
+            }
+
         # 狂愛対象が死亡したら後を追う
         if pl.dead
             @die game, "friendsuicide"
-            return true
-        return false
+            res = true
+        return res
 
 # ============================
 # 処理上便宜的に使用
@@ -9536,13 +9569,11 @@ class LunaticLoved extends Complex
             [from]
         if targets.length == 0
             return
-        target = targets[Math.floor(Math.random() * targets.length)]
-        pl = game.getPlayer target
-        if !pl? || pl.dead
-            return
-        pl.die game, "lunaticlover", @id
-        lover.addGamelog game, "lunaticloverattack", pl.type, pl.id
-
+        # 狂愛者の殺害フラグを立てる
+        lvs = lover.accessByJobTypeAll "LunaticLover"
+        for obj in lvs
+            if obj.flag?.target == @id
+                obj.flag.killTarget = targets
 
 
 # 決定者
