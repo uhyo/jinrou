@@ -1095,7 +1095,7 @@ class Game
                             dead++
                     if dead==@quantum_patterns.length
                         # 死んだ!!!!!!!!!!!!!!!!!
-                        x.die this,"werewolf"
+                        x.die this, "werewolf"
                         dead_flg=true
             for x in @players
                 count=
@@ -1543,7 +1543,7 @@ class Game
                 splashlog @id,this,log
             if !t.dead
                 # 死んだ
-                t.die this,"werewolf",target.from
+                t.die this, "werewolf", target.from
             # 逃亡者を探す
             for x in @players
                 if x.dead
@@ -1652,7 +1652,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1691,7 +1691,8 @@ class Game
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
                     "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
-                    "gmpunish","gone-day","gone-night","crafty"].includes obj.found
+                    "gmpunish","gone-day","gone-night","crafty","lunaticlover"
+                ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
                     detail = @i18n.t "foundDetail.fallback"
@@ -1725,6 +1726,8 @@ class Game
                             null
                         else
                             "curse"
+                    when "lunaticlover"
+                        "lunaticlover"
                     when "foxsuicide"
                         "foxsuicide"
                     when "friendsuicide"
@@ -1821,7 +1824,7 @@ class Game
             # だれが投票したか調べる
             for player in players
                 follower=table.filter((obj)-> obj.voteto==player.id).map (obj)->obj.id
-                player.die this,"punish",follower
+                player.die this, "punish", follower
 
                 if player.dead && @rule.GMpsychic=="on"
                     # GM霊能
@@ -1961,11 +1964,14 @@ class Game
                             null
                 if t? && !t.dead
                     # ハンターの攻撃対象
-                    diers.push t
+                    diers.push {
+                        pl: t
+                        from: plpl.id
+                    }
         # ハンターのターゲットになった人は死ぬ！！！！！！！
         for t in diers
-            if !t.dead
-                t.die this, "hunter"
+            if !t.pl.dead
+                t.pl.die this, "hunter", t.from
 
 
         @bury "other"
@@ -3650,7 +3656,7 @@ class Fox extends Player
     divined:(game,player)->
         super
         # 妖狐呪殺
-        @die game,"curse"
+        @die game,"curse", player.id
         player.addGamelog game,"cursekill",null,@id # 呪殺した
     isListener:(game,log)->
         if log.mode=="fox"
@@ -3678,7 +3684,7 @@ class Poisoner extends Player
         return if canbedead.length==0
         r=Math.floor Math.random()*canbedead.length
         pl=canbedead[r] # 被害者
-        pl.die game,"poison"
+        pl.die game, "poison", @id
         @addGamelog game,"poisonkill",null,pl.id
         log=
             mode:"hidden"
@@ -3730,7 +3736,7 @@ class Noble extends Player
     hasDeadResistance:(game)->
         slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
         return slaves.length > 0
-    checkDeathResistance:(game, found)->
+    checkDeathResistance:(game, found, from)->
         if found == "werewolf"
             # 奴隷がいれば耐える
             slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
@@ -3739,7 +3745,7 @@ class Noble extends Player
                 return false
             # 奴隷が代わりに死ぬ
             slaves.forEach (x)->
-                x.die game,"werewolf2"
+                x.die game, "werewolf2", from
                 x.addGamelog game,"slavevictim"
             @addGamelog game,"nobleavoid"
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.cover
@@ -3904,7 +3910,7 @@ class WolfDiviner extends Werewolf
             p.divined game,this
             # 占い師を占っていたら逆呪殺
             if p.isJobType "Diviner"
-                @die game,"curse"
+                @die game, "curse", p.id
         p=game.getPlayer target
         # 狂人変化（死亡時は変化しない）
         if p?.getTeam() == "Werewolf" && p.isHuman() && !p.dead
@@ -4025,9 +4031,9 @@ class Fugitive extends Player
             id: pl.id
         }
         if pl.isWerewolf() && pl.getTeam() != "Human"
-            @die game,"werewolf2"
+            @die game, "werewolf2", pl.id
         else if pl.isVampire() && pl.getTeam() != "Human"
-            @die game,"vampire2"
+            @die game, "vampire2", pl.id
 
     isWinner:(game,team)->
         team==@getTeam() && !@dead   # 村人勝利で生存
@@ -4086,7 +4092,7 @@ class QueenSpectator extends Player
         # 感染
         humans = game.players.filter (x)->!x.dead && x.isHuman()    # 生きている人たち
         humans.forEach (x)->
-            x.die game,"hinamizawa"
+            x.die game, "hinamizawa", @id
 
 class MadWolf extends Werewolf
     type:"MadWolf"
@@ -4278,7 +4284,7 @@ class Light extends Player
         t=game.getPlayer game.skillTargetHook.get @target
         # デスノートで殺す
         if t? && !t.dead
-            t.die game,"deathnote"
+            t.die game, "deathnote", @id
 
         # 誰かに移る処理
         if @flag == "onenight"
@@ -4297,7 +4303,7 @@ class Immoral extends Player
         return false if @dead
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
-            @die game,"foxsuicide"
+            @die game, "foxsuicide"
         return false
     makejobinfo:(game,result)->
         super
@@ -4899,7 +4905,7 @@ class Vampire extends Player
         t=game.getPlayer game.skillTargetHook.get @target
         return unless t?
         return if t.dead
-        t.die game,"vampire",@id
+        t.die game, "vampire", @id
         # 襲撃先に逃げていた逃亡者を探して殺す
         for x in game.players
             if x.dead
@@ -5073,7 +5079,7 @@ class Witch extends Player
             # 殺害
             @setFlag @flag^16
             @addGamelog game,"witchkill",null,pl.id
-            pl.die game,"witch"
+            pl.die game, "witch", @id
 class Oldman extends Player
     type:"Oldman"
     beforebury:(game, type)->
@@ -5089,7 +5095,7 @@ class Oldman extends Player
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
         if wolves.length*2 < game.day
             # 寿命
-            @die game,"infirm"
+            @die game, "infirm"
         # 今日の処理はおわり
         @setFlag game.day
         return false
@@ -5383,7 +5389,7 @@ class Dog extends Player
             return unless pl?
 
             @addGamelog game,"dogkill",pl.type,pl.id
-            pl.die game,"dog"
+            pl.die game, "dog", @id
             pl.touched game,@id
         null
     isFormTarget:(jobtype)->
@@ -5444,7 +5450,7 @@ class Dictator extends Player
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
-        pl.die game,"punish",[@id]
+        pl.die game, "punish", [@id]
         # XXX executeの中と同じことが書いてある
         game.bury "punish"
         return if game.rule.hunter_lastattack == "no" && game.judge()
@@ -5851,11 +5857,11 @@ class Counselor extends Player
         tteam = t.getTeam()
         # 人狼とかヴァンパイアを襲ったら殺される
         if t.isWerewolf() && tteam != "Human"
-            @die game,"werewolf2"
+            @die game, "werewolf2", t.id
             @addGamelog game,"counselKilled", t.type, target
             return
         if t.isVampire() && tteam != "Human"
-            @die game,"vampire2"
+            @die game, "vampire2", t.id
             @addGamelog game,"counselKilled", t.type, target
             return
         # OK! flag to consel at sunrise.
@@ -6440,7 +6446,7 @@ class BloodyMary extends Player
         pl=game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
-        pl.die game,"marycurse",@id
+        pl.die game, "marycurse", @id
     # 蘇生できない
     revive:->
     getTeam:->
@@ -6512,7 +6518,7 @@ class PsychoKiller extends Madman
         for id in fl
             pl=game.getPlayer id
             if pl? && !pl.dead
-                pl.die game,"psycho",@id
+                pl.die game, "psycho", @id
         @setFlag "[]"
     deadnight:(game,midnightSort)->
         PsychoKiller::midnight.call this, game, midnightSort
@@ -6545,7 +6551,7 @@ class SantaClaus extends Player
         unless game.players.some((x)=>!x.dead && x.id!=@id && !(x.id in fl))
             # 村を去る
             @setFlag "gone"
-            @die game,"spygone"
+            @die game, "spygone"
 
     job:(game,playerid)->
         if @flag=="gone"
@@ -6584,7 +6590,7 @@ class SantaClaus extends Player
                 to:pl.id
                 comment: game.i18n.t "roles:SantaClaus.deliver.poison", {name: pl.name}
             splashlog game.id,game,log
-            pl.die game,"poison",@id
+            pl.die game, "poison", @id
             @addGamelog game,"sendpresent","poison",pl.id
             return
         else if r<0.1
@@ -6978,7 +6984,7 @@ class Blasphemy extends Player
             # まだ狐を作ってないときは耐える
             # 狐が全員死んでいたら自殺
             unless game.players.some((x)->!x.dead && x.isFox())
-                @die game,"foxsuicide"
+                @die game, "foxsuicide"
         return false
     job:(game,playerid)->
         if @flag || @target?
@@ -7054,7 +7060,7 @@ class Ushinotokimairi extends Madman
     divined:(game,player)->
         if @target?
             # 能力を使用していた場合は占われると死ぬ
-            @die game,"curse"
+            @die game, "curse", player.id
             player.addGamelog game,"cursekill",null,@id
         super
 
@@ -7352,7 +7358,7 @@ class MadDog extends Madman
         @setFlag true
         # 殺害
         @addGamelog game,"dogkill",pl.type,pl.id
-        pl.die game,"dog"
+        pl.die game, "dog", @id
         null
 
 class Hypnotist extends Madman
@@ -7924,7 +7930,7 @@ class BlackCat extends Madman
             return if canbedead.length == 0
             r = Math.floor Math.random() * canbedead.length
             pl = canbedead[r]
-            pl.die game, "poison"
+            pl.die game, "poison", @id
             @addGamelog game, "poisonkill", null, pl.id
 
 class Idol extends Player
@@ -8259,6 +8265,88 @@ class DecoyWolf extends Werewolf
             }
         return res
 
+class LunaticLover extends Player
+    type: "LunaticLover"
+    team: "Friend"
+    formType: FormType.required
+    constructor:->
+        super
+        @setFlag {
+            target: null
+            killTarget: null
+        }
+    isWinner:(game, team)->
+        pl = game.getPlayer @flag?.target
+        unless pl?
+            # 対象選択していないと勝利できない
+            return false
+        # 狂愛対象が生存していれば勝利
+        return !pl.dead
+    sunset:(game)->
+        # 身代わりくんは求愛しない
+        if !@flag?.target? && @scapegoat
+            @setFlag {
+                target: ""
+                killFlag: null
+            }
+    sleeping:(game)->@flag?.target?
+    job:(game, playerid, query)->
+        if @flag?.target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game, @id
+        # 狂愛の対象を決定
+        @setFlag {
+            target: pl.id
+            killFlag: null
+        }
+        # 狂愛されているサブ役職を相手に付加
+        newpl = Player.factory null, game, pl, null, LunaticLoved
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+        newpl.cmplFlag = @id
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:LunaticLover.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    beforebury:(game, type, deads)->
+        pl = game.getPlayer @flag?.target
+        unless pl?
+            return false
+        res = false
+        if !@dead && Array.isArray @flag?.killTarget
+            # 狂愛対象が死亡してしまった！
+            targetpls =
+                @flag.killTarget.map((id)->
+                    game.getPlayer id)
+                .filter (pl) -> pl? && !pl.dead
+            if targetpls.length > 0
+                r = Math.floor(Math.random() * targetpls.length)
+                target = @flag.killTarget[r]
+                targetpl = game.getPlayer target
+                # 道連れ対象を決定
+                if targetpl? && !targetpl.dead
+                    targetpl.die game, "lunaticlover", @id
+                    @addGamelog game, "lunaticloverattack", targetpl.type, targetpl.id
+                    res = true
+            @setFlag {
+                target: @flag.target
+                killTarget: null
+            }
+
+        # 狂愛対象が死亡したら後を追う
+        if pl.dead
+            @die game, "friendsuicide"
+            res = true
+        return res
 
 # ============================
 # 処理上便宜的に使用
@@ -8280,7 +8368,7 @@ class GameMaster extends Player
                     return game.i18n.t "error.common.nonexistentPlayer"
                 if pl.dead
                     return game.i18n.t "error.common.alreadyDead"
-                pl.die game,"gmpunish"
+                pl.die game, "gmpunish"
                 game.bury("other")
                 return null
             when "revive"
@@ -8752,7 +8840,7 @@ class Friend extends Complex    # 恋人
                     ato=true
             # 恋人が誰か死んだら自殺
             if ato
-                @die game,"friendsuicide"
+                @die game, "friendsuicide"
         return res1 || res2
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
@@ -8952,7 +9040,7 @@ class TrapGuarded extends Complex
                 tr = game.getPlayer @cmplFlag   # 罠し
                 if tr?
                     tr.addGamelog game,"trappedGuard",null,@id
-                gu.die game,"trap"
+                gu.die game, "trap", tr?.id
 
             pl.uncomplex game   # 消滅
             # 子の調査を継続
@@ -8994,7 +9082,7 @@ class TrapGuarded extends Complex
             return if canbedead.length==0
             r=Math.floor Math.random()*canbedead.length
             pl=canbedead[r] # 被害者
-            pl.die game,"trap"
+            pl.die game, "trap", guard?.id
             @addGamelog game,"trapkill",null,pl.id
             # 襲撃失敗理由を保存
             if found == "werewolf"
@@ -9260,9 +9348,9 @@ class BombTrapped extends Complex
                 if tr?
                     tr.addGamelog game,"bombTrappedGuard",null,@id
                 # 護衛元が死ぬ
-                gu.die game,"trap"
+                gu.die game, "trap", tr?.id
                 # 自分も死ぬ
-                @die game,"trap"
+                @die game, "trap", tr?.id
 
 
             pl.uncomplex game   # 罠は消滅
@@ -9282,7 +9370,7 @@ class BombTrapped extends Complex
                     r=Math.floor Math.random()*pls.length
                     pl=pls[r]
                     if pl?
-                        pl.die game,"trap"
+                        pl.die game, "trap", @cmplFlag.bomber
                         @addGamelog game,"bombkill",null,pl.id
                         # 爆弾使用済
                         @cmplFlag.used = true
@@ -9294,7 +9382,7 @@ class BombTrapped extends Complex
             # 反撃する
             wl=game.getPlayer from
             if wl?
-                wl.die game,"trap"
+                wl.die game, "trap", bomber?.id
                 @addGamelog game,"bombkill",null,wl.id
                 # 爆弾使用済
                 @cmplFlag.used = true
@@ -9311,7 +9399,7 @@ class FoxMinion extends Complex
     # 占われたら死ぬ
     divined:(game,player)->
         @mcall game,@main.divined,game,player
-        @die game,"curse"
+        @die game, "curse", player.id
         player.addGamelog game,"cursekill",null,@id # 呪殺した
 
 # 丑刻参に呪いをかけられた
@@ -9324,7 +9412,7 @@ class DivineCursed extends Complex
         @uncomplex game
     divined:(game,player)->
         @mcall game,@main.divined,game,player
-        @die game,"curse"
+        @die game, "curse", player.id
         player.addGamelog game,"cursekill",null,@id # 呪殺した
 
 # パティシエールに本命チョコをもらった
@@ -9454,6 +9542,38 @@ class SnowGuarded extends Complex
 
             @uncomplex game
             return true
+
+# 狂愛者に愛されている人
+# cmplFlag: 狂愛者
+class LunaticLoved extends Complex
+    cmplType:"LunaticLoved"
+    isWinner:(game, team)->
+        # 生存していれば狂愛陣営として勝利
+        if !@dead
+            return true
+        # 通常の勝利条件
+        return @main.isWinner game, team
+    dying:(game, found, from)->
+        super
+        # 報復の対象
+        unless from?
+            # 対象不在
+            return
+        lover = game.getPlayer @cmplFlag
+        if !lover? || lover.dead
+            return
+
+        targets = if Array.isArray from
+            from
+        else
+            [from]
+        if targets.length == 0
+            return
+        # 狂愛者の殺害フラグを立てる
+        lvs = lover.accessByJobTypeAll "LunaticLover"
+        for obj in lvs
+            if obj.flag?.target == @id
+                obj.flag.killTarget = targets
 
 
 # 決定者
@@ -9806,6 +9926,7 @@ jobs=
     SnowLover:SnowLover
     Raven:Raven
     DecoyWolf:DecoyWolf
+    LunaticLover:LunaticLover
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -9847,6 +9968,7 @@ complexes=
     PumpkinCostumed:PumpkinCostumed
     FanOfIdol:FanOfIdol
     SnowGuarded:SnowGuarded
+    LunaticLoved:LunaticLoved
 
     # 役職ごとの強さ
 jobStrength=
@@ -9964,6 +10086,7 @@ jobStrength=
     SnowLover:30
     Raven:18
     DecoyWolf:54
+    LunaticLover:30
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

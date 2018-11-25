@@ -117,6 +117,7 @@ jobname:
   SnowLover: "雪女"
   Raven: "鴉"
   DecoyWolf: "囮狼"
+  LunaticLover: "狂愛者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -199,7 +200,7 @@ Guard:
   select: "{{name}}は{{target}}を護衛しました。"
   # Log of GJ
   gj: "{{guard}}が{{name}}の護衛に成功しました。"
-  
+
 # Poisoner
 Poisoner:
   select: "{{name}}の毒が{{target}}を襲いました。"
@@ -670,6 +671,8 @@ Emma:
     curse: "{{name}}は呪殺されたようです。"
     # Killed by a PsychoKiller
     psycho: "{{name}}はサイコキラーに殺されたようです。"
+    # Killed a LunaticLover
+    lunaticlover: "{{name}}は狂愛者に殺されたようです。"
     # Suicided after fox
     foxsuicide: "{{name}}は狐の後を追って死亡したようです。"
     # Suicided after friend
@@ -733,6 +736,10 @@ Raven:
 DecoyWolf:
   # Use skill.
   select: "{{name}}は{{target}}の家に忍び込み囮となりました。"
+
+LunaticLover:
+  # Select a target of lunatic love.
+  select: "{{name}}は{{target}}を狂愛の対象に選びました。"
 
 GameMaster:
   # Failed to revive.
