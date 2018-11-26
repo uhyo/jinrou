@@ -163,7 +163,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
                 {Object.keys(log.probability_table).map(id => {
                   const obj = log.probability_table[id];
                   return (
-                    <ProbabilityTr dead={obj.dead === 1}>
+                    <ProbabilityTr dead={obj.dead === 1} key={id}>
                       <td>{obj.name}</td>
                       <ProbTd prob={obj.Human} />
                       {rule &&
@@ -181,6 +181,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
               </tbody>
             </LogTable>
           </Main>
+          <Time
+            noName
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
         </LogLineWrapper>
       );
     } else {
