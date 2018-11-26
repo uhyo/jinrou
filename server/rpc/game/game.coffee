@@ -10447,47 +10447,56 @@ module.exports.actions=(req,res,ss)->
                     # 恋人陣営
                     if frees>0
                         if 17>=playersnumber>=12
-                            if Math.random()<0.1 && !nonavs.Cupid
+                            if Math.random()<0.08 && !nonavs.Cupid
                                 joblist.Cupid++
                                 frees--
-                            else if Math.random()<0.04 && !nonavs.Lover
+                            else if Math.random()<0.03 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.06 && !nonavs.SnowLover
+                            else if Math.random()<0.05 && !nonavs.SnowLover
                                 joblist.SnowLover++
                                 frees--
-                            else if Math.random()<0.06 && !nonavs.BadLady
+                            else if Math.random()<0.04 && !nonavs.BadLady
                                 joblist.BadLady++
                                 frees--
+                            else if Math.random()<0.06 && !nonavs.LunaticLover
+                                joblist.LunaticLover++
+                                frees--
                         else if 12>=playersnumber>=8
-                            if Math.random()<0.06 && !nonavs.Lover
+                            if Math.random()<0.045 && !nonavs.Lover
                                 joblist.Lover++
                                 frees--
-                            else if Math.random()<0.035 && !nonavs.SnowLover
+                            else if Math.random()<0.025 && !nonavs.SnowLover
                                 joblist.SnowLover++
                                 frees--
-                            else if Math.random()<0.015 && !nonavs.Cupid
+                            else if Math.random()<0.01 && !nonavs.Cupid
                                 joblist.Cupid++
+                                frees--
+                            else if Math.random()<0.03 && !nonavs.LunaticLover
+                                joblist.LunaticLover++
                                 frees--
                         else if playersnumber>=17
                             rval = 1
                             while Math.random() < rval
-                                if Math.random()<0.13 && !nonavs.Cupid
+                                if Math.random()<0.12 && !nonavs.Cupid
                                     joblist.Cupid++
                                     frees--
-                                else if Math.random()<0.08 && !nonavs.Lover
+                                else if Math.random()<0.06 && !nonavs.Lover
                                     joblist.Lover++
                                     frees--
-                                else if Math.random()<0.09 && !nonavs.SnowLover
+                                else if Math.random()<0.07 && !nonavs.SnowLover
                                     joblist.SnowLover++
                                     frees--
-                                else if Math.random()<0.06 && !nonavs.BadLady
+                                else if Math.random()<0.04 && !nonavs.BadLady
                                     joblist.BadLady++
+                                    frees--
+                                else if Math.random()<0.08 && !nonavs.LunaticLover
+                                    joblist.LunaticLover++
                                     frees--
                                 else
                                     break
                                 rval *= 0.6
-                    exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover"
+                    exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover", "LunaticLover"
 
                 # 占い確定
                 if safety.teams || safety.jobs
