@@ -4,7 +4,7 @@ import styled, { withProps, withTheme } from '../../../util/styled';
 import { Log } from '../defs';
 import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
-import { phone } from '../../../common/media';
+import { phone, notPhone } from '../../../common/media';
 import { Theme } from '../../../theme';
 import memoizeOne from 'memoize-one';
 import { FixedSizeLogRow } from './elements';
@@ -612,6 +612,9 @@ const Time = styled(TimeInner)`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
+  `};
+  ${notPhone`
+    line-height: var(--base-font-size);
   `};
 `;
 
