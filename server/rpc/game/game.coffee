@@ -5442,7 +5442,7 @@ class Dictator extends Player
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
-        pl.touched game,@id
+        # pl.touched game,@id
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
@@ -6128,7 +6128,7 @@ class ThreateningWolf extends Werewolf
         unless Phase.isDay(game.phase)
             return game.i18n.t "error.common.cannotUseSkillNow"
         pl=game.getPlayer playerid
-        pl.touched game,@id
+        # pl.touched game,@id
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
         @setTarget playerid
@@ -7792,7 +7792,7 @@ class Hunter extends Player
             return game.i18n.t "error.common.alreadyDead"
         unless @flag == "hunting"
             return game.i18n.t "error.common.cannotUseSkillNow"
-        pl.touched game, @id
+        # pl.touched game, @id
         @setTarget playerid
         log=
             mode: "skill"
