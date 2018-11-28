@@ -1456,6 +1456,7 @@ class Game
             @players.forEach (pl)=>
                 if pl.scapegoat && !pl.dead && !pl.sleeping(@)
                     pl.sunset(@)
+                    scapegoatRunJobs this, pl.id
             # 夜時間
             if @players.every( (x)=>x.dead || x.sleeping(@))
                 # 全員寝たが……
