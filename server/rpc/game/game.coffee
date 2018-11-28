@@ -8747,6 +8747,9 @@ class Complex
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @sub?.divined? game,player
+    touched:(game, from)->
+        @mcall game, @main.touched, game, from
+        @sub?.touched game, from
     getjob_target:->
         if @sub?
             @main.getjob_target() | @sub.getjob_target()    # ビットフラグ
@@ -9778,9 +9781,6 @@ class Chemical extends Complex
             # 人狼に対する襲撃耐性で耐えた
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
         return result
-    touched:(game, from)->
-        @mcall game, @main.touched, game, from
-        @sub?.touched game, from
     makejobinfo:(game,result)->
         @main.makejobinfo game,result
         @sub?.makejobinfo? game,result
