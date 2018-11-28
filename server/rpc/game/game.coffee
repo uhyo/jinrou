@@ -3867,7 +3867,7 @@ class WolfDiviner extends Werewolf
         }
         super
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
-    jobdone:(game)->game.werewolf_target_remain<=0 && @flag.target?
+    jobdone:(game)->game.werewolf_target_remain<=0 && @flag?.target?
     job:(game,playerid,query)->
         if query.jobtype!="WolfDiviner"
             # 人狼の仕事
