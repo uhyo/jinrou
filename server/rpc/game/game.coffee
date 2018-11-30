@@ -1456,6 +1456,7 @@ class Game
             @players.forEach (pl)=>
                 if pl.scapegoat && !pl.dead && !pl.sleeping(@)
                     pl.sunset(@)
+                    scapegoatRunJobs this, pl.id
             # 夜時間
             if @players.every( (x)=>x.dead || x.sleeping(@))
                 # 全員寝たが……
@@ -3867,7 +3868,7 @@ class WolfDiviner extends Werewolf
         }
         super
     sleeping:(game)->game.werewolf_target_remain<=0 # 占いは必須ではない
-    jobdone:(game)->game.werewolf_target_remain<=0 && @flag.target?
+    jobdone:(game)->game.werewolf_target_remain<=0 && @flag?.target?
     job:(game,playerid,query)->
         if query.jobtype!="WolfDiviner"
             # 人狼の仕事
@@ -5442,7 +5443,7 @@ class Dictator extends Player
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
-        pl.touched game,@id
+        # pl.touched game,@id
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
@@ -6128,7 +6129,7 @@ class ThreateningWolf extends Werewolf
         unless Phase.isDay(game.phase)
             return game.i18n.t "error.common.cannotUseSkillNow"
         pl=game.getPlayer playerid
-        pl.touched game,@id
+        # pl.touched game,@id
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
         @setTarget playerid
@@ -7792,7 +7793,7 @@ class Hunter extends Player
             return game.i18n.t "error.common.alreadyDead"
         unless @flag == "hunting"
             return game.i18n.t "error.common.cannotUseSkillNow"
-        pl.touched game, @id
+        # pl.touched game, @id
         @setTarget playerid
         log=
             mode: "skill"
@@ -8746,6 +8747,9 @@ class Complex
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @sub?.divined? game,player
+    touched:(game, from)->
+        @mcall game, @main.touched, game, from
+        @sub?.touched game, from
     getjob_target:->
         if @sub?
             @main.getjob_target() | @sub.getjob_target()    # ビットフラグ
@@ -9777,9 +9781,6 @@ class Chemical extends Complex
             # 人狼に対する襲撃耐性で耐えた
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
         return result
-    touched:(game, from)->
-        @mcall game, @main.touched, game, from
-        @sub?.touched game, from
     makejobinfo:(game,result)->
         @main.makejobinfo game,result
         @sub?.makejobinfo? game,result
