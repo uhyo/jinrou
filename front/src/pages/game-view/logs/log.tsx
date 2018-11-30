@@ -496,6 +496,8 @@ const LogPart = withProps<{
 
   line-height: 1;
   word-break: break-all;
+  overflow-wrap: break-word;
+  word-break: break-word;
   padding: 1px 0;
   font-size: var(--base-font-size);
 `;
