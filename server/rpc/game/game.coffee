@@ -6164,7 +6164,7 @@ class ThreateningWolf extends Werewolf
         super
     getOpenForms:(game)->
         res = super
-        if Phase.isDay(game.phase) && !@flag?
+        if Phase.isDay(game.phase) && !@dead && !@flag?
             #昼の能力選択可能
             res.push {
                 type: "ThreateningWolf"
