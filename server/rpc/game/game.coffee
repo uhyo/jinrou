@@ -1458,8 +1458,8 @@ class Game
                     pl.sunset(@)
                     scapegoatRunJobs this, pl.id
             # 夜時間
-            if @players.every( (x)=>x.dead || x.sleeping(@))
-                # 全員寝たが……
+            if (Phase.isRemain(@phase) && timeout) || @players.every((x)=>x.dead || x.sleeping(@))
+                # 全員寝た or 強制的に進む
                 if Phase.isRemain(@phase) || timeout || !@rule.night || @rule.waitingnight!="wait" #夜に時間がある場合は待ってあげる
                     @midnight()
                     @nextturn()
