@@ -6678,20 +6678,21 @@ class Phantom extends Player
         pl=game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
-        savedobj={}
-        pl.makejobinfo game,savedobj
-        flagobj={}
-        # jobinfo表示をセーブ
-        for value in Shared.game.jobinfos
-            if savedobj[value.name]?
-                flagobj[value.name]=savedobj[value.name]
-
         # 盗んだ役職
         newtype = pl.type
         # ただし既に怪盗に盗まれていたら怪盗を盗んだことにする
         newch = constructMainChain pl
         if newch?[0].some((cm)-> cm.cmplType == "PhantomStolen")
             newtype = "Phantom"
+
+        savedobj={}
+        newch?[1].makejobinfo game,savedobj
+        flagobj={}
+        # jobinfo表示をセーブ
+        for value in Shared.game.jobinfos
+            if savedobj[value.name]?
+                flagobj[value.name]=savedobj[value.name]
+
 
         # 自分はその役職に変化する
         newpl=Player.factory newtype, game
