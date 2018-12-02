@@ -201,7 +201,9 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           ? null
           : log.mode === 'monologue' || log.mode === 'heavenmonologue'
             ? t('log.monologue', { name: log.name }) + ':'
-            : log.name + ':';
+            : log.mode === 'will'
+              ? t('log.will', { name: log.name }) + ':'
+              : log.name + ':';
       const noName = icon == null && !nameText;
       const props = {
         logStyle,

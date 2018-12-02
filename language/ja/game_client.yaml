@@ -204,6 +204,8 @@ log:
     dead: "死亡"
   # 独り言
   monologue: "{{name}}の独り言"
+  # 遺言
+  will: "{{name}}の遺言"
 # Game view: player box.
 playerbox:
   # Alt for the dead image.
