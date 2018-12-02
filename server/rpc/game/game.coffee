@@ -9205,6 +9205,8 @@ class DivineObstructed extends Complex
             obstmad.addGamelog game,"divineObstruct",null,@id
 class PhantomStolen extends Complex
     cmplType:"PhantomStolen"
+    # 怪盗化したので霊能結果を変更
+    getPsychicResult:-> PsychicResult.human
     # cmplFlag: 保存されたアレ
     sunset:(game)->
         # 夜になると怪盗になってしまう!!!!!!!!!!!!
