@@ -5818,7 +5818,7 @@ class RedHood extends Player
             @setFlag null
     beforebury:(game, type)->
         # 自分を食った狼が死んだら即座に蘇生
-        if @flag && @dead
+        if @flag && @dead && @isWerewolf()
             w=game.getPlayer @flag
             if w?.dead
                 pl = game.getPlayer @id
