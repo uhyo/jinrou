@@ -10130,7 +10130,7 @@ module.exports.actions=(req,res,ss)->
                 remain: parseInt query.remain
                 voting: parseInt query.voting
                 # (n=15)秒ルール
-                silentrule: parseInt(query.silentrule) ? 0
+                silentrule: parseInt(query.silentrule) || 0
             }
             # 不正なアレははじく
             unless Number.isFinite(ruleobj.day) && Number.isFinite(ruleobj.night) && Number.isFinite(ruleobj.remain) && Number.isFinite(ruleobj.voting)
