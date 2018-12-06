@@ -8257,7 +8257,7 @@ class DecoyWolf extends Werewolf
             @setFlag "done"
     getOpenForms:(game)->
         res = super
-        if !@dead && Phase.isNight(game.phase) && !@flag
+        if !@dead && Phase.isNight(game.phase) && !@flag && game.day > 1
             # まだ能力を使用可能
             res.push {
                 type: "DecoyWolf"
