@@ -8,7 +8,12 @@ html
     meta(name="description",content=i18n.t('description'))
     link(rel="icon",sizes="16x16",href="/favicon.ico")
     link(rel="icon",sizes="144x144",href="/icons/icon-144x144.png")
-    //- script(src="https://use.fontawesome.com/e0e7afd227.js",async)
+    if Array.isArray(Config.additionalMeta)
+      each obj in Config.additionalMeta
+        if obj.type == "script"
+          script(src=obj.src, crossorigin=obj.crossorigin)
+        else if obj.type == "inline-script"
+          script!= obj.text
     //- load feature-check script if needed.
     script(src=bundle)
     if legacyBuilds || notSupportedPage

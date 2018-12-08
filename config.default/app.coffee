@@ -137,3 +137,17 @@ module.exports =
     # If set to true, browsers other than latest ones will use fallback (legacy) build of front-end scripts.
     # If this is set to true, "notSupportedPage" feature is automatically disabled.
     legacyBuilds: process.env.NODE_ENV == 'production'
+  # settings for additional emissions in head.
+  # currently supported types are "script" and "inline-script".
+  # see client/views/app.jade for details.
+  additionalMeta: [
+    # {
+    #   type: "script"
+    #   src: "URL"
+    #   crossorigin: "anonymous"
+    # },
+    # {
+    #   type: "inline-script"
+    #   text: "script..."
+    # },
+  ]
