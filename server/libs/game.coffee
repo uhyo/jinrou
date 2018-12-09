@@ -1,5 +1,5 @@
 Shared=
-    game:require '../../../client/code/shared/game.coffee'
+    game:require '../../client/code/shared/game.coffee'
 
 
 # Validate gameStart query.
