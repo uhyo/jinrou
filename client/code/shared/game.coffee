@@ -1151,6 +1151,7 @@ exports.new_rules=[
                     type:"integer"
                     id:"silentrule"
                     defaultValue: 0
+                    minValue: 0
                     getstr:(t, value)->
                         {
                             value:
