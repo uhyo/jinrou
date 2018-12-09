@@ -25,6 +25,7 @@ export interface IPropShowRule {
 export class ShowRule extends React.PureComponent<IPropShowRule, {}> {
   public render() {
     const { categories, rule, ruleDefs } = this.props;
+    console.log('rule!', rule);
     return (
       <I18n>
         {t => (
