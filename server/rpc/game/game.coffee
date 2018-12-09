@@ -8,6 +8,7 @@ libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
 libi18n      = require '../../libs/i18n.coffee'
+libgame      = require '../../libs/game.coffee'
 
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
@@ -10117,7 +10118,10 @@ module.exports.actions=(req,res,ss)->
             if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
                 res game.i18n.t "error.gamestart.noHiddenRole"
                 return
-
+            ruleValidationError = libgame.validateGameStartQuery game, query
+            if ruleValidationError?
+                res ruleValidationError
+                return
 
             # ルールオブジェクト用意
             ruleobj={

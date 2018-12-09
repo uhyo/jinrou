@@ -388,18 +388,27 @@ exports.start=(roomid)->
                             console.log 'newquery', query
                             ss.rpc "game.game.gameStart", roomid, query, (result)->
                                 if result?
-                                    JinrouFront
-                                        .loadDialog()
-                                        .then (d)->
-                                            JinrouFront.loadI18n()
-                                                .then((i18n)-> i18n.getI18nFor())
-                                                .then (i18n)->
-                                                    d.showMessageDialog {
-                                                        modal: true
-                                                        title: i18n.t 'common:error.error'
-                                                        message: String result
-                                                        ok: i18n.t 'common:messageDialog.close'
-                                                    }
+                                    Promise.all([
+                                        JinrouFront.loadDialog()
+                                        Index.app.getI18n()
+                                    ])
+                                        .then ([d, i18n])->
+                                            errorMessage = switch result.errorType
+                                                when "invalid"
+                                                    ruleName = i18n.t "rules:rule.#{result.rule}.name"
+                                                    i18n.t "game_client:gamestart.error.ruleInvalid", {name: ruleName}
+                                                when "tooSmall"
+                                                    ruleName = i18n.t "rules:rule.#{result.rule}.name"
+                                                    i18n.t "game_client:gamestart.error.ruleTooSmall", {name: ruleName}
+                                                else
+                                                    String result
+
+                                            d.showMessageDialog {
+                                                modal: true
+                                                title: i18n.t 'common:error.error'
+                                                message: errorMessage
+                                                ok: i18n.t 'common:messageDialog.close'
+                                            }
                                 else
                                     game_start_control.store.setConsumed()
                                     game_start_control.unmount()

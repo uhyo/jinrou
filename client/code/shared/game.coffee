@@ -1151,6 +1151,7 @@ exports.new_rules=[
                     type:"integer"
                     id:"silentrule"
                     defaultValue: 0
+                    minValue: 0
                     getstr:(t, value)->
                         {
                             value:
@@ -1320,7 +1321,6 @@ exports.new_rules=[
         label:
             id: 'couple'
             visible:(rule)->
-                console.log 'rule!', rule
                 return true if isAllJobsMode rule
                 return rule.jobNumbers.Couple>0 || rule.jobNumbers.MadCouple>0
         items:[

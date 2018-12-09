@@ -75,6 +75,7 @@ export interface HiddenRule extends RuleDefinitionBase {
 export interface IntegerRule extends RuleDefinitionBase {
   type: 'integer';
   defaultValue: number;
+  minValue?: number;
 }
 
 /**

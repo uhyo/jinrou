@@ -46,6 +46,11 @@ gamestart:
       rangeSuggestionMin: "{{min}}以上"
       rangeSuggestionMax: "{{max}}以下"
       rangeSuggestionMinMax: "{{min}}以上{{max}}以下"
+  # error message.
+  error:
+    # rule value is invalid.
+    ruleInvalid: "ルール「{{name}}」の設定内容が正しくありません。"
+    ruleTooSmall: "ルール「{{name}}」の値が小さすぎます。"
 
 # game-view: job info control.
 jobinfo:

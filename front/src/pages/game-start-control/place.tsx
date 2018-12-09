@@ -230,12 +230,9 @@ function loadSavedRules(
     ) {
       continue;
     }
-    // temporary fix
     if (rule[key] != null) {
+      // if not saved, leave it as initial.
       store.updateRule(key, String(rule[key]));
-    } else {
-      // FIXME
-      store.updateRule(key, null as any);
     }
   }
   // XXX we are following old query-based formats.
