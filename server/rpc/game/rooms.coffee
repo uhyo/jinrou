@@ -17,6 +17,7 @@ room: {
   mode: "waiting"/"playing"/"end"
   made: Time(Number)(作成された日時）
   blind:""/"yes"/"complete"
+  theme: String(theme of room)
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
   gm: Booelan(trueならオーナーGM)
@@ -46,8 +47,10 @@ Server=
     game:
         game:require './game.coffee'
         rooms:module.exports
+        themes:require './themes.coffee'
     oauth:require '../../oauth.coffee'
     log:require '../../log.coffee'
+crypto=require 'crypto'
 # ヘルパーセット処理
 sethelper=(ss,roomid,userid,id,res)->
     Server.game.rooms.oneRoomS roomid,(room)->
@@ -221,6 +224,29 @@ module.exports.actions=(req,res,ss)->
                 jobrule:null
             room.password=query.password ? null
             room.blind=query.blind
+            room.theme=query.theme
+            if room.theme
+                theme = Server.game.themes.getTheme room.theme
+                unless theme
+                    res {error: i18n.t "error.theme.noTheme"}
+                    return
+                if !theme.isAvailable?()
+                    res {error: i18n.t "error.theme.notAvailable", {name: theme.name}}
+                    return
+                if !theme.lockable && room.password
+                    res {error: i18n.t "error.theme.notLockable", {name: theme.name}}
+                    return
+                if room.blind == ""
+                    res {error: i18n.t "error.theme.notBlind"}
+                    return
+
+                skins = Object.keys theme.skins
+                if room.number > skins.length
+                    res {error: i18n.t "error.theme.playerTooMuch", {
+                        name: theme.name
+                        length: skins.length
+                    }}
+                    return
             room.comment=query.comment ? ""
             #unless room.blind
             #   room.players.push req.session.user
@@ -334,27 +360,55 @@ module.exports.actions=(req,res,ss)->
             if user.icon?.length > Config.maxlength.user.icon
                 res error: i18n.t "error.join.iconTooLong"
                 return
+
+            if room.theme
+                theme = Server.game.themes.getTheme room.theme
+                if theme == null
+                    res {error: i18n.t "error.theme.noTheme"}
+                    return
+                if !theme.isAvailable?()
+                    res {error: i18n.t "error.theme.notAvailable", {name: theme.name}}
+                    return
+                
             if room.blind
-                unless opt?.name
+                unless opt?.name || room.theme
                     res error: i18n.t "error.join.nameNeeded"
                     return
                 if opt.name.length > Config.maxlength.user.name
                     res {error: i18n.t "error.join.nameTooLong"}
                     return
+                # テーマmode
+                if room.theme && theme != null
+                    skins = Object.keys theme.skins
+                    skins = skins.filter((x)->!room.players.some((pl)->theme.skins[x].name==pl.name))
+                    skin = skins[Math.floor(Math.random() * skins.length)]
+                        
+                    user.name=theme.skins[skin].name.trim()
+                    loop
+                        user.userid=crypto.randomBytes(10).toString('hex')
+                        if user.userid? && room.players.every((pl)->user.userid!=pl.userid)
+                            break
+
+                    avatar = theme.skins[skin].avatar
+                    # his icon could be Array or a link.
+                    if Array.isArray avatar
+                        avatar = avatar[Math.floor(Math.random() * avatar.length)]
+                    user.icon= avatar ? null
                 # 覆面
-                makeid=->   # ID生成
-                    re=""
-                    while !re
-                        i=0
-                        while i<20
-                            re+="0123456789abcdef"[Math.floor Math.random()*16]
-                            i++
-                        if room.players.some((x)->x.userid==re)
-                            re=""
-                    re
-                user.name=opt.name
-                user.userid=makeid()
-                user.icon= opt.icon ? null
+                else
+                    makeid=->   # ID生成
+                        re=""
+                        while !re
+                            i=0
+                            while i<20
+                                re+="0123456789abcdef"[Math.floor Math.random()*16]
+                                i++
+                            if room.players.some((x)->x.userid==re)
+                                re=""
+                        re
+                    user.name=opt.name
+                    user.userid=makeid()
+                    user.icon= opt.icon ? null
             if user.name.trim() == ''
                 res error: i18n.t "error.join.nameOnlySpaces"
                 return
@@ -362,10 +416,27 @@ module.exports.actions=(req,res,ss)->
                 if err?
                     res error: String err
                 else
-                    res null
+                    if room.theme && theme != null
+                        # show player who he is.
+                        pr = theme.skins[skin].prize
+                        # his prize could be Array
+                        if Array.isArray pr
+                            pr = pr[Math.floor(Math.random() * pr.length)]
+                        # pass it to Server.game.game.inlog
+                        if pr
+                            user.tpr = pr
+                            name = "「#{user.tpr}」#{user.name}"
+                        else
+                            name = "#{user.name}"
+                        res
+                            tip: "#{name}"
+                            title:"#{theme.skin_tip}"
+                    else
+                        res null
                     # 入室通知
                     delete user.ip
                     Server.game.game.inlog room,user
+                    delete user.tpr
                     if room.blind
                         delete user.realid
                     if room.mode!="playing"

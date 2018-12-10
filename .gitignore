@@ -2,5 +2,7 @@ config/
 node_modules/
 /client/static/assets/main
 /client/static/front-assets
-/server/themes
+/server/themes/*
+!/server/themes/example.coffee
+!/server/themes/readme.md
 /language/*/*.missing.json

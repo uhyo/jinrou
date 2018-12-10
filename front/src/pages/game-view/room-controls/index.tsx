@@ -106,9 +106,10 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
   private handleJoinClick(): void {
     const { t, roomControls, handlers } = this.props;
     const blind = roomControls.type === 'prelude' && roomControls.blind;
+    const theme = roomControls.type === 'prelude' && roomControls.theme;
     // if the room is in blind mode,
     // show user info dialog.
-    if (blind) {
+    if (blind && !theme) {
       showPlayerDialog({
         modal: true,
         title: t('game_client:room.playerDialog.title'),

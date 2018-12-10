@@ -124,6 +124,15 @@ exports.start=(roomid)->
                                         modal: true
                                         message: String result.error
                                     }
+                                else if result?.tip?
+                                    # To show player who he is.
+                                    dialog.showMessageDialog {
+                                        modal: false
+                                        title: result.title
+                                        message: String result.tip
+                                        ok: i18n.t 'common:messageDialog.close'
+                                    }
+                                    Index.app.refresh()
                                 else
                                     # succeeded to login
                                     Index.app.refresh()
@@ -304,6 +313,7 @@ exports.start=(roomid)->
                             joined: Boolean enter_result?.joined
                             old: room.old
                             blind: !!room.blind
+                            theme: room.theme? && !!room.theme
                         }
                     else if obj.game?.finished
                         {
@@ -317,6 +327,7 @@ exports.start=(roomid)->
                             joined: false
                             old: false
                             blind: !!room.blind
+                            theme: room.theme? && !!room.theme
                         }
                     else
                         null

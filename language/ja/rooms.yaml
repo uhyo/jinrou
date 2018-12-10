@@ -23,6 +23,18 @@ error:
     # Cannot make a room because banned
     banned: "アクセス制限により、部屋を作成できません。"
 
+  theme:
+    # nonexistent theme
+    noTheme: "このテーマは存在しません。"
+    # This theme is unavailable right now.
+    notAvailable: "テーマの「{{name}}」は現在利用できません。"
+    # This theme cannot be locked.
+    notLockable: "テーマの「{{name}}」はパスワードを使用できません。"
+    # A room with theme must be blind.
+    notBlind: "テーマを使用している部屋は覆面でなければなりません。"
+    # The number of players cannot be greater than the number of built-in skins of the theme. 
+    playerTooMuch: "テーマの「{{name}}」の最大人数は「{{length}}」です。"
+
   join:
     # Cannot join because banned
     banned: "アクセス制限により、部屋に参加できません。"
