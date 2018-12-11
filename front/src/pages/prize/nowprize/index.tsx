@@ -3,6 +3,7 @@ import { Observer } from 'mobx-react';
 import * as React from 'react';
 import { PrizeGroupWrapper, PrizeTip, ConjunctionTip } from '../elements';
 import { NowPrizeType, NowPrize } from '../defs';
+import { isNowprizeSelected, clickNowPrizeLogic } from '../logic/select';
 
 export interface IPropNowPrize {
   store: PrizeStore;
@@ -44,17 +45,21 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
                 <li key={idx}>
                   {v.type === 'prize' ? (
                     <PrizeTip
+                      selected={isNowprizeSelected(store, idx)}
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
                       onDrop={onDrop.bind(null, idx)}
+                      onClick={() => clickNowPrizeLogic(store, idx)}
                     >
                       {v.value != null ? prizeDisplayMap.get(v.value) : null}
                     </PrizeTip>
                   ) : (
                     <ConjunctionTip
+                      selected={isNowprizeSelected(store, idx)}
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
                       onDrop={onDrop.bind(null, idx)}
+                      onClick={() => clickNowPrizeLogic(store, idx)}
                     >
                       {v.value}
                     </ConjunctionTip>

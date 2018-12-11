@@ -1,5 +1,11 @@
 import { observable, action, computed } from 'mobx';
-import { Prize, PrizeUtil, NowPrize, NowPrizeType } from './defs';
+import {
+  Prize,
+  PrizeUtil,
+  NowPrize,
+  NowPrizeType,
+  PrizeSelection,
+} from './defs';
 import { splitPrizesIntoGroups } from './logic/prize-groups';
 
 /**
@@ -52,6 +58,12 @@ export class PrizeStore {
   }
 
   /**
+   * Currently selected prize.
+   */
+  @observable
+  public selection: PrizeSelection | null = null;
+
+  /**
    * Whether list of prizes are shrinked.
    */
   @observable
@@ -88,5 +100,12 @@ export class PrizeStore {
   @action
   public setShrinked(shrinked: boolean): void {
     this.shrinked = shrinked;
+  }
+  /**
+   * Set current selection of prize.
+   */
+  @action
+  public setSelection(selection: PrizeSelection | null): void {
+    this.selection = selection;
   }
 }

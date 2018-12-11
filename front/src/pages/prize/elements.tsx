@@ -45,11 +45,13 @@ export const PrizeGroupWrapper = styled.ul`
 /**
  * Wrapper of one prize.
  */
-export const PrizeTip = styled.span`
+export const PrizeTip = withProps<{
+  selected?: boolean;
+}>()(styled.span)`
   display: inline-block;
   margin: 3px 5px;
   padding: 1px;
-  border: 2px solid black;
+  border: 2px solid ${({ selected }) => (selected ? '#ee1111' : '#000000')};
   min-width: 1em;
   min-height: 1em;
   cursor: default;

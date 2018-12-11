@@ -5,8 +5,8 @@ import { PrizeStore } from '..';
 import { LinkLikeButton } from '../../../common/button';
 import { i18n } from '../../../i18n';
 import { CachedBinder } from '../../../util/cached-binder';
-import { Prize } from '../defs';
 import { bind } from 'bind-decorator';
+import { clickPrizeLogic, isPrizeSelected } from '../logic/select';
 
 export interface IPropPrizeList {
   i18n: i18n;
@@ -45,11 +45,18 @@ export class PrizeList extends React.Component<
               {group.map(prize => (
                 <li key={prize.id}>
                   <PrizeTip
+                    selected={isPrizeSelected(store, prize.id)}
                     draggable
                     onDragStart={this.dragStartHandlers.bind(
                       prize.id,
                       this.dragStartHandler,
                     )}
+                    onClick={() =>
+                      clickPrizeLogic(store, {
+                        type: 'prize',
+                        value: prize.id,
+                      })
+                    }
                   >
                     {prize.name}
                   </PrizeTip>

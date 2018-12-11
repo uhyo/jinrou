@@ -33,6 +33,16 @@ export type NowPrize =
 export type NowPrizeType = NowPrize['type'];
 
 /**
+ * Currently selected prize
+ */
+export type PrizeSelection =
+  | NowPrize
+  | {
+      type: 'now';
+      index: number;
+    };
+
+/**
  * Interface of provided utility around prizes.
  */
 export interface PrizeUtil {
