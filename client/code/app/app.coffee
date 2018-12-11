@@ -259,6 +259,10 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             # ユーザー設定
             page "user-settings", {
             }, Index.user.settings, null
+        when "/my/prize"
+            # 称号設定
+            page "user-prize", {
+            }, Index.user.prize, null
         when "/reset"
             # 找回密码
             page "reset",null,Index.reset, null
