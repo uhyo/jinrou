@@ -4,6 +4,7 @@ import { I18nProvider, i18n } from '../../i18n';
 import { PrizeStore } from './store';
 import { observer } from 'mobx-react';
 import { PageWrapper } from './elements';
+import { PrizeList } from './prize-list';
 
 export interface IPropPrize {
   /**
@@ -31,6 +32,7 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
 
           <h2>{i18n.t('list.title')}</h2>
           <p>{i18n.t('list.prizeNumber', { count: store.prizeNumber })}</p>
+          <PrizeList prizeGroups={store.prizeGroups} />
         </PageWrapper>
       </I18nProvider>
     );

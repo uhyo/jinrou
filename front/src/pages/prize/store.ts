@@ -1,5 +1,6 @@
 import { observable, action, computed } from 'mobx';
 import { Prize } from './defs';
+import { splitPrizesIntoGroups } from './logic/prize-groups';
 
 /**
  * States of prize page.
@@ -18,6 +19,13 @@ export class PrizeStore {
   @computed
   public get prizeNumber(): number {
     return this.prizes.length;
+  }
+  /**
+   * Prizes split into groups based on phonetics.
+   */
+  @computed
+  public get prizeGroups(): Prize[][] {
+    return splitPrizesIntoGroups(this.prizes);
   }
 
   /**
