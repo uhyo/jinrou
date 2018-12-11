@@ -8064,11 +8064,17 @@ class Idol extends Player
         if @flag?
             result.myfans = @flag.fans.map((id)->
                 p = game.getPlayer id
-                p?.publicinfo()
+                if p? && p.isCmplType("FanOfIdol")
+                    return p.publicinfo()
+                else
+                    return null
             ).filter((x)-> x?)
     modifyMyVote:(game, vote)->
+        fanalive = @flag?.fans.some((id)->
+            pl = game.getPlayer id
+            pl? && !pl.dead && pl.isCmplType("FanOfIdol"))
         # If this is Day 5 or later and fan is no alive, vote is +1ed.
-        if game.day >= 5 && @flag? && @flag.fans.every((id)-> game.getPlayer(id)?.dead)
+        if game.day >= 5 && !fanalive
             vote.priority++
         vote
 
