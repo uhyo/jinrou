@@ -3,5 +3,16 @@
 # title of page
 title: "称号"
 
+# description of prizes
+description: "称号は勝利回数・敗北回数などの特定を条件を満たすことで入手できます。"
+
 # back to mypage link.
 backLink: "マイページに戻る"
+
+# list of prizes
+list:
+  # title of prize list section
+  title: "称号一覧"
+  # number of available prizes
+  prizeNumber: "獲得称号数: {{count}}"
+

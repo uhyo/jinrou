@@ -24,9 +24,13 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
       <I18nProvider i18n={i18n}>
         <PageWrapper>
           <h1>{i18n.t('title')}</h1>
+          <p>{i18n.t('description')}</p>
           <p>
             <a href="/my">{i18n.t('backLink')}</a>
           </p>
+
+          <h2>{i18n.t('list.title')}</h2>
+          <p>{i18n.t('list.prizeNumber', { count: store.prizeNumber })}</p>
         </PageWrapper>
       </I18nProvider>
     );
