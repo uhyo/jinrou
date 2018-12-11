@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import { PrizeStore } from './store';
 import { PrizePage } from './component';
-import { i18n } from '../../i18n';
+import { i18n, addResource } from '../../i18n';
 import { Prize } from './defs';
 
 /**
@@ -25,11 +25,14 @@ export interface IPlaceResult {
   store: PrizeStore;
 }
 
-export function place({
+export async function place({
   i18n,
   node,
   initialPrizes,
-}: IPlaceOptions): IPlaceResult {
+}: IPlaceOptions): Promise<IPlaceResult> {
+  await addResource('prize_client', i18n);
+  i18n.setDefaultNamespace('prize_client');
+
   const store = new PrizeStore();
   store.setPrizes(initialPrizes);
 
