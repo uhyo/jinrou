@@ -15,7 +15,7 @@ export const PrizeListWrapper = withProps<{
    * Whether prize list is shrinked.
    */
   shrinked: boolean;
-}>()(styled.ul)`
+}>()(styled.div)`
   ${({ shrinked }) =>
     shrinked
       ? `

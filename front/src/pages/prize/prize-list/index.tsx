@@ -1,5 +1,5 @@
 import { Prize } from '../defs';
-import { Observer } from 'mobx-react';
+import { Observer, observer } from 'mobx-react';
 import * as React from 'react';
 import { OnePrize } from './one-prize';
 import { PrizeListWrapper, PrizeGroupWrapper } from '../elements';
@@ -11,35 +11,62 @@ export interface IPropPrizeList {
   i18n: i18n;
   store: PrizeStore;
 }
+export interface IStatePrizeList {
+  /**
+   * Whether list has scroll bars.
+   */
+  listScroll: boolean | null;
+}
 /**
  * Show the list of prizes.
  */
-export const PrizeList = ({ i18n, store }: IPropPrizeList) => {
-  const shrinkHandler = () => {
-    store.setShrinked(!store.shrinked);
+@observer
+export class PrizeList extends React.Component<
+  IPropPrizeList,
+  IStatePrizeList
+> {
+  private wrapperRef = React.createRef<HTMLElement>();
+  public state: IStatePrizeList = {
+    listScroll: null,
   };
-  return (
-    <Observer>
-      {() => (
-        <>
-          <PrizeListWrapper shrinked={store.shrinked}>
-            {store.prizeGroups.map((group, idx) => (
-              <PrizeGroupWrapper key={idx}>
-                {group.map(prize => (
-                  <OnePrize key={prize.id} prize={prize} />
-                ))}
-              </PrizeGroupWrapper>
-            ))}
-          </PrizeListWrapper>
-          <p>
+  public render() {
+    const { i18n, store } = this.props;
+    const { listScroll } = this.state;
+    const shrinkHandler = () => {
+      store.setShrinked(!store.shrinked);
+    };
+    return (
+      <>
+        <PrizeListWrapper shrinked={store.shrinked} innerRef={this.wrapperRef}>
+          {store.prizeGroups.map((group, idx) => (
+            <PrizeGroupWrapper key={idx}>
+              {group.map(prize => (
+                <OnePrize key={prize.id} prize={prize} />
+              ))}
+            </PrizeGroupWrapper>
+          ))}
+        </PrizeListWrapper>
+        <p>
+          {listScroll || !store.shrinked ? (
             <LinkLikeButton onClick={shrinkHandler}>
               {store.shrinked
                 ? i18n.t('list.unshrinkLabel')
                 : i18n.t('list.shrinkLabel')}
             </LinkLikeButton>
-          </p>
-        </>
-      )}
-    </Observer>
-  );
-};
+          ) : null}
+        </p>
+      </>
+    );
+  }
+  public componentDidMount() {
+    // check whether a scroll bar has appeared after rendering.
+    const w = this.wrapperRef.current;
+    if (w == null) {
+      return;
+    }
+    const listScroll = w.scrollHeight > w.clientHeight;
+    this.setState({
+      listScroll,
+    });
+  }
+}
