@@ -16,17 +16,48 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
       {() => {
         const { prizeTemplate, nowprize, prizeDisplayMap } = store;
         const filled = fillTemplate(prizeTemplate, nowprize);
+        const onDragEnter = (e: React.DragEvent) => {
+          e.preventDefault();
+        };
+        const onDragOver = (e: React.DragEvent) => {
+          e.dataTransfer.dropEffect = 'copy';
+          e.preventDefault();
+        };
+        const onDrop = (e: React.DragEvent) => {
+          const data = e.dataTransfer.getData('text/x-prize-data');
+          if (data === '') {
+            // not related.
+            return;
+          }
+          try {
+            const prize = JSON.parse(data);
+            console.log(prize);
+          } catch (e) {
+            // !?
+            console.error('JSON parse error', e);
+          }
+        };
         return (
           <>
             <PrizeGroupWrapper>
               {filled.map((v, idx) => (
                 <li key={idx}>
                   {v.type === 'prize' ? (
-                    <PrizeTip>
+                    <PrizeTip
+                      onDragEnter={onDragEnter}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                    >
                       {v.value != null ? prizeDisplayMap.get(v.value) : null}
                     </PrizeTip>
                   ) : (
-                    <ConjunctionTip>{v.value}</ConjunctionTip>
+                    <ConjunctionTip
+                      onDragEnter={onDragEnter}
+                      onDragOver={onDragOver}
+                      onDrop={onDrop}
+                    >
+                      {v.value}
+                    </ConjunctionTip>
                   )}
                 </li>
               ))}

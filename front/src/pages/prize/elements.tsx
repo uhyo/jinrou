@@ -52,6 +52,7 @@ export const PrizeTip = styled.span`
   border: 2px solid black;
   min-width: 1em;
   min-height: 1em;
+  cursor: default;
 
   background-color: #ffffff;
   font-size: 1.2em;

@@ -1,10 +1,12 @@
 import { observer } from 'mobx-react';
 import * as React from 'react';
-import { OnePrize } from './one-prize';
-import { PrizeListWrapper, PrizeGroupWrapper } from '../elements';
+import { PrizeListWrapper, PrizeGroupWrapper, PrizeTip } from '../elements';
 import { PrizeStore } from '..';
 import { LinkLikeButton } from '../../../common/button';
 import { i18n } from '../../../i18n';
+import { CachedBinder } from '../../../util/cached-binder';
+import { Prize } from '../defs';
+import { bind } from 'bind-decorator';
 
 export interface IPropPrizeList {
   i18n: i18n;
@@ -25,6 +27,7 @@ export class PrizeList extends React.Component<
   IStatePrizeList
 > {
   private wrapperRef = React.createRef<HTMLElement>();
+  private dragStartHandlers = new CachedBinder<string, React.DragEvent, void>();
   public state: IStatePrizeList = {
     listScroll: null,
   };
@@ -40,7 +43,17 @@ export class PrizeList extends React.Component<
           {store.prizeGroups.map((group, idx) => (
             <PrizeGroupWrapper key={idx}>
               {group.map(prize => (
-                <OnePrize key={prize.id} prize={prize} />
+                <li key={prize.id}>
+                  <PrizeTip
+                    draggable
+                    onDragStart={this.dragStartHandlers.bind(
+                      prize.id,
+                      this.dragStartHandler,
+                    )}
+                  >
+                    {prize.name}
+                  </PrizeTip>
+                </li>
               ))}
             </PrizeGroupWrapper>
           ))}
@@ -67,5 +80,19 @@ export class PrizeList extends React.Component<
     this.setState({
       listScroll,
     });
+  }
+  @bind
+  protected dragStartHandler(prizeId: string, event: React.DragEvent): void {
+    event.dataTransfer.setData(
+      'text/plain',
+      this.props.store.prizeDisplayMap.get(prizeId) || '',
+    );
+    event.dataTransfer.setData(
+      'text/x-prize-data',
+      JSON.stringify({
+        type: 'prize',
+        value: prizeId,
+      }),
+    );
   }
 }
