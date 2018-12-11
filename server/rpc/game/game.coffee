@@ -8005,7 +8005,7 @@ class Idol extends Player
         if @flag? && game.day >= 4 && !@flag.second
             fanalive = @flag.fans.some((id)->
                 pl = game.getPlayer id
-                pl? && !pl.dead)
+                pl? && !pl.dead && pl.isCmplType("FanOfIdol"))
             unless fanalive
                 return
             # choose a new fan.
@@ -8043,8 +8043,11 @@ class Idol extends Player
         super
         unless @flag?
             return
-
-        if @flag.fans.every((x)->game.getPlayer(x)?.dead)
+            
+        fanalive = @flag.fans.some((id)->
+            pl = game.getPlayer id
+            pl? && !pl.dead && pl.isCmplType("FanOfIdol"))
+        unless fanalive
             return
 
         humanTeams = game.players.filter (x)-> !x.dead && x.getTeam() == "Human"
@@ -8689,6 +8692,9 @@ class Complex
         if @sub?
             mids=mids.concat @sub.gatherMidnightSort()
         return mids
+    # complexのJobTypeを調べる
+    isCmplType:(type)->
+        type == @cmplType || @main.isCmplType(type) || @sub?.isCmplType(type)
     sunset:(game)->
         @mcall game,@main.sunset,game
         @sub?.sunset? game
