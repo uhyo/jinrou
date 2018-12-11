@@ -7,7 +7,6 @@ import { splitPrizesIntoGroups } from './logic/prize-groups';
  * @package
  */
 export class PrizeStore {
-  constructor() {}
   /**
    * List of available prizes.
    */
@@ -29,10 +28,23 @@ export class PrizeStore {
   }
 
   /**
+   * Whether list of prizes are shrinked
+   */
+  @observable
+  public shrinked: boolean = true;
+
+  /**
    * Set available prizes
    */
   @action
   public setPrizes(prizes: Prize[]): void {
     this.prizes = prizes;
+  }
+  /**
+   * Set shrinkedness of prize list
+   */
+  @action
+  public setShrinked(shrinked: boolean): void {
+    this.shrinked = shrinked;
   }
 }

@@ -15,4 +15,8 @@ list:
   title: "称号一覧"
   # number of available prizes
   prizeNumber: "獲得称号数: {{count}}"
+  # label of unshrink-prize-list button.
+  unshrinkLabel: "称号を全て表示"
+  # label of shrink-prize-list button,
+  shrinkLabel: "称号一覧を元に戻す"
 

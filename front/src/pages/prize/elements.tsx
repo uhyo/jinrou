@@ -1,4 +1,4 @@
-import styled from '../../util/styled';
+import styled, { withProps } from '../../util/styled';
 
 /**
  * Wrapper of whole page.
@@ -8,9 +8,27 @@ export const PageWrapper = styled.section`
 `;
 
 /**
- * Wrapper of list of prize.
+ * Wrapper of prize list.
  */
-export const PrizeListWrapper = styled.ul`
+export const PrizeListWrapper = withProps<{
+  /**
+   * Whether prize list is shrinked.
+   */
+  shrinked: boolean;
+}>()(styled.ul)`
+  ${({ shrinked }) =>
+    shrinked
+      ? `
+    max-height: 200px;
+    overflow-y: auto;
+  `
+      : ''}
+`;
+
+/**
+ * Wrapper of one list of a group prize.
+ */
+export const PrizeGroupWrapper = styled.ul`
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
