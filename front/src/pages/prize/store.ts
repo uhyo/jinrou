@@ -72,6 +72,17 @@ export class PrizeStore {
     this.nowprize = nowprize;
   }
   /**
+   * Update specific index of current prizes
+   */
+  @action
+  public updateNowPrize(index: number, prize: NowPrize): void {
+    // update cannot change the type of nowprize.
+    if (this.nowprize[index].type !== prize.type) {
+      return;
+    }
+    this.nowprize[index] = { ...prize };
+  }
+  /**
    * Set shrinkedness of prize list
    */
   @action

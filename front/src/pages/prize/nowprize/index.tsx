@@ -23,7 +23,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
           e.dataTransfer.dropEffect = 'copy';
           e.preventDefault();
         };
-        const onDrop = (e: React.DragEvent) => {
+        const onDrop = (idx: number, e: React.DragEvent) => {
           const data = e.dataTransfer.getData('text/x-prize-data');
           if (data === '') {
             // not related.
@@ -31,7 +31,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
           }
           try {
             const prize = JSON.parse(data);
-            console.log(prize);
+            store.updateNowPrize(idx, prize);
           } catch (e) {
             // !?
             console.error('JSON parse error', e);
@@ -46,7 +46,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
                     <PrizeTip
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
-                      onDrop={onDrop}
+                      onDrop={onDrop.bind(null, idx)}
                     >
                       {v.value != null ? prizeDisplayMap.get(v.value) : null}
                     </PrizeTip>
@@ -54,7 +54,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
                     <ConjunctionTip
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
-                      onDrop={onDrop}
+                      onDrop={onDrop.bind(null, idx)}
                     >
                       {v.value}
                     </ConjunctionTip>
