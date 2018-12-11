@@ -5,7 +5,8 @@ import { PrizeStore } from './store';
 import { observer } from 'mobx-react';
 import { PageWrapper } from './elements';
 import { PrizeList } from './prize-list';
-import { LinkLikeButton } from '../../common/button';
+import { ConjucntionList } from './nowprize/conjunctions';
+import { NowPrizeList } from './nowprize';
 
 export interface IPropPrize {
   /**
@@ -34,6 +35,14 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
           <h2>{i18n.t('list.title')}</h2>
           <p>{i18n.t('list.prizeNumber', { count: store.prizeNumber })}</p>
           <PrizeList i18n={i18n} store={store} />
+
+          <h2>{i18n.t('edit.title')}</h2>
+          <p>{i18n.t('edit.description')}</p>
+          <p>{i18n.t('edit.instruction')}</p>
+          <h3>{i18n.t('edit.conjunctionListTitle')}</h3>
+          <ConjucntionList store={store} />
+          <h3>{i18n.t('edit.nowPrizeTitle')}</h3>
+          <NowPrizeList store={store} />
         </PageWrapper>
       </I18nProvider>
     );

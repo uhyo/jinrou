@@ -1,5 +1,5 @@
 prize_view = null
-exports.start = ({prizes})->
+exports.start = ({prizes, nowprize})->
     papp = JinrouFront.loadPrize()
     pi18n = Index.app.getI18n()
 
@@ -8,6 +8,8 @@ exports.start = ({prizes})->
             i18n: i18n
             node: $("#prize-app").get 0
             initialPrizes: prizes
+            nowPrize: nowprize
+            prizeUtil: Shared.prize
         }).then (v)->
             prize_view = v
 exports.end = ->

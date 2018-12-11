@@ -50,8 +50,17 @@ export const PrizeTip = styled.span`
   margin: 3px 5px;
   padding: 1px;
   border: 2px solid black;
+  min-width: 1em;
+  min-height: 1em;
 
   background-color: #ffffff;
   font-size: 1.2em;
   font-weight: bold;
+`;
+
+/**
+ * Tip which is conjunction.
+ */
+export const ConjunctionTip = styled(PrizeTip)`
+  background-color: #ddffff;
 `;

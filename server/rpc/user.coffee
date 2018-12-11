@@ -222,6 +222,7 @@ exports.actions =(req,res,ss)->
             return
         res {
             prizes: generatePrizeDataForClient req.session.user.prize
+            nowprize: req.session.user.nowprize
         }
 # お知らせをとってきてもらう
     getNews:->

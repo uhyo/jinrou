@@ -269,6 +269,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
 
                 page "user-prize", {}, Index.user.prize, {
                     prizes: result?.prizes ? []
+                    nowprize: result?.nowprize ? []
                 }
         when "/reset"
             # 找回密码

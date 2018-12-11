@@ -1,5 +1,4 @@
-import { Prize } from '../defs';
-import { Observer, observer } from 'mobx-react';
+import { observer } from 'mobx-react';
 import * as React from 'react';
 import { OnePrize } from './one-prize';
 import { PrizeListWrapper, PrizeGroupWrapper } from '../elements';
