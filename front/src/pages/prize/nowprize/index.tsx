@@ -15,8 +15,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
   return (
     <Observer>
       {() => {
-        const { prizeTemplate, nowprize, prizeDisplayMap } = store;
-        const filled = fillTemplate(prizeTemplate, nowprize);
+        const { nowprize, prizeDisplayMap } = store;
         const onDragEnter = (e: React.DragEvent) => {
           e.preventDefault();
         };
@@ -45,7 +44,7 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
         return (
           <>
             <PrizeGroupWrapper>
-              {filled.map((v, idx) => (
+              {nowprize.map((v, idx) => (
                 <li key={idx}>
                   {v.type === 'prize' ? (
                     <PrizeTip
@@ -77,39 +76,3 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
     </Observer>
   );
 };
-
-/**
- * Fill template with nowprize.
- */
-function fillTemplate(
-  prizeTemplate: NowPrizeType[],
-  nowprize: NowPrize[],
-): NowPrize[] {
-  const result: NowPrize[] = [];
-  let nowprizeIndex = 0;
-  templateLoop: for (const t of prizeTemplate) {
-    for (; nowprizeIndex < nowprize.length; nowprizeIndex++) {
-      const np = nowprize[nowprizeIndex];
-      if (np.type !== t) {
-        // this does not match.
-        continue;
-      }
-      result.push({ ...np });
-      nowprizeIndex++;
-      continue templateLoop;
-    }
-    // fill with empty.
-    if (t === 'prize') {
-      result.push({
-        type: 'prize',
-        value: null,
-      });
-    } else {
-      result.push({
-        type: 'conjunction',
-        value: '',
-      });
-    }
-  }
-  return result;
-}

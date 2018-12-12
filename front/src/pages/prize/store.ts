@@ -7,6 +7,7 @@ import {
   PrizeSelection,
 } from './defs';
 import { splitPrizesIntoGroups } from './logic/prize-groups';
+import { fillTemplate } from './logic/fill-nowprize';
 
 /**
  * States of prize page.
@@ -81,7 +82,7 @@ export class PrizeStore {
    */
   @action
   public setNowPrize(nowprize: NowPrize[]): void {
-    this.nowprize = nowprize;
+    this.nowprize = fillTemplate(this.prizeTemplate, nowprize);
   }
   /**
    * Update specific index of current prizes
