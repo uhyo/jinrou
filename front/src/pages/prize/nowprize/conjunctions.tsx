@@ -47,6 +47,15 @@ export const ConjucntionList = ({ store }: { store: PrizeStore }) => {
           ))}
           <TrashTip
             selected={isTrashSelected(store)}
+            draggable
+            onDragStart={e => {
+              e.dataTransfer.setData(
+                'text/x-prize-data',
+                JSON.stringify({
+                  type: 'trash',
+                }),
+              );
+            }}
             onClick={() => clickTrashLogic(store)}
           >
             <FontAwesomeIcon icon="trash-alt" />

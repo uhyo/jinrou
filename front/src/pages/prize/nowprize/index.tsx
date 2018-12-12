@@ -32,7 +32,11 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
           }
           try {
             const prize = JSON.parse(data);
-            store.updateNowPrize(idx, prize);
+            if (prize.type === 'trash') {
+              store.deleteNowPrize(idx);
+            } else {
+              store.updateNowPrize(idx, prize);
+            }
           } catch (e) {
             // !?
             console.error('JSON parse error', e);
