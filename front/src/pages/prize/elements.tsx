@@ -76,3 +76,12 @@ export const TrashTip = styled(PrizeTip)`
   padding: 1px 5px;
   background-color: #ffdddd;
 `;
+
+/**
+ * Reminder to push save button.
+ */
+export const Reminder = styled.p`
+  font-size: small;
+  color: red;
+  margin: 0.9em 0;
+`;

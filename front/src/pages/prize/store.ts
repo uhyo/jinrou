@@ -71,6 +71,12 @@ export class PrizeStore {
   public shrinked: boolean = true;
 
   /**
+   * Whether a change is made.
+   */
+  @observable
+  public changed: boolean = false;
+
+  /**
    * Set available prizes
    */
   @action
@@ -94,6 +100,7 @@ export class PrizeStore {
       return;
     }
     this.nowprize[index] = { ...prize };
+    this.changed = true;
   }
   /**
    * Delete specific index of current prizes
@@ -113,6 +120,7 @@ export class PrizeStore {
         value: '',
       };
     }
+    this.changed = true;
   }
   /**
    * Set shrinkedness of prize list

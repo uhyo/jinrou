@@ -34,3 +34,10 @@ edit:
   nowPrizeTitle: "現在の肩書き"
 
 
+# save area
+save:
+  # label of save button
+  label: "肩書きを保存"
+  # reminder to save
+  reminder: "変更を反映するには「肩書きを保存」ボタンを押してください。"
+
