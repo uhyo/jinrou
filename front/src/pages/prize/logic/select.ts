@@ -26,6 +26,12 @@ export function isConjunctionSelected(
   );
 }
 /**
+ * Whether given selection selects a trash.
+ */
+export function isTrashSelected(store: PrizeStore): boolean {
+  return store.selection != null && store.selection.type === 'trash';
+}
+/**
  * Whether given selection selects a nowprize.
  */
 export function isNowprizeSelected(store: PrizeStore, index: number): boolean {
@@ -49,10 +55,12 @@ function nowPrizeEqual(left: NowPrize, right: NowPrize): boolean {
 export function clickPrizeLogic(store: PrizeStore, prize: NowPrize): void {
   const selection = store.selection;
   runInAction(() => {
-    if (selection != null && selection.type === 'now') {
+    if (selection == null || selection.type === 'trash') {
+      store.setSelection(prize);
+    } else if (selection.type === 'now') {
       store.updateNowPrize(selection.index, prize);
       store.setSelection(null);
-    } else if (selection == null || !nowPrizeEqual(selection, prize)) {
+    } else if (!nowPrizeEqual(selection, prize)) {
       store.setSelection(prize);
     } else {
       store.setSelection(null);
@@ -66,7 +74,10 @@ export function clickPrizeLogic(store: PrizeStore, prize: NowPrize): void {
 export function clickNowPrizeLogic(store: PrizeStore, index: number): void {
   const selection = store.selection;
   runInAction(() => {
-    if (selection != null && selection.type !== 'now') {
+    if (selection != null && selection.type === 'trash') {
+      store.deleteNowPrize(index);
+      store.setSelection(null);
+    } else if (selection != null && selection.type !== 'now') {
       store.updateNowPrize(index, selection);
       store.setSelection(null);
     } else if (selection == null || selection.index !== index) {
@@ -75,6 +86,27 @@ export function clickNowPrizeLogic(store: PrizeStore, index: number): void {
         index,
       });
     } else {
+      store.setSelection(null);
+    }
+  });
+}
+
+/**
+ * Handle a click of trash.
+ */
+export function clickTrashLogic(store: PrizeStore): void {
+  const selection = store.selection;
+  runInAction(() => {
+    if (
+      selection == null ||
+      selection.type === 'prize' ||
+      selection.type === 'conjunction'
+    ) {
+      store.setSelection({ type: 'trash' });
+    } else if (selection.type === 'trash') {
+      store.setSelection(null);
+    } else {
+      store.deleteNowPrize(selection.index);
       store.setSelection(null);
     }
   });

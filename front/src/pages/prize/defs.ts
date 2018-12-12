@@ -40,7 +40,8 @@ export type PrizeSelection =
   | {
       type: 'now';
       index: number;
-    };
+    }
+  | { type: 'trash' };
 
 /**
  * Interface of provided utility around prizes.

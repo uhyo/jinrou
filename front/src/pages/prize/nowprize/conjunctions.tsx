@@ -1,8 +1,14 @@
 import * as React from 'react';
 import { PrizeStore } from '../store';
-import { ConjunctionTip, PrizeGroupWrapper } from '../elements';
-import { clickPrizeLogic, isConjunctionSelected } from '../logic/select';
+import { ConjunctionTip, PrizeGroupWrapper, TrashTip } from '../elements';
+import {
+  clickPrizeLogic,
+  isConjunctionSelected,
+  isTrashSelected,
+  clickTrashLogic,
+} from '../logic/select';
 import { Observer } from 'mobx-react';
+import { FontAwesomeIcon } from '../../../util/icon';
 
 /**
  * Show a list of conjunctions.
@@ -39,6 +45,12 @@ export const ConjucntionList = ({ store }: { store: PrizeStore }) => {
               </ConjunctionTip>
             </li>
           ))}
+          <TrashTip
+            selected={isTrashSelected(store)}
+            onClick={() => clickTrashLogic(store)}
+          >
+            <FontAwesomeIcon icon="trash-alt" />
+          </TrashTip>
         </PrizeGroupWrapper>
       )}
     </Observer>

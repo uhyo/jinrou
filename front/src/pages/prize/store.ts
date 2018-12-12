@@ -95,6 +95,25 @@ export class PrizeStore {
     this.nowprize[index] = { ...prize };
   }
   /**
+   * Delete specific index of current prizes
+   */
+  @action
+  public deleteNowPrize(index: number): void {
+    // update cannot change the type of nowprize.
+    const p = this.nowprize[index];
+    if (p.type === 'prize') {
+      this.nowprize[index] = {
+        type: 'prize',
+        value: null,
+      };
+    } else {
+      this.nowprize[index] = {
+        type: 'conjunction',
+        value: '',
+      };
+    }
+  }
+  /**
    * Set shrinkedness of prize list
    */
   @action

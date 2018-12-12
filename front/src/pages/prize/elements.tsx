@@ -59,6 +59,7 @@ export const PrizeTip = withProps<{
   background-color: #ffffff;
   font-size: 1.2em;
   font-weight: bold;
+  text-align: center;
 `;
 
 /**
@@ -66,4 +67,12 @@ export const PrizeTip = withProps<{
  */
 export const ConjunctionTip = styled(PrizeTip)`
   background-color: #ddffff;
+`;
+
+/**
+ * Tip which is trash box.
+ */
+export const TrashTip = styled(PrizeTip)`
+  padding: 1px 5px;
+  background-color: #ffdddd;
 `;
