@@ -3,7 +3,7 @@ import * as React from 'react';
 import { I18nProvider, i18n } from '../../i18n';
 import { PrizeStore } from './store';
 import { observer } from 'mobx-react';
-import { PageWrapper, Reminder } from './elements';
+import { PageWrapper, Reminder, SaveButton } from './elements';
 import { PrizeList } from './prize-list';
 import { ConjucntionList } from './nowprize/conjunctions';
 import { NowPrizeList } from './nowprize';
@@ -46,7 +46,7 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
           <NowPrizeList store={store} />
           <hr />
           <p>
-            <WideButton>{i18n.t('save.label')}</WideButton>
+            <SaveButton>{i18n.t('save.label')}</SaveButton>
           </p>
           {store.changed ? (
             <Reminder>{i18n.t('save.reminder')}</Reminder>

@@ -1,10 +1,17 @@
 import styled, { withProps } from '../../util/styled';
+import { WideButton } from '../../common/button';
+import {
+  yesColor,
+  yesColorText,
+  noColor,
+  noColorText,
+} from '../../common/color';
 
 /**
  * Wrapper of whole page.
  */
 export const PageWrapper = styled.section`
-  padding: 0 20px;
+  padding: 0 20px 20px;
 `;
 
 /**
@@ -84,4 +91,18 @@ export const Reminder = styled.p`
   font-size: small;
   color: red;
   margin: 0.9em 0;
+`;
+
+/**
+ * Save button.
+ */
+export const SaveButton = styled(WideButton)`
+  border: none;
+  background-color: ${noColor};
+  color: ${noColorText};
+
+  &:hover {
+    background-color: ${yesColor};
+    color: ${yesColorText};
+  }
 `;
