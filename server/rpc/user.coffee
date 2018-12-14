@@ -583,9 +583,18 @@ userProfile = (doc, ban)->
         "???"
     else
         "#{(doc.win.length/(doc.win.length+doc.lose.length)*100).toPrecision(2)}%"
-    # 称号の処理をしてあげる
-    doc.prize ?= []
-    doc.prizenames = generatePrizeDataForClient doc.prize
+    # 称号は現在のもののみ文字列に変換して送る
+    doc.nowprizeData =
+        doc.nowprize.map((obj)->
+            if obj.type == "prize"
+                if obj.value?
+                    Server.prize.prizeName(obj.value)
+                else
+                    ""
+            else
+                obj.value)
+                    .join ""
+    doc.prizeNumber = doc.prize?.length ? 0
     delete doc.prize
     if !doc.mail?
         doc.mail =

@@ -130,6 +130,14 @@ exports.start=(user)->
     ,false
 
     # 称号
+    if user.prizeNumber > 0
+        $("#prizenumber").text user.prizeNumber
+    if user.nowprizeData
+        nowprizeb = $("<b />").text user.nowprizeData
+        $("#current-prize").text("現在の肩書き：").append nowprizeb
+    else
+        $("#current-prize").text "まだ肩書きは設定されていません。"
+
     unless user.prizenames?.length>0
         # 称号がない
         $("#prizearea").html "<p>獲得称号はありません。</p>"
