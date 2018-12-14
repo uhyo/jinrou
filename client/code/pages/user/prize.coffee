@@ -10,6 +10,14 @@ exports.start = ({prizes, nowprize})->
             initialPrizes: prizes
             nowPrize: nowprize
             prizeUtil: Shared.prize
+            onUsePrize: (prize)->
+                query = {
+                    prize: prize
+                }
+                new Promise (resolve)->
+                    ss.rpc "user.usePrize", query, (result)->
+                        resolve result.error
+
         }).then (v)->
             prize_view = v
 exports.end = ->

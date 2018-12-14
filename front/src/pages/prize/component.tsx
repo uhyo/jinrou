@@ -8,6 +8,9 @@ import { PrizeList } from './prize-list';
 import { ConjucntionList } from './nowprize/conjunctions';
 import { NowPrizeList } from './nowprize';
 import { WideButton } from '../../common/button';
+import { NowPrize } from './defs';
+import { bind } from 'bind-decorator';
+import { showErrorDialog } from '../../dialog';
 
 export interface IPropPrize {
   /**
@@ -18,6 +21,7 @@ export interface IPropPrize {
    * store.
    */
   store: PrizeStore;
+  onUsePrize: (nowPrize: NowPrize[]) => Promise<string | null>;
 }
 
 @observer
@@ -46,7 +50,9 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
           <NowPrizeList store={store} />
           <hr />
           <p>
-            <SaveButton>{i18n.t('save.label')}</SaveButton>
+            <SaveButton onClick={this.handleSave}>
+              {i18n.t('save.label')}
+            </SaveButton>
           </p>
           {store.changed ? (
             <Reminder>{i18n.t('save.reminder')}</Reminder>
@@ -54,5 +60,18 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
         </PageWrapper>
       </I18nProvider>
     );
+  }
+  @bind
+  protected async handleSave() {
+    const { store, onUsePrize } = this.props;
+    const result = await onUsePrize(store.nowprize);
+    if (result != null) {
+      await showErrorDialog({
+        modal: true,
+        message: result,
+      });
+    } else {
+      store.unChange();
+    }
   }
 }

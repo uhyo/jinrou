@@ -24,6 +24,11 @@ export interface IPlaceOptions {
    */
   nowPrize: NowPrize[];
   prizeUtil: PrizeUtil;
+  /**
+   * Function to query update of prize.
+   * Returns a Promise of possible error message.
+   */
+  onUsePrize: (nowPrize: NowPrize[]) => Promise<string | null>;
 }
 export interface IPlaceResult {
   unmount: () => void;
@@ -36,6 +41,7 @@ export async function place({
   initialPrizes,
   nowPrize,
   prizeUtil,
+  onUsePrize,
 }: IPlaceOptions): Promise<IPlaceResult> {
   await addResource('prize_client', i18n);
   i18n.setDefaultNamespace('prize_client');
@@ -44,7 +50,7 @@ export async function place({
   store.setPrizes(initialPrizes);
   store.setNowPrize(nowPrize);
 
-  const com = <PrizePage i18n={i18n} store={store} />;
+  const com = <PrizePage i18n={i18n} store={store} onUsePrize={onUsePrize} />;
 
   ReactDOM.render(com, node);
 

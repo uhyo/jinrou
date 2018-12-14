@@ -136,4 +136,11 @@ export class PrizeStore {
   public setSelection(selection: PrizeSelection | null): void {
     this.selection = selection;
   }
+  /**
+   * Reset the changed state.
+   */
+  @action
+  public unChange(): void {
+    this.changed = false;
+  }
 }
