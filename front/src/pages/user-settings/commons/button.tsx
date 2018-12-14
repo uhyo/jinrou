@@ -1,9 +1,10 @@
 import styled from '../../../util/styled';
+import { lightBorderColor } from '../../../common/color';
 
 /**
  * Color used for borders.
  */
-export const borderColor = '#dddddd';
+export const borderColor = lightBorderColor;
 
 /**
  * Reusable button.

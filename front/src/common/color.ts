@@ -21,3 +21,8 @@ export const noColor = '#dddddd';
  * Text color for noColor background.
  */
 export const noColorText = '#000000';
+
+/**
+ * Light border color.
+ */
+export const lightBorderColor = '#dddddd';

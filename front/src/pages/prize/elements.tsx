@@ -5,7 +5,9 @@ import {
   yesColorText,
   noColor,
   noColorText,
+  lightBorderColor,
 } from '../../common/color';
+import { phone } from '../../common/media';
 
 /**
  * Wrapper of whole page.
@@ -49,6 +51,23 @@ export const PrizeGroupWrapper = styled.ul`
     display: inline-block;
   }
 `;
+
+/**
+ * Wrapper of a nowprize area.
+ */
+export const NowPrizeWrapper = styled.div`
+  background-color: #ffffff;
+  ${phone`
+    margin: 5px -20px;
+    padding: 3px 20px 10px;
+    position: sticky;
+    left: 0;
+    bottom: 0;
+    border-top: 1px solid ${lightBorderColor};
+    box-shadow: 0 -3px 2px ${lightBorderColor};
+  `};
+`;
+
 /**
  * Wrapper of one prize.
  */
@@ -67,6 +86,10 @@ export const PrizeTip = withProps<{
   font-size: 1.2em;
   font-weight: bold;
   text-align: center;
+
+  ${phone`
+    font-size: 1em;
+  `}
 `;
 
 /**
