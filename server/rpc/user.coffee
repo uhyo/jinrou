@@ -209,7 +209,7 @@ exports.actions =(req,res,ss)->
             return
         u=JSON.parse JSON.stringify req.session.user
         if u
-            res userProfile(req.session.user, req.session.ban)
+            res userProfile(u, req.session.ban)
         else
             res null
     # 自分の称号一覧を取得
@@ -585,7 +585,7 @@ userProfile = (doc, ban)->
         "#{(doc.win.length/(doc.win.length+doc.lose.length)*100).toPrecision(2)}%"
     # 称号は現在のもののみ文字列に変換して送る
     doc.nowprizeData =
-        doc.nowprize.map((obj)->
+        (doc.nowprize ? []).map((obj)->
             if obj.type == "prize"
                 if obj.value?
                     Server.prize.prizeName(obj.value)
