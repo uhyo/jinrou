@@ -16,6 +16,21 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
     <Observer>
       {() => {
         const { nowprize, prizeDisplayMap } = store;
+        const onDragStart = (idx: number, e: React.DragEvent) => {
+          const val = store.nowprize[idx].value;
+          if (val) {
+            e.dataTransfer.setData('text/plain', val);
+            e.dataTransfer.setData(
+              'text/x-prize-data',
+              JSON.stringify({
+                type: 'now',
+                index: idx,
+              }),
+            );
+          } else {
+            e.preventDefault();
+          }
+        };
         const onDragEnter = (e: React.DragEvent) => {
           e.preventDefault();
         };
@@ -33,6 +48,12 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
             const prize = JSON.parse(data);
             if (prize.type === 'trash') {
               store.deleteNowPrize(idx);
+            } else if (prize.type === 'now') {
+              // now-now transfer.
+              const from = store.nowprize[prize.index];
+              const to = store.nowprize[idx];
+              store.updateNowPrize(idx, from);
+              store.updateNowPrize(prize.index, to);
             } else {
               store.updateNowPrize(idx, prize);
             }
@@ -49,6 +70,8 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
                   {v.type === 'prize' ? (
                     <PrizeTip
                       selected={isNowprizeSelected(store, idx)}
+                      draggable
+                      onDragStart={onDragStart.bind(null, idx)}
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
                       onDrop={onDrop.bind(null, idx)}
@@ -59,6 +82,8 @@ export const NowPrizeList = ({ store }: IPropNowPrize) => {
                   ) : (
                     <ConjunctionTip
                       selected={isNowprizeSelected(store, idx)}
+                      draggable
+                      onDragStart={onDragStart.bind(null, idx)}
                       onDragEnter={onDragEnter}
                       onDragOver={onDragOver}
                       onDrop={onDrop.bind(null, idx)}

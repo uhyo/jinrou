@@ -32,6 +32,8 @@ edit:
   conjunctionListTitle: "接続語"
   # title of current prize
   nowPrizeTitle: "現在の肩書き"
+  # trash description
+  trash: "ごみ箱"
 
 
 # save area

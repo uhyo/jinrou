@@ -9,6 +9,7 @@ import {
 } from '../logic/select';
 import { Observer } from 'mobx-react';
 import { FontAwesomeIcon } from '../../../util/icon';
+import { I18n } from '../../../i18n';
 
 /**
  * Show a list of conjunctions.
@@ -45,21 +46,56 @@ export const ConjucntionList = ({ store }: { store: PrizeStore }) => {
               </ConjunctionTip>
             </li>
           ))}
-          <TrashTip
-            selected={isTrashSelected(store)}
-            draggable
-            onDragStart={e => {
-              e.dataTransfer.setData(
-                'text/x-prize-data',
-                JSON.stringify({
-                  type: 'trash',
-                }),
+          <I18n>
+            {t => {
+              // TODO: similar stuff at two places
+              const onDragEnter = (e: React.DragEvent) => {
+                e.preventDefault();
+              };
+              const onDragOver = (e: React.DragEvent) => {
+                e.dataTransfer.dropEffect = 'copy';
+                e.preventDefault();
+              };
+              const onDrop = (e: React.DragEvent) => {
+                const data = e.dataTransfer.getData('text/x-prize-data');
+                if (data === '') {
+                  // not related.
+                  return;
+                }
+                try {
+                  const prize = JSON.parse(data);
+                  if (prize.type === 'now') {
+                    // delete now prize.
+                    store.deleteNowPrize(prize.index);
+                  }
+                } catch (e) {
+                  // !?
+                  console.error('JSON parse error', e);
+                }
+              };
+              return (
+                <TrashTip
+                  title={t('edit.trash')}
+                  selected={isTrashSelected(store)}
+                  draggable
+                  onDragStart={e => {
+                    e.dataTransfer.setData(
+                      'text/x-prize-data',
+                      JSON.stringify({
+                        type: 'trash',
+                      }),
+                    );
+                  }}
+                  onDragEnter={onDragEnter}
+                  onDragOver={onDragOver}
+                  onDrop={onDrop}
+                  onClick={() => clickTrashLogic(store)}
+                >
+                  <FontAwesomeIcon icon="trash-alt" />
+                </TrashTip>
               );
             }}
-            onClick={() => clickTrashLogic(store)}
-          >
-            <FontAwesomeIcon icon="trash-alt" />
-          </TrashTip>
+          </I18n>
         </PrizeGroupWrapper>
       )}
     </Observer>
