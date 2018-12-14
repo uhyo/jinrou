@@ -16,7 +16,7 @@ exports.start = ({prizes, nowprize})->
                 }
                 new Promise (resolve)->
                     ss.rpc "user.usePrize", query, (result)->
-                        resolve result.error
+                        resolve result?.error ? null
 
         }).then (v)->
             prize_view = v

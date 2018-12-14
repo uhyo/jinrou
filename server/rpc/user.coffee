@@ -436,9 +436,6 @@ exports.actions =(req,res,ss)->
             if !record?
                 res {error: i18n.t "error.authFail"}
                 return
-            unless Server.auth.check query.password, record.password, record.salt
-                res {error: i18n.t "error.authFail"}
-                return
             if typeof query.prize?.every=="function"
                 # 称号構成を得る
                 comp=Shared.prize.getPrizesComposition record.prize.length
