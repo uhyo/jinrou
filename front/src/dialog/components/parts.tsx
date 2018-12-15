@@ -1,5 +1,11 @@
 import styled from '../../util/styled';
 import { phone } from '../../common/media';
+import {
+  yesColor,
+  yesColorText,
+  noColor,
+  noColorText,
+} from '../../common/color';
 
 const ButtonBase = styled.button`
   appearance: none;
@@ -20,13 +26,15 @@ const ButtonBase = styled.button`
  * Button with affirmative impression.
  */
 export const YesButton = styled(ButtonBase)`
-  background-color: #83f183;
+  background-color: ${yesColor};
+  color: ${yesColorText};
 `;
 /**
  * Button with negative impression.
  */
 export const NoButton = styled(ButtonBase)`
-  background-color: #dddddd;
+  background-color: ${noColor};
+  color: ${noColorText};
 `;
 
 /**

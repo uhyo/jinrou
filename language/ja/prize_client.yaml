@@ -1,0 +1,45 @@
+# Language data for prizes page
+
+# title of page
+title: "称号"
+
+# description of prizes
+description: "称号は勝利回数・敗北回数などの特定を条件を満たすことで入手できます。"
+
+# back to mypage link.
+backLink: "マイページに戻る"
+
+# list of prizes
+list:
+  # title of prize list section
+  title: "獲得称号一覧"
+  # number of available prizes
+  prizeNumber: "獲得称号数: {{count}}"
+  # label of unshrink-prize-list button.
+  unshrinkLabel: "称号を全て表示"
+  # label of shrink-prize-list button,
+  shrinkLabel: "称号一覧を元に戻す"
+
+# edit my prize
+edit:
+  # title of edit section
+  title: "肩書き"
+  # description of edit section
+  description: "獲得した称号と接続語を組み合わせて自分の肩書きを設定できます。設定した肩書きは入室時に表示されます。"
+  # instruction of how to edit prize
+  instruction: "称号・接続語と現在の肩書きをクリック・タップまたはドラッグ&ドロップして編集してください。"
+  # title of conjunction list
+  conjunctionListTitle: "接続語"
+  # title of current prize
+  nowPrizeTitle: "現在の肩書き"
+  # trash description
+  trash: "ごみ箱"
+
+
+# save area
+save:
+  # label of save button
+  label: "肩書きを保存"
+  # reminder to save
+  reminder: "変更を反映するには「肩書きを保存」ボタンを押してください。"
+

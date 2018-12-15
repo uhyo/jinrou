@@ -106,7 +106,7 @@ exports.actions =(req,res,ss)->
 # cb: 失敗なら真
     login: (query)->
         login query,req,res,ss
-    
+
 # ログアウト
     logout: ->
         #req.session.user.logout(cb)
@@ -114,7 +114,7 @@ exports.actions =(req,res,ss)->
         req.session.channel.reset()
         req.session.save (err)->
             res()
-            
+
 # 新規登録
 # cb: エラーメッセージ（成功なら偽）
     newentry: (query)->
@@ -152,7 +152,7 @@ exports.actions =(req,res,ss)->
                     }
                     return
                 login query,req,res,ss
-                
+
 # ユーザーデータが欲しい
     userData: (userid,password)->
         getUserOpenData userid, (err, record)->
@@ -209,9 +209,21 @@ exports.actions =(req,res,ss)->
             return
         u=JSON.parse JSON.stringify req.session.user
         if u
-            res userProfile(req.session.user, req.session.ban)
+            res userProfile(u, req.session.ban)
         else
             res null
+    # 自分の称号一覧を取得
+    getMyPrizes: ->
+        unless req.session.userId
+            # not logged in
+            res {
+                error: i18n.t "common:error.needLogin"
+            }
+            return
+        res {
+            prizes: generatePrizeDataForClient req.session.user.prize
+            nowprize: req.session.user.nowprize
+        }
 # お知らせをとってきてもらう
     getNews:->
         M.news.find().sort({time:-1}).limit(5).toArray (err,results)->
@@ -223,8 +235,8 @@ exports.actions =(req,res,ss)->
     getTwitterIcon:(id)->
         Server.oauth.getTwitterIcon id,(url)->
             res url
-        
-                
+
+
 # プロフィール変更 返り値=変更後 {"error":"message"}
     changeProfile: (query)->
         M.users.findOne {"userid":req.session.userId},(err,record)=>
@@ -244,7 +256,7 @@ exports.actions =(req,res,ss)->
                 if query.name.length > Config.maxlength.user.name
                     res {error: i18n.t "error.changeProfile.nameTooLong"}
                     return
-                    
+
                 record.name=query.name
             if query.comment?
                 if query.comment.length > Config.maxlength.user.comment
@@ -360,7 +372,7 @@ exports.actions =(req,res,ss)->
             unless Server.auth.check query.password, record.password, record.salt
                 res {error: i18n.t "error.authFail"}
                 return
-                
+
             if record.mailconfirmsecurity
                 res {error: i18n.t "error.changePassword.locked"}
                 return
@@ -424,9 +436,6 @@ exports.actions =(req,res,ss)->
             if !record?
                 res {error: i18n.t "error.authFail"}
                 return
-            unless Server.auth.check query.password, record.password, record.salt
-                res {error: i18n.t "error.authFail"}
-                return
             if typeof query.prize?.every=="function"
                 # 称号構成を得る
                 comp=Shared.prize.getPrizesComposition record.prize.length
@@ -452,7 +461,7 @@ exports.actions =(req,res,ss)->
             else
                 console.log "invalid3",query.prize
                 res {error: i18n.t "common:error.invalidInput"}
-        
+
     # 成績をくわしく見る
     getMyuserlog:->
         unless req.session.userId
@@ -574,9 +583,18 @@ userProfile = (doc, ban)->
         "???"
     else
         "#{(doc.win.length/(doc.win.length+doc.lose.length)*100).toPrecision(2)}%"
-    # 称号の処理をしてあげる
-    doc.prize ?= []
-    doc.prizenames = doc.prize.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? null}
+    # 称号は現在のもののみ文字列に変換して送る
+    doc.nowprizeData =
+        (doc.nowprize ? []).map((obj)->
+            if obj.type == "prize"
+                if obj.value?
+                    Server.prize.prizeName(obj.value)
+                else
+                    ""
+            else
+                obj.value)
+                    .join ""
+    doc.prizeNumber = doc.prize?.length ? 0
     delete doc.prize
     if !doc.mail?
         doc.mail =
@@ -599,6 +617,10 @@ userProfile = (doc, ban)->
     # backward compatibility
     doc.mailconfirmsecurity = !!doc.mailconfirmsecurity
     return doc
+# 称号の処理を行う
+generatePrizeDataForClient = (prizeIds)->
+    prizeIds.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? null}
+
 
 # 一般人に表示する用のデータを取得（身代わりくん対応）
 getUserOpenData = (userid, cb)->

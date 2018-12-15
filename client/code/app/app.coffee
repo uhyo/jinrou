@@ -259,6 +259,18 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             # ユーザー設定
             page "user-settings", {
             }, Index.user.settings, null
+        when "/my/prize"
+            # 称号設定
+            ss.rpc "user.getMyPrizes", (result)->
+                if result?.error?
+                    # TODO
+                    Index.util.message "エラー",result.error
+                    return
+
+                page "user-prize", {}, Index.user.prize, {
+                    prizes: result?.prizes ? []
+                    nowprize: result?.nowprize ? []
+                }
         when "/reset"
             # 找回密码
             page "reset",null,Index.reset, null

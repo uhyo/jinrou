@@ -6,6 +6,7 @@ module.exports=
         graph:require '/user/graph'
         mylog:require '/user/mylog'
         settings:require '/user/settings'
+        prize:require '/user/prize'
     game:
         rooms:require '/game/rooms'
         newroom:require '/game/newroom'

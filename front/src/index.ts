@@ -86,3 +86,12 @@ export function loadRoomList() {
     webpackChunkName: "room-list"
     */ './pages/room-list');
 }
+
+/**
+ * Asynchronously load the prize module.
+ */
+export function loadPrize() {
+  return import(/*
+    webpackChunkName: "prize"
+  */ './pages/prize');
+}

@@ -81,21 +81,19 @@ section.profile
     tbody#newslist
 
   #rooms-app.whole-page
-  h1 戦績
-  p
-    a(href="/my/log") 戦績を見る
-  section
-    h1 称号
+  fieldset
+    h2 戦績
+    p
+      a(href="/my/log") 戦績を見る
+
+  fieldset
+    h2 称号
     p 入室時に名前の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
+    p
+      a(href="/my/prize") 称号一覧を見る・肩書きを編集する
     p
       | 称号獲得数:
       span#prizenumber 0
-    #pdragzone
-      #prizes
-      ul#conjunctions
-    ul#prizeedit
-    form#prizearea
-      p
-        input(type="submit",value="OK")
+    p#current-prize
   p
     a(href="/logout") ログアウト

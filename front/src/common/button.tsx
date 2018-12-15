@@ -32,3 +32,17 @@ export const WideButton = styled.button`
     background-color: rgba(255, 255, 255, 0.6);
   }
 `;
+
+/**
+ * Button which looks like a link.
+ */
+export const LinkLikeButton = styled(NormalButton)`
+  appearance: none;
+  border: none;
+  padding: 1px;
+
+  font-size: 0.9em;
+  background-color: transparent;
+  color: #00a3cc;
+  cursor: pointer;
+`;
