@@ -307,7 +307,14 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             }
         when "/newroom"
             # 新しい部屋
-            page "game-newroom",null,Index.game.newroom,null
+            ss.rpc "game.themes.getThemeList", (docs)->
+                if docs.error?
+                    # ?
+                    console.error docs.error
+                    docs = []
+                page "game-newroom", null, Index.game.newroom, {
+                    themes: docs
+                }
         when "/lobby"
             # ロビー
             page "lobby",null,Index.lobby,null

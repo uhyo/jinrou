@@ -1,4 +1,4 @@
-exports.start=->
+exports.start = ({themes})->
     Promise.all([
         JinrouFront.loadGameView(),
         JinrouFront.loadDialog(),
@@ -30,21 +30,16 @@ exports.start=->
             if ch.name=="usepassword"
                 $("#newroomform").get(0).elements["password"].disabled = !ch.checked
 
-        ss.rpc "game.themes.getThemeList",(docs)->
-            if docs.error?
-                # ?
-                console.error docs.error
-                return
-            $("#theme").empty()
-            select=$("#theme").get 0
-            opt=document.createElement "option"
-            opt.value = ""
-            opt.textContent = "なし"
-            select.appendChild opt
+        $("#theme").empty()
+        select=$("#theme").get 0
+        opt=document.createElement "option"
+        opt.value = ""
+        opt.textContent = "なし"
+        select.appendChild opt
 
-            docs.forEach (doc)->
-                opt=document.createElement "option"
-                opt.value = doc.value
-                opt.textContent = doc.name
-                select.appendChild opt
+        themes.forEach (doc)->
+            opt=document.createElement "option"
+            opt.value = doc.value
+            opt.textContent = doc.name
+            select.appendChild opt
 
