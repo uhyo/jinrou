@@ -57,6 +57,8 @@ export const ConjucntionList = ({ store }: { store: PrizeStore }) => {
                 e.preventDefault();
               };
               const onDrop = (e: React.DragEvent) => {
+                // prevent jumping in Firefox.
+                e.preventDefault();
                 const data = e.dataTransfer.getData('text/x-prize-data');
                 if (data === '') {
                   // not related.
