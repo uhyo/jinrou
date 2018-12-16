@@ -113,7 +113,7 @@ exports.start=(user)->
                             message: "パスワードを変更しました。"
                             ok: "OK"
                         }
-                    $("#changepassword").get(0).hidden=true
+                    $("#changepassword").get(0)?.hidden=true
                     app.page "user-profile",result,Index.user.profile,result
 
     $("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
@@ -148,6 +148,9 @@ exports.start=(user)->
             console.error docs.error
             return
         table=$("#newslist").get 0
+        unless table?
+            # page may already have gone.
+            return
         docs.forEach (doc)->
             r=table.insertRow -1
             cell=r.insertCell 0
