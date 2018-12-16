@@ -1550,7 +1550,7 @@ class Game
                     comment: @i18n.t "system.werewolf.attacked", {name: t.name}
                 splashlog @id,this,log
             if !t.dead
-                # 死んだ
+                # 死亡させる
                 t.die this, "werewolf", target.from
             # 逃亡者を探す
             for x in @players
@@ -1561,6 +1561,19 @@ class Game
                     if pl.flag?.day == @day && pl.flag?.id == actTarget
                         # 今夜この家に逃亡している逃亡者だ
                         x.die this, "werewolf2", target.from
+            # 爆弾魔の爆弾を探す
+            from_wolf = @getPlayer target.from
+            t = @getPlayer t.id
+            tChain = constructMainChain t, null
+            if tChain?
+                for obj in tChain[0]
+                    if obj.cmplType == "BombTrapped"
+                        t.addGamelog this, "bompGJ", null, t.id
+                        # 爆発を受ける
+                        from_wolf.die this, "trap", obj.cmplFlag?.bomber
+                        t.addGamelog this, "bombkill", null, from_wolf.id
+                        # 爆弾使用済フラグを立てる
+                        obj.cmplFlag?.used = true
 
             if !t.dead
                 # 死んでない
@@ -8043,7 +8056,7 @@ class Idol extends Player
         super
         unless @flag?
             return
-            
+
         fanalive = @flag.fans.some((id)->
             pl = game.getPlayer id
             pl? && !pl.dead && pl.isCmplType("FanOfIdol"))
@@ -9404,18 +9417,6 @@ class BombTrapped extends Complex
                         @addGamelog game,"bombkill",null,pl.id
                         # 爆弾使用済
                         @cmplFlag.used = true
-        else if found in ["werewolf","vampire"]
-            # 狼に噛まれた場合は襲撃者を巻き添えにする
-            bomber=game.getPlayer @cmplFlag
-            if bomber?
-                bomber.addGamelog game,"bompGJ",null,@id
-            # 反撃する
-            wl=game.getPlayer from
-            if wl?
-                wl.die game, "trap", bomber?.id
-                @addGamelog game,"bombkill",null,wl.id
-                # 爆弾使用済
-                @cmplFlag.used = true
 
 # 狐憑き
 class FoxMinion extends Complex
