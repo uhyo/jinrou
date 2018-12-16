@@ -14,7 +14,7 @@ import {
 import { LogVisibilityControl } from './log-visibility';
 import { WillForm } from './will-form';
 import { makeMapByKey } from '../../../util/map-by-key';
-import { SpeakKindSelect } from './speak-kind-select';
+import { SpeakKindSelect, speakKindLabel } from './speak-kind-select';
 import {
   MainForm,
   SpeakTextArea,
@@ -30,8 +30,7 @@ import {
 import { IsPhone } from '../../../common/media';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { SensitiveButton } from '../../../util/sensitive-button';
-import styled, { withTheme } from '../../../util/styled';
-import { ThemeProvider } from 'styled-components';
+import { withTheme } from '../../../util/styled';
 import { Theme } from '../../../theme';
 
 export interface IPropSpeakForm extends SpeakState {
@@ -176,7 +175,7 @@ export class SpeakForm extends React.PureComponent<
                           {t('game_client:speak.size.description')}:
                           {t(`game_client:speak.size.${size}`)}
                           {'　'}
-                          {t(`game_client:speak.kind.${kind || speaks[0]}`)}
+                          {speakKindLabel(t, playersMap, kind || speaks[0])}
                         </SpeakControlsSlim>
                       ) : (
                         <>

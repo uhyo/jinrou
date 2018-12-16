@@ -29,25 +29,31 @@ export const SpeakKindSelect: React.StatelessComponent<{
 }> = ({ kinds, current, playersMap, t, onChange }) => {
   return (
     <select value={current} onChange={e => onChange(e.currentTarget.value)}>
-      {kinds.map(value => {
-        // special handling of speech kind.
-        let label;
-        if (value.startsWith('gmreply_')) {
-          const playerObj = playersMap.get(value.slice(8));
-          label = t('game_client:speak.kind.gmreply', {
-            target: playerObj != null ? playerObj.name : '',
-          });
-        } else if (value.startsWith('helperwhisper_')) {
-          label = t('game_client:speak.kind.helperwhisper');
-        } else {
-          label = t(`game_client:speak.kind.${value}`);
-        }
-        return (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        );
-      })}
+      {kinds.map(value => (
+        <option key={value} value={value}>
+          {speakKindLabel(t, playersMap, value)}
+        </option>
+      ))}
     </select>
   );
 };
+
+/**
+ * speakKindに応じたラベル文字列を返す
+ */
+export function speakKindLabel(
+  t: TranslationFunction,
+  playersMap: Map<string, PlayerInfo>,
+  kind: string,
+): string {
+  if (kind.startsWith('gmreply_')) {
+    const playerObj = playersMap.get(kind.slice(8));
+    return t('game_client:speak.kind.gmreply', {
+      target: playerObj != null ? playerObj.name : '',
+    });
+  } else if (kind.startsWith('helperwhisper_')) {
+    return t('game_client:speak.kind.helperwhisper');
+  } else {
+    return t(`game_client:speak.kind.${kind}`);
+  }
+}
