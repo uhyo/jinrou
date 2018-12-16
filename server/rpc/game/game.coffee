@@ -4818,16 +4818,20 @@ class Doppleganger extends Player
             @transProfile newplmain
             @transferData newplmain, true
 
+            top = game.getPlayer @id
             # まだドッペルゲンガーできる
-            sub=Player.factory "Doppleganger", game
-            @transProfile sub
-            @transferData sub, false
+            sub = null
+            unless top?.isCmplType "PhantomStolen"
+                # 怪盗に盗まれている場合は発生しない
+                sub=Player.factory "Doppleganger", game
+                @transProfile sub
+                @transferData sub, false
 
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
 
             # 同じところが変わる
-            sub.setFlag {
+            sub?.setFlag {
                 done: false
                 ownerid: newpl.objid
                 target: null
