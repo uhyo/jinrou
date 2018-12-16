@@ -10,7 +10,8 @@
       throw new Error();
     }
     // ES2017 async/await
-    eval('(async function(){})');
+    // Maybe Safari on iOS 11.0 cannot parse await in if condition
+    eval('(async function(f){ if(!await Object(f)())return})');
     // ES2017 String.prototype.padStart
     ''.padStart();
     // ES2016 Array.includes.
