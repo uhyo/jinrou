@@ -6,7 +6,7 @@ import { phone } from '../../../common/media';
  * TODO how to support non-Japanese language?
  */
 const phoneticGroups = [
-  'あいうえお',
+  'あいうゔえお',
   'かきくけこがぎぐげご',
   'さしすせそざじずぜぞ',
   'たちつてとだぢづでど',
@@ -31,12 +31,12 @@ export function splitPrizesIntoGroups(prizes: Prize[]): Prize[][] {
   const result: Prize[][] = [];
   let currentGroup: Prize[] = [];
   let currentGroupIndex = 0;
-  for (const prize of sorted) {
+  prizeLoop: for (const prize of sorted) {
     for (; currentGroupIndex < phoneticGroups.length; currentGroupIndex++) {
       const phonetics = phoneticGroups[currentGroupIndex];
       if (!phonetics || phonetics.includes(prize.phonetic.charAt(0))) {
         currentGroup.push(prize);
-        break;
+        continue prizeLoop;
       } else {
         if (currentGroup.length > 0) {
           result.push(currentGroup);
@@ -44,9 +44,12 @@ export function splitPrizesIntoGroups(prizes: Prize[]): Prize[][] {
         currentGroup = [];
       }
     }
+    // not found
+    currentGroup.push(prize);
   }
   if (currentGroup.length > 0) {
     result.push(currentGroup);
   }
+  console.log(prizes, sorted, result);
   return result;
 }
