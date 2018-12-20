@@ -353,6 +353,7 @@ Vampire:
 Cat:
   # Select a target.
   select: "{{name}}は{{target}}に死者蘇生術をかけました。"
+  reviveWrongPlayer: "{{name}}の手が滑って{{target}}を蘇生しました。"
 
 # Witch
 Witch:

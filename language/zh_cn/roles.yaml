@@ -309,6 +309,7 @@ Vampire:
 Cat:
   # Select a target.
   select: "{{name}} 对 {{target}} 使用了死者复活术。"
+  reviveWrongPlayer: "{{name}} 的手滑了一下，不小心复活了 {{target}}。"
 
 # Witch
 Witch:

@@ -5002,6 +5002,12 @@ class Cat extends Poisoner
                 return
             pl=deads[Math.floor(Math.random()*deads.length)]
             @addGamelog game, "catraise", pl.id, target
+            
+            log=
+                mode:"hidden"
+                to:-1
+                comment: game.i18n.t "roles:Cat.reviveWrongPlayer", {name: @name, target: pl.name}
+            splashlog game.id,game,log
         else
             @addGamelog game, "catraise", true, target
         # 蘇生 目を覚まさせる
