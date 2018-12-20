@@ -7913,10 +7913,11 @@ class TongueWolf extends Werewolf
             @setFlag {
                 mode: "results"
                 results: results
+                day: game.day
             }
     sunrise:(game)->
         # Show the result.
-        if @flag?.mode == "results"
+        if @flag?.mode == "results" && @flag.day == game.day - 1
             # Check whether the target is dead.
             results = @flag.results
             for obj in results
