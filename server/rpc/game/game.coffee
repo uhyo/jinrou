@@ -4485,7 +4485,7 @@ class Stalker extends Player
             return false
         pl=game.getPlayer @flag
         return false unless pl?
-        if team==pl.getTeam()
+        if team != "" && team==pl.getTeam()
             return true
         if pl.isJobType("Stalker") && pl.isWinnerStalk?
             # ストーカーを追跡
