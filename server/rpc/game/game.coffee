@@ -5002,12 +5002,6 @@ class Cat extends Poisoner
                 return
             pl=deads[Math.floor(Math.random()*deads.length)]
             @addGamelog game, "catraise", pl.id, target
-            
-            log=
-                mode:"hidden"
-                to:-1
-                comment: game.i18n.t "roles:Cat.reviveWrongPlayer", {name: @name, target: pl.name}
-            splashlog game.id,game,log
         else
             @addGamelog game, "catraise", true, target
         # 蘇生 目を覚まさせる
@@ -10862,6 +10856,7 @@ module.exports.actions=(req,res,ss)->
                         if job == "MadWolf"
                             # 狂人狼は2人以上出さない調整
                             possibility = possibility.filter (x)-> x != "MadWolf"
+                            special_exceptions.push "MadWolf"
 
                         if safety.teams && (job in Shared.game.teams.Werewolf)
                             wolf_teams++    # 人狼陣営が増えた
