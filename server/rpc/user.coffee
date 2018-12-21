@@ -619,7 +619,7 @@ userProfile = (doc, ban)->
     return doc
 # 称号の処理を行う
 generatePrizeDataForClient = (prizeIds)->
-    prizeIds.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? null}
+    prizeIds.map (x)->{id:x,name:Server.prize.prizeName(x),phonetic:Server.prize.prizePhonetic(x) ? ""}
 
 
 # 一般人に表示する用のデータを取得（身代わりくん対応）
