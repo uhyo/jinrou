@@ -118,6 +118,9 @@ jobname:
   Raven: "鴉"
   DecoyWolf: "囮狼"
   LunaticLover: "狂愛者"
+  Hooligan: "暴徒"
+  HooliganAttacker: "暴動者"
+  HooliganGuard: "警備員"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -144,6 +147,7 @@ teamName:
   Vampire: "ヴァンパイア陣営"
   Cult: "カルトリーダー陣営"
   Raven: "鴉陣営"
+  Hooligan: "暴徒陣営"
   Neet: "ニート"
   Others: "その他"
 
@@ -680,6 +684,8 @@ Emma:
     friendsuicide: "{{name}}は恋人の後を追って死亡したようです。"
     # Suicided after his twin
     twinsuicide: "{{name}}は双子の後を追って死亡したようです。"
+    # Killed by hooligan
+    hooligan: "{{name}}は暴動者たちに殺されたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -741,6 +747,32 @@ DecoyWolf:
 LunaticLover:
   # Select a target of lunatic love.
   select: "{{name}}は{{target}}を狂愛の対象に選びました。"
+
+Hooligan:
+  # Select a new member of hooligan.
+  select: "{{name}}は{{target}}を暴動に参加させました。"
+  # Become a HooliganMember.
+  become: "{{name}}は暴動に参加しました。"
+  # Found a guard.
+  foundGuard: "{{name}}は{{target}}を暴動に参加させようとしましたが、{{target}}は警備員でした。"
+
+HooliganAttacker:
+  # name of HooliganMember.
+  jobname: "{{jobname}}（暴動者）"
+  # select a target of attack.
+  select: "{{name}}は{{target}}に暴行を加えました。"
+  # HooliganMember was arrested (for original Hooligan)
+  arrested: "{{name}}は警備員に拘束されて暴行を行えませんでした。"
+  # HooliganMember was uncomplexed
+  uncomplex: "{{name}}は警備員に拘束されて暴動から外れました。"
+
+HooliganGuard:
+  # name of HooliganGuardComplex.
+  jobname: "{{jobname}}（警備員）"
+  # become a guard at first night.
+  become: "村に暴徒が潜んでいます。{{name}}は警備員に任命されました。"
+  # select a target of arrest.
+  select: "{{name}}は{{target}}を拘束しました。"
 
 GameMaster:
   # Failed to revive.

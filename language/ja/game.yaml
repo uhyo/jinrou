@@ -246,6 +246,7 @@ foundDetail:
   gone-night: "夜間突然死"
   crafty: "死んだふり"
   lunaticlover: "狂愛者の襲撃"
+  hooligan: "暴動者による暴行"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
@@ -263,6 +264,7 @@ judge:
   vampire: "ヴァンパイアは最後の村人を喰い殺すと次の獲物を求めて去っていった……"
   lonewolf: "人狼は最後の村人を喰い殺すと次の獲物を求めて独り去っていくのだった……"
   raven: "村は鴉に支配されました。"
+  hooligan: "村は暴徒によって破壊し尽くされました。"
   draw: "引き分けになりました。"
   scapegoat: "村は身代わりくんに支配されました。"
   # short summary
@@ -276,6 +278,7 @@ judge:
     vampire: "ヴァンパイア陣営勝利"
     lonewolf: "一匹狼勝利"
     raven: "鴉勝利"
+    hooligan: "暴徒勝利"
 
 
 # Terms for quantum werewolf

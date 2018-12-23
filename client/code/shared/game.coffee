@@ -56,7 +56,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BlackCat",
 # オリジナル
 "SantaClaus","Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
-"DecoyWolf"
+"DecoyWolf","Hooligan"
 ]
 # 隠されていて自分で入れることができない役職
 exports.hiddenJobs = [
@@ -79,6 +79,7 @@ exports.teams=teams=
     Vampire:["Vampire"]
     Cult:["CultLeader"]
     Raven:["Raven"]
+    Hooligan:["Hooligan", "HooliganAttacker"]
     Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
     Neet:["Neet"]
 
@@ -91,7 +92,7 @@ exports.categories=
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad"]
     Immoral:["Immoral","Blasphemy"]
     Switching:["Stalker","OccultMania","Copier","Cursed","Doppleganger","BloodyMary","Phantom","Thief"]
-    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover","Raven","LunaticLover"]
+    Others:["Devil","Cupid","Bat","CultLeader","Vampire","Tanner","Lover","Hoodlum","BadLady","Patissiere","Shishimai","SnowLover","Raven","LunaticLover","Hooligan"]
     # Special category for "no category"
     None:["Neet"]
 
@@ -881,6 +882,10 @@ exports.jobinfo=
         color: "#444466"
         Raven:
             color: "#444466"
+    Hooligan:
+        color: "#f39800"
+        Hooligan:
+            color: "#ff5900"
     Others:
         color:"#cccccc"
         Bat:
@@ -1567,6 +1572,9 @@ exports.jobinfos=[
     }
     {
         name:"ravens"
+    }
+    {
+        name:"hooligans"
     }
 ]
 

@@ -1673,7 +1673,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover"
+                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1712,7 +1712,8 @@ class Game
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
                     "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
-                    "gmpunish","gone-day","gone-night","crafty","lunaticlover"
+                    "gmpunish","gone-day","gone-night","crafty","lunaticlover",
+                    "hooligan"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1755,6 +1756,8 @@ class Game
                         "friendsuicide"
                     when "twinsuicide"
                         "twinsuicide"
+                    when "hooligan"
+                        "hooligan"
                     else
                         null
                 if emma_log?
@@ -2159,6 +2162,9 @@ class Game
                         else
                             # 恋人バトル
                             team = null
+            # 暴徒判定
+            if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
+                team="Hooligan"
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
                 # 全員信者
@@ -2253,6 +2259,8 @@ class Game
                     [@i18n.t("judge.vampire"),@i18n.t("judge.short.vampire")]
                 when "LoneWolf"
                     [@i18n.t("judge.lonewolf"),@i18n.t("judge.short.lonewolf")]
+                when "Hooligan"
+                    [@i18n.t("judge.hooligan"), @i18n.t("judge.short.hooligan")]
                 when "Draw"
                     [@i18n.t("judge.draw"),""]
             # 身代わりくん单独勝利
@@ -8388,6 +8396,238 @@ class LunaticLover extends Player
             res = true
         return res
 
+class Hooligan extends Player
+    type: "Hooligan"
+    team: "Hooligan"
+    formType: FormType.required
+    midnightSort:100
+    constructor:->
+        super
+        @setFlag "uninit"
+    sleeping:(game)-> @target?
+    sunset:(game)->
+        @setTarget null
+        if @flag == "uninit"
+            # 未初期化：自分を暴動者にする
+            sub = Player.factory "HooliganAttacker", game
+            @transProfile sub
+            sub.sunset game
+            newpl = Player.factory null, game, this, sub, HooliganMember
+            @transProfile newpl
+            newpl.setFlag "init"
+            @transform game, newpl, true
+            # さらに警備員を任命
+            gs = game.players.filter (x)-> x.isJobType "HooliganGuard"
+            if gs.length > 0
+                # すでに任命されていた
+                return
+            # 警備員候補
+            pls = game.players.filter (x)-> !x.scapegoat && !x.isCmplType "HooliganMember"
+            pls = shuffle pls
+            # 警備員の数
+            num = Math.ceil(game.players.length / 8)
+            num = Math.min num, pls.length
+            for i in [0 ... num]
+                newguard = pls[i]
+                sub = Player.factory "HooliganGuard", game
+                newguard.transProfile sub
+                # 最初の夜は行動しない
+                sub.setTarget ""
+                newpl = Player.factory null, game, newguard, sub, HooliganGuardComplex
+                newguard.transProfile newpl
+                newguard.transform game, newpl, true
+                log=
+                    mode: "skill"
+                    to: newguard.id
+                    comment: game.i18n.t "roles:HooliganGuard.become", {
+                        name: newguard.name
+                    }
+                splashlog game.id, game, log
+
+    job:(game, playerid, query)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+
+        @setTarget playerid
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Hooligan.select", {
+                name: @name,
+                target: pl.name
+            }
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        # Make him a HooliganMember unless he already is.
+        if pl.isCmplType "HooliganMember"
+            pl.touched game, @id
+            return
+        if pl.isJobType "HooliganGuard"
+            # Oh, no! The target is a guard!
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Hooligan.foundGuard", {
+                    name: @name
+                    target: pl.name
+                }
+            splashlog game.id, game, log
+            return
+
+        sub = Player.factory "HooliganAttacker", game
+        pl.transProfile sub
+        newpl = Player.factory null, game, pl, sub, HooliganMember
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+        newpl.touched game, @id
+
+        log=
+            mode: "skill"
+            to: newpl.id
+            comment: game.i18n.t "roles:Hooligan.become", {
+                name: newpl.name
+            }
+        splashlog game.id, game, log
+        null
+    makejobinfo:(game, result)->
+        super
+        # 暴徒を把握
+        result.hooligans = game.players.filter((x)->
+            x.isCmplType "HooliganMember")
+            .map (x)-> x.publicinfo()
+
+class HooliganAttacker extends Player
+    type: "HooliganAttacker"
+    team: ""
+    formType: FormType.optional
+    midnightSort: 100
+    jobdone:(game)-> @target?
+    isWinner:(game, team)->
+        !@dead
+    sunset:(game)->
+        @setTarget null
+        @setFlag "unused"
+    job:(game, playerid, query)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        @setTarget playerid
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:HooliganAttacker.select", {
+                name: @name,
+                target: pl.name
+            }
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        # collect all attacker's selection.
+        attackers = []
+        for pl in game.players
+            attackers.push (pl.accessByJobTypeAll "HooliganAttacker")...
+        # filter out dead or already-processed ones.
+        attackers = attackers.filter (pl)-> pl.flag == "unused" && pl.target
+        # make a table of attacked players
+        attackTable = {}
+        for pl in attackers
+            pl.setFlag "used"
+            tl = game.skillTargetHook.get pl.target
+            unless tl
+                continue
+            attackTable[tl] ?= []
+            attackTable[tl].push pl.id
+        # Players attacked by two or more are killed
+        for id, hs of attackTable
+            if hs.length >= 2
+                pl = game.getPlayer id
+                if pl?
+                    pl.die game, "hooligan", hs
+                    for hid in hs
+                        h = game.getPlayer hid
+                        h?.addGamelog game, "hooligankill", pl.type, id
+
+class HooliganGuard extends Player
+    type: "HooliganGuard"
+    team: ""
+    formType: FormType.optional
+    midnightSort: 90
+    jobdone:-> @target?
+    isWinner:(game, team)->
+        !@dead
+    sunset:(game)->
+        @setTarget null
+    job:(game, playerid)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        @setTarget playerid
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:HooliganGuard.select", {
+                name: @name,
+                target: pl.name
+            }
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+
+        unless pl?
+            return
+        # 暴動者を全て消滅させる
+        attackers = pl.accessByJobTypeAll "HooliganAttacker"
+        isBoss = pl.isJobType "Hooligan"
+        usedFlag = false
+        for at in attackers
+            if isBoss
+                if at.target?
+                    usedFlag = true
+                at.setFlag "used"
+            else
+                at.uncomplex game, true
+
+        if attackers.length > 0
+            log = null
+            if isBoss && usedFlag
+                log=
+                    mode: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:HooliganAttacker.arrested", {
+                        name: pl.name
+                    }
+            else if !isBoss
+                log=
+                    mode: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:HooliganAttacker.uncomplex", {
+                        name: pl.name
+                    }
+            if log?
+                splashlog game.id, game, log
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -9611,6 +9851,30 @@ class LunaticLoved extends Complex
             if obj.flag?.target == @id
                 obj.flag.killTarget = targets
 
+# 暴動に加わった人
+class HooliganMember extends Complex
+    cmplType: "HooliganMember"
+    getJobname:->
+        if @main.isMainJobType "Hooligan"
+            @main.getJobname()
+        else
+            @game.i18n.t "roles:HooliganAttacker.jobname", {jobname: @main.getJobname()}
+    getJobDisp:->
+        if @main.isMainJobType "Hooligan"
+            @main.getJobDisp()
+        else
+            @game.i18n.t "roles:HooliganAttacker.jobname", {jobname: @main.getJobDisp()}
+    isWinner:(game, team)->
+        # 暴徒陣営勝利でもOK
+        if team == "Hooligan"
+            return true
+        return @main.isWinner game, team
+
+# 警備員になった人（表示用）
+class HooliganGuardComplex extends Complex
+    cmplType: "HooliganGuardComplex"
+    getJobname:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobDisp()}
 
 # 決定者
 class Decider extends Complex
@@ -9739,6 +10003,8 @@ class Chemical extends Complex
         subt = @sub?.getTeam()
         if maint=="Cult" || subt=="Cult"
             myt = "Cult"
+        else if maint=="Hooligan" || subt=="Hooligan"
+            myt = "Hooligan"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
         else if maint=="Raven" || subt=="Raven"
@@ -9960,6 +10226,9 @@ jobs=
     Raven:Raven
     DecoyWolf:DecoyWolf
     LunaticLover:LunaticLover
+    Hooligan:Hooligan
+    HooliganAttacker:HooliganAttacker
+    HooliganGuard:HooliganGuard
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -10002,6 +10271,8 @@ complexes=
     FanOfIdol:FanOfIdol
     SnowGuarded:SnowGuarded
     LunaticLoved:LunaticLoved
+    HooliganMember:HooliganMember
+    HooliganGuardComplex:HooliganGuardComplex
 
     # 役職ごとの強さ
 jobStrength=
@@ -10120,6 +10391,7 @@ jobStrength=
     Raven:18
     DecoyWolf:54
     LunaticLover:30
+    Hooligan:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -10678,6 +10950,22 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.2
                             exceptions.push "Pumpkin"
 
+                    if (month==9 && 28<=d<=31) || (month==11 && 24<=d<=25) || (month==11 || d==31)
+                        # 暴徒が出る季節
+                        r = if month == 9 && d == 28
+                            # 軽トラ記念日
+                            0.4
+                        else
+                            0.2
+
+                        if Math.random()<r && frees>0 && !nonavs.Hooligan && !(joblist.Hooligan > 0)
+                            joblist.Hooligan ?= 0
+                            joblist.Hooligan++
+                            frees--
+                    else
+                        if Math.random()<0.4
+                            exceptions.push "Hooligan"
+
                 )(new Date)
 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
@@ -11019,7 +11307,7 @@ module.exports.actions=(req,res,ss)->
                         continue if num==0
                         if obj[job]?
                             # この陣営だ
-                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult", "Raven"]
+                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult", "Raven", "Hooligan"]
                                 # count as その他
                                 teamcount["Others"] += num
                             else

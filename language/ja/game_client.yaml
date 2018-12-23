@@ -93,6 +93,7 @@ jobinfo:
     dogOwner: "あなたの飼い主は{{name}}です"
     quantumwerewolfNumber: "あなたのプレイヤー番号は{{number}}です"
     fanof: "あなたは{{name}}のファンです"
+    hooligans: "現在の暴動者は{{names}}です"
 
 
 # game-view: speak form.

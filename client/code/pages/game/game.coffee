@@ -278,6 +278,7 @@ exports.start=(roomid)->
                             myfans: obj.myfans
                             fanof: obj.fanof
                             ravens: obj.ravens
+                            hooligans: obj.hooligans
                         }
                     else
                         null

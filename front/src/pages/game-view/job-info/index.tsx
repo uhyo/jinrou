@@ -36,6 +36,7 @@ const peers: Array<keyof RolePeersInfo> = [
   'twins',
   'myfans',
   'ravens',
+  'hooligans',
 ];
 /**
  * Keys of RoleOtherPlayerINfo for use in JobInfo.
