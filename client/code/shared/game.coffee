@@ -882,6 +882,10 @@ exports.jobinfo=
         color: "#444466"
         Raven:
             color: "#444466"
+    Hooligan:
+        color: "#f39800"
+        Hooligan:
+            color: "#ff5900"
     Others:
         color:"#cccccc"
         Bat:

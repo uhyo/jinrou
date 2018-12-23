@@ -2166,6 +2166,9 @@ class Game
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
                 # 全員信者
                 team="Cult"
+            # 暴徒判定
+            if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
+                team="Hooligan"
             # 悪魔くん判定
             isDevilWinner = (pl)=>
                 # 悪魔くんが勝利したか判定する
@@ -2256,6 +2259,8 @@ class Game
                     [@i18n.t("judge.vampire"),@i18n.t("judge.short.vampire")]
                 when "LoneWolf"
                     [@i18n.t("judge.lonewolf"),@i18n.t("judge.short.lonewolf")]
+                when "Hooligan"
+                    [@i18n.t("judge.hooligan"), @i18n.t("judge.short.hooligan")]
                 when "Draw"
                     [@i18n.t("judge.draw"),""]
             # 身代わりくん单独勝利
