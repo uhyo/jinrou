@@ -8422,7 +8422,7 @@ class Hooligan extends Player
                 # すでに任命されていた
                 return
             # 警備員候補
-            pls = game.players.filter (x)-> !x.scapegoat && !x.isCmplType "HooliganMember"
+            pls = game.players.filter (x)-> !x.scapegoat && !x.isCmplType("HooliganMember") && !x.isJobType("Hooligan")
             pls = shuffle pls
             # 警備員の数
             num = Math.ceil(game.players.length / 8)
