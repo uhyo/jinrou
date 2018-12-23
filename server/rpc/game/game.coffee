@@ -9846,6 +9846,16 @@ class LunaticLoved extends Complex
 # 暴動に加わった人
 class HooliganMember extends Complex
     cmplType: "HooliganMember"
+    getJobname:->
+        if @main.isMainJobType "Hooligan"
+            @main.getJobname()
+        else
+            @game.i18n.t "roles:HooliganAttacker.jobname", {jobname: @main.getJobname()}
+    getJobDisp:->
+        if @main.isMainJobType "Hooligan"
+            @main.getJobDisp()
+        else
+            @game.i18n.t "roles:HooliganAttacker.jobname", {jobname: @main.getJobDisp()}
     isWinner:(game, team)->
         # 暴徒陣営勝利でもOK
         if team == "Hooligan"

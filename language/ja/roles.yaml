@@ -757,6 +757,8 @@ Hooligan:
   foundGuard: "{{name}}は{{target}}を暴動に参加させようとしましたが、{{target}}は警備員でした。"
 
 HooliganAttacker:
+  # name of HooliganMember.
+  jobname: "{{jobname}}（暴動者）"
   # select a target of attack.
   select: "{{name}}は{{target}}に暴行を加えました。"
   # HooliganMember was arrested (for original Hooligan)
