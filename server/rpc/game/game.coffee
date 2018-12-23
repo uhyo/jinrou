@@ -10296,6 +10296,22 @@ module.exports.actions=(req,res,ss)->
                     exceptions.push "SpiritPossessed"
                     special_exceptions.push "SpiritPossessed"
 
+                # 一部闇鍋で固定されているやつが全て除外されていないかチェック
+                for type, categoryjobs of Shared.game.categories
+                    if joblist["category_#{type}"] > 0
+                        jobset = new Set categoryjobs
+                        for job in excluded_exceptions
+                            jobset.delete job
+                        if jobset.size == 0
+                            # candidates are empty!
+                            res game.i18n.t "error.gamestart.categoryAllExcluded", {
+                                category: game.i18n.t "roles:categoryName.#{type}"
+                            }
+                            return
+
+
+
+
                 #人外の数
                 if safety.jingais
                     # いい感じに決めてあげる

@@ -66,6 +66,8 @@ error:
     unknownCasting: "不明な配役です。"
     # Helper target does not exist
     helperNotExist: "{{name}}さんのヘルパー対象が存在しませんでした。"
+    # for 一部闇鍋: selected category is empty (all jobs in it are excluded)
+    categoryAllExcluded: "「{{category}}」は当該役職が全て除外されているため固定できません。"
   # Error during sudden death punishment
   suddenDeathPunish:
     # You are not a valid voter
