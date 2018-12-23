@@ -80,7 +80,7 @@ exports.teams=teams=
     Cult:["CultLeader"]
     Raven:["Raven"]
     Hooligan:["Hooligan", "HooliganAttacker"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)

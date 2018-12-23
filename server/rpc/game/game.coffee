@@ -10539,7 +10539,18 @@ module.exports.actions=(req,res,ss)->
                 # 闇鍋のときは入れないのがある
                 exceptions=[]
                 # 闇鍋で出してはいけない役職
-                special_exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
+                special_exceptions=[
+                    "MinionSelector",
+                    "Thief",
+                    "GameMaster",
+                    "Helper",
+                    "QuantumPlayer",
+                    "Waiting",
+                    "Watching",
+                    "GotChocolate",
+                    "HooliganAttacker",
+                    "HooliganGuard",
+                ]
                 exceptions.push special_exceptions...
                 # ユーザーが指定した入れないの
                 excluded_exceptions=[]
