@@ -10950,6 +10950,22 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.2
                             exceptions.push "Pumpkin"
 
+                    if (month==9 && 28<=d<=31) || (month==11 && 24<=d<=25) || (month==11 || d==31)
+                        # 暴徒が出る季節
+                        r = if month == 9 && d == 28
+                            # 軽トラ記念日
+                            0.4
+                        else
+                            0.2
+
+                        if Math.random()<r && frees>0 && !nonavs.Hooligan && !(joblist.Hooligan > 0)
+                            joblist.Hooligan ?= 0
+                            joblist.Hooligan++
+                            frees--
+                    else
+                        if Math.random()<0.4
+                            exceptions.push "Hooligan"
+
                 )(new Date)
 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
