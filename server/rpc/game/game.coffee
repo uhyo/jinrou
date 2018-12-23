@@ -7106,7 +7106,7 @@ class Patissiere extends Player
     type: "Patissiere"
     team:"Friend"
     formType: FormType.required
-    midnightSort:100
+    midnightSort:45
     sunset:(game)->
         unless @flag?
             if @scapegoat
