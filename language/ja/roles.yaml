@@ -118,6 +118,8 @@ jobname:
   Raven: "鴉"
   DecoyWolf: "囮狼"
   LunaticLover: "狂愛者"
+  Hooligan: "暴徒"
+  HooliganAttacker: "暴動者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -144,6 +146,7 @@ teamName:
   Vampire: "ヴァンパイア陣営"
   Cult: "カルトリーダー陣営"
   Raven: "鴉陣営"
+  Hooligan: "暴徒陣営"
   Neet: "ニート"
   Others: "その他"
 
@@ -680,6 +683,8 @@ Emma:
     friendsuicide: "{{name}}は恋人の後を追って死亡したようです。"
     # Suicided after his twin
     twinsuicide: "{{name}}は双子の後を追って死亡したようです。"
+    # Killed by hooligan
+    hooligan: "{{name}}は暴動者たちに殺されたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -741,6 +746,16 @@ DecoyWolf:
 LunaticLover:
   # Select a target of lunatic love.
   select: "{{name}}は{{target}}を狂愛の対象に選びました。"
+
+Hooligan:
+  # Select a new member of hooligan.
+  select: "{{name}}は{{target}}を暴動に参加させました。"
+  # Become a HooliganMember.
+  become: "{{name}}は暴動に参加しました。"
+
+HooliganAttacker:
+  # select a target of attack.
+  select: "{{name}}は{{target}}に暴行を加えました。"
 
 GameMaster:
   # Failed to revive.

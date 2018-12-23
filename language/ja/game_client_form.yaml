@@ -95,6 +95,8 @@ messages:
   SnowLover: "恋人にする相手を選択してください"
   DecoyWolf: "囮になる対象を選択してください"
   LunaticLover: "狂愛の対象を選択してください"
+  Hooligan: "暴動に参加させる相手を選択してください"
+  HooliganAttacker: "暴行を加える相手を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.

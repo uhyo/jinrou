@@ -246,6 +246,7 @@ foundDetail:
   gone-night: "夜間突然死"
   crafty: "死んだふり"
   lunaticlover: "狂愛者の襲撃"
+  hooligan: "暴動者による暴行"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
