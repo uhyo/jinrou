@@ -759,6 +759,8 @@ Hooligan:
 HooliganAttacker:
   # select a target of attack.
   select: "{{name}}は{{target}}に暴行を加えました。"
+  # HooliganMember was arrested (for original Hooligan)
+  arrested: "{{name}}は警備員に拘束されて暴行を行えませんでした。"
   # HooliganMember was uncomplexed
   uncomplex: "{{name}}は警備員に拘束されて暴動から外れました。"
 

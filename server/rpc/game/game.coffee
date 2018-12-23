@@ -8599,16 +8599,25 @@ class HooliganGuard extends Player
             return
         # 暴動者を全て消滅させる
         attackers = pl.accessByJobTypeAll "HooliganAttacker"
+        isBoss = pl.isJobType "Hooligan"
         for at in attackers
-            at.uncomplex game, true
+            if isBoss
+                at.setFlag "used"
+            else
+                at.uncomplex game, true
 
         if attackers.length > 0
             log=
                 mode: "skill"
                 to: pl.id
-                comment: game.i18n.t "roles:HooliganAttacker.uncomplex", {
-                    name: pl.name
-                }
+                comment: if isBoss
+                    game.i18n.t "roles:HooliganAttacker.arrested", {
+                        name: pl.name
+                    }
+                else
+                    game.i18n.t "roles:HooliganAttacker.uncomplex", {
+                        name: pl.name
+                    }
             splashlog game.id, game, log
 
 # ============================
