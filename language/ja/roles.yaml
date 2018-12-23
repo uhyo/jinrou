@@ -120,6 +120,7 @@ jobname:
   LunaticLover: "狂愛者"
   Hooligan: "暴徒"
   HooliganAttacker: "暴動者"
+  HooliganGuard: "警備員"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -752,10 +753,20 @@ Hooligan:
   select: "{{name}}は{{target}}を暴動に参加させました。"
   # Become a HooliganMember.
   become: "{{name}}は暴動に参加しました。"
+  # Found a guard.
+  foundGuard: "{{name}}は{{target}}を暴動に参加させようとしましたが、{{target}}は警備員でした。"
 
 HooliganAttacker:
   # select a target of attack.
   select: "{{name}}は{{target}}に暴行を加えました。"
+  # HooliganMember was uncomplexed
+  uncomplex: "{{name}}は警備員に拘束されて暴動から外れました。"
+
+HooliganGuard:
+  # become a guard at first night.
+  become: "村に暴徒が潜んでいます。{{name}}は警備員に任命されました。"
+  # select a target of arrest.
+  select: "{{name}}は{{target}}を拘束しました。"
 
 GameMaster:
   # Failed to revive.

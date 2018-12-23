@@ -2162,13 +2162,13 @@ class Game
                         else
                             # 恋人バトル
                             team = null
+            # 暴徒判定
+            if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
+                team="Hooligan"
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
                 # 全員信者
                 team="Cult"
-            # 暴徒判定
-            if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
-                team="Hooligan"
             # 悪魔くん判定
             isDevilWinner = (pl)=>
                 # 悪魔くんが勝利したか判定する
@@ -8416,6 +8416,34 @@ class Hooligan extends Player
             @transProfile newpl
             newpl.setFlag "init"
             @transform game, newpl, true
+            # さらに警備員を任命
+            gs = game.players.filter (x)-> x.isJobType "HooliganGuard"
+            if gs.length > 0
+                # すでに任命されていた
+                return
+            # 警備員候補
+            pls = game.players.filter (x)-> !x.scapegoat && !x.isCmplType "HooliganMember"
+            pls = shuffle pls
+            # 警備員の数
+            num = Math.ceil(game.players.length / 8)
+            num = Math.min num, pls.length
+            for i in [0 ... num]
+                newguard = pls[i]
+                sub = Player.factory "HooliganGuard", game
+                newguard.transProfile sub
+                # 最初の夜は行動しない
+                sub.setTarget ""
+                newpl = Player.factory null, game, newguard, sub, Complex
+                newguard.transProfile newpl
+                newguard.transform game, newpl, true
+                log=
+                    mode: "skill"
+                    to: newguard.id
+                    comment: game.i18n.t "roles:HooliganGuard.become", {
+                        name: newguard.name
+                    }
+                splashlog game.id, game, log
+
     job:(game, playerid, query)->
         if @target?
             return game.i18n.t "error.common.alreadyUsed"
@@ -8443,6 +8471,17 @@ class Hooligan extends Player
         # Make him a HooliganMember unless he already is.
         if pl.isCmplType "HooliganMember"
             pl.touched game, @id
+            return
+        if pl.isJobType "HooliganGuard"
+            # Oh, no! The target is a guard!
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Hooligan.foundGuard", {
+                    name: @name
+                    target: pl.name
+                }
+            splashlog game.id, game, log
             return
 
         sub = Player.factory "HooliganAttacker", game
@@ -8523,6 +8562,54 @@ class HooliganAttacker extends Player
                         h = game.getPlayer hid
                         h?.addGamelog game, "hooligankill", pl.type, id
 
+class HooliganGuard extends Player
+    type: "HooliganGuard"
+    team: ""
+    formType: FormType.optional
+    midnightSort: 90
+    jobdone:-> @target?
+    isWinner:(game, team)->
+        !@dead
+    sunset:(game)->
+        @setTarget null
+    job:(game, playerid)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        @setTarget playerid
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:HooliganGuard.select", {
+                name: @name,
+                target: pl.name
+            }
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+
+        unless pl?
+            return
+        # 暴動者を全て消滅させる
+        attackers = pl.accessByJobTypeAll "HooliganAttacker"
+        for at in attackers
+            at.uncomplex game, true
+
+        if attackers.length > 0
+            log=
+                mode: "skill"
+                to: pl.id
+                comment: game.i18n.t "roles:HooliganAttacker.uncomplex", {
+                    name: pl.name
+                }
+            splashlog game.id, game, log
 
 # ============================
 # 処理上便宜的に使用
@@ -10106,6 +10193,7 @@ jobs=
     LunaticLover:LunaticLover
     Hooligan:Hooligan
     HooliganAttacker:HooliganAttacker
+    HooliganGuard:HooliganGuard
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
