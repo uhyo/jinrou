@@ -767,6 +767,8 @@ HooliganAttacker:
   uncomplex: "{{name}}は警備員に拘束されて暴動から外れました。"
 
 HooliganGuard:
+  # name of HooliganGuardComplex.
+  jobname: "{{jobname}}（警備員）"
   # become a guard at first night.
   become: "村に暴徒が潜んでいます。{{name}}は警備員に任命されました。"
   # select a target of arrest.

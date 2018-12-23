@@ -8433,7 +8433,7 @@ class Hooligan extends Player
                 newguard.transProfile sub
                 # 最初の夜は行動しない
                 sub.setTarget ""
-                newpl = Player.factory null, game, newguard, sub, Complex
+                newpl = Player.factory null, game, newguard, sub, HooliganGuardComplex
                 newguard.transProfile newpl
                 newguard.transform game, newpl, true
                 log=
@@ -8600,25 +8600,33 @@ class HooliganGuard extends Player
         # 暴動者を全て消滅させる
         attackers = pl.accessByJobTypeAll "HooliganAttacker"
         isBoss = pl.isJobType "Hooligan"
+        usedFlag = false
         for at in attackers
             if isBoss
+                if at.target?
+                    usedFlag = true
                 at.setFlag "used"
             else
                 at.uncomplex game, true
 
         if attackers.length > 0
-            log=
-                mode: "skill"
-                to: pl.id
-                comment: if isBoss
-                    game.i18n.t "roles:HooliganAttacker.arrested", {
+            log = null
+            if isBoss && usedFlag
+                log=
+                    mode: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:HooliganAttacker.arrested", {
                         name: pl.name
                     }
-                else
-                    game.i18n.t "roles:HooliganAttacker.uncomplex", {
+            else if !isBoss
+                log=
+                    mode: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:HooliganAttacker.uncomplex", {
                         name: pl.name
                     }
-            splashlog game.id, game, log
+            if log?
+                splashlog game.id, game, log
 
 # ============================
 # 処理上便宜的に使用
@@ -9862,6 +9870,12 @@ class HooliganMember extends Complex
             return true
         return @main.isWinner game, team
 
+# 警備員になった人（表示用）
+class HooliganGuardComplex extends Complex
+    cmplType: "HooliganGuardComplex"
+    getJobname:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobDisp()}
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -9989,6 +10003,8 @@ class Chemical extends Complex
         subt = @sub?.getTeam()
         if maint=="Cult" || subt=="Cult"
             myt = "Cult"
+        else if maint=="Hooligan" || subt=="Hooligan"
+            myt = "Hooligan"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
         else if maint=="Raven" || subt=="Raven"
@@ -10256,6 +10272,7 @@ complexes=
     SnowGuarded:SnowGuarded
     LunaticLoved:LunaticLoved
     HooliganMember:HooliganMember
+    HooliganGuardComplex:HooliganGuardComplex
 
     # 役職ごとの強さ
 jobStrength=
