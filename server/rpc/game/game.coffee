@@ -1565,16 +1565,7 @@ class Game
             # 爆弾魔の爆弾を探す
             from_wolf = @getPlayer target.from
             t = @getPlayer t.id
-            tChain = constructMainChain t, null
-            if tChain?
-                for obj in tChain[0]
-                    if obj.cmplType == "BombTrapped"
-                        t.addGamelog this, "bompGJ", null, t.id
-                        # 爆発を受ける
-                        from_wolf.die this, "trap", obj.cmplFlag?.bomber
-                        t.addGamelog this, "bombkill", null, from_wolf.id
-                        # 爆弾使用済フラグを立てる
-                        obj.cmplFlag?.used = true
+            checkPlayerBomb this, t, from_wolf
 
             if !t.dead
                 # 死んでない
@@ -4952,6 +4943,9 @@ class Vampire extends Player
             for pl in runners
                 if pl.target == t.id
                     x.die game, "vampire2", @id
+        # 相手に爆弾があったら爆発させる
+        checkPlayerBomb game, t, this
+
     makejobinfo:(game,result)->
         super
         # ヴァンパイアが分かる
@@ -5011,7 +5005,7 @@ class Cat extends Poisoner
                 return
             pl=deads[Math.floor(Math.random()*deads.length)]
             @addGamelog game, "catraise", pl.id, target
-            
+
             log=
                 mode:"hidden"
                 to:-1
@@ -12086,6 +12080,19 @@ playerIsJobDone = (game, player)->
         return true
     else
         true
+
+# explode attacked player's bomb.
+checkPlayerBomb = (game, target, attacker)->
+    tChain = constructMainChain target, null
+    if tChain?
+        for obj in tChain[0]
+            if obj.cmplType == "BombTrapped"
+                target.addGamelog game, "bompGJ", null, target.id
+                # 爆発を受ける
+                attacker.die game, "trap", obj.cmplFlag?.bomber
+                target.addGamelog game, "bombkill", null, attacker.id
+                # 爆弾使用済フラグを立てる
+                obj.cmplFlag?.used = true
 
 # replace all occurences of given string with new string.
 replaceAll = (str, before, after)->
