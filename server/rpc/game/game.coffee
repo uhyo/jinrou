@@ -15,6 +15,8 @@ i18n = libi18n.getWithDefaultNS "game"
 
 # 身代わりセーフティありのときの除外役職一覧
 SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
+# jobs that not welcome while rebirth
+REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
 # 占い結果すぐに分かるを無効化する役職
@@ -1284,8 +1286,7 @@ class Game
                     pl.transform this, newpl, true
             # エンドレス闇鍋用途中参加処理
             if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
-                exceptions=["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate"]
-                jobnames=Object.keys(jobs).filter (name)->!(name in exceptions)
+                jobnames=Object.keys(jobs).filter (name)->!(name in REBIRTH_EXCLUDED_JOBS)
                 pcs=@participants.concat []
                 join_count=0
                 for player in pcs
