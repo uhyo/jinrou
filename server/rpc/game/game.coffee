@@ -8474,9 +8474,9 @@ class Hooligan extends Player
         pl = game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
+        pl.touched game, @id
         # Make him a HooliganMember unless he already is.
         if pl.isCmplType "HooliganMember"
-            pl.touched game, @id
             return
         if pl.isJobType "HooliganGuard"
             # Oh, no! The target is a guard!
@@ -8532,6 +8532,7 @@ class HooliganAttacker extends Player
             return game.i18n.t "error.common.nonexistentPlayer"
         if playerid==@id
             return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game, @id
         @setTarget playerid
         log=
             mode: "skill"
@@ -8587,6 +8588,7 @@ class HooliganGuard extends Player
             return game.i18n.t "error.common.nonexistentPlayer"
         if playerid==@id
             return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game, @id
         @setTarget playerid
 
         log=
