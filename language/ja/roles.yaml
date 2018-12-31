@@ -121,6 +121,7 @@ jobname:
   Hooligan: "暴徒"
   HooliganAttacker: "暴動者"
   HooliganGuard: "警備員"
+  HomeComer: "帰省者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -773,6 +774,10 @@ HooliganGuard:
   become: "村に暴徒が潜んでいます。{{name}}は警備員に任命されました。"
   # select a target of arrest.
   select: "{{name}}は{{target}}を拘束しました。"
+
+HomeComer:
+  # select a target of gift.
+  select: "{{name}}は{{target}}へ{{kit}}を渡しました。"
 
 GameMaster:
   # Failed to revive.

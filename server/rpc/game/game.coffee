@@ -4070,6 +4070,8 @@ class Merchant extends Player
     formType: FormType.optionalOnce
     sleeping:->true
     jobdone:(game)->game.day<=1 || @flag?
+    # name of gamelog of sending kit.
+    Merchant_kitGamelog: "sendkit"
     job:(game,playerid,query)->
         if @flag?
             return game.i18n.t "error.common.alreadyUsed"
@@ -4098,7 +4100,8 @@ class Merchant extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Merchant.select", {name: @name, target: newpl.name, kit: kit_name}
+            # Merchant may be extended
+            comment: game.i18n.t "roles:#{@type}.select", {name: @name, target: newpl.name, kit: kit_name}
         splashlog game.id,game,log
         # 入れ替え先は気づいてもらう
         log=
@@ -4108,7 +4111,7 @@ class Merchant extends Player
         splashlog game.id,game,log
         game.splashjobinfo [newpl]
         @setFlag query.Merchant_kit    # 発送済み
-        @addGamelog game,"sendkit",@flag,newpl.id
+        @addGamelog game, @Merchant_kitGamelog, @flag, newpl.id
         null
 class QueenSpectator extends Player
     type:"QueenSpectator"
@@ -8631,6 +8634,15 @@ class HooliganGuard extends Player
             if log?
                 splashlog game.id, game, log
 
+class HomeComer extends Merchant
+    type:"HomeComer"
+    Merchant_kitGamelog: "souvenir"
+    midnightSort: 95
+    midnight:(game)->
+        # 4日目朝に去る
+        if game.day >= 3
+            @die game, "spygone"
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -10232,6 +10244,7 @@ jobs=
     Hooligan:Hooligan
     HooliganAttacker:HooliganAttacker
     HooliganGuard:HooliganGuard
+    HomeComer:HomeComer
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

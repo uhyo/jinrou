@@ -181,8 +181,9 @@ function makeSpecialContent(props: FormContentProps) {
       otherContents = makeGameMasterForm(props);
       break;
     }
-    case 'Merchant': {
-      otherContents = makeMerchantForm(props);
+    case 'Merchant':
+    case 'HomeComer': {
+      otherContents = makeMerchantForm(props, form.type);
       break;
     }
     case 'Witch': {

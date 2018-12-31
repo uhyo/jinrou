@@ -25,4 +25,5 @@ export const specialContentTypes = [
   'Merchant',
   'Witch',
   '_Werewolf',
+  'HomeComer',
 ];

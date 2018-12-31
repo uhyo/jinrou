@@ -4,10 +4,10 @@ import { FormContentProps } from './defs';
 /**
  * Make a form for Merchant.
  */
-export function makeMerchantForm({ t }: FormContentProps) {
+export function makeMerchantForm({ t }: FormContentProps, roleType: string) {
   return (
     <>
-      <p>{t('game_client_form:Merchant.description')}</p>
+      <p>{t(`game_client_form:${roleType}.description`)}</p>
       <p>
         <select name="Merchant_kit">
           {['Diviner', 'Psychic', 'Guard'].map(name => (
