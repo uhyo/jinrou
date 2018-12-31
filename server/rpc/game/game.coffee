@@ -11059,6 +11059,16 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.4
                             exceptions.push "Hooligan"
 
+                    if (month==11 && 29<=d) || (month==0 && d<=3) || (month==7 && 12<=d<=15)
+                        # 正月とお盆：帰省者が出現しやすい
+                        if Math.random()<0.11 && frees>0 && !nonavs.HomeComer
+                            joblist.HomeComer ?= 0
+                            joblist.HomeComer++
+                            frees--
+                    else
+                        if Math.random()<0.15
+                            exceptions.push "HomeComer"
+
                 )(new Date)
 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
