@@ -122,6 +122,7 @@ jobname:
   HooliganAttacker: "暴動者"
   HooliganGuard: "警備員"
   HomeComer: "帰省者"
+  Illusionist: "奇術師"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -778,6 +779,10 @@ HooliganGuard:
 HomeComer:
   # select a target of gift.
   select: "{{name}}は{{target}}へ{{kit}}を渡しました。"
+
+Illusionist:
+  # select a target of illusion.
+  select: "{{name}}は今晩の人狼の襲撃先を{{target}}にすり替えました。"
 
 GameMaster:
   # Failed to revive.

@@ -136,6 +136,14 @@ FormType =
     optional: 'optional'
     # 任意（1回のみ）
     optionalOnce: 'optionalOnce'
+# utility for founds
+Found =
+    # whether this is a guardable werewolf attack.
+    isGuardableWerewolfAttack: (found)->
+        found in ["werewolf", "trickedWerewolf"]
+    # whether this is a guardable attack.
+    isGuardableAttack:(found)->
+        found == "vampire" || Found.isGuardableWerewolfAttack(found)
 
 
 # 浅いコピー
@@ -1201,8 +1209,9 @@ class Game
                 if onewolf.length>0
                     r=Math.floor Math.random()*onewolf.length
                     @werewolf_target.push {
-                        from:onewolf[r].id
-                        to:"身代わりくん"    # みがわり
+                        from: onewolf[r].id
+                        to: "身代わりくん"    # みがわり
+                        found: null
                     }
                 @werewolf_target_remain=0
             else
@@ -1552,7 +1561,7 @@ class Game
                 splashlog @id,this,log
             if !t.dead
                 # 死亡させる
-                t.die this, "werewolf", target.from
+                t.die this, target.found ? "werewolf", target.from
             # 逃亡者を探す
             for x in @players
                 if x.dead
@@ -1665,7 +1674,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1700,7 +1709,7 @@ class Game
             # Show invisible detail of death
             # but do not show for obvious type of death.
             unless (obj.found in ["punish", "infirm", "hunter", "gm", "gone-day", "gone-night"]) || (obj.found == "curse" && @rule.deadfox == "obvious")
-                if ["werewolf","werewolf2","poison","hinamizawa",
+                if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
                     "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
@@ -1719,7 +1728,7 @@ class Game
             if emma_alive.length > 0
                 # 閻魔用のログも出す
                 emma_log=switch obj.found
-                    when "werewolf","werewolf2","crafty"
+                    when "werewolf","werewolf2","trickedWerewolf","crafty"
                         "werewolf"
                     when "poison","witch"
                         "poison"
@@ -3113,6 +3122,7 @@ class Player
         return unless top?
         if found=="werewolf" && !top.willDieWerewolf
             # 襲撃耐性あり
+            # NOTE: trickedWerewolf can pass through this check
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return
         # 耐性チェック
@@ -3408,6 +3418,7 @@ class Werewolf extends Player
         game.werewolf_target.push {
             from:@id
             to:playerid
+            found: null
         }
         game.werewolf_target_remain--
         game.checkWerewolfTarget()
@@ -3668,11 +3679,16 @@ class Couple extends Player
 class Fox extends Player
     type:"Fox"
     team:"Fox"
-    willDieWerewolf:false
     isHuman:->false
     isFox:->true
     isFoxVisible:->true
     hasDeadResistance:->true
+    checkDeathResistance:(game, found)->
+        if Found.isGuardableWerewolfAttack found
+            # 襲撃耐性
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
+            return true
+        return false
     makejobinfo:(game,result)->
         super
         # 妖狐は仲間が分かる
@@ -3697,7 +3713,7 @@ class Poisoner extends Player
         super
         # 埋毒者の逆襲
         canbedead = game.players.filter (x)->!x.dead    # 生きている人たち
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 噛まれた場合は狼のみ
             if game.rule.poisonwolf == "selector"
                 # 襲撃者を道連れにする
@@ -3762,7 +3778,7 @@ class Noble extends Player
         slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
         return slaves.length > 0
     checkDeathResistance:(game, found, from)->
-        if found == "werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 奴隷がいれば耐える
             slaves = game.players.filter (x)->!x.dead && x.isJobType "Slave"
             if slaves.length == 0
@@ -4039,9 +4055,9 @@ class Fugitive extends Player
         null
     checkDeathResistance:(game, found)->
         # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬は回避
-        if found in ["werewolf","vampire","witch"]
+        if Found.isGuardableAttack(found) || found in ["witch"]
             if @target!=""
-                if found == "werewolf"
+                if Found.isGuardableWerewolfAttack found
                     game.addGuardLog @id, AttackKind.werewolf, GuardReason.absent
                 return true
         return false
@@ -4344,7 +4360,7 @@ class Devil extends Player
     psychicResult: PsychicResult.werewolf
     hasDeadResistance:->true
     checkDeathResistance:(game, found)->
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 死なないぞ！
             unless @flag
                 # まだ噛まれていない
@@ -4368,7 +4384,7 @@ class ToughGuy extends Player
     type:"ToughGuy"
     hasDeadResistance:->true
     checkDeathResistance:(game, found)->
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 狼の襲撃に耐える
             unless @flag?
                 @setFlag "bitten"
@@ -4506,7 +4522,7 @@ class Cursed extends Player
     type:"Cursed"
     hasDeadResistance:->true
     checkDeathResistance:(game, found)->
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 噛まれた場合人狼側になる
             unless @flag
                 # まだ噛まれていない
@@ -4574,7 +4590,7 @@ class Diseased extends Player
     type:"Diseased"
     dying:(game,found)->
         super
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 噛まれた場合次の日人狼襲撃できない！
             game.werewolf_flag.push "Diseased"   # 病人フラグを立てる
 class Spellcaster extends Player
@@ -5851,7 +5867,7 @@ class RedHood extends Player
     isReviver:->!@dead || @flag?
     dying:(game,found,from)->
         super
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 狼に襲われた
             # 誰に襲われたか覚えておく
             @setFlag from
@@ -6449,10 +6465,13 @@ class BloodyMary extends Player
             true
 
     dying:(game,found,from)->
-        if found in ["punish","werewolf"]
+        if found == "punish" || Found.isGuardableWerewolfAttack(found)
             # 能力が…
             orig_jobname=@getJobname()
-            @setFlag found
+            if found == "punish"
+                @setFlag "punish"
+            else
+                @setFlag "werewolf"
             if orig_jobname != @getJobname()
                 # 変わった!
                 before = game.i18n.t "roles:BloodyMary.mary"
@@ -6863,7 +6882,7 @@ class DrawGirl extends Player
     type:"DrawGirl"
     sleeping:->true
     dying:(game,found)->
-        if found=="werewolf"
+        if Found.isGuardableWerewolfAttack found
             # 狼に噛まれた
             @setFlag "bitten"
         else
@@ -6900,6 +6919,7 @@ class CautiousWolf extends Werewolf
         game.werewolf_target.push {
             from:@id
             to:""
+            found: null
         }
         game.werewolf_target_remain--
         log=
@@ -8643,6 +8663,45 @@ class HomeComer extends Merchant
         if game.day >= 3
             @die game, "spygone"
 
+class Illusionist extends Player
+    type:"Illusionist"
+    midnightSort:80
+    formType: FormType.optionalOnce
+    sleeping:->true
+    jobdone:(game)->game.day <= 1 || @flag? || @target?
+    sunset:(game)->
+        if @flag
+            @setTarget ""
+        else
+            @setTarget null
+    job:(game,playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game,@id
+        @setTarget playerid
+        @setFlag true
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Illusionist.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        # 襲撃先を書き換え
+        unless @target
+            return
+        pl = game.getPlayer @target
+        unless pl?
+            return
+        for target in game.werewolf_target
+            # 襲撃対象を書き換える
+            if target.to
+                # 襲撃対象無しの場合は書き換えられない
+                target.to = pl.id
+            # 襲撃方法を変更
+            target.found = "trickedWerewolf"
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -9191,7 +9250,7 @@ class HolyProtected extends Complex
             to:-1
             comment: game.i18n.t "roles:Priest.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
         splashlog game.id,game,log
-        if found == "werewolf"
+        if Found.isGuardableWerewolfAttack found
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
 
         @uncomplex game
@@ -9214,7 +9273,7 @@ class Guarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"Guarded"
     checkDeathResistance:(game, found, from)->
-        unless found in ["werewolf","vampire"]
+        unless Found.isGuardableAttack found
             return super
         else
             # 狼に噛まれた場合は耐える
@@ -9228,7 +9287,7 @@ class Guarded extends Complex
                         comment: game.i18n.t "roles:Guard.gj", {guard: guard.name, name: @name}
                     splashlog game.id,game,log
             # 襲撃失敗ログを追加
-            if found == "werewolf"
+            if Found.isGuardableWerewolfAttack found
                 game.addGuardLog @id, AttackKind.werewolf, GuardReason.guard
             return true
     sunrise:(game)->
@@ -9359,7 +9418,7 @@ class TrapGuarded extends Complex
                 @checkTrap game, pl.sub
 
     checkDeathResistance:(game, found, from)->
-        unless found in ["werewolf","vampire"]
+        unless Found.isGuardableAttack found
             # 狼以外だとしぬ
             return super
         else
@@ -9386,7 +9445,7 @@ class TrapGuarded extends Complex
             pl.die game, "trap", guard?.id
             @addGamelog game,"trapkill",null,pl.id
             # 襲撃失敗理由を保存
-            if found == "werewolf"
+            if Found.isGuardableWerewolfAttack found
                 game.addGuardLog @id, AttackKind.werewolf, GuardReason.trap
             return true
 
@@ -9438,7 +9497,7 @@ class MikoProtected extends Complex
             comment: game.i18n.t "roles:Miko.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
         splashlog game.id,game,log
         # 襲撃失敗理由を保存
-        if found == "werewolf"
+        if Found.isGuardableWerewolfAttack found
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
         return true
     sunset:(game)->
@@ -9681,12 +9740,18 @@ class BombTrapped extends Complex
 # 狐憑き
 class FoxMinion extends Complex
     cmplType:"FoxMinion"
-    willDieWerewolf:false
     isHuman:->false
     isFox:->true
     isFoxVisible:->true
     hasDeadResistance:->true
     getJobname:-> @game.i18n.t "roles:FoxMinion.jobname", {jobname: @main.getJobname()}
+    # 襲撃耐性
+    checkDeathResistance:(game, found, from)->
+        if Found.isGuardableWerewolfAttack found
+            # 襲撃耐性
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
+            return true
+        return @main.checkDeathResistance game, found, from
     # 占われたら死ぬ
     divined:(game,player)->
         @mcall game,@main.divined,game,player
@@ -9823,12 +9888,12 @@ class SnowGuarded extends Complex
     cmplType:"SnowGuarded"
     checkDeathResistance:(game, found, from)->
         # 一回耐える 死なない代わりに元に戻る
-        unless found in ["werewolf", "vampire"]
+        unless Found.isGuardableAttack found
             return super
         else
             # 襲撃に1回耐える
             game.getPlayer(@cmplFlag).addGamelog game,"snowGJ", found, @id
-            if found == "werewolf"
+            if Found.isGuardableWerewolfAttack found
                 game.addGuardLog @id, AttackKind.werewolf, GuardReason.snow
 
             @uncomplex game
@@ -10245,6 +10310,7 @@ jobs=
     HooliganAttacker:HooliganAttacker
     HooliganGuard:HooliganGuard
     HomeComer:HomeComer
+    Illusionist:Illusionist
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
