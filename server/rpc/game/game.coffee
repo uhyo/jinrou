@@ -10474,6 +10474,8 @@ jobStrength=
     DecoyWolf:54
     LunaticLover:30
     Hooligan:15
+    HomeComer:16
+    Illusionist:25
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
