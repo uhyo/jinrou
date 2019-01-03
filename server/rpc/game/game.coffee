@@ -10675,7 +10675,16 @@ module.exports.actions=(req,res,ss)->
                                 category: game.i18n.t "roles:categoryName.#{type}"
                             }
                             return
-
+                # 人狼系は全除外してはいけない
+                for cat in ["Werewolf"]
+                    jobset = new Set Shared.game.categories[cat]
+                    for job in excluded_exceptions
+                        jobset.delete job
+                    if jobset.size == 0
+                        res game.i18n.t "error.gamestart.implicitCategoryAllExcluded", {
+                            category: game.i18n.t "roles:categoryName.#{cat}"
+                        }
+                        return
 
 
 
