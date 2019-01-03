@@ -1308,6 +1308,8 @@ class Game
                             newpl=Player.factory newjob, this
                             player.transProfile newpl
                             player.transferData newpl, true
+                            # originalTypeを最初の役職に修正（戦績に残るため）
+                            newpl.setOriginalType newpl.type
                             # 観戦者を除去
                             @participants=@participants.filter (x)->x!=player
                             # プレイヤーとして追加
