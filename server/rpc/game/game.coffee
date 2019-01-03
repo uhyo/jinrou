@@ -7575,9 +7575,7 @@ class Shishimai extends Player
         # 獅子舞に噛まれた人を集計
         bitten = []
         for pl in game.players
-            console.log "accessbyjobtypeall", pl.id
             ps = pl.accessByJobTypeAll("Shishimai")
-            console.log "accessed", ps
             if ps.length > 0
                 bitten.push pl.id
             for p in ps
