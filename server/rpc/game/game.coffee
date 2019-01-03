@@ -10645,7 +10645,7 @@ module.exports.actions=(req,res,ss)->
 
                 # チェックボックスが外れてるやつは登場しない
                 if query.jobrule=="特殊ルール.一部闇鍋"
-                    for job in Shared.game.jobs
+                    for job in libgame.categorySortedJobs()
                         if query["job_use_#{job}"] != "on"
                             # これは出してはいけない指定になっている
                             exceptions.push job

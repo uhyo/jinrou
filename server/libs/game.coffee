@@ -56,6 +56,21 @@ exports.validateGameStartQuery = (game, query)->
                     }
     null
 
+# Returns a list of jobs sorted by category.
+categorySortedJobsCache = null
+exports.categorySortedJobs = ()->
+    if categorySortedJobsCache?
+        return categorySortedJobsCache
+    jobsObject = {}
+    for job in Shared.game.jobs
+        jobsObject[job] = true
+
+    categorySortedJobsCache = []
+    for cat, js of Shared.game.categories
+        for job in js
+            if jobsObject[job]
+                categorySortedJobsCache.push job
+    return categorySortedJobsCache
 
 
 
