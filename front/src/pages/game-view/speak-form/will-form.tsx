@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Transition } from 'react-transition-group';
 import styled, { withProps } from '../../../util/styled';
 import { bind } from '../../../util/bind';
-import { TranslationFunction } from 'i18next';
+import { TranslationFunction } from '../../../i18n';
 
 interface IPropWillForm {
   t: TranslationFunction;

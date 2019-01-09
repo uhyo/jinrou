@@ -3,9 +3,8 @@ import { IIconSelectDialog } from '../defs';
 import { Dialog } from './base';
 import { NoButton, YesButton, FormTable, FormInput } from './parts';
 import bind from 'bind-decorator';
-import { I18n } from '../../i18n';
+import { I18n, TranslationFunction } from '../../i18n';
 import { getTwitterIcon } from '../../api/twitter-icon';
-import { TranslationFunction } from 'i18next';
 import { showMessageDialog } from '..';
 
 export interface IPropIconSelectDialog extends IIconSelectDialog {

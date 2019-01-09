@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FormDesc } from '../defs';
-import { TranslationFunction } from 'i18next';
+import { TranslationFunction } from '../../../i18n';
 
 /**
  * Props to form content renderer.

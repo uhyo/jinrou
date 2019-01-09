@@ -2,7 +2,6 @@ import { UserSettingsStore } from '../store';
 import { ColorResult } from '../color-profile/color-box';
 import { UserSettingDatabase, ColorDocWithoutId, ColorDoc } from './indexeddb';
 import { showPromptDialog, showConfirmDialog } from '../../../dialog';
-import { TranslationFunction } from 'i18next';
 import { deepClone } from '../../../util/deep-clone';
 import { runInAction } from 'mobx';
 import { startEditUpdator, endEditUpdator } from './tab-updator';
@@ -13,6 +12,7 @@ import {
 import { themeStore } from '../../../theme';
 import { deepExtend } from '../../../util/deep-extend';
 import { ColorName } from '../defs/color-profile';
+import { TranslationFunction } from '../../../i18n';
 
 /**
  * Reset store's color profile.

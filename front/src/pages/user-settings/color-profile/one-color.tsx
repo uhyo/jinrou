@@ -1,16 +1,10 @@
 import * as React from 'react';
-import {
-  withHandlers,
-  compose,
-  InferableComponentEnhancerWithProps,
-} from 'recompose';
-import { I18n } from '../../../i18n';
+import { withHandlers } from 'recompose';
 import { OneColor } from '../../../defs';
-import { observer } from 'mobx-react';
 import { ColorBox, ColorResult } from './color-box';
 import { SampleTextWrapper } from './elements';
-import { TranslationFunction } from 'i18next';
 import { observerify } from '../../../util/mobx-react';
+import { TranslationFunction } from '../../../i18n';
 
 export interface IPropOneColorDisp {
   t: TranslationFunction;

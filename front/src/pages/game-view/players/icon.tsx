@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
-import { TranslationFunction } from 'i18next';
+import { TranslationFunction } from '../../../i18n';
 
 /**
  * Show user's icon.

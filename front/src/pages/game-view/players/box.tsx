@@ -5,10 +5,10 @@ import { PlayerInfo } from '../defs';
 import styled from '../../../util/styled';
 import { withProps } from '../../../util/styled';
 import { Icon } from './icon';
-import { TranslationFunction } from 'i18next';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { bind } from 'bind-decorator';
 import { notPhone, phone } from '../../../common/media';
+import { TranslationFunction } from '../../../i18n';
 
 export interface IPropPlayerBox {
   t: TranslationFunction;

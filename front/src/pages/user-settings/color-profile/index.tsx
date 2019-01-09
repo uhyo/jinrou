@@ -21,13 +21,13 @@ import {
 } from '../logic';
 import { ColorResult } from './color-box';
 import { OneProfile } from './one-profile';
-import { TranslationFunction } from 'i18next';
 import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
 import { ColorProfileData, defaultProfiles } from '../../../defs/color-profile';
 import { ThemeStore, themeStore } from '../../../theme';
 import { Button } from '../commons/button';
 import { ColorSettingTab } from '../defs/tabs';
+import { TranslationFunction } from '../../../i18n';
 
 export interface IPropColorProfileDisp {
   page: ColorSettingTab;

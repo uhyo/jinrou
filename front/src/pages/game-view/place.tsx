@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { i18n } from 'i18next';
 import { runInAction } from 'mobx';
 
 import { GameStore } from './store';
@@ -12,6 +11,7 @@ import {
 } from '../../defs';
 import { SpeakQuery, Log } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
+import { i18n } from '../../i18n';
 
 /**
  * Options to place.

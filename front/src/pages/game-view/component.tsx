@@ -4,12 +4,11 @@ import { Transition } from 'react-transition-group';
 import * as Swipeable from 'react-swipeable';
 
 import { ThemeProvider, withProps } from '../../util/styled';
-import { i18n } from 'i18next';
 import { observer } from 'mobx-react';
 
 import { bind } from '../../util/bind';
 import { themeStore, UserTheme } from '../../theme';
-import { I18nProvider, I18n } from '../../i18n';
+import { I18nProvider, I18n, i18n } from '../../i18n';
 
 import {
   RuleGroup,

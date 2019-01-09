@@ -1,4 +1,4 @@
-import * as i18next from 'i18next';
+import i18next from 'i18next';
 import * as xhrBackend from 'i18next-xhr-backend';
 
 export { I18n, I18nInterp, I18nProvider } from './react';
@@ -97,7 +97,7 @@ async function ajax(
   url: string,
   _options: any,
   callback: (data: any, status: any) => void,
-): Promise<unknown> {
+): Promise<void> {
   const [lng, ns] = url.split('.');
   try {
     const data = await loadLanguageBundle(lng, ns);

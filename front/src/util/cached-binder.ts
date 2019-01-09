@@ -22,7 +22,7 @@ export class CachedBinder<T, V = any, R = void> {
       return c;
     }
     // We don't have cache. make a new one.
-    const f = func.bind(null, bound);
+    const f = func.bind(null, bound) as BoundFunc<V, R>;
     this.cache.set(bound, f);
     return f;
   }
