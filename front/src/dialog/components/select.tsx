@@ -27,7 +27,7 @@ export class SelectDialog extends React.PureComponent<IPropSelectDialog, {}> {
         )}
         contents={() => (
           <FormControlWrapper>
-            <FormSelect innerRef={this.selectRef}>
+            <FormSelect ref={this.selectRef}>
               {options.map(({ label, value }) => (
                 <option key={value} value={value} label={label}>
                   {label}

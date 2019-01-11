@@ -11,7 +11,7 @@ export interface IPropConfirmDialog extends IConfirmDialog {
  * Confirmation Dialog.
  */
 export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
-  protected yesButton: HTMLButtonElement | undefined;
+  protected yesButton: HTMLButtonElement | null = null;
   public render() {
     const { title, modal, message, yes, no } = this.props;
     return (
@@ -25,7 +25,7 @@ export class ConfirmDialog extends React.PureComponent<IPropConfirmDialog, {}> {
             <NoButton onClick={this.handleNoClick}>{no}</NoButton>
             <YesButton
               onClick={this.handleYesClick}
-              innerRef={e => (this.yesButton = e)}
+              ref={e => (this.yesButton = e)}
             >
               {yes}
             </YesButton>

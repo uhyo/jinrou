@@ -1,6 +1,14 @@
 import { css } from '../util/styled';
-import { SimpleInterpolation } from 'styled-components';
+import {
+  ThemedCssFunction,
+  CSSObject,
+  InterpolationFunction,
+  ThemedStyledProps,
+  Interpolation,
+  FlattenInterpolation,
+} from 'styled-components';
 import * as React from 'react';
+import { Theme } from '../theme';
 
 // media queries
 
@@ -20,9 +28,20 @@ const phoneQuery = `max-width: ${phoneWidth}px`;
 const notPhoneQuery = `min-width: ${phoneWidth + 1}px`;
 
 /**
+ * Type of custom css interpolator.
+ */
+type MediaFunction = <P extends object>(
+  first:
+    | TemplateStringsArray
+    | CSSObject
+    | InterpolationFunction<ThemedStyledProps<P, Theme>>,
+  ...interpolations: Array<Interpolation<ThemedStyledProps<P, Theme>>>
+) => FlattenInterpolation<ThemedStyledProps<P, Theme>>;
+
+/**
  * Media query for smartphones.
  */
-export const phone: typeof css = (...args: [any, ...any[]]) =>
+export const phone: MediaFunction = (...args) =>
   css`
     @media (${phoneQuery}) {
       ${css(...args)};
@@ -32,7 +51,7 @@ export const phone: typeof css = (...args: [any, ...any[]]) =>
 /**
  * Media query for non-smartphones.
  */
-export const notPhone: typeof css = (...args: [any, ...any[]]) => css`
+export const notPhone: MediaFunction = (...args) => css`
   @media (${notPhoneQuery}) {
     ${css(...args)};
   }

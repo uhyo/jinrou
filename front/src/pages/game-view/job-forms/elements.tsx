@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { FormType } from '../defs';
-import { withProps } from '../../../util/styled';
 import { phone } from '../../../common/media';
 
 /**
@@ -48,7 +47,7 @@ export const FormName = styled.div`
 /**
  * Wrapper of form type.
  */
-export const FormTypeWrapper = withProps<{ formType: FormType }>()(styled.div)`
+export const FormTypeWrapper = styled.div<{ formType: FormType }>`
   flex: auto 0 0;
   padding: 3px 5px;
   color: ${({ formType }) => (formType === 'required' ? '#ff0000' : '#555555')};

@@ -33,7 +33,7 @@ export class PromptDialog extends React.PureComponent<IPropPromptDialog, {}> {
         contents={() => (
           <FormControlWrapper>
             <FormInput
-              innerRef={this.inputRef}
+              ref={this.inputRef}
               type={password ? 'password' : 'text'}
               autoComplete={autocomplete}
               onClick={this.handleInputClick}

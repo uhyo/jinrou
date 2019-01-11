@@ -1,4 +1,4 @@
-import styled, { withProps } from '../../../util/styled';
+import styled from '../../../util/styled';
 import { phone } from '../../../common/media';
 import { borderColor } from '../commons/button';
 import { ControlsWrapper, ControlsName } from '../commons/controls-wrapper';
@@ -59,9 +59,9 @@ export const SampleTextWrapper = styled.div`
  * Wrapper of profile.
  * @package
  */
-export const ProfileWrapper = withProps<{
+export const ProfileWrapper = styled(ControlsWrapper)<{
   defaultProfile: boolean;
-}>()(styled(ControlsWrapper))`
+}>`
   background-color: ${({ defaultProfile }) =>
     defaultProfile ? '#f0f0f0' : 'transparent'};
 `;

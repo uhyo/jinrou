@@ -66,7 +66,7 @@ export class KickDialog extends React.PureComponent<IPropKickDialog, {}> {
               contents={() => (
                 <>
                   <FormControlWrapper>
-                    <FormSelect innerRef={this.selectRef}>
+                    <FormSelect ref={this.selectRef}>
                       {players.map(({ id, name }) => (
                         <option key={id} value={id} label={name}>
                           {name}

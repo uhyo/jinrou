@@ -114,17 +114,17 @@ export const SpeakTextArea = styled.textarea`
  * Labelled container of one form control.
  * @package
  */
-export const LabeledControl = styled<{
-  className?: string;
-  label: string;
-}>(({ children, className, label }) => {
+export const LabeledControl = styled(({ children, className, label }) => {
   return (
     <label className={className}>
       <span>{label}</span>
       <span>{children}</span>
     </label>
   );
-})`
+})<{
+  className?: string;
+  label: string;
+}>`
   display: inline-flex;
   flex-flow: column nowrap;
 

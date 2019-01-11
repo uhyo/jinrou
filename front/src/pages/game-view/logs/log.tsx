@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { autolink, compile } from 'my-autolink';
-import styled, { withProps, withTheme } from '../../../util/styled';
+import styled, { withTheme } from '../../../util/styled';
 import { Log } from '../defs';
 import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
@@ -245,7 +245,7 @@ interface IPropProbabilityTr {
 /**
  * Tr element for dead player's probability.
  */
-const ProbabilityTr = withProps<IPropProbabilityTr>()(styled.tr)`
+const ProbabilityTr = styled.tr<IPropProbabilityTr>`
   background-color: ${({ dead }) => (dead ? '#bbbbbb' : 'transparent')};
   color: ${({ dead }) => (dead ? 'black' : 'inherit')};
 `;
@@ -481,9 +481,9 @@ interface IPropLogPart {
 /**
  * Basic style of logcomponents.
  */
-const LogPart = withProps<{
+const LogPart = styled.div<{
   logStyle: LogStyle;
-}>()(styled.div)`
+}>`
   background-color: ${props => props.logStyle.background};
   color: ${props => props.logStyle.color};
   border-top: ${props =>
@@ -507,7 +507,7 @@ const LogPart = withProps<{
 /**
  * Icon box.
  */
-const Icon = withProps<IPropLogPart>()(styled(LogPart))`
+const Icon = styled(LogPart)<IPropLogPart>`
   grid-column: 1;
   min-width: 8px;
 
@@ -515,9 +515,10 @@ const Icon = withProps<IPropLogPart>()(styled(LogPart))`
     width: 1em;
     height: 1em;
     vertical-align: bottom;
+    ${({ noName }) => String(noName)};
   }
 
-  ${phone`
+  ${phone<IPropLogPart>`
     grid-row: ${({ noName }) => (noName ? 'span 1' : 'span 2')};
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}
   `};
@@ -526,7 +527,7 @@ const Icon = withProps<IPropLogPart>()(styled(LogPart))`
 /**
  * Username box.
  */
-const Name = withProps<IPropLogPart>()(styled(LogPart))`
+const Name = styled(LogPart)<IPropLogPart>`
   grid-column: 2;
   max-width: 10em;
   overflow: hidden;
@@ -535,7 +536,7 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
   white-space: nowrap;
   word-wrap: break-word;
   text-align: right;
-  ${phone`
+  ${phone<IPropLogPart>`
     ${({ noName }) => (noName ? 'display: none;' : '')}
     max-width: none;
     text-align: left;
@@ -547,9 +548,9 @@ const Name = withProps<IPropLogPart>()(styled(LogPart))`
 /**
  * comment (main) box.
  */
-const Main = withProps<IPropLogPart>()(styled(LogPart))`
+const Main = styled(LogPart)<IPropLogPart>`
   grid-column: 3;
-  ${phone`
+  ${phone<IPropLogPart>`
     grid-column: ${({ noName }) => (noName ? '2 / 3' : '2 / 4')};
     ${({ noName }) => (noName ? '' : 'border-top: none;')}
     padding-left: 0.3em;
@@ -565,7 +566,7 @@ interface IPropComment {
 /**
  * Log comment box.
  */
-const Comment = withProps<IPropComment>()(styled(Main))`
+const Comment = styled(Main)<IPropComment>`
   white-space: pre-wrap;
   font-size: ${({ size }) =>
     size === 'big'
@@ -573,7 +574,7 @@ const Comment = withProps<IPropComment>()(styled(Main))`
       : size === 'small'
         ? 'calc(0.8 * var(--base-font-size))'
         : 'var(--base-font-size)'};
-    ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')}
+  ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')};
 `;
 
 interface IPropTime extends IPropLogPart {
@@ -612,7 +613,7 @@ const Time = styled(TimeInner)`
   font-size: xx-small;
   text-align: right;
 
-  ${phone`
+  ${phone<IPropTime>`
     grid-column: 3;
     font-size: xx-small;
     ${({ noName }) => (noName ? '' : 'border-bottom: none;')}

@@ -1,4 +1,4 @@
-import styled, { withProps } from '../../util/styled';
+import styled from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
 import { phone } from '../../common/media';
 
@@ -201,14 +201,14 @@ export interface IPropRoomStatus {
  * Room status components
  */
 export const roomStatus = {
-  waiting: withProps<IPropRoomStatus>()(styled(StatusTip))`
+  waiting: styled(StatusTip)<IPropRoomStatus>`
     color: ${props => (props.fresh ? '#f33333' : '#d95555')};
-    ${props => (props.fresh ? 'font-weight: bold;' : '')}
+    ${props => (props.fresh ? 'font-weight: bold;' : '')};
   `,
-  playing: withProps<IPropRoomStatus>()(styled(StatusTip))`
+  playing: styled(StatusTip)<IPropRoomStatus>`
     color: #5555dd;
   `,
-  end: withProps<IPropRoomStatus>()(styled(StatusTip))`
+  end: styled(StatusTip)<IPropRoomStatus>`
     color: #777777;
   `,
 };

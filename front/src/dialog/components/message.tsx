@@ -14,7 +14,7 @@ export interface IPropMessageDialog extends IMessageDialog {
  * Message Dialog.
  */
 export class MessageDialog extends React.PureComponent<IPropMessageDialog, {}> {
-  protected button: HTMLElement | undefined;
+  protected button: HTMLButtonElement | null = null;
   public render() {
     const { title, modal, message, ok } = this.props;
 
@@ -25,10 +25,7 @@ export class MessageDialog extends React.PureComponent<IPropMessageDialog, {}> {
         onCancel={this.handleClick}
         message={message}
         buttons={() => (
-          <YesButton
-            onClick={this.handleClick}
-            innerRef={e => (this.button = e)}
-          >
+          <YesButton onClick={this.handleClick} ref={e => (this.button = e)}>
             {ok}
           </YesButton>
         )}

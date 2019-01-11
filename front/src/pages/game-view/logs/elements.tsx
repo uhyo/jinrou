@@ -1,5 +1,4 @@
 import styled, { css } from '../../../util/styled';
-import { withProps } from '../../../util/styled';
 import { phone } from '../../../common/media';
 
 /**
@@ -10,7 +9,7 @@ const fixedSizeGridColumnsPhone = '16px 1fr auto';
 /**
  * Wrapper of whole logs.
  */
-export const LogWrapper = withProps<{
+export const LogWrapper = styled.div<{
   /**
    * The class attached to each log.
    */
@@ -23,7 +22,7 @@ export const LogWrapper = withProps<{
    * Whether the UI is in "fixed-size mode".
    */
   fixedSize: boolean;
-}>()(styled.div)`
+}>`
   width: 100%;
   display: ${props => (props.fixedSize ? 'block' : 'grid')};
   grid-template-columns:
@@ -40,23 +39,21 @@ export const LogWrapper = withProps<{
       opacity: 0.3;
     }
   `
-      : ''}
-
-  ${phone`
+      : ''} ${phone`
     grid-template-columns:
       minmax(8px, max-content)
       1fr
       auto;
     grid-auto-flow: row dense;
-  `}
+  `};
 `;
 
 /**
  * Wrapper of chunk, used in fixed-size mode.
  */
-export const FixedSizeChunkWrapper = withProps<{
+export const FixedSizeChunkWrapper = styled.div<{
   visible: boolean;
-}>()(styled.div)`
+}>`
   display: ${({ visible }) => (visible ? 'block' : 'none')};
 `;
 

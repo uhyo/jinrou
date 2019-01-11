@@ -1,4 +1,4 @@
-import styled, { withProps } from '../../util/styled';
+import styled from '../../util/styled';
 import { WideButton } from '../../common/button';
 import {
   yesColor,
@@ -19,19 +19,19 @@ export const PageWrapper = styled.section`
 /**
  * Wrapper of prize list.
  */
-export const PrizeListWrapper = withProps<{
+export const PrizeListWrapper = styled.div<{
   /**
    * Whether prize list is shrinked.
    */
   shrinked: boolean;
-}>()(styled.div)`
+}>`
   ${({ shrinked }) =>
     shrinked
       ? `
     max-height: 200px;
     overflow-y: auto;
   `
-      : ''}
+      : ''};
 `;
 
 /**
@@ -71,9 +71,9 @@ export const NowPrizeWrapper = styled.div`
 /**
  * Wrapper of one prize.
  */
-export const PrizeTip = withProps<{
+export const PrizeTip = styled.span<{
   selected?: boolean;
-}>()(styled.span)`
+}>`
   display: inline-block;
   margin: 3px 5px;
   padding: 1px;
@@ -89,7 +89,7 @@ export const PrizeTip = withProps<{
 
   ${phone`
     font-size: 1em;
-  `}
+  `};
 `;
 
 /**

@@ -3,7 +3,7 @@ import styled from '../../util/styled';
 import { Transition } from 'react-transition-group';
 import * as Swipeable from 'react-swipeable';
 
-import { ThemeProvider, withProps } from '../../util/styled';
+import { ThemeProvider } from '../../util/styled';
 import { observer } from 'mobx-react';
 
 import { bind } from '../../util/bind';
@@ -89,11 +89,11 @@ interface IPropGame {
 
 @observer
 export class Game extends React.Component<IPropGame, {}> {
-  private ruleElement = React.createRef<HTMLElement>();
-  private playersElement = React.createRef<HTMLElement>();
-  private jobinfoElement = React.createRef<HTMLElement>();
+  private ruleElement = React.createRef<HTMLDivElement>();
+  private playersElement = React.createRef<HTMLDivElement>();
+  private jobinfoElement = React.createRef<HTMLDivElement>();
   private jobinfoMarkerElement = React.createRef<HTMLDivElement>();
-  private speakElement = React.createRef<HTMLElement>();
+  private speakElement = React.createRef<HTMLDivElement>();
   private speakFormRef = React.createRef<SpeakForm>();
   /**
    * memoized function to make theme object from user theme and colors.
@@ -136,7 +136,7 @@ export class Game extends React.Component<IPropGame, {}> {
         <I18nProvider i18n={i18n}>
           <AppWrapper>
             {/* List of players. */}
-            <RoomHeaderPart innerRef={this.playersElement}>
+            <RoomHeaderPart ref={this.playersElement}>
               <Players players={players} onFilter={this.handleLogFilter} />
             </RoomHeaderPart>
             {/* Room control buttons. */}
@@ -158,7 +158,7 @@ export class Game extends React.Component<IPropGame, {}> {
             {/* marker to jump to jobinfo. */}
             <div ref={this.jobinfoMarkerElement} />
             {/* Information of your role. */}
-            <JobInfoPart innerRef={this.jobinfoElement}>
+            <JobInfoPart ref={this.jobinfoElement}>
               <JobInfo
                 roleInfo={roleInfo}
                 timer={timer}
@@ -173,7 +173,7 @@ export class Game extends React.Component<IPropGame, {}> {
               </RoomHeaderPart>
             ) : null}
             {/* Form for speak and other utilities. */}
-            <SpeakFormPart innerRef={this.speakElement}>
+            <SpeakFormPart ref={this.speakElement}>
               <SpeakForm
                 ref={this.speakFormRef}
                 gameInfo={gameInfo}
@@ -205,7 +205,7 @@ export class Game extends React.Component<IPropGame, {}> {
                       <RuleWrapper closed={closed}>
                         {rule != null ? (
                           <RuleStickyWrapper closed={closed}>
-                            <RuleInnerWrapper innerRef={this.ruleElement}>
+                            <RuleInnerWrapper ref={this.ruleElement}>
                               <Swipeable
                                 onSwipingLeft={this.handleRuleSwipeToLeft}
                                 onSwipingRight={this.handleRuleSwipeToRight}
@@ -513,18 +513,18 @@ const MainWrapper = styled.div`
 /**
  * Wrapper of logs.
  */
-const LogsWrapper = withProps<{
+const LogsWrapper = styled.div<{
   /**
    * Whether the rule pane is open.
    */
   ruleOpen?: boolean;
-}>()(styled.div)`
+}>`
   flex: auto 1 1;
   order: 1;
   ${phone`
     transition: margin-left 250ms ease-out;
     margin-left: ${({ ruleOpen }) => (ruleOpen ? '-20em' : '0)')};
-  `}
+  `};
 `;
 
 interface IPropsRuleWrapper {
@@ -536,7 +536,7 @@ interface IPropsRuleWrapper {
 /**
  * Wrapper of rule.
  */
-const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
+const RuleWrapper = styled.div<IPropsRuleWrapper>`
   transition: width 250ms ease-out;
   flex: auto 0 0;
   width: ${({ closed }) => (closed ? '0' : '20em')};
@@ -547,11 +547,11 @@ const RuleWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
   color: black;
 
   a {
-    ${lightA}
+    ${lightA};
   }
 `;
 
-const RuleStickyWrapper = withProps<IPropsRuleWrapper>()(styled.div)`
+const RuleStickyWrapper = styled.div<IPropsRuleWrapper>`
   transition: width 250ms ease-out;
   width: ${({ closed }) => (closed ? '0' : '20em')};
   position: sticky;

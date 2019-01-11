@@ -52,7 +52,7 @@ export class PlayerDialog extends React.PureComponent<
                 <tr>
                   <th>名前</th>
                   <td>
-                    <FormInput innerRef={this.nameRef} type="text" required />
+                    <FormInput ref={this.nameRef} type="text" required />
                   </td>
                 </tr>
                 <tr>

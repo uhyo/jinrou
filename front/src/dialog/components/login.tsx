@@ -61,7 +61,7 @@ export class LoginDialog extends React.PureComponent<
                         <th>{t('loginForm.userid')}</th>
                         <td>
                           <FormInput
-                            innerRef={this.useridRef}
+                            ref={this.useridRef}
                             autoComplete="username"
                           />
                         </td>
@@ -70,7 +70,7 @@ export class LoginDialog extends React.PureComponent<
                         <th>{t('loginForm.password')}</th>
                         <td>
                           <FormInput
-                            innerRef={this.passwordRef}
+                            ref={this.passwordRef}
                             type="password"
                             autoComplete="current-password"
                           />

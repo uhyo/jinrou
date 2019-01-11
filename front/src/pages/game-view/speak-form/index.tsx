@@ -139,7 +139,7 @@ export class SpeakForm extends React.PureComponent<
                     <SpeakInputArea>
                       {multiline ? (
                         <SpeakTextArea
-                          innerRef={e => (this.comment = e)}
+                          ref={e => (this.comment = e)}
                           cols={50}
                           rows={4}
                           required
@@ -151,7 +151,7 @@ export class SpeakForm extends React.PureComponent<
                         />
                       ) : (
                         <SpeakInput
-                          innerRef={e => (this.comment = e)}
+                          ref={e => (this.comment = e)}
                           type="text"
                           size={50}
                           required

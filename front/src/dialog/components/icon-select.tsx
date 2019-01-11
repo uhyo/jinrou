@@ -68,7 +68,7 @@ export class IconSelectDialog extends React.PureComponent<
                       <th>{t('iconSelect.url')}</th>
                       <td>
                         <FormInput
-                          innerRef={this.urlRef}
+                          ref={this.urlRef}
                           type="text"
                           disabled={urlDisabled}
                           required
@@ -80,7 +80,7 @@ export class IconSelectDialog extends React.PureComponent<
                       <th>{t('iconSelect.twitter')}</th>
                       <td>
                         <FormInput
-                          innerRef={this.twitterRef}
+                          ref={this.twitterRef}
                           type="text"
                           disabled={twitterDisabled}
                           required

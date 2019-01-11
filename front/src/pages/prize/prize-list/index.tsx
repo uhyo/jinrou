@@ -26,7 +26,7 @@ export class PrizeList extends React.Component<
   IPropPrizeList,
   IStatePrizeList
 > {
-  private wrapperRef = React.createRef<HTMLElement>();
+  private wrapperRef = React.createRef<HTMLDivElement>();
   private dragStartHandlers = new CachedBinder<string, React.DragEvent, void>();
   public state: IStatePrizeList = {
     listScroll: null,
@@ -39,7 +39,7 @@ export class PrizeList extends React.Component<
     };
     return (
       <>
-        <PrizeListWrapper shrinked={store.shrinked} innerRef={this.wrapperRef}>
+        <PrizeListWrapper shrinked={store.shrinked} ref={this.wrapperRef}>
           {store.prizeGroups.map((group, idx) => (
             <PrizeGroupWrapper key={idx}>
               {group.map(prize => (

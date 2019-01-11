@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Draggable from 'react-draggable';
-import styled, { keyframes, withProps } from '../../util/styled';
+import styled, { keyframes } from '../../util/styled';
 import { WithRandomIds } from '../../util/with-ids';
 import { bind } from '../../util/bind';
 import { IconProp, FontAwesomeIcon } from '../../util/icon';
@@ -26,23 +26,23 @@ const opacityAnimation = keyframes`
 /**
  * Wrapper of dialog.
  */
-const DialogWrapper = withProps<IPropDialogWrapper>()(styled(AppStyling))`
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
+const DialogWrapper = styled(AppStyling)<IPropDialogWrapper>`
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
 
-    background-color: ${({ modal }) =>
-      modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
-    pointer-events: ${({ modal }) => (modal ? 'auto' : 'none')};
+  background-color: ${({ modal }) =>
+    modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
+  pointer-events: ${({ modal }) => (modal ? 'auto' : 'none')};
 
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
 
-    animation: ${opacityAnimation} ease-out 0.1s;
+  animation: ${opacityAnimation} ease-out 0.1s;
 `;
 
 interface IPropDialogBase {

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from '../../../util/styled';
-import { withProps } from '../../../util/styled';
 import { TranslationFunction } from '../../../i18n';
 
 /**
@@ -44,7 +43,7 @@ const IconWrapper = styled.div`
   height: 48px;
 `;
 
-const IconImg = withProps<{ dead?: boolean }>()(styled.img)`
+const IconImg = styled.img<{ dead?: boolean }>`
   position: absolute;
   left: 0;
   top: 0;

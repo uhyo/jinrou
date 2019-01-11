@@ -3,7 +3,6 @@ import { observer } from 'mobx-react';
 import * as Color from 'color';
 import { PlayerInfo } from '../defs';
 import styled from '../../../util/styled';
-import { withProps } from '../../../util/styled';
 import { Icon } from './icon';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { bind } from 'bind-decorator';
@@ -80,19 +79,20 @@ export class PlayerBox extends React.Component<IPropPlayerBox, {}> {
 /**
  * Wrapper of player box.
  */
-const Wrapper = withProps<{
+const Wrapper = styled.div<{
   dead: boolean;
   hasIcon: boolean;
-}>()(styled.div)`
+}>`
   min-width: ${props => (props.hasIcon ? '8em' : '5em')};
   min-height: 2em;
 
   margin: 4px 0 4px 0.5em;
   padding: 0.2em;
-  border: 1px solid ${({ theme }) =>
-    Color(theme.globalStyle.color)
-      .fade(0.6)
-      .string()};
+  border: 1px solid
+    ${({ theme }) =>
+      Color(theme.globalStyle.color)
+        .fade(0.6)
+        .string()};
 
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -102,15 +102,15 @@ const Wrapper = withProps<{
 
   ${phone`
     font-size: calc(0.9 * var(--base-font-size));
-  `}
+  `};
   ${notPhone`
     &:first-child {
       margin-left: 0;
     }
-  `}
+  `};
 `;
 
-const Name = withProps<{ dead: boolean }>()(styled.span)`
+const Name = styled.span<{ dead: boolean }>`
   grid-column: 2;
   grid-row: 1;
   text-decoration: ${props => (props.dead ? 'line-through' : 'none')};
@@ -138,7 +138,7 @@ const Jobname = styled.div`
   font-weight: bold;
 `;
 
-const Winner = withProps<{ winner: boolean }>()(styled.div)`
+const Winner = styled.div<{ winner: boolean }>`
   grid-column: 2 / 4;
   grid-row: 3;
   font-weight: bold;

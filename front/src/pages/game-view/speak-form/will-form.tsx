@@ -1,5 +1,5 @@
 import * as React from 'react';
-import styled, { withProps } from '../../../util/styled';
+import styled from '../../../util/styled';
 import { bind } from '../../../util/bind';
 import { TranslationFunction } from '../../../i18n';
 
@@ -107,7 +107,7 @@ export class WillForm extends React.PureComponent<
 /**
  * Wrapper of will form.
  */
-const Wrapper = withProps<{ open: boolean }>()(styled.form)`
+const Wrapper = styled.form<{ open: boolean }>`
   transition: height 250ms ease-out;
   display: ${({ open }) => (open ? 'block' : 'none')};
   margin: 0 -8px;
@@ -115,7 +115,6 @@ const Wrapper = withProps<{ open: boolean }>()(styled.form)`
   background-color: #636363;
   color: #ffffff;
   overflow-y: hidden;
-
 `;
 
 const Content = styled.div`

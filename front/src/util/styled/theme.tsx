@@ -6,15 +6,14 @@ import {
 } from '../../theme';
 import * as React from 'react';
 import memoizeOne from 'memoize-one';
+import { ThemedStyledComponentsModule } from 'styled-components';
 
 /**
  * Make a Theme provider which does some precomputation.
  */
 export function makeThemeProvider(
-  InternalThemeProvider: React.ComponentType<{
-    theme?: Theme | ((theme: Theme) => Theme);
-  }>,
-): React.StatelessComponent<{
+  InternalThemeProvider: ThemedStyledComponentsModule<Theme>['ThemeProvider'],
+): React.FunctionComponent<{
   theme: UserProvidedTheme;
   mode: GlobalStyleMode;
 }> {
@@ -34,7 +33,7 @@ export function makeThemeProvider(
     const internalTheme = themeMaker(theme, mode);
     return (
       <InternalThemeProvider theme={internalTheme}>
-        {children}
+        <>{children}</>
       </InternalThemeProvider>
     );
   };

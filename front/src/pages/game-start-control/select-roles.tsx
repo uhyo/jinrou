@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import styled, { StyledFunction } from '../../util/styled';
+import styled from '../../util/styled';
 
 import { RoleCategoryDefinition } from '../../defs';
 import { TranslationFunction } from '../../i18n';
 
 import { bind } from '../../util/bind';
 import { FontAwesomeIcon } from '../../util/icon';
-import { withProps } from '../../util/styled';
 
 const Wrapper = styled.dl``;
 const CategoryTitle = styled.dt`
@@ -229,36 +228,36 @@ interface IPropRoleWrapper {
   status: 'active' | 'inactive' | 'excluded';
 }
 
-const RoleWrapper = withProps<IPropRoleWrapper>()(styled.div)`
-    flex: 0 0 8.6em;
-    margin: 0.25em;
-    padding: 0.3em;
+const RoleWrapper = styled.div<IPropRoleWrapper>`
+  flex: 0 0 8.6em;
+  margin: 0.25em;
+  padding: 0.3em;
 
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+
+  background-color: ${({ status }) => {
+    return status === 'active'
+      ? 'rgba(255, 255, 255, 0.6)'
+      : status === 'inactive'
+        ? 'rgba(255, 255, 255, 0.3)'
+        : 'rgba(255, 255, 255, 0.15)';
+  }};
+
+  b {
     display: flex;
-    flex-flow: column nowrap;
-    justify-content: space-between;
+    flex-flow: row nowrap;
+    margin-bottom: 0.25em;
+    color: ${({ status }) =>
+      status === 'excluded' ? 'rgba(0, 0, 0, 0.4)' : 'inherit'};
 
-    background-color: ${({ status }) => {
-      return status === 'active'
-        ? 'rgba(255, 255, 255, 0.6)'
-        : status === 'inactive'
-          ? 'rgba(255, 255, 255, 0.3)'
-          : 'rgba(255, 255, 255, 0.15)';
-    }};
+    text-align: center;
 
-    b {
-        display: flex;
-        flex-flow: row nowrap;
-        margin-bottom: 0.25em;
-        color: ${({ status }) =>
-          status === 'excluded' ? 'rgba(0, 0, 0, 0.4)' : 'inherit'};
-
-        text-align: center;
-
-        span {
-            flex: 1 1 auto;
-        }
+    span {
+      flex: 1 1 auto;
     }
+  }
 `;
 
 interface IPropRoleCounter {
