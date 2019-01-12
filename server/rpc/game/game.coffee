@@ -11931,7 +11931,7 @@ writeGlobalJobInfo = (game, player, result={})->
     unless Phase.isBeforeStart(game.phase)
         result.myteam = player.getTeamDisp()
         # 女王観戦者の情報
-        if player.getTeam() == "Human"
+        if player.getTeam() == "Human" && player.getTeamDisp() == "Human"
             result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
                 x.publicinfo()
 
