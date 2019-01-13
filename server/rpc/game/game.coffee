@@ -3501,7 +3501,7 @@ class Diviner extends Player
 
         if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox")
             if targets2.length > 0
                 # ランダムに決定
                 log=
