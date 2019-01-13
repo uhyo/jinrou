@@ -10727,7 +10727,7 @@ module.exports.actions=(req,res,ss)->
                     # ランダム調整
                     if wolf_number>1 && Math.random()<0.1
                         wolf_number--
-                    else if playersnumber>0 && playersnumber>=10 && Math.random()<0.2
+                    else if playersnumber>=12 && Math.random()<0.2
                         wolf_number++
                     if fox_number>1 && Math.random()<0.15
                         fox_number--
