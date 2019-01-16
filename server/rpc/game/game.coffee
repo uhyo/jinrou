@@ -7996,9 +7996,9 @@ class BlackCat extends Madman
             pl.die game, "poison", @id
             @addGamelog game, "poisonkill", null, pl.id
             log=
-            mode:"hidden"
-            to:-1
-            comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
+                mode:"hidden"
+                to:-1
+                comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
             splashlog game.id,game,log
 
 class Idol extends Player
