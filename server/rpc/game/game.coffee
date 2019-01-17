@@ -9606,8 +9606,9 @@ class PhantomStolen extends Complex
     # 怪盗のふりをする
     isJobType:(type)-> type == "Phantom"
     isMainJobType:(type)-> type == "Phantom"
-    #team:"Human" #女王との兼ね合いで
     getTeam:-> "Human"
+    # 女王との兼ね合いで
+    getTeamDisp:-> @main.getTeamDisp()
     isWinner:(game,team)->
         team=="Human"
     checkDeathResistance:(game, found, from)->
