@@ -3501,7 +3501,7 @@ class Diviner extends Player
 
         if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -7995,6 +7995,11 @@ class BlackCat extends Madman
             pl = canbedead[r]
             pl.die game, "poison", @id
             @addGamelog game, "poisonkill", null, pl.id
+            log=
+                mode:"hidden"
+                to:-1
+                comment: game.i18n.t "roles:Poisoner.select", {name: @name, target: pl.name}
+            splashlog game.id,game,log
 
 class Idol extends Player
     type:"Idol"
@@ -9602,6 +9607,7 @@ class PhantomStolen extends Complex
     isJobType:(type)-> type == "Phantom"
     isMainJobType:(type)-> type == "Phantom"
     #team:"Human" #女王との兼ね合いで
+    getTeam:-> "Human"
     isWinner:(game,team)->
         team=="Human"
     checkDeathResistance:(game, found, from)->
@@ -10727,7 +10733,7 @@ module.exports.actions=(req,res,ss)->
                     # ランダム調整
                     if wolf_number>1 && Math.random()<0.1
                         wolf_number--
-                    else if playersnumber>0 && playersnumber>=10 && Math.random()<0.2
+                    else if playersnumber>=12 && Math.random()<0.2
                         wolf_number++
                     if fox_number>1 && Math.random()<0.15
                         fox_number--
