@@ -3586,6 +3586,14 @@ class Psychic extends Player
         super
         unless game.rule.psychicresult=="sunset"
             @showpsychicresult game
+    deadsunset:(game)->
+        if game.rule.psychicresult=="sunset"
+            # Delete logs which could not be shown
+            @setFlag ""
+    deadsunrise:(game)->
+        unless game.rule.psychicresult=="sunset"
+            @setFlag ""
+
 
     showpsychicresult:(game)->
         return unless @flag?
