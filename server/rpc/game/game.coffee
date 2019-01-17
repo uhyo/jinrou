@@ -6267,6 +6267,10 @@ class WanderingGuard extends Player
         if alives.length == 0
             # もう護衛対象がいない
             @setTarget ""
+    deadsunset:(game)->
+        # 死んだ状態で夜になったら前の選択状態を初期化
+        # （蘇生時に参照されないように）
+        @setTarget null
     job:(game,playerid)->
         fl=JSON.parse(@flag ? "[null]")
         if playerid==@id && game.rule.guardmyself!="ok"
