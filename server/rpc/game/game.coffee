@@ -8472,8 +8472,8 @@ class Hooligan extends Player
                 newguard = pls[i]
                 sub = Player.factory "HooliganGuard", game
                 newguard.transProfile sub
-                # 最初の夜は行動しない
-                sub.setTarget ""
+                # 最初の夜がいつか記録
+                sub.setFlag game.day
                 newpl = Player.factory null, game, newguard, sub, HooliganGuardComplex
                 newguard.transProfile newpl
                 newguard.transform game, newpl, true
@@ -8609,13 +8609,16 @@ class HooliganGuard extends Player
     team: ""
     formType: FormType.optional
     midnightSort: 90
-    jobdone:-> @target?
+    constructor:->
+        super
+        @setFlag null
+    jobdone:(game)-> @target? || @flag == game.day
     isWinner:(game, team)->
         !@dead
     sunset:(game)->
         @setTarget null
     job:(game, playerid)->
-        if @target?
+        if @target? || @flag == game.day
             return game.i18n.t "error.common.alreadyUsed"
 
         pl = game.getPlayer playerid
