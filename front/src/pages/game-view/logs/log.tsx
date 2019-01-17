@@ -73,6 +73,14 @@ const autolinkSetting = compile(
 );
 
 /**
+ * Function to sanitize log text.
+ * Removes Unicode bidi characters.
+ */
+function sanitizeLog(log: string): string {
+  return log.replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/g, '');
+}
+
+/**
  * A component which shows one log.
  */
 class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
@@ -107,9 +115,9 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
                   const targetname = (vt ? vt.name : '') || '';
                   return (
                     <tr key={id}>
-                      <td>{name}</td>
+                      <td>{sanitizeLog(name)}</td>
                       <td>{t('log.voteResult.count', { count: votecount })}</td>
-                      <td>→{targetname}</td>
+                      <td>→{sanitizeLog(targetname)}</td>
                     </tr>
                   );
                 })}
@@ -164,7 +172,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
                   const obj = log.probability_table[id];
                   return (
                     <ProbabilityTr dead={obj.dead === 1} key={id}>
-                      <td>{obj.name}</td>
+                      <td>{sanitizeLog(obj.name)}</td>
                       <ProbTd prob={obj.Human} />
                       {rule &&
                       rule.rules.get('quantumwerewolf_diviner') === 'on' ? (
@@ -195,7 +203,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
       // Server's bug? comment may actually be null
-      const comment = this.autolink(log.comment || '');
+      const comment = this.autolink(sanitizeLog(log.comment) || '');
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
@@ -217,7 +225,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             {icon != null ? <img src={icon} alt="" /> : null}
           </Icon>
           <Name noName={noName} {...props}>
-            {nameText || null}
+            {nameText ? sanitizeLog(nameText) : null}
           </Name>
           <Comment
             size={size}
