@@ -8463,10 +8463,10 @@ class Hooligan extends Player
                 # すでに任命されていた
                 return
             # 警備員候補
-            pls = game.players.filter (x)-> !x.scapegoat && !x.isCmplType("HooliganMember") && !x.isJobType("Hooligan")
+            pls = game.players.filter (x)-> !x.scapegoat && !x.dead && !x.isCmplType("HooliganMember") && !x.isJobType("Hooligan")
             pls = shuffle pls
             # 警備員の数
-            num = Math.ceil(game.players.length / 8)
+            num = Math.ceil(game.players.filter((x)-> !x.dead).length / 8)
             num = Math.min num, pls.length
             for i in [0 ... num]
                 newguard = pls[i]
