@@ -9166,7 +9166,8 @@ class Complex
     getSpeakChoiceDay:(game)->
         result=@mcall game,@main.getSpeakChoiceDay,game
         if @sub?
-            for obj in @sub.getSpeakChoiceDay game
+            subresult = @sub.getSpeakChoiceDay game
+            for obj in subresult
                 unless result.some((x)->x==obj)
                     result.push obj
         result
@@ -12021,7 +12022,7 @@ makejobinfo = (game,player,result={})->
         result.winner=player.winner
         if player.dead
             result.speak = processSpeakChoice player.getSpeakChoiceHeaven game
-        else if is_gm || is_helper
+        else if !plpl? && (is_gm || is_helper)
             result.speak = processSpeakChoice player.getSpeakChoice game
         else if Phase.isNight(game.phase) || game.phase == Phase.rolerequesting
             result.speak = processSpeakChoice player.getSpeakChoice game
