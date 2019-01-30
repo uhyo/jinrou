@@ -8842,7 +8842,7 @@ class Helper extends Player
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
-        @flag=playerid
+        @setFlag playerid
         log=
             mode:"skill"
             to:playerid
