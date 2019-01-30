@@ -6,6 +6,7 @@ import { bind } from '../../util/bind';
 import { IconProp, FontAwesomeIcon } from '../../util/icon';
 import { phone } from '../../common/media';
 import { AppStyling } from '../../styles/phone';
+import { dialogZIndex } from '../../common/z-index';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -32,6 +33,7 @@ const DialogWrapper = styled(AppStyling)<IPropDialogWrapper>`
   top: 0;
   width: 100vw;
   height: 100vh;
+  z-index: ${dialogZIndex};
 
   background-color: ${({ modal }) =>
     modal ? 'rgba(0, 0, 0, 0.48)' : 'transparent'};
@@ -91,7 +93,7 @@ const DialogMain = styled.div`
  * Wrapper of buttons in the bottom line of a dialog.
  */
 export const Buttons = styled.div`
-  margin: 1em 6px 0 6px;
+  margin: 0.5em 6px 0 6px;
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-end;
@@ -169,6 +171,11 @@ const DialogBase = styled(DialogBaseInner)`
   }
 `;
 
+const DialogMainContents = styled.div`
+  max-height: 70vh;
+  overflow-y: auto;
+`;
+
 export type IPropDialog = IPropDialogWrapper &
   IPropDialogBase & {
     /**
@@ -221,7 +228,9 @@ export function Dialog({
               onSubmit={onSubmit}
             >
               {message != null ? <p>{message}</p> : null}
-              {contents ? contents() : null}
+              {contents ? (
+                <DialogMainContents>{contents()}</DialogMainContents>
+              ) : null}
               <Buttons>{buttons()}</Buttons>
               {afterButtons ? afterButtons() : null}
             </DialogBase>

@@ -14,6 +14,11 @@ export const ruleZIndex = 2;
 export const speakFormZIndex = 3;
 
 /**
+ * z-index for dialog.
+ */
+export const dialogZIndex = 5;
+
+/**
  * z-index for overlay server connection.
  */
 export const serverConnectionZIndex = 10;
