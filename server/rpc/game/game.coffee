@@ -4844,10 +4844,10 @@ class Doppleganger extends Player
             p=game.getPlayer targetid  # その人
 
             newplmain=Player.factory p.type, game
-            @transProfile newplmain
-            @transferData newplmain, true
-
             top = game.getPlayer @id
+            top.transProfile newplmain
+            top.transferData newplmain, true
+
             # まだドッペルゲンガーできる
             sub = null
             unless top?.isCmplType "PhantomStolen"
