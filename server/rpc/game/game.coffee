@@ -7783,6 +7783,7 @@ class Forensic extends Player
 class Cosplayer extends Guard
     type:"Cosplayer"
     fortuneResult: FortuneResult.werewolf
+    psychicResult: PsychicResult.werewolf
 
 class TinyGhost extends Player
     type:"TinyGhost"
