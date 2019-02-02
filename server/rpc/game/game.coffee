@@ -11351,13 +11351,6 @@ module.exports.actions=(req,res,ss)->
                     # セーフティ超
                     joblist=best_list
 
-                if query.divineresult=="immediate" && DIVINER_NOIMMEDIATE_JOBS.some((job)-> joblist[job] > 0)
-                    query.divineresult="sunrise"
-                    log=
-                        mode:"system"
-                        comment: game.i18n.t "system.gamestart.divinerModeChanged"
-                    splashlog game.id,game,log
-
             else if query.jobrule=="特殊ルール.量子人狼"
                 # 量子人狼のときは全員量子人間だけど役職はある
                 func=Shared.game.getrulefunc "内部利用.量子人狼"
@@ -11406,6 +11399,14 @@ module.exports.actions=(req,res,ss)->
                 # 残りは村人だ！
                 joblist.Human = frees - sum
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
+            
+            if query.divineresult=="immediate" && DIVINER_NOIMMEDIATE_JOBS.some((job)-> joblist[job] > 0)
+                query.divineresult="sunrise"
+                log=
+                    mode:"system"
+                    comment: game.i18n.t "system.gamestart.divinerModeChanged"
+                splashlog game.id,game,log
+            
             if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
