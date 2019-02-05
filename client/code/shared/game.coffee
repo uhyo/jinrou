@@ -93,6 +93,7 @@ exports.categories=
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad"]
     Fox:["Fox","TinyFox","XianFox"]
     Immoral:["Immoral","Blasphemy"]
+    # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
     Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Raven","Hooligan","Bat","Tanner","Hoodlum","Shishimai"]
     Switching:["Stalker","Copier","Doppleganger","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
