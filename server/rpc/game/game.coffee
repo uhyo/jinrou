@@ -2941,6 +2941,8 @@ class Player
     getJobDisp:->@jobname
     # 本人に見える役職タイプ
     getTypeDisp:->@type
+    # 役職をコピーするときに得られるタイプ
+    getCopiableType:->@type
     # 役職名を得る
     getJobname:->@jobname
     # サブ役職の情報を除いた役職名を得る
@@ -6420,16 +6422,8 @@ class FrankensteinsMonster extends Player
         for pl in founds
             # extract absorbable jobs.
             extracted = []
-            rec = (pl)->
-                if pl.isComplex()
-                    # main is absorbable.
-                    rec pl.main
-                    # if Chemical, absorb both.
-                    if pl.cmplType == "Chemical" && pl.sub?
-                        rec pl.sub
-                else
-                    extracted.push pl.type
-            rec pl
+            for p in pl.accessMainLevel(false)
+                extracted.push p.getCopiableType()
             # List up name of extracted jobs.
             jobnames = extracted.map((e)-> game.i18n.t "roles:jobname.#{e}").join(game.i18n.t "roles:FrankensteinsMonster.separator")
             log=
@@ -6752,11 +6746,9 @@ class Phantom extends Player
         unless pl?
             return
         # 盗んだ役職
-        newtype = pl.type
+        newtype = pl.getCopiableType()
         # ただし既に怪盗に盗まれていたら怪盗を盗んだことにする
         newch = constructMainChain pl
-        if newch?[0].some((cm)-> cm.cmplType == "PhantomStolen")
-            newtype = "Phantom"
 
         savedobj={}
         newch?[1].makejobinfo game,savedobj
@@ -9623,6 +9615,7 @@ class PhantomStolen extends Complex
     # 怪盗のふりをする
     isJobType:(type)-> type == "Phantom"
     isMainJobType:(type)-> type == "Phantom"
+    getCopiableType:-> "Phantom"
     getTeam:-> "Human"
     # 女王との兼ね合いで
     getTeamDisp:-> @main.getTeamDisp()
