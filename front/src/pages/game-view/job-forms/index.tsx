@@ -69,7 +69,7 @@ export class Form extends React.PureComponent<IPropForm, {}> {
           const makeOptions = () =>
             options.map(({ name, value }, i) => (
               <OptionLabel key={`${i}-value`}>
-                {name}
+                <bdi>{name}</bdi>
                 <input type="radio" name="target" value={value} />
               </OptionLabel>
             ));
