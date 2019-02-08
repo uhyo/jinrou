@@ -503,6 +503,7 @@ const LogPart = styled.div<{
       ? `1px dashed ${props.logStyle.borderColor}`
       : 'none'};
   font-weight: ${props => (props.logStyle.bold ? 'bold' : 'normal')};
+  overflow: hidden;
 
   line-height: 1;
   word-break: break-all;
