@@ -10590,9 +10590,14 @@ module.exports.actions=(req,res,ss)->
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
             if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+                # 内部用にチームによる役職指定
+                for team of Shared.game.teams
+                    joblist["team_#{team}"] = 0
                 # カテゴリ内の人数の合計がわかる関数
                 countCategory=(categoryname)->
                     Shared.game.categories[categoryname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["category_#{categoryname}"]
+                countTeam=(teamname)->
+                    Shared.game.categories[teamname].reduce(((prev,curr)->prev+(joblist[curr] ? 0)),0)+joblist["team_#{teamname}"]
 
                 # 闇鍋のときはランダムに決める
                 plsh=Math.floor playersnumber/2   # 過半数
@@ -10658,6 +10663,9 @@ module.exports.actions=(req,res,ss)->
                 # カテゴリをまとめてexceptionに追加する関数
                 addCategoryToExceptions = (category)->
                     for job in Shared.game.categories[category]
+                        exceptions.push job
+                addTeamToExceptions = (team)->
+                    for job in Shared.game.teams[team]
                         exceptions.push job
 
                 # チェックボックスが外れてるやつは登場しない
@@ -10831,6 +10839,23 @@ module.exports.actions=(req,res,ss)->
                 nonavs = {}
                 for job in exceptions
                     nonavs[job] = true
+                # Choose one job from given list of jobs,
+                # following given probabilities for each job.
+                selectJob = (candidates, probabilities)->
+                    p = Math.random()
+                    current = 0
+                    for i in [0 ... candidates.length]
+                        job = candidates[i]
+                        prob = probabilities[i]
+                        if current <= p < current + prob
+                            # random p selects this job.
+                            if !nonavs[job]
+                                # this job is not excluded.
+                                return job
+                            current += prob
+                    # none was selected.
+                    return null
+
 
                 if safety.teams
                     # 陣営調整もする
@@ -10862,12 +10887,15 @@ module.exports.actions=(req,res,ss)->
                                 Math.round (playersnumber*(1.28 + Math.random()*0.12))
                             else
                                 Math.round (playersnumber*(0.48 + Math.random()*0.12))
-                        diff = Math.min(frees, humanteam_n) - countCategory("Human")
+                        # count current number of Human team.
+                        # we rely on the fact that Human category is a subset of Human team.
+                        currentHuman = countTeam("Human") + joblist["category_Human"]
+                        diff = Math.min(frees, humanteam_n) - currentHuman
                         if diff > 0
-                            joblist.category_Human += diff
+                            joblist.team_Human += diff
                             frees -= diff
 
-                        addCategoryToExceptions "Human"
+                        addTeamToExceptions "Human"
 
                     # 妖狐陣営
                     if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0)
@@ -10947,43 +10975,31 @@ module.exports.actions=(req,res,ss)->
                 if safety.teams || safety.jobs
                     # 村人陣営
                     # 占い師いてほしい
-                    if joblist.category_Human > 0
-                        if Math.random()<0.75 && !nonavs.Diviner
-                            joblist.Diviner++
+                    selected = if safety.jobs then selectJob ["Diviner", "ApprenticeSeer"], [0.75, 0.05]
+                    else selectJob ["Diviner"], [0.75]
+                    if selected?
+                        if joblist.category_Human > 0
+                            joblist[selected]++
                             joblist.category_Human--
-                        else if !safety.jobs && Math.random()<0.2 && !nonavs.ApprenticeSeer
-                            joblist.ApprenticeSeer++
-                            joblist.category_Human--
-                    else if frees>0
-                        if Math.random()<0.75 && !nonavs.Diviner
-                            joblist.Diviner++
-                            frees--
-                        else if !safety.jobs && Math.random()<0.2 && !nonavs.ApprenticeSeer
-                            joblist.ApprenticeSeer++
+                        else if joblist.team_Human > 0
+                            joblist[selected]++
+                            joblist.team_Human--
+                        else if frees > 0
+                            joblist[selected]++
                             frees--
                 if safety.teams
                     # できれば狩人も
-                    if joblist.category_Human > 0
-                        if joblist.Diviner>0
-                            if Math.random()<0.4 && !nonavs.Guard
-                                joblist.Guard++
-                                joblist.category_Human--
-                            else if Math.random()<0.17 && !nonavs.WanderingGuard
-                                joblist.WanderingGuard++
-                                joblist.category_Human--
-                        else if Math.random()<0.4 && !nonavs.Guard
-                            joblist.Guard++
+                    selected = if joblist.Diviner > 0 then selectJob ["Guard", "WanderingGuard"], [0.4, 0.1]
+                    else selectJob ["Guard"], [0.4]
+                    if selected?
+                        if joblist.category_Human > 0
+                            joblist[selected]++
                             joblist.category_Human--
-                    else if frees>0
-                        if joblist.Diviner>0
-                            if Math.random()<0.4 && !nonavs.Guard
-                                joblist.Guard++
-                                frees--
-                            else if Math.random()<0.17 && !nonavs.WanderingGuard
-                                joblist.WanderingGuard++
-                                frees--
-                        else if Math.random()<0.4 && !nonavs.Guard
-                            joblist.Guard++
+                        else if joblist.team_Human > 0
+                            joblist[selected]++
+                            joblist.team_Human--
+                        else if frees > 0
+                            joblist[selected]++
                             frees--
                 ((date)->
                     month=date.getMonth()
@@ -11105,13 +11121,17 @@ module.exports.actions=(req,res,ss)->
                     possibility.push "Human"
 
                 # 強制的に入れる関数
-                init=(jobname,categoryname)->
+                init=(jobname, categoryname, teamname)->
                     unless jobname in possibility
                         return false
                     if categoryname? && joblist["category_#{categoryname}"]>0
                         # あった
                         joblist[jobname]++
                         joblist["category_#{categoryname}"]--
+                        return true
+                    if teamname? && joblist["team_#{teamname}"] > 0
+                        joblist[jobname]++
+                        joblist["team_#{teamname}"]--
                         return true
                     if frees>0
                         # あった
@@ -11148,14 +11168,18 @@ module.exports.actions=(req,res,ss)->
                     frees=first_frees
                     category = null
                     job = null
+                    team = null
                     while true
+                        # 前のループで確保したものが残っていたら返す
                         if category?
-                            # 前のループで確保したものが残っていたら返す
                             joblist[category]++
+                        if team?
+                            joblist[team]++
                         else if job?
                             # jobが決まったけど使われなかった
                             frees++
                         category = null
+                        team = null
                         job = null
                         #カテゴリ役職がまだあるか探す
                         for type,arr of Shared.game.categories
@@ -11173,6 +11197,20 @@ module.exports.actions=(req,res,ss)->
                                     # これもう無理だわ
                                     frees += joblist["category_#{type}"]
                                     joblist["category_#{type}"] = 0
+                        # same for teams
+                        unless job?
+                            for type,arr of Shared.game.teams
+                                if joblist["team_#{type}"]>0
+                                    arr2 = arr.filter (x)->!(x in excluded_exceptions) && !(x in special_exceptions)
+                                    if arr2.length > 0
+                                        r=Math.floor Math.random()*arr2.length
+                                        job=arr2[r]
+                                        team="team_#{type}"
+                                        joblist[team]--
+                                        break
+                                    else
+                                        frees += joblist["team_#{type}"]
+                                        joblist["team_#{type}"] = 0
                         unless job?
                             # もうカテゴリがない
                             if frees<=0
@@ -11198,28 +11236,28 @@ module.exports.actions=(req,res,ss)->
                                 when "Couple"
                                     # 共有者はひとりだと寂しい
                                     if joblist.Couple==0
-                                        unless init "Couple","Human"
+                                        unless init "Couple","Human","Human"
                                             #共有者が入る隙間はない
                                             continue
                                 when "Twin"
                                     # 双子も
                                     if joblist.Twin==0
-                                        unless init "Twin","Human"
+                                        unless init "Twin","Human","Human"
                                             continue
                                 when "MadCouple"
                                     # 叫迷も
                                     if joblist.MadCouple==0
-                                        unless init "MadCouple","Madman"
+                                        unless init "MadCouple","Madman","Werewolf"
                                             #共有者が入る隙間はない
                                             continue
                                 when "Noble"
                                     # 貴族は奴隷がほしい
                                     if joblist.Slave==0
-                                        unless init "Slave","Human"
+                                        unless init "Slave","Human","Human"
                                             continue
                                 when "Slave"
                                     if joblist.Noble==0
-                                        unless init "Noble","Human"
+                                        unless init "Noble","Human","Human"
                                             continue
                                 when "OccultMania"
                                     if joblist.Diviner==0 && Math.random()<0.5
@@ -11234,9 +11272,9 @@ module.exports.actions=(req,res,ss)->
                                         continue
                                     # 女王観戦者はガードがないと不安
                                     if joblist.Guard==0 && joblist.Priest==0 && joblist.Trapper==0
-                                        unless Math.random()<0.4 && init "Guard","Human"
+                                        unless Math.random()<0.4 && init "Guard","Human", "Human"
                                             unless Math.random()<0.5 && init "Priest","Human"
-                                                unless init "Trapper","Human"
+                                                unless init "Trapper","Human", "Human"
                                                     # 護衛がいない
                                                     continue
                                 when "Spy2"
@@ -11280,11 +11318,11 @@ module.exports.actions=(req,res,ss)->
                                 when "Raven"
                                     # 鴉は最低2人セット
                                     if joblist.Raven == 0
-                                        unless init "Raven","Others"
+                                        unless init "Raven","Others", "Raven"
                                             continue
                                         if playersnumber >= 16
                                             # 16人以上だと3人セットにしちゃう
-                                            init "Raven", "Others"
+                                            init "Raven", "Others", "Raven"
 
 
                         joblist[job]++
@@ -11300,6 +11338,8 @@ module.exports.actions=(req,res,ss)->
                         if category?
                             # カテゴリの消費に成功した
                             category = null
+                        if team?
+                            team = null
                         # 追加に成功した
                         job = null
 
@@ -11393,14 +11433,14 @@ module.exports.actions=(req,res,ss)->
                 # 残りは村人だ！
                 joblist.Human = frees - sum
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
-            
+
             if query.divineresult=="immediate" && DIVINER_NOIMMEDIATE_JOBS.some((job)-> joblist[job] > 0)
                 query.divineresult="sunrise"
                 log=
                     mode:"system"
                     comment: game.i18n.t "system.gamestart.divinerModeChanged"
                 splashlog game.id,game,log
-            
+
             if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
