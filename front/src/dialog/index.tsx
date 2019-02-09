@@ -55,7 +55,7 @@ export async function showErrorDialog(d: IErrorDialog): Promise<void> {
     const dialog = (
       <MessageDialog
         {...d}
-        title={i18n.t('common:errorDialog.title')}
+        title={i18n.t('common:errorDialog.title') as string}
         ok={i18n.t('common:errorDialog.close')}
         onClose={close}
       />
@@ -165,7 +165,7 @@ export async function showSuddenDeathPunishDialog({
       <ChecklistDialog
         modal={modal}
         options={Promise.resolve(options)}
-        title={i18n.t('game_client:suddenDeathPunish.title')}
+        title={i18n.t('game_client:suddenDeathPunish.title') as string}
         message={i18n.t('game_client:suddenDeathPunish.message', {
           count: time,
         })}

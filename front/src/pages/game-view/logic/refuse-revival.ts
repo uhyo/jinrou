@@ -16,7 +16,7 @@ export function makeRefuseRevivalLogic(
   return async () => {
     const res = await showConfirmDialog({
       modal: true,
-      title: i18n.t('game_client:refuseRevival.title'),
+      title: i18n.t('game_client:refuseRevival.title') as string,
       message: i18n.t('game_client:refuseRevival.confirm'),
       yes: i18n.t('game_client:refuseRevival.yes'),
       no: i18n.t('game_client:refuseRevival.no'),
@@ -28,7 +28,7 @@ export function makeRefuseRevivalLogic(
       await refuseRevival();
       // 蘇生辞退結果を表示
       await showMessageDialog({
-        title: i18n.t('game_client:refuseRevival.title'),
+        title: i18n.t('game_client:refuseRevival.title') as string,
         message: i18n.t('game_client:refuseRevival.result'),
         modal: false,
         ok: i18n.t('game_client:refuseRevival.yes'),
