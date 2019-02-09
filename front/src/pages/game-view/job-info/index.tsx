@@ -157,7 +157,11 @@ const RoleInfoInner = ({
         <p>
           <I18nInterp ns="game_client" k="jobinfo.peers.supporting">
             {{
-              name: <b>{supporting.name}</b>,
+              name: (
+                <b>
+                  <bdi>{supporting.name}</bdi>
+                </b>
+              ),
               job: <b>{supporting.supportingJob}</b>,
             }}
           </I18nInterp>
@@ -170,7 +174,11 @@ const RoleInfoInner = ({
           return null;
         }
         // If this field exists, list up name of players.
-        const names = pls.map(({ name }, i) => <b key={i}>{name}</b>);
+        const names = pls.map(({ name }, i) => (
+          <b key={i}>
+            <bdi>{name}</bdi>
+          </b>
+        ));
         return (
           <p key={`peers-${key}`}>
             <I18nInterp ns="game_client" k={`jobinfo.peers.${key}`}>
