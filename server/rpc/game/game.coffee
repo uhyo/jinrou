@@ -5178,7 +5178,7 @@ class Tanner extends Player
     isWinner:(game,team)->@dead && @flag!="gone"
 class OccultMania extends Player
     type:"OccultMania"
-    midnightSort:100
+    midnightSort:102
     formType: FormType.required
     sleeping:(game)->@target? || game.day<2
     sunset:(game)->
