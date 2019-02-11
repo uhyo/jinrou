@@ -76,7 +76,7 @@ jobinfo:
   # Info of peers.
   peers:
     wolves: "仲間の人狼は{{names}}です"
-    peers: "共有者は{{names}}です"
+    peers: "仲間の共有者は{{names}}です"
     madpeers: "仲間の叫迷狂人は{{names}}です"
     foxes: "仲間の妖狐は{{names}}です"
     nobles: "貴族は{{names}}です"
@@ -84,8 +84,8 @@ jobinfo:
     spy2s: "スパイⅡは{{names}}です"
     friends: "恋人は{{names}}です"
     cultmembers: "カルトの信者は{{names}}です"
-    vampires: "ヴァンパイアは{{names}}です"
-    twins: "双子は{{names}}です"
+    vampires: "仲間のヴァンパイアは{{names}}です"
+    twins: "仲間の双子は{{names}}です"
     myfans: "ファンは{{names}}です"
     ravens: "鴉は{{names}}です"
     stalking: "あなたは{{name}}のストーカーです"
