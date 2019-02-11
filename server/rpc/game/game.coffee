@@ -4848,7 +4848,6 @@ class Doppleganger extends Player
             newplmain=Player.factory p.type, game
             top = game.getPlayer @id
             top.transProfile newplmain
-            top.transferData newplmain, true
 
             # まだドッペルゲンガーできる
             sub = null
@@ -4877,10 +4876,12 @@ class Doppleganger extends Player
                 unless transpl?
                     # ???
                     return
+                transpl.transferData newplmain, true
                 transpl.transform game, newpl, false
                 @uncomplex game, true
             else
                 # 初めてなので自分が変化する
+                @transferData newplmain, true
                 @transform game, newpl, false
 
             log=
