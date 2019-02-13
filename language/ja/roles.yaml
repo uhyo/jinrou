@@ -254,7 +254,7 @@ Merchant:
 # Liar
 Liar:
   # Result.
-  resultlog: "あんまり自信ないけど、霊能占いの結果、{{target}}は{{result}}だと思う。たぶん。"
+  resultlog: "あんまり自信ないけど、占いの結果、{{target}}は{{result}}だと思う。たぶん。"
 
 # Spy2
 Spy2:
@@ -407,9 +407,9 @@ Dictator:
 # SeersMama
 SeersMama:
   # There is no seer.
-  resultNone: "{{name}}は占い師のママです。占い師はいません。"
+  resultNone: "{{name}}は予言者のママです。占い師はいません。"
   # There are one or more seer. (number is given as count)
-  result: "{{name}}は占い師のママです。占い師は{{results}}です。"
+  result: "{{name}}は予言者のママです。占い師は{{results}}です。"
 
 # Trapper
 Trapper:
