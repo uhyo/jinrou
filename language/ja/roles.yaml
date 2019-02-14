@@ -254,7 +254,7 @@ Merchant:
 # Liar
 Liar:
   # Result.
-  resultlog: "あんまり自信ないけど、占いの結果、{{target}}は{{result}}だと思う。たぶん。"
+  resultlog: "あんまり自信ないけど、霊能占いの結果、{{target}}は{{result}}だと思う。たぶん。"
 
 # Spy2
 Spy2:
