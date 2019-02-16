@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from '../../util/styled';
 import { lightBorderColor } from '../color';
 import { contentMargin } from './style';
+import { notPhone } from '../media';
 
 /**
  * component to wrap controls.
@@ -31,7 +32,9 @@ export const Controls: React.FunctionComponent<{
 export const ControlsWrapper = styled.div<{
   compact?: boolean;
 }>`
-  display: ${props => (props.compact ? 'flex' : 'block')};
+  ${notPhone`
+    display: ${props => (props.compact ? 'flex' : 'block')};
+  `};
   margin: 0.5em 0;
   border: 1px solid ${lightBorderColor};
   padding: 0 8px;
