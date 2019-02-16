@@ -581,6 +581,8 @@ class Game
             night:Phase.isNight(@phase)
             phase:@phase
             jobscount:@jobscount
+            # whether watch speak is allowed.
+            watchspeak: @watchspeak != false
         }
     # IDからプレイヤー
     getPlayer:(id)->
@@ -10535,6 +10537,7 @@ module.exports.actions=(req,res,ss)->
                 maxnumber:room.number
                 blind:room.blind
                 gm:room.gm
+                watchspeak:room.watchspeak
                 day: parseInt query.day
                 night: parseInt query.night
                 remain: parseInt query.remain

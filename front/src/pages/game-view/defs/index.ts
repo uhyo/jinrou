@@ -25,6 +25,10 @@ export interface GameInfo {
    * Status of game.
    */
   status: 'waiting' | 'playing' | 'finished';
+  /**
+   * Whether watcher's speech is allowed.
+   */
+  watchspeak: boolean;
 }
 
 /**
