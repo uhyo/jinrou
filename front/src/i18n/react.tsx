@@ -6,9 +6,10 @@ import { fromRenderProps } from 'recompose';
 import memoizeOne from 'memoize-one';
 
 // React Context for holding i18n translation function.
-const { Provider, Consumer } = React.createContext<
-  { i18n: i18next.i18n } | undefined
->(undefined);
+const I18nContext = React.createContext<{ i18n: i18next.i18n } | undefined>(
+  undefined,
+);
+const { Provider, Consumer } = I18nContext;
 
 export interface IPropI18nProvider {
   i18n: i18next.i18n;
@@ -63,6 +64,27 @@ export class I18nProvider extends React.PureComponent<
       i18n: this.props.i18n,
     });
   }
+}
+
+/**
+ * Retrieve i18n rendering function from context.
+ */
+export function useI18n(
+  namespace: string,
+): i18next.TranslationFunction | undefined {
+  const context = React.useContext(I18nContext);
+  if (context == null) {
+    return void 0;
+  }
+  const { i18n } = context;
+  const t = React.useMemo(
+    () =>
+      namespace != null
+        ? i18n.getFixedT(i18n.language, namespace)
+        : i18n.t.bind(i18n),
+    [i18n, namespace],
+  );
+  return t;
 }
 
 export interface IPropI18n {

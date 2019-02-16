@@ -1,0 +1,63 @@
+# laguage file for new room page
+
+# title of newroom component
+title: "新しいルーム"
+
+# label of show description button.
+showDescriptionButton: "説明を表示"
+
+# name of room
+roomname:
+  title: "ルームの名前"
+
+# password
+password:
+  title: "パスワード"
+  description: "パスワードありの村は、入室時にパスワードを入力する必要があります。"
+  # no password
+  no: "パスワードなし"
+  # use password
+  yes: "パスワードあり"
+  # placeholder for password input.
+  placeholder: "パスワードを入力"
+
+# comment of room
+comment:
+  title: "コメント"
+  description: "コメントはルーム一覧に表示されます。（省略可）"
+
+# maximum number of room.
+maxnumber:
+  title: "最大人数"
+  description: "参加可能な最大人数を指定します。この人数に満たなくてもゲームを開始できます。"
+
+# blind mode
+blind:
+  title: "覆面"
+  description: "覆面ありの村は、参加者のIDが明かされなくなります。終了後にID公開と終了後もID非公開を選ぶことができます。"
+  no: "なし"
+
+# themes
+theme:
+  title: "テーマ"
+  description: "テーマを使用する場合、覆面がありに設定され全プレイヤーの名前がサーバーによってランダムに選択されます。"
+  # label for no theme.
+  none: "なし"
+
+
+# GM
+gm:
+  title: "ゲームマスター"
+  description: "ありにすると、ルームを建てた人はゲームマスターになります。"
+  no: "なし"
+  yes: "あり"
+
+# watchSpeak
+watchSpeak:
+  title: "観戦者の発言"
+  description: "なしにすると、参加していない人は部屋のチャットで発言できなくなります。"
+  no: "なし"
+  yes: "あり"
+
+# label of create button.
+create: "ルームを作成"

@@ -95,3 +95,12 @@ export function loadPrize() {
     webpackChunkName: "prize"
   */ './pages/prize');
 }
+
+/**
+ * Asynchronously load the new-room module.
+ */
+export function loadNewRoom() {
+  return import(/*
+    webpackChunkName: "new-room"
+   */ './pages/new-room');
+}
