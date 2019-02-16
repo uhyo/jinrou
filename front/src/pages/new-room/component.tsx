@@ -44,7 +44,36 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
       // TODO
       return null;
     }
+    const nameInputRef = React.useRef<HTMLInputElement | null>(null);
+    const passwordInputRef = React.useRef<HTMLInputElement | null>(null);
+    const commentInputRef = React.useRef<HTMLInputElement | null>(null);
+    const maxNumberInputRef = React.useRef<HTMLInputElement | null>(null);
+    const themeSelectRef = React.useRef<HTMLSelectElement | null>(null);
 
+    React.useEffect(() => {
+      // initialize store with saved jobs.
+      if (localStorage.savedRule) {
+        try {
+          const savedRule = JSON.parse(localStorage.savedRule);
+          if ('number' === typeof savedRule.maxnumber) {
+            if (maxNumberInputRef.current != null) {
+              maxNumberInputRef.current.value = String(savedRule.number);
+            }
+          }
+          if ('string' === typeof savedRule.blind) {
+            store.setBlind(savedRule.blind);
+          }
+          if ('boolean' === typeof savedRule.gm) {
+            store.setGm(savedRule.gm);
+          }
+          if ('boolean' === typeof savedRule.watchspeak) {
+            store.setWatchSpeak(savedRule.watchspeak);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }, []);
     const passwordOptions = React.useMemo(
       () => [
         {
@@ -101,11 +130,6 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
       ],
       [t],
     );
-    const nameInputRef = React.useRef<HTMLInputElement | null>(null);
-    const passwordInputRef = React.useRef<HTMLInputElement | null>(null);
-    const commentInputRef = React.useRef<HTMLInputElement | null>(null);
-    const maxNumberInputRef = React.useRef<HTMLInputElement | null>(null);
-    const themeSelectRef = React.useRef<HTMLSelectElement | null>(null);
     const submitHandler = (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
       const getValue = (
