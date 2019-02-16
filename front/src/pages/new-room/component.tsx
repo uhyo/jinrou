@@ -194,6 +194,7 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
                   <FontAwesomeIcon icon="lock" />{' '}
                   <Input
                     type="text"
+                    required
                     size={30}
                     placeholder={t('password.placeholder')}
                     ref={passwordInputRef}
