@@ -394,6 +394,8 @@ class Game
             @id=room.id
             # GMがいる場合
             @gm= if room.gm then room.owner.userid else null
+            # 観戦者の発言が許可されているか
+            @watchspeak = room.watchspeak
 
         @players=[]         # 村人たち
         @participants=[]    # 参加者全て(@playersと同じ内容含む）
@@ -481,6 +483,7 @@ class Game
             jobscount:@jobscount
             gamelogs:@gamelogs
             gm:@gm
+            watchspeak:@watchspeak
             iconcollection:@iconcollection
             werewolf_flag:@werewolf_flag
             werewolf_target:@werewolf_target
@@ -493,6 +496,7 @@ class Game
         game=new Game ss
         game.id=obj.id
         game.gm=obj.gm
+        game.watchspeak=obj.watchspeak
         #game.logs=obj.logs
         game.rule=obj.rule
         game.players=obj.players.map (x)=>Player.unserialize x, game
@@ -11623,6 +11627,11 @@ module.exports.actions=(req,res,ss)->
             # 観戦発言に対するチェック
             unless libblacklist.checkPermission "watch_say", req.session.ban
                 res game.i18n.t "error.speak.ban"
+                return
+            # for backwards compatibility, we treat
+            # game.watchspeak == undefined as truthy
+            if game.watchspeak == false
+                res game.i18n.t "error.speak.noWatchSpeak"
                 return
         # 発言できない時間帯
         if !game.finished  && Phase.isRemain(game.phase)   # 投票猶予時間は発言できない

@@ -21,6 +21,7 @@ room: {
   number: Number(プレイヤー数)
   players:[PlayerObject,PlayerObject,...]
   gm: Booelan(trueならオーナーGM)
+  watchspeak: Boolean (trueなら観戦者の発言可）
   jobrule: String   //開始後はなんの配役か（エンドレス闇鍋用）
   ban: [String]  // kicked userid
 }
@@ -257,6 +258,7 @@ module.exports.actions=(req,res,ss)->
                 userid:req.session.user.userid
                 name:req.session.user.name
             room.gm = query.ownerGM=="yes"
+            room.watchspeak = query.watchspeak == "on"
             if query.ownerGM=="yes"
                 # GMがいる
                 su=req.session.user
@@ -369,7 +371,7 @@ module.exports.actions=(req,res,ss)->
                 if !theme.isAvailable?()
                     res {error: i18n.t "error.theme.notAvailable", {name: theme.name}}
                     return
-                
+
             if room.blind
                 unless opt?.name || room.theme
                     res error: i18n.t "error.join.nameNeeded"
@@ -382,7 +384,7 @@ module.exports.actions=(req,res,ss)->
                     skins = Object.keys theme.skins
                     skins = skins.filter((x)->!room.players.some((pl)->theme.skins[x].name==pl.name))
                     skin = skins[Math.floor(Math.random() * skins.length)]
-                        
+
                     user.name=theme.skins[skin].name.trim()
                     loop
                         user.userid=crypto.randomBytes(10).toString('hex')

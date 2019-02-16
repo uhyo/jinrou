@@ -92,6 +92,8 @@ error:
     tooLong: "発言が長すぎます。"
     # Access restriction.
     ban: "アクセス制限により、発言できません。"
+    # Watchspeak is not allowed
+    noWatchSpeak: "観戦者は発言できません。"
   # Error during job
   job:
     # Invalid target selection.
