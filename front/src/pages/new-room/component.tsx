@@ -140,7 +140,7 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
       const query = {
         name: getValue(nameInputRef),
         usepassword: store.usePassword ? 'on' : '',
-        password: getValue(passwordInputRef),
+        password: store.usePassword ? getValue(passwordInputRef) : void 0,
         comment: getValue(commentInputRef),
         number: getValue(maxNumberInputRef),
         blind: store.blind,
