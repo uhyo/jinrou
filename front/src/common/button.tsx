@@ -29,7 +29,7 @@ export const WideButton = styled.button`
   background-color: rgba(255, 255, 255, 0.1);
 
   :hover {
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(244, 244, 244, 0.6);
   }
 `;
 

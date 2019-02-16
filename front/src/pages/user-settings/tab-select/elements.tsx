@@ -1,5 +1,5 @@
 import styled from '../../../util/styled';
-import { borderColor } from '../commons/button';
+import { borderColor } from '../../../common/forms/button';
 
 /**
  * Wrapper of tab select area.

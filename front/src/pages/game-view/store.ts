@@ -46,6 +46,7 @@ export class GameStore {
     // tricky.
     finished: true,
     status: 'waiting',
+    watchspeak: true,
   };
   /**
    */

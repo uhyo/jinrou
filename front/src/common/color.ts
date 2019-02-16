@@ -26,3 +26,8 @@ export const noColorText = '#000000';
  * Light border color.
  */
 export const lightBorderColor = '#dddddd';
+
+/**
+ * mediam border color.
+ */
+export const mediumBorderColor = '#999999';

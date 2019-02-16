@@ -3,8 +3,12 @@ import { ProfileWrapper, ProfileName } from './elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { withProps } from 'recompose';
 import { ColorProfileData } from '../../../defs/color-profile';
-import { Button, ActiveButton } from '../commons/button';
+import { Button, ActiveButton } from '../../../common/forms/button';
 import { TranslationFunction } from '../../../i18n';
+import {
+  ControlsHeader,
+  ControlsMain,
+} from '../../../common/forms/controls-wrapper';
 
 export interface IPropOneProfile {
   t: TranslationFunction;
@@ -47,32 +51,29 @@ export const OneProfile = mapProps(
     const isDefaultProfile = profile.id == null;
     return (
       <ProfileWrapper defaultProfile={isDefaultProfile}>
-        <ProfileName>{profile.name}</ProfileName>
-        <div>
-          {used ? (
-            <ActiveButton disabled>
-              <FontAwesomeIcon icon="check" />
-              {t('color.usedButtonLabel')}
-            </ActiveButton>
-          ) : (
-            <Button onClick={onUseButton}>{t('color.useButton')}</Button>
-          )}
-          {edited ? (
-            <ActiveButton onClick={onEditButton}>
-              <FontAwesomeIcon icon="pen" />
-              {t('color.editButton')}
-            </ActiveButton>
-          ) : (
-            <Button onClick={onEditButton}>
-              <FontAwesomeIcon icon="pen" />
-              {t('color.editButton')}
-            </Button>
-          )}
+        <ControlsHeader>
+          <ProfileName>{profile.name}</ProfileName>
+        </ControlsHeader>
+        <ControlsMain>
+          <ActiveButton active={used} disabled={used} onClick={onUseButton}>
+            {used ? (
+              <>
+                <FontAwesomeIcon icon="check" />
+                {t('color.usedButtonLabel')}
+              </>
+            ) : (
+              t('color.useButton')
+            )}
+          </ActiveButton>
+          <ActiveButton onClick={onEditButton} active={edited}>
+            <FontAwesomeIcon icon="pen" />
+            {t('color.editButton')}
+          </ActiveButton>
           <Button disabled={isDefaultProfile} onClick={onDeleteButton}>
             <FontAwesomeIcon icon="trash-alt" />
             {t('color.deleteButton')}
           </Button>
-        </div>
+        </ControlsMain>
       </ProfileWrapper>
     );
   },

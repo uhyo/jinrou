@@ -25,7 +25,7 @@ import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
 import { ColorProfileData, defaultProfiles } from '../../../defs/color-profile';
 import { ThemeStore, themeStore } from '../../../theme';
-import { Button } from '../commons/button';
+import { Button } from '../../../common/forms/button';
 import { ColorSettingTab } from '../defs/tabs';
 import { TranslationFunction } from '../../../i18n';
 

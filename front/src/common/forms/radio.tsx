@@ -1,8 +1,10 @@
 import { ActiveButton, Button } from './button';
-import { FontAwesomeIcon } from '../../../util/icon';
+import { FontAwesomeIcon } from '../../util/icon';
 import * as React from 'react';
 import { withProps } from 'recompose';
-import { arrayMapToObject } from '../../../util/array-map-to-object';
+import { arrayMapToObject } from '../../util/array-map-to-object';
+import styled from '../../util/styled';
+import { contentMargin } from './style';
 
 export interface IPropRadioButtons {
   current: string;
@@ -32,22 +34,30 @@ export const RadioButtonsInner = ({
   onChange,
 }: IPropRadioButtonsInner) => {
   return (
-    <>
-      {options.map(
-        ({ label, value }) =>
-          value === current ? (
-            <ActiveButton key={value}>
-              <FontAwesomeIcon icon="check" />
-              {label}
-            </ActiveButton>
-          ) : (
-            <Button key={value} onClick={onChange[value]}>
-              {label}
-            </Button>
-          ),
-      )}
-    </>
+    <RadioButtonWrapper role="radiogroup">
+      {options.map(({ label, value }) => {
+        const checked = value === current;
+        return (
+          <ActiveButton
+            type="button"
+            key={value}
+            role="radio"
+            aria-checked={checked}
+            active={checked}
+            onClick={onChange[value]}
+          >
+            {checked ? <FontAwesomeIcon icon="check" /> : null}
+            {label}
+          </ActiveButton>
+        );
+      })}
+    </RadioButtonWrapper>
   );
 };
+
+const RadioButtonWrapper = styled.span`
+  display: inline-block;
+  margin: ${-contentMargin}px 0;
+`;
 
 export const RadioButtons = addProps(RadioButtonsInner);

@@ -122,6 +122,8 @@ export class SpeakForm extends React.PureComponent<
     } = this.props;
     const { additionalControlsShown } = this.state;
 
+    // whether speech is allowed.
+    const speakAllowed = !(roleInfo == null && !gameInfo.watchspeak);
     // list of speech kind.
     const speaks = roleInfo != null ? roleInfo.speak : ['day'];
     const playersMap = makeMapByKey(players, 'id');
@@ -137,8 +139,18 @@ export class SpeakForm extends React.PureComponent<
                   <MainForm onSubmit={this.handleSubmit}>
                     {/* Comment input form. */}
                     <SpeakInputArea>
-                      {multiline ? (
+                      {!speakAllowed ? (
+                        <SpeakInput
+                          key="nonallowed-speakinput"
+                          ref={e => (this.comment = e)}
+                          type="text"
+                          size={50}
+                          disabled
+                          value={t('game_client:speak.noWatchSpeak')}
+                        />
+                      ) : multiline ? (
                         <SpeakTextArea
+                          key="allowed-speakinput-multiline"
                           ref={e => (this.comment = e)}
                           cols={50}
                           rows={4}
@@ -151,6 +163,7 @@ export class SpeakForm extends React.PureComponent<
                         />
                       ) : (
                         <SpeakInput
+                          key="allowed-speakinput"
                           ref={e => (this.comment = e)}
                           type="text"
                           size={50}
@@ -166,7 +179,11 @@ export class SpeakForm extends React.PureComponent<
                     </SpeakInputArea>
                     {/* Speak button. */}
                     <SpeakButtonArea>
-                      <input type="submit" value={t('game_client:speak.say')} />
+                      <input
+                        type="submit"
+                        value={t('game_client:speak.say')}
+                        disabled={!speakAllowed}
+                      />
                     </SpeakButtonArea>
                     {/* Speech-related controls. */}
                     <SpeakControlsArea hidden={othersHidden}>
