@@ -1,7 +1,10 @@
 import styled from '../../../util/styled';
 import { phone } from '../../../common/media';
-import { borderColor } from '../commons/button';
-import { ControlsWrapper, ControlsName } from '../commons/controls-wrapper';
+import { borderColor } from '../../../common/forms/button';
+import {
+  ControlsWrapper,
+  ControlsName,
+} from '../../../common/forms/controls-wrapper';
 
 /**
  * Wrapper of whole content.
