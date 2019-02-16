@@ -310,6 +310,14 @@ module.exports.actions=(req,res,ss)->
                 error: i18n.t "error.join.banned"
             }
             return
+        
+        #Function to sanitize log text.
+        #Removes Unicode bidi characters.
+        sanitizeName = (name)->
+            return name.replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g, '')
+
+        opt.name = sanitizeName opt.name
+
         Server.game.rooms.oneRoomS roomid,(room)=>
             if !room || room.error?
                 res error: i18n.t "error.noSuchRoom"
@@ -344,7 +352,7 @@ module.exports.actions=(req,res,ss)->
             user=
                 userid:req.session.userId
                 realid:req.session.userId
-                name:su.name
+                name:sanitizeName su.name
                 ip:su.ip
                 icon:su.icon
                 start:false
@@ -408,7 +416,7 @@ module.exports.actions=(req,res,ss)->
                             if room.players.some((x)->x.userid==re)
                                 re=""
                         re
-                    user.name=opt.name
+                    user.name=sanitizeName opt.name
                     user.userid=makeid()
                     user.icon= opt.icon ? null
             if user.name.trim() == ''
