@@ -8731,6 +8731,7 @@ class DragonKnight extends Player
     type:"DragonKnight"
     midnightSort:80
     formType: FormType.optional
+    hasDeadResistance:->true
     sleeping:->true
     jobdone:(game)-> game.day <= 1 || @target?
     constructor:->
@@ -8776,6 +8777,8 @@ class DragonKnight extends Player
             day: @flag.day
             killUsed: @flag.killUsed
         }
+        # touch targeted player.
+        pl.touched game, @id
         # show selection log.
         log=
             mode:"skill"
@@ -10618,6 +10621,7 @@ jobStrength=
     Hooligan:15
     HomeComer:16
     Illusionist:25
+    DragonKnight:23
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
