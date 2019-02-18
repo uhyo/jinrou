@@ -134,4 +134,12 @@ Witch:
   drug:
     kill: "毒薬"
     revive: "蘇生薬"
-
+# Texts for DragonKnight form.
+DragonKnight:
+  description: "能力の対象を選択してください"
+  # normal guard button.
+  guardButton: "護衛"
+  # kill button.
+  killButton: "殺害（1回のみ）"
+  # kill button (already used)
+  killButtonUsed: "殺害（使用済）"

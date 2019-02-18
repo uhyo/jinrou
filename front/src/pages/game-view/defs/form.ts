@@ -46,6 +46,13 @@ interface SpecialFormData {
      */
     remains: number;
   };
+  // 竜騎士
+  DragonKnight: {
+    /**
+     * 襲撃を既に使用したか
+     */
+    killUsed: boolean;
+  };
 }
 /**
  * Type of data for specific type.

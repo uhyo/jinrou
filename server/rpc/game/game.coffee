@@ -8757,12 +8757,11 @@ class DragonKnight extends Player
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
         # validate type
-        type = query.DragonKnight_type
+        type = query.commandname
         unless type in ["kill", "guard"]
             return game.i18n.t "error.common.invalidQuery"
         # cannot guard same player twice in a row
         if  @flag.day == game.day - 1 &&
-            @flag.type == "guard" &&
             type == "guard" &&
             @flag.lastGuard == playerid
                 return game.i18n.t "roles:Guard.noGuardSame"
@@ -8777,6 +8776,16 @@ class DragonKnight extends Player
             day: @flag.day
             killUsed: @flag.killUsed
         }
+        # show selection log.
+        log=
+            mode:"skill"
+            to:@id
+            comment: if type == "guard"
+                game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
+            else
+                game.i18n.t "roles:DragonKnight.killSelect", {name: @name, target: pl.name}
+
+        splashlog game.id,game,log
         null
     midnight:(game)->
         return unless @target?
