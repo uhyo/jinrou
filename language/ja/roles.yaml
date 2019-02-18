@@ -123,6 +123,7 @@ jobname:
   HooliganGuard: "警備員"
   HomeComer: "帰省者"
   Illusionist: "奇術師"
+  DragonKnight: "竜騎士"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -686,8 +687,12 @@ Emma:
     friendsuicide: "{{name}}は恋人の後を追って死亡したようです。"
     # Suicided after his twin
     twinsuicide: "{{name}}は双子の後を追って死亡したようです。"
+    # DragonKnight's suicide
+    dragonknightsuicide: "{{name}}は自責の念に駆られて自ら命を断ったようです。"
     # Killed by hooligan
     hooligan: "{{name}}は暴動者たちに殺されたようです。"
+    # Killed by DragonKnight
+    dragon: "{{name}}は竜に焼き殺されたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -783,6 +788,10 @@ HomeComer:
 Illusionist:
   # select a target of illusion.
   select: "{{name}}は今晩の人狼の襲撃先を{{target}}にすり替えました。"
+
+DragonKnight:
+  # select a target of kill.
+  killSelect: "{{name}}が{{target}}を襲撃しました。"
 
 GameMaster:
   # Failed to revive.

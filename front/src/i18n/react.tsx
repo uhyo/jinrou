@@ -69,12 +69,10 @@ export class I18nProvider extends React.PureComponent<
 /**
  * Retrieve i18n rendering function from context.
  */
-export function useI18n(
-  namespace: string,
-): i18next.TranslationFunction | undefined {
+export function useI18n(namespace: string): i18next.TranslationFunction {
   const context = React.useContext(I18nContext);
   if (context == null) {
-    return void 0;
+    throw new Error('useI18n is used without providing i18n instance');
   }
   const { i18n } = context;
   const t = React.useMemo(

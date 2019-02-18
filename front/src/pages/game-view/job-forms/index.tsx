@@ -18,6 +18,8 @@ import {
 } from './elements';
 import { FormContentProps } from './defs';
 import { makeWerewolfForm } from './werewolf';
+import { useI18n } from '../../../i18n/react';
+import { makeDragonKnightForm } from './dragonKnight';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -47,111 +49,121 @@ export interface IPropForm {
 /**
  * One job form.
  */
-export class Form extends React.PureComponent<IPropForm, {}> {
+export const Form: React.FC<IPropForm> = React.memo(({ form, onSubmit }) => {
   /**
    * Saved name of submit button.
    */
-  protected commandName: string = '';
-  public render() {
-    const { form, onSubmit } = this.props;
-    const { type, options, formType, objid } = form;
-    return (
-      <I18n namespace="game_client_form">
-        {t => {
-          // Make name of this form.
-          const name = specialNamedTypes.includes(type)
-            ? t(`specialName.${type}`)
-            : t('normalName', {
-                job: t(`roles:jobname.${type}`),
-              });
-          const formTypeStr = t(`formType.${formType}`);
-          // Make options as renderer.
-          const makeOptions = () =>
-            options.map(({ name, value }, i) => (
-              <OptionLabel key={`${i}-value`}>
-                <bdi>{name}</bdi>
-                <input type="radio" name="target" value={value} />
-              </OptionLabel>
-            ));
+  const commandNameRef = React.useRef('');
+  const { type, options, formType, objid } = form;
 
-          const content = specialContentTypes.includes(type)
-            ? // This is special!
-              makeSpecialContent({ form, t, makeOptions })
-            : makeNormalContent({ form, t, makeOptions });
+  const t = useI18n('game_client_form');
 
-          // Handle submission of job form.
-          const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            // Make a plain object from it.
-            const query: Record<string, string> = {};
-            /*
-            // this nice code does not work for Edge now...
-            // Retrieve a key/value pairs of the form.
-            const data = new FormData(form);
-            for (const [key, value] of data.entries()) {
-              // value is either string or File.
-              // File should not occur here.
-              if ('string' === typeof value) {
-                query[key] = value;
-              } else {
-                console.warn('File', value);
-              }
-            }
-            */
-            for (const elm of Array.from(form.elements)) {
-              const e = elm as any;
-              if (e.name != null) {
-                if (e.type === 'radio' && !e.checked) {
-                  continue;
-                }
-                query[e.name] = e.value;
-              }
-            }
-            // add special parameters
-            if (this.commandName !== '') {
-              query.commandname = this.commandName;
-            }
-            query.jobtype = type;
-            query.objid = objid;
-            // query is generated
-            console.log(query);
-            onSubmit(query);
-          };
-          // Handle click of something.
-          const handleClick = (e: React.SyntheticEvent<HTMLFormElement>) => {
-            const t = e.target as HTMLInputElement;
-            // When submit button is clicked, save its name,
-            if (t.tagName === 'INPUT' && t.type === 'submit') {
-              this.commandName = t.name;
-            }
-          };
+  // Make name of this form.
+  const name = specialNamedTypes.includes(type)
+    ? t(`specialName.${type}`)
+    : t('normalName', {
+        job: t(`roles:jobname.${type}`),
+      });
+  const formTypeStr = t(`formType.${formType}`);
+  // Make options as renderer.
+  const makeOptions = () =>
+    options.map(({ name, value }, i) => (
+      <OptionLabel key={`${i}-value`}>
+        <bdi>{name}</bdi>
+        <input type="radio" name="target" value={value} />
+      </OptionLabel>
+    ));
 
-          return (
-            <FormWrapper>
-              <form onSubmit={handleSubmit} onClick={handleClick}>
-                <FormStatusLine>
-                  <FormName>{name}</FormName>
-                  <FormTypeWrapper formType={formType}>
-                    {formTypeStr}
-                  </FormTypeWrapper>
-                </FormStatusLine>
-                <FormContent>
-                  {content}
-                  <SelectWrapper>
-                    <input
-                      type="submit"
-                      value={t('game_client_form:normalButton')}
-                    />
-                  </SelectWrapper>
-                </FormContent>
-              </form>
-            </FormWrapper>
-          );
-        }}
-      </I18n>
-    );
-  }
+  const { content, buttons } = makeFormContent({ form, t, makeOptions });
+
+  // Handle submission of job form.
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    // Make a plain object from it.
+    const query: Record<string, string> = {};
+    /*
+      // this nice code does not work for Edge now...
+      // Retrieve a key/value pairs of the form.
+      const data = new FormData(form);
+      for (const [key, value] of data.entries()) {
+        // value is either string or File.
+        // File should not occur here.
+        if ('string' === typeof value) {
+          query[key] = value;
+        } else {
+          console.warn('File', value);
+        }
+      }
+    */
+    for (const elm of Array.from(form.elements)) {
+      const e = elm as any;
+      if (e.name != null) {
+        if (e.type === 'radio' && !e.checked) {
+          continue;
+        }
+        query[e.name] = e.value;
+      }
+    }
+    // add special parameters
+    if (commandNameRef.current !== '') {
+      query.commandname = commandNameRef.current;
+    }
+    query.jobtype = type;
+    query.objid = objid;
+    // query is generated
+    console.log(query);
+    onSubmit(query);
+  };
+  // Handle click of something.
+  const handleClick = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    const t = e.target as HTMLInputElement;
+    // When submit button is clicked, save its name,
+    if (t.tagName === 'INPUT' && t.type === 'submit') {
+      commandNameRef.current = t.name;
+    }
+  };
+
+  return (
+    <FormWrapper>
+      <form onSubmit={handleSubmit} onClick={handleClick}>
+        <FormStatusLine>
+          <FormName>{name}</FormName>
+          <FormTypeWrapper formType={formType}>{formTypeStr}</FormTypeWrapper>
+        </FormStatusLine>
+        <FormContent>
+          {content}
+          <SelectWrapper>{buttons}</SelectWrapper>
+        </FormContent>
+      </form>
+    </FormWrapper>
+  );
+});
+
+interface FormContent {
+  /**
+   * main content of one form.
+   */
+  content: React.ReactNode;
+  /**
+   * submit buttons.
+   */
+  buttons: React.ReactNode;
+}
+/**
+ * Make contents of one form.
+ */
+function makeFormContent(props: FormContentProps): FormContent {
+  const {
+    content = makeNormalContent(props),
+    buttons = makeNormalButtons(props),
+  } = specialContentTypes.includes(props.form.type)
+    ? makeSpecialContent(props)
+    : {};
+  return {
+    content,
+    buttons,
+  };
 }
 
 /**
@@ -169,13 +181,17 @@ function makeNormalContent({
     </>
   );
 }
+function makeNormalButtons({ t }: FormContentProps) {
+  return <input type="submit" value={t('game_client_form:normalButton')} />;
+}
 
 /**
  * Make special content of job form.
  */
-function makeSpecialContent(props: FormContentProps) {
+function makeSpecialContent(props: FormContentProps): Partial<FormContent> {
   const { form, makeOptions } = props;
   let otherContents;
+  let buttons;
   switch (form.type) {
     case 'GameMaster': {
       otherContents = makeGameMasterForm(props);
@@ -194,15 +210,24 @@ function makeSpecialContent(props: FormContentProps) {
       otherContents = makeWerewolfForm(props as FormContentProps<'_Werewolf'>);
       break;
     }
+    case 'DragonKnight': {
+      ({ content: otherContents, buttons } = makeDragonKnightForm(
+        props as FormContentProps<'DragonKnight'>,
+      ));
+      break;
+    }
     default: {
       console.error(`Special form for ${form.type} is undefined`);
-      return null;
+      return {};
     }
   }
-  return (
-    <>
-      {otherContents}
-      {makeOptions()}
-    </>
-  );
+  return {
+    content: (
+      <>
+        {otherContents}
+        {makeOptions()}
+      </>
+    ),
+    buttons,
+  };
 }

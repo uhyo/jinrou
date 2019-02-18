@@ -1682,7 +1682,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan","dragon"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1695,7 +1695,7 @@ class Game
                     @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
                     @i18n.t "found.body", {name: x.name}
-                when "foxsuicide", "friendsuicide", "twinsuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide"
                     @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
@@ -1720,9 +1720,10 @@ class Game
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
-                    "foxsuicide","friendsuicide","twinsuicide","infirm","hunter",
+                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide",
+                    "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","lunaticlover",
-                    "hooligan"
+                    "hooligan","dragon"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1765,8 +1766,12 @@ class Game
                         "friendsuicide"
                     when "twinsuicide"
                         "twinsuicide"
+                    when "dragonknightsuicide"
+                        "dragonknightsuicide"
                     when "hooligan"
                         "hooligan"
+                    when "dragon"
+                        "dragon"
                     else
                         null
                 if emma_log?
@@ -8722,6 +8727,118 @@ class Illusionist extends Player
             # 襲撃方法を変更
             target.found = "trickedWerewolf"
 
+class DragonKnight extends Player
+    type:"DragonKnight"
+    midnightSort:80
+    formType: FormType.optional
+    sleeping:->true
+    jobdone:(game)-> game.day <= 1 || @target?
+    constructor:->
+        super
+        @setFlag {
+            # type of action this night
+            type: null
+            # ID of player guarded last night.
+            lastGuard: null
+            # day on which this action is taken.
+            day: 0
+            # whether kill is already used.
+            killUsed: false
+        }
+    sunset:(game)->
+        @setTarget null
+    job:(game, playerid, query)->
+        pl = game.getPlayer playerid
+        # must choose alive player other than myself
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        # validate type
+        type = query.commandname
+        unless type in ["kill", "guard"]
+            return game.i18n.t "error.common.invalidQuery"
+        # cannot guard same player twice in a row
+        if  @flag.day == game.day - 1 &&
+            type == "guard" &&
+            @flag.lastGuard == playerid
+                return game.i18n.t "roles:Guard.noGuardSame"
+        # cannot use kill more than once
+        if @flag.killUsed && type == "kill"
+            return game.i18n.t "error.common.alreadyUsed"
+        @setTarget playerid
+        # only update type here.
+        @setFlag {
+            type: type
+            lastGuard: @flag.lastGuard
+            day: @flag.day
+            killUsed: @flag.killUsed
+        }
+        # show selection log.
+        log=
+            mode:"skill"
+            to:@id
+            comment: if type == "guard"
+                game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
+            else
+                game.i18n.t "roles:DragonKnight.killSelect", {name: @name, target: pl.name}
+
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        return unless @target?
+        pl = game.getPlayer game.skillTargetHook.get @target
+        return unless pl?
+
+        if @flag.type == "guard"
+            newpl = Player.factory null, game, pl, null, Guarded
+            pl.transProfile newpl
+            newpl.cmplFlag = @id # 護衛元
+            pl.transform game, newpl, true
+            newpl.touched game, @id
+            @setFlag {
+                type: null
+                lastGuard: newpl.id
+                day: game.day
+                killUsed: @flag.killUsed
+            }
+        else if @flag.type == "kill"
+            pl.die game, "dragon", @id
+            @setFlag {
+                type: null
+                lastGuard: null
+                day: game.day
+                killUsed: true
+            }
+    beforebury:(game, type)->
+        return false if @dead
+        if type == "day"
+            # 昼になったとき
+            if @flag.day == game.day-1
+                targetpl = game.getPlayer @target
+                unless targetpl?
+                    return false
+                if targetpl.dead && targetpl.getTeam() == "Human"
+                    # 能力対象が村人陣営で死亡している！
+                    @die game, "dragonknightsuicide"
+        return false
+    getOpenForms:(game)->
+        if !@dead && Phase.isNight(game.phase) && !@jobdone(game)
+            # manually generate form.
+            return [{
+                type: @type
+                options: @makeJobSelection game, false
+                formType: @formType
+                objid: @objid
+                # give data of whether kill is already used.
+                data:
+                    killUsed: @flag.killUsed
+            }]
+        return []
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -10335,6 +10452,7 @@ jobs=
     HooliganGuard:HooliganGuard
     HomeComer:HomeComer
     Illusionist:Illusionist
+    DragonKnight:DragonKnight
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

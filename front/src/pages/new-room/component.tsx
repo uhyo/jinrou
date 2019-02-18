@@ -40,10 +40,6 @@ export interface IPropNewRoom {
 export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
   ({ themes, store, onCreate }) => {
     const t = useI18n('newroom_client');
-    if (t == null) {
-      // TODO
-      return null;
-    }
     const nameInputRef = React.useRef<HTMLInputElement | null>(null);
     const passwordInputRef = React.useRef<HTMLInputElement | null>(null);
     const commentInputRef = React.useRef<HTMLInputElement | null>(null);
