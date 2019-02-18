@@ -19,4 +19,7 @@ export const Input = styled.input`
   &:not([size]) {
     width: 100%;
   }
+  &[size][type='number'] {
+    width: 8ex;
+  }
 `;
