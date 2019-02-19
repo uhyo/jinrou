@@ -223,6 +223,7 @@ function loadSavedRules(
         'maxnumber',
         'blind',
         'gm',
+        'watchspeak',
         'jobrule',
         '_jobquery',
         'quantum_joblist',
