@@ -19,6 +19,7 @@ import { FontAwesomeIcon } from '../../util/icon';
 import { WideButton } from '../../common/button';
 import { CheckButton } from '../../common/forms/check-button';
 import { Select } from '../../common/forms/select';
+import { showConfirmDialog } from '../../dialog';
 
 export interface ThemeDoc {
   /**
@@ -45,6 +46,8 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
     const commentInputRef = React.useRef<HTMLInputElement | null>(null);
     const maxNumberInputRef = React.useRef<HTMLInputElement | null>(null);
     const themeSelectRef = React.useRef<HTMLSelectElement | null>(null);
+    // memory of whether submit button was explicitly clicked (or pressed).
+    const enterPressedRef = React.useRef(false);
 
     React.useEffect(() => {
       // initialize store with saved jobs.
@@ -126,25 +129,54 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
       ],
       [t],
     );
+    const keydownHandler = (e: React.KeyboardEvent<HTMLFormElement>) => {
+      const target = e.target as HTMLInputElement;
+      if (e.key !== 'Enter') {
+        return;
+      }
+      if (target.tagName === 'INPUT' && target.type === 'submit') {
+        // allow because user explicitly pressed the submit button.
+        enterPressedRef.current = false;
+      } else {
+        enterPressedRef.current = true;
+      }
+    };
     const submitHandler = (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const getValue = (
-        ref: React.RefObject<HTMLInputElement | HTMLSelectElement | null>,
-      ) => {
-        return ref.current != null ? ref.current.value : '';
-      };
-      const query = {
-        name: getValue(nameInputRef),
-        usepassword: store.usePassword ? 'on' : '',
-        password: store.usePassword ? getValue(passwordInputRef) : void 0,
-        comment: getValue(commentInputRef),
-        number: getValue(maxNumberInputRef),
-        blind: store.blind,
-        theme: getValue(themeSelectRef),
-        ownerGM: store.gm ? 'yes' : '',
-        watchspeak: store.watchSpeak ? 'on' : 'off',
-      };
-      onCreate(query);
+      const confirmed = !enterPressedRef.current
+        ? Promise.resolve(true)
+        : showConfirmDialog({
+            title: t('title'),
+            message: t('confirm.message'),
+            yes: t('confirm.yes'),
+            no: t('confirm.no'),
+          });
+      enterPressedRef.current = false;
+
+      confirmed.then(c => {
+        if (!c) {
+          // canceled by used
+          return;
+        }
+
+        const getValue = (
+          ref: React.RefObject<HTMLInputElement | HTMLSelectElement | null>,
+        ) => {
+          return ref.current != null ? ref.current.value : '';
+        };
+        const query = {
+          name: getValue(nameInputRef),
+          usepassword: store.usePassword ? 'on' : '',
+          password: store.usePassword ? getValue(passwordInputRef) : void 0,
+          comment: getValue(commentInputRef),
+          number: getValue(maxNumberInputRef),
+          blind: store.blind,
+          theme: getValue(themeSelectRef),
+          ownerGM: store.gm ? 'yes' : '',
+          watchspeak: store.watchSpeak ? 'on' : 'off',
+        };
+        onCreate(query);
+      });
     };
     return (
       <Wrapper>
@@ -161,7 +193,7 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
             </CheckButton>
           </InlineControl>
         </h1>
-        <form onSubmit={submitHandler}>
+        <form onSubmit={submitHandler} onKeyDown={keydownHandler}>
           <ControlsWrapper>
             {/* title input */}
             <ControlsHeader>
