@@ -1432,8 +1432,10 @@ class Game
             player=@players[i]
             if player.id in alives
                 player.sunset this
+                player.sunsetAlways this
             else
                 player.deadsunset this
+                player.sunsetAlways this
     # 身代わりくんの自動投票処理を行う
     runScapegoatJobs:->
         for player in @players
@@ -3080,6 +3082,9 @@ class Player
     # with FrankensteinsMonster and Pyrotechnist in mind
     sunset:(game)->
     deadsunset:(game)->
+    # called right adter sunset/deadsubset
+    # (not prevented by other skills
+    sunsetAlways:(game)->
     # 夜にもう寝たか
     sleeping:(game)->true
     # 夜に仕事を追えたか（基本sleepingと一致）
@@ -9243,6 +9248,9 @@ class Complex
     deadsunset:(game)->
         @mcall game,@main.deadsunset,game
         @sub?.deadsunset? game
+    sunsetAlways:(game)->
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
     deadsunrise:(game)->
         @mcall game,@main.deadsunrise,game
         @sub?.deadsunrise? game
@@ -9690,10 +9698,10 @@ class MikoProtected extends Complex
         if Found.isGuardableWerewolfAttack found
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.holy
         return true
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
-        @sub?.sunset? game
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
         @uncomplex game
 # 威嚇する人狼に威嚇された
 class Threatened extends Complex
