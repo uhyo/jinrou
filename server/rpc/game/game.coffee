@@ -8861,6 +8861,7 @@ class DragonKnight extends Player
 class Satori extends Diviner
     type:"Satori"
     team:"Werewolf"
+    formType: FormType.required
     sleeping:->@target?
     job:(game, playerid)->
         pl = game.getPlayer playerid
