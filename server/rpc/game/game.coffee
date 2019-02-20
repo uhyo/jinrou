@@ -6434,8 +6434,21 @@ class FrankensteinsMonster extends Player
         return false if @dead
         # 新しく死んだひとたちで村人陣営ひとたち
         founds=deads.filter (x)->x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
-        # 吸収する
-        thispl=this
+
+        if founds.length == 0
+            return false
+
+        # add new roles to the bottom of main chain,
+        # so that it is under existing Threatened.
+        top = game.getPlayer @id
+        res = getSubParentAndMainChain top, this
+        unless res?
+            return false
+        res2 = constructMainChain res[2]
+        unless res2?
+            return false
+        targetpl = res2[1]
+
         for pl in founds
             # extract absorbable jobs.
             extracted = []
@@ -6452,21 +6465,20 @@ class FrankensteinsMonster extends Player
             # 全て合成
             for newtype in extracted
                 subpl = Player.factory newtype, game
-                thispl.transProfile subpl
+                @transProfile subpl
 
-                newpl=Player.factory null, game, thispl,subpl,Complex    # 合成する
-                thispl.transProfile newpl
+                newpl=Player.factory null, game, targetpl, subpl, Complex    # 合成する
+                @transProfile newpl
 
                 # 置き換える
-                thispl.transform game,newpl,true
-                thispl=newpl
+                targetpl = newpl
 
-                thispl.addGamelog game,"frankeneat",newtype,pl.id
+                @addGamelog game,"frankeneat",newtype,pl.id
+        # apply change
+        @transform game, targetpl, false
 
-        if founds.length>0
-            game.splashjobinfo [thispl]
-            return true
-        return false
+        game.splashjobinfo [this]
+        return true
 class BloodyMary extends Player
     type:"BloodyMary"
     formType: FormType.optional
