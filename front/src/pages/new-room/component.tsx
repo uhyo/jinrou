@@ -53,7 +53,7 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
           const savedRule = JSON.parse(localStorage.savedRule);
           if ('number' === typeof savedRule.maxnumber) {
             if (maxNumberInputRef.current != null) {
-              maxNumberInputRef.current.value = String(savedRule.number);
+              maxNumberInputRef.current.value = String(savedRule.maxnumber);
             }
           }
           if ('string' === typeof savedRule.blind) {
