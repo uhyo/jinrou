@@ -8841,6 +8841,55 @@ class DragonKnight extends Player
             }]
         return []
 
+class Satori extends Diviner
+    type:"Satori"
+    team:"Werewolf"
+    sleeping:->@target?
+    job:(game, playerid)->
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game, @id
+        @setTarget playerid
+
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Satori.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    dodivine:(game)->
+        origpl = game.getPlayer @target
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl? && origpl?
+            return
+
+        fortune = pl.getFortuneResult()
+        result = null
+        if fortune == FortuneResult.human
+            # check special roles
+            if pl.isJobType "BigWolf"
+                result = game.i18n.t "roles:jobname.BigWolf"
+                @addGamelog game, "mindread", "BigWolf", pl.id
+            else if pl.isJobType "Diviner"
+                result = game.i18n.t "roles:jobname.Diviner"
+                @addGamelog game, "mindread", "Diviner", pl.id
+            else
+                result = game.i18n.t "roles:fortune.#{fortune}"
+                @addGamelog game, "mindread", fortune, pl.id
+        else
+            result = game.i18n.t "roles:fortune.#{fortune}"
+            @addGamelog game, "mindread", fortune, pl.id
+        @setFlag @flag.concat {
+            player: origpl.publicinfo()
+            result: game.i18n.t "roles:Satori.resultlog", {
+                name: @name
+                target: origpl.name
+                result: result
+            }
+            day: game.day
+        }
+
 
 # ============================
 # 処理上便宜的に使用
@@ -10456,6 +10505,7 @@ jobs=
     HomeComer:HomeComer
     Illusionist:Illusionist
     DragonKnight:DragonKnight
+    Satori:Satori
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -10622,6 +10672,7 @@ jobStrength=
     HomeComer:16
     Illusionist:25
     DragonKnight:23
+    Satori:22
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

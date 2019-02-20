@@ -124,6 +124,7 @@ jobname:
   HomeComer: "帰省者"
   Illusionist: "奇術師"
   DragonKnight: "竜騎士"
+  Satori: "サトリ"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -792,6 +793,12 @@ Illusionist:
 DragonKnight:
   # select a target of kill.
   killSelect: "{{name}}が{{target}}を襲撃しました。"
+
+Satori:
+  # select a target of mind reading.
+  select: "{{name}}は{{target}}に読心術を使用しました。"
+  # log of result.
+  resultlog: "{{name}}の読心の結果、{{target}}は{{result}}でした。"
 
 GameMaster:
   # Failed to revive.

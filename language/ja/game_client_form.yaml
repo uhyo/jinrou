@@ -99,6 +99,7 @@ messages:
   HooliganAttacker: "暴行を加える相手を選択してください"
   HooliganGuard: "拘束する対象を選択してください"
   Illusionist: "襲撃のすり替え対象を選択してください"
+  Satori: "読心術の対象を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.
