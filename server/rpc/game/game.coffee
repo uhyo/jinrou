@@ -1282,6 +1282,9 @@ class Game
                     if @rule.scapegoat=="on" && @day==1 && player.isWerewolf() && player.isAttacker()
                         # 身代わり襲撃は例外的にtrue
                         @ninja_data[player.id] = true
+                    if @rule.firstnightdivine == "auto" && @day == 1 && player.isJobType "Diviner"
+                        # 初日白通知ありの占い師もtrue
+                        @ninja_data[player.id] = true
         else
             # 誤爆防止
             @werewolf_target_remain=0
