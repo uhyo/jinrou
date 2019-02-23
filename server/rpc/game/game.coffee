@@ -9807,6 +9807,7 @@ class PhantomStolen extends Complex
     getJobname:-> @game.i18n.t "roles:jobname.Phantom" #霊界とかでは既に怪盗化
     getMainJobname:-> @getJobname()
     # 勝利条件関係は村人化（昼の間だけだし）
+    isHuman:->true
     isWerewolf:->false
     isFox:->false
     isVampire:->false
