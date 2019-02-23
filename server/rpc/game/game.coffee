@@ -8878,6 +8878,9 @@ class Satori extends Diviner
             to:@id
             comment: game.i18n.t "roles:Satori.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game, playerid
         null
     dodivine:(game)->
         origpl = game.getPlayer @target
@@ -11494,7 +11497,7 @@ module.exports.actions=(req,res,ss)->
                                     if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
-                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructiveMad"
+                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructiveMad","Satori"
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
