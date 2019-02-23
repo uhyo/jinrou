@@ -6621,7 +6621,7 @@ class PsychoKiller extends Madman
         PsychoKiller::midnight.call this, game, midnightSort
 class SantaClaus extends Player
     type:"SantaClaus"
-    midnightSort:100
+    midnightSort:101
     formType: FormType.required
     sleeping:->@target?
     constructor:->
