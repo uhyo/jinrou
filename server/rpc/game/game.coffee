@@ -4318,6 +4318,11 @@ class Copier extends Player
                     name: pl.name
                     value: pl.id
                 }
+            else if pl.type in Shared.game.nonhumans
+                result.push {
+                    name: pl.name
+                    value: pl.id
+                }
             else
                 result.push {
                     name: pl.name
