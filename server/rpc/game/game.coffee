@@ -4884,13 +4884,6 @@ class Doppleganger extends Player
             newpl=Player.factory null, game, newplmain,sub,Complex    # 合体
             @transProfile newpl
 
-            # 同じところが変わる
-            sub?.setFlag {
-                done: false
-                ownerid: newpl.objid
-                target: null
-            }
-
             # 変化する
             ownerid = @flag.ownerid
             if ownerid?
@@ -4900,13 +4893,20 @@ class Doppleganger extends Player
                 unless transpl?
                     # ???
                     return
-                transpl.transferData newplmain, true
+                transpl.transferData newpl, true
                 transpl.transform game, newpl, false
                 @uncomplex game, true
             else
                 # 初めてなので自分が変化する
-                @transferData newplmain, true
+                @transferData newpl, true
                 @transform game, newpl, false
+
+            # newplのobjidが定まってからフラグを設定
+            sub?.setFlag {
+                done: false
+                ownerid: newpl.objid
+                target: null
+            }
 
             log=
                 mode:"skill"
