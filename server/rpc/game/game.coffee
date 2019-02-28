@@ -9911,6 +9911,10 @@ class BombTrapped extends Complex
             # 狩人がいた!（罠も無効）
             @cmplFlag.used = true
     # bomb would explode for only once
+    sunrise:(game)->
+        super
+        if @cmplFlag.used
+            @uncomplex game
     deadsunrise:(game)->
         super
         if @cmplFlag.used
