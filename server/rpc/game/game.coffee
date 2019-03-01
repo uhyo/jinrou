@@ -389,6 +389,9 @@ class Game
     constructor:(@ss,room)->
         @i18n = i18n
 
+        @players=[]         # 村人たち
+        @participants=[]    # 参加者全て(@playersと同じ内容含む）
+
         # @ss: ss
         if room?
             @id=room.id
@@ -396,9 +399,18 @@ class Game
             @gm= if room.gm then room.owner.userid else null
             # 観戦者の発言が許可されているか
             @watchspeak = room.watchspeak
+            if room.gm
+                # GMは最初から追加されている
+                gmpls = room.players.filter (pl)-> pl.mode == "gm"
+                if gmpls[0]?
+                    gmpl = Player.factory "GameMaster", this
+                    gmpl.setProfile {
+                        id: gmpls[0].userid
+                        realid: gmpls[0].realid
+                        name: gmpls[0].name
+                    }
+                    @participants.push gmpl
 
-        @players=[]         # 村人たち
-        @participants=[]    # 参加者全て(@playersと同じ内容含む）
         @rule=null
         @finished=false #終了したかどうか
         @day=0  #何日目か(0=準備中)
@@ -524,22 +536,29 @@ class Game
 
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
-        # 開始前なら準備中を用意してあげないと！
+        # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
                 if room.error?
                     return
                 game.players=[]
+                supporters=[]
                 for plobj in room.players
-                    newpl=Player.factory "Waiting", game
+                    if plobj.mode == "gm"
+                        newpl = Player.factory "GameMaster", game
+                    else
+                        newpl=Player.factory "Waiting", game
                     newpl.setProfile {
                         id:plobj.userid
                         realid:plobj.realid
                         name:plobj.name
                     }
                     newpl.setTarget null
-                    game.players.push newpl
-                game.participants=game.players.concat []
+                    if plobj.mode == "gm"
+                        game.players.push newpl
+                    else
+                        supporters.push newpl
+                game.participants=game.players.concat supporters
 
         game.quantum_patterns=obj.quantum_patterns ? []
         game.finish_time=obj.finish_time ? null
