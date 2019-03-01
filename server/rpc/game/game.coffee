@@ -9779,7 +9779,7 @@ class Threatened extends Complex
 class DivineObstructed extends Complex
     # cmplFlag: 邪魔元ID
     cmplType:"DivineObstructed"
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 一日しか守られない
         @mcall game,@main.sunset,game
         @sub?.sunset? game
@@ -10011,7 +10011,7 @@ class FoxMinion extends Complex
 # 丑刻参に呪いをかけられた
 class DivineCursed extends Complex
     cmplType:"DivineCursed"
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 1日で消える
         @mcall game,@main.sunset,game
         @sub?.sunset? game
