@@ -7386,7 +7386,7 @@ class GotChocolate extends Player
                     top.transferData newpl, true
                     # ストーカー先
                     newpl.setFlag re[1]
-                    top.transform game, newpl, true
+                    top.transform game, newpl
 
                     log=
                         mode:"skill"
