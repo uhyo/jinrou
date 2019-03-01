@@ -10894,7 +10894,7 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push job
                             excluded_exceptions.push job
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
-                if query.yaminabe_hidejobs=="" || !safety.jobs
+                if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
                     special_exceptions.push "BloodyMary"
                 # スパイ2（人気がないので出ない）
