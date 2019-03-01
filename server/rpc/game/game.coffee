@@ -1282,8 +1282,8 @@ class Game
                     if @rule.scapegoat=="on" && @day==1 && player.isWerewolf() && player.isAttacker()
                         # 身代わり襲撃は例外的にtrue
                         @ninja_data[player.id] = true
-                    if @rule.firstnightdivine == "auto" && @day == 1 && player.isJobType "Diviner"
-                        # 初日白通知ありの占い師もtrue
+                    if @rule.firstnightdivine == "auto" && @day == 1 && (player.isJobType("Diviner") || player.isJobType("Satori"))
+                        # 初日白通知ありの占い師・サトリもtrue
                         @ninja_data[player.id] = true
         else
             # 誤爆防止
@@ -8870,6 +8870,26 @@ class Satori extends Diviner
     type:"Satori"
     team:"Werewolf"
     formType: FormType.required
+    sunset:(game)->
+        super
+        @setTarget null
+        # 占い対象
+        targets = game.players.filter (x)->!x.dead
+
+        if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
+            # 自動白通知
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            if targets2.length > 0
+                # ランダムに決定
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:game.i18n.t "roles:Satori.auto", {name: @name}
+                splashlog game.id,game,log
+
+                r=Math.floor Math.random()*targets2.length
+                @job game,targets2[r].id,{}
+                return
     sleeping:->@target?
     job:(game, playerid)->
         pl = game.getPlayer playerid
