@@ -708,7 +708,8 @@ class Game
                 keys=[]
                 # 数に比例した役職一覧を作る
                 for job,num of joblist
-                    unless job in Shared.game.nonhumans
+                    # 盗人自身と人外は抜かない
+                    unless job == "Thief" || (job in Shared.game.nonhumans)
                         for j in [0...num]
                             keys.push job
                 keys=shuffle keys
