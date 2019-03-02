@@ -3008,6 +3008,15 @@ class Player
     isDrunk:->false
     # 蘇生可能性を秘めているか
     isReviver:->false
+    # 閲覧可能な仲間情報
+    getVisibilityQuery:->{
+        # 狼の仲間
+        wolves: false
+        # スパイ2
+        spy2s: false
+        # 妖狐の仲間
+        foxes: false
+    }
     # ----- 役職判定用
     hasDeadResistance:->false
     # -----
@@ -3496,14 +3505,12 @@ class Werewolf extends Player
     fortuneResult: FortuneResult.werewolf
     psychicResult: PsychicResult.werewolf
     team: "Werewolf"
-    makejobinfo:(game,result)->
-        super
-        # 人狼は仲間が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
-            x.publicinfo()
-        # スパイ2も分かる
-        result.spy2s=game.players.filter((x)->x.isJobType "Spy2").map (x)->
-            x.publicinfo()
+    getVisibilityQuery:->
+        res = super
+        # 狼の仲間情報を閲覧可能
+        res.wolves = true
+        res.spy2s = true
+        res
     getOpenForms:(game)->
         if (Phase.isNight(game.phase) &&
             game.werewolf_target_remain > 0 &&
@@ -3740,11 +3747,11 @@ class Fox extends Player
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
         return false
-    makejobinfo:(game,result)->
-        super
+    getVisibilityQuery:->
+        res = super
         # 妖狐は仲間が分かる
-        result.foxes=game.players.filter((x)->x.isFoxVisible()).map (x)->
-            x.publicinfo()
+        res.foxes = true
+        res
     divined:(game,player)->
         super
         # 妖狐呪殺
@@ -3797,11 +3804,11 @@ class TinyFox extends Diviner
     formType: FormType.required
     isHuman:->false
     isFox:->true
-    makejobinfo:(game,result)->
-        super
+    getVisibilityQuery:->
+        res = super
         # 子狐は妖狐が分かる
-        result.foxes=game.players.filter((x)->x.isFoxVisible()).map (x)->
-            x.publicinfo()
+        res.foxes = true
+        res
     dodivine:(game)->
         origpl = game.getPlayer @target
         p = game.getPlayer game.skillTargetHook.get @target
@@ -3930,11 +3937,11 @@ class Spy extends Player
     job_target:0
     isWinner:(game,team)->
         team==@getTeam() && @dead && @flag=="spygone"    # 人狼が勝った上で自分は任務完了の必要あり
-    makejobinfo:(game,result)->
-        super
+    getVisibilityQuery:->
+        res = super
         # スパイは人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
-            x.publicinfo()
+        res.wolves = true
+        res
     makeJobSelection:(game, isvote)->
         # 夜は投票しない
         unless isvote
@@ -4264,12 +4271,11 @@ class Liar extends Player
 class Spy2 extends Player
     type:"Spy2"
     team:"Werewolf"
-    makejobinfo:(game,result)->
-        super
+    getVisibilityQuery:->
+        res = super
         # スパイは人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
-            x.publicinfo()
-
+        res.wolves = true
+        res
     dying:(game,found)->
         super
         @publishdocument game
@@ -4391,11 +4397,11 @@ class Light extends Player
             @uncomplex game,true    # 自分からは抜ける
 class Fanatic extends Madman
     type:"Fanatic"
-    makejobinfo:(game,result)->
-        super
+    getVisibilityQuery:->
+        res = super
         # 狂信者は人狼が分かる
-        result.wolves=game.players.filter((x)->x.isWerewolfVisible()).map (x)->
-            x.publicinfo()
+        res.wolves = true
+        res
 class Immoral extends Player
     type:"Immoral"
     team:"Fox"
@@ -4405,11 +4411,11 @@ class Immoral extends Player
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game, "foxsuicide"
         return false
-    makejobinfo:(game,result)->
-        super
-        # 妖狐が分かる
-        result.foxes=game.players.filter((x)->x.isFoxVisible()).map (x)->
-            x.publicinfo()
+    # 背徳者は妖狐が分かる
+    getVisibilityQuery:->
+        res = super
+        res.foxes = true
+        res
 class Devil extends Player
     type:"Devil"
     team:"Devil"
@@ -6183,10 +6189,12 @@ class SolitudeWolf extends Werewolf
     getSpeakChoice:(game)->
         res=super
         return res.filter (x)->x!="werewolf"
-    makejobinfo:(game,result)->
-        super
-        delete result.wolves
-        delete result.spy2s
+    getVisibilityQuery:->
+        res = super
+        # 孤独な狼は仲間情報が分からない
+        res.wolves = false
+        res.spy2s = false
+        res
 class ToughWolf extends Werewolf
     type:"ToughWolf"
     job:(game,playerid,query)->
@@ -9434,6 +9442,15 @@ class Complex
         if @sub?.hasDeadResistance game
             return true
         return false
+    getVisibilityQuery:(game)->
+        # 結果を合成
+        res = @main.getVisibilityQuery game
+        if @sub?
+            res2 = @sub.getVisibilityQuery game
+            # 合成
+            for key, value of res2
+                res[key] ||= value
+        res
 
 #superがつかえないので注意
 class Friend extends Complex    # 恋人
@@ -12254,6 +12271,19 @@ writeGlobalJobInfo = (game, player, result={})->
         # 女王観戦者の情報
         if player.getTeam() == "Human" && player.getTeamDisp() == "Human"
             result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
+                x.publicinfo()
+        # 狼による他の狼の把握
+        vq = player.getVisibilityQuery game
+        if vq.wolves
+            result.wolves = game.players.filter((x)-> x.isWerewolfVisible()).map (x)->
+                x.publicinfo()
+        if vq.spy2s
+            # スパイ2も分かる
+            result.spy2s = game.players.filter((x)->x.isJobType "Spy2").map (x)->
+                x.publicinfo()
+        # 狐が分かる
+        if vq.foxes
+            result.foxes = game.players.filter((x)->x.isFoxVisible()).map (x)->
                 x.publicinfo()
 
 #job情報を
