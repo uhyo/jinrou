@@ -12315,7 +12315,8 @@ makejobinfo = (game,player,result={})->
         # フォーム情報を別に追加
         result.forms = player.getOpenForms game
         result.playerid = player.id
-        result.dead=player.dead
+        # ヘルパーにも本来のプレイヤーの状態を同期
+        result.dead = actpl?.dead ? false
         # voteopen is for old forms
         result.voteopen=false
         result.sleeping=true
