@@ -855,6 +855,7 @@ class Game
                 gotjs[r].push job
                 if gotjs[r].length >= jobperpl
                     # 必要な役職を獲得した
+                    gotjs[r] = shuffle gotjs[r]
                     pl=players[r]
                     profile = {
                         id:pl.userid
