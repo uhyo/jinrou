@@ -6,6 +6,8 @@ roominfo:
   blind: "覆面（終了後に公開）"
   # complete blind mode
   blindComplete: "覆面（終了後も非公開）"
+  # no watchspeak
+  noWatchSpeak: "観戦者発言禁止"
 # Game start control.
 gamestart:
   # information shown to an owner.

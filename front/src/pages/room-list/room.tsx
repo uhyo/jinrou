@@ -19,6 +19,7 @@ import {
   RoomNumber,
   CommentStatusLine,
   RoomOwnerIcon,
+  WatchSpeak,
 } from './elements';
 import * as React from 'react';
 import { I18n, TranslationFunction } from '../../i18n';
@@ -75,6 +76,7 @@ function RoomStatus({
     needpassword,
     gm,
     blind,
+    watchspeak,
     players,
     number,
     made,
@@ -126,6 +128,12 @@ function RoomStatus({
             <FontAwesomeIcon icon="user-secret" />
             {t('game_client:roominfo.blindComplete')}
           </Blind>
+        ) : null}
+        {!watchspeak ? (
+          <WatchSpeak>
+            <FontAwesomeIcon icon="microphone-slash" />
+            {t('game_client:roominfo.noWatchSpeak')}
+          </WatchSpeak>
         ) : null}
       </RoomTypeLine>
       {gameinfo != null ? (

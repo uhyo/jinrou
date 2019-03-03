@@ -44,6 +44,10 @@ export interface Room {
    */
   blind: '' | 'yes' | 'complete';
   /**
+   * Whether watch speak allowed.
+   */
+  watchspeak: boolean;
+  /**
    * Whether password is needed.
    */
   needpassword?: true;

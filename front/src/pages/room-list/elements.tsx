@@ -231,6 +231,11 @@ export const HasGM = StatusTip;
 export const Blind = StatusTip;
 
 /**
+ * Watchspeak prohibited mode mark
+ */
+export const WatchSpeak = StatusTip;
+
+/**
  * Wrapper of room owner part
  */
 export const RoomOwner = styled(StatusTip)`
