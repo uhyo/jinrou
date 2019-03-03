@@ -7408,20 +7408,22 @@ class GotChocolate extends Player
                 @die game, "poison", @id
             else if r < 0.57
                 # ストーカー化
-                topl = game.getPlayer re[1]
-                if topl?
-                    newpl = Player.factory "Stalker", game
-                    top.transProfile newpl
-                    top.transferData newpl, true
-                    # ストーカー先
-                    newpl.setFlag re[1]
-                    top.transform game, newpl
+                # ケミカル人狼では何も起こらない（告発対策）
+                if @game.rule.chemical != "on"
+                    topl = game.getPlayer re[1]
+                    if topl?
+                        newpl = Player.factory "Stalker", game
+                        top.transProfile newpl
+                        top.transferData newpl, true
+                        # ストーカー先
+                        newpl.setFlag re[1]
+                        top.transform game, newpl
 
-                    log=
-                        mode:"skill"
-                        to: @id
-                        comment: game.i18n.t "roles:GotChocolate.result.stalker", {name: @name, target: topl.name}
-                    splashlog game.id, game, log
+                        log=
+                            mode:"skill"
+                            to: @id
+                            comment: game.i18n.t "roles:GotChocolate.result.stalker", {name: @name, target: topl.name}
+                        splashlog game.id, game, log
             else if r < 0.65
                 # 血入りの……
                 log=
