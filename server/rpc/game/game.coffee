@@ -11906,11 +11906,6 @@ module.exports.actions=(req,res,ss)->
             if game.watchspeak == false
                 res game.i18n.t "error.speak.noWatchSpeak"
                 return
-        # 発言できない時間帯
-        if !game.finished  && Phase.isRemain(game.phase)   # 投票猶予時間は発言できない
-            if player && !player.dead && !player.isJobType("GameMaster") && !player.isJobType("Helper")
-                res null
-                return  #まだ死んでいないプレイヤーの場合は発言できないよ!
 
         #console.log query,player
         log =
@@ -11945,6 +11940,9 @@ module.exports.actions=(req,res,ss)->
                         log.mode="heavenmonologue"
                     else
                         log.mode="heaven"
+                else if Phase.isRemain(game.phase) && !player.isJobType("GameMaster") && !player.isJobType("Helper")
+                    # 猶予時間は独り言のみ
+                    log.mode = "monologue"
                 else if Phase.isDay(game.phase)
                     # 昼
                     unless query.mode in processSpeakChoice player.getSpeakChoiceDay game
