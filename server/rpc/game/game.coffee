@@ -1999,6 +1999,14 @@ class Game
             comment: @i18n.t "system.hunterPrepare", {names: userNames.join ', '}
         splashlog @id, this, log
 
+        # automatically run scapegoat's selection
+        @runScapegoatJobs()
+        # evaluate active hunters
+        hunters = hunters.filter (x)-> x.flag == "hunting" && !x.target?
+        if hunters.length == 0
+            # no other hunter remains.
+            @hunterDo()
+            return true
         @splashjobinfo()
         @save()
         @timer()
