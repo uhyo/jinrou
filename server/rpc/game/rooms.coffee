@@ -129,6 +129,10 @@ module.exports.actions=(req,res,ss)->
                     delete x.owner
                     x.players.forEach (p)->
                         delete p.realid
+                unless x.watchspeak?
+                    # old rooms do not have watchspeak set.
+                    # watchspeak defaults to true.
+                    x.watchspeak = true
             res results
     getMyRooms:(page)->
         # extract user's play logs from userrawlogs
@@ -310,7 +314,7 @@ module.exports.actions=(req,res,ss)->
                 error: i18n.t "error.join.banned"
             }
             return
-        
+
         #Function to sanitize log text.
         #Removes Unicode bidi characters.
         sanitizeName = (name)->
