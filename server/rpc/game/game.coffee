@@ -6824,8 +6824,11 @@ class Phantom extends Player
         # ただし既に怪盗に盗まれていたら怪盗を盗んだことにする
         newch = constructMainChain pl
 
+        # 対象に表示されている情報を再現する
         savedobj={}
-        newch?[1].makejobinfo game,savedobj
+        if newch?
+            newch[1].makejobinfo game, savedobj
+            writeGlobalJobInfo game, newch[1], savedobj
         flagobj={}
         # jobinfo表示をセーブ
         for value in Shared.game.jobinfos
@@ -9904,6 +9907,9 @@ class PhantomStolen extends Complex
             Player::checkDeathResistance.apply this, arguments
         else
             super
+    # 見える情報は村人と同じ
+    getVisibilityQuery:(game)->
+        Human::getVisibilityQuery.call this, game
     dying:(game,found)->
     voted:(game, votingbox)-> Player.prototype.voted.call this, game, votingbox
     voteafter:->
