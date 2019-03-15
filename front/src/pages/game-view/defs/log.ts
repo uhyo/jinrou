@@ -135,3 +135,27 @@ export type Log = NormalLog | NextTurnLog | ProbabilityTableLog | VoteResultLog;
  * @package
  */
 export const maxLogsInGrid = 500;
+
+/**
+ * type of logs in which autolink is enabled.
+ */
+export const autolinkLogType: Log['mode'][] = [
+  'day',
+  'werewolf',
+  'heaven',
+  'prepare',
+  'audience',
+  'monologue',
+  'couple',
+  'fox',
+  'will',
+  'madcouple',
+  'half-day',
+  'heavenmonologue',
+  'gm',
+  'gmreply',
+  'gmheaven',
+  'gmaudience',
+  'gmmonologue',
+  'helperwhisper',
+];

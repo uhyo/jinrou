@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { autolink, compile } from 'my-autolink';
 import styled, { withTheme } from '../../../util/styled';
-import { Log } from '../defs';
+import { Log, autolinkLogType } from '../defs';
 import { Rule } from '../../../defs';
 import { TranslationFunction } from '../../../i18n';
 import { phone, notPhone } from '../../../common/media';
@@ -203,7 +203,9 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
       // Auto-link URLs and room numbers in it.
       // Server's bug? comment may actually be null
-      const comment = this.autolink(sanitizeLog(log.comment) || '');
+      const comment = autolinkLogType.includes(log.mode)
+        ? this.autolink(sanitizeLog(log.comment) || '')
+        : sanitizeLog(log.comment) || '';
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
