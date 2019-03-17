@@ -568,3 +568,28 @@ tr.deadoff-line
 // jinrou festival 2019
 p.bottom-fest-link
   margin-top 1em
+.jinrou-fest-banner
+  position relative
+  h2
+    font-size 0.85rem
+    color #666666
+    font-weight normal
+.jinrou-fest-banner-content
+  position absolute
+  top 0
+  right 16px
+  max-width 40vw
+  border 1px solid #aaaaaa
+  padding 0.4em
+  background-color white
+  box-shadow #666666 5px 5px 10px
+.jinrou-fest-close-button
+  float right
+  margin 6px
+  appearance none
+  border none
+  background none
+@media (max-width: phone-width)
+  .jinrou-fest-banner, .jinrou-fest-banner-content
+    position static
+    max-width none
