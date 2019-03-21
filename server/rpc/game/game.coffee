@@ -1708,7 +1708,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan","dragon"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","lunaticlover","hooligan","dragon","samurai"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1749,7 +1749,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide",
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","lunaticlover",
-                    "hooligan","dragon"
+                    "hooligan","dragon","samurai"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1798,6 +1798,8 @@ class Game
                         "hooligan"
                     when "dragon"
                         "dragon"
+                    when "samurai"
+                        "samurai"
                     else
                         null
                 if emma_log?
@@ -8981,6 +8983,52 @@ class Satori extends Diviner
             day: game.day
         }
 
+class Samurai extends Player
+    type:"Samurai"
+    # 狩人等よりも遅い（他の護衛があっても侍の反撃効果を有効にするため）
+    midnightSort: 82
+    formType: FormType.required
+    hasDeadResistance:->true
+    sleeping:->@target?
+    sunset:(game)->
+        @setTarget null
+        if game.day==1
+            # 一日目は護衛しない
+            @setTarget ""
+        # 護衛対象がいない
+        targets = game.players.filter (pl)=>
+            !pl.dead && pl.id != @flag && (pl.id != @id || game.rule.guardmyself == "ok")
+
+        if targets.length == 0
+            @setTarget ""
+            return
+    job:(game, playerid)->
+        if playerid == @id && game.rule.guardmyself != "ok"
+            return game.i18n.t "error.common.noSelectSelf"
+        if playerid == @flag && game.rule.consecutiveguard == "no"
+            return game.i18n.t "roles:Guard.noGuardSame"
+
+        @setTarget playerid
+        @setFlag playerid
+        pl = game.getPlayer playerid
+        pl.touched game, @id
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        # 侍の守りを複合させる
+        newpl = Player.factory null, game, pl, null, SamuraiGuarded
+        pl.transProfile newpl
+        # 護衛元をcmplFlagに保存
+        newpl.cmplFlag = @id
+        pl.transform game, newpl, true
+
 
 # ============================
 # 処理上便宜的に使用
@@ -10260,6 +10308,41 @@ class HooliganGuardComplex extends Complex
     getJobname:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:HooliganGuard.jobname", {jobname: @main.getJobDisp()}
 
+# 侍に守られた人
+class SamuraiGuarded extends Complex
+    # cmplFlag: 護衛元ID
+    cmplType: "SamuraiGuarded"
+    checkDeathResistance:(game, found, from)->
+        unless Found.isGuardableAttack found
+            # 襲撃以外は素通し
+            return super
+        # 狼に噛まれた場合は耐えるが相打ち
+        samurai = game.getPlayer @cmplFlag
+        attacker = game.getPlayer from
+        if samurai?
+            # まず侍が死亡
+            samurai.addGamelog game, "samuraiGJ", null, @id
+            samuraiFound =
+                if attacker?.isVampire()
+                    "vampire2"
+                else
+                    "werewolf2"
+            samurai.die game, samuraiFound, from
+        if attacker?
+            # 次に狼も死亡
+            attacker.die game, "samurai", samurai?.id
+        # 襲撃失敗理由を保存
+        if Found.isGuardableWerewolfAttack found
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.guard
+
+        return true
+    sunrise:(game)->
+        # 一日しか守られない
+        @mcall game,@main.sunrise,game
+        @sub?.sunrise? game
+        @uncomplex game
+
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -10617,6 +10700,7 @@ jobs=
     Illusionist:Illusionist
     DragonKnight:DragonKnight
     Satori:Satori
+    Samurai:Samurai
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -10661,6 +10745,7 @@ complexes=
     LunaticLoved:LunaticLoved
     HooliganMember:HooliganMember
     HooliganGuardComplex:HooliganGuardComplex
+    SamuraiGuarded:SamuraiGuarded
 
     # 役職ごとの強さ
 jobStrength=
