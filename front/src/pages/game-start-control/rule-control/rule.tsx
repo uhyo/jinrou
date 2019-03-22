@@ -126,7 +126,13 @@ export class IntegerControl extends React.PureComponent<
       <RuleWrapper>
         <label title={label}>
           <RuleName>{name}</RuleName>
-          <input type="number" value={value} onChange={this.handleChange} />
+          <input
+            type="number"
+            value={value}
+            min={item.minValue}
+            step={item.step}
+            onChange={this.handleChange}
+          />
         </label>
       </RuleWrapper>
     );
