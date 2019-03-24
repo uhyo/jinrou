@@ -165,12 +165,12 @@ exports.start=(user)->
             $("#newNewsNotice").remove()
 
     # jinrou festival 2019
-    jf2019Key = "jinrou-festival-2019"
+    jf2019Key = "jinrou-festival-2019-2"
     if localStorage.getItem(jf2019Key) == "close"
-        $(".jinrou-fest-banner").css "display", "none"
+        $(".jinrou-fest-banner-hide").css "display", "none"
     $(".jinrou-fest-close-button").click ()->
         localStorage.setItem jf2019Key, "close"
-        $(".jinrou-fest-banner").css "display", "none"
+        $(".jinrou-fest-banner-hide").css "display", "none"
 
 exports.end=->
     Index.game.rooms.end()
