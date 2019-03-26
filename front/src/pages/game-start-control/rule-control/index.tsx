@@ -90,12 +90,15 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                   value.id,
                   this.handleChange,
                 );
+                const disabled =
+                  value.disabled != null && value.disabled(ruleObject, true);
                 return (
                   <CheckboxControl
                     key={`item-${value.id}`}
                     t={t}
                     item={value}
                     value={cur}
+                    disabled={disabled}
                     onChange={onChange}
                   />
                 );
@@ -106,12 +109,15 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                   value.id,
                   this.handleChange,
                 );
+                const disabled =
+                  value.disabled != null && value.disabled(ruleObject, true);
                 return (
                   <IntegerControl
                     key={`item-${value.id}`}
                     t={t}
                     item={value}
                     value={cur}
+                    disabled={disabled}
                     onChange={onChange}
                   />
                 );
@@ -122,6 +128,8 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                   value.id,
                   this.handleChange,
                 );
+                const disabled =
+                  value.disabled != null && value.disabled(ruleObject, true);
                 return (
                   <SelectControl
                     key={`item-${value.id}`}
@@ -129,6 +137,7 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                     item={value}
                     suggestion={suggestedOptions[value.id]}
                     value={cur}
+                    disabled={disabled}
                     onChange={onChange}
                   />
                 );
@@ -139,12 +148,15 @@ export class RuleControl extends React.Component<IPropRuleControl, {}> {
                   value.id,
                   this.handleChange,
                 );
+                const disabled =
+                  value.disabled != null && value.disabled(ruleObject, true);
                 return (
                   <TimeControl
                     key={`item-${value.id}`}
                     t={t}
                     item={value}
                     value={cur}
+                    disabled={disabled}
                     onChange={onChange}
                   />
                 );
