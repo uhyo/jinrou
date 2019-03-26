@@ -18,12 +18,19 @@ import { getRuleName, getOptionString } from '../../../logic/rule';
 /**
  * Wrapper of rules.
  */
-const RuleWrapper = styled.div`
+const RuleWrapper = styled.div<{
+  /**
+   * Whether this rule is disabled.
+   */
+  disabled: boolean;
+}>`
   flex: 0 0 auto;
 
   margin: 4px;
   padding: 0;
-  border: 1px solid rgba(0, 0, 0, 0.4);
+  border: 1px solid
+    ${props => (props.disabled ? 'rgba(0, 0, 0, 0.25)' : 'rgba(0, 0, 0, 0.4)')};
+  color: ${props => (props.disabled ? 'rgba(0, 0, 0, 0.25)' : 'inherit')};
 
   text-align: center;
 
@@ -36,7 +43,8 @@ const RuleWrapper = styled.div`
   }
 
   :hover {
-    background-color: rgba(255, 255, 255, 0.35);
+    background-color: ${props =>
+      props.disabled ? 'transparent' : 'rgba(255, 255, 255, 0.35)'};
   }
 `;
 
@@ -60,6 +68,10 @@ const RuleName = styled.b`
 interface IPropCheckboxControl {
   t: TranslationFunction;
   /**
+   * Whether this item is disabled
+   */
+  disabled: boolean;
+  /**
    * Setting of this rule option.
    */
   item: CheckboxRule;
@@ -80,18 +92,19 @@ export class CheckboxControl extends React.PureComponent<
   {}
 > {
   public render() {
-    const { t, item, value } = this.props;
+    const { t, item, value, disabled } = this.props;
 
     const checked = value === item.value;
     const { name, label } = getRuleName(t, item.id);
 
     return (
-      <RuleWrapper>
+      <RuleWrapper disabled={disabled}>
         <label title={label}>
           <RuleName>{name}</RuleName>
           <input
             type="checkbox"
             checked={checked}
+            disabled={disabled}
             onChange={this.handleChange}
           />
         </label>
@@ -108,6 +121,7 @@ interface IPropIntegerControl {
   t: TranslationFunction;
   item: IntegerRule;
   value: string;
+  disabled: boolean;
   onChange: (value: string) => void;
 }
 /**
@@ -118,15 +132,22 @@ export class IntegerControl extends React.PureComponent<
   {}
 > {
   public render() {
-    const { t, item, value } = this.props;
+    const { t, item, value, disabled } = this.props;
 
     const { name, label } = getRuleName(t, item.id);
 
     return (
-      <RuleWrapper>
+      <RuleWrapper disabled={disabled}>
         <label title={label}>
           <RuleName>{name}</RuleName>
-          <input type="number" value={value} onChange={this.handleChange} />
+          <input
+            type="number"
+            value={value}
+            min={item.minValue}
+            step={item.step}
+            disabled={disabled}
+            onChange={this.handleChange}
+          />
         </label>
       </RuleWrapper>
     );
@@ -148,6 +169,10 @@ interface IPropSelectControl {
    */
   value: string;
   /**
+   * Whether this rule is disabled.
+   */
+  disabled: boolean;
+  /**
    * Suggestion to this rule, if any.
    */
   suggestion?: OptionSuggestion;
@@ -158,7 +183,7 @@ interface IPropSelectControl {
  */
 export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
   public render() {
-    const { t, item, suggestion, value } = this.props;
+    const { t, item, suggestion, value, disabled } = this.props;
 
     const { name, label } = getRuleName(t, item.id);
 
@@ -170,10 +195,14 @@ export class SelectControl extends React.PureComponent<IPropSelectControl, {}> {
       suggestion.value === value;
 
     return (
-      <RuleWrapper>
+      <RuleWrapper disabled={disabled}>
         <label title={label}>
           <RuleName>{name}</RuleName>
-          <select value={value} onChange={this.handleChange}>
+          <select
+            value={value}
+            disabled={disabled}
+            onChange={this.handleChange}
+          >
             {item.values.map(v => {
               const { label, description } = getOptionString(t, item, v);
               return (
@@ -202,6 +231,7 @@ interface IPropTimeControl {
   t: TranslationFunction;
   item: TimeRule;
   value: string;
+  disabled: boolean;
   onChange: (value: string) => void;
 }
 
@@ -212,7 +242,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
   protected minutes: HTMLInputElement | null = null;
   protected seconds: HTMLInputElement | null = null;
   public render() {
-    const { t, item, value } = this.props;
+    const { t, item, value, disabled } = this.props;
 
     const v = Number(value);
     const minutes = Math.floor(v / 60);
@@ -221,7 +251,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
     const { name, label } = getRuleName(t, item.id);
 
     return (
-      <RuleWrapper>
+      <RuleWrapper disabled={disabled}>
         <span title={label}>
           <RuleName>{name}</RuleName>
           <input
@@ -230,6 +260,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
             value={minutes}
             min={0}
             step={1}
+            disabled={disabled}
             onChange={this.handleChange}
           />
           {t('game_client:gamestart.control.minutes')}
@@ -240,6 +271,7 @@ export class TimeControl extends React.PureComponent<IPropTimeControl, {}> {
             min={-1}
             max={60}
             step={1}
+            disabled={disabled}
             onChange={this.handleChange}
           />
           {t('game_client:gamestart.control.seconds')}

@@ -2459,17 +2459,24 @@ class Game
         else if @phase == Phase.day
             # 昼
             now = Date.now()
+            # 昼の時間を計算
+            dayTime = 0
+            if @rule.dynamic_day_time == "on"
+                dayTime = (1 + @players.filter((pl)-> !pl.dead).length) * @rule.dynamic_day_time_factor
+            else
+                dayTime = @rule.day
+
             if @silentexpires? && @silentexpires >= now
                 # 発言禁止時間がある
                 time = Math.ceil((@silentexpires - now) / 1000)
-                time = Math.min time, @rule.day
+                time = Math.min time, dayTime
                 mode = @i18n.t "phase.silent"
                 func = => @timer()
             else
-                time = @rule.day - (@rule.silentrule ? 0)
+                time = dayTime - (@rule.silentrule ? 0)
                 time = Math.max time, 0
                 mode = @i18n.t "phase.day"
-                return unless @rule.day
+                return if @rule.day == 0 && @rule.dynamic_day_time != "on"
                 func= =>
                     unless @execute()
                         if @rule.voting
@@ -10913,6 +10920,8 @@ module.exports.actions=(req,res,ss)->
                 voting: parseInt query.voting
                 # (n=15)秒ルール
                 silentrule: parseInt(query.silentrule) || 0
+                # factor of dynamic day time
+                dynamic_day_time_factor: parseInt(query.dynamic_day_time_factor) || 30
             }
             # 不正なアレははじく
             unless Number.isFinite(ruleobj.day) && Number.isFinite(ruleobj.night) && Number.isFinite(ruleobj.remain) && Number.isFinite(ruleobj.voting)
@@ -11878,6 +11887,7 @@ module.exports.actions=(req,res,ss)->
                     splashlog game.id,game,log
 
             for x in ["jobrule",
+            "dynamic_day_time",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",

@@ -1057,6 +1057,8 @@ exports.new_rules=[
                     type:"time"
                     id: 'day'
                     defaultValue: 330
+                    disabled:(rule)->
+                        rule.rules.get('dynamic_day_time') == 'on'
             }
             {
                 type: 'item'
@@ -1079,6 +1081,39 @@ exports.new_rules=[
                     type:"time"
                     id: 'voting'
                     defaultValue: 0
+            }
+            {
+                type: 'item'
+                value:
+                    type:"separator"
+            }
+            {
+                type: 'item'
+                value:
+                    type:"checkbox"
+                    id:"dynamic_day_time"
+                    defaultChecked: false
+                    value:"on"
+            }
+            {
+                type: 'item'
+                value:
+                    type:"integer"
+                    id:"dynamic_day_time_factor"
+                    defaultValue: 30
+                    minValue: 10
+                    step: 5
+                    value:"on"
+                    disabled:(rule)->
+                        rule.rules.get('dynamic_day_time') != 'on'
+                    getstr:(t, value)->
+                        {
+                            value:
+                                if !value
+                                    t('rules:common.none')
+                                else
+                                    value + t('rules:common.seconds')
+                        }
             }
             {
                 type: 'item'
