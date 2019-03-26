@@ -1057,6 +1057,8 @@ exports.new_rules=[
                     type:"time"
                     id: 'day'
                     defaultValue: 330
+                    disabled:(rule)->
+                        rule.rules.get('dynamic_day_time') == 'on'
             }
             {
                 type: 'item'
