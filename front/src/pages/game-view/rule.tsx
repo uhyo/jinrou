@@ -124,6 +124,10 @@ class RuleItems extends React.PureComponent<
           // non-setting or hidden rule is not displayed
           return null;
         }
+        if (ruledef.disabled != null && ruledef.disabled(rule, false)) {
+          // disabled setting
+          return null;
+        }
         const re = getRuleExpression(t, ruledef, rules.get(ruledef.id) || '');
         if (re == null) {
           return null;
