@@ -1721,7 +1721,7 @@ class Game
             # 人間カウントを持っていて
             # 吸血耐性が無ければ吸血可
             attacked.push target
-        # 逃亡者を探す
+        # 逃亡者とカウンセラーを探す
         for x in @players
             if x.dead
                 continue
@@ -1736,6 +1736,11 @@ class Game
                     else if @getPlayer(pl.flag?.id)?.isJobType("Dracula")
                         # ドラキュラに逃亡した
                         attacked.push x
+            counselors = x.accessByJobTypeAll "Counselor"
+            for pl in counselors
+                if @getPlayer(@skillTargetHook.get pl.target)?.isJobType("Dracula")
+                    # ドラキュラをカウンセリングしたので吸血される
+                    attacked.push x
 
         for t in attacked
             # 対象者を吸血
@@ -1819,7 +1824,7 @@ class Game
                     @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
                     @i18n.t "found.body", {name: x.name}
-                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide"
                     @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
@@ -1844,7 +1849,7 @@ class Game
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
-                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide",
+                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide",
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
                     "hooligan","dragon","samurai"
@@ -1892,6 +1897,8 @@ class Game
                         "twinsuicide"
                     when "dragonknightsuicide"
                         "dragonknightsuicide"
+                    when "vampiresuicide"
+                        "vampiresuicide"
                     when "hooligan"
                         "hooligan"
                     when "dragon"
@@ -3147,6 +3154,8 @@ class Player
         spy2s: false
         # 妖狐の仲間
         foxes: false
+        # ヴァンパイアの仲間
+        vampires: false
         # ドラキュラ仲間
         draculas: false
         # ドラキュラに吸血された人
@@ -4271,7 +4280,7 @@ class Fugitive extends Player
         }
         if pl.isWerewolf() && pl.getTeam() != "Human"
             @die game, "werewolf2", pl.id
-        else if pl.isVampire() && pl.getTeam() != "Human"
+        else if pl.isJobType("Vampire") && pl.getTeam() != "Human"
             @die game, "vampire2", pl.id
 
     isWinner:(game,team)->
@@ -5135,6 +5144,11 @@ class Vampire extends Player
     isHuman:->false
     isVampire:->true
     hasDeadResistance:->true
+    getVisibilityQuery:->
+        res = super
+        # ヴァンパイアが分かる
+        res.vampires = true
+        res
     sunset:(game)->
         @setTarget null
     job:(game,playerid,query)->
@@ -5168,11 +5182,6 @@ class Vampire extends Player
         # 相手に爆弾があったら爆発させる
         checkPlayerBomb game, t, this
 
-    makejobinfo:(game,result)->
-        super
-        # ヴァンパイアが分かる
-        result.vampires=game.players.filter((x)->x.isVampire()).map (x)->
-            x.publicinfo()
 class LoneWolf extends Werewolf
     type:"LoneWolf"
     team:"LoneWolf"
@@ -6120,13 +6129,17 @@ class Counselor extends Player
             @die game, "werewolf2", t.id
             @addGamelog game,"counselKilled", t.type, target
             return
-        if t.isVampire() && tteam != "Human"
+        if t.isJobType("Vampire") && tteam != "Human"
             @die game, "vampire2", t.id
             @addGamelog game,"counselKilled", t.type, target
+            return
+        if t.isVampire()
+            # ドラキュラも更生できない（反撃は別途処理）
             return
         # OK! flag to consel at sunrise.
         @setFlag t.id
     sunrise:(game)->
+        @setTarget null
         return unless @flag?
         t = game.getPlayer @flag
         return unless t?
@@ -9222,6 +9235,22 @@ class Dracula extends Player
         @die game, "curse", player.id
         player.addGamelog game, "cursekill", null, @id
 
+class VampireClan extends Player
+    type:"VampireClan"
+    team:"Vampire"
+    getVisibilityQuery:->
+        res = super
+        # ヴァンパイアとドラキュラを把握可能
+        res.vampires = true
+        res.draculas = true
+        res
+    beforebury:(game)->
+        return false if @dead
+        # ヴァンパイア系が全員死んでいたら自殺
+        unless game.players.some((x)->!x.dead && x.isVampire())
+            @die game, "vampiresuicide"
+        return false
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -10912,6 +10941,7 @@ jobs=
     Satori:Satori
     Samurai:Samurai
     Dracula:Dracula
+    VampireClan:VampireClan
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11081,6 +11111,9 @@ jobStrength=
     Illusionist:25
     DragonKnight:23
     Satori:22
+    Samurai:25
+    Dracula:30
+    VampireClan:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12599,6 +12632,10 @@ writeGlobalJobInfo = (game, player, result={})->
         # 狐が分かる
         if vq.foxes
             result.foxes = game.players.filter((x)->x.isFoxVisible()).map (x)->
+                x.publicinfo()
+        # ヴァンパイアが分かる
+        if vq.vampires
+            result.vampires = game.players.filter((x)->x.isJobType("Vampire")).map (x)->
                 x.publicinfo()
         # ドラキュラが分かる
         if vq.draculas

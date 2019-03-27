@@ -127,6 +127,7 @@ jobname:
   Satori: "サトリ"
   Samurai: "侍"
   Dracula: "ドラキュラ"
+  VampireClan: "吸血鬼の眷属"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -692,6 +693,8 @@ Emma:
     twinsuicide: "{{name}}は双子の後を追って死亡したようです。"
     # DragonKnight's suicide
     dragonknightsuicide: "{{name}}は自責の念に駆られて自ら命を断ったようです。"
+    # Suicided after vampires
+    vampiresuicide: "{{name}}は吸血鬼の後を追って死亡したようです。"
     # Killed by hooligan
     hooligan: "{{name}}は暴動者たちに殺されたようです。"
     # Killed by DragonKnight
