@@ -2295,15 +2295,22 @@ class Game
                         else
                             # 恋人バトル
                             team = null
+            # ヴァンパイア（吸血勝利）判定
+            isVampireWinner = =>
+                # 生存中のドラキュラが存在する必要がある
+                unless aliveps.some((x)-> x.isJobType("Dracula"))
+                    return false
+                # 吸血済みを数える
+                sucked = aliveps.filter((x)=>
+                    x.isJobType("Dracula") || x.getAttribute(PlayerAttribute.draculaBitten, this)).length
+                # 生存者の過半数が吸血済みなら勝利
+                return sucked > alives / 2
+            if isVampireWinner()
+                team = "Vampire"
+
             # 暴徒判定
             if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
                 team="Hooligan"
-            # ヴァンパイア（吸血勝利）判定
-            if alives > 0 &&
-                aliveps.some((x)-> x.isJobType("Dracula")) &&
-                aliveps.every((x)=>
-                    x.isJobType("Dracula") || x.getAttribute(PlayerAttribute.draculaBitten, this))
-                    team = "Vampire"
 
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
