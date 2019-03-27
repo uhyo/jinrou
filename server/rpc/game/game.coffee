@@ -145,6 +145,10 @@ Found =
     isGuardableAttack:(found)->
         found == "vampire" || Found.isGuardableWerewolfAttack(found)
 
+# getAttributeで使用可能なattr
+PlayerAttribute =
+    draculaBitten: "draculaBitten"
+
 
 # 浅いコピー
 copyObject=(obj)->
@@ -1543,7 +1547,8 @@ class Game
         deads=[]
         pids=[]
         # 狼の襲撃: 105
-        mids=[105]
+        # ドラキュラの吸血: 106
+        mids=[105, 106]
         for player in @players
             pids.push player.id
             # gather all midnightSort
@@ -1564,6 +1569,8 @@ class Game
             if mid == 105
                 # 人狼の襲撃処理を挟む
                 @midnightWolfAttack()
+            if mid == 106
+                @midnightDraculaAttack()
             for pid in pids
                 player=@getPlayer pid
                 pmids = player.gatherMidnightSort()
@@ -1647,6 +1654,34 @@ class Game
         @werewolf_flag=@werewolf_flag.filter (fl)->
             # こいつらは1夜限り
             return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
+    # ドラキュラの攻撃を処理する
+    midnightDraculaAttack:->
+        draculas = []
+        for pl in @players
+            if !pl.dead
+                draculas.push pl.accessByJobTypeAll("Dracula")...
+        if draculas.length == 0
+            # ドラキュラが居ないので何もしない
+            return
+        # 吸血対象をランダムに決定
+        r = Math.floor Math.random()*draculas.length
+        plobj = draculas[r]
+        originalTarget = @getPlayer plobj.target
+        actTarget = @skillTargetHook.get plobj.target
+        target = @getPlayer actTarget
+        unless originalTarget? && target?
+            return
+        # 吸血ログ
+        log =
+            mode: "draculaskill"
+            comment: @i18n.t "roles:Dracula.decide", {target: originalTarget.name}
+        splashlog @id, this, log
+
+        # 対象者を吸血
+        newtarget = Player.factory null, this, target, null, DraculaBitten
+        target.transProfile newtarget
+        target.transform this, newtarget, true
+
 
     # 死んだ人を処理する type: タイミング
     # type:
@@ -2617,6 +2652,7 @@ class Game
 logs:[{
     mode:"day"(昼) / "system"(システムメッセージ) /  "werewolf"(狼) / "heaven"(天国) / "prepare"(開始前/終了後) / "skill"(能力ログ) / "nextturn"(ゲーム進行) / "audience"(観戦者のひとりごと) / "monologue"(夜のひとりごと) / "voteresult" (投票結果） / "couple"(共有者) / "fox"(妖狐) / "will"(遺言) / "madcouple"(叫迷狂人)
     "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える) / "eyeswolfskill"(瞳狼に見える)
+    "draculaskill"(ドラキュラに見える)
     "hidden"(終了後/霊界のみ見える追加情報)
     comment: String
     userid:Userid
@@ -3034,7 +3070,13 @@ class Player
         spy2s: false
         # 妖狐の仲間
         foxes: false
+        # ドラキュラ仲間
+        draculas: false
+        # ドラキュラに吸血された人
+        draculaBitten: false
     }
+    # 汎用的な役職属性取得関数 (Existential)
+    getAttribute:(attr, game)->false
     # ----- 役職判定用
     hasDeadResistance:->false
     # -----
@@ -9036,6 +9078,45 @@ class Samurai extends Player
         newpl.cmplFlag = @id
         pl.transform game, newpl, true
 
+class Dracula extends Player
+    type:"Dracula"
+    team:"Vampire"
+    fortuneResult: FortuneResult.vampire
+    formType: FormType.required
+    sleeping:(game)->@target?
+    isHuman:->false
+    isVampire:->true
+    isListener:(game, log)->
+        # ドラキュラ用ログを閲覧可能
+        if log.mode == "draculaskill"
+            return true
+        else
+            super
+    getVisibilityQuery:->
+        result = super
+        # ドラキュラ仲間とドラキュラに噛まれた人を閲覧可能
+        result.draculas = true
+        result.draculaBitten = true
+        result
+    sunset:(game)->
+        if game.day == 1
+            # 初日は吸血しない
+            @setTarget ""
+        else
+            @setTarget null
+    job:(game, playerid)->
+        @setTarget playerid
+        pl = game.getPlayer playerid
+        pl.touched game, @id
+        log=
+            mode: "draculaskill"
+            comment: game.i18n.t "roles:Dracula.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
 
 # ============================
 # 処理上便宜的に使用
@@ -9509,6 +9590,12 @@ class Complex
         if @mcall game, @main.hasDeadResistance, game
             return true
         if @sub?.hasDeadResistance game
+            return true
+        return false
+    geteAttribute:(attr, game)->
+        if @main.getAttribute attr, game
+            return true
+        if @sub?.getAttribute attr, game
             return true
         return false
     getVisibilityQuery:(game)->
@@ -10349,6 +10436,14 @@ class SamuraiGuarded extends Complex
         @sub?.sunrise? game
         @uncomplex game
 
+# ドラキュラに噛まれた人
+class DraculaBitten extends Complex
+    cmplType: "DraculaBitten"
+    # ドラキュラに噛まれたフラグ
+    getAttribute:(attr, game)->
+        if attr == PlayerAttribute.draculaBitten
+            return true
+        return super
 
 # 決定者
 class Decider extends Complex
@@ -10708,6 +10803,7 @@ jobs=
     DragonKnight:DragonKnight
     Satori:Satori
     Samurai:Samurai
+    Dracula:Dracula
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -10753,6 +10849,7 @@ complexes=
     HooliganMember:HooliganMember
     HooliganGuardComplex:HooliganGuardComplex
     SamuraiGuarded:SamuraiGuarded
+    DraculaBitten:DraculaBitten
 
     # 役職ごとの強さ
 jobStrength=
@@ -12394,6 +12491,13 @@ writeGlobalJobInfo = (game, player, result={})->
         # 狐が分かる
         if vq.foxes
             result.foxes = game.players.filter((x)->x.isFoxVisible()).map (x)->
+                x.publicinfo()
+        # ドラキュラが分かる
+        if vq.draculas
+            result.draculas = game.players.filter((x)->x.isJobType "Dracula").map (x)->
+                x.publicinfo()
+        if vq.draculaBitten
+            result.draculaBitten = game.players.filter((x)->x.getAttribute PlayerAttribute.draculaBitten).map (x)->
                 x.publicinfo()
 
 #job情報を

@@ -126,6 +126,7 @@ jobname:
   DragonKnight: "竜騎士"
   Satori: "サトリ"
   Samurai: "侍"
+  Dracula: "ドラキュラ"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -804,6 +805,12 @@ Satori:
   select: "{{name}}は{{target}}に読心術を使用しました。"
   # log of result.
   resultlog: "{{name}}の読心の結果、{{target}}は{{result}}でした。"
+
+Dracula:
+  # select today's target of Dracula
+  select: "{{name}}は{{target}}を吸血しようとしています。"
+  # decided target
+  decide: "ドラキュラたちは{{target}}を吸血しました。"
 
 GameMaster:
   # Failed to revive.
