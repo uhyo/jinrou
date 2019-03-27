@@ -811,6 +811,10 @@ Dracula:
   select: "{{name}}は{{target}}を吸血しようとしています。"
   # decided target
   decide: "ドラキュラたちは{{target}}を吸血しました。"
+  # there was a dracula attack.
+  attackLog: "ドラキュラが吸血に成功したようです。"
+  # there was no attack.
+  noAttackLog: "ドラキュラが吸血に失敗したようです。"
 
 GameMaster:
   # Failed to revive.

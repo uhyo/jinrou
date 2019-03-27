@@ -435,6 +435,9 @@ class Game
         @werewolf_target_remain=0   #襲撃先をあと何人設定できるか
         @werewolf_flag=[] # 人狼襲撃に関するフラグ
 
+        # ドラキュラの吸血の成否 (true -> 成功, false -> 失敗)
+        @dracula_result = null
+
         @revive_log = [] # 蘇生した人の記録
         @nextturn_deferred_log = []
         @guard_log = []  # 襲撃阻止の記録（for 瞳狼）
@@ -1677,6 +1680,12 @@ class Game
             comment: @i18n.t "roles:Dracula.decide", {target: originalTarget.name}
         splashlog @id, this, log
 
+        if target.humanCount() <= 0
+            # 人間カウントを持たない者は吸血不可
+            @dracula_result = false
+            return
+        @dracula_result = true
+
         # 対象者を吸血
         newtarget = Player.factory null, this, target, null, DraculaBitten
         target.transProfile newtarget
@@ -2250,6 +2259,13 @@ class Game
             # 暴徒判定
             if alives>0 && aliveps.every((x)-> x.isCmplType "HooliganMember")
                 team="Hooligan"
+            # ヴァンパイア（吸血勝利）判定
+            if alives > 0 &&
+                aliveps.some((x)-> x.isJobType("Dracula")) &&
+                aliveps.every((x)=>
+                    x.isJobType("Dracula") || x.getAttribute(PlayerAttribute.draculaBitten, this))
+                    team = "Vampire"
+
             # カルト判定
             if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") && x.getTeam()=="Cult" )
                 # 全員信者
@@ -9117,6 +9133,29 @@ class Dracula extends Player
         pl = game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
+    sunrise:(game)->
+        # 最初のドラキュラが朝ログを出す
+        unless game.dracula_result?
+            return
+        draculas = game.players.filter (x)-> x.isJobType "Dracula"
+        firstDracula = draculas[0]
+        unless firstDracula?.id == @id
+            return
+        # 自分が最初のドラキュラだ
+        innerDraculas = firstDracula.accessByJobTypeAll "Dracula"
+        if innerDraculas[0]?.objid == @objid
+            log =
+                mode: "system"
+                comment: if game.dracula_result
+                    game.i18n.t "roles:Dracula.attackLog"
+                else
+                    game.i18n.t "roles:Dracula.noAttackLog"
+            splashlog game.id, game, log
+            # 結果を初期化
+            game.dracula_result = null
+
+    deadsunrise:(game)->
+        Dracula::sunrise.call this, game
     divined:(game, player)->
         # Dracula is curse-killed when divined.
         super
