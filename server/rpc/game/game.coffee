@@ -9933,6 +9933,8 @@ class Drunk extends Complex
     isDrunk:->true
     getSpeakChoice:(game)->
         Human.prototype.getSpeakChoice.call @,game
+    getVisibilityQuery:(game)->
+        Human.prototype.getVisibilityQuery.call @, game
 # 罠師守られた人
 class TrapGuarded extends Complex
     # cmplFlag: 護衛元ID
