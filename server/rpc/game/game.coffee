@@ -11408,7 +11408,7 @@ module.exports.actions=(req,res,ss)->
                         nonavs[job] = true
 
                     # 狐を振分け
-                    diff = fox_number - countCategory("Fox") - joblist.Blasphemy
+                    diff = Math.max 0, (fox_number - countCategory("Fox") - joblist.Blasphemy)
 
                     for i in [0...diff]
                         if frees <= 0
@@ -11427,16 +11427,19 @@ module.exports.actions=(req,res,ss)->
                             joblist.Blasphemy++
                             frees--
 
-                    diff = vampire_number - joblist.Vampire
-                    if !nonavs.Vampire && diff > 0
-                        if diff <= frees
-                            joblist.Vampire += diff
-                            frees -= diff
-                        else
-                            joblist.Vampire += frees
-                            frees = 0
+                    diff = Math.max 0, (vampire_number - joblist.Vampire - joblist.Dracula)
+                    for i in [0...diff]
+                        if frees <= 0
+                            break
+                        r = Math.random()
+                        if r < 0.7 && !nonavs.Vampire
+                            joblist.Vampire++
+                            frees--
+                        else if !nonavs.Dracula
+                            joblist.Dracula++
+                            frees--
 
-                    diff = devil_number - joblist.Devil
+                    diff = Math.max 0, (devil_number - joblist.Devil)
                     if !nonavs.Devil && diff > 0
                         if diff <= frees
                             joblist.Devil += diff
@@ -11458,6 +11461,9 @@ module.exports.actions=(req,res,ss)->
                     # 狐が誰も居ないときは背徳は出ない
                     if Shared.game.categories.Fox.every((j)-> joblist[j]==0)
                         exceptions.push "Immoral"
+                    # 吸血鬼の眷属も
+                    if joblist.Vampire == 0 && joblist.Dracula == 0
+                        exceptions.push "VampireClan"
 
 
                 nonavs = {}
@@ -11520,6 +11526,23 @@ module.exports.actions=(req,res,ss)->
                             frees -= diff
 
                         addTeamToExceptions "Human"
+                    # ヴァンパイア陣営
+                    if frees > 0 && (joblist.Vampire > 0 || joblist.Dracula > 0)
+                        if joblist.Vampire + joblist.Dracula == 1
+                            if playersnumber >= 15
+                                if Math.random() < 0.25 && !nonavs.VampireClan
+                                    joblist.VampireClan++
+                                    frees--
+                                if playersnumber <= 17
+                                    exceptions.push "VampireClan"
+                            else
+                                if Math.random() < 0.05 && !nonavs.VampireClan
+                                    joblist.VampireClan++
+                                    frees--
+                        else if playersnumber <= 17
+                            exceptions.push "VampireClan"
+                    else
+                        exceptions.push "VampireClan"
 
                     # 妖狐陣営
                     if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0)
