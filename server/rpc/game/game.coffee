@@ -147,7 +147,10 @@ Found =
 
 # getAttributeで使用可能なattr
 PlayerAttribute =
+    # ドラキュラに噛まれているフラグ
     draculaBitten: "draculaBitten"
+    # ドラキュラの吸血を回避できるフラグ
+    draculaResistance: "draculaResistance"
 
 
 # 浅いコピー
@@ -1680,16 +1683,35 @@ class Game
             comment: @i18n.t "roles:Dracula.decide", {target: originalTarget.name}
         splashlog @id, this, log
 
-        if target.humanCount() <= 0
-            # 人間カウントを持たない者は吸血不可
-            @dracula_result = false
-            return
-        @dracula_result = true
+        attacked = []
 
-        # 対象者を吸血
-        newtarget = Player.factory null, this, target, null, DraculaBitten
-        target.transProfile newtarget
-        target.transform this, newtarget, true
+        if target.humanCount() > 0 && !target.getAttribute(PlayerAttribute.draculaResistance, this)
+            # 人間カウントを持っていて
+            # 吸血耐性が無ければ吸血可
+            attacked.push target
+        # 逃亡者を探す
+        for x in @players
+            if x.dead
+                continue
+            if x.humanCount() <= 0
+                continue
+            runners = x.accessByJobTypeAll "Fugitive"
+            for pl in runners
+                if pl.flag?.day == @day
+                    if pl.flag?.id == actTarget
+                        # ドラキュラの吸血先に逃亡した
+                        attacked.push x
+                    else if @getPlayer(pl.flag?.id)?.isJobType("Dracula")
+                        # ドラキュラに逃亡した
+                        attacked.push x
+
+        for t in attacked
+            # 対象者を吸血
+            newtarget = Player.factory null, this, t, null, DraculaBitten
+            t.transProfile newtarget
+            t.transform this, newtarget, true
+        # 1人でも吸血していれば吸血フラグを建てる
+        @dracula_result = attacked.length > 0
 
 
     # 死んだ人を処理する type: タイミング
@@ -9751,6 +9773,10 @@ class CultMember extends Complex
 class Guarded extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"Guarded"
+    getAttribute:(attr, game)->
+        if attr == PlayerAttribute.draculaResistance
+            return true
+        return super
     checkDeathResistance:(game, found, from)->
         unless Found.isGuardableAttack found
             return super
