@@ -1662,12 +1662,24 @@ class Game
             return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
     # ドラキュラの攻撃を処理する
     midnightDraculaAttack:->
+        if @day == 1
+            # 最初の夜は襲撃がない
+            @dracula_result = null
+            return
         draculas = []
         for pl in @players
-            if !pl.dead
-                draculas.push pl.accessByJobTypeAll("Dracula")...
+            draculas.push pl.accessByJobTypeAll("Dracula")...
         if draculas.length == 0
-            # ドラキュラが居ないので何もしない
+            # ドラキュラが存在しない
+            @dracula_result = null
+            return
+        @dracula_result = false
+        # 襲撃対象選択している人のみ残す
+        draculas = draculas.filter (x)=>
+            pl = @getPlayer x.target
+            return pl?
+        if draculas.length == 0
+            # 襲撃できる人がいない
             return
         # 吸血対象をランダムに決定
         r = Math.floor Math.random()*draculas.length
@@ -1676,6 +1688,9 @@ class Game
         originalTarget = @getPlayer plobj.target
         actTarget = @skillTargetHook.get plobj.target
         target = @getPlayer actTarget
+        # 対象を取得したら初期化
+        for pl in draculas
+            pl.setTarget null
         unless originalTarget? && target? && attacker?
             return
         # 吸血ログ
@@ -9178,10 +9193,6 @@ class Dracula extends Player
             comment: game.i18n.t "roles:Dracula.select", {name: @name, target: pl.name}
         splashlog game.id, game, log
         null
-    midnight:(game)->
-        pl = game.getPlayer game.skillTargetHook.get @target
-        unless pl?
-            return
     sunrise:(game)->
         # 最初のドラキュラが朝ログを出す
         unless game.dracula_result?
@@ -9209,7 +9220,7 @@ class Dracula extends Player
         # Dracula is curse-killed when divined.
         super
         @die game, "curse", player.id
-        player.addGamelog "cursekill", null, @id
+        player.addGamelog game, "cursekill", null, @id
 
 # ============================
 # 処理上便宜的に使用
