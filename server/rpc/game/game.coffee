@@ -9117,6 +9117,11 @@ class Dracula extends Player
         pl = game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
+    divined:(game, player)->
+        # Dracula is curse-killed when divined.
+        super
+        @die game, "curse", player.id
+        player.addGamelog "cursekill", null, @id
 
 # ============================
 # 処理上便宜的に使用
