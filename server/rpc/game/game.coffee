@@ -1672,10 +1672,11 @@ class Game
         # 吸血対象をランダムに決定
         r = Math.floor Math.random()*draculas.length
         plobj = draculas[r]
+        attacker = @getPlayer plobj.id
         originalTarget = @getPlayer plobj.target
         actTarget = @skillTargetHook.get plobj.target
         target = @getPlayer actTarget
-        unless originalTarget? && target?
+        unless originalTarget? && target? && attacker?
             return
         # 吸血ログ
         log =
@@ -1685,7 +1686,23 @@ class Game
 
         attacked = []
 
-        if target.humanCount() > 0 && !target.getAttribute(PlayerAttribute.draculaResistance, this)
+        targetChain = constructMainChain target
+        # 反撃系能力者を探索
+        failureFlag = false
+        for plobj in targetChain[0]
+            if plobj.cmplType == "TrapGuarded"
+                # 罠で守られていたのでドラキュラが罠で死ぬ
+                attacker.die this, "trap", plobj.cmplFlag
+                plobj.addGamelog this, "trapkill", null, attacker.id
+                failureFlag = true
+            else if plobj.cmplType == "SamuraiGuarded"
+                # 侍と相打ちになる
+                samurai = @getPlayer plobj.cmplFlag
+                if samurai?
+                    samurai.die this, "vampire2", attacker.id
+                attacker.die this, "samurai", samurai?.id
+                failureFlag = true
+        if !failureFlag && target.humanCount() > 0 && !target.getAttribute(PlayerAttribute.draculaResistance, this)
             # 人間カウントを持っていて
             # 吸血耐性が無ければ吸血可
             attacked.push target
@@ -4181,6 +4198,9 @@ class Fugitive extends Player
     formType: FormType.required
     midnightSort:95
     hasDeadResistance:->true
+    getAttribute:(attr)->
+        # 逃亡者は逃亡しているのでドラキュラ耐性あり
+        attr == PlayerAttribute.draculaResistance
     sunset:(game)->
         @setTarget null
         # 実際に逃亡したフラグを立てる
