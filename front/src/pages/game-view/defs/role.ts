@@ -66,7 +66,9 @@ export type RolePeersInfo = Record<
   | 'twins'
   | 'myfans'
   | 'ravens'
-  | 'hooligans',
+  | 'hooligans'
+  | 'draculas'
+  | 'draculaBitten',
   PublicPlayerInfo[] | undefined
 >;
 /**

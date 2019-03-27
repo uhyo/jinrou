@@ -18,11 +18,12 @@ import { SensitiveButton } from '../../../util/sensitive-button';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { bind } from 'bind-decorator';
 import { observer } from 'mobx-react';
+import { allElements } from '../../../util/all-elements';
 
 /**
  * Keys of RolePeersInfo for use in JobInfo.
  */
-const peers: Array<keyof RolePeersInfo> = [
+const peers: Array<keyof RolePeersInfo> = allElements<keyof RolePeersInfo>()([
   'wolves',
   'peers',
   'madpeers',
@@ -37,7 +38,9 @@ const peers: Array<keyof RolePeersInfo> = [
   'myfans',
   'ravens',
   'hooligans',
-];
+  'draculas',
+  'draculaBitten',
+]);
 /**
  * Keys of RoleOtherPlayerINfo for use in JobInfo.
  */

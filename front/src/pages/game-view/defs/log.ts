@@ -29,6 +29,7 @@ export interface NormalLog extends LogBase {
     | 'wolfskill'
     | 'emmaskill'
     | 'eyeswolfskill'
+    | 'draculaskill'
     | 'half-day'
     | 'heavenmonologue'
     | 'voteto'
