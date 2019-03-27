@@ -39,7 +39,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # えけけ鯖
 "MadHunter",
 # 人狼パーティー
-"TinyGhost","Ninja","Twin",
+"TinyGhost","Ninja","Twin","Dracula","VampireClan"
 # その他
 "RedHood","Baker","XianFox","LunaticLover"
 # 人狼放浪記
@@ -51,7 +51,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # わんないと人狼
 "Phantom",
 # 月夜の人狼
-"DrawGirl","CautiousWolf","SnowLover","Raven",
+"DrawGirl","CautiousWolf","SnowLover","Raven","Samurai",
 # 人狼HOUSE
 "Hypnotist",
 # 人狼ジャッジメント
@@ -68,19 +68,19 @@ exports.hiddenJobs = [
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula"]
 
 # 黒が出る人
 exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf"]
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
-    Vampire:["Vampire"]
+    Vampire:["Vampire","Dracula","VampireClan"]
     Cult:["CultLeader"]
     Raven:["Raven"]
     Hooligan:["Hooligan", "HooliganAttacker"]
@@ -96,7 +96,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Raven","Hooligan","Bat","Tanner","Hoodlum","Shishimai"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","Raven","VampireClan","Hooligan","Bat","Tanner","Hoodlum","Shishimai"]
     Switching:["Stalker","Copier","Doppleganger","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:["Neet"]
@@ -777,6 +777,8 @@ exports.jobinfo=
             color:"#ddaaee"
         DragonKnight:
             color:"#ef8b26"
+        Samurai:
+            color:"#000d80"
 
     Werewolf:
         color:"#DD0000"
@@ -887,6 +889,10 @@ exports.jobinfo=
         color:"#8f00bf"
         Vampire:
             color:"#8f00bf"
+        Dracula:
+            color:"#2d00b7"
+        VampireClan:
+            color:"#c77ed0"
     Cult:
         color: "#b09d87"
         CultLeader:
@@ -1055,6 +1061,8 @@ exports.new_rules=[
                     type:"time"
                     id: 'day'
                     defaultValue: 330
+                    disabled:(rule)->
+                        rule.rules.get('dynamic_day_time') == 'on'
             }
             {
                 type: 'item'
@@ -1077,6 +1085,39 @@ exports.new_rules=[
                     type:"time"
                     id: 'voting'
                     defaultValue: 0
+            }
+            {
+                type: 'item'
+                value:
+                    type:"separator"
+            }
+            {
+                type: 'item'
+                value:
+                    type:"checkbox"
+                    id:"dynamic_day_time"
+                    defaultChecked: false
+                    value:"on"
+            }
+            {
+                type: 'item'
+                value:
+                    type:"integer"
+                    id:"dynamic_day_time_factor"
+                    defaultValue: 30
+                    minValue: 10
+                    step: 5
+                    value:"on"
+                    disabled:(rule)->
+                        rule.rules.get('dynamic_day_time') != 'on'
+                    getstr:(t, value)->
+                        {
+                            value:
+                                if !value
+                                    t('rules:common.none')
+                                else
+                                    value + t('rules:common.seconds')
+                        }
             }
             {
                 type: 'item'

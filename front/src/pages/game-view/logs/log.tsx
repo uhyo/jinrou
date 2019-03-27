@@ -470,7 +470,8 @@ export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
     case 'skill':
     case 'emmaskill':
     case 'wolfskill':
-    case 'eyeswolfskill': {
+    case 'eyeswolfskill':
+    case 'draculaskill': {
       return {
         background: theme.user.skill.bg,
         color: theme.user.skill.color,

@@ -1,6 +1,5 @@
 import { TranslationFunction } from '../i18n';
 
-import { CastingDefinition } from './casting-definition';
 import { LabeledGroup } from './labeled-group';
 
 export interface RuleDefinitionBase {
@@ -8,6 +7,10 @@ export interface RuleDefinitionBase {
    * Id of this rule setting.
    */
   id: string;
+  /**
+   * Whether this setting is disabled.
+   */
+  disabled?: (rule: Rule, isEditor: boolean) => boolean;
   /**
    * Rule string generation function.
    */
@@ -76,6 +79,7 @@ export interface IntegerRule extends RuleDefinitionBase {
   type: 'integer';
   defaultValue: number;
   minValue?: number;
+  step?: number;
 }
 
 /**

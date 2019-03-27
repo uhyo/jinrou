@@ -96,6 +96,8 @@ jobinfo:
     quantumwerewolfNumber: "あなたのプレイヤー番号は{{number}}です"
     fanof: "あなたは{{name}}のファンです"
     hooligans: "現在の暴動者は{{names}}です"
+    draculas: "仲間のドラキュラは{{names}}です"
+    draculaBitten: "吸血済みの相手は{{names}}です"
 
 
 # game-view: speak form.

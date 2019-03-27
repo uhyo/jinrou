@@ -100,6 +100,8 @@ messages:
   HooliganGuard: "拘束する対象を選択してください"
   Illusionist: "襲撃のすり替え対象を選択してください"
   Satori: "読心術の対象を選択してください"
+  Samurai: "護衛する相手を選択してください"
+  Dracula: "吸血する相手を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.
