@@ -9725,7 +9725,7 @@ class Complex
         if @sub?.hasDeadResistance game
             return true
         return false
-    geteAttribute:(attr, game)->
+    getAttribute:(attr, game)->
         if @main.getAttribute attr, game
             return true
         if @sub?.getAttribute attr, game
@@ -12667,7 +12667,7 @@ writeGlobalJobInfo = (game, player, result={})->
             result.draculas = game.players.filter((x)->x.isJobType "Dracula").map (x)->
                 x.publicinfo()
         if vq.draculaBitten
-            result.draculaBitten = game.players.filter((x)->x.getAttribute PlayerAttribute.draculaBitten).map (x)->
+            result.draculaBitten = game.players.filter((x)->x.getAttribute PlayerAttribute.draculaBitten, game).map (x)->
                 x.publicinfo()
 
 #job情報を
