@@ -23,7 +23,7 @@ export function Icon({
         <IconImg
           width={48}
           height={48}
-          alt={t('game_client:playerbox.read')}
+          alt={t('game_client:playerbox.dead')}
           src="/images/dead.png"
         />
       ) : null}
