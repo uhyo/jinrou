@@ -4467,12 +4467,15 @@ class Copier extends Player
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type, game
-        # TODO: we want to apply sunset to only newly-craeted role,
-        # ideally after it is in role tree.
         @transProfile newpl
         @transferData newpl, true
-        newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
+        newtop = game.getPlayer @id
+        # コピー後役職にsunsetを実行
+        if newtop?
+            newtree = searchPlayerInTree newtop, newpl
+            if newtree?
+                newtree[3].sunset.call newtree[1], game
         # 身代わりくんの場合を考えて対象選択を入れる
         if @scapegoat
             scapegoatRunJobs game, @id
