@@ -6955,7 +6955,7 @@ class Phantom extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobDisp(true)}
+            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
