@@ -11941,11 +11941,11 @@ module.exports.actions=(req,res,ss)->
                                 when "LoneWolf","FascinatingWolf","ToughWolf","WolfCub"
                                     # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                     # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
-                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    if countCategory("Werewolf")==0
                                         continue
                                 when "BigWolf"
                                     # 強いので狼2以上
-                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    if countCategory("Werewolf")==0
                                         continue
                                     # 霊能を出す
                                     unless Math.random()<0.15 ||  init "Psychic","Human"
