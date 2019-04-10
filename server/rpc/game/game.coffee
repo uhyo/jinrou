@@ -3454,17 +3454,11 @@ class Player
         orig_jobname = befpl.originalJobname
         jobname1 = befpl.getJobname()
 
-        res = getSubParentAndMainChain befpl, this
+        # 完全なチェーンを作成
+        res = getSubParentAndAllChain befpl, this
         unless res?
             return
-        [topParent, complexChain, thisInTree] = res
-        # 自分以下のchainを作る
-        res = constructMainChain thisInTree
-        unless res?
-            return
-        [complexChain2, main] = res
-        # チェインをひとつにまとめる
-        complexChain = complexChain.concat complexChain2
+        [topParent, complexChain, main] = res
 
         if flag
             if complexChain.length > 0
@@ -6989,9 +6983,9 @@ class Phantom extends Player
         @transferData newpl, true
         @transform game,newpl,false
         # 自分が怪盗に盗まれていたらキャンセル（役職が増殖しない整合性のため）
-        mych = constructMainChain(game.getPlayer @id)
+        mych = getSubParentAndAllChain game.getPlayer(@id), this
         if mych?
-            for cm in mych[0]
+            for cm in mych[1]
                 if cm.cmplType == "PhantomStolen"
                     cm.uncomplex game
         log=
@@ -12855,6 +12849,22 @@ getSubParentAndMainChain = (top, target)->
         return null
     [complexChain, _] = res
     return [topParent, complexChain, targetInTree]
+
+# Search given player in tree and dig to the bottom.
+# Returns [parent of top of chin, all chain, bottom player object].
+getSubParentAndAllChain = (top, target)->
+    res = getSubParentAndMainChain top, target
+    unless res?
+        return null
+    [topParent, complexChain, targetInTree] = res
+    res = constructMainChain thisInTree
+    unless res?
+        return null
+    [complexChain2, main] = res
+    complexChain = complexChain.concat complexChain2
+    return [topParent, complexChain, main]
+
+
 # List up all main roles in given player.
 getAllMainRoles = (top)->
     results = []
