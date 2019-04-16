@@ -478,6 +478,7 @@ module.exports.actions=(req,res,ss)->
             unless room.mode=="waiting"
                 res i18n.t "error.alreadyStarted"
                 return
+            libready.unregister roomid, pl
             # consistencyのためにplayersをまるごとアップデートする
             room.players = room.players.filter (x)=> x.realid != req.session.userId
             # ヘルパーになっている人は解除
@@ -549,6 +550,8 @@ module.exports.actions=(req,res,ss)->
                     if p.start
                         ss.publish.channel "room#{roomid}", "ready", {userid: p.userid, start: false}
                         p.start = false
+
+            libready.unregister roomid, pl
             update = {
                 $set: {
                     players: room.players
@@ -574,7 +577,7 @@ module.exports.actions=(req,res,ss)->
             return
         sethelper ss,roomid,req.session.userId,id,res
     # 全員ready解除する
-    unreadyall:(roomid,id)->
+    unreadyall:(roomid)->
         unless req.session.userId
             res i18n.t "common:error.needLogin"
             return
@@ -589,19 +592,9 @@ module.exports.actions=(req,res,ss)->
             unless room.mode=="waiting"
                 res i18n.t "error.alreadyStarted"
                 return
-            for p,i in room.players
-                p.start = false
-            M.rooms.update {id:roomid},{
-                $set: {
-                    players: room.players
-                }
-            },(err)=>
-                if err?
-                    res String err
-                else
-                    res null
-                    # readyを初期化する系
-                    ss.publish.channel "room#{roomid}", "unreadyall",id
+            libready.unreadyAll(ss, roomid, room.players)
+                .then(()-> res null)
+                .catch((err)-> res String err)
     # 追い出しリストを取得
     getbanlist:(roomid)->
         unless req.session.userId

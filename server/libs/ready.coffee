@@ -2,7 +2,7 @@
 cron = require 'cron'
 
 # time in seconds to reset user's readiness.
-READY_RESET_TIME = 5
+READY_RESET_TIME = 10
 
 # map of registered job to reset readiness.
 readyResetJobs = new Map
@@ -12,7 +12,7 @@ exports.setReady = (ss, roomid, userobj, ready)->
     updateReady(ss, roomid, userobj, ready)
         .then ()->
             # remove previous jobs.
-            key = "#{roomid}-#{userobj.realid}"
+            key = jobsKey roomid, userobj.realid
             previousJob = readyResetJobs.get key
             if previousJob?
                 previousJob.stop()
@@ -29,6 +29,37 @@ exports.setReady = (ss, roomid, userobj, ready)->
                 readyResetJobs.set key, job
             else
                 readyResetJobs.delete key
+# reset readiness of all players.
+exports.unreadyAll = (ss, roomid, players)->
+    new Promise (resolve, reject)->
+        for p in players
+            p.start = false
+            untrack roomid, p.realid
+        # update whole players array at once.
+        M.rooms.update {id: roomid}, {
+            $set: {
+                players: players
+            }
+        }, (err)->
+            if err?
+                reject err
+                return
+            ss.publish.channel "room#{roomid}", "unreadyall", {}
+            resolve()
+
+# unregister a user from readiness management.
+exports.unregister = (roomid, userobj)->
+    untrack roomid, userobj.realid
+
+# make a key from roomid and realid.
+jobsKey = (roomid, realid)-> "#{roomid}-#{realid}"
+
+# internal logic to untrack user.
+untrack = (roomid, realid)->
+    key = jobsKey roomid, realid
+    previousJob = readyResetJobs.get key
+    previousJob?.stop()
+    readyResetJobs.delete jobsKey(roomid, realid)
 
 # internal logic to update user's readiness.
 updateReady = (ss, roomid, userobj, ready)->
