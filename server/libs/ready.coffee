@@ -2,7 +2,7 @@
 cron = require 'cron'
 
 # time in seconds to reset user's readiness.
-READY_RESET_TIME = 10
+READY_RESET_TIME = 300
 
 # map of registered job to reset readiness.
 readyResetJobs = new Map
