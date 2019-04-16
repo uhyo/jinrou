@@ -681,6 +681,8 @@ module.exports.actions=(req,res,ss)->
             unless room.mode=="waiting"
                 res i18n.t "error.alreadyStarted"
                 return
+            for pl in room.players
+                libready.unregister roomid, pl
             M.rooms.update {id:roomid},{$set: {mode:"end"}},(err)=>
                 if err?
                     res String err

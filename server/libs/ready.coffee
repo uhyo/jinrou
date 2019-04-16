@@ -36,7 +36,10 @@ exports.unreadyAll = (ss, roomid, players)->
             p.start = false
             untrack roomid, p.realid
         # update whole players array at once.
-        M.rooms.update {id: roomid}, {
+        M.rooms.update {
+            id: roomid
+            mode: "waiting"
+        }, {
             $set: {
                 players: players
             }
@@ -67,6 +70,7 @@ updateReady = (ss, roomid, userobj, ready)->
         # save new readiness to DB.
         M.rooms.update {
             id: roomid
+            mode: "waiting"
             "players.realid": userobj.realid
         }, {
             $set: {
