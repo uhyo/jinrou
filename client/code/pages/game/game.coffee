@@ -326,12 +326,8 @@ exports.start=(roomid)->
                     else if obj.game?.rule?.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
                         # join the game button can be shown when endless
                         {
-                            type: 'prelude'
-                            owner: room.owner.userid == Index.app.userid()
+                            type: 'endless'
                             joined: false
-                            old: false
-                            blind: !!room.blind
-                            theme: room.theme? && !!room.theme
                         }
                     else
                         null
