@@ -11129,7 +11129,7 @@ module.exports.actions=(req,res,ss)->
             if room.error?
                 res room.error
                 return
-            unless room.mode=="waiting"
+            unless room.mode=="waiting" && game.phase == Phase.preparing
                 # すでに開始している
                 res game.i18n.t "error.gamestart.alreadyStarted"
                 return
