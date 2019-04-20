@@ -7744,9 +7744,9 @@ class CraftyWolf extends Werewolf
     deadnight:(game,midnightSort)->
         if @flag=="reviving"
             # 生存していた
+            @setFlag ""
             pl = game.getPlayer @id
             if pl?
-                pl.setFlag ""
                 pl.revive game
                 pl.addGamelog game,"craftyrevive"
         else
