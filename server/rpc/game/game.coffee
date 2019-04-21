@@ -11817,10 +11817,11 @@ module.exports.actions=(req,res,ss)->
                     team = null
                     while true
                         # 前のループで確保したものが残っていたら返す
-                        if category?
-                            joblist[category]++
-                        if team?
-                            joblist[team]++
+                        if category? || team?
+                            if category?
+                                joblist[category]++
+                            if team?
+                                joblist[team]++
                         else if job?
                             # jobが決まったけど使われなかった
                             frees++
