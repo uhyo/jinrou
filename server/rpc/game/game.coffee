@@ -11618,7 +11618,7 @@ module.exports.actions=(req,res,ss)->
                     exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover", "LunaticLover"
 
                 # 占い確定
-                if safety.teams || safety.jobs
+                if (safety.teams || safety.jobs) && joblist.Diviner == 0
                     # 村人陣営
                     # 占い師いてほしい
                     selected = if safety.jobs then selectJob ["Diviner", "ApprenticeSeer"], [0.75, 0.05]
@@ -11633,7 +11633,7 @@ module.exports.actions=(req,res,ss)->
                         else if frees > 0
                             joblist[selected]++
                             frees--
-                if safety.teams
+                if safety.teams && (joblist.Guard + joblist.WanderingGuard == 0)
                     # できれば狩人も
                     selected = if joblist.Diviner > 0 then selectJob ["Guard", "WanderingGuard"], [0.4, 0.1]
                     else selectJob ["Guard"], [0.4]
@@ -12198,6 +12198,9 @@ module.exports.actions=(req,res,ss)->
             else
                 game.setplayers (result)->
                     unless result?
+                        # temporal
+                        res "happy!"
+                        return
                         # プレイヤー初期化に成功
                         M.rooms.update {id:roomid},{
                             $set:{
