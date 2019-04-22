@@ -1951,15 +1951,20 @@ class Game
         @nextturn_deferred_log.push log
 
     # 投票終わりチェック
-    # 返り値: 処刑が終了したらtrue
+    # 返り値:
+    #   "continue" if this method kept handling the game
+    #   "failure"  if this method gave up handling the game
     execute:->
-        return false unless @votingbox.isVoteAllFinished()
+        return "failure" unless @votingbox.isVoteAllFinished()
         [mode,players,tos,table]=@votingbox.check()
         if mode=="novote"
             # 誰も投票していない・・・
             @revote_num=Infinity
-            @judge()
-            return false
+            if @judge()
+                return "continue"
+            else
+                # here should't be reachable
+                return "failure"
         # 投票結果
         log=
             mode:"voteresult"
@@ -1970,11 +1975,11 @@ class Game
         if mode=="runoff"
             # 再投票になった
             @dorevote "runoff"
-            return false
+            return "continue"
         else if mode=="revote"
             # 再投票になった
             @dorevote "revote"
-            return false
+            return "continue"
         else if mode=="none"
             # 処刑しない
             log=
@@ -1982,13 +1987,13 @@ class Game
                 comment: @i18n.t "system.voting.nopunish"
             splashlog @id,this,log
             @bury "punish"
-            return true if @rule.hunter_lastattack == "no" && @judge()
+            return "continue" if @rule.hunter_lastattack == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
                 if @rule.hunter_lastattack == "yes"
-                    return if @judge()
+                    return "continue" if @judge()
                 @nextturn()
-            return true
+            return "continue"
         else if mode=="punish"
             # 投票
             # 結果が出た 死んだ!
@@ -2008,22 +2013,22 @@ class Game
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
                 @bury "other"
-                return false if @rule.hunter_lastattack == "no" && @judge()
+                return "continue" if @rule.hunter_lastattack == "no" && @judge()
 
                 unless @hunterCheck("vote")
-                    return false if @rule.hunter_lastattack == "yes" && @judge()
+                    return "continue" if @rule.hunter_lastattack == "yes" && @judge()
                     @dorevote "onemore"
-                return false
+                return "continue"
             # ターン移る前に死体処理
             @bury "punish"
-            return true if @rule.hunter_lastattack == "no" && @judge()
+            return "continue" if @rule.hunter_lastattack == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
                 if @rule.hunter_lastattack == "yes"
-                    return true if @judge()
+                    return "continue" if @judge()
                 @nextturn()
             # this judge is needed?
-        return true
+        return "continue"
     # 再投票
     dorevote:(mode)->
         # mode:
@@ -2597,7 +2602,8 @@ class Game
                 mode = @i18n.t "phase.day"
                 return if @rule.day == 0 && @rule.dynamic_day_time != "on"
                 func= =>
-                    unless @execute()
+                    if @execute() == "failure"
+                        # 昼が終了しても投票完了していなかった
                         if @rule.voting
                             # 投票専用時間がある
                             @phase = Phase.day_voting
@@ -2630,7 +2636,8 @@ class Game
                             if revoting
                                 @dorevote "gone"
                             else
-                                @execute()
+                                if @execute() == "failure"
+                                    @dorevote "gone"
                     else
                         return
         else if @phase == Phase.day_voting
@@ -2639,7 +2646,7 @@ class Game
             mode=@i18n.t "phase.voting"
             return unless time
             func= =>
-                unless @execute()
+                if @execute() == "failure"
                     # まだ決まらない
                     if @rule.remain
                         # 猶予時間
@@ -2659,7 +2666,8 @@ class Game
                         if revoting
                             @dorevote "gone"
                         else
-                            @execute()
+                            if @execute() == "failure"
+                                @dorevote "gone"
                 else
                     return
 
@@ -2668,7 +2676,7 @@ class Game
             time=@rule.remain
             mode=@i18n.t "phase.additional"
             func= =>
-                unless @execute()
+                if @execute() == "failure"
                     revoting=false
                     for x in @players
                         if x.dead || x.voted(this,@votingbox)
@@ -2681,7 +2689,8 @@ class Game
                     if revoting
                         @dorevote "gone"
                     else
-                        @execute()
+                        if @execute() == "failure"
+                            @dorevote "gone"
                 else
                     return
         else if @phase == Phase.hunter
@@ -12477,6 +12486,9 @@ module.exports.actions=(req,res,ss)->
                     event:"vote"
                 }
                 res makejobinfo game,player
+                # here we # ignore execute's return value,
+                # as nothing needs to be done if vote is not finished after
+                # this player's vote.
                 game.execute()
         catch e
             console.error e
