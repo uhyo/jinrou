@@ -12198,9 +12198,6 @@ module.exports.actions=(req,res,ss)->
             else
                 game.setplayers (result)->
                     unless result?
-                        # temporal
-                        res "happy!"
-                        return
                         # プレイヤー初期化に成功
                         M.rooms.update {id:roomid},{
                             $set:{
