@@ -718,6 +718,13 @@ getLabeledGroupsOfJobrules = ()->
             {
                 type: 'item'
                 value:
+                    id: '特殊ルール.easyYaminabe'
+                    roleSelect: false
+                    noFill: true
+            }
+            {
+                type: 'item'
+                value:
                     id: '特殊ルール.量子人狼'
                     roleSelect: false
                     suggestedOptions:
