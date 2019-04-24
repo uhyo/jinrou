@@ -144,6 +144,8 @@ Found =
     # whether this is a guardable attack.
     isGuardableAttack:(found)->
         found == "vampire" || Found.isGuardableWerewolfAttack(found)
+    # whether this is a werewolf attack.
+    isWerewolfAttack: (found)->
 
 # getAttributeで使用可能なattr
 PlayerAttribute =
@@ -9257,6 +9259,68 @@ class VampireClan extends Player
             @die game, "vampiresuicide"
         return false
 
+class Elementaler extends Player
+    type:"Elementaler"
+    midnightSort: 80
+    formType: FormType.required
+    hasDeadResistance:->true
+    sleeping:->@target?
+    sunset:(game)->
+        @setTarget null
+        if game.day==1
+            # 一日目は護衛しない
+            @setTarget ""
+        # 護衛対象がいない
+        targets = game.players.filter (pl)=>
+            !pl.dead && pl.id != @flag && (pl.id != @id || game.rule.guardmyself == "ok")
+
+        if targets.length == 0
+            @setTarget ""
+            return
+    job:(game, playerid)->
+        if playerid == @id && game.rule.guardmyself != "ok"
+            return game.i18n.t "error.common.noSelectSelf"
+        if playerid == @flag && game.rule.consecutiveguard == "no"
+            return game.i18n.t "roles:Guard.noGuardSame"
+
+        @setTarget playerid
+        pl = game.getPlayer playerid
+        pl.touched game, @id
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Elementaler.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        @setFlag {
+            day: game.day
+            playerid: pl.id
+        }
+        # 精霊の守りを複合させる
+        newpl = Player.factory null, game, pl, null, Guarded
+        pl.transProfile newpl
+        # 護衛元をcmplFlagに保存
+        newpl.cmplFlag = @id
+        pl.transform game, newpl, true
+    dying:(game, found, from)->
+        super
+        # 人狼の襲撃で死亡したときは護衛先を道連れにする
+        unless Found.isGuardableWerewolfAttack found
+            return
+        unless @flag?.day == game.day
+            # 今晩護衛していない
+            return
+        guarded = game.getPlayer @flag.playerid
+        if guarded.dead
+            return
+        # 道連れ処理
+        guarded.die game, "werewolf2", from
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -10950,6 +11014,7 @@ jobs=
     Samurai:Samurai
     Dracula:Dracula
     VampireClan:VampireClan
+    Elementaler:Elementaler
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11122,6 +11187,7 @@ jobStrength=
     Samurai:25
     Dracula:30
     VampireClan:20
+    Elementaler:23
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
