@@ -12870,7 +12870,7 @@ getSubParentAndAllChain = (top, target)->
     unless res?
         return null
     [topParent, complexChain, targetInTree] = res
-    res = constructMainChain thisInTree
+    res = constructMainChain targetInTree
     unless res?
         return null
     [complexChain2, main] = res
