@@ -702,6 +702,8 @@ Emma:
     dragon: "{{name}}は竜に焼き殺されたようです。"
     # Killed by Samurai
     samurai: "{{name}}は侍に一刀両断されたようです。"
+    # Killed by Elementaler
+    elemental: "{{name}}は暴走した精霊によって殺されたようです。"
 
 EyesWolf:
   # EyesWolf result strings

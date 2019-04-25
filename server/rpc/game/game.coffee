@@ -1814,7 +1814,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1855,7 +1855,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide",
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai"
+                    "hooligan","dragon","samurai","elemental"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1908,6 +1908,8 @@ class Game
                         "dragon"
                     when "samurai"
                         "samurai"
+                    when "elemental"
+                        "elemental"
                     else
                         null
                 if emma_log?
@@ -9319,7 +9321,8 @@ class Elementaler extends Player
         if guarded.dead
             return
         # 道連れ処理
-        guarded.die game, "werewolf2", from
+        @addGamelog game, "elementalkill", null, guarded.id
+        guarded.die game, "elemental", from
 
 
 # ============================

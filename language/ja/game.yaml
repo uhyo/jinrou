@@ -258,6 +258,7 @@ foundDetail:
   hooligan: "暴動者による暴行"
   dragon: "竜の炎"
   samurai: "侍の反撃"
+  elemental: "暴走した精霊の力"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
