@@ -704,7 +704,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
             {
                 type: 'item'
@@ -720,7 +720,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.easyYaminabe'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
             {
                 type: 'item'
@@ -741,7 +741,8 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.エンドレス闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
+
             }
         ]
     }

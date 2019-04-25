@@ -19,6 +19,10 @@ export interface CastingDefinition {
    */
   noFill?: boolean;
   /**
+   * Do not show casting.
+   */
+  noShow?: boolean;
+  /**
    * Whether to use category query.
    */
   category?: boolean;
