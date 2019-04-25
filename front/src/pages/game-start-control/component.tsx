@@ -163,8 +163,9 @@ export class Casting extends React.Component<IPropCasting, {}> {
                           );
                         }}
                         onChange={this.handleCastingChange}
-                      />{' '}
-                      {castingTitle}
+                      />
+                      {'　'}
+                      <b>{castingName}</b>: {castingTitle}
                     </p>
                     {currentCasting.roleSelect ? (
                       <SelectRoles
