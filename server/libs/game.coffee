@@ -73,8 +73,6 @@ exports.categorySortedJobs = ()->
     return categorySortedJobsCache
 
 
-
-
 # Make a list of all rules.
 iterRules = (rules)->
     result = []
