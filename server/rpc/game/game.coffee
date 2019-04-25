@@ -11212,7 +11212,7 @@ module.exports.actions=(req,res,ss)->
             if room.players.some((x)->!x.start)
                 res game.i18n.t "error.gamestart.notReady"
                 return
-            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
+            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"])
                 res game.i18n.t "error.gamestart.noHiddenRole"
                 return
             ruleValidationError = libgame.validateGameStartQuery game, query
