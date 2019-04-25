@@ -177,6 +177,8 @@ normal2=(number)->
     ret.Fox=1   #狐
   ret
 
+exports.normal1 = normal1
+
 exports.jobrules=[
   {
     name:"普通配役"
