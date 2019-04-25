@@ -704,7 +704,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
             {
                 type: 'item'
@@ -718,8 +718,16 @@ getLabeledGroupsOfJobrules = ()->
             {
                 type: 'item'
                 value:
+                    id: '特殊ルール.easyYaminabe'
+                    roleSelect: false
+                    preset: Shared.game.normal1
+            }
+            {
+                type: 'item'
+                value:
                     id: '特殊ルール.量子人狼'
                     roleSelect: false
+                    preset: Shared.game.getrulefunc "内部利用.量子人狼"
                     suggestedOptions:
                         night:
                             type: 'range'
@@ -734,7 +742,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.エンドレス闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
         ]
     }

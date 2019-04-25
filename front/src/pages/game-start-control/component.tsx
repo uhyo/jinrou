@@ -125,15 +125,19 @@ export class Casting extends React.Component<IPropCasting, {}> {
                     {t('gamestart.info.playerNumber', { count: playersNumber })}
                     {' - '}
                     {castingName}
-                    {' / '}
-                    <JobsString
-                      t={t}
-                      i18n={i18n}
-                      jobNumbers={jobNumbers}
-                      categoryNumbers={categoryNumbers}
-                      roles={roles}
-                      categories={categories}
-                    />
+                    {store.currentCasting.noShow ? null : (
+                      <>
+                        {' / '}
+                        <JobsString
+                          t={t}
+                          i18n={i18n}
+                          jobNumbers={jobNumbers}
+                          categoryNumbers={categoryNumbers}
+                          roles={roles}
+                          categories={categories}
+                        />
+                      </>
+                    )}
                     {warning}
                   </StatusLine>
                   <fieldset>
@@ -159,8 +163,9 @@ export class Casting extends React.Component<IPropCasting, {}> {
                           );
                         }}
                         onChange={this.handleCastingChange}
-                      />{' '}
-                      {castingTitle}
+                      />
+                      {'　'}
+                      <b>{castingName}</b>: {castingTitle}
                     </p>
                     {currentCasting.roleSelect ? (
                       <SelectRoles

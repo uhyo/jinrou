@@ -177,6 +177,8 @@ normal2=(number)->
     ret.Fox=1   #狐
   ret
 
+exports.normal1 = normal1
+
 exports.jobrules=[
   {
     name:"普通配役"
@@ -1638,7 +1640,7 @@ exports.jobinfos=[
 
 # 全ての役職が現れる可能性があるモードかどうか
 isAllJobsMode=(rule)->
-   if (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+   if (rule.casting ? rule.jobrule) in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋", "特殊ルール.easyYaminabe"]
        return true
    if rule.rules.get("yaminabe_hidejobs") != ""
        # 役職が隠されている場合もtrue

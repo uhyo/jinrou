@@ -32,6 +32,7 @@ castingName:
     一部闇鍋: "一部闇鍋"
     量子人狼: "量子人狼"
     エンドレス闇鍋: "エンドレス闇鍋"
+    easyYaminabe: "かんたん闇鍋"
 
 # title of casting.
 castingTitle:
@@ -65,6 +66,7 @@ castingTitle:
     一部闇鍋: "一部の配役を固定して残りをランダムにします。"
     量子人狼: "全員の役職が確率で表現される人狼です。村人・人狼・占い師のみ。"
     エンドレス闇鍋: "途中参加可能で、死亡したらそのうち転生する人狼です。"
+    easyYaminabe: "お手軽に遊べる闇鍋です。基本は普通村で、1〜2個の役職がランダムに特殊役職に置き換わります。"
 
 # name of casting group.
 # "_name" field holds the name because

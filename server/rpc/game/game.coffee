@@ -9,6 +9,7 @@ libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
 libi18n      = require '../../libs/i18n.coffee'
 libgame      = require '../../libs/game.coffee'
+libcasting   = require '../../libs/casting.coffee'
 
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
@@ -11211,7 +11212,7 @@ module.exports.actions=(req,res,ss)->
             if room.players.some((x)->!x.start)
                 res game.i18n.t "error.gamestart.notReady"
                 return
-            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
+            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"])
                 res game.i18n.t "error.gamestart.noHiddenRole"
                 return
             ruleValidationError = libgame.validateGameStartQuery game, query
@@ -11280,6 +11281,7 @@ module.exports.actions=(req,res,ss)->
 
             ruleinfo_str="" # 開始告知
 
+            console.log "query.jobrule is ", query.jobrule
             if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]   # 自由のときはクエリを参考にする
                 for job in Shared.game.jobs
                     joblist[job]=parseInt(query[job]) || 0    # 仕事の数
@@ -11287,7 +11289,17 @@ module.exports.actions=(req,res,ss)->
                 for type of Shared.game.categories
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+            if query.jobrule == "特殊ルール.easyYaminabe"
+                # かんたん闇鍋のときは普通1がデフォ
+                joblist = libcasting.fillJoblist Shared.game.normal1 playersnumber
+                # 残りは村人
+                joblist.Human = frees - libcasting.countJobsInJoblist(joblist)
+
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
+                # ランダムに役職を選択して闇鍋化
+                joblist = libcasting.easyReplaceJoblist joblist
+
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"]
                 # 内部用にチームによる役職指定
                 for team of Shared.game.teams
                     joblist["team_#{team}"] = 0
@@ -11300,13 +11312,15 @@ module.exports.actions=(req,res,ss)->
                 # 闇鍋のときはランダムに決める
                 plsh=Math.floor playersnumber/2   # 過半数
 
-                if query.jobrule=="特殊ルール.一部闇鍋"
-                    # 一部闇鍋のときはこちらで配分可能な役職を数える
+                if query.jobrule in ["特殊ルール.一部闇鍋", "特殊ルール.easyYaminabe"]
+                    # 配役が既に部分的に決定している場合は残りだけ担当する
                     for job in Shared.game.jobs
                         frees -= joblist[job]
                     for type of Shared.game.categories
                         frees -= joblist["category_#{type}"]
-                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
+
+                unless query.jobrule == "特殊ルール.easyYaminabe"
+                    ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
 
                 safety={
                     jingais:false   # 人外の数を調整
@@ -11315,7 +11329,11 @@ module.exports.actions=(req,res,ss)->
                     strength:false  # 職の強さも考慮
                     reverse:false   # 職の強さが逆
                 }
-                switch query.yaminabe_safety
+                yaminabe_safety = query.yaminabe_safety
+                if query.jobrule == "特殊ルール.easyYaminabe"
+                    # かんたん闇鍋はセーフティ高に固定
+                    yaminabe_safety = "high"
+                switch yaminabe_safety
                     when "low"
                         # 低い
                         safety.jingais=true
@@ -12163,7 +12181,7 @@ module.exports.actions=(req,res,ss)->
                     comment: game.i18n.t "system.gamestart.divinerModeChanged"
                 splashlog game.id,game,log
 
-            if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋"])
+            if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋", "特殊ルール.easyYaminabe"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
             if query.yaminabe_hidejobs != "" && query.jobrule == "特殊ルール.自由配役"
@@ -12214,7 +12232,7 @@ module.exports.actions=(req,res,ss)->
                     mode:"system"
                     comment: game.i18n.t "system.gamestart.teams", {info: teaminfos.join(" ")}
                 splashlog game.id,game,log
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"]
                 if query.yaminabe_hidejobs==""
                     # 闇鍋用の役職公開ログ
                     log=
