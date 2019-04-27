@@ -25,9 +25,19 @@ export interface RoomPrelude {
   theme: boolean;
 }
 /**
+ * State of room during endless yaminabe.
+ */
+export interface RoomDuringEndless {
+  type: 'endless';
+  /**
+   * Whether you have already joined the room.
+   */
+  joined: boolean;
+}
+/**
  * State of room after the end.
  */
 export interface RoomPostlude {
   type: 'postlude';
 }
-export type RoomControlInfo = RoomPrelude | RoomPostlude;
+export type RoomControlInfo = RoomPrelude | RoomDuringEndless | RoomPostlude;

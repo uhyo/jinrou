@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { observer } from 'mobx-react';
+import { observer } from 'mobx-react-lite';
 
 import { i18n, I18n, TranslationFunction } from '../../i18n';
 
@@ -17,40 +17,36 @@ export interface IPropJobsString {
 /**
  * String representing given jobNumbers.
  */
-@observer
-export class JobsString extends React.Component<IPropJobsString, {}> {
-  public render() {
-    const { t, jobNumbers, categoryNumbers, roles, categories } = this.props;
-    return (
-      <>
-        {roles.map(id => {
-          const val = jobNumbers[id] || 0;
-          if (val > 0) {
-            return (
-              <React.Fragment key={id}>
-                {t(`roles:jobname.${id}`)}: {val}{' '}
-              </React.Fragment>
-            );
-          } else {
-            return null;
-          }
-        })}
-        {categories.map(({ id }) => {
-          const val = categoryNumbers.get(id) || 0;
-          if (val > 0) {
-            return (
-              <React.Fragment key={id}>
-                {t(`roles:categoryName.${id}`)}: {val}{' '}
-              </React.Fragment>
-            );
-          } else {
-            return null;
-          }
-        })}
-      </>
-    );
-  }
-}
+export const JobsString: React.FC<IPropJobsString> = observer(
+  ({ t, jobNumbers, categoryNumbers, roles, categories }) => (
+    <>
+      {roles.map(id => {
+        const val = jobNumbers[id] || 0;
+        if (val > 0) {
+          return (
+            <React.Fragment key={id}>
+              {t(`roles:jobname.${id}`)}: {val}{' '}
+            </React.Fragment>
+          );
+        } else {
+          return null;
+        }
+      })}
+      {categories.map(({ id }) => {
+        const val = categoryNumbers.get(id) || 0;
+        if (val > 0) {
+          return (
+            <React.Fragment key={id}>
+              {t(`roles:categoryName.${id}`)}: {val}{' '}
+            </React.Fragment>
+          );
+        } else {
+          return null;
+        }
+      })}
+    </>
+  ),
+);
 
 export interface IPropPlayerNumberError {
   t: TranslationFunction;

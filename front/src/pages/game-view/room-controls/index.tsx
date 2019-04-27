@@ -88,6 +88,13 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
           ) : null}
         </>
       );
+    } else if (roomControls.type === 'endless') {
+      const { joined } = roomControls;
+      return joined ? null : (
+        <button type="button" onClick={this.handleJoinClick}>
+          {t('game_client:room.join')}
+        </button>
+      );
     } else {
       // show postlude.
       return (

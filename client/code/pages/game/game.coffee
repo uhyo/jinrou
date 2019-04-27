@@ -326,12 +326,8 @@ exports.start=(roomid)->
                     else if obj.game?.rule?.jobrule == "特殊ルール.エンドレス闇鍋" && !obj.jobname?
                         # join the game button can be shown when endless
                         {
-                            type: 'prelude'
-                            owner: room.owner.userid == Index.app.userid()
+                            type: 'endless'
                             joined: false
-                            old: false
-                            blind: !!room.blind
-                            theme: room.theme? && !!room.theme
                         }
                     else
                         null
@@ -708,7 +704,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
             {
                 type: 'item'
@@ -722,8 +718,16 @@ getLabeledGroupsOfJobrules = ()->
             {
                 type: 'item'
                 value:
+                    id: '特殊ルール.easyYaminabe'
+                    roleSelect: false
+                    preset: Shared.game.normal1
+            }
+            {
+                type: 'item'
+                value:
                     id: '特殊ルール.量子人狼'
                     roleSelect: false
+                    preset: Shared.game.getrulefunc "内部利用.量子人狼"
                     suggestedOptions:
                         night:
                             type: 'range'
@@ -738,7 +742,7 @@ getLabeledGroupsOfJobrules = ()->
                 value:
                     id: '特殊ルール.エンドレス闇鍋'
                     roleSelect: false
-                    noFill: true
+                    noShow: true
             }
         ]
     }

@@ -128,6 +128,7 @@ jobname:
   Samurai: "侍"
   Dracula: "ドラキュラ"
   VampireClan: "吸血鬼の眷属"
+  Elementaler: "精霊使い"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -701,6 +702,8 @@ Emma:
     dragon: "{{name}}は竜に焼き殺されたようです。"
     # Killed by Samurai
     samurai: "{{name}}は侍に一刀両断されたようです。"
+    # Killed by Elementaler
+    elemental: "{{name}}は暴走した精霊によって殺されたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -818,6 +821,10 @@ Dracula:
   attackLog: "ドラキュラが吸血に成功したようです。"
   # there was no attack.
   noAttackLog: "ドラキュラが吸血に失敗したようです。"
+
+Elementaler:
+  # select target of guard
+  select: "{{name}}は精霊の力で{{target}}を護衛しました。"
 
 GameMaster:
   # Failed to revive.

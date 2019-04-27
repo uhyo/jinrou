@@ -9,6 +9,8 @@ libuserlogs  = require '../../libs/userlogs.coffee'
 libsavelogs  = require '../../libs/savelogs.coffee'
 libi18n      = require '../../libs/i18n.coffee'
 libgame      = require '../../libs/game.coffee'
+libcasting   = require '../../libs/casting.coffee'
+libtime      = require '../../libs/time.coffee'
 
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
@@ -144,6 +146,8 @@ Found =
     # whether this is a guardable attack.
     isGuardableAttack:(found)->
         found == "vampire" || Found.isGuardableWerewolfAttack(found)
+    # whether this is a werewolf attack.
+    isWerewolfAttack: (found)->
 
 # getAttributeで使用可能なattr
 PlayerAttribute =
@@ -464,8 +468,8 @@ class Game
         # 投票箱を用意しておく
         @votingbox=new VotingBox this
 
-        # New Year Messageのためだけの変数
-        @currentyear = null
+        # 特殊ログイベント
+        @timeBasedEvent = null
 
         # 保存用の時間
         @finish_time=null
@@ -481,6 +485,74 @@ class Game
 
         # 夜能力の対象選択に対するフック
         @skillTargetHook = new SkillTargetHook this
+
+        @initTimeBasedEvent()
+
+    initTimeBasedEvent:->
+        ev1 = new libtime.TimeKeeper "newyear", ->
+            # 来年になる瞬間
+            d = new Date
+            # 来年の1月1日にセット
+            d.setFullYear d.getFullYear() + 1, 0, 1
+            # 時刻を0時にセット
+            d.setHours 0, 0, 0, 0
+            d
+        ev2 = new libtime.TimeKeeper "reiwa", ->
+            # 令和になる瞬間
+            d = new Date
+            # 2019年の5月1日にセット
+            d.setFullYear 2019, 4, 1
+            # 時刻を0時にセット
+            d.setHours 0, 0, 0, 0
+            if Date.now() >= d.getTime()
+                # もう令和じゃん！
+                d.setFullYear 3000
+            d
+        @timeBasedEvent = libtime.TimeKeeper.mostRecent ev1, ev2
+
+    # 時刻イベントを処理
+    # phase:
+    #   "nextturn" if called on nextturn
+    #   "day" if called during day
+    handleTimeBasedEvent:(event, phase)->
+        console.log phase, event
+        switch event.type
+            when "newyear"
+                # 新年メッセージ
+                if phase == "nextturn"
+                    log=
+                        mode: "nextturn"
+                        day: @day
+                        night: Phase.isNight @phase
+                        userid: -1
+                        name: null
+                        comment: @i18n.t "system.phase.newyear", {year: event.goal.getFullYear()}
+                    splashlog @id, this, log
+                else
+                    log=
+                        mode:"system"
+                        comment: @i18n.t "system.phase.newyear", {year: event.goal.getFullYear()}
+                    splashlog @id, this, log
+
+            when "reiwa"
+                # 新年メッセージ
+                if phase == "nextturn"
+                    log=
+                        mode: "nextturn"
+                        day: @day
+                        night: Phase.isNight @phase
+                        userid: -1
+                        name: null
+                        comment: "令和元年になりました。"
+                    splashlog @id, this, log
+                else
+                    log=
+                        mode:"system"
+                        comment: "令和元年になりました。"
+                    splashlog @id, this, log
+
+
+
 
         ###
         さまざまな出来事
@@ -1081,12 +1153,14 @@ class Game
     #次のターンに進む
     nextturn:->
         clearTimeout @timerid
+        @timeBasedEvent?.clearTimer()
         if @day<=0
             # はじまる前
             @day=1
             @phase = Phase.night
-            # ゲーム開始時の年を記録
-            @currentyear = (new Date).getFullYear()
+
+            # 部屋作成から時間が経過していたときのためにtimeBasedEventを再初期化
+            @initTimeBasedEvent()
         else if Phase.isNight(@phase)
             @day++
             @phase = Phase.day
@@ -1095,17 +1169,10 @@ class Game
 
         night = Phase.isNight @phase
 
-        if @phase == Phase.day && @currentyear+1 == (new Date).getFullYear()
-            # 新年メッセージ
-            @currentyear++
-            log=
-                mode:"nextturn"
-                day:@day
-                night:night
-                userid:-1
-                name:null
-                comment: @i18n.t "system.phase.newyear", {year: @currentyear}
-            splashlog @id,this,log
+        if @phase == Phase.day && @timeBasedEvent?.isOver()
+            # 夜時間中に時刻が過ぎていた
+            @handleTimeBasedEvent @timeBasedEvent, "nextturn"
+            @initTimeBasedEvent()
         else
             # 普通メッセージ
             log=
@@ -1424,25 +1491,13 @@ class Game
             # New year messageの処理
             end_date = new Date
             end_date.setTime(end_date.getTime() + @rule.day * 1000)
-            if (new Date).getFullYear() == @currentyear && end_date.getFullYear() > @currentyear
-                # 昼時間中に変わるので専用タイマー
-                end_date.setMonth 0
-                end_date.setDate 1
-                end_date.setHours 0
-                end_date.setMinutes 0
-                end_date.setSeconds 0
-                end_date.setMilliseconds 0
-                # debug
-                # end_date.setTime(end_date.getTime() - 145*60*1000)
-                current_day = @day
-                setTimeout (()=>
-                    if !@finished && @day == current_day && @phase in [Phase.day, Phase.day_remain, Phase.day_voting]
-                        @currentyear++
-                        log=
-                            mode:"system"
-                            comment: @i18n.t "system.phase.newyear", {year: @currentyear}
-                        splashlog @id,this,log
-                ), end_date.getTime() - Date.now()
+            # 昼時間中にイベント時刻が過ぎそうなときの処理
+            if @timeBasedEvent.isOver(@rule.day)
+                @timeBasedEvent.setTimer (event)=>
+                    currentyear = event.goal.getFullYear()
+                    if !@finished
+                        @handleTimeBasedEvent event, "day"
+                        @initTimeBasedEvent()
 
         @splashjobinfo()
         if !night
@@ -1811,7 +1866,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1852,7 +1907,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide",
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai"
+                    "hooligan","dragon","samurai","elemental"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1905,6 +1960,8 @@ class Game
                         "dragon"
                     when "samurai"
                         "samurai"
+                    when "elemental"
+                        "elemental"
                     else
                         null
                 if emma_log?
@@ -1951,15 +2008,20 @@ class Game
         @nextturn_deferred_log.push log
 
     # 投票終わりチェック
-    # 返り値: 処刑が終了したらtrue
+    # 返り値:
+    #   "continue" if this method kept handling the game
+    #   "failure"  if this method gave up handling the game
     execute:->
-        return false unless @votingbox.isVoteAllFinished()
+        return "failure" unless @votingbox.isVoteAllFinished()
         [mode,players,tos,table]=@votingbox.check()
         if mode=="novote"
             # 誰も投票していない・・・
             @revote_num=Infinity
-            @judge()
-            return false
+            if @judge()
+                return "continue"
+            else
+                # here should't be reachable
+                return "failure"
         # 投票結果
         log=
             mode:"voteresult"
@@ -1970,11 +2032,11 @@ class Game
         if mode=="runoff"
             # 再投票になった
             @dorevote "runoff"
-            return false
+            return "continue"
         else if mode=="revote"
             # 再投票になった
             @dorevote "revote"
-            return false
+            return "continue"
         else if mode=="none"
             # 処刑しない
             log=
@@ -1982,13 +2044,13 @@ class Game
                 comment: @i18n.t "system.voting.nopunish"
             splashlog @id,this,log
             @bury "punish"
-            return true if @rule.hunter_lastattack == "no" && @judge()
+            return "continue" if @rule.hunter_lastattack == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
                 if @rule.hunter_lastattack == "yes"
-                    return if @judge()
+                    return "continue" if @judge()
                 @nextturn()
-            return true
+            return "continue"
         else if mode=="punish"
             # 投票
             # 結果が出た 死んだ!
@@ -2008,22 +2070,22 @@ class Game
             if @votingbox.remains>0
                 # もっと殺したい!!!!!!!!!
                 @bury "other"
-                return false if @rule.hunter_lastattack == "no" && @judge()
+                return "continue" if @rule.hunter_lastattack == "no" && @judge()
 
                 unless @hunterCheck("vote")
-                    return false if @rule.hunter_lastattack == "yes" && @judge()
+                    return "continue" if @rule.hunter_lastattack == "yes" && @judge()
                     @dorevote "onemore"
-                return false
+                return "continue"
             # ターン移る前に死体処理
             @bury "punish"
-            return true if @rule.hunter_lastattack == "no" && @judge()
+            return "continue" if @rule.hunter_lastattack == "no" && @judge()
             # ハンターフェイズ割り込みがあるかもしれない
             unless @hunterCheck("nextturn")
                 if @rule.hunter_lastattack == "yes"
-                    return true if @judge()
+                    return "continue" if @judge()
                 @nextturn()
             # this judge is needed?
-        return true
+        return "continue"
     # 再投票
     dorevote:(mode)->
         # mode:
@@ -2447,6 +2509,7 @@ class Game
             M.rooms.update {id:@id},{$set:{mode:"end"}}
             @ss.publish.channel "room#{@id}","refresh",{id:@id}
             clearTimeout @timerid
+            @timeBasedEvent?.clearTimer()
             @save()
             @saveUserRawLogs()
             @prize_check()
@@ -2597,7 +2660,8 @@ class Game
                 mode = @i18n.t "phase.day"
                 return if @rule.day == 0 && @rule.dynamic_day_time != "on"
                 func= =>
-                    unless @execute()
+                    if @execute() == "failure"
+                        # 昼が終了しても投票完了していなかった
                         if @rule.voting
                             # 投票専用時間がある
                             @phase = Phase.day_voting
@@ -2630,7 +2694,8 @@ class Game
                             if revoting
                                 @dorevote "gone"
                             else
-                                @execute()
+                                if @execute() == "failure"
+                                    @dorevote "gone"
                     else
                         return
         else if @phase == Phase.day_voting
@@ -2639,7 +2704,7 @@ class Game
             mode=@i18n.t "phase.voting"
             return unless time
             func= =>
-                unless @execute()
+                if @execute() == "failure"
                     # まだ決まらない
                     if @rule.remain
                         # 猶予時間
@@ -2659,7 +2724,8 @@ class Game
                         if revoting
                             @dorevote "gone"
                         else
-                            @execute()
+                            if @execute() == "failure"
+                                @dorevote "gone"
                 else
                     return
 
@@ -2668,7 +2734,7 @@ class Game
             time=@rule.remain
             mode=@i18n.t "phase.additional"
             func= =>
-                unless @execute()
+                if @execute() == "failure"
                     revoting=false
                     for x in @players
                         if x.dead || x.voted(this,@votingbox)
@@ -2681,7 +2747,8 @@ class Game
                     if revoting
                         @dorevote "gone"
                     else
-                        @execute()
+                        if @execute() == "failure"
+                            @dorevote "gone"
                 else
                     return
         else if @phase == Phase.hunter
@@ -3454,17 +3521,11 @@ class Player
         orig_jobname = befpl.originalJobname
         jobname1 = befpl.getJobname()
 
-        res = getSubParentAndMainChain befpl, this
+        # 完全なチェーンを作成
+        res = getSubParentAndAllChain befpl, this
         unless res?
             return
-        [topParent, complexChain, thisInTree] = res
-        # 自分以下のchainを作る
-        res = constructMainChain thisInTree
-        unless res?
-            return
-        [complexChain2, main] = res
-        # チェインをひとつにまとめる
-        complexChain = complexChain.concat complexChain2
+        [topParent, complexChain, main] = res
 
         if flag
             if complexChain.length > 0
@@ -4467,12 +4528,15 @@ class Copier extends Player
         splashlog game.id,game,log
         p=game.getPlayer playerid
         newpl=Player.factory p.type, game
-        # TODO: we want to apply sunset to only newly-craeted role,
-        # ideally after it is in role tree.
         @transProfile newpl
         @transferData newpl, true
-        newpl.sunset game   # 初期化してあげる
         @transform game,newpl,false
+        newtop = game.getPlayer @id
+        # コピー後役職にsunsetを実行
+        if newtop?
+            newtree = searchPlayerInTree newtop, newpl
+            if newtree?
+                newtree[3].sunset.call newtree[1], game
         # 身代わりくんの場合を考えて対象選択を入れる
         if @scapegoat
             scapegoatRunJobs game, @id
@@ -6952,7 +7016,7 @@ class Phantom extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobDisp(true)}
+            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
@@ -6986,9 +7050,9 @@ class Phantom extends Player
         @transferData newpl, true
         @transform game,newpl,false
         # 自分が怪盗に盗まれていたらキャンセル（役職が増殖しない整合性のため）
-        mych = constructMainChain(game.getPlayer @id)
+        mych = getSubParentAndAllChain game.getPlayer(@id), this
         if mych?
-            for cm in mych[0]
+            for cm in mych[1]
                 if cm.cmplType == "PhantomStolen"
                     cm.uncomplex game
         log=
@@ -7747,9 +7811,9 @@ class CraftyWolf extends Werewolf
     deadnight:(game,midnightSort)->
         if @flag=="reviving"
             # 生存していた
+            @setFlag ""
             pl = game.getPlayer @id
             if pl?
-                pl.setFlag ""
                 pl.revive game
                 pl.addGamelog game,"craftyrevive"
         else
@@ -9250,6 +9314,69 @@ class VampireClan extends Player
         unless game.players.some((x)->!x.dead && x.isVampire())
             @die game, "vampiresuicide"
         return false
+
+class Elementaler extends Player
+    type:"Elementaler"
+    midnightSort: 80
+    formType: FormType.required
+    hasDeadResistance:->true
+    sleeping:->@target?
+    sunset:(game)->
+        @setTarget null
+        if game.day==1
+            # 一日目は護衛しない
+            @setTarget ""
+        # 護衛対象がいない
+        targets = game.players.filter (pl)=>
+            !pl.dead && pl.id != @flag && (pl.id != @id || game.rule.guardmyself == "ok")
+
+        if targets.length == 0
+            @setTarget ""
+            return
+    job:(game, playerid)->
+        if playerid == @id && game.rule.guardmyself != "ok"
+            return game.i18n.t "error.common.noSelectSelf"
+        if playerid == @flag && game.rule.consecutiveguard == "no"
+            return game.i18n.t "roles:Guard.noGuardSame"
+
+        @setTarget playerid
+        pl = game.getPlayer playerid
+        pl.touched game, @id
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Elementaler.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        @setFlag {
+            day: game.day
+            playerid: pl.id
+        }
+        # 精霊の守りを複合させる
+        newpl = Player.factory null, game, pl, null, Guarded
+        pl.transProfile newpl
+        # 護衛元をcmplFlagに保存
+        newpl.cmplFlag = @id
+        pl.transform game, newpl, true
+    dying:(game, found, from)->
+        super
+        # 人狼の襲撃で死亡したときは護衛先を道連れにする
+        unless Found.isGuardableWerewolfAttack found
+            return
+        unless @flag?.day == game.day
+            # 今晩護衛していない
+            return
+        guarded = game.getPlayer @flag.playerid
+        if guarded.dead
+            return
+        # 道連れ処理
+        @addGamelog game, "elementalkill", null, guarded.id
+        guarded.die game, "elemental", from
+
 
 # ============================
 # 処理上便宜的に使用
@@ -10944,6 +11071,7 @@ jobs=
     Samurai:Samurai
     Dracula:Dracula
     VampireClan:VampireClan
+    Elementaler:Elementaler
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11116,6 +11244,7 @@ jobStrength=
     Samurai:25
     Dracula:30
     VampireClan:20
+    Elementaler:23
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -11132,14 +11261,14 @@ module.exports.actions=(req,res,ss)->
             if room.error?
                 res room.error
                 return
-            unless room.mode=="waiting"
+            unless room.mode=="waiting" && game.phase == Phase.preparing
                 # すでに開始している
                 res game.i18n.t "error.gamestart.alreadyStarted"
                 return
             if room.players.some((x)->!x.start)
                 res game.i18n.t "error.gamestart.notReady"
                 return
-            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"])
+            if room.gm!=true && query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"])
                 res game.i18n.t "error.gamestart.noHiddenRole"
                 return
             ruleValidationError = libgame.validateGameStartQuery game, query
@@ -11208,6 +11337,7 @@ module.exports.actions=(req,res,ss)->
 
             ruleinfo_str="" # 開始告知
 
+            console.log "query.jobrule is ", query.jobrule
             if query.jobrule in ["特殊ルール.自由配役","特殊ルール.一部闇鍋"]   # 自由のときはクエリを参考にする
                 for job in Shared.game.jobs
                     joblist[job]=parseInt(query[job]) || 0    # 仕事の数
@@ -11215,7 +11345,17 @@ module.exports.actions=(req,res,ss)->
                 for type of Shared.game.categories
                     joblist["category_#{type}"]=parseInt(query["category_#{type}"]) || 0
                 ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+            if query.jobrule == "特殊ルール.easyYaminabe"
+                # かんたん闇鍋のときは普通1がデフォ
+                joblist = libcasting.fillJoblist Shared.game.normal1 playersnumber
+                # 残りは村人
+                joblist.Human = frees - libcasting.countJobsInJoblist(joblist)
+
+                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
+                # ランダムに役職を選択して闇鍋化
+                joblist = libcasting.easyReplaceJoblist joblist
+
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"]
                 # 内部用にチームによる役職指定
                 for team of Shared.game.teams
                     joblist["team_#{team}"] = 0
@@ -11228,13 +11368,15 @@ module.exports.actions=(req,res,ss)->
                 # 闇鍋のときはランダムに決める
                 plsh=Math.floor playersnumber/2   # 過半数
 
-                if query.jobrule=="特殊ルール.一部闇鍋"
-                    # 一部闇鍋のときはこちらで配分可能な役職を数える
+                if query.jobrule in ["特殊ルール.一部闇鍋", "特殊ルール.easyYaminabe"]
+                    # 配役が既に部分的に決定している場合は残りだけ担当する
                     for job in Shared.game.jobs
                         frees -= joblist[job]
                     for type of Shared.game.categories
                         frees -= joblist["category_#{type}"]
-                ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
+
+                unless query.jobrule == "特殊ルール.easyYaminabe"
+                    ruleinfo_str = getrulestr game.i18n, query.jobrule, joblist
 
                 safety={
                     jingais:false   # 人外の数を調整
@@ -11243,7 +11385,11 @@ module.exports.actions=(req,res,ss)->
                     strength:false  # 職の強さも考慮
                     reverse:false   # 職の強さが逆
                 }
-                switch query.yaminabe_safety
+                yaminabe_safety = query.yaminabe_safety
+                if query.jobrule == "特殊ルール.easyYaminabe"
+                    # かんたん闇鍋はセーフティ高に固定
+                    yaminabe_safety = "high"
+                switch yaminabe_safety
                     when "low"
                         # 低い
                         safety.jingais=true
@@ -11621,7 +11767,7 @@ module.exports.actions=(req,res,ss)->
                     exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover", "LunaticLover"
 
                 # 占い確定
-                if safety.teams || safety.jobs
+                if (safety.teams || safety.jobs) && joblist.Diviner == 0
                     # 村人陣営
                     # 占い師いてほしい
                     selected = if safety.jobs then selectJob ["Diviner", "ApprenticeSeer"], [0.75, 0.05]
@@ -11636,7 +11782,7 @@ module.exports.actions=(req,res,ss)->
                         else if frees > 0
                             joblist[selected]++
                             frees--
-                if safety.teams
+                if safety.teams && (joblist.Guard + joblist.WanderingGuard == 0)
                     # できれば狩人も
                     selected = if joblist.Diviner > 0 then selectJob ["Guard", "WanderingGuard"], [0.4, 0.1]
                     else selectJob ["Guard"], [0.4]
@@ -11820,10 +11966,11 @@ module.exports.actions=(req,res,ss)->
                     team = null
                     while true
                         # 前のループで確保したものが残っていたら返す
-                        if category?
-                            joblist[category]++
-                        if team?
-                            joblist[team]++
+                        if category? || team?
+                            if category?
+                                joblist[category]++
+                            if team?
+                                joblist[team]++
                         else if job?
                             # jobが決まったけど使われなかった
                             frees++
@@ -11944,11 +12091,11 @@ module.exports.actions=(req,res,ss)->
                                 when "LoneWolf","FascinatingWolf","ToughWolf","WolfCub"
                                     # 誘惑する女狼はほかに人狼がいないと効果発揮しない
                                     # 一途な狼はほかに狼いないと微妙、一匹狼は1人だけででると狂人が絶望
-                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    if countCategory("Werewolf")==0
                                         continue
                                 when "BigWolf"
                                     # 強いので狼2以上
-                                    if countCategory("Werewolf")-(if category? then 1 else 0)==0
+                                    if countCategory("Werewolf")==0
                                         continue
                                     # 霊能を出す
                                     unless Math.random()<0.15 ||  init "Psychic","Human"
@@ -12090,7 +12237,7 @@ module.exports.actions=(req,res,ss)->
                     comment: game.i18n.t "system.gamestart.divinerModeChanged"
                 splashlog game.id,game,log
 
-            if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋"])
+            if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋", "特殊ルール.easyYaminabe"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
             if query.yaminabe_hidejobs != "" && query.jobrule == "特殊ルール.自由配役"
@@ -12141,7 +12288,7 @@ module.exports.actions=(req,res,ss)->
                     mode:"system"
                     comment: game.i18n.t "system.gamestart.teams", {info: teaminfos.join(" ")}
                 splashlog game.id,game,log
-            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋"]
+            if query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.エンドレス闇鍋","特殊ルール.easyYaminabe"]
                 if query.yaminabe_hidejobs==""
                     # 闇鍋用の役職公開ログ
                     log=
@@ -12479,6 +12626,9 @@ module.exports.actions=(req,res,ss)->
                     event:"vote"
                 }
                 res makejobinfo game,player
+                # here we # ignore execute's return value,
+                # as nothing needs to be done if vote is not finished after
+                # this player's vote.
                 game.execute()
         catch e
             console.error e
@@ -12852,6 +13002,22 @@ getSubParentAndMainChain = (top, target)->
         return null
     [complexChain, _] = res
     return [topParent, complexChain, targetInTree]
+
+# Search given player in tree and dig to the bottom.
+# Returns [parent of top of chin, all chain, bottom player object].
+getSubParentAndAllChain = (top, target)->
+    res = getSubParentAndMainChain top, target
+    unless res?
+        return null
+    [topParent, complexChain, targetInTree] = res
+    res = constructMainChain targetInTree
+    unless res?
+        return null
+    [complexChain2, main] = res
+    complexChain = complexChain.concat complexChain2
+    return [topParent, complexChain, main]
+
+
 # List up all main roles in given player.
 getAllMainRoles = (top)->
     results = []
