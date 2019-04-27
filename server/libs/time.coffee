@@ -2,7 +2,7 @@
 # Class that knows time of next special event.
 class TimeKeeper
     # returns most resent event.
-    @mostResent:(times...)->
+    @mostRecent:(times...)->
         min = Infinity
         result = null
         for k in times
