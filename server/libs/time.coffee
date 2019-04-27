@@ -7,7 +7,7 @@ class TimeKeeper
         result = null
         for k in times
             ktime = k.goal.getTime()
-            if k.goal.getTime() < min
+            if ktime < min
                 min = ktime
                 result = k
         return result

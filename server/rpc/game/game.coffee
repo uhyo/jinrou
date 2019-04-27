@@ -489,7 +489,7 @@ class Game
         @initTimeBasedEvent()
 
     initTimeBasedEvent:->
-        @timeBasedEvent = new libtime.TimeKeeper "newyear", ->
+        ev1 = new libtime.TimeKeeper "newyear", ->
             # 来年になる瞬間
             d = new Date
             # 来年の1月1日にセット
@@ -497,11 +497,25 @@ class Game
             # 時刻を0時にセット
             d.setHours 0, 0, 0, 0
             d
+        ev2 = new libtime.TimeKeeper "reiwa", ->
+            # 令和になる瞬間
+            d = new Date
+            # 2019年の5月1日にセット
+            d.setFullYear 2019, 4, 1
+            # 時刻を0時にセット
+            d.setHours 0, 0, 0, 0
+            if Date.now() >= d.getTime()
+                # もう令和じゃん！
+                d.setFullYear 3000
+            d
+        @timeBasedEvent = libtime.TimeKeeper.mostRecent ev1, ev2
+
     # 時刻イベントを処理
     # phase:
     #   "nextturn" if called on nextturn
     #   "day" if called during day
     handleTimeBasedEvent:(event, phase)->
+        console.log phase, event
         switch event.type
             when "newyear"
                 # 新年メッセージ
@@ -518,6 +532,23 @@ class Game
                     log=
                         mode:"system"
                         comment: @i18n.t "system.phase.newyear", {year: event.goal.getFullYear()}
+                    splashlog @id, this, log
+
+            when "reiwa"
+                # 新年メッセージ
+                if phase == "nextturn"
+                    log=
+                        mode: "nextturn"
+                        day: @day
+                        night: Phase.isNight @phase
+                        userid: -1
+                        name: null
+                        comment: "令和元年になりました。"
+                    splashlog @id, this, log
+                else
+                    log=
+                        mode:"system"
+                        comment: "令和元年になりました。"
                     splashlog @id, this, log
 
 
@@ -1138,7 +1169,7 @@ class Game
 
         night = Phase.isNight @phase
 
-        if @phase == Phase.day && @timeBasedEvent.isOver()
+        if @phase == Phase.day && @timeBasedEvent?.isOver()
             # 夜時間中に時刻が過ぎていた
             @handleTimeBasedEvent @timeBasedEvent, "nextturn"
             @initTimeBasedEvent()
