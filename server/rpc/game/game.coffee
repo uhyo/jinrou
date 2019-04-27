@@ -10,6 +10,7 @@ libsavelogs  = require '../../libs/savelogs.coffee'
 libi18n      = require '../../libs/i18n.coffee'
 libgame      = require '../../libs/game.coffee'
 libcasting   = require '../../libs/casting.coffee'
+libtime      = require '../../libs/time.coffee'
 
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
@@ -467,8 +468,8 @@ class Game
         # 投票箱を用意しておく
         @votingbox=new VotingBox this
 
-        # New Year Messageのためだけの変数
-        @currentyear = null
+        # 特殊ログイベント
+        @timeBasedEvent = null
 
         # 保存用の時間
         @finish_time=null
@@ -484,6 +485,43 @@ class Game
 
         # 夜能力の対象選択に対するフック
         @skillTargetHook = new SkillTargetHook this
+
+        @initTimeBasedEvent()
+
+    initTimeBasedEvent:->
+        @timeBasedEvent = new libtime.TimeKeeper "newyear", ->
+            # 来年になる瞬間
+            d = new Date
+            # 来年の1月1日にセット
+            d.setFullYear d.getFullYear() + 1, 0, 1
+            # 時刻を0時にセット
+            d.setHours 0, 0, 0, 0
+            d
+    # 時刻イベントを処理
+    # phase:
+    #   "nextturn" if called on nextturn
+    #   "day" if called during day
+    handleTimeBasedEvent:(event, phase)->
+        switch event.type
+            when "newyear"
+                # 新年メッセージ
+                if phase == "nextturn"
+                    log=
+                        mode: "nextturn"
+                        day: @day
+                        night: Phase.isNight @phase
+                        userid: -1
+                        name: null
+                        comment: @i18n.t "system.phase.newyear", {year: event.goal.getFullYear()}
+                    splashlog @id, this, log
+                else
+                    log=
+                        mode:"system"
+                        comment: @i18n.t "system.phase.newyear", {year: event.goal.getFullYear()}
+                    splashlog @id, this, log
+
+
+
 
         ###
         さまざまな出来事
@@ -1084,12 +1122,14 @@ class Game
     #次のターンに進む
     nextturn:->
         clearTimeout @timerid
+        @timeBasedEvent?.clearTimer()
         if @day<=0
             # はじまる前
             @day=1
             @phase = Phase.night
-            # ゲーム開始時の年を記録
-            @currentyear = (new Date).getFullYear()
+
+            # 部屋作成から時間が経過していたときのためにtimeBasedEventを再初期化
+            @initTimeBasedEvent()
         else if Phase.isNight(@phase)
             @day++
             @phase = Phase.day
@@ -1098,17 +1138,10 @@ class Game
 
         night = Phase.isNight @phase
 
-        if @phase == Phase.day && @currentyear+1 == (new Date).getFullYear()
-            # 新年メッセージ
-            @currentyear++
-            log=
-                mode:"nextturn"
-                day:@day
-                night:night
-                userid:-1
-                name:null
-                comment: @i18n.t "system.phase.newyear", {year: @currentyear}
-            splashlog @id,this,log
+        if @phase == Phase.day && @timeBasedEvent.isOver()
+            # 夜時間中に時刻が過ぎていた
+            @handleTimeBasedEvent @timeBasedEvent, "nextturn"
+            @initTimeBasedEvent()
         else
             # 普通メッセージ
             log=
@@ -1427,25 +1460,13 @@ class Game
             # New year messageの処理
             end_date = new Date
             end_date.setTime(end_date.getTime() + @rule.day * 1000)
-            if (new Date).getFullYear() == @currentyear && end_date.getFullYear() > @currentyear
-                # 昼時間中に変わるので専用タイマー
-                end_date.setMonth 0
-                end_date.setDate 1
-                end_date.setHours 0
-                end_date.setMinutes 0
-                end_date.setSeconds 0
-                end_date.setMilliseconds 0
-                # debug
-                # end_date.setTime(end_date.getTime() - 145*60*1000)
-                current_day = @day
-                setTimeout (()=>
-                    if !@finished && @day == current_day && @phase in [Phase.day, Phase.day_remain, Phase.day_voting]
-                        @currentyear++
-                        log=
-                            mode:"system"
-                            comment: @i18n.t "system.phase.newyear", {year: @currentyear}
-                        splashlog @id,this,log
-                ), end_date.getTime() - Date.now()
+            # 昼時間中にイベント時刻が過ぎそうなときの処理
+            if @timeBasedEvent.isOver(@rule.day)
+                @timeBasedEvent.setTimer (event)=>
+                    currentyear = event.goal.getFullYear()
+                    if !@finished
+                        @handleTimeBasedEvent event, "day"
+                        @initTimeBasedEvent()
 
         @splashjobinfo()
         if !night
@@ -2457,6 +2478,7 @@ class Game
             M.rooms.update {id:@id},{$set:{mode:"end"}}
             @ss.publish.channel "room#{@id}","refresh",{id:@id}
             clearTimeout @timerid
+            @timeBasedEvent?.clearTimer()
             @save()
             @saveUserRawLogs()
             @prize_check()
