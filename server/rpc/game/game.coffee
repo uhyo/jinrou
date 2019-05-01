@@ -6985,7 +6985,7 @@ class Phantom extends Player
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobname()}
+            comment: game.i18n.t "roles:Phantom.select", {name: @name, target: pl.name, jobname: pl.getMainJobname(true)}
         splashlog game.id,game,log
         @addGamelog game,"phantom",pl.type,playerid
         null
@@ -9572,7 +9572,7 @@ class Complex
     cmplType:"Complex"  # 複合親そのものの名前
     isComplex:->true
     getJobname:->@main.getJobname()
-    getMainJobname:->@main.getMainJobname()
+    getMainJobname:(chemicalLeft)->@main.getMainJobname(chemicalLeft)
     getJobDisp:->@main.getJobDisp()
     getMainJobDisp:(chemicalLeft)->@main.getMainJobDisp(chemicalLeft)
     midnightSort: 100
@@ -10708,8 +10708,8 @@ class Chemical extends Complex
         else
             @main.getJobname()
     # same as above but uses getMainJobname.
-    getMainJobname:->
-        if @sub?
+    getMainJobname:(chemicalLeft)->
+        if @sub? && !chemicalLeft
             @game.i18n.t "roles:Chemical.jobname", {left: @main.getMainJobname(), right: @sub.getMainJobname()}
         else
             @main.getMainJobname()
