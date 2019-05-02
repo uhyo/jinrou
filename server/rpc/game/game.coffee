@@ -11428,6 +11428,10 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "SpiritPossessed"
                     special_exceptions.push "SpiritPossessed"
+                # ニートは隠し役職（出現率低）
+                if Math.random()<0.4
+                    exceptions.push "Neet"
+                    special_exceptions.push "Neet"
 
                 # 一部闇鍋で固定されているやつが全て除外されていないかチェック
                 for type, categoryjobs of Shared.game.categories
