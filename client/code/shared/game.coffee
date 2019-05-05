@@ -13,14 +13,14 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # るる鯖で見つけた役職
 "Fanatic","Immoral"
 # 特殊役職2
-"Devil","ToughGuy","Stalker","OccultMania","WhisperingMad","Lover","Dog",
+"Devil","Stalker","WhisperingMad","Dog",
 # 桃栗基本特殊役職
 "Bat","Noble","Slave","Magician","Spy","WolfDiviner",
 # 桃栗期間限定役職
 "Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Spy2","Copier",
 # 究極の人狼の役職
-"Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
-"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","WolfCub","Thief",
+"ToughGuy","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Sorcerer",
+"Doppleganger","CultLeader","Vampire","LoneWolf","Witch","Oldman","Tanner","OccultMania","WolfCub","Thief",
 "Hoodlum","TroubleMaker","FrankensteinsMonster",
 "BloodyMary",
 # うそつき人狼の役職
@@ -30,6 +30,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人狼物語（瓜科国）
 "MadCouple",
 # 天国系の役職
+"Lover", # 人狼天国
 "ObstructiveMad", # 人狼天国
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
