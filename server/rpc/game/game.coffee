@@ -12728,7 +12728,15 @@ islogOK=(game,player,log)->
     # player: Player / null
     return true if game.finished    # 終了ならtrue
     return true if player?.isJobType "GameMaster"
-    unless player?
+    # ヘルパーの場合はヘルパー先
+    # TODO: playerとactplが混在
+    actpl =
+        if player? && player.isJobType("Helper")
+            game.getPlayer player.flag
+        else
+            player
+    console.log actpl?.id, actpl?.dead, game.heavenview
+    unless actpl?
         # 観戦者
         if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]
             !log.to?    # 観戦者にも公開
@@ -12739,7 +12747,7 @@ islogOK=(game,player,log)->
     else if log.mode=="gmmonologue"
         # GMの独り言はGMにしか見えない
         false
-    else if player.dead && game.heavenview
+    else if actpl.dead && game.heavenview
         true
     else if log.mode=="heaven" && log.possess_name?
         # 悪霊憑きについている霊界発言
