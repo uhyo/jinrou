@@ -9,6 +9,11 @@ exports.actions=(req,res,ss)->
         res {
             application: Config.application
             language: Config.language
+            # send reportForm but hide mail address.
+            reportForm: Object.assign({}, Config.reportForm, {
+                maxLength: Config.maxlength.game.comment
+                mail: null
+            })
         }
 
-  
+

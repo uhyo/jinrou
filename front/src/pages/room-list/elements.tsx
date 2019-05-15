@@ -1,6 +1,7 @@
 import styled from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
 import { phone } from '../../common/media';
+import { helperTextColor } from '../../common/color';
 
 /**
  * Wrapper of whole app.
@@ -128,7 +129,7 @@ export const RoomName = styled.a`
 export const StatusLine = styled.div`
   flex: auto 0 1;
   margin: 0.1em 0 0 0;
-  color: #444444;
+  color: ${helperTextColor};
   line-height: 1.1;
 `;
 

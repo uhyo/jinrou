@@ -15,7 +15,12 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakState, LogVisibility, SpeakQuery } from './defs';
+import {
+  SpeakState,
+  LogVisibility,
+  SpeakQuery,
+  ReportFormConfig,
+} from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
@@ -37,6 +42,7 @@ import {
   jobinfoZIndex,
 } from '../../common/z-index';
 import memoizeOne from 'memoize-one';
+import { ReportForm } from './report-form';
 
 type TeamColors = Record<string, string | undefined>;
 
@@ -61,6 +67,10 @@ interface IPropGame {
    * Definition of rules.
    */
   ruleDefs: RuleGroup;
+  /**
+   * Definition of report forms.
+   */
+  reportForm: ReportFormConfig;
   /**
    * Color of each team.
    */
@@ -110,6 +120,7 @@ export class Game extends React.Component<IPropGame, {}> {
       categories,
       ruleDefs,
       teamColors,
+      reportForm,
       onJobQuery,
       onWillChange,
       roomControlHandlers,
@@ -127,6 +138,7 @@ export class Game extends React.Component<IPropGame, {}> {
       logPickup,
       speakFocus,
     } = store;
+    // TODO: use reportForm
 
     const styleMode = styleModeOf(roleInfo, gameInfo);
     const theme = this.makeTheme(themeStore.themeObject, teamColors);
@@ -236,6 +248,9 @@ export class Game extends React.Component<IPropGame, {}> {
                 }}
               </Transition>
             </MainWrapper>
+            <RoomFooterPart>
+              <ReportForm reportForm={reportForm} />
+            </RoomFooterPart>
             <NavigationWrapper>
               <NavigationButton onClick={this.handleNavigationPlayersClick}>
                 {i18n.t('game_client:navigation.players')}
@@ -429,6 +444,7 @@ const AppWrapper = styled(AppStyling)`
           return '0.6em';
       }
     }}
+    padding-bottom: 2em;
   `};
 `;
 
@@ -505,9 +521,6 @@ const JobInfoPart = styled(RoomHeaderPart)`
 const MainWrapper = styled.div`
   display: flex;
   flex-flow: row nowrap;
-  ${phone`
-    margin-bottom: 2em;
-  `};
 `;
 
 /**
@@ -525,6 +538,14 @@ const LogsWrapper = styled.div<{
     transition: margin-left 250ms ease-out;
     margin-left: ${({ ruleOpen }) => (ruleOpen ? '-20em' : '0)')};
   `};
+`;
+
+/**
+ * Wrapper of footer of room.
+ */
+const RoomFooterPart = styled.div`
+  margin: 4px 0;
+  padding: 0 8px;
 `;
 
 interface IPropsRuleWrapper {

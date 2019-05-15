@@ -9,7 +9,7 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakQuery, Log } from './defs';
+import { SpeakQuery, Log, ReportFormConfig } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 import { i18n } from '../../i18n';
 
@@ -37,6 +37,10 @@ export interface IPlaceOptions {
    * Definition of rules.
    */
   rules: RuleGroup;
+  /**
+   * Data of report form.
+   */
+  reportForm: ReportFormConfig;
   /**
    * Color of teams.
    */
@@ -87,6 +91,7 @@ export function place({
   roomid,
   categories,
   rules,
+  reportForm,
   teamColors,
   onSpeak,
   onRefuseRevival,
@@ -106,6 +111,7 @@ export function place({
       categories={categories}
       ruleDefs={rules}
       teamColors={teamColors}
+      reportForm={reportForm}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
