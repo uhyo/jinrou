@@ -20,6 +20,7 @@ import {
   LogVisibility,
   SpeakQuery,
   ReportFormConfig,
+  ReportFormQuery,
 } from './defs';
 import { GameStore, UpdateQuery } from './store';
 import { JobInfo } from './job-info';
@@ -92,6 +93,10 @@ interface IPropGame {
    */
   onWillChange: (will: string) => void;
   /**
+   * Handle a report form submit event.
+   */
+  onReportFormSubmit: (query: ReportFormQuery) => void;
+  /**
    * Handlers of room prelude.
    */
   roomControlHandlers: RoomControlHandlers;
@@ -123,6 +128,7 @@ export class Game extends React.Component<IPropGame, {}> {
       reportForm,
       onJobQuery,
       onWillChange,
+      onReportFormSubmit,
       roomControlHandlers,
     } = this.props;
     const {
@@ -249,7 +255,10 @@ export class Game extends React.Component<IPropGame, {}> {
               </Transition>
             </MainWrapper>
             <RoomFooterPart>
-              <ReportForm reportForm={reportForm} />
+              <ReportForm
+                reportForm={reportForm}
+                onSubmit={onReportFormSubmit}
+              />
             </RoomFooterPart>
             <NavigationWrapper>
               <NavigationButton onClick={this.handleNavigationPlayersClick}>

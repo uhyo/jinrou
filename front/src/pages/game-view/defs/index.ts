@@ -146,3 +146,11 @@ export interface ReportFormConfig {
     description: string;
   }>;
 }
+
+/**
+ * Query of sending report form.
+ */
+export interface ReportFormQuery {
+  kind: string;
+  content: string;
+}

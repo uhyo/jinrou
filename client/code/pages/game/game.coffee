@@ -108,6 +108,8 @@ exports.start=(roomid)->
                                     will: will
                                 }
                             }
+                onReportFormSubmit:(query)->
+                    console.log query
                 roomControlHandlers:
                     join: (user)->
                         processJoin = ->

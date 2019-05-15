@@ -3,7 +3,7 @@ import { useI18n } from '../../../i18n/react';
 import { Button } from '../../../common/forms/button';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { ButtonContainer, Form, Description } from './elements';
-import { ReportFormConfig } from '../defs';
+import { ReportFormConfig, ReportFormQuery } from '../defs';
 import { Controls, ControlsMain } from '../../../common/forms/controls-wrapper';
 import { RadioButtons } from '../../../common/forms/radio';
 import { useLocalStore, useObserver } from 'mobx-react-lite';
@@ -12,7 +12,8 @@ import { Textarea } from '../../../common/forms/text';
 
 export const ReportForm: React.FC<{
   reportForm: ReportFormConfig;
-}> = ({ reportForm }) => {
+  onSubmit: (query: ReportFormQuery) => void;
+}> = ({ reportForm, onSubmit }) => {
   const store = useLocalStore(() => ({
     open: false,
     kindIndex: 0,
@@ -25,6 +26,7 @@ export const ReportForm: React.FC<{
   }));
 
   const mainFormRef = React.useRef<HTMLFormElement | null>(null);
+  const textAreaRef = React.useRef<HTMLTextAreaElement | null>(null);
   React.useEffect(
     () => {
       // if openState changed to true, scroll to the form.
@@ -44,6 +46,18 @@ export const ReportForm: React.FC<{
   const handleKindChange = React.useCallback((kindIndexStr: string) => {
     store.setKind(Number(kindIndexStr));
   }, []);
+  const handleSubmit = React.useCallback(
+    (e: React.SyntheticEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      store.toggleOpen();
+      const query: ReportFormQuery = {
+        kind: reportForm.categories[store.kindIndex].name,
+        content: (textAreaRef.current && textAreaRef.current.value) || '',
+      };
+      onSubmit(query);
+    },
+    [],
+  );
   const t = useI18n('game_client');
   return useObserver(() => {
     if (t == null) {
@@ -63,7 +77,7 @@ export const ReportForm: React.FC<{
         </ButtonContainer>
         {!store.open ? null : (
           <section>
-            <Form ref={mainFormRef}>
+            <Form ref={mainFormRef} onSubmit={handleSubmit}>
               <h2>{t('reportForm.title')}</h2>
               {t('reportForm.description')
                 .split('\n')
@@ -86,9 +100,11 @@ export const ReportForm: React.FC<{
               </Controls>
               <Controls title={t('reportForm.content')}>
                 <Textarea
+                  ref={textAreaRef}
                   rows={5}
                   maxLength={reportForm.maxLength}
                   placeholder={t('reportForm.contentPlaceHolder')}
+                  required
                 />
               </Controls>
               <ControlsMain>

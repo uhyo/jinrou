@@ -363,7 +363,7 @@ reportForm:
   # legend of report content.
   content: "報告の内容"
   # placeholder of report content.
-  contentPlaceHolder: "報告の詳細を入力してください。"
+  contentPlaceHolder: "報告の詳細を入力してください"
   # label of send button.
   send: "送信"
 

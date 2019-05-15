@@ -9,7 +9,7 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakQuery, Log, ReportFormConfig } from './defs';
+import { SpeakQuery, Log, ReportFormConfig, ReportFormQuery } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 import { i18n } from '../../i18n';
 
@@ -62,6 +62,10 @@ export interface IPlaceOptions {
    */
   onWillChange: (will: string) => void;
   /**
+   * Handle a submit of report form.
+   */
+  onReportFormSubmit: (query: ReportFormQuery) => void;
+  /**
    * Handlers of room prelude events.
    */
   roomControlHandlers: RoomControlHandlers;
@@ -97,6 +101,7 @@ export function place({
   onRefuseRevival,
   onJobQuery,
   onWillChange,
+  onReportFormSubmit,
   roomControlHandlers,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
@@ -116,6 +121,7 @@ export function place({
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
       onWillChange={onWillChange}
+      onReportFormSubmit={onReportFormSubmit}
       roomControlHandlers={roomControlHandlers}
     />
   );
