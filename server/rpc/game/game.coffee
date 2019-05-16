@@ -10089,10 +10089,10 @@ class TrapGuarded extends Complex
 
     checkDeathResistance:(game, found, from)->
         unless Found.isGuardableAttack found
-            # 狼以外だとしぬ
+            # 狼・ヴァンパイア以外だとしぬ
             return super
         else
-            # 狼に噛まれた場合は耐える
+            # 狼・ヴァンパイアに噛まれた場合は耐える
             guard=game.getPlayer @cmplFlag
             if guard?
                 guard.addGamelog game,"trapGJ",null,@id
@@ -10105,10 +10105,10 @@ class TrapGuarded extends Complex
             # 反撃する
             canbedead=[]
             ft=game.getPlayer from
-            if ft.isWerewolf()
-                canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
-            else if ft.isVampire()
+            if found == "vampire"
                 canbedead=game.players.filter (x)->!x.dead && x.id==from
+            else
+                canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
             if canbedead.length > 0
                 r=Math.floor Math.random()*canbedead.length
                 pl=canbedead[r] # 被害者
