@@ -1,4 +1,3 @@
-
 this_room_id=null
 
 socket_ids=[]
@@ -26,9 +25,10 @@ exports.start=(roomid)->
     Promise.all([
         JinrouFront.loadGameView(),
         JinrouFront.loadDialog(),
-        Index.app.getI18n()
+        Index.app.getI18n(),
+        Index.app.getApplicationConfig()
     ])
-        .then(([gv, dialog, i18n])->
+        .then(([gv, dialog, i18n, appConfig])->
             getenter=(result)->
                 if result.error?
                     # エラー
@@ -64,6 +64,7 @@ exports.start=(roomid)->
                 node: $("#game-app").get(0)
                 rules: Shared.game.new_rules
                 categories: Shared.game.categoryList
+                reportForm: appConfig.reportForm
                 teamColors: makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
@@ -107,6 +108,10 @@ exports.start=(roomid)->
                                     will: will
                                 }
                             }
+                onReportFormSubmit:(query)->
+                    query.room = roomid
+                    ss.rpc "app.reportForm", query, (result)->
+                        console.log result
                 roomControlHandlers:
                     join: (user)->
                         processJoin = ->

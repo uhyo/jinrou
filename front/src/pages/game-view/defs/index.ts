@@ -125,3 +125,32 @@ export interface SpeakQuery {
    */
   size: 'big' | '' | 'small';
 }
+
+/**
+ * Data of report form.
+ */
+export interface ReportFormConfig {
+  /**
+   * Whether to enable report form.
+   */
+  enable: boolean;
+  /**
+   * Maximum number of characters of content.
+   */
+  maxLength: number;
+  /**
+   * Available categories of report.
+   */
+  categories: Array<{
+    name: string;
+    description: string;
+  }>;
+}
+
+/**
+ * Query of sending report form.
+ */
+export interface ReportFormQuery {
+  kind: string;
+  content: string;
+}

@@ -11,6 +11,10 @@ export interface IPropRadioButtons {
   options: Array<{
     label: string;
     value: string;
+    /**
+     * Optinal string description shown on hover.
+     */
+    title?: string;
   }>;
   onChange: (value: string) => void;
 }
@@ -35,12 +39,13 @@ export const RadioButtonsInner = ({
 }: IPropRadioButtonsInner) => {
   return (
     <RadioButtonWrapper role="radiogroup">
-      {options.map(({ label, value }) => {
+      {options.map(({ label, value, title }) => {
         const checked = value === current;
         return (
           <ActiveButton
             type="button"
             key={value}
+            title={title}
             role="radio"
             aria-checked={checked}
             active={checked}

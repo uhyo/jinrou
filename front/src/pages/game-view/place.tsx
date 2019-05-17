@@ -9,7 +9,7 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakQuery, Log } from './defs';
+import { SpeakQuery, Log, ReportFormConfig, ReportFormQuery } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 import { i18n } from '../../i18n';
 
@@ -38,6 +38,10 @@ export interface IPlaceOptions {
    */
   rules: RuleGroup;
   /**
+   * Data of report form.
+   */
+  reportForm: ReportFormConfig;
+  /**
    * Color of teams.
    */
   teamColors: Record<string, string | undefined>;
@@ -57,6 +61,10 @@ export interface IPlaceOptions {
    * Handle an update to the will.
    */
   onWillChange: (will: string) => void;
+  /**
+   * Handle a submit of report form.
+   */
+  onReportFormSubmit: (query: ReportFormQuery) => void;
   /**
    * Handlers of room prelude events.
    */
@@ -87,11 +95,13 @@ export function place({
   roomid,
   categories,
   rules,
+  reportForm,
   teamColors,
   onSpeak,
   onRefuseRevival,
   onJobQuery,
   onWillChange,
+  onReportFormSubmit,
   roomControlHandlers,
 }: IPlaceOptions): IPlaceResult {
   const store = new GameStore();
@@ -106,10 +116,12 @@ export function place({
       categories={categories}
       ruleDefs={rules}
       teamColors={teamColors}
+      reportForm={reportForm}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
       onWillChange={onWillChange}
+      onReportFormSubmit={onReportFormSubmit}
       roomControlHandlers={roomControlHandlers}
     />
   );

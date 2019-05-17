@@ -31,3 +31,8 @@ export const lightBorderColor = '#dddddd';
  * mediam border color.
  */
 export const mediumBorderColor = '#999999';
+
+/**
+ * Color of non-main texxt.
+ */
+export const helperTextColor = '#444444';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from '../../util/styled';
-import { lightBorderColor } from '../color';
+import { lightBorderColor, helperTextColor } from '../color';
 import { contentMargin } from './style';
 import { notPhone } from '../media';
 
@@ -68,7 +68,7 @@ export const ControlsMain = styled.div`
 export const ControlsDescription = styled.p`
   display: inline-block;
   margin: 0.2em 0;
-  color: #444444;
+  color: ${helperTextColor};
   font-size: 0.9em;
 `;
 

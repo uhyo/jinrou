@@ -4,6 +4,7 @@ import {
   faQuestionCircle,
   faIdCard,
   faClock,
+  faPaperPlane,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
@@ -60,6 +61,7 @@ library.add(
   faCaretSquareDown,
   faBars,
   faMicrophoneSlash,
+  faPaperPlane,
 );
 
 // Publish to global.

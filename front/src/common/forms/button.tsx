@@ -15,6 +15,10 @@ export interface IPropButton {
    * make it slim button.
    */
   slim?: boolean;
+  /**
+   * expand to parent width.
+   */
+  expand?: boolean;
 }
 
 /**
@@ -27,7 +31,9 @@ export const Button = styled.button<IPropButton>`
   border: 1px solid ${borderColor};
   border-radius: 3px;
   padding: ${props => (props.slim ? '4px 5px' : '8px 10px')};
+  width: ${props => (props.expand ? '100%' : 'auto')};
   font-size: 0.9rem;
+  text-align: center;
 `;
 
 /**
