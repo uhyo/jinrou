@@ -1,4 +1,4 @@
-# Server-side Code
+libreport = require '../libs/report.coffee'
 
 exports.actions=(req,res,ss)->
     # 外部URLを教えてあげる
@@ -15,5 +15,9 @@ exports.actions=(req,res,ss)->
                 mail: null
             })
         }
+    # 報告フォーム
+    reportForm:(query)->
+        libreport.addReport query, req.session?.userId
+        res {}
 
 

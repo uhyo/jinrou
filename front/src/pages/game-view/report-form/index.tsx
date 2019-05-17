@@ -9,6 +9,7 @@ import { RadioButtons } from '../../../common/forms/radio';
 import { useLocalStore, useObserver } from 'mobx-react-lite';
 import { PlainText } from '../../../common/forms/plain-text';
 import { Textarea } from '../../../common/forms/text';
+import { showMessageDialog } from '../../../dialog';
 
 export const ReportForm: React.FC<{
   reportForm: ReportFormConfig;
@@ -55,6 +56,12 @@ export const ReportForm: React.FC<{
         content: (textAreaRef.current && textAreaRef.current.value) || '',
       };
       onSubmit(query);
+      showMessageDialog({
+        modal: true,
+        title: t('reportForm.title'),
+        message: t('reportForm.thankyou'),
+        ok: t('reportForm.close'),
+      });
     },
     [],
   );

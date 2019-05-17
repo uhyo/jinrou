@@ -110,6 +110,15 @@ sendMail=(userquery, makemailobj, callback)->
         else
             dochange null, []
 
+# raw API for other server systems
+exports.sendRawMail = (to, subject, body, callback)->
+    options =
+        from: "\"月下人狼\" <#{Config.smtpConfig.from ? Config.smtpConfig.auth.user}>"
+        subject: subject
+        to: to
+        text: body
+    transporter.sendMail options, callback
+
 sendConfirmMail=(query, req, res, ss)->
     unless /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/.test(query.mail) || query.mail == ""
         res {error:"有効なメールアドレスを入力してください"}
@@ -294,7 +303,7 @@ URLにアクセスしなければ設定は変更されません。
 
         res record
 
-    
+
 exports.sendConfirmMail=sendConfirmMail
 exports.sendResetMail=sendResetMail
 exports.sendMailconfirmsecurityMail=sendMailconfirmsecurityMail

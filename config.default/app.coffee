@@ -157,6 +157,8 @@ module.exports =
     enable: false
     # mail address to which content of report form is sent.
     mail: "someone@example.com"
+    # subject of mail
+    mailSubject: "月下人狼 Report Form"
     # categories available in the report form.
     # leave this empty to not show a category selection control.
     categories: [

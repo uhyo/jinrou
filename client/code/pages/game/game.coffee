@@ -109,7 +109,9 @@ exports.start=(roomid)->
                                 }
                             }
                 onReportFormSubmit:(query)->
-                    console.log query
+                    query.room = roomid
+                    ss.rpc "app.reportForm", query, (result)->
+                        console.log result
                 roomControlHandlers:
                     join: (user)->
                         processJoin = ->
