@@ -5262,7 +5262,8 @@ class Cat extends Poisoner
             return
         if r<=0.05
             # 5%の確率で誤爆
-            deads=game.players.filter (x)->x.dead && x.id != pl.id
+            # Cat should not revive dead player not yet found
+            deads=game.players.filter (x)->x.dead && !x.found && x.id != pl.id
             if deads.length==0
                 # 誰もいないじゃん
                 @addGamelog game,"catraise",false,pl.id
