@@ -2774,6 +2774,7 @@ logs:[{
     "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える) / "eyeswolfskill"(瞳狼に見える)
     "draculaskill"(ドラキュラに見える)
     "hidden"(終了後/霊界のみ見える追加情報)
+    "poem"(Poetが送ったpoem)
     comment: String
     userid:Userid
     name?:String
@@ -9347,6 +9348,145 @@ class Elementaler extends Player
         @addGamelog game, "elementalkill", null, guarded.id
         guarded.die game, "elemental", from
 
+class Poet extends Player
+    type:"Poet"
+    formType: FormType.optional
+    midnightSort: 100
+    jobdone:->@flag?.status in ["waiting", undefined] || @flag?.selected
+    sleeping:->true
+    constructor:->
+        @flag = {
+            # status: "init" | "available" | "waiting"
+            status: "init"
+            partner: null
+            poem: ""
+            selected: false
+        }
+    sunset:(game)->
+        switch @flag?.status
+            when "available"
+                @setFlag {
+                    status: "available"
+                    poem: ""
+                    selected: false
+                }
+            when "waiting"
+                @setFlag {
+                    status: "available"
+                    poem: ""
+                    selected: true
+                }
+            else
+                @setFlag {
+                    status: "init"
+                    poem: ""
+                    selected: false
+                }
+    job:(game, playerid, query)->
+        if @flag?.selected != false
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        # perform easy check for large string
+        unless typeof query.poem == "string" && query.poem.length < Config.maxlength.game.comment
+            return game.i18n.t "error.common.invalidQuery"
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Poet.select", {
+                name: @name
+                target: pl.name
+            }
+        splashlog game.id, game, log
+
+        @setTarget pl.id
+        @setFlag Object.assign(@flag, {
+            poem: query.poem
+            selected: true
+        })
+        null
+    midnight:(game)->
+        unless @flag?.status in ["init", "available"]
+            return
+        unless @flag.selected
+            return
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        log=
+            type:"poem"
+            to:pl.id
+            comment: @flag.poem
+        splashlog game.id, game, log
+        switch @flag.status
+            when "init"
+                # If init poem was sent to a player, make that player a Poet.
+                poet = Player.factory "Poet", game
+                poet.setFlag {
+                    status: "available"
+                    partner: @id
+                    poem: ""
+                    selected: false
+                }
+                pl.transProfile newpl
+                newpl = Player.factory null, game, pl, poet, Complex
+                pl.transProfile newpl
+                pl.transform game, newpl, true
+
+                @setFlag {
+                    status: "waiting"
+                    partner: pl.id
+                    poem: ""
+                    selected: false
+                }
+            when "available"
+                @setFlag {
+                    status: "waiting"
+                    partner: pl.id
+                    poem: ""
+                    selected: false
+                }
+                # update target Poet's status.
+                poets = pl.accessByJobTypeAll "Poet"
+                for poet in poets
+                    if poet.flag?.partner == @id
+                        poet.setFlag {
+                            status: "available"
+                            partner: @id
+                            poem: ""
+                            selected: false
+                        }
+    makejobinfo:(game, result)->
+        super
+        if @flag?.status in ["available", "waiting"]
+            pl = game.getPlayer @flag.partner
+            if pl?
+                result.portPartner = pl.publicinfo()
+    getOpenForms:(game)->
+        if Phase.isNight(game.phase) && !@dead && !@jobdone(game)
+            switch @flag?.status
+                when "init"
+                    # select poem target and poem contents.
+                    return [{
+                        type: "Poet1"
+                        options: @makeJobSelection game, false
+                        formType: FormType.optional
+                        objid: @objid
+                    }]
+                when "available"
+                    # target player is already decided.
+                    return [{
+                        type: "Poet2"
+                        options: []
+                        formType: FormType.optional
+                        objid: @objid
+                    }]
+        return []
 
 # ============================
 # 処理上便宜的に使用
@@ -11042,6 +11182,7 @@ jobs=
     Dracula:Dracula
     VampireClan:VampireClan
     Elementaler:Elementaler
+    Poet:Poet
     # 特殊
     GameMaster:GameMaster
     Helper:Helper

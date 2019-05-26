@@ -147,3 +147,11 @@ DragonKnight:
   killButton: "殺害（1回のみ）"
   # kill button (already used)
   killButtonUsed: "殺害（使用済）"
+
+# Texts for Poet form.
+Poet:
+  # description for initial form.
+  descriptionInit: "歌を送る相手を選択して歌を入力してください。歌はひらがなで最大17文字まで入力できます。"
+  # description for normal form.
+  description: "歌を入力してください。歌はひらがなで最大17文字まで入力できます。"
+  selectButton: "歌を送る"

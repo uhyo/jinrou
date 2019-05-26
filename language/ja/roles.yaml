@@ -129,6 +129,7 @@ jobname:
   Dracula: "ドラキュラ"
   VampireClan: "吸血鬼の眷属"
   Elementaler: "精霊使い"
+  Poet: "歌人"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -825,6 +826,10 @@ Dracula:
 Elementaler:
   # select target of guard
   select: "{{name}}は精霊の力で{{target}}を護衛しました。"
+
+Poet:
+  # select destination of poem.
+  select: "{{name}}は{{target}}に歌を送りました。"
 
 GameMaster:
   # Failed to revive.
