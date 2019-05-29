@@ -9477,6 +9477,8 @@ class Poet extends Player
                         options: @makeJobSelection game, false
                         formType: FormType.optional
                         objid: @objid
+                        data:
+                            poemStyle: Config.game.Poet.poemStyle
                     }]
                 when "available"
                     # target player is already decided.
@@ -9485,6 +9487,8 @@ class Poet extends Player
                         options: []
                         formType: FormType.optional
                         objid: @objid
+                        data:
+                            poemStyle: Config.game.Poet.poemStyle
                     }]
         return []
 

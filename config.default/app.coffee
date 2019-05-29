@@ -115,6 +115,12 @@ module.exports =
     game:
       # game speak comment
       comment: 4096
+  # game-related config
+  game:
+    # config for Poet
+    Poet:
+      # style of poem (number of characters per line)
+      poemStyle: [5, 7, 5]
   # Experimental feature: logging (boolean)
   logging: false
   # Language Settings

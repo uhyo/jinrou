@@ -53,6 +53,19 @@ interface SpecialFormData {
      */
     killUsed: boolean;
   };
+  // 歌人
+  Poet1: {
+    /**
+     * 歌のスタイル（1行あたりの文字数）
+     */
+    poemStyle: number[];
+  };
+  Poet2: {
+    /**
+     * 歌のスタイル（1行あたりの文字数）
+     */
+    poemStyle: number[];
+  };
 }
 /**
  * Type of data for specific type.

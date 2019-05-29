@@ -17,7 +17,7 @@ export function makePoet1Form({ form, t }: FormContentProps<'Poet1'>) {
       <p>{t('game_client_form:Poet.descriptionInit')}</p>
       <PoemTextArea
         placeholder={t('game_client_form:Poet.poemPlaceholder')}
-        charPerLine={[5, 7, 5]}
+        charPerLine={data.poemStyle}
       />
       <p>{t('game_client_form:Poet.targetSelectionLabel')}</p>
     </>
