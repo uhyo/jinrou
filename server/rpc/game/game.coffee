@@ -9367,12 +9367,14 @@ class Poet extends Player
             when "available"
                 @setFlag {
                     status: "available"
+                    partner: @flag.partner
                     poem: ""
                     selected: false
                 }
             when "waiting"
                 @setFlag {
-                    status: "available"
+                    status: "waiting"
+                    partner: @flag.partner
                     poem: ""
                     selected: true
                 }
@@ -9447,7 +9449,7 @@ class Poet extends Player
                 }
 
                 log=
-                    type: "skill"
+                    mode: "skill"
                     to: pl.id
                     comment: game.i18n.t "roles:Poet.become", {
                         name: pl.name
@@ -9471,12 +9473,6 @@ class Poet extends Player
                             poem: ""
                             selected: false
                         }
-    makejobinfo:(game, result)->
-        super
-        if @flag?.status in ["available", "waiting"]
-            pl = game.getPlayer @flag.partner
-            if pl?
-                result.portPartner = pl.publicinfo()
     isFormTarget:(jobtype)->
         (jobtype in ["Poet1", "Poet2"]) || super
     getOpenForms:(game)->
@@ -9494,14 +9490,19 @@ class Poet extends Player
                     }]
                 when "available"
                     # target player is already decided.
-                    return [{
-                        type: "Poet2"
-                        options: []
-                        formType: FormType.optional
-                        objid: @objid
-                        data:
-                            poemStyle: Config.game.Poet.poemStyle
-                    }]
+                    target = game.getPlayer @flag.partner
+                    if target?
+                        return [{
+                            type: "Poet2"
+                            options: []
+                            formType: FormType.optional
+                            objid: @objid
+                            data:
+                                target: target.name
+                                poemStyle: Config.game.Poet.poemStyle
+                        }]
+                    else
+                        return []
         return []
 
 # ============================

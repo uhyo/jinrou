@@ -155,7 +155,7 @@ Poet:
   # description for initial form.
   descriptionInit: "歌を入力して送る相手を選択してください。歌は最大17文字まで入力できます。"
   # description for normal form.
-  description: "歌を入力してください。歌は最大17文字まで入力できます。"
+  descriptionReply: "{{name}}に送る歌を入力してください。歌は最大17文字まで入力できます。"
   poemPlaceholder: "ここに歌を入力"
   # label for target selection
   targetSelectionLabel: "送る相手を選択："

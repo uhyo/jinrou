@@ -208,7 +208,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           <Comment noName={noName} logStyle={logStyle} className={logClass}>
             <I18nInterp ns="game_client" k="log.poem.description">
               {{
-                name: log.name,
+                name: <b>{log.name}</b>,
               }}
             </I18nInterp>
             <PoemWrapper>{log.comment}</PoemWrapper>

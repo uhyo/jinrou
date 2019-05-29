@@ -62,6 +62,10 @@ interface SpecialFormData {
   };
   Poet2: {
     /**
+     * 送る相手の名前
+     */
+    target: string;
+    /**
      * 歌のスタイル（1行あたりの文字数）
      */
     poemStyle: number[];

@@ -2,6 +2,7 @@ import { FormContentProps } from './defs';
 import { getFormData } from '../defs';
 import * as React from 'react';
 import styled from '../../../util/styled';
+import { I18nInterp } from '../../../i18n';
 
 type GraphemeSplitter = import('grapheme-splitter');
 const GraphemeSplitter: new () => GraphemeSplitter = require('grapheme-splitter');
@@ -21,6 +22,32 @@ export function makePoet1Form({ form, t }: FormContentProps<'Poet1'>) {
         charPerLine={data.poemStyle}
       />
       <p>{t('game_client_form:Poet.targetSelectionLabel')}</p>
+    </>
+  );
+
+  return content;
+}
+
+/**
+ * Make a Poet2 (reply Poet) form.
+ */
+export function makePoet2Form({ form, t }: FormContentProps<'Poet2'>) {
+  const data = getFormData(form);
+
+  const content = (
+    <>
+      <p>
+        <I18nInterp ns="game_client_form" k="Poet.descriptionReply">
+          {{
+            target: <b>{data.target}</b>,
+          }}
+        </I18nInterp>
+      </p>
+      <PoemTextArea
+        name="poem"
+        placeholder={t('game_client_form:Poet.poemPlaceholder')}
+        charPerLine={data.poemStyle}
+      />
     </>
   );
 

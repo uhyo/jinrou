@@ -20,7 +20,7 @@ import { FormContentProps } from './defs';
 import { makeWerewolfForm } from './werewolf';
 import { useI18n } from '../../../i18n/react';
 import { makeDragonKnightForm } from './dragonKnight';
-import { makePoet1Form } from './poet';
+import { makePoet1Form, makePoet2Form } from './poet';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -219,6 +219,10 @@ function makeSpecialContent(props: FormContentProps): Partial<FormContent> {
     }
     case 'Poet1': {
       otherContents = makePoet1Form(props as FormContentProps<'Poet1'>);
+      break;
+    }
+    case 'Poet2': {
+      otherContents = makePoet2Form(props as FormContentProps<'Poet2'>);
       break;
     }
     default: {
