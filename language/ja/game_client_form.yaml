@@ -18,6 +18,8 @@ specialName:
   BadLady1: "悪女の能力"
   BadLady2: "悪女の能力"
   CraftyWolf2: "狡猾な狼の能力"
+  Poet1: "歌人の能力"
+  Poet2: "歌人の能力"
   _Quantum_Diviner: "占い師の能力"
   _Quantum_Werewolf: "人狼の襲撃"
 
@@ -151,7 +153,8 @@ DragonKnight:
 # Texts for Poet form.
 Poet:
   # description for initial form.
-  descriptionInit: "歌を送る相手を選択して歌を入力してください。歌はひらがなで最大17文字まで入力できます。"
+  descriptionInit: "歌を入力して送る相手を選択してください。歌はひらがなで最大17文字まで入力できます。"
   # description for normal form.
   description: "歌を入力してください。歌はひらがなで最大17文字まで入力できます。"
+  poemPlaceholder: "ここに歌を入力"
   selectButton: "歌を送る"

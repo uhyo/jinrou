@@ -11356,6 +11356,7 @@ jobStrength=
     Dracula:30
     VampireClan:20
     Elementaler:23
+    Poet:11
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12877,7 +12878,6 @@ islogOK=(game,player,log)->
             game.getPlayer player.flag
         else
             player
-    console.log actpl?.id, actpl?.dead, game.heavenview
     unless actpl?
         # 観戦者
         if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]
