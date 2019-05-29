@@ -3,7 +3,7 @@ import { autolink, compile } from 'my-autolink';
 import styled, { withTheme } from '../../../util/styled';
 import { Log, autolinkLogType } from '../defs';
 import { Rule } from '../../../defs';
-import { TranslationFunction } from '../../../i18n';
+import { TranslationFunction, I18nInterp } from '../../../i18n';
 import { phone, notPhone } from '../../../common/media';
 import { Theme } from '../../../theme';
 import memoizeOne from 'memoize-one';
@@ -191,6 +191,30 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           </Main>
           <Time
             noName
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
+        </LogLineWrapper>
+      );
+    } else if (log.mode === 'poem') {
+      const logStyle = computeLogStyle(log.mode, theme);
+      const icon = icons[log.userid];
+      const noName = icon == null;
+      return (
+        <LogLineWrapper>
+          <Icon noName={noName} logStyle={logStyle} className={logClass} />
+          <Name noName={noName} logStyle={logStyle} className={logClass} />
+          <Comment noName={noName} logStyle={logStyle} className={logClass}>
+            <I18nInterp ns="game_client" k="log.poem.description">
+              {{
+                name: log.name,
+              }}
+            </I18nInterp>
+            <PoemWrapper>{log.comment}</PoemWrapper>
+          </Comment>
+          <Time
+            noName={noName}
             time={new Date(log.time)}
             logStyle={logStyle}
             className={logClass}
@@ -408,6 +432,13 @@ export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
         borderColor: '#aaaaaa',
       };
     }
+    case 'poem': {
+      return {
+        background: theme.user.poem.bg,
+        color: theme.user.poem.color,
+        borderColor: '#e9546b',
+      };
+    }
     case 'prepare': {
       return {
         background: theme.user.heaven.bg,
@@ -587,6 +618,13 @@ const Comment = styled(Main)<IPropComment>`
         ? 'calc(0.8 * var(--base-font-size))'
         : 'var(--base-font-size)'};
   ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')};
+`;
+
+/**
+ * Wrapper of poem in log.
+ */
+const PoemWrapper = styled.div`
+  margin: 0.8em;
 `;
 
 interface IPropTime extends IPropLogPart {

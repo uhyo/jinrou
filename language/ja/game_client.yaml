@@ -218,6 +218,9 @@ log:
   monologue: "{{name}}の独り言"
   # 遺言
   will: "{{name}}の遺言"
+  # poem sent by Poet
+  poem:
+    description: "{{name}}から歌が届きました。"
 # Game view: player box.
 playerbox:
   # Alt for the dead image.

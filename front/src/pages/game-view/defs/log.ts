@@ -123,9 +123,37 @@ export interface ProbabilityTableLog extends LogBase {
 }
 
 /**
+ * Log of poem.
+ */
+export interface PoemLog extends LogBase {
+  mode: 'poem';
+  /**
+   * Content of this log.
+   */
+  comment: string;
+  /**
+   * Userid.
+   */
+  userid: string;
+  /**
+   * Displayed name of speaker.
+   */
+  name?: string;
+  /**
+   * Target of this log.
+   */
+  to: string | null;
+}
+
+/**
  * Type of log.
  */
-export type Log = NormalLog | NextTurnLog | ProbabilityTableLog | VoteResultLog;
+export type Log =
+  | NormalLog
+  | NextTurnLog
+  | ProbabilityTableLog
+  | VoteResultLog
+  | PoemLog;
 
 /**
  * Maximum number of rows in one `display: grid` container.

@@ -3135,7 +3135,7 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
-        if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo"]
+        if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem"]
             # 全員に見える
             true
         else if log.mode in ["heaven","gmheaven"]
@@ -9419,8 +9419,9 @@ class Poet extends Player
         unless pl?
             return
         log=
-            type:"poem"
+            mode:"poem"
             to:pl.id
+            name: @name
             comment: @flag.poem
         splashlog game.id, game, log
         switch @flag.status
@@ -9433,7 +9434,7 @@ class Poet extends Player
                     poem: ""
                     selected: false
                 }
-                pl.transProfile newpl
+                pl.transProfile poet
                 newpl = Player.factory null, game, pl, poet, Complex
                 pl.transProfile newpl
                 pl.transform game, newpl, true
@@ -9476,6 +9477,8 @@ class Poet extends Player
             pl = game.getPlayer @flag.partner
             if pl?
                 result.portPartner = pl.publicinfo()
+    isFormTarget:(jobtype)->
+        (jobtype in ["Poet1", "Poet2"]) || super
     getOpenForms:(game)->
         if Phase.isNight(game.phase) && !@dead && !@jobdone(game)
             switch @flag?.status
