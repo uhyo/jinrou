@@ -16,6 +16,7 @@ export function makePoet1Form({ form, t }: FormContentProps<'Poet1'>) {
     <>
       <p>{t('game_client_form:Poet.descriptionInit')}</p>
       <PoemTextArea
+        name="poem"
         placeholder={t('game_client_form:Poet.poemPlaceholder')}
         charPerLine={data.poemStyle}
       />
@@ -38,19 +39,17 @@ const PoemTextAreaWrapper = styled.div`
 /**
  * Textarea to input poem.
  */
-const PoemTextArea = React.forwardRef<
-  HTMLTextAreaElement,
-  {
-    placeholder?: string;
-    charPerLine: number[];
-  }
->(({ placeholder, charPerLine }, ref) => {
+const PoemTextArea: React.FunctionComponent<{
+  name?: string;
+  placeholder?: string;
+  charPerLine: number[];
+}> = ({ name, placeholder, charPerLine }) => {
   const duringCompositionRef = React.useRef(false);
   const splitter = React.useMemo(() => new GraphemeSplitter(), []);
   return (
     <PoemTextAreaWrapper>
       <textarea
-        ref={ref}
+        name={name}
         placeholder={placeholder}
         rows={charPerLine.length}
         onChange={e => {
@@ -74,7 +73,7 @@ const PoemTextArea = React.forwardRef<
       />
     </PoemTextAreaWrapper>
   );
-});
+};
 
 function sanitize(
   text: string,

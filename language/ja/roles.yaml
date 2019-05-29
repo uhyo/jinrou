@@ -830,6 +830,8 @@ Elementaler:
 Poet:
   # select destination of poem.
   select: "{{name}}は{{target}}に歌を送りました。"
+  # received from someone.
+  become: "{{name}}は{{sender}}からの歌を受け取って歌人になりました。"
 
 GameMaster:
   # Failed to revive.

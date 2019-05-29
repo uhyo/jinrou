@@ -9444,6 +9444,15 @@ class Poet extends Player
                     poem: ""
                     selected: false
                 }
+
+                log=
+                    type: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:Poet.become", {
+                        name: pl.name
+                        sender: @name
+                    }
+                splashlog game.id, game, log
             when "available"
                 @setFlag {
                     status: "waiting"
