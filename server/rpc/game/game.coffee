@@ -9428,6 +9428,7 @@ class Poet extends Player
             mode:"poem"
             to:pl.id
             name: @name
+            target: pl.name
             comment: @flag.poem
         splashlog game.id, game, log
         switch @flag.status
@@ -9495,7 +9496,7 @@ class Poet extends Player
                 when "available"
                     # target player is already decided.
                     target = game.getPlayer @flag.partner
-                    if target?
+                    if target? && !target.dead
                         return [{
                             type: "Poet2"
                             options: []

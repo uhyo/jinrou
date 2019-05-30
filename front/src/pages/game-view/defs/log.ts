@@ -140,6 +140,10 @@ export interface PoemLog extends LogBase {
    */
   name?: string;
   /**
+   * Displayed name of target of this poem.
+   */
+  target: string;
+  /**
    * Target of this log.
    */
   to: string | null;

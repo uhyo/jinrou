@@ -209,6 +209,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             <I18nInterp ns="game_client" k="log.poem.description">
               {{
                 name: <b>{log.name}</b>,
+                target: <b>{log.target}</b>,
               }}
             </I18nInterp>
             <PoemWrapper>{log.comment}</PoemWrapper>
@@ -225,11 +226,6 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       const logStyle = computeLogStyle(log.mode, theme);
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
-      // Auto-link URLs and room numbers in it.
-      // Server's bug? comment may actually be null
-      const comment = autolinkLogType.includes(log.mode)
-        ? this.autolink(sanitizeLog(log.comment) || '')
-        : sanitizeLog(log.comment) || '';
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
@@ -238,12 +234,29 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             : log.mode === 'will'
               ? t('log.will', { name: log.name }) + ':'
               : log.name + ':';
+      // Auto-link URLs and room numbers in it.
       const noName = icon == null && !nameText;
       const props = {
         logStyle,
         className: logClass,
         'data-userid': 'userid' in log ? log.userid : undefined,
       };
+      const commentProps = {
+        size,
+        noName,
+        ...props,
+      };
+      // Server's bug? comment may actually be null
+      const comment = autolinkLogType.includes(log.mode) ? (
+        <Comment
+          {...commentProps}
+          dangerouslySetInnerHTML={{
+            __html: this.autolink(sanitizeLog(log.comment) || ''),
+          }}
+        />
+      ) : (
+        <Comment {...commentProps}>{sanitizeLog(log.comment)}</Comment>
+      );
       return (
         <LogLineWrapper>
           {/* icon */}
@@ -253,12 +266,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           <Name noName={noName} {...props}>
             {nameText ? sanitizeLog(nameText) : null}
           </Name>
-          <Comment
-            size={size}
-            noName={noName}
-            {...props}
-            dangerouslySetInnerHTML={{ __html: comment }}
-          />
+          {comment}
           <Time
             noName={noName}
             time={new Date(log.time)}
