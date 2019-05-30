@@ -19,6 +19,7 @@ export const Form = styled.form`
   border-radius: 3px;
   padding: 8px;
   border: 1px solid ${lightBorderColor};
+  background-color: #ffffff;
 `;
 
 export const Description = styled.p`
