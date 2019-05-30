@@ -9359,6 +9359,7 @@ class Poet extends Player
     jobdone:->@flag?.status in ["waiting", undefined] || @flag?.selected
     sleeping:->true
     constructor:->
+        super
         @flag = {
             # status: "init" | "available" | "waiting"
             status: "init"
