@@ -105,6 +105,10 @@ export interface ColorProfile {
    */
   voteto: OneColor;
   /**
+   * Color of poem log.
+   */
+  poem: OneColor;
+  /**
    * Color of werewolf's speech.
    */
   werewolf: OneColor;
@@ -195,6 +199,10 @@ const commonDefaults = {
   },
   nextturn: {
     bg: '#eeeeee',
+    color: '#000000',
+  },
+  poem: {
+    bg: '#f1a0a2',
     color: '#000000',
   },
   probability_table: {

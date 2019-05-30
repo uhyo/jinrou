@@ -3,7 +3,7 @@ import { autolink, compile } from 'my-autolink';
 import styled, { withTheme } from '../../../util/styled';
 import { Log, autolinkLogType } from '../defs';
 import { Rule } from '../../../defs';
-import { TranslationFunction } from '../../../i18n';
+import { TranslationFunction, I18nInterp } from '../../../i18n';
 import { phone, notPhone } from '../../../common/media';
 import { Theme } from '../../../theme';
 import memoizeOne from 'memoize-one';
@@ -197,15 +197,35 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           />
         </LogLineWrapper>
       );
+    } else if (log.mode === 'poem') {
+      const logStyle = computeLogStyle(log.mode, theme);
+      const icon = icons[log.userid];
+      const noName = icon == null;
+      return (
+        <LogLineWrapper>
+          <Icon noName={noName} logStyle={logStyle} className={logClass} />
+          <Name noName={noName} logStyle={logStyle} className={logClass} />
+          <Comment noName={noName} logStyle={logStyle} className={logClass}>
+            <I18nInterp ns="game_client" k="log.poem.description">
+              {{
+                name: <b>{log.name}</b>,
+                target: <b>{log.target}</b>,
+              }}
+            </I18nInterp>
+            <PoemWrapper>{log.comment}</PoemWrapper>
+          </Comment>
+          <Time
+            noName={noName}
+            time={new Date(log.time)}
+            logStyle={logStyle}
+            className={logClass}
+          />
+        </LogLineWrapper>
+      );
     } else {
       const logStyle = computeLogStyle(log.mode, theme);
       const size = log.mode === 'nextturn' ? undefined : log.size;
       const icon = log.mode === 'nextturn' ? undefined : icons[log.userid];
-      // Auto-link URLs and room numbers in it.
-      // Server's bug? comment may actually be null
-      const comment = autolinkLogType.includes(log.mode)
-        ? this.autolink(sanitizeLog(log.comment) || '')
-        : sanitizeLog(log.comment) || '';
       const nameText =
         log.mode === 'nextturn' || !log.name
           ? null
@@ -214,12 +234,29 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             : log.mode === 'will'
               ? t('log.will', { name: log.name }) + ':'
               : log.name + ':';
+      // Auto-link URLs and room numbers in it.
       const noName = icon == null && !nameText;
       const props = {
         logStyle,
         className: logClass,
         'data-userid': 'userid' in log ? log.userid : undefined,
       };
+      const commentProps = {
+        size,
+        noName,
+        ...props,
+      };
+      // Server's bug? comment may actually be null
+      const comment = autolinkLogType.includes(log.mode) ? (
+        <Comment
+          {...commentProps}
+          dangerouslySetInnerHTML={{
+            __html: this.autolink(sanitizeLog(log.comment) || ''),
+          }}
+        />
+      ) : (
+        <Comment {...commentProps}>{sanitizeLog(log.comment)}</Comment>
+      );
       return (
         <LogLineWrapper>
           {/* icon */}
@@ -229,12 +266,7 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
           <Name noName={noName} {...props}>
             {nameText ? sanitizeLog(nameText) : null}
           </Name>
-          <Comment
-            size={size}
-            noName={noName}
-            {...props}
-            dangerouslySetInnerHTML={{ __html: comment }}
-          />
+          {comment}
           <Time
             noName={noName}
             time={new Date(log.time)}
@@ -406,6 +438,13 @@ export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
         color: theme.user.nextturn.color,
         bold: true,
         borderColor: '#aaaaaa',
+      };
+    }
+    case 'poem': {
+      return {
+        background: theme.user.poem.bg,
+        color: theme.user.poem.color,
+        borderColor: '#e9546b',
       };
     }
     case 'prepare': {
@@ -587,6 +626,13 @@ const Comment = styled(Main)<IPropComment>`
         ? 'calc(0.8 * var(--base-font-size))'
         : 'var(--base-font-size)'};
   ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')};
+`;
+
+/**
+ * Wrapper of poem in log.
+ */
+const PoemWrapper = styled.div`
+  margin: 0.8em;
 `;
 
 interface IPropTime extends IPropLogPart {

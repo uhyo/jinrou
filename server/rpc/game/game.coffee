@@ -2774,6 +2774,7 @@ logs:[{
     "wolfskill"(人狼に見える) / "emmaskill"(閻魔に見える) / "eyeswolfskill"(瞳狼に見える)
     "draculaskill"(ドラキュラに見える)
     "hidden"(終了後/霊界のみ見える追加情報)
+    "poem"(Poetが送ったpoem)
     comment: String
     userid:Userid
     name?:String
@@ -3134,7 +3135,7 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
-        if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo"]
+        if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem"]
             # 全員に見える
             true
         else if log.mode in ["heaven","gmheaven"]
@@ -9347,6 +9348,172 @@ class Elementaler extends Player
         @addGamelog game, "elementalkill", null, guarded.id
         guarded.die game, "elemental", from
 
+class Poet extends Player
+    type:"Poet"
+    formType: FormType.optional
+    midnightSort: 100
+    jobdone:->@flag?.status in ["waiting", undefined] || @flag?.selected
+    sleeping:->true
+    constructor:->
+        @flag = {
+            # status: "init" | "available" | "waiting"
+            status: "init"
+            partner: null
+            poem: ""
+            selected: false
+        }
+    sunset:(game)->
+        switch @flag?.status
+            when "available"
+                @setFlag {
+                    status: "available"
+                    partner: @flag.partner
+                    poem: ""
+                    selected: false
+                }
+            when "waiting"
+                @setFlag {
+                    status: "waiting"
+                    partner: @flag.partner
+                    poem: ""
+                    selected: true
+                }
+            else
+                @setFlag {
+                    status: "init"
+                    poem: ""
+                    selected: false
+                }
+    job:(game, playerid, query)->
+        if @flag?.selected != false
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        pl = null
+        if @flag?.status == "init"
+            pl = game.getPlayer playerid
+        else
+            pl = game.getPlayer @flag?.partner
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        # perform easy check for large string
+        unless typeof query.poem == "string" && query.poem.length < Config.maxlength.game.comment
+            return game.i18n.t "error.common.invalidQuery"
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Poet.select", {
+                name: @name
+                target: pl.name
+            }
+        splashlog game.id, game, log
+
+        @setTarget pl.id
+        @setFlag Object.assign(@flag, {
+            poem: query.poem
+            selected: true
+        })
+        null
+    midnight:(game)->
+        unless @flag?.status in ["init", "available"]
+            return
+        unless @flag.selected
+            return
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        log=
+            mode:"poem"
+            to:pl.id
+            name: @name
+            target: pl.name
+            comment: @flag.poem
+        splashlog game.id, game, log
+        switch @flag.status
+            when "init"
+                # If init poem was sent to a player, make that player a Poet.
+                poet = Player.factory "Poet", game
+                poet.setFlag {
+                    status: "available"
+                    partner: @id
+                    poem: ""
+                    selected: false
+                }
+                pl.transProfile poet
+                newpl = Player.factory null, game, pl, poet, Complex
+                pl.transProfile newpl
+                pl.transform game, newpl, true
+
+                @setFlag {
+                    status: "waiting"
+                    partner: pl.id
+                    poem: ""
+                    selected: false
+                }
+
+                log=
+                    mode: "skill"
+                    to: pl.id
+                    comment: game.i18n.t "roles:Poet.become", {
+                        name: pl.name
+                        sender: @name
+                    }
+                splashlog game.id, game, log
+            when "available"
+                @setFlag {
+                    status: "waiting"
+                    partner: pl.id
+                    poem: ""
+                    selected: false
+                }
+                # update target Poet's status.
+                poets = pl.accessByJobTypeAll "Poet"
+                for poet in poets
+                    if poet.flag?.partner == @id
+                        poet.setFlag {
+                            status: "available"
+                            partner: @id
+                            poem: ""
+                            selected: false
+                        }
+    isFormTarget:(jobtype)->
+        (jobtype in ["Poet1", "Poet2"]) || super
+    getOpenForms:(game)->
+        if Phase.isNight(game.phase) && !@dead && !@jobdone(game)
+            switch @flag?.status
+                when "init"
+                    # select poem target and poem contents.
+                    return [{
+                        type: "Poet1"
+                        options: @makeJobSelection game, false
+                        formType: FormType.optional
+                        objid: @objid
+                        data:
+                            poemStyle: Config.game.Poet.poemStyle
+                    }]
+                when "available"
+                    # target player is already decided.
+                    target = game.getPlayer @flag.partner
+                    if target? && !target.dead
+                        return [{
+                            type: "Poet2"
+                            options: []
+                            formType: FormType.optional
+                            objid: @objid
+                            data:
+                                target: target.name
+                                poemStyle: Config.game.Poet.poemStyle
+                        }]
+                    else
+                        return []
+        return []
+    checkJobValidity:(game,query)->
+        if @flag?.status == "init"
+            return super
+        else
+            return true
 
 # ============================
 # 処理上便宜的に使用
@@ -11042,6 +11209,7 @@ jobs=
     Dracula:Dracula
     VampireClan:VampireClan
     Elementaler:Elementaler
+    Poet:Poet
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11215,6 +11383,7 @@ jobStrength=
     Dracula:30
     VampireClan:20
     Elementaler:23
+    Poet:11
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12736,7 +12905,6 @@ islogOK=(game,player,log)->
             game.getPlayer player.flag
         else
             player
-    console.log actpl?.id, actpl?.dead, game.heavenview
     unless actpl?
         # 観戦者
         if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]

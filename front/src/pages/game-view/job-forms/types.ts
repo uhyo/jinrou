@@ -12,6 +12,8 @@ export const specialNamedTypes = [
   'BadLady1',
   'BadLady2',
   'CraftyWolf2',
+  'Poet1',
+  'Poet2',
   // forms for quantum players.
   '_Quantum_Diviner',
   '_Quantum_Werewolf',
@@ -27,4 +29,6 @@ export const specialContentTypes = [
   '_Werewolf',
   'HomeComer',
   'DragonKnight',
+  'Poet1',
+  'Poet2',
 ];

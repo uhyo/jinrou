@@ -18,6 +18,8 @@ specialName:
   BadLady1: "悪女の能力"
   BadLady2: "悪女の能力"
   CraftyWolf2: "狡猾な狼の能力"
+  Poet1: "歌人の能力"
+  Poet2: "歌人の能力"
   _Quantum_Diviner: "占い師の能力"
   _Quantum_Werewolf: "人狼の襲撃"
 
@@ -147,3 +149,14 @@ DragonKnight:
   killButton: "殺害（1回のみ）"
   # kill button (already used)
   killButtonUsed: "殺害（使用済）"
+
+# Texts for Poet form.
+Poet:
+  # description for initial form.
+  descriptionInit: "歌を入力して送る相手を選択してください。歌は最大17文字まで入力できます。"
+  # description for normal form.
+  descriptionReply: "{{name}}に送る歌を入力してください。歌は最大17文字まで入力できます。"
+  poemPlaceholder: "ここに歌を入力"
+  # label for target selection
+  targetSelectionLabel: "送る相手を選択："
+  selectButton: "歌を送る"
