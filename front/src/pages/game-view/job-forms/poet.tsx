@@ -39,7 +39,7 @@ export function makePoet2Form({ form, t }: FormContentProps<'Poet2'>) {
       <p>
         <I18nInterp ns="game_client_form" k="Poet.descriptionReply">
           {{
-            target: <b>{data.target}</b>,
+            name: <b>{data.target}</b>,
           }}
         </I18nInterp>
       </p>

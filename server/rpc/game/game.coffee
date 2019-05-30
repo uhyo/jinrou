@@ -9387,7 +9387,11 @@ class Poet extends Player
     job:(game, playerid, query)->
         if @flag?.selected != false
             return game.i18n.t "error.common.cannotUseSkillNow"
-        pl = game.getPlayer playerid
+        pl = null
+        if @flag?.status == "init"
+            pl = game.getPlayer playerid
+        else
+            pl = game.getPlayer @flag?.partner
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
@@ -9504,6 +9508,11 @@ class Poet extends Player
                     else
                         return []
         return []
+    checkJobValidity:(game,query)->
+        if @flag?.status == "init"
+            return super
+        else
+            return true
 
 # ============================
 # 処理上便宜的に使用
