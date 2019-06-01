@@ -786,6 +786,8 @@ exports.jobinfo=
             color:"#000d80"
         Elementaler:
             color:"#46f17f"
+        Poet:
+            color:"#f1a0a2"
 
     Werewolf:
         color:"#DD0000"
