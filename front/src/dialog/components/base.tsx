@@ -64,6 +64,10 @@ interface IPropDialogBase {
    */
   form?: boolean;
   /**
+   * ref for form.
+   */
+  formRef?: React.Ref<HTMLFormElement>;
+  /**
    * handler of submission when form is used.
    */
   onSubmit?(e: React.SyntheticEvent<HTMLFormElement>): void;
@@ -111,6 +115,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
       titleClassName,
       children,
       form,
+      formRef,
       onSubmit,
       onCancel,
     } = this.props;
@@ -134,7 +139,13 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
               </Title>
             ) : null}
             <DialogMain id={desc}>
-              {form ? <form onSubmit={onSubmit}>{children}</form> : children}
+              {form ? (
+                <form onSubmit={onSubmit} ref={formRef}>
+                  {children}
+                </form>
+              ) : (
+                children
+              )}
             </DialogMain>
           </div>
         )}
@@ -209,6 +220,7 @@ export function Dialog({
   message,
   onCancel,
   form,
+  formRef,
   onSubmit,
   buttons,
   contents,
@@ -225,6 +237,7 @@ export function Dialog({
               icon={icon}
               onCancel={onCancel}
               form={form}
+              formRef={formRef}
               onSubmit={onSubmit}
             >
               {message != null ? <p>{message}</p> : null}
