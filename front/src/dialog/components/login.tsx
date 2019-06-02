@@ -14,7 +14,7 @@ import {
   FormAsideText,
 } from './parts';
 import { I18n, TranslationFunction } from '../../i18n';
-import { LoginFormContents } from '../../common/login-form';
+import { LoginFormContents, LoginFormFooter } from '../../common/login-form';
 
 export interface IPropLoginDialog extends ILoginDialog {
   onClose(ok: boolean): void;
@@ -74,15 +74,7 @@ export class LoginDialog extends React.PureComponent<
                 </>
               )}
               afterButtons={() => (
-                <FormAsideText>
-                  <a href="/" onClick={this.handleCancel}>
-                    {t('loginForm.signup')}
-                  </a>
-                  {'　'}
-                  <a href="/manual/login" target="_blank">
-                    {t('loginForm.help')}
-                  </a>
-                </FormAsideText>
+                <LoginFormFooter onCancel={this.handleCancel} />
               )}
             />
           );
