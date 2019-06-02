@@ -1,4 +1,30 @@
+toppage_view = null
+
 exports.start=->
+    pi18n = JinrouFront.loadDefaultI18n()
+    papp = JinrouFront.loadTopPage()
+
+    Promise.all([pi18n, papp]).then ([i18n, app])->
+        toppage_view = app.place {
+            i18n: i18n
+            node: $("#top-app").get 0
+            onLogin: (query)->
+                new Promise (resolve)->
+                    Index.app.login query.userId, query.password, (result)->
+                        if result
+                            if query.rememberMe
+                                # 記憶
+                                localStorage.setItem "userid",form.elements["userid"].value
+                                localStorage.setItem "password", form.elements["password"].value
+                            Index.app.showUrl "/my"
+                            resolve {}
+                        else
+                            resolve {
+                                error: "loginError"
+                            }
+                            # $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
+
+        }
     $("#loginform").submit (je)->
         je.preventDefault()
         form=je.target

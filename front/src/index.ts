@@ -24,6 +24,13 @@ export function loadI18n() {
 }
 
 /**
+ * Load i18n with default language.
+ */
+export function loadDefaultI18n() {
+  return loadI18n().then(i18n => i18n.getI18nFor());
+}
+
+/**
  * Asynchronously load the dialog module.
  */
 export function loadDialog() {
@@ -103,4 +110,13 @@ export function loadNewRoom() {
   return import(/*
     webpackChunkName: "new-room"
    */ './pages/new-room');
+}
+
+/**
+ * Asynchronously load the top-page module.
+ */
+export function loadTopPage() {
+  return import(/*
+    webpackChunkName: "top-page"
+  */ './pages/top-page');
 }
