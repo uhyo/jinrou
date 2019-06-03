@@ -1,4 +1,10 @@
 # Common language fragments.
+
+# basic information of app.
+app:
+  # name of app.
+  name: "月下人狼"
+
 error:
   # Common heading indicating error.
   error: "エラー"
@@ -35,5 +41,7 @@ loginForm:
   signup: "新規登録"
   # link to help page.
   help: "ヘルプ"
+  # link to password reset page.
+  passwordReset: "パスワードの再発行"
   # error when login failed.
   error: "ユーザーIDまたはパスワードが違います。"

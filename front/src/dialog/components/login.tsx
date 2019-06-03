@@ -74,7 +74,7 @@ export class LoginDialog extends React.PureComponent<
                 </>
               )}
               afterButtons={() => (
-                <LoginFormFooter onCancel={this.handleCancel} />
+                <LoginFormFooter signup onCancel={this.handleCancel} />
               )}
             />
           );

@@ -36,3 +36,8 @@ export const mediumBorderColor = '#999999';
  * Color of non-main texxt.
  */
 export const helperTextColor = '#444444';
+
+/**
+ * Color for link in form.
+ */
+export const formLinkColor = '#666666';

@@ -1,0 +1,8 @@
+# Languae file for top page
+
+# description of app at the top.
+app:
+  # description of app
+  description: 完全無料・リアルタイムチャット・高い自由度が特徴の人狼サーバーです。
+  # link to features.
+  featuresLink: この人狼の特徴を見る

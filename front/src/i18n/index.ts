@@ -23,6 +23,7 @@ i18next.use(xhrBackend).init({
     'server_connection_client',
     'rooms_client',
     'newroom_client',
+    'top_client',
   ],
 });
 

@@ -7,6 +7,7 @@ import { IconProp, FontAwesomeIcon } from '../../util/icon';
 import { phone } from '../../common/media';
 import { AppStyling } from '../../styles/phone';
 import { dialogZIndex } from '../../common/z-index';
+import { formLinkColor } from '../../common/color';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -178,7 +179,7 @@ const DialogBase = styled(DialogBaseInner)`
   pointer-events: auto;
 
   a {
-    color: #666666;
+    color: ${formLinkColor};
   }
 `;
 
