@@ -3,6 +3,16 @@
 # description of app at the top.
 app:
   # description of app
-  description: 完全無料・リアルタイムチャット・高い自由度が特徴の人狼サーバーです。
+  description: "完全無料・リアルタイムチャット・高い自由度が特徴の人狼サーバーです。"
   # link to features.
-  featuresLink: この人狼の特徴を見る
+  featuresLink: "この人狼の特徴を見る"
+  # error message shown on login failure.
+  loginError: "ユーザーIDまたはパスワードが違います。"
+
+# sign up form
+signup:
+  title: "新規登録"
+  description1: "まだ月下人狼のアカウントを持っていない方はこちらから新規登録できます。"
+  description2: "新規登録はユーザーIDとパスワードを決めるだけで終わります。"
+  # submit button
+  submit: "登録"

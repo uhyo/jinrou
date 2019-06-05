@@ -8,7 +8,7 @@ export const AppWrapper = styled(AppStyling)``;
  * Wrapper of forms
  * @internal
  */
-export const FormWrapper = styled.div`
+export const FormWrapper = styled.form`
   width: max-content;
   max-width: 100%;
   margin: 0.5em auto 0.5em 0;
@@ -18,4 +18,13 @@ export const FormWrapper = styled.div`
   h2 {
     margin-top: 0;
   }
+`;
+
+/**
+ * Line of warning.
+ * Keeps its space even if no error is shown.
+ * @internal
+ */
+export const ErrorLine = styled.p`
+  height: 1.1em;
 `;

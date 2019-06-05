@@ -23,6 +23,23 @@ exports.start=->
                                 error: "loginError"
                             }
                             # $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
+            onSignup: (query)->
+                q=
+                    userid: query.userId
+                    password: query.password
+                new Promise (resolve)->
+                    ss.rpc "user.newentry", q,(result)->
+                        if result?.error?
+                            resolve {
+                                error: result.error
+                            }
+                            return
+                        Index.app.processLoginResult uid, result, (success)->
+                            if success
+                                localStorage.setItem "userid", uid
+                                localStorage.setItem "password", pass
+                                Index.app.showUrl "/my"
+                        resolve {}
 
         }
     $("#loginform").submit (je)->

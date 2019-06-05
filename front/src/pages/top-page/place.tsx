@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 
 import { TopPage } from './component';
 import { i18n } from '../../i18n';
-import { LoginHandler } from './def';
+import { LoginHandler, SignupHandler } from './def';
 
 /**
  * Options to place.
@@ -15,16 +15,25 @@ export interface IPlaceOptions {
    */
   node: HTMLElement;
   /**
-   * handle of login.
+   * handler of login.
    */
   onLogin: LoginHandler;
+  /**
+   * handler of signup.k
+   */
+  onSignup: SignupHandler;
 }
 export interface IPlaceResult {
   unmount: () => void;
 }
 
-export function place({ i18n, node, onLogin }: IPlaceOptions): IPlaceResult {
-  const com = <TopPage i18n={i18n} onLogin={onLogin} />;
+export function place({
+  i18n,
+  node,
+  onLogin,
+  onSignup,
+}: IPlaceOptions): IPlaceResult {
+  const com = <TopPage i18n={i18n} onLogin={onLogin} onSignup={onSignup} />;
 
   ReactDOM.render(com, node);
 

@@ -29,7 +29,7 @@ export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
         <tr>
           <th>{t('loginForm.userid')}</th>
           <td>
-            <FormInput ref={userIdRef} autoComplete="username" />
+            <FormInput ref={userIdRef} autoComplete="username" required />
           </td>
         </tr>
         <tr>
@@ -39,6 +39,7 @@ export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
               ref={passwordRef}
               type="password"
               autoComplete="current-password"
+              required
             />
           </td>
         </tr>
