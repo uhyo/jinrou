@@ -96,6 +96,7 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
             </h2>
             <PlainText>{i18n.t('top_client:signup.description1')}</PlainText>
             <PlainText>{i18n.t('top_client:signup.description2')}</PlainText>
+            <PlainText>{i18n.t('top_client:signup.description3')}</PlainText>
             <LoginFormContents
               userIdRef={signupFormUserIdRef}
               passwordRef={signupFormPasswordRef}

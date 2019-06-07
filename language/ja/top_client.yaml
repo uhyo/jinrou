@@ -14,6 +14,7 @@ signup:
   title: "新規登録"
   description1: "まだ月下人狼のアカウントを持っていない方はこちらから新規登録できます。"
   description2: "新規登録はユーザーIDとパスワードを決めるだけで終わります。"
+  description3: "ユーザーIDには半角英数とアンダーバーを使用できます。"
   # submit button
   submit: "登録"
 
