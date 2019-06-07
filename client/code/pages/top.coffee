@@ -34,10 +34,10 @@ exports.start=->
                                 error: result.error
                             }
                             return
-                        Index.app.processLoginResult uid, result, (success)->
+                        Index.app.processLoginResult query.userId, result, (success)->
                             if success
-                                localStorage.setItem "userid", uid
-                                localStorage.setItem "password", pass
+                                localStorage.setItem "userid", query.userId
+                                localStorage.setItem "password", query.password
                                 Index.app.showUrl "/my"
                         resolve {}
 

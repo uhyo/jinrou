@@ -40,3 +40,11 @@ export const FormWrapper = styled.form`
 export const ErrorLine = styled.p`
   height: 1.1em;
 `;
+
+/**
+ * Footer of top page.
+ * @internal
+ */
+export const Footer = styled.footer`
+  font-size: smaller;
+`;

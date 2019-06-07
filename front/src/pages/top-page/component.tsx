@@ -7,6 +7,7 @@ import {
   AppWrapper,
   ErrorLine,
   ContentsWrapper,
+  Footer,
 } from './elements';
 import { FontAwesomeIcon } from '../../util/icon';
 import { WideButton } from '../../common/button';
@@ -105,6 +106,15 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
             <WideButton>{i18n.t('top_client:signup.submit')}</WideButton>
           </FormWrapper>
         </ContentsWrapper>
+        <Footer>
+          <p>
+            {i18n.t('top_client:footer.text')} (
+            <a href="http://github.com/uhyo/jinrou" target="_blank">
+              {i18n.t('top_client:footer.github')}
+            </a>
+            )
+          </p>
+        </Footer>
       </AppWrapper>
     </I18nProvider>
   );

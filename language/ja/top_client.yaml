@@ -16,3 +16,9 @@ signup:
   description2: "新規登録はユーザーIDとパスワードを決めるだけで終わります。"
   # submit button
   submit: "登録"
+
+footer:
+  # footer text.
+  text: "© 2011-2019 うひょ"
+  # GitHub label
+  github: "GitHub"
