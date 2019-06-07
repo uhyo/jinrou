@@ -7,6 +7,7 @@ import { IconProp, FontAwesomeIcon } from '../../util/icon';
 import { phone } from '../../common/media';
 import { AppStyling } from '../../styles/phone';
 import { dialogZIndex } from '../../common/z-index';
+import { formLinkColor } from '../../common/color';
 
 interface IPropDialogWrapper {
   modal?: boolean;
@@ -64,6 +65,10 @@ interface IPropDialogBase {
    */
   form?: boolean;
   /**
+   * ref for form.
+   */
+  formRef?: React.Ref<HTMLFormElement>;
+  /**
    * handler of submission when form is used.
    */
   onSubmit?(e: React.SyntheticEvent<HTMLFormElement>): void;
@@ -111,6 +116,7 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
       titleClassName,
       children,
       form,
+      formRef,
       onSubmit,
       onCancel,
     } = this.props;
@@ -134,7 +140,13 @@ class DialogBaseInner extends React.PureComponent<IPropDialogBase, {}> {
               </Title>
             ) : null}
             <DialogMain id={desc}>
-              {form ? <form onSubmit={onSubmit}>{children}</form> : children}
+              {form ? (
+                <form onSubmit={onSubmit} ref={formRef}>
+                  {children}
+                </form>
+              ) : (
+                children
+              )}
             </DialogMain>
           </div>
         )}
@@ -167,7 +179,7 @@ const DialogBase = styled(DialogBaseInner)`
   pointer-events: auto;
 
   a {
-    color: #666666;
+    color: ${formLinkColor};
   }
 `;
 
@@ -209,6 +221,7 @@ export function Dialog({
   message,
   onCancel,
   form,
+  formRef,
   onSubmit,
   buttons,
   contents,
@@ -225,6 +238,7 @@ export function Dialog({
               icon={icon}
               onCancel={onCancel}
               form={form}
+              formRef={formRef}
               onSubmit={onSubmit}
             >
               {message != null ? <p>{message}</p> : null}

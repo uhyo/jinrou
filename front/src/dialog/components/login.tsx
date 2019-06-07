@@ -14,6 +14,7 @@ import {
   FormAsideText,
 } from './parts';
 import { I18n, TranslationFunction } from '../../i18n';
+import { LoginFormContents, LoginFormFooter } from '../../common/login-form';
 
 export interface IPropLoginDialog extends ILoginDialog {
   onClose(ok: boolean): void;
@@ -29,8 +30,8 @@ export class LoginDialog extends React.PureComponent<
   IPropLoginDialog,
   IStateLoginDialog
 > {
-  private useridRef: React.RefObject<HTMLInputElement> = React.createRef();
-  private passwordRef: React.RefObject<HTMLInputElement> = React.createRef();
+  private userIdRef = React.createRef<HTMLInputElement>();
+  private passwordRef = React.createRef<HTMLInputElement>();
   state: IStateLoginDialog = {
     error: null,
   };
@@ -55,29 +56,10 @@ export class LoginDialog extends React.PureComponent<
               onSubmit={this.handleSubmit(t)}
               contents={() => (
                 <>
-                  <FormTable>
-                    <tbody>
-                      <tr>
-                        <th>{t('loginForm.userid')}</th>
-                        <td>
-                          <FormInput
-                            ref={this.useridRef}
-                            autoComplete="username"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <th>{t('loginForm.password')}</th>
-                        <td>
-                          <FormInput
-                            ref={this.passwordRef}
-                            type="password"
-                            autoComplete="current-password"
-                          />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </FormTable>
+                  <LoginFormContents
+                    userIdRef={this.userIdRef}
+                    passwordRef={this.passwordRef}
+                  />
                   {error != null ? (
                     <FormErrorMessage>{error}</FormErrorMessage>
                   ) : null}
@@ -92,15 +74,7 @@ export class LoginDialog extends React.PureComponent<
                 </>
               )}
               afterButtons={() => (
-                <FormAsideText>
-                  <a href="/" onClick={this.handleCancel}>
-                    {t('loginForm.signup')}
-                  </a>
-                  {'　'}
-                  <a href="/manual/login" target="_blank">
-                    {t('loginForm.help')}
-                  </a>
-                </FormAsideText>
+                <LoginFormFooter signup onCancel={this.handleCancel} />
               )}
             />
           );
@@ -109,9 +83,9 @@ export class LoginDialog extends React.PureComponent<
     );
   }
   public componentDidMount() {
-    // focus on a close button
-    if (this.useridRef.current != null) {
-      this.useridRef.current.focus();
+    // focus on the userid input
+    if (this.userIdRef.current != null) {
+      this.userIdRef.current.focus();
     }
   }
   @bind
@@ -123,14 +97,14 @@ export class LoginDialog extends React.PureComponent<
       e.preventDefault();
       // Run login api.
       const {
-        useridRef,
+        userIdRef,
         passwordRef,
         props: { login, onClose },
       } = this;
-      if (useridRef.current == null || passwordRef.current == null) {
+      if (userIdRef.current == null || passwordRef.current == null) {
         return;
       }
-      login(useridRef.current.value, passwordRef.current.value)
+      login(userIdRef.current.value, passwordRef.current.value)
         .then(loggedin => {
           if (loggedin) {
             // succeeded to login.

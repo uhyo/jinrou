@@ -31,6 +31,7 @@ import {
   faCaretSquareDown,
   faBars,
   faMicrophoneSlash,
+  faFileSignature,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -62,6 +63,7 @@ library.add(
   faBars,
   faMicrophoneSlash,
   faPaperPlane,
+  faFileSignature,
 );
 
 // Publish to global.

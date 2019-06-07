@@ -23,6 +23,7 @@ i18next.use(xhrBackend).init({
     'server_connection_client',
     'rooms_client',
     'newroom_client',
+    'top_client',
   ],
 });
 
@@ -101,7 +102,10 @@ async function ajax(
 ): Promise<void> {
   const [lng, ns] = url.split('.');
   try {
-    const data = await loadLanguageBundle(lng, ns);
+    const data =
+      lng === EXTERNAL_SYSTEM_LANGUAGE
+        ? await loadSystemLanguageBundle(ns)
+        : await loadLanguageBundle(lng, ns);
     callback(data.default, {
       status: '200',
     });
@@ -122,4 +126,14 @@ function loadLanguageBundle(
   return import(/*
     webpackChunkName: "language-data-[request]"
   */ `../../../language/${lng}/${ns}.yaml`);
+}
+
+/**
+ * Dynamically load system language bundle.
+ */
+function loadSystemLanguageBundle(ns: string): Promise<{ default: unknown }> {
+  return import(/*
+    webpackPrefetch: true,
+    webpackChunkName: "language-data-[request]"
+  */ `../../../language/${EXTERNAL_SYSTEM_LANGUAGE}/${ns}.yaml`);
 }

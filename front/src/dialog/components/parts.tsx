@@ -6,6 +6,7 @@ import {
   noColor,
   noColorText,
 } from '../../common/color';
+import { smallTextSize } from '../../common/style';
 
 const ButtonBase = styled.button`
   appearance: none;
@@ -65,7 +66,7 @@ export const FormAsideText = styled.div`
   margin: 5px 0;
 
   text-align: right;
-  font-size: 0.9em;
+  font-size: ${smallTextSize};
 `;
 
 /**
@@ -75,7 +76,7 @@ export const FormErrorMessage = styled.div`
   margin: 5px 0;
 
   color: red;
-  font-size: 0.9em;
+  font-size: ${smallTextSize};
 `;
 /**
  * Input for form in dialog.

@@ -2,13 +2,14 @@ import styled from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
 import { phone } from '../../common/media';
 import { helperTextColor } from '../../common/color';
+import { pagePadding } from '../../common/style';
 
 /**
  * Wrapper of whole app.
  * @package
  */
 export const Wrapper = styled(AppStyling)`
-  padding: 0 20px;
+  padding: 0 ${pagePadding};
 `;
 
 /**
@@ -19,8 +20,8 @@ export const Navigation = styled.div`
   position: sticky;
   top: 0;
   left: 0;
-  margin: 0 -20px;
-  padding: 0 20px;
+  margin: 0 -${pagePadding};
+  padding: 0 ${pagePadding};
   z-index: 1;
 
   background-color: white;
