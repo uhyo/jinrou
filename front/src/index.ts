@@ -117,6 +117,7 @@ export function loadNewRoom() {
  */
 export function loadTopPage() {
   return import(/*
+    webpackPrefetch: true,
     webpackChunkName: "top-page"
   */ './pages/top-page');
 }
