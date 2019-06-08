@@ -33,6 +33,10 @@ export interface RoomDuringEndless {
    * Whether you have already joined the room.
    */
   joined: boolean;
+  /**
+   * Whether this room is blind mode.
+   */
+  blind: boolean;
 }
 /**
  * State of room after the end.

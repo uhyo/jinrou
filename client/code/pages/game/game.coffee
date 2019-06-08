@@ -333,6 +333,7 @@ exports.start=(roomid)->
                         {
                             type: 'endless'
                             joined: false
+                            blind: !!room.blind
                         }
                     else
                         null
