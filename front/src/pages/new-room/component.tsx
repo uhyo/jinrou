@@ -255,7 +255,7 @@ export const NewRoom: React.FunctionComponent<IPropNewRoom> = observer(
               type="number"
               size={10}
               defaultValue="30"
-              min="0"
+              min="5"
               ref={maxNumberInputRef}
             />
           </Controls>

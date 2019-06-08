@@ -22,6 +22,8 @@ error:
     invalidParameter: "パラメータが不正です。"
     # Cannot make a room because banned
     banned: "アクセス制限により、部屋を作成できません。"
+    # max player number is too small
+    maxNumberTooSmall: "村の最大人数が少なすぎます。"
 
   theme:
     # nonexistent theme
@@ -32,7 +34,7 @@ error:
     notLockable: "テーマの「{{name}}」はパスワードを使用できません。"
     # A room with theme must be blind.
     notBlind: "テーマを使用している部屋は覆面でなければなりません。"
-    # The number of players cannot be greater than the number of built-in skins of the theme. 
+    # The number of players cannot be greater than the number of built-in skins of the theme.
     playerTooMuch: "テーマの「{{name}}」の最大人数は「{{length}}」です。"
 
   join:
