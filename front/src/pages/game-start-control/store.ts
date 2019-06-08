@@ -118,7 +118,11 @@ export class CastingStore {
    */
   @computed
   public get requiredPlayersNumber(): number {
-    const { castingJobNumbers, categoryNumbers } = this;
+    const { castingJobNumbers, categoryNumbers, currentCasting } = this;
+    if (!currentCasting.roleSelect) {
+      // If current casting does not involve role selection, there is no required number of players.
+      return 0;
+    }
     let result = 0;
     for (const key in castingJobNumbers) {
       const v = castingJobNumbers[key];
