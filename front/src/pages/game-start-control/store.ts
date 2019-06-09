@@ -126,7 +126,7 @@ export class CastingStore {
     let result = 0;
     for (const key in castingJobNumbers) {
       const v = castingJobNumbers[key];
-      if (v) {
+      if (v && !(key === 'Human' && !currentCasting.noFill)) {
         result += v;
       }
     }
