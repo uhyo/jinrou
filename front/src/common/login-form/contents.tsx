@@ -1,10 +1,8 @@
 import { useI18n } from '../../i18n/react';
 import * as React from 'react';
-import {
-  FormTable,
-  FormInput,
-  FormErrorMessage,
-} from '../../dialog/components/parts';
+import { FormInput } from '../../dialog/components/parts';
+import { FormWrapper, Label } from './elements';
+import { useUniqueId } from '../../util/useUniqueId';
 
 interface Props {
   /**
@@ -23,27 +21,29 @@ interface Props {
  */
 export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
   const t = useI18n('common');
+  const nameInputId = useUniqueId();
+  const passwordInputId = useUniqueId();
   return (
-    <FormTable>
-      <tbody>
-        <tr>
-          <th>{t('loginForm.userid')}</th>
-          <td>
-            <FormInput ref={userIdRef} autoComplete="username" required />
-          </td>
-        </tr>
-        <tr>
-          <th>{t('loginForm.password')}</th>
-          <td>
-            <FormInput
-              ref={passwordRef}
-              type="password"
-              autoComplete="current-password"
-              required
-            />
-          </td>
-        </tr>
-      </tbody>
-    </FormTable>
+    <FormWrapper>
+      <Label htmlFor={nameInputId}>{t('loginForm.userid')}</Label>
+      <span>
+        <FormInput
+          ref={userIdRef}
+          id={nameInputId}
+          autoComplete="username"
+          required
+        />
+      </span>
+      <Label htmlFor={passwordInputId}>{t('loginForm.password')}</Label>
+      <span>
+        <FormInput
+          ref={passwordRef}
+          id={passwordInputId}
+          type="password"
+          autoComplete="current-password"
+          required
+        />
+      </span>
+    </FormWrapper>
   );
 };
