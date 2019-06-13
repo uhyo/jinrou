@@ -11,7 +11,7 @@ services:
       - "./config.docker/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro"
   redis:
     image: "redis:4"
-    container_name: redis
+    container_name: werewolf-redis
     restart: unless-stopped
   jinrou:
     build: ..
@@ -20,6 +20,7 @@ services:
       - "8800:8800"
     volumes:
       - "./config.docker:/jinrou/config"
+      - "../client/static/front-assets:/jinrou/client/static/front-assets"
     depends_on:
       - mongod
       - redis
