@@ -14,9 +14,16 @@ signup:
   title: "新規登録"
   description1: "まだ月下人狼のアカウントを持っていない方はこちらから新規登録できます。"
   description2: "新規登録はユーザーIDとパスワードを決めるだけで終わります。"
-  description3: "ユーザーIDには半角英数とアンダーバーを使用できます。"
   # submit button
   submit: "登録"
+  # notices
+  notice:
+    summaryOpen: "注意事項を閉じる"
+    summaryClosed: "注意事項を開く"
+    notice1: "ユーザーIDには半角英数とアンダーバーを使用できます。"
+    notice2: "ユーザーIDは一度決めたら変更できません。"
+    notice3: "マニュアルの{{link}}をご覧ください。"
+    manualLink: "禁止行為・注意事項"
 
 footer:
   # footer text.

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { i18n, I18nProvider } from '../../i18n';
+import { i18n, I18nProvider, I18nInterp } from '../../i18n';
 import { LoginHandler, SignupHandler } from './def';
 import { LoginFormContents, LoginFormFooter } from '../../common/login-form';
 import {
@@ -8,12 +8,14 @@ import {
   ErrorLine,
   ContentsWrapper,
   Footer,
+  NoticeUl,
 } from './elements';
 import { FontAwesomeIcon } from '../../util/icon';
 import { WideButton } from '../../common/button';
 import { PlainText } from '../../common/forms/plain-text';
 import { InlineWarning } from '../../common/warning';
 import { useRefs } from '../../util/useRefs';
+import { Details } from '../../common/forms/details';
 
 interface Props {
   i18n: i18n;
@@ -96,11 +98,30 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
             </h2>
             <PlainText>{i18n.t('top_client:signup.description1')}</PlainText>
             <PlainText>{i18n.t('top_client:signup.description2')}</PlainText>
-            <PlainText>{i18n.t('top_client:signup.description3')}</PlainText>
             <LoginFormContents
               userIdRef={signupFormUserIdRef}
               passwordRef={signupFormPasswordRef}
             />
+            <Details
+              summaryOpen={i18n.t('top_client:signup.notice.summaryOpen')}
+              summaryClosed={i18n.t('top_client:signup.notice.summaryClosed')}
+            >
+              <NoticeUl>
+                <li>{i18n.t('top_client:signup.notice.notice1')}</li>
+                <li>{i18n.t('top_client:signup.notice.notice2')}</li>
+                <li>
+                  <I18nInterp ns="top_client" k="signup.notice.notice3">
+                    {{
+                      link: (
+                        <a href="/manual/prohibited">
+                          {i18n.t('top_client:signup.notice.manualLink')}
+                        </a>
+                      ),
+                    }}
+                  </I18nInterp>
+                </li>
+              </NoticeUl>
+            </Details>
             <ErrorLine>
               <InlineWarning>{signupError}</InlineWarning>
             </ErrorLine>

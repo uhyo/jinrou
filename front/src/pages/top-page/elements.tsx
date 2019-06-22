@@ -1,7 +1,7 @@
 import styled from '../../util/styled';
 import { AppStyling } from '../../styles/phone';
 import { mediumBorderColor } from '../../common/color';
-import { pagePadding } from '../../common/style';
+import { pagePadding, formComponentsVerticalMergin } from '../../common/style';
 
 export const AppWrapper = styled(AppStyling)`
   padding: 0 ${pagePadding};
@@ -30,6 +30,15 @@ export const FormWrapper = styled.form`
   h2 {
     margin-top: 0;
   }
+`;
+
+/**
+ * UL for notice.
+ */
+export const NoticeUl = styled.ul`
+  margin: ${formComponentsVerticalMergin} 1em;
+  list-style-type: disc;
+  list-style-position: inside;
 `;
 
 /**
