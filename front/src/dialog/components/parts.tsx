@@ -6,7 +6,10 @@ import {
   noColor,
   noColorText,
 } from '../../common/color';
-import { smallTextSize } from '../../common/style';
+import {
+  smallTextSize,
+  formComponentsVerticalMergin,
+} from '../../common/style';
 
 const ButtonBase = styled.button`
   appearance: none;
@@ -42,7 +45,7 @@ export const NoButton = styled(ButtonBase)`
  * Table for use in dialog.
  */
 export const FormTable = styled.table`
-  margin: 5px auto;
+  margin: ${formComponentsVerticalMergin} auto;
 
   th,
   td {
@@ -55,7 +58,7 @@ export const FormTable = styled.table`
  * Wrapper of simple form component in form.
  */
 export const FormControlWrapper = styled.div`
-  margin: 5px auto;
+  margin: ${formComponentsVerticalMergin} auto;
   text-align: center;
 `;
 
@@ -63,7 +66,7 @@ export const FormControlWrapper = styled.div`
  * Wrapper of aside text in a dialog.
  */
 export const FormAsideText = styled.div`
-  margin: 5px 0;
+  margin: ${formComponentsVerticalMergin} 0;
 
   text-align: right;
   font-size: ${smallTextSize};
@@ -73,7 +76,7 @@ export const FormAsideText = styled.div`
  * Wrapper of error message in a dialog.
  */
 export const FormErrorMessage = styled.div`
-  margin: 5px 0;
+  margin: ${formComponentsVerticalMergin} 0;
 
   color: red;
   font-size: ${smallTextSize};
