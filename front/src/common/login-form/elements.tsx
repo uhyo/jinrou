@@ -1,5 +1,6 @@
 import styled from '../../util/styled';
 import { formComponentsVerticalMergin } from '../style';
+import { phone } from '../media';
 
 /**
  * @package
@@ -13,6 +14,14 @@ export const FormWrapper = styled.div`
     'passlabel passinput' 1fr / max-content max-content;
   gap: 2px;
   justify-content: center;
+
+  ${phone`
+    grid-template:
+      'namelabel' auto
+      'nameinput' 1fr
+      'passlabel' auto
+      'passinput' 1fr / max-content;
+  `};
 `;
 
 /**
