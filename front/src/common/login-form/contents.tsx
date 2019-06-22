@@ -1,7 +1,7 @@
 import { useI18n } from '../../i18n/react';
 import * as React from 'react';
 import { FormInput } from '../../dialog/components/parts';
-import { FormWrapper, Label } from './elements';
+import { FormWrapper, Label, LabelInner } from './elements';
 import { useUniqueId } from '../../util/useUniqueId';
 
 interface Props {
@@ -25,7 +25,9 @@ export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
   const passwordInputId = useUniqueId();
   return (
     <FormWrapper>
-      <Label htmlFor={nameInputId}>{t('loginForm.userid')}</Label>
+      <Label htmlFor={nameInputId}>
+        <LabelInner>{t('loginForm.userid')}</LabelInner>
+      </Label>
       <span>
         <FormInput
           ref={userIdRef}
@@ -34,7 +36,9 @@ export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
           required
         />
       </span>
-      <Label htmlFor={passwordInputId}>{t('loginForm.password')}</Label>
+      <Label htmlFor={passwordInputId}>
+        <LabelInner>{t('loginForm.password')}</LabelInner>
+      </Label>
       <span>
         <FormInput
           ref={passwordRef}

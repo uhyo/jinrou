@@ -19,5 +19,14 @@ export const FormWrapper = styled.div`
  * @package
  */
 export const Label = styled.label`
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+`;
+
+/**
+ * @package
+ */
+export const LabelInner = styled.span`
   font-weight: bold;
 `;
