@@ -22,7 +22,7 @@ signup:
     summaryClosed: "注意事項を開く"
     notice1: "ユーザーIDには半角英数とアンダーバーを使用できます。"
     notice2: "ユーザーIDは一度決めたら変更できません。"
-    notice3: "マニュアルの{{link}}をご覧ください。"
+    notice3: "マニュアルの{{link}}もご覧ください。"
     manualLink: "禁止行為・注意事項"
 
 footer:

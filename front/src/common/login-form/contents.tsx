@@ -13,13 +13,21 @@ interface Props {
    * ref to password input
    */
   passwordRef?: React.RefObject<HTMLInputElement>;
+  /**
+   * Whether this is for signup form.
+   */
+  signup?: boolean;
 }
 
 /**
  * Show the main contents of login form.
  * @internal
  */
-export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
+export const LoginFormContents = ({
+  userIdRef,
+  passwordRef,
+  signup,
+}: Props) => {
   const t = useI18n('common');
   const nameInputId = useUniqueId();
   const passwordInputId = useUniqueId();
@@ -44,7 +52,7 @@ export const LoginFormContents = ({ userIdRef, passwordRef }: Props) => {
           ref={passwordRef}
           id={passwordInputId}
           type="password"
-          autoComplete="current-password"
+          autoComplete={signup ? 'new-password' : 'current-password'}
           required
         />
       </span>
