@@ -9520,6 +9520,12 @@ class Poet extends Player
         else
             return true
 
+class Amanojaku extends Player
+    type:"Amanojaku"
+    team:""
+    isWinner:(game, team)->
+        team != "Human"
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11215,6 +11221,7 @@ jobs=
     VampireClan:VampireClan
     Elementaler:Elementaler
     Poet:Poet
+    Amanojaku:Amanojaku
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11389,6 +11396,7 @@ jobStrength=
     VampireClan:20
     Elementaler:23
     Poet:11
+    Amanojaku:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

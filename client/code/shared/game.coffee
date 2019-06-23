@@ -56,7 +56,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人狼HOUSE
 "Hypnotist",
 # 人狼ジャッジメント
-"BlackCat",
+"BlackCat","Amanojaku",
 # 人狼 SUPER DX（幻冬舎）
 "Illusionist",
 # 魔法都市の人狼
@@ -87,7 +87,7 @@ exports.teams=teams=
     Cult:["CultLeader"]
     Raven:["Raven"]
     Hooligan:["Hooligan", "HooliganAttacker"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -99,7 +99,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","Raven","VampireClan","Hooligan","Bat","Tanner","Hoodlum","Shishimai"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","Raven","VampireClan","Hooligan","Bat","Tanner","Hoodlum","Shishimai","Amanojaku"]
     Switching:["Stalker","Copier","Doppleganger","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:["Neet"]
@@ -934,6 +934,8 @@ exports.jobinfo=
             color:"#eeeeee"
         Shishimai:
             color:"#2c8c3e"
+        Amanojaku:
+            color:"#b09ca8"
     Neet:
         color:"#aaaaaa"
         Neet:
