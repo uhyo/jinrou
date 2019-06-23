@@ -1,6 +1,7 @@
 libreport = require '../libs/report.coffee'
 
 exports.actions=(req,res,ss)->
+    req.use 'session'
     # 外部URLを教えてあげる
     backdoor:(name)->
         res Config.backdoor[name]
