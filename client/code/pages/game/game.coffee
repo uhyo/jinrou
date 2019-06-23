@@ -110,6 +110,7 @@ exports.start=(roomid)->
                             }
                 onReportFormSubmit:(query)->
                     query.room = roomid
+                    query.userAgent = navigator.userAgent
                     ss.rpc "app.reportForm", query, (result)->
                         console.log result
                 roomControlHandlers:

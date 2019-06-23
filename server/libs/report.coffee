@@ -21,6 +21,7 @@ exports.addReport = (query, userId)->
         userId: userId
         kind: query.kind
         content: query.content
+        userAgent: query.userAgent
         url: Config.application.url + "room/#{query.room}"
     })
     if reportQueue.length == 1
@@ -39,6 +40,10 @@ validate = (query)->
         return false
     unless "number" == typeof query.room
         return false
+    unless "string" == typeof query.userAgent
+        return false
+    unless 0 < query.userAgent.length <= Config.maxlength.game.comment
+        return false
     return true
 
 runQueue = ->
@@ -47,6 +52,7 @@ runQueue = ->
 
     mailer.sendRawMail Config.reportForm.mail, Config.reportForm.mailSubject, """
 userId: #{query.userId ? "?"}
+userAgent: #{query.userAgent}
 kind: #{query.kind}
 url: #{query.url}
 

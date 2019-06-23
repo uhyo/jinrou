@@ -144,8 +144,6 @@ export class Game extends React.Component<IPropGame, {}> {
       logPickup,
       speakFocus,
     } = store;
-    // TODO: use reportForm
-
     const styleMode = styleModeOf(roleInfo, gameInfo);
     const theme = this.makeTheme(themeStore.themeObject, teamColors);
 
