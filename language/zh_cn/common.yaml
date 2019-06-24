@@ -1,6 +1,0 @@
-# Common language fragments.
-error:
-  # You need to log in.
-  needLogin: "请先登陆。"
-  # Input is invalid.
-  invalidInput: "输入的内容无效。"

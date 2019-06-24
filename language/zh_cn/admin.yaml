@@ -1,7 +1,0 @@
-error:
-  # You are not an administrator
-  notAdmin: "不是管理员。"
-  # This feature is unavailable.
-  unavailable: "此功能现在禁止使用。"
-  # Masster password is incorrect.
-  wrongPassword: "管理员密码错误。"
