@@ -16,6 +16,8 @@ module.exports=
     admin:require '/admin'
     logs:require '/logs'
     reset:require '/reset'
+    tutorial:
+        game: require '/tutorial/game'
     pages:
         casting:require '/pages/casting'
         castlist:require '/pages/castlist'
