@@ -36,20 +36,23 @@ export const GameTutorial: React.FunctionComponent<IPropGameTutorial> = ({
     newRoom: noop,
   };
   return (
-    <Game
-      i18n={i18n}
-      roomid={0}
-      store={store.innerStore}
-      categories={emptyArray}
-      ruleDefs={emptyArray}
-      reportForm={reportForm}
-      teamColors={teamColors}
-      roomControlHandlers={roomControlHandlers}
-      onJobQuery={noop}
-      onSpeak={noop}
-      onReportFormSubmit={noop}
-      onRefuseRevival={noop}
-      onWillChange={noop}
-    />
+    <>
+      <h1>{i18n.t('tutorial_game:room.title')}</h1>
+      <Game
+        i18n={i18n}
+        roomid={0}
+        store={store.innerStore}
+        categories={emptyArray}
+        ruleDefs={emptyArray}
+        reportForm={reportForm}
+        teamColors={teamColors}
+        roomControlHandlers={roomControlHandlers}
+        onJobQuery={noop}
+        onSpeak={noop}
+        onReportFormSubmit={noop}
+        onRefuseRevival={noop}
+        onWillChange={noop}
+      />
+    </>
   );
 };

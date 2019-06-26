@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { i18n } from '../../i18n';
+import { i18n, addResource } from '../../i18n';
 import { GameTutorial } from './component';
 import { GameTutorialStore } from './store';
 
@@ -24,8 +24,16 @@ export interface IPlaceResult {
   unmount(): void;
 }
 
-export function place({ i18n, node, teamColors }: IPlaceOptions): IPlaceResult {
-  const store = new GameTutorialStore();
+export async function place({
+  i18n,
+  node,
+  teamColors,
+}: IPlaceOptions): Promise<IPlaceResult> {
+  await Promise.all([
+    addResource('tutorial_game', i18n),
+    addResource('roles', i18n),
+  ]);
+  const store = new GameTutorialStore(i18n);
   const com = (
     <GameTutorial i18n={i18n} store={store} teamColors={teamColors} />
   );

@@ -5,12 +5,14 @@ exports.start = (roomid)->
     pi18n = app.getI18n()
     papp = JinrouFront.loadGameTutorial()
 
-    Promise.all([pi18n, papp]).then ([i18n, japp])->
-        tutorial_view = japp.place {
+    Promise.all([pi18n, papp]).then(([i18n, japp])->
+        japp.place {
             i18n: i18n
             node: $("#tutorial-game-app").get 0
             teamColors: []
-        }
+        })
+    .then (v)->
+        tutorial_view = v
 
 exports.end = ->
     tutorial_view?.unmount()
