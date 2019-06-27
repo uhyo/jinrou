@@ -1,3 +1,19 @@
 # metadata of tutorial room
 room:
   title: "練習部屋"
+
+# common data
+common:
+  # guide NPC
+  guide:
+    name: "身代わりくん"
+  messageDialog:
+    title: "練習部屋"
+    ok: "次へ"
+
+# phase 0: initialState
+phase0:
+  stepMessage: "練習部屋にようこそ！　この部屋は操作の練習用のための部屋です。他の人には見えません。まずは発言してみましょう。"
+
+
+

@@ -40,6 +40,8 @@ export async function place({
 
   ReactDOM.render(com, node);
 
+  store.normalStep();
+
   return {
     store,
     unmount: () => {

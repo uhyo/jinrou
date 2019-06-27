@@ -4,6 +4,7 @@ import { Game } from '../game-view/component';
 import { i18n } from '../../i18n';
 import { RoomControlHandlers } from '../../defs';
 import { observer } from 'mobx-react-lite';
+import { StoryInputInterface } from './story/defs';
 
 const reportForm = {
   enable: false,
@@ -24,13 +25,24 @@ export const GameTutorial: React.FunctionComponent<
 
   const story = store.story;
   const roomControlHandlers: RoomControlHandlers = {
-    ...story.roomHedaerInput,
     openGameStart: noop,
     kick: noop,
     kickRemove: noop,
     resetReady: noop,
     discard: noop,
     newRoom: noop,
+    join: noop,
+    unjoin: noop,
+    ready: noop,
+    helper: noop,
+    ...story.roomHedaerInput,
+  };
+  const gameInput: StoryInputInterface = {
+    onSpeak: noop,
+    onRefuseRevival: noop,
+    onJobQuery: noop,
+    onWillChange: noop,
+    ...story.gameInput,
   };
   return (
     <>
@@ -44,7 +56,7 @@ export const GameTutorial: React.FunctionComponent<
         reportForm={reportForm}
         teamColors={teamColors}
         roomControlHandlers={roomControlHandlers}
-        {...story.gameInput}
+        {...gameInput}
         onReportFormSubmit={noop}
       />
     </>

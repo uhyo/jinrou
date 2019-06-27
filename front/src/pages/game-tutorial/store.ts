@@ -1,14 +1,28 @@
 import { GameStore } from '../game-view';
-import { i18n } from '../../i18n';
+import { i18n, TranslationFunction } from '../../i18n';
 import { computed } from 'mobx';
 import {
   StoryInputInterface,
   StoryInputRoomHeaderInterface,
 } from './story/defs';
+import { InteractiveDriver } from './story/driver';
+import { phases } from './story/phases';
 
 export class GameTutorialStore {
-  innerStore: GameStore = new GameStore();
+  public innerStore: GameStore = new GameStore();
+  public phase = 0;
+  private t: TranslationFunction;
+  private interactiveDriver: InteractiveDriver;
   constructor(private i18n: i18n) {
+    this.t = i18n.getFixedT(i18n.language, 'tutorial_game');
+    this.interactiveDriver = new InteractiveDriver(this.t);
+    this.innerStore.gameInfo = {
+      day: 0,
+      night: false,
+      finished: false,
+      status: 'waiting',
+      watchspeak: true,
+    };
     this.innerStore.roomControls = {
       type: 'prelude',
       owner: false,
@@ -19,25 +33,33 @@ export class GameTutorialStore {
     };
   }
 
+  public step = async (skip: boolean) => {
+    const driver = this.interactiveDriver;
+    const phase = phases[this.phase];
+    if (phase == null) {
+      // ???
+      return;
+    }
+    await phase.step(driver);
+  };
+  public normalStep = () => this.step(false);
+  public skipStep = () => this.step(true);
+
   @computed
   get story(): {
-    gameInput: StoryInputInterface;
-    roomHedaerInput: StoryInputRoomHeaderInterface;
+    gameInput: Partial<StoryInputInterface>;
+    roomHedaerInput: Partial<StoryInputRoomHeaderInterface>;
   } {
     const noop = () => {};
+    switch (this.phase) {
+      case 0: {
+        // First phase:
+        break;
+      }
+    }
     return {
-      gameInput: {
-        onJobQuery: noop,
-        onRefuseRevival: noop,
-        onSpeak: noop,
-        onWillChange: noop,
-      },
-      roomHedaerInput: {
-        join: noop,
-        unjoin: noop,
-        ready: noop,
-        helper: noop,
-      },
+      gameInput: {},
+      roomHedaerInput: {},
     };
   }
 }
