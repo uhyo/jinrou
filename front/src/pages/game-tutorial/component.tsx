@@ -3,6 +3,7 @@ import { GameTutorialStore } from './store';
 import { Game } from '../game-view/component';
 import { i18n } from '../../i18n';
 import { RoomControlHandlers } from '../../defs';
+import { observer } from 'mobx-react-lite';
 
 const reportForm = {
   enable: false,
@@ -15,19 +16,15 @@ export interface IPropGameTutorial {
   store: GameTutorialStore;
   teamColors: Record<string, string | undefined>;
 }
-export const GameTutorial: React.FunctionComponent<IPropGameTutorial> = ({
-  i18n,
-  store,
-  teamColors,
-}) => {
+export const GameTutorial: React.FunctionComponent<
+  IPropGameTutorial
+> = observer(({ i18n, store, teamColors }) => {
   const emptyArray = React.useMemo(() => [], []);
   const noop = React.useCallback(() => {}, []);
 
+  const story = store.story;
   const roomControlHandlers: RoomControlHandlers = {
-    join: noop,
-    unjoin: noop,
-    ready: noop,
-    helper: noop,
+    ...story.roomHedaerInput,
     openGameStart: noop,
     kick: noop,
     kickRemove: noop,
@@ -37,7 +34,7 @@ export const GameTutorial: React.FunctionComponent<IPropGameTutorial> = ({
   };
   return (
     <>
-      <h1>{i18n.t('tutorial_game:room.title')}</h1>
+      <h1 id="roomname">{i18n.t('tutorial_game:room.title')}</h1>
       <Game
         i18n={i18n}
         roomid={0}
@@ -47,12 +44,9 @@ export const GameTutorial: React.FunctionComponent<IPropGameTutorial> = ({
         reportForm={reportForm}
         teamColors={teamColors}
         roomControlHandlers={roomControlHandlers}
-        onJobQuery={noop}
-        onSpeak={noop}
+        {...story.gameInput}
         onReportFormSubmit={noop}
-        onRefuseRevival={noop}
-        onWillChange={noop}
       />
     </>
   );
-};
+});
