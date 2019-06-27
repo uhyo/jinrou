@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { i18n, addResource } from '../../i18n';
 import { GameTutorial } from './component';
 import { GameTutorialStore } from './store';
+import { UserInfo } from './defs';
 
 export interface IPlaceOptions {
   /**
@@ -17,6 +18,10 @@ export interface IPlaceOptions {
    * Color of teams.
    */
   teamColors: Record<string, string | undefined>;
+  /**
+   * Get user profile.
+   */
+  getUserProfile: () => Promise<UserInfo>;
 }
 
 export interface IPlaceResult {
@@ -28,12 +33,15 @@ export async function place({
   i18n,
   node,
   teamColors,
+  getUserProfile,
 }: IPlaceOptions): Promise<IPlaceResult> {
-  await Promise.all([
+  const [, , userInfo] = await Promise.all([
     addResource('tutorial_game', i18n),
     addResource('roles', i18n),
+    getUserProfile(),
   ]);
-  const store = new GameTutorialStore(i18n);
+
+  const store = new GameTutorialStore(userInfo, i18n);
   const com = (
     <GameTutorial i18n={i18n} store={store} teamColors={teamColors} />
   );

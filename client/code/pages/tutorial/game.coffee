@@ -10,6 +10,10 @@ exports.start = (roomid)->
             i18n: i18n
             node: $("#tutorial-game-app").get 0
             teamColors: []
+            getUserProfile:->
+                new Promise (resolve)->
+                    ss.rpc "user.myProfile", (res)->
+                        resolve res
         })
     .then (v)->
         tutorial_view = v

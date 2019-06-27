@@ -1,21 +1,24 @@
 import { GameStore } from '../game-view';
 import { i18n, TranslationFunction } from '../../i18n';
-import { computed } from 'mobx';
+import { computed, observable, action } from 'mobx';
 import {
   StoryInputInterface,
   StoryInputRoomHeaderInterface,
 } from './story/defs';
 import { InteractiveDriver } from './story/driver';
 import { phases } from './story/phases';
+import { UserInfo } from './defs';
 
 export class GameTutorialStore {
   public innerStore: GameStore = new GameStore();
+  @observable
   public phase = 0;
   private t: TranslationFunction;
   private interactiveDriver: InteractiveDriver;
-  constructor(private i18n: i18n) {
+  constructor(public userInfo: UserInfo, private i18n: i18n) {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game');
     this.interactiveDriver = new InteractiveDriver(this.t);
+    // initialize state of the room
     this.innerStore.gameInfo = {
       day: 0,
       night: false,
@@ -31,6 +34,17 @@ export class GameTutorialStore {
       blind: false,
       theme: false,
     };
+    this.innerStore.addPlayer({
+      id: '身代わりくん',
+      realid: '身代わりくん',
+      name: this.t('common.guide.name'),
+      anonymous: false,
+      dead: false,
+      icon: null,
+      winner: null,
+      jobname: null,
+      flags: [],
+    });
   }
 
   public step = async (skip: boolean) => {
@@ -40,26 +54,28 @@ export class GameTutorialStore {
       // ???
       return;
     }
-    await phase.step(driver);
+    const next = await phase.step(driver);
+    if (next != null) {
+      this.setPhase(next);
+    }
   };
   public normalStep = () => this.step(false);
   public skipStep = () => this.step(true);
 
+  @action
+  public setPhase(phase: number) {
+    this.phase = phase;
+  }
+
   @computed
   get story(): {
-    gameInput: Partial<StoryInputInterface>;
-    roomHedaerInput: Partial<StoryInputRoomHeaderInterface>;
+    gameInput?: Partial<StoryInputInterface>;
+    roomHedaerInput?: Partial<StoryInputRoomHeaderInterface>;
   } {
-    const noop = () => {};
-    switch (this.phase) {
-      case 0: {
-        // First phase:
-        break;
-      }
+    const phase = phases[this.phase];
+    if (phase == null) {
+      return {};
     }
-    return {
-      gameInput: {},
-      roomHedaerInput: {},
-    };
+    return phase.getStory();
   }
 }

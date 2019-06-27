@@ -3,6 +3,7 @@ import { Game } from '../../game-view/component';
 import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
 import { i18n, TranslationFunction } from '../../../i18n';
+import { GameTutorialStore } from '../store';
 
 /**
  * Input to the story.
@@ -36,5 +37,9 @@ export interface Driver {
  * Definition of phase object.
  */
 export interface Phase {
-  step(driver: Driver): Promise<void>;
+  step(driver: Driver): Promise<number | void>;
+  getStory(): {
+    gameInput?: Partial<StoryInputInterface>;
+    roomHedaerInput?: Partial<StoryInputRoomHeaderInterface>;
+  };
 }
