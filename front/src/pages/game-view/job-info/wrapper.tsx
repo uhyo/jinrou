@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as Color from 'color';
+import Color from 'color';
 import { WrapperElement, WrapperHeader, Content } from './elements';
 import { Theme } from '../../../theme';
 import { withTheme } from '../../../util/styled';

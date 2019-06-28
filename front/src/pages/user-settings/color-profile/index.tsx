@@ -19,7 +19,7 @@ import {
   useProfileLogic,
   newProfileLogic,
 } from '../logic';
-import { ColorResult } from './color-box';
+import { ColorState } from './color-box';
 import { OneProfile } from './one-profile';
 import { observerify } from '../../../util/mobx-react';
 import { withTranslationFunction } from '../../../i18n/react';
@@ -45,13 +45,13 @@ const addProps = withPropsOnChange(
     }),
     onColorChange: arrayMapToObject<
       ColorName,
-      Record<ColorName, (type: 'color' | 'bg', color: ColorResult) => void>
+      Record<ColorName, (type: 'color' | 'bg', color: ColorState) => void>
     >(colorNames, colorName => (type: 'color' | 'bg', color) => {
       colorChangeLogic(store, colorName, type, color);
     }),
     onColorChangeComplete: arrayMapToObject<
       ColorName,
-      Record<ColorName, (type: 'color' | 'bg', color: ColorResult) => void>
+      Record<ColorName, (type: 'color' | 'bg', color: ColorState) => void>
     >(colorNames, colorName => (type: 'color' | 'bg', color) => {
       colorChangeCompleteLogic(store, colorName, type, color);
     }),
@@ -80,11 +80,11 @@ interface IPropColorProfileDispInner {
   onFocus: Record<ColorName, (type: 'color' | 'bg') => void>;
   onColorChange: Record<
     ColorName,
-    (type: 'color' | 'bg', color: ColorResult) => void
+    (type: 'color' | 'bg', color: ColorState) => void
   >;
   onColorChangeComplete: Record<
     ColorName,
-    (type: 'color' | 'bg', color: ColorResult) => void
+    (type: 'color' | 'bg', color: ColorState) => void
   >;
   onEdit: (profile: ColorProfileData) => void;
   onDelete: (profile: ColorProfileData) => void;

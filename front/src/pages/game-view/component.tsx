@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from '../../util/styled';
 import { Transition } from 'react-transition-group';
-import * as Swipeable from 'react-swipeable';
+import Swipeable from 'react-swipeable';
 
 import { ThemeProvider } from '../../util/styled';
 import { observer } from 'mobx-react';
