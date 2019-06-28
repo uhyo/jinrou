@@ -43,7 +43,9 @@ export interface Driver {
  */
 export interface Phase {
   step(driver: Driver): Promise<number | void>;
-  getStory(): {
+  getStory(
+    driver: Driver,
+  ): {
     gameInput?: Partial<StoryInputInterface>;
     roomHedaerInput?: Partial<StoryInputRoomHeaderInterface>;
   };

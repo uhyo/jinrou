@@ -32,6 +32,7 @@ export class InteractiveDriver implements Driver {
       const log = {
         mode,
         comment: query.comment,
+        name: store.userInfo.name,
         size: query.size || undefined,
         userid: store.userInfo.userid,
         time: Date.now(),

@@ -16,10 +16,10 @@ export const phases: Partial<Record<number, Phase>> = {
   1: {
     // Phase 1: speak as audience
     async step(driver) {},
-    getStory() {
+    getStory(driver) {
       return {
         gameInput: {
-          // TODO
+          onSpeak: driver.getSpeakHandler(),
         },
       };
     },

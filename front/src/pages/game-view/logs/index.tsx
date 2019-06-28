@@ -13,6 +13,7 @@ import {
   PendingLogMessage,
 } from './elements';
 import { LogsRenderingState } from './store';
+import { toJS } from 'mobx';
 
 export interface IPropLogs {
   /**

@@ -45,6 +45,7 @@ export class GameTutorialStore {
       jobname: null,
       flags: [],
     });
+    this.innerStore.logs.initializeLogs([]);
   }
 
   public step = async (skip: boolean) => {
@@ -76,7 +77,7 @@ export class GameTutorialStore {
     if (phase == null) {
       return {};
     }
-    return phase.getStory();
+    return phase.getStory(this.interactiveDriver);
   }
 
   @computed
