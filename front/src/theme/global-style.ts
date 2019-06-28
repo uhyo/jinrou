@@ -1,4 +1,4 @@
-import * as Color from 'color';
+import Color from 'color';
 
 import { GameInfo, RoleInfo } from '../pages/game-view/defs';
 import { GlobalStyleTheme, UserTheme } from './theme';

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { withHandlers } from 'recompose';
 import { OneColor } from '../../../defs';
-import { ColorBox, ColorResult } from './color-box';
+import { ColorBox, ColorState } from './color-box';
 import { SampleTextWrapper } from './elements';
 import { observerify } from '../../../util/mobx-react';
 import { TranslationFunction } from '../../../i18n';
@@ -31,11 +31,11 @@ export interface IPropOneColorDisp {
   /**
    * Callback for changing color.
    */
-  onColorChange(type: 'color' | 'bg', color: ColorResult): void;
+  onColorChange(type: 'color' | 'bg', color: ColorState): void;
   /**
    * Callback for color is fixed.
    */
-  onColorChangeComplete(type: 'color' | 'bg', color: ColorResult): void;
+  onColorChangeComplete(type: 'color' | 'bg', color: ColorState): void;
 }
 
 const handlersComposer = withHandlers({
@@ -45,16 +45,16 @@ const handlersComposer = withHandlers({
   onBgFocus: (props: IPropOneColorDisp) => () => {
     props.onFocus('bg');
   },
-  onFgChange: (props: IPropOneColorDisp) => (color: ColorResult) => {
+  onFgChange: (props: IPropOneColorDisp) => (color: ColorState) => {
     props.onColorChange('color', color);
   },
-  onBgChange: (props: IPropOneColorDisp) => (color: ColorResult) => {
+  onBgChange: (props: IPropOneColorDisp) => (color: ColorState) => {
     props.onColorChange('bg', color);
   },
-  onFgChangeComplete: (props: IPropOneColorDisp) => (color: ColorResult) => {
+  onFgChangeComplete: (props: IPropOneColorDisp) => (color: ColorState) => {
     props.onColorChangeComplete('color', color);
   },
-  onBgChangeComplete: (props: IPropOneColorDisp) => (color: ColorResult) => {
+  onBgChangeComplete: (props: IPropOneColorDisp) => (color: ColorState) => {
     props.onColorChangeComplete('bg', color);
   },
 });

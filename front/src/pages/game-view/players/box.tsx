@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import * as Color from 'color';
+import Color from 'color';
 import { PlayerInfo } from '../defs';
 import styled from '../../../util/styled';
 import { Icon } from './icon';

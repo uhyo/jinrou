@@ -1,9 +1,9 @@
 import * as React from 'react';
-import * as Color from 'color';
-import { ChromePicker, ColorResult } from 'react-color';
+import Color from 'color';
+import { ChromePicker, ColorState } from 'react-color';
 import styled from '../../../util/styled';
 
-export { ColorResult };
+export { ColorState };
 /**
  * Box of color.
  */
@@ -28,11 +28,11 @@ export class ColorBox extends React.PureComponent<
     /**
      * Callback for real-time color update.
      */
-    onColorChange(color: ColorResult): void;
+    onColorChange(color: ColorState): void;
     /**
      * Callback for final color update.
      */
-    onColorChangeComplete(color: ColorResult): void;
+    onColorChangeComplete(color: ColorState): void;
   },
   {}
 > {

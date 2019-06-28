@@ -1,5 +1,5 @@
 import { UserSettingsStore } from '../store';
-import { ColorResult } from '../color-profile/color-box';
+import { ColorState } from '../color-profile/color-box';
 import { UserSettingDatabase, ColorDocWithoutId, ColorDoc } from './indexeddb';
 import { showPromptDialog, showConfirmDialog } from '../../../dialog';
 import { deepClone } from '../../../util/deep-clone';
@@ -102,7 +102,7 @@ export function colorChangeLogic(
   store: UserSettingsStore,
   colorName: ColorName,
   type: 'color' | 'bg',
-  color: ColorResult,
+  color: ColorState,
 ): void {
   store.updateCurrentColor(colorName, type, color.hex);
 }
@@ -114,7 +114,7 @@ export async function colorChangeCompleteLogic(
   store: UserSettingsStore,
   colorName: ColorName,
   type: 'color' | 'bg',
-  color: ColorResult,
+  color: ColorState,
 ): Promise<void> {
   // update profile with current data.
   colorChangeLogic(store, colorName, type, color);

@@ -4,6 +4,7 @@ import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
 import { i18n, TranslationFunction } from '../../../i18n';
 import { GameTutorialStore } from '../store';
+import { SpeakQuery } from '../../game-view/defs';
 
 /**
  * Input to the story.
@@ -31,6 +32,10 @@ export interface Driver {
    * Show a message dialog to user.
    */
   messageDialog(d: DriverMessageDialog): Promise<void>;
+  /**
+   * Get a handler of speak.
+   */
+  getSpeakHandler(): (query: SpeakQuery) => void;
 }
 
 /**

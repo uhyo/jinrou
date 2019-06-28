@@ -17,7 +17,7 @@ export class GameTutorialStore {
   private interactiveDriver: InteractiveDriver;
   constructor(public userInfo: UserInfo, private i18n: i18n) {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game');
-    this.interactiveDriver = new InteractiveDriver(this.t);
+    this.interactiveDriver = new InteractiveDriver(this.t, this);
     // initialize state of the room
     this.innerStore.gameInfo = {
       day: 0,
@@ -77,5 +77,14 @@ export class GameTutorialStore {
       return {};
     }
     return phase.getStory();
+  }
+
+  @computed
+  get isUserInRoom(): boolean {
+    return (
+      this.innerStore.players.find(
+        player => player.realid === this.userInfo.userid,
+      ) != null
+    );
   }
 }
