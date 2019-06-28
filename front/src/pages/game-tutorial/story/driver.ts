@@ -2,14 +2,27 @@ import { showMessageDialog } from '../../../dialog';
 import { TranslationFunction } from '../../../i18n';
 import { Driver, DriverMessageDialog } from './defs';
 import { GameTutorialStore } from '../store';
-import { SpeakQuery } from '../../game-view/defs';
+import { SpeakQuery, Log, NormalLog } from '../../game-view/defs';
 
-export class InteractiveDriver implements Driver {
+class DriverBase {
   constructor(
     public t: TranslationFunction,
-    private store: GameTutorialStore,
+    protected store: GameTutorialStore,
   ) {}
 
+  protected addLog(
+    query: Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
+  ) {
+    const log = {
+      ...query,
+      time: Date.now(),
+      to: null,
+    } as const;
+    this.store.innerStore.addLog(log);
+  }
+}
+
+export class InteractiveDriver extends DriverBase implements Driver {
   public messageDialog(d: DriverMessageDialog) {
     return showMessageDialog({
       modal: true,
@@ -29,16 +42,13 @@ export class InteractiveDriver implements Driver {
         finished: 'prepare',
       } as const)[innerStore.gameInfo.status];
 
-      const log = {
+      this.addLog({
         mode,
         comment: query.comment,
         name: store.userInfo.name,
         size: query.size || undefined,
         userid: store.userInfo.userid,
-        time: Date.now(),
-        to: null,
-      } as const;
-      this.store.innerStore.addLog(log);
+      });
     };
   }
 }
