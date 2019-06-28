@@ -23,6 +23,12 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('guide.name'),
         comment: driver.t('phase1.stepMessage1'),
       });
+      await driver.sleep(3000);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase1.stepMessage2'),
+      });
     },
     getStory(driver) {
       return {
