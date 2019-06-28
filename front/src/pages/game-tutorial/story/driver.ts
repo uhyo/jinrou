@@ -2,7 +2,7 @@ import { showMessageDialog } from '../../../dialog';
 import { TranslationFunction } from '../../../i18n';
 import { Driver, DriverMessageDialog } from './defs';
 import { GameTutorialStore } from '../store';
-import { SpeakQuery, Log, NormalLog } from '../../game-view/defs';
+import { SpeakQuery } from '../../game-view/defs';
 
 class DriverBase {
   constructor(
@@ -10,19 +10,26 @@ class DriverBase {
     protected store: GameTutorialStore,
   ) {}
 
-  protected addLog(
-    query: Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
-  ) {
+  public addLog: Driver['addLog'] = query => {
     const log = {
+      userid: '',
       ...query,
       time: Date.now(),
       to: null,
     } as const;
     this.store.innerStore.addLog(log);
-  }
+  };
 }
 
 export class InteractiveDriver extends DriverBase implements Driver {
+  get step() {
+    return this.store.step;
+  }
+  public sleep: Driver['sleep'] = duration => {
+    return new Promise(resolve => {
+      setTimeout(resolve, duration);
+    });
+  };
   public messageDialog(d: DriverMessageDialog) {
     return showMessageDialog({
       modal: true,

@@ -13,6 +13,7 @@ export class GameTutorialStore {
   public innerStore: GameStore = new GameStore();
   @observable
   public phase = 0;
+  public skipMode = false;
   private t: TranslationFunction;
   private interactiveDriver: InteractiveDriver;
   constructor(public userInfo: UserInfo, private i18n: i18n) {
@@ -37,7 +38,7 @@ export class GameTutorialStore {
     this.innerStore.addPlayer({
       id: '身代わりくん',
       realid: '身代わりくん',
-      name: this.t('common.guide.name'),
+      name: this.t('guide.name'),
       anonymous: false,
       dead: false,
       icon: null,
@@ -48,7 +49,7 @@ export class GameTutorialStore {
     this.innerStore.logs.initializeLogs([]);
   }
 
-  public step = async (skip: boolean) => {
+  public step = async () => {
     const driver = this.interactiveDriver;
     const phase = phases[this.phase];
     if (phase == null) {
@@ -60,8 +61,6 @@ export class GameTutorialStore {
       this.setPhase(next);
     }
   };
-  public normalStep = () => this.step(false);
-  public skipStep = () => this.step(true);
 
   @action
   public setPhase(phase: number) {

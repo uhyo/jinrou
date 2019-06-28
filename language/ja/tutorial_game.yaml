@@ -2,11 +2,12 @@
 room:
   title: "練習部屋"
 
+# guide NPC
+guide:
+  name: "身代わりくん"
+
 # common data
 common:
-  # guide NPC
-  guide:
-    name: "身代わりくん"
   messageDialog:
     title: "練習部屋"
     ok: "次へ"
@@ -16,4 +17,11 @@ phase0:
   stepMessage: "練習部屋にようこそ！　この部屋は操作の練習用のための部屋です。他の人には見えません。まずは発言してみましょう。"
 
 
+# phase 1: speak as audience
+phase1:
+  # message by guide after speaking as audience
+  stepMessage1: |
+    よくできました！　このように、観戦者でも発言ができます（観戦者発言禁止の村を除く）。
+
+    私は練習部屋の案内役を務める身代わりくんです。よろしくお願いします。
 

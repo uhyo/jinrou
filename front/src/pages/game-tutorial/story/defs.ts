@@ -4,7 +4,7 @@ import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
 import { i18n, TranslationFunction } from '../../../i18n';
 import { GameTutorialStore } from '../store';
-import { SpeakQuery } from '../../game-view/defs';
+import { SpeakQuery, NormalLog } from '../../game-view/defs';
 
 /**
  * Input to the story.
@@ -26,12 +26,26 @@ export type DriverMessageDialog = PartiallyPartial<
   IMessageDialog,
   'modal' | 'ok' | 'title'
 >;
+export type DriverAddLogQuery = PartiallyPartial<
+  Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
+  'userid'
+>;
+
 export interface Driver {
   t: TranslationFunction;
+  step: () => unknown;
+  /**
+   * Sleep for given duration (in ms)
+   */
+  sleep(duration: number): Promise<void>;
   /**
    * Show a message dialog to user.
    */
   messageDialog(d: DriverMessageDialog): Promise<void>;
+  /**
+   * Add a log.
+   */
+  addLog(query: DriverAddLogQuery): void;
   /**
    * Get a handler of speak.
    */

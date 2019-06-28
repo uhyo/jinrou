@@ -48,7 +48,7 @@ export async function place({
 
   ReactDOM.render(com, node);
 
-  store.normalStep();
+  store.step();
 
   return {
     store,

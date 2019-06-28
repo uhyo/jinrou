@@ -1,4 +1,5 @@
 import { Phase } from './defs';
+import { inSequence } from '../../../util/function-composer';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -15,11 +16,19 @@ export const phases: Partial<Record<number, Phase>> = {
   },
   1: {
     // Phase 1: speak as audience
-    async step(driver) {},
+    async step(driver) {
+      await driver.sleep(1000);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase1.stepMessage1'),
+      });
+    },
     getStory(driver) {
       return {
         gameInput: {
-          onSpeak: driver.getSpeakHandler(),
+          // go to next step if user speaks
+          onSpeak: inSequence(driver.getSpeakHandler(), driver.step),
         },
       };
     },
