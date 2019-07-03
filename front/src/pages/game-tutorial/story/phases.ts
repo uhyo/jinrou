@@ -29,12 +29,24 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('guide.name'),
         comment: driver.t('phase1.stepMessage2'),
       });
+      return 2;
     },
     getStory(driver) {
       return {
         gameInput: {
           // go to next step if user speaks
           onSpeak: inSequence(driver.getSpeakHandler(), driver.step),
+        },
+      };
+    },
+  },
+  2: {
+    // Phase 2: enter the room
+    async step() {},
+    getStory(driver) {
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
         },
       };
     },
