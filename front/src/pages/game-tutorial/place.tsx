@@ -35,10 +35,11 @@ export async function place({
   teamColors,
   getUserProfile,
 }: IPlaceOptions): Promise<IPlaceResult> {
-  const [, , userInfo] = await Promise.all([
+  const [userInfo] = await Promise.all([
+    getUserProfile(),
     addResource('tutorial_game', i18n),
     addResource('roles', i18n),
-    getUserProfile(),
+    addResource('game', i18n),
   ]);
 
   const store = new GameTutorialStore(userInfo, i18n);

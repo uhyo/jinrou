@@ -50,6 +50,10 @@ export interface Driver {
    * Get a handler of speak.
    */
   getSpeakHandler(): (query: SpeakQuery) => void;
+  /**
+   * Get a handler of join.
+   */
+  getJoinHandler(): RoomControlHandlers['join'];
 }
 
 /**

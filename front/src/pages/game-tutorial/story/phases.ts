@@ -48,6 +48,9 @@ export const phases: Partial<Record<number, Phase>> = {
         gameInput: {
           onSpeak: driver.getSpeakHandler(),
         },
+        roomHedaerInput: {
+          join: driver.getJoinHandler(),
+        },
       };
     },
   },

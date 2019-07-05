@@ -58,4 +58,31 @@ export class InteractiveDriver extends DriverBase implements Driver {
       });
     };
   }
+  public getJoinHandler: Driver['getJoinHandler'] = () => user => {
+    const { store } = this;
+    const { innerStore, userInfo } = store;
+    if (innerStore.players.find(player => player.realid === userInfo.userid)) {
+      // already in the room!
+      return;
+    }
+    // add user to the room
+    innerStore.addPlayer({
+      id: userInfo.userid,
+      realid: userInfo.userid,
+      name: userInfo.name,
+      anonymous: false,
+      dead: false,
+      icon: userInfo.icon,
+      winner: null,
+      jobname: null,
+      flags: [],
+    });
+    // show log
+    this.addLog({
+      mode: 'system',
+      comment: this.t('game:system.rooms.enter', {
+        name: userInfo.name,
+      }),
+    });
+  };
 }
