@@ -9,4 +9,5 @@ export class SilentDriver extends DriverBase implements Driver {
   public messageDialog: Driver['messageDialog'] = () => Promise.resolve();
   public getSpeakHandler: Driver['getSpeakHandler'] = () => () => {};
   public getJoinHandler: Driver['getJoinHandler'] = () => () => {};
+  public getUnjoinHandler: Driver['getUnjoinHandler'] = () => () => {};
 }

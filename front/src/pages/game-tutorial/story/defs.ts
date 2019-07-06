@@ -51,6 +51,10 @@ export interface Driver {
    */
   join(): void;
   /**
+   * Process unjoin of user.
+   */
+  unjoin(): void;
+  /**
    * Get a handler of speak.
    */
   getSpeakHandler(): (query: SpeakQuery) => void;
@@ -58,6 +62,10 @@ export interface Driver {
    * Get a handler of join.
    */
   getJoinHandler(): RoomControlHandlers['join'];
+  /**
+   * Get a handler of unjoin.
+   */
+  getUnjoinHandler(): RoomControlHandlers['unjoin'];
 }
 
 /**

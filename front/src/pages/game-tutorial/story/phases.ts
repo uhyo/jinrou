@@ -69,4 +69,15 @@ export const phases: Partial<Record<number, Phase>> = {
       };
     },
   },
+  3: {
+    async step() {},
+    getStory(driver) {
+      return {
+        roomHedaerInput: {
+          join: driver.getJoinHandler(),
+          unjoin: driver.getUnjoinHandler(),
+        },
+      };
+    },
+  },
 };

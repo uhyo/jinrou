@@ -66,4 +66,39 @@ export class DriverBase {
 
     return true;
   }
+  /**
+   * process unjoin of user.
+   * @returns whether unjoin is processed.
+   */
+  public unjoin() {
+    const {
+      store: { innerStore, userInfo },
+    } = this;
+    if (!innerStore.players.find(player => player.realid === userInfo.userid)) {
+      // not in the room
+      return false;
+    }
+    // add user to the room.
+    innerStore.removePlayer(userInfo.userid);
+    // change the room controls.
+    innerStore.update({
+      roomControls: {
+        type: 'prelude',
+        owner: false,
+        joined: false,
+        old: false,
+        blind: false,
+        theme: false,
+      },
+    });
+    // show leave log.
+    this.addLog({
+      mode: 'system',
+      comment: this.t('game:system.rooms.leave', {
+        name: userInfo.name,
+      }),
+    });
+
+    return true;
+  }
 }
