@@ -20,4 +20,43 @@ export class DriverBase {
     } as const;
     this.store.innerStore.addLog(log);
   };
+
+  /**
+   * process a join of user.
+   * @returns whether the user newly joined.
+   */
+  protected join() {
+    const {
+      store: { innerStore, userInfo },
+    } = this;
+    if (innerStore.players.find(player => player.realid === userInfo.userid)) {
+      // already in the room!
+      return false;
+    }
+    // add user to the room.
+    innerStore.addPlayer({
+      id: userInfo.userid,
+      realid: userInfo.userid,
+      name: userInfo.name,
+      anonymous: false,
+      dead: false,
+      icon: userInfo.icon,
+      winner: null,
+      jobname: null,
+      flags: [],
+    });
+    // change the room controls.
+    innerStore.update({
+      roomControls: {
+        type: 'prelude',
+        owner: false,
+        joined: true,
+        old: false,
+        blind: false,
+        theme: false,
+      },
+    });
+
+    return true;
+  }
 }
