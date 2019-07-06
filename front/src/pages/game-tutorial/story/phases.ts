@@ -42,14 +42,29 @@ export const phases: Partial<Record<number, Phase>> = {
   },
   2: {
     // Phase 2: enter the room
-    async step() {},
+    async step(driver) {
+      driver.join();
+      await driver.sleep(1000);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase2.stepMessage1'),
+      });
+      await driver.sleep(2500);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase2.stepMessage2'),
+      });
+      return 3;
+    },
     getStory(driver) {
       return {
         gameInput: {
           onSpeak: driver.getSpeakHandler(),
         },
         roomHedaerInput: {
-          join: driver.getJoinHandler(),
+          join: inSequence(driver.getJoinHandler(), driver.step),
         },
       };
     },

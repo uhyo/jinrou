@@ -25,7 +25,7 @@ export class DriverBase {
    * process a join of user.
    * @returns whether the user newly joined.
    */
-  protected join() {
+  public join() {
     const {
       store: { innerStore, userInfo },
     } = this;
@@ -55,6 +55,13 @@ export class DriverBase {
         blind: false,
         theme: false,
       },
+    });
+    // show join log.
+    this.addLog({
+      mode: 'system',
+      comment: this.t('game:system.rooms.enter', {
+        name: userInfo.name,
+      }),
     });
 
     return true;

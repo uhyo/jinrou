@@ -41,18 +41,6 @@ export class InteractiveDriver extends DriverBase implements Driver {
     };
   }
   public getJoinHandler: Driver['getJoinHandler'] = () => () => {
-    if (!this.join()) {
-      return;
-    }
-    const {
-      store: { userInfo },
-    } = this;
-    // show log
-    this.addLog({
-      mode: 'system',
-      comment: this.t('game:system.rooms.enter', {
-        name: userInfo.name,
-      }),
-    });
+    this.join();
   };
 }

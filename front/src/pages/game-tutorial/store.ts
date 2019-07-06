@@ -54,14 +54,6 @@ export class GameTutorialStore {
    * Proceed a step with given driver.
    * returns true if proceeded to the next step.
    */
-  public step = async () => {
-    return this.stepWithDriver(this.interactiveDriver);
-  };
-
-  /**
-   * Proceed a step with given driver.
-   * returns true if proceeded to the next step.
-   */
   private stepWithDriver = async (driver: Driver) => {
     const phase = phases[this.phase];
     if (phase == null) {
@@ -73,6 +65,15 @@ export class GameTutorialStore {
       this.setPhase(next);
       return true;
     }
+    return false;
+  };
+
+  /**
+   * Proceed a step with given driver.
+   * returns true if proceeded to the next step.
+   */
+  public step = async (): Promise<boolean> => {
+    return this.stepWithDriver(this.interactiveDriver);
   };
 
   /**

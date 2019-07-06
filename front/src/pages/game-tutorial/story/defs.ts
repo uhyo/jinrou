@@ -47,6 +47,10 @@ export interface Driver {
    */
   addLog(query: DriverAddLogQuery): void;
   /**
+   * Process join of user.
+   */
+  join(): void;
+  /**
    * Get a handler of speak.
    */
   getSpeakHandler(): (query: SpeakQuery) => void;

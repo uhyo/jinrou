@@ -1,21 +1,20 @@
 # metadata of tutorial room
 room:
-  title: "練習部屋"
+  title: '練習部屋'
 
 # guide NPC
 guide:
-  name: "身代わりくん"
+  name: '身代わりくん'
 
 # common data
 common:
   messageDialog:
-    title: "練習部屋"
-    ok: "次へ"
+    title: '練習部屋'
+    ok: '次へ'
 
 # phase 0: initialState
 phase0:
-  stepMessage: "練習部屋にようこそ！　この部屋は操作の練習用の部屋です。他の人には見えません。まずは発言してみましょう。"
-
+  stepMessage: '練習部屋にようこそ！　この部屋は操作の練習用の部屋です。他の人には見えません。まずは発言してみましょう。'
 
 # phase 1: speak as audience
 phase1:
@@ -27,3 +26,14 @@ phase1:
   stepMessage2: |
     ゲームに参加するには、まず村に入室します。上にある「ゲームに参加」ボタンを押してください。
 
+# phase 2: enter the room
+phase2:
+  # message by guide after entering the room
+  stepMessage1: |
+    ゲームに参加できました！
+    ゲームに参加している人は発言の色が変わります。試してみましょう。
+  stepMessage2: |
+    ゲーム開始の準備ができたら「準備完了/準備中」ボタンを押して準備完了状態にします。
+    席を外すときはもう一度ボタンを押して準備中に戻しましょう。
+
+    次の練習に進む準備ができたら準備完了状態で待機してください。
