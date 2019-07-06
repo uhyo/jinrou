@@ -4,10 +4,11 @@ import { computed, observable, action } from 'mobx';
 import {
   StoryInputInterface,
   StoryInputRoomHeaderInterface,
+  Driver,
 } from './story/defs';
-import { InteractiveDriver } from './story/driver';
+import { InteractiveDriver, SilentDriver } from './story/driver';
 import { phases } from './story/phases';
-import { UserInfo } from './defs';
+import { UserInfo, currentPhaseStorageKey } from './defs';
 
 export class GameTutorialStore {
   public innerStore: GameStore = new GameStore();
@@ -49,22 +50,55 @@ export class GameTutorialStore {
     this.innerStore.logs.initializeLogs([]);
   }
 
+  /**
+   * Proceed a step with given driver.
+   * returns true if proceeded to the next step.
+   */
   public step = async () => {
-    const driver = this.interactiveDriver;
+    return this.stepWithDriver(this.interactiveDriver);
+  };
+
+  /**
+   * Proceed a step with given driver.
+   * returns true if proceeded to the next step.
+   */
+  private stepWithDriver = async (driver: Driver) => {
     const phase = phases[this.phase];
     if (phase == null) {
       // ???
-      return;
+      return false;
     }
     const next = await phase.step(driver);
     if (next != null) {
       this.setPhase(next);
+      return true;
+    }
+  };
+
+  /**
+   * Initialize the story.
+   */
+  public initialize = async () => {
+    const goalPhase = Number(localStorage[currentPhaseStorageKey]);
+    if (!Number.isFinite(goalPhase)) {
+      // no initial phase.
+      localStorage.removeItem(currentPhaseStorageKey);
+      this.phase = 0;
+      return this.step();
+    }
+    const driver = new SilentDriver(this.t, this);
+    while (this.phase !== goalPhase) {
+      const proc = await this.stepWithDriver(driver);
+      if (!proc) {
+        break;
+      }
     }
   };
 
   @action
   public setPhase(phase: number) {
     this.phase = phase;
+    localStorage[currentPhaseStorageKey] = String(phase);
   }
 
   @computed

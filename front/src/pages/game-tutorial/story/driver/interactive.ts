@@ -1,25 +1,7 @@
-import { showMessageDialog } from '../../../dialog';
-import { TranslationFunction } from '../../../i18n';
-import { Driver, DriverMessageDialog } from './defs';
-import { GameTutorialStore } from '../store';
-import { SpeakQuery } from '../../game-view/defs';
-
-class DriverBase {
-  constructor(
-    public t: TranslationFunction,
-    protected store: GameTutorialStore,
-  ) {}
-
-  public addLog: Driver['addLog'] = query => {
-    const log = {
-      userid: '',
-      ...query,
-      time: Date.now(),
-      to: null,
-    } as const;
-    this.store.innerStore.addLog(log);
-  };
-}
+import { DriverBase } from './base';
+import { Driver, DriverMessageDialog } from '../defs';
+import { SpeakQuery } from '../../../game-view/defs';
+import { showMessageDialog } from '../../../../dialog';
 
 export class InteractiveDriver extends DriverBase implements Driver {
   get step() {

@@ -49,7 +49,7 @@ export async function place({
 
   ReactDOM.render(com, node);
 
-  store.step();
+  store.initialize();
 
   return {
     store,

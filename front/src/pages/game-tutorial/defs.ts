@@ -6,3 +6,8 @@ export interface UserInfo {
   name: string;
   icon: string | null;
 }
+
+/**
+ * Storage key of current phase.
+ */
+export const currentPhaseStorageKey = 'game-tutorial-current-key';
