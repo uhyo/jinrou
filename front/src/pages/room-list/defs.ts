@@ -44,6 +44,14 @@ export interface Room {
    */
   blind: '' | 'yes' | 'complete';
   /**
+   * using theme.
+   */
+  theme: '' | null | string;
+  /**
+   * fullname of theme.
+   */
+  themeFullName: null | string;
+  /**
    * Whether watch speak allowed.
    */
   watchspeak: boolean;
