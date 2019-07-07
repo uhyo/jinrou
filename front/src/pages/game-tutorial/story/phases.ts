@@ -73,6 +73,9 @@ export const phases: Partial<Record<number, Phase>> = {
     async step() {},
     getStory(driver) {
       return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
+        },
         roomHedaerInput: {
           join: driver.getJoinHandler(),
           unjoin: driver.getUnjoinHandler(),
