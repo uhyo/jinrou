@@ -46,4 +46,7 @@ export class InteractiveDriver extends DriverBase implements Driver {
   public getUnjoinHandler: Driver['getUnjoinHandler'] = () => () => {
     this.unjoin();
   };
+  public getReadyHandler: Driver['getReadyHandler'] = () => () => {
+    this.ready();
+  };
 }

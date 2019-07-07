@@ -55,6 +55,11 @@ export interface Driver {
    */
   unjoin(): void;
   /**
+   * Process ready of user.
+   * @returns readyness state after this.
+   */
+  ready(): boolean;
+  /**
    * Get a handler of speak.
    */
   getSpeakHandler(): (query: SpeakQuery) => void;
@@ -66,6 +71,10 @@ export interface Driver {
    * Get a handler of unjoin.
    */
   getUnjoinHandler(): RoomControlHandlers['unjoin'];
+  /**
+   * Get a handler of ready.
+   */
+  getReadyHandler(): RoomControlHandlers['ready'];
 }
 
 /**

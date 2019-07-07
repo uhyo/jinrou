@@ -101,4 +101,23 @@ export class DriverBase {
 
     return true;
   }
+  public ready() {
+    const {
+      store: { innerStore, userInfo },
+    } = this;
+    const pl = innerStore.players.find(pl => pl.realid === userInfo.userid);
+    if (pl == null) {
+      return false;
+    }
+    const { flags } = pl;
+    const readyNow = flags.includes('ready');
+    console.log(flags, readyNow);
+    const newFlags = readyNow
+      ? flags.filter(f => f !== 'ready')
+      : flags.concat('ready');
+    innerStore.updatePlayer(pl.id, {
+      flags: newFlags,
+    });
+    return !readyNow;
+  }
 }
