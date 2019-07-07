@@ -8,6 +8,10 @@ roominfo:
   blindComplete: "覆面（終了後も非公開）"
   # no watchspeak
   noWatchSpeak: "観戦者発言禁止"
+  # using theme
+  theme: "テーマ「{{fullname}}」"
+  # theme has been removed
+  themeRemoved: "このテーマは削除されました"
 # Game start control.
 gamestart:
   # information shown to an owner.

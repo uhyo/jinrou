@@ -137,6 +137,10 @@ module.exports.actions=(req,res,ss)->
                     # old rooms do not have watchspeak set.
                     # watchspeak defaults to true.
                     x.watchspeak = true
+                if x.theme
+                    theme = Server.game.themes.getTheme x.theme
+                    unless theme == null
+                        x.themeFullName = theme.name
             res results
     getMyRooms:(page)->
         # extract user's play logs from userrawlogs
@@ -197,6 +201,10 @@ module.exports.actions=(req,res,ss)->
                 result.old=true
             # パスワードをアレする
             result.password = !!result.password
+            if result.theme
+                theme = Server.game.themes.getTheme result.theme
+                unless theme == null
+                    result.themeFullName = theme.name
             res result
 
     # 成功: {id: roomid}

@@ -456,6 +456,16 @@ exports.start=(roomid)->
             icon.classList.add 'fa-user-secret'
             icon.title = i18n.t(if room.blind == 'complete' then 'game_client:roominfo.blindComplete' else 'game_client:roominfo.blind')
             iconlist.appendChild icon
+        if room.theme
+            icon = document.createElement 'i'
+            icon.classList.add 'fa'
+            icon.classList.add 'fa-fw'
+            icon.classList.add 'fa-theater-masks'
+            if room.themeFullName
+                icon.title = i18n.t("game_client:roominfo.theme",{fullname: room.themeFullName})
+            else
+                icon.title = i18n.t("game_client:roominfo.themeRemoved")
+            iconlist.appendChild icon
         if room.comment
             icon = document.createElement 'i'
             icon.classList.add 'fa'

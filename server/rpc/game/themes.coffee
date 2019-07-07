@@ -25,7 +25,7 @@ fs.watch "server/themes/",(e)->
 
 module.exports =
     getTheme:(name)->
-        if themes[name] != null
+        if themes[name] != undefined
             return themes[name]
         themeFiles = fs.readdirSync "server/themes/"
         # not the example

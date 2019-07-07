@@ -233,6 +233,11 @@ export const HasGM = StatusTip;
 export const Blind = StatusTip;
 
 /**
+ * Theme mark
+ */
+export const Theme = StatusTip;
+
+/**
  * Watchspeak prohibited mode mark
  */
 export const WatchSpeak = StatusTip;
