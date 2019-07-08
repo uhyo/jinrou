@@ -35,6 +35,10 @@ export interface Driver {
   t: TranslationFunction;
   step: () => unknown;
   /**
+   * cancel ongoing step.
+   */
+  cancelStep: () => void;
+  /**
    * Sleep for given duration (in ms)
    */
   sleep(duration: number): Promise<void>;

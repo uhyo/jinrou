@@ -7,19 +7,24 @@ export class InteractiveDriver extends DriverBase implements Driver {
   get step() {
     return this.store.step;
   }
-  public sleep: Driver['sleep'] = duration => {
+  public cancelStep() {
+    this.cancellation.cancelAll();
+  }
+  public sleep: Driver['sleep'] = this.cancellation.toCancellable(duration => {
     return new Promise(resolve => {
       setTimeout(resolve, duration);
     });
-  };
-  public messageDialog(d: DriverMessageDialog) {
-    return showMessageDialog({
-      modal: true,
-      title: this.t('common.messageDialog.title') as string,
-      ok: this.t('common.messageDialog.ok'),
-      ...d,
-    });
-  }
+  });
+  public messageDialog = this.cancellation.toCancellable(
+    (d: DriverMessageDialog) => {
+      return showMessageDialog({
+        modal: true,
+        title: this.t('common.messageDialog.title') as string,
+        ok: this.t('common.messageDialog.ok'),
+        ...d,
+      });
+    },
+  );
 
   public getSpeakHandler() {
     return (query: SpeakQuery) => {

@@ -93,7 +93,7 @@ export const phases: Partial<Record<number, Phase>> = {
             if (newReady) {
               driver.step();
             } else {
-              // TODO: cancel
+              driver.cancelStep();
             }
           },
         },

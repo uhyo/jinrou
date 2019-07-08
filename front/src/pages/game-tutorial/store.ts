@@ -9,6 +9,7 @@ import {
 import { InteractiveDriver, SilentDriver } from './story/driver';
 import { phases } from './story/phases';
 import { UserInfo, currentPhaseStorageKey } from './defs';
+import { isCancellationError } from './story/driver/cancellation';
 
 export class GameTutorialStore {
   public innerStore: GameStore = new GameStore();
@@ -60,10 +61,17 @@ export class GameTutorialStore {
       // ???
       return false;
     }
-    const next = await phase.step(driver);
-    if (next != null) {
-      this.setPhase(next);
-      return true;
+    try {
+      const next = await phase.step(driver);
+      if (next != null) {
+        this.setPhase(next);
+        return true;
+      }
+    } catch (e) {
+      if (!isCancellationError(e)) {
+        // cancellationErrorなら無視する
+        throw e;
+      }
     }
     return false;
   };

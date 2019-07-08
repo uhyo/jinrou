@@ -1,11 +1,13 @@
 import { TranslationFunction } from '../../../../i18n';
 import { GameTutorialStore } from '../../store';
 import { Driver } from '../defs';
+import { Cancellation } from './cancellation';
 
 /**
  * @package
  */
 export class DriverBase {
+  protected cancellation = new Cancellation();
   constructor(
     public t: TranslationFunction,
     protected store: GameTutorialStore,
