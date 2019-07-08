@@ -70,7 +70,16 @@ export const phases: Partial<Record<number, Phase>> = {
     },
   },
   3: {
-    async step() {},
+    // Phase 3: get ready
+    async step(driver) {
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: 'TODO',
+      });
+      await driver.sleep(10000);
+      return 3;
+    },
     getStory(driver) {
       return {
         gameInput: {
@@ -79,7 +88,14 @@ export const phases: Partial<Record<number, Phase>> = {
         roomHedaerInput: {
           join: driver.getJoinHandler(),
           unjoin: driver.getUnjoinHandler(),
-          ready: driver.getReadyHandler(),
+          ready: () => {
+            const newReady = driver.ready();
+            if (newReady) {
+              driver.step();
+            } else {
+              // TODO: cancel
+            }
+          },
         },
       };
     },

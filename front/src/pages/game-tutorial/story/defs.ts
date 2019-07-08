@@ -58,7 +58,7 @@ export interface Driver {
    * Process ready of user.
    * @returns readyness state after this.
    */
-  ready(): boolean;
+  ready(setReady?: boolean): boolean;
   /**
    * Get a handler of speak.
    */

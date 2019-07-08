@@ -101,7 +101,7 @@ export class DriverBase {
 
     return true;
   }
-  public ready() {
+  public ready(setReady?: boolean) {
     const {
       store: { innerStore, userInfo },
     } = this;
@@ -111,13 +111,15 @@ export class DriverBase {
     }
     const { flags } = pl;
     const readyNow = flags.includes('ready');
-    console.log(flags, readyNow);
-    const newFlags = readyNow
-      ? flags.filter(f => f !== 'ready')
-      : flags.concat('ready');
-    innerStore.updatePlayer(pl.id, {
-      flags: newFlags,
-    });
-    return !readyNow;
+    const newReady = setReady != null ? setReady : !readyNow;
+    if (newReady !== readyNow) {
+      const newFlags = readyNow
+        ? flags.filter(f => f !== 'ready')
+        : flags.concat('ready');
+      innerStore.updatePlayer(pl.id, {
+        flags: newFlags,
+      });
+    }
+    return newReady;
   }
 }
