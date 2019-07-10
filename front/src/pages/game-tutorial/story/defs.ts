@@ -79,6 +79,10 @@ export interface Driver {
    * Get a handler of ready.
    */
   getReadyHandler(): RoomControlHandlers['ready'];
+  /**
+   * Get a handler which shows rejection message.
+   */
+  getRejectionHandler(): () => void;
 }
 
 /**

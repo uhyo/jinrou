@@ -14,4 +14,5 @@ export class SilentDriver extends DriverBase implements Driver {
   public getJoinHandler: Driver['getJoinHandler'] = () => () => {};
   public getUnjoinHandler: Driver['getUnjoinHandler'] = () => () => {};
   public getReadyHandler: Driver['getReadyHandler'] = () => () => {};
+  public getRejectionHandler: Driver['getRejectionHandler'] = () => () => {};
 }

@@ -11,6 +11,8 @@ common:
   messageDialog:
     title: '練習部屋'
     ok: '次へ'
+  # error message shown when this tool is not taught.
+  notTaughtMessage: '身代わりくん「この機能はまだ教えてませんよ！」'
 
 # phase 0: initialState
 phase0:

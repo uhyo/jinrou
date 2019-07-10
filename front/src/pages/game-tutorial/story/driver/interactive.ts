@@ -54,4 +54,12 @@ export class InteractiveDriver extends DriverBase implements Driver {
   public getReadyHandler: Driver['getReadyHandler'] = () => () => {
     this.ready();
   };
+  public getRejectionHandler: Driver['getRejectionHandler'] = () => () => {
+    showMessageDialog({
+      modal: true,
+      title: this.t('common:errorDialog.title'),
+      ok: this.t('common:errorDialog.close'),
+      message: this.t('common.notTaughtMessage'),
+    });
+  };
 }

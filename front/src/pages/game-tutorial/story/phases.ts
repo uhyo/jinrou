@@ -96,6 +96,7 @@ export const phases: Partial<Record<number, Phase>> = {
               driver.cancelStep();
             }
           },
+          helper: driver.getRejectionHandler(),
         },
       };
     },
