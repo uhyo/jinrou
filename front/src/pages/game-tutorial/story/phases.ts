@@ -97,6 +97,10 @@ export const phases: Partial<Record<number, Phase>> = {
         comment: driver.t('phase3.stepMessage1'),
       });
       await driver.sleep(5000);
+      driver.changeGamePhase({
+        day: 1,
+        night: true,
+      });
       return 3;
     },
     getStory(driver) {

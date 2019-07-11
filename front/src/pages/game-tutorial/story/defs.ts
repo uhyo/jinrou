@@ -4,7 +4,12 @@ import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
 import { i18n, TranslationFunction } from '../../../i18n';
 import { GameTutorialStore } from '../store';
-import { SpeakQuery, NormalLog, PlayerInfo } from '../../game-view/defs';
+import {
+  SpeakQuery,
+  NormalLog,
+  PlayerInfo,
+  GameInfo,
+} from '../../game-view/defs';
 
 /**
  * Input to the story.
@@ -33,6 +38,7 @@ export type DriverAddLogQuery = PartiallyPartial<
 export type DriverAddPlayerQuery = PlayerInfo & {
   emitLog?: boolean;
 };
+export type ChangePhaseQuery = Pick<GameInfo, 'day' | 'night'>;
 
 export interface Driver {
   t: TranslationFunction;
@@ -70,6 +76,11 @@ export interface Driver {
    * @returns readyness state after this.
    */
   ready(setReady?: boolean): boolean;
+  /**
+   * change a phase.
+   */
+  changeGamePhase(gameInfo: ChangePhaseQuery): void;
+
   /**
    * Get a handler of speak.
    */

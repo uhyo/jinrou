@@ -129,4 +129,23 @@ export class DriverBase {
     }
     return newReady;
   }
+
+  public changeGamePhase: Driver['changeGamePhase'] = query => {
+    const {
+      store: { innerStore },
+    } = this;
+    innerStore.update({
+      gameInfo: {
+        ...innerStore.gameInfo,
+        status: 'playing',
+        ...query,
+      },
+    });
+    this.addLog({
+      mode: 'system',
+      comment: this.t(`game:system.phase.${query.night ? 'night' : 'day'}`, {
+        day: query.day,
+      }),
+    });
+  };
 }
