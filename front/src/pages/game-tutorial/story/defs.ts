@@ -4,7 +4,7 @@ import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
 import { i18n, TranslationFunction } from '../../../i18n';
 import { GameTutorialStore } from '../store';
-import { SpeakQuery, NormalLog } from '../../game-view/defs';
+import { SpeakQuery, NormalLog, PlayerInfo } from '../../game-view/defs';
 
 /**
  * Input to the story.
@@ -30,6 +30,9 @@ export type DriverAddLogQuery = PartiallyPartial<
   Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
   'userid'
 >;
+export type DriverAddPlayerQuery = PlayerInfo & {
+  emitLog?: boolean;
+};
 
 export interface Driver {
   t: TranslationFunction;
@@ -50,6 +53,10 @@ export interface Driver {
    * Add a log.
    */
   addLog(query: DriverAddLogQuery): void;
+  /**
+   * Add a player.
+   */
+  addPlayer(player: DriverAddPlayerQuery): void;
   /**
    * Process join of user.
    */

@@ -72,12 +72,24 @@ export const phases: Partial<Record<number, Phase>> = {
   3: {
     // Phase 3: get ready
     async step(driver) {
-      driver.addLog({
-        mode: 'prepare',
-        name: driver.t('guide.name'),
-        comment: 'TODO',
-      });
-      await driver.sleep(10000);
+      await driver.sleep(1000); // TODO: change to 10s
+      // add 5 more players
+      for (let i = 0; i < 5; i++) {
+        const realid = `身代わりくん${i + 2}`;
+        driver.addPlayer({
+          id: realid,
+          realid,
+          name: driver.t('guide.name') + (i + 2),
+          anonymous: false,
+          icon: null,
+          winner: null,
+          jobname: null,
+          dead: false,
+          flags: ['ready'],
+          emitLog: true,
+        });
+        await driver.sleep(150);
+      }
       return 3;
     },
     getStory(driver) {

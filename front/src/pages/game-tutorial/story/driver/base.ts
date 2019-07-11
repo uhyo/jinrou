@@ -23,6 +23,18 @@ export class DriverBase {
     this.store.innerStore.addLog(log);
   };
 
+  public addPlayer: Driver['addPlayer'] = ({ emitLog, ...player }) => {
+    this.store.innerStore.addPlayer(player);
+    if (emitLog) {
+      this.addLog({
+        mode: 'system',
+        comment: this.t('game:system.rooms.enter', {
+          name: player.name,
+        }),
+      });
+    }
+  };
+
   /**
    * process a join of user.
    * @returns whether the user newly joined.
@@ -36,7 +48,7 @@ export class DriverBase {
       return false;
     }
     // add user to the room.
-    innerStore.addPlayer({
+    this.addPlayer({
       id: userInfo.userid,
       realid: userInfo.userid,
       name: userInfo.name,
@@ -57,13 +69,6 @@ export class DriverBase {
         blind: false,
         theme: false,
       },
-    });
-    // show join log.
-    this.addLog({
-      mode: 'system',
-      comment: this.t('game:system.rooms.enter', {
-        name: userInfo.name,
-      }),
     });
 
     return true;
