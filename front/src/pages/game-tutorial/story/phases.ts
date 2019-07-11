@@ -90,6 +90,13 @@ export const phases: Partial<Record<number, Phase>> = {
         });
         await driver.sleep(150);
       }
+      await driver.sleep(600);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase3.stepMessage1'),
+      });
+      await driver.sleep(5000);
       return 3;
     },
     getStory(driver) {
