@@ -66,6 +66,7 @@ export class GameTutorialStore {
       if (next != null) {
         this.setPhase(next);
         const nextPhase = phases[next];
+        console.log('next', next, nextPhase);
         if (nextPhase != null && nextPhase.init != null) {
           nextPhase.init(driver);
         }
@@ -100,7 +101,8 @@ export class GameTutorialStore {
       return this.step();
     }
     const driver = new SilentDriver(this.t, this);
-    while (this.phase !== goalPhase) {
+    while (this.phase !== goalPhase || driver.stepCalled) {
+      driver.stepCalled = false;
       const proc = await this.stepWithDriver(driver);
       if (!proc) {
         break;

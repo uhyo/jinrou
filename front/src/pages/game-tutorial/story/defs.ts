@@ -9,6 +9,7 @@ import {
   NormalLog,
   PlayerInfo,
   GameInfo,
+  TimerInfo,
 } from '../../game-view/defs';
 
 /**
@@ -38,7 +39,11 @@ export type DriverAddLogQuery = PartiallyPartial<
 export type DriverAddPlayerQuery = PlayerInfo & {
   emitLog?: boolean;
 };
-export type ChangePhaseQuery = Pick<GameInfo, 'day' | 'night'>;
+export type ChangePhaseQuery = {
+  day: number;
+  night: boolean;
+  timer?: TimerInfo;
+};
 
 export interface Driver {
   t: TranslationFunction;

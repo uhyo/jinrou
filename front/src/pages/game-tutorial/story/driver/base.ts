@@ -130,11 +130,12 @@ export class DriverBase {
     return newReady;
   }
 
-  public changeGamePhase: Driver['changeGamePhase'] = query => {
+  public changeGamePhase: Driver['changeGamePhase'] = ({ timer, ...query }) => {
     const {
       store: { innerStore },
     } = this;
     innerStore.update({
+      timer,
       gameInfo: {
         ...innerStore.gameInfo,
         status: 'playing',

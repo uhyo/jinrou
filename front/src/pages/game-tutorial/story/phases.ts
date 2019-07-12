@@ -131,6 +131,11 @@ export const phases: Partial<Record<number, Phase>> = {
       driver.changeGamePhase({
         day: 1,
         night: true,
+        timer: {
+          enabled: true,
+          name: driver.t('game:phase.night'),
+          target: Date.now() + 30000,
+        },
       });
       return 5;
     },
@@ -147,6 +152,23 @@ export const phases: Partial<Record<number, Phase>> = {
           },
         },
       };
+    },
+  },
+  5: {
+    // Phase 5: game stared
+    init(driver) {
+      driver.step();
+    },
+    async step(driver) {
+      await driver.sleep(3000);
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase5.stepMessage1'),
+      });
+    },
+    getStory(driver) {
+      return {};
     },
   },
 };

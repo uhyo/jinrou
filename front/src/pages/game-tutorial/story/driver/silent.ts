@@ -2,8 +2,11 @@ import { DriverBase } from './base';
 import { Driver } from '../defs';
 
 export class SilentDriver extends DriverBase implements Driver {
+  public stepCalled = false;
   get step() {
-    return () => {};
+    return () => {
+      this.stepCalled = true;
+    };
   }
   public cancelStep() {
     this.cancellation.cancelAll();
