@@ -39,8 +39,8 @@ phase2:
     席を外すときはもう一度ボタンを押して準備中に戻しましょう。
 
     次の練習に進む準備ができたら準備完了状態で待機してください。
-# phase 3: get ready
-phase3:
+# phase 4: start game
+phase4:
   # message by guide before game start
   stepMessage1: |
     参加者が揃って全員準備完了したら、部屋を建てた人がゲームを開始するのを待ちましょう。

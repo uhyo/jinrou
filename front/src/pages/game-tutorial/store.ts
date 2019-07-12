@@ -46,7 +46,7 @@ export class GameTutorialStore {
       icon: null,
       winner: null,
       jobname: null,
-      flags: [],
+      flags: ['ready'],
     });
     this.innerStore.logs.initializeLogs([]);
   }
@@ -65,6 +65,10 @@ export class GameTutorialStore {
       const next = await phase.step(driver);
       if (next != null) {
         this.setPhase(next);
+        const nextPhase = phases[next];
+        if (nextPhase != null && nextPhase.init != null) {
+          nextPhase.init(driver);
+        }
         return true;
       }
     } catch (e) {

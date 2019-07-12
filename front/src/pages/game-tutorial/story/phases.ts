@@ -1,5 +1,6 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
+import { defineObservableProperty } from 'mobx/lib/internal';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -72,6 +73,7 @@ export const phases: Partial<Record<number, Phase>> = {
   3: {
     // Phase 3: get ready
     async step(driver) {
+      driver.ready(true);
       await driver.sleep(1000); // TODO: change to 10s
       // add 5 more players
       for (let i = 0; i < 5; i++) {
@@ -90,18 +92,7 @@ export const phases: Partial<Record<number, Phase>> = {
         });
         await driver.sleep(150);
       }
-      await driver.sleep(600);
-      driver.addLog({
-        mode: 'prepare',
-        name: driver.t('guide.name'),
-        comment: driver.t('phase3.stepMessage1'),
-      });
-      await driver.sleep(5000);
-      driver.changeGamePhase({
-        day: 1,
-        night: true,
-      });
-      return 3;
+      return 4;
     },
     getStory(driver) {
       return {
@@ -120,6 +111,40 @@ export const phases: Partial<Record<number, Phase>> = {
             }
           },
           helper: driver.getRejectionHandler(),
+        },
+      };
+    },
+  },
+  4: {
+    // Phase 4: automatically start game
+    init(driver) {
+      driver.step();
+    },
+    async step(driver) {
+      await driver.sleep(600);
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase4.stepMessage1'),
+      });
+      await driver.sleep(5000);
+      driver.changeGamePhase({
+        day: 1,
+        night: true,
+      });
+      return 5;
+    },
+    getStory(driver) {
+      return {
+        roomHedaerInput: {
+          ready: () => {
+            const newReady = driver.ready();
+            if (!newReady) {
+              driver.cancelStep();
+            } else {
+              driver.step();
+            }
+          },
         },
       };
     },

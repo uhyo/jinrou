@@ -3,7 +3,7 @@ import { Driver } from '../defs';
 
 export class SilentDriver extends DriverBase implements Driver {
   get step() {
-    return this.store.step;
+    return () => {};
   }
   public cancelStep() {
     this.cancellation.cancelAll();

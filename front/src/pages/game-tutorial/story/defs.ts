@@ -107,6 +107,7 @@ export interface Driver {
  * Definition of phase object.
  */
 export interface Phase {
+  init?(driver: Driver): void;
   step(driver: Driver): Promise<number | void>;
   getStory(
     driver: Driver,
