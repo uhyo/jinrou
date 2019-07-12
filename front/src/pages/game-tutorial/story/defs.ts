@@ -10,6 +10,7 @@ import {
   PlayerInfo,
   GameInfo,
   TimerInfo,
+  RoleInfo,
 } from '../../game-view/defs';
 
 /**
@@ -85,6 +86,10 @@ export interface Driver {
    * change a phase.
    */
   changeGamePhase(gameInfo: ChangePhaseQuery): void;
+  /**
+   * set RoleInfo.
+   */
+  setRoleInfo(roleInfo: RoleInfo): void;
 
   /**
    * Get a handler of speak.

@@ -52,31 +52,32 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
 /**
  * Part of RoleInfo which consists of information of other players.
  */
-export type RolePeersInfo = Record<
-  | 'wolves'
-  | 'peers'
-  | 'madpeers'
-  | 'foxes'
-  | 'nobles'
-  | 'queens'
-  | 'spy2s'
-  | 'friends'
-  | 'cultmembers'
-  | 'vampires'
-  | 'twins'
-  | 'myfans'
-  | 'ravens'
-  | 'hooligans'
-  | 'draculas'
-  | 'draculaBitten',
-  PublicPlayerInfo[] | undefined
+export type RolePeersInfo = Partial<
+  Record<
+    | 'wolves'
+    | 'peers'
+    | 'madpeers'
+    | 'foxes'
+    | 'nobles'
+    | 'queens'
+    | 'spy2s'
+    | 'friends'
+    | 'cultmembers'
+    | 'vampires'
+    | 'twins'
+    | 'myfans'
+    | 'ravens'
+    | 'hooligans'
+    | 'draculas'
+    | 'draculaBitten',
+    PublicPlayerInfo[]
+  >
 >;
 /**
  * Part of RoleInfo which consists of information of one other player.
  */
-export type RoleOtherPlayerInfo = Record<
-  'stalking' | 'dogOwner' | 'fanof',
-  PublicPlayerInfo | undefined
+export type RoleOtherPlayerInfo = Partial<
+  Record<'stalking' | 'dogOwner' | 'fanof', PublicPlayerInfo>
 >;
 
 /**

@@ -1,6 +1,6 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
-import { defineObservableProperty } from 'mobx/lib/internal';
+import { humanRole } from './roleInfo';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -128,6 +128,7 @@ export const phases: Partial<Record<number, Phase>> = {
         comment: driver.t('phase4.stepMessage1'),
       });
       await driver.sleep(5000);
+      driver.setRoleInfo(humanRole(driver.t, true));
       driver.changeGamePhase({
         day: 1,
         night: true,

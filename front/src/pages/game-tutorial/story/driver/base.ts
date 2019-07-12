@@ -149,4 +149,10 @@ export class DriverBase {
       }),
     });
   };
+
+  public setRoleInfo: Driver['setRoleInfo'] = roleInfo => {
+    this.store.innerStore.update({
+      roleInfo,
+    });
+  };
 }
