@@ -9,7 +9,7 @@ exports.start = (roomid)->
         japp.place {
             i18n: i18n
             node: $("#tutorial-game-app").get 0
-            teamColors: []
+            teamColors: Shared.game.makeTeamColors()
             getUserProfile:->
                 new Promise (resolve)->
                     ss.rpc "user.myProfile", (res)->

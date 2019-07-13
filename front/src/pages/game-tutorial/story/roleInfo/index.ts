@@ -8,6 +8,7 @@ export const humanRole = (
   t: TranslationFunction,
   night: boolean,
 ): RoleInfo => ({
+  myteam: 'Human',
   jobname: t('roles:jobname.Human'),
   dead: false,
   desc: [

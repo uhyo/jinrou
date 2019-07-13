@@ -44,6 +44,7 @@ export const GameTutorial: React.FunctionComponent<
     onWillChange: noop,
     ...story.gameInput,
   };
+  console.log(store);
   return (
     <>
       <h1 id="roomname">{i18n.t('tutorial_game:room.title')}</h1>
