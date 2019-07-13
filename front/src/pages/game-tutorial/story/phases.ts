@@ -1,6 +1,7 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
 import { humanRole } from './roleInfo';
+import { setPriority } from 'os';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -132,6 +133,7 @@ export const phases: Partial<Record<number, Phase>> = {
       driver.changeGamePhase({
         day: 1,
         night: true,
+        gameStart: true,
         timer: {
           enabled: true,
           name: driver.t('game:phase.night'),
@@ -161,15 +163,54 @@ export const phases: Partial<Record<number, Phase>> = {
       driver.step();
     },
     async step(driver) {
-      await driver.sleep(3000);
+      await driver.sleep(3e3);
       driver.addLog({
         mode: 'gm',
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase5.stepMessage1'),
       });
+      await driver.sleep(27e3);
+      driver.changeGamePhase({
+        day: 2,
+        night: false,
+        timer: {
+          enabled: true,
+          name: driver.t('game:phase.day'),
+          target: Date.now() + 330e3,
+        },
+      });
+      driver.setRoleInfo(humanRole(driver.t, false));
+      await driver.sleep(2e3);
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase5.stepMessage2'),
+      });
+      await driver.sleep(1e3);
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase5.stepMessage3'),
+      });
+      return 6;
     },
     getStory(driver) {
-      return {};
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
+        },
+      };
+    },
+  },
+  6: {
+    // Phase 6: during day 2
+    async step(driver) {},
+    getStory(driver) {
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
+        },
+      };
     },
   },
 };

@@ -44,6 +44,7 @@ export type ChangePhaseQuery = {
   day: number;
   night: boolean;
   timer?: TimerInfo;
+  gameStart?: boolean;
 };
 
 export interface Driver {

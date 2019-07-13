@@ -32,7 +32,9 @@ export class InteractiveDriver extends DriverBase implements Driver {
       const innerStore = store.innerStore;
       const mode = ({
         waiting: store.isUserInRoom ? 'prepare' : 'audience',
-        playing: innerStore.gameInfo.night ? 'monologue' : 'day',
+        playing:
+          (query.mode as any) ||
+          (innerStore.gameInfo.night ? 'monologue' : 'day'),
         finished: 'prepare',
       } as const)[innerStore.gameInfo.status];
 
