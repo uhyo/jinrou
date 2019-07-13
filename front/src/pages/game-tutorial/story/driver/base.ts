@@ -35,6 +35,25 @@ export class DriverBase {
     }
   };
 
+  public killPlayer: Driver['killPlayer'] = (plId, buryLogType) => {
+    const { innerStore } = this.store;
+    const pl = innerStore.players.find(({ id }) => id === plId);
+    if (!pl) {
+      return;
+    }
+    innerStore.updatePlayer(pl.id, {
+      dead: true,
+    });
+    if (buryLogType != null) {
+      this.addLog({
+        mode: 'system',
+        comment: this.t(`game:found.${buryLogType}`, {
+          name: pl.name,
+        }),
+      });
+    }
+  };
+
   /**
    * process a join of user.
    * @returns whether the user newly joined.

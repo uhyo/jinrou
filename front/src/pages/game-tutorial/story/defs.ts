@@ -71,6 +71,10 @@ export interface Driver {
    */
   addPlayer(player: DriverAddPlayerQuery): void;
   /**
+   * Kill a player and show a bury message if found is provided.
+   */
+  killPlayer(playerId: string, found?: string): void;
+  /**
    * Process join of user.
    */
   join(): void;

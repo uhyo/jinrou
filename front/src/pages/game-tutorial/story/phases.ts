@@ -170,6 +170,7 @@ export const phases: Partial<Record<number, Phase>> = {
         comment: driver.t('phase5.stepMessage1'),
       });
       await driver.sleep(27e3);
+      driver.killPlayer('身代わりくん', 'normal');
       driver.changeGamePhase({
         day: 2,
         night: false,
