@@ -92,6 +92,23 @@ export class DriverBase {
     });
   };
 
+  public voteTo: Driver['voteTo'] = userid => {
+    const { innerStore, userInfo } = this.store;
+    const pl = innerStore.players.find(pl => pl.id === userid);
+    if (pl == null) {
+      return false;
+    }
+
+    this.addLog({
+      mode: 'voteto',
+      comment: this.t('game:system.votingbox.voted', {
+        name: userInfo.name,
+        target: pl.name,
+      }),
+    });
+    return true;
+  };
+
   /**
    * process a join of user.
    * @returns whether the user newly joined.
@@ -206,10 +223,12 @@ export class DriverBase {
       },
     });
     this.addLog({
-      mode: 'system',
+      mode: 'nextturn',
       comment: this.t(`game:system.phase.${query.night ? 'night' : 'day'}`, {
         day: query.day,
       }),
+      day: query.day,
+      night: query.night,
     });
   };
 

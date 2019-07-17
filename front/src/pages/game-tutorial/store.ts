@@ -5,19 +5,27 @@ import {
   StoryInputInterface,
   StoryInputRoomHeaderInterface,
   Driver,
+  TutorialStorage,
 } from './story/defs';
 import { InteractiveDriver, SilentDriver } from './story/driver';
 import { phases } from './story/phases';
 import { UserInfo, currentPhaseStorageKey } from './defs';
 import { isCancellationError } from './story/driver/cancellation';
 
+const initialStorage: TutorialStorage = {
+  day2DayTarget: null,
+};
+
 export class GameTutorialStore {
   public innerStore: GameStore = new GameStore();
   @observable
   public phase = 0;
   public skipMode = false;
+  public storage: TutorialStorage = initialStorage;
+
   private t: TranslationFunction;
   private interactiveDriver: InteractiveDriver;
+
   constructor(public userInfo: UserInfo, private i18n: i18n) {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game');
     this.interactiveDriver = new InteractiveDriver(this.t, this);
@@ -62,7 +70,7 @@ export class GameTutorialStore {
       return false;
     }
     try {
-      const next = await phase.step(driver);
+      const next = await phase.step(driver, this.storage);
       if (next != null) {
         this.setPhase(next);
         const nextPhase = phases[next];
@@ -93,10 +101,20 @@ export class GameTutorialStore {
    * Initialize the story.
    */
   public initialize = async () => {
-    const goalPhase = Number(localStorage[currentPhaseStorageKey]);
-    if (!Number.isFinite(goalPhase)) {
-      // no initial phase.
+    let goalPhase = 0;
+    try {
+      const { phase, storage } = JSON.parse(
+        localStorage[currentPhaseStorageKey],
+      );
+      if (Number.isFinite(phase)) {
+        goalPhase = phase;
+        this.storage = storage;
+      }
+    } catch {
       localStorage.removeItem(currentPhaseStorageKey);
+    }
+    if (!goalPhase) {
+      // no saved state
       this.phase = 0;
       return this.step();
     }
@@ -113,7 +131,10 @@ export class GameTutorialStore {
   @action
   public setPhase(phase: number) {
     this.phase = phase;
-    localStorage[currentPhaseStorageKey] = String(phase);
+    localStorage[currentPhaseStorageKey] = JSON.stringify({
+      phase: this.phase,
+      storage: this.storage,
+    });
   }
 
   @computed
@@ -125,7 +146,7 @@ export class GameTutorialStore {
     if (phase == null) {
       return {};
     }
-    return phase.getStory(this.interactiveDriver);
+    return phase.getStory(this.interactiveDriver, this.storage);
   }
 
   @computed

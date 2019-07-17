@@ -2,16 +2,15 @@ import { ComponentProps } from 'react';
 import { Game } from '../../game-view/component';
 import { RoomControlHandlers } from '../../../defs';
 import { IMessageDialog } from '../../../dialog/defs';
-import { i18n, TranslationFunction } from '../../../i18n';
-import { GameTutorialStore } from '../store';
+import { TranslationFunction } from '../../../i18n';
 import {
   SpeakQuery,
   NormalLog,
   PlayerInfo,
-  GameInfo,
   TimerInfo,
   RoleInfo,
   FormDesc,
+  NextTurnLog,
 } from '../../game-view/defs';
 
 /**
@@ -34,10 +33,12 @@ export type DriverMessageDialog = PartiallyPartial<
   IMessageDialog,
   'modal' | 'ok' | 'title'
 >;
-export type DriverAddLogQuery = PartiallyPartial<
-  Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
-  'userid'
->;
+export type DriverAddLogQuery =
+  | PartiallyPartial<
+      Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
+      'userid'
+    >
+  | Omit<NextTurnLog, 'time'>;
 export type DriverAddPlayerQuery = PlayerInfo & {
   emitLog?: boolean;
 };
@@ -101,6 +102,11 @@ export interface Driver {
    * Some form desc is optional.
    */
   openForm(form: PartiallyPartial<FormDesc, 'options' | 'data'>): void;
+  /**
+   * Perform a vote to given player.
+   * @returns whether vote was successful.
+   */
+  voteTo(userid: string): boolean;
 
   /**
    * Get a handler of speak.
@@ -125,13 +131,24 @@ export interface Driver {
 }
 
 /**
+ * Storage which can be used during the tutorial.
+ */
+export interface TutorialStorage {
+  /**
+   * target of day 2 form.
+   */
+  day2DayTarget: string | null;
+}
+
+/**
  * Definition of phase object.
  */
 export interface Phase {
   init?(driver: Driver): void;
-  step(driver: Driver): Promise<number | void>;
+  step(driver: Driver, storage: TutorialStorage): Promise<number | void>;
   getStory(
     driver: Driver,
+    storage: TutorialStorage,
   ): {
     gameInput?: Partial<StoryInputInterface>;
     roomHedaerInput?: Partial<StoryInputRoomHeaderInterface>;

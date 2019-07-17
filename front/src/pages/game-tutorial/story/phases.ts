@@ -1,7 +1,6 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
 import { humanRole } from './roleInfo';
-import { setPriority } from 'os';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -210,11 +209,31 @@ export const phases: Partial<Record<number, Phase>> = {
   },
   6: {
     // Phase 6: during day 2
-    async step(driver) {},
-    getStory(driver) {
+    async step(driver, storage) {
+      // voted
+      if (storage.day2DayTarget == null) {
+        return;
+      }
+      if (!driver.voteTo(storage.day2DayTarget)) {
+        return;
+      }
+      await driver.sleep(4e3);
+
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase6.stepMessage1'),
+      });
+    },
+    getStory(driver, storage) {
       return {
         gameInput: {
           onSpeak: driver.getSpeakHandler(),
+          onJobQuery: query => {
+            console.log(query);
+            storage.day2DayTarget = query.target;
+            driver.step();
+          },
         },
       };
     },
