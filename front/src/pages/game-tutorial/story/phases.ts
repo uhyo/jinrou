@@ -181,6 +181,11 @@ export const phases: Partial<Record<number, Phase>> = {
         },
       });
       driver.setRoleInfo(humanRole(driver.t, false));
+      driver.openForm({
+        type: '_day',
+        objid: 'Human_day',
+        formType: 'required',
+      });
       await driver.sleep(2e3);
       driver.addLog({
         mode: 'gm',

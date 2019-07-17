@@ -11,6 +11,7 @@ import {
   GameInfo,
   TimerInfo,
   RoleInfo,
+  FormDesc,
 } from '../../game-view/defs';
 
 /**
@@ -95,6 +96,11 @@ export interface Driver {
    * set RoleInfo.
    */
   setRoleInfo(roleInfo: RoleInfo): void;
+  /**
+   * Open a new form of player.
+   * Some form desc is optional.
+   */
+  openForm(form: PartiallyPartial<FormDesc, 'options' | 'data'>): void;
 
   /**
    * Get a handler of speak.

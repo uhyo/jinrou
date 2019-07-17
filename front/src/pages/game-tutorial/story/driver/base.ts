@@ -13,6 +13,11 @@ export class DriverBase {
     protected store: GameTutorialStore,
   ) {}
 
+  protected getMe = () => {
+    const { innerStore, userInfo } = this.store;
+    return innerStore.players.find(pl => pl.realid === userInfo.userid);
+  };
+
   public addLog: Driver['addLog'] = query => {
     const log = {
       userid: '',
@@ -52,6 +57,39 @@ export class DriverBase {
         }),
       });
     }
+  };
+
+  public openForm: Driver['openForm'] = form => {
+    const { innerStore } = this.store;
+    const roleInfo = innerStore.roleInfo;
+    if (roleInfo == null) {
+      // !?
+      return;
+    }
+    // default form options
+    const {
+      type,
+      objid,
+      formType,
+      options = innerStore.players.filter(pl => !pl.dead).map(pl => ({
+        name: pl.name,
+        value: pl.id,
+      })),
+      data = undefined,
+    } = form;
+    this.setRoleInfo({
+      ...roleInfo,
+      forms: [
+        ...roleInfo.forms,
+        {
+          type,
+          objid,
+          formType,
+          options,
+          data,
+        },
+      ],
+    });
   };
 
   /**
