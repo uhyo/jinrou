@@ -2,6 +2,10 @@ import { TranslationFunction } from '../../../../i18n';
 import { GameTutorialStore } from '../../store';
 import { Driver } from '../defs';
 import { Cancellation } from './cancellation';
+import {
+  arrayMapToObject,
+  arrayMapToObjectEntries,
+} from '../../../../util/array-map-to-object';
 
 /**
  * @package
@@ -13,6 +17,12 @@ export class DriverBase {
     protected store: GameTutorialStore,
   ) {}
 
+  /**
+   * Get a player by id.
+   */
+  protected getPlayer = (id: string) => {
+    return this.store.innerStore.players.find(pl => pl.id === id);
+  };
   protected getMe = () => {
     const { innerStore, userInfo } = this.store;
     return innerStore.players.find(pl => pl.realid === userInfo.userid);
@@ -42,7 +52,7 @@ export class DriverBase {
 
   public killPlayer: Driver['killPlayer'] = (plId, buryLogType) => {
     const { innerStore } = this.store;
-    const pl = innerStore.players.find(({ id }) => id === plId);
+    const pl = this.getPlayer(plId);
     if (!pl) {
       return;
     }
@@ -106,8 +116,8 @@ export class DriverBase {
   };
 
   public voteTo: Driver['voteTo'] = userid => {
-    const { innerStore, userInfo } = this.store;
-    const pl = innerStore.players.find(pl => pl.id === userid);
+    const { userInfo } = this.store;
+    const pl = this.getPlayer(userid);
     if (pl == null) {
       return false;
     }
@@ -120,6 +130,27 @@ export class DriverBase {
       }),
     });
     return true;
+  };
+
+  public execute: Driver['execute'] = (
+    target,
+    other = this.store.userInfo.userid,
+  ) => {
+    const { innerStore } = this.store;
+    const alives = innerStore.players.filter(({ dead }) => !dead);
+    // TODO
+    this.addLog({
+      mode: 'voteresult',
+      voteresult: alives.map(pl => ({
+        id: pl.id,
+        name: pl.name,
+        voteto: target === pl.id ? other : target,
+      })),
+      tos: arrayMapToObjectEntries(alives, ({ id }) => [
+        id,
+        target === id ? alives.length - 1 : other === id ? 1 : 0,
+      ]),
+    });
   };
 
   /**

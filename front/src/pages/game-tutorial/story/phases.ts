@@ -225,6 +225,19 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase6.stepMessage1'),
       });
+
+      await driver.sleep(5e3);
+      driver.execute('身代わりくん6');
+      driver.killPlayer('身代わりくん6', 'punish');
+      driver.changeGamePhase({
+        day: 2,
+        night: true,
+        timer: {
+          enabled: true,
+          name: driver.t('game:phase.night'),
+          target: Date.now() + 30e3,
+        },
+      });
     },
     getStory(driver, storage) {
       return {

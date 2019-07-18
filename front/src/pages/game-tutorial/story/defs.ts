@@ -11,6 +11,7 @@ import {
   RoleInfo,
   FormDesc,
   NextTurnLog,
+  VoteResultLog,
 } from '../../game-view/defs';
 
 /**
@@ -38,7 +39,8 @@ export type DriverAddLogQuery =
       Pick<NormalLog, 'mode' | 'size' | 'userid' | 'name' | 'comment'>,
       'userid'
     >
-  | Omit<NextTurnLog, 'time'>;
+  | Omit<NextTurnLog, 'time'>
+  | Omit<VoteResultLog, 'time'>;
 export type DriverAddPlayerQuery = PlayerInfo & {
   emitLog?: boolean;
 };
@@ -111,6 +113,10 @@ export interface Driver {
    * @returns whether vote was successful.
    */
   voteTo(userid: string): boolean;
+  /**
+   * Perform a punishment.
+   */
+  execute(target: string, other?: string): void;
 
   /**
    * Get a handler of speak.
