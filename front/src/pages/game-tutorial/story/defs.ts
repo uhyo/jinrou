@@ -103,6 +103,10 @@ export interface Driver {
    */
   openForm(form: PartiallyPartial<FormDesc, 'options' | 'data'>): void;
   /**
+   * Close a form of given objid.
+   */
+  closeForm(objid: string): void;
+  /**
    * Perform a vote to given player.
    * @returns whether vote was successful.
    */

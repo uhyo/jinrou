@@ -217,6 +217,7 @@ export const phases: Partial<Record<number, Phase>> = {
       if (!driver.voteTo(storage.day2DayTarget)) {
         return;
       }
+      driver.closeForm('Human_day');
       await driver.sleep(4e3);
 
       driver.addLog({

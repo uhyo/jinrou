@@ -92,6 +92,19 @@ export class DriverBase {
     });
   };
 
+  public closeForm: Driver['closeForm'] = objid => {
+    const { innerStore } = this.store;
+    const { roleInfo } = innerStore;
+
+    if (roleInfo == null) {
+      return;
+    }
+    this.setRoleInfo({
+      ...roleInfo,
+      forms: roleInfo.forms.filter(f => f.objid !== objid),
+    });
+  };
+
   public voteTo: Driver['voteTo'] = userid => {
     const { innerStore, userInfo } = this.store;
     const pl = innerStore.players.find(pl => pl.id === userid);
