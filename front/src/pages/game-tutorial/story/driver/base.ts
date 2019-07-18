@@ -257,6 +257,15 @@ export class DriverBase {
       store: { innerStore },
     } = this;
     const roomControls = gameStart ? null : undefined;
+    if (gameStart) {
+      const players = innerStore.players.map(pl => ({
+        ...pl,
+        flags: [],
+      }));
+
+      innerStore.resetPlayers(players);
+    }
+
     innerStore.update({
       timer,
       roomControls,
