@@ -9403,6 +9403,7 @@ class Poet extends Player
             return game.i18n.t "error.common.alreadyDead"
         if pl.id == @id
             return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game, @id
         # perform easy check for large string
         unless typeof query.poem == "string" && query.poem.length < Config.maxlength.game.comment
             return game.i18n.t "error.common.invalidQuery"
