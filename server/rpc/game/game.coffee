@@ -9525,7 +9525,7 @@ class Amanojaku extends Player
     type:"Amanojaku"
     team:""
     isWinner:(game, team)->
-        team != "Human"
+        team != "Human" && team != ""
 
 # ============================
 # 処理上便宜的に使用
@@ -11012,11 +11012,11 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "Devil" || @main.type == "Stalker"
+        if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku"
             win = win || @main.isWinner(game,team)
         # if it has team-independent winningness, adopt it.
         win = win || @main.isWinner(game, "")
-        if subt == myt || subt == "Devil" || @sub?.type == "Stalker"
+        if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku"
             win = win || @sub.isWinner(game,team)
         if @sub?
             win = win || @sub.isWinner(game, "")
