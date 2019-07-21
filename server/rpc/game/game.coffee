@@ -9525,7 +9525,7 @@ class Amanojaku extends Player
     type:"Amanojaku"
     team:""
     isWinner:(game, team)->
-        team != "Human"
+        team != "Human" && team != ""
 
 # ============================
 # 処理上便宜的に使用
