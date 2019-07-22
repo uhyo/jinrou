@@ -227,8 +227,8 @@ export const phases: Partial<Record<number, Phase>> = {
       });
 
       await driver.sleep(5e3);
-      driver.execute('身代わりくん6');
-      driver.killPlayer('身代わりくん6', 'punish');
+      driver.execute(storage.day2DayTarget);
+      driver.killPlayer(storage.day2DayTarget, 'punish');
       driver.changeGamePhase({
         day: 2,
         night: true,
