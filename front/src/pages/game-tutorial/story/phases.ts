@@ -1,6 +1,6 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
-import { humanRole } from './roleInfo';
+import { humanRole, divinerRole } from './roleInfo';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -235,9 +235,16 @@ export const phases: Partial<Record<number, Phase>> = {
         timer: {
           enabled: true,
           name: driver.t('game:phase.night'),
-          target: Date.now() + 30e3,
+          target: Date.now() + 150e3,
         },
       });
+      driver.setRoleInfo(divinerRole(driver.t, true));
+      driver.openForm({
+        type: 'Diviner',
+        objid: 'Diviner_night',
+        formType: 'required',
+      });
+      return 7;
     },
     getStory(driver, storage) {
       return {
@@ -250,6 +257,28 @@ export const phases: Partial<Record<number, Phase>> = {
           },
         },
       };
+    },
+  },
+  7: {
+    init(driver) {
+      driver.step();
+    },
+    async step(driver) {
+      await driver.sleep(3e3);
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase7.stepMessage1'),
+      });
+      await driver.sleep(4e3);
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase7.stepMessage2'),
+      });
+    },
+    getStory(driver) {
+      return {};
     },
   },
 };
