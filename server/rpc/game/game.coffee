@@ -12400,6 +12400,9 @@ module.exports.actions=(req,res,ss)->
             if query.yaminabe_hidejobs != "" && query.jobrule == "特殊ルール.自由配役"
                 # ルール名のみ
                 ruleinfo_str = game.i18n.t "casting:castingName.#{query.jobrule}"
+            if query.losemode == "on"
+                # 敗北村の場合は表示
+                ruleinfo_str = "#{game.i18n.t "common.losemode"}　" + (ruleinfo_str ? "")    
             if query.chemical == "on"
                 # ケミカル人狼の場合は表示
                 ruleinfo_str = "#{game.i18n.t "common.chemicalWerewolf"}　" + (ruleinfo_str ? "")
