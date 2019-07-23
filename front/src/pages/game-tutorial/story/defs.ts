@@ -114,6 +114,16 @@ export interface Driver {
    */
   voteTo(userid: string): boolean;
   /**
+   * Generate driver functions to run a Diviner skill to given player.
+   */
+  divinerSkillTo(
+    userid: string,
+  ): {
+    select(): void;
+    result(): void;
+  };
+
+  /**
    * Perform a punishment.
    */
   execute(target: string, other?: string): void;
@@ -148,6 +158,10 @@ export interface TutorialStorage {
    * target of day 2 form.
    */
   day2DayTarget: string | null;
+  /**
+   * target of night 2 form.
+   */
+  day2NightTarget: string | null;
 }
 
 /**

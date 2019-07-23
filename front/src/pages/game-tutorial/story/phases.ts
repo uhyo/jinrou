@@ -261,6 +261,7 @@ export const phases: Partial<Record<number, Phase>> = {
     },
   },
   7: {
+    // Phase 7: transition to day 2 night
     init(driver) {
       driver.step();
     },
@@ -284,11 +285,24 @@ export const phases: Partial<Record<number, Phase>> = {
     },
   },
   8: {
-    async step(driver) {},
-    getStory(driver) {
+    // Phase 8: during night 2
+    async step(driver, storage) {
+      if (storage.day2NightTarget == null) {
+        return;
+      }
+      const divinerDriver = driver.divinerSkillTo(storage.day2NightTarget);
+
+      divinerDriver.select();
+    },
+    getStory(driver, storage) {
       return {
         gameInput: {
           onSpeak: driver.getSpeakHandler(),
+          onJobQuery: query => {
+            console.log(query);
+            storage.day2NightTarget = query.target;
+            driver.step();
+          },
         },
       };
     },

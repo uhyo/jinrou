@@ -14,6 +14,7 @@ import { isCancellationError } from './story/driver/cancellation';
 
 const initialStorage: TutorialStorage = {
   day2DayTarget: null,
+  day2NightTarget: null,
 };
 
 export class GameTutorialStore {

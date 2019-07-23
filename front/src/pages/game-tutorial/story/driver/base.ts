@@ -132,6 +132,39 @@ export class DriverBase {
     return true;
   };
 
+  public divinerSkillTo: Driver['divinerSkillTo'] = userid => {
+    const { userInfo } = this.store;
+    const targetPl = this.getPlayer(userid);
+
+    return {
+      select: () => {
+        if (targetPl == null) {
+          return;
+        }
+        this.addLog({
+          mode: 'skill',
+          comment: this.t('roles:Diviner.select', {
+            name: userInfo.name,
+            target: targetPl.name,
+          }),
+        });
+      },
+      result: () => {
+        if (targetPl == null) {
+          return;
+        }
+        this.addLog({
+          mode: 'skill',
+          comment: this.t('roles:Diviner.resultlog', {
+            name: userInfo.name,
+            target: targetPl.name,
+            result: this.t('roles:fortune.human'),
+          }),
+        });
+      },
+    };
+  };
+
   public execute: Driver['execute'] = (
     target,
     other = this.store.userInfo.userid,
