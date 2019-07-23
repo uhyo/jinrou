@@ -1,6 +1,7 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
 import { humanRole, divinerRole } from './roleInfo';
+import { setPriority } from 'os';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -276,9 +277,20 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase7.stepMessage2'),
       });
+      return 8;
     },
     getStory(driver) {
       return {};
+    },
+  },
+  8: {
+    async step(driver) {},
+    getStory(driver) {
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
+        },
+      };
     },
   },
 };
