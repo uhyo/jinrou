@@ -9526,6 +9526,29 @@ class Amanojaku extends Player
     team:""
     isWinner:(game, team)->
         team != "Human" && team != ""
+        
+class Ascetic extends Player
+    type: "Ascetic"
+    team: "Raven"
+    isWinner:(game, team)->
+        ravens = game.players.filter (x)-> x.isJobType "Raven"
+        if ravens.length > 1
+            # 鴉勝利
+            team == @team
+        else if ravens.length == 1
+            ravens = game.players.filter (x)->!x.dead && x.isJobType "Raven"
+            if ravens.length == 1
+                true
+        else
+            # 単独の場合は生存でOK
+            !@dead
+
+    makejobinfo:(game, result)->
+        # 鴉の一覧を知ることができる
+        super
+        result.ravens =
+            game.players.filter((x)-> x.isJobType "Raven").map (x)->
+                x.publicinfo()
 
 # ============================
 # 処理上便宜的に使用
@@ -11223,6 +11246,7 @@ jobs=
     Elementaler:Elementaler
     Poet:Poet
     Amanojaku:Amanojaku
+    Ascetic:Ascetic
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11398,6 +11422,7 @@ jobStrength=
     Elementaler:23
     Poet:11
     Amanojaku:10
+    Ascetic:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
