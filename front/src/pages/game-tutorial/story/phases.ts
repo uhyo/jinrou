@@ -293,6 +293,14 @@ export const phases: Partial<Record<number, Phase>> = {
       const divinerDriver = driver.divinerSkillTo(storage.day2NightTarget);
 
       divinerDriver.select();
+
+      await driver.sleep(1e3);
+
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase8.stepMessage1'),
+      });
     },
     getStory(driver, storage) {
       return {

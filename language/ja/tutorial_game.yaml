@@ -81,3 +81,9 @@ phase7:
     よく考えて占い対象を選びましょう。
 
     投票と同じく、能力の使用先は一度選んだら変えることができません。注意してください。
+# phase 8: used diviner skill
+phase8:
+  # message by guide after using Diviner skill
+  stepMessage1: |
+    占い師の能力を使用しました。能力使用時にはこのように自分にしか見えないログが表示されます。
+    占い師の能力結果は翌朝表示されます（デフォルトの設定の場合）。
