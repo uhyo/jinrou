@@ -38,7 +38,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人狼式
 "Emma","EyesWolf","TongueWolf",
 # えけけ鯖
-"MadHunter",
+"MadHunter","Ascetic"
 # 人狼パーティー
 "TinyGhost","Ninja","Twin","Dracula","VampireClan"
 # その他
@@ -85,7 +85,7 @@ exports.teams=teams=
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
     Vampire:["Vampire","Dracula","VampireClan"]
     Cult:["CultLeader"]
-    Raven:["Raven"]
+    Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
     Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku"],
     Neet:["Neet"]
@@ -99,7 +99,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","Raven","VampireClan","Hooligan","Bat","Tanner","Hoodlum","Shishimai","Amanojaku"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Bat","Tanner","Hoodlum","Shishimai","Amanojaku"]
     Switching:["Stalker","Copier","Doppleganger","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:["Neet"]
@@ -910,6 +910,8 @@ exports.jobinfo=
         color: "#444466"
         Raven:
             color: "#444466"
+        Ascetic:
+            color:"#435066"
     Hooligan:
         color: "#f39800"
         Hooligan:
