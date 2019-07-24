@@ -9526,6 +9526,32 @@ class Amanojaku extends Player
     team:""
     isWinner:(game, team)->
         team != "Human" && team != ""
+        
+class Ascetic extends Player
+    type: "Ascetic"
+    team: "Raven"
+    isWinner:(game, team)->
+        ravens = game.players.filter (x)-> x.isJobType "Raven"
+        aliver = ravens.filter (x)->!x.dead
+        if ravens.length > 1
+            # 鴉2配役以上で鴉勝利
+            team == @team
+        else if ravens.length == 1
+            # 鴉がちょうど1配役時はその鴉を生存させる
+            if aliver.length == 1
+                true
+            else
+                false
+        else
+            # 鴉は配役されず修験者単独の場合は生存でOK
+            !@dead
+
+    makejobinfo:(game, result)->
+        # 鴉の一覧を知ることができる
+        super
+        result.ravens =
+            game.players.filter((x)-> x.isJobType "Raven").map (x)->
+                x.publicinfo()
 
 # ============================
 # 処理上便宜的に使用
@@ -11223,6 +11249,7 @@ jobs=
     Elementaler:Elementaler
     Poet:Poet
     Amanojaku:Amanojaku
+    Ascetic:Ascetic
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11398,6 +11425,7 @@ jobStrength=
     Elementaler:23
     Poet:11
     Amanojaku:10
+    Ascetic:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12276,6 +12304,10 @@ module.exports.actions=(req,res,ss)->
                                         if playersnumber >= 16
                                             # 16人以上だと3人セットにしちゃう
                                             init "Raven", "Others", "Raven"
+                                when "Ascetic"
+                                    # 鴉がいないと出ない（実質鴉が2配役以上で出現条件を満たす）
+                                    if joblist.Raven==0
+                                        continue
 
 
                         joblist[job]++
