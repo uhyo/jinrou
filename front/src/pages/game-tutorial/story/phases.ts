@@ -290,6 +290,7 @@ export const phases: Partial<Record<number, Phase>> = {
       if (storage.day2NightTarget == null) {
         return;
       }
+      driver.closeForm('Diviner_night');
       const divinerDriver = driver.divinerSkillTo(storage.day2NightTarget);
 
       divinerDriver.select();
@@ -301,6 +302,40 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase8.stepMessage1'),
       });
+
+      await driver.sleep(5e3);
+      // decide today's werewolf target
+      storage.day2NightVictim = driver.randomAlivePlayer();
+      driver.changeGamePhase({
+        day: 3,
+        night: false,
+        timer: {
+          enabled: true,
+          name: driver.t('game:phase.day'),
+          target: Date.now() + 330e3,
+        },
+      });
+      if (storage.day2NightVictim != null) {
+        driver.killPlayer(storage.day2NightVictim, 'normal');
+      }
+      divinerDriver.result();
+
+      driver.setRoleInfo(divinerRole(driver.t, false));
+      driver.openForm({
+        type: '_day',
+        objid: 'Human_day',
+        formType: 'required',
+      });
+
+      await driver.sleep(2e3);
+
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase8.stepMessage2'),
+      });
+
+      return 9;
     },
     getStory(driver, storage) {
       return {
@@ -311,6 +346,16 @@ export const phases: Partial<Record<number, Phase>> = {
             storage.day2NightTarget = query.target;
             driver.step();
           },
+        },
+      };
+    },
+  },
+  9: {
+    async step(driver, storage) {},
+    getStory(driver) {
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
         },
       };
     },

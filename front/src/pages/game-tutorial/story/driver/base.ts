@@ -2,10 +2,7 @@ import { TranslationFunction } from '../../../../i18n';
 import { GameTutorialStore } from '../../store';
 import { Driver } from '../defs';
 import { Cancellation } from './cancellation';
-import {
-  arrayMapToObject,
-  arrayMapToObjectEntries,
-} from '../../../../util/array-map-to-object';
+import { arrayMapToObjectEntries } from '../../../../util/array-map-to-object';
 
 /**
  * @package
@@ -26,6 +23,19 @@ export class DriverBase {
   protected getMe = () => {
     const { innerStore, userInfo } = this.store;
     return innerStore.players.find(pl => pl.realid === userInfo.userid);
+  };
+
+  public randomAlivePlayer: Driver['randomAlivePlayer'] = () => {
+    const { innerStore, userInfo } = this.store;
+    const candidates = innerStore.players.filter(
+      pl => !pl.dead && pl.id !== userInfo.userid,
+    );
+    if (candidates.length == 0) {
+      // !?
+      return null;
+    }
+    const r = Math.floor(Math.random() * candidates.length);
+    return candidates[r].id;
   };
 
   public addLog: Driver['addLog'] = query => {

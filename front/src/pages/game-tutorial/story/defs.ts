@@ -59,6 +59,10 @@ export interface Driver {
    */
   cancelStep: () => void;
   /**
+   * Select an alive player randomly.
+   */
+  randomAlivePlayer(): string | null;
+  /**
    * Sleep for given duration (in ms)
    */
   sleep(duration: number): Promise<void>;
@@ -162,6 +166,10 @@ export interface TutorialStorage {
    * target of night 2 form.
    */
   day2NightTarget: string | null;
+  /**
+   * victim of night 2.
+   */
+  day2NightVictim: string | null;
 }
 
 /**
