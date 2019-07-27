@@ -11640,6 +11640,10 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "SpiritPossessed"
                     special_exceptions.push "SpiritPossessed"
+                # 狂人狼（人気がないので出ない）
+                if safety.jingais || safety.jobs
+                    exceptions.push "MadWolf"
+                    special_exceptions.push "MadWolf"
                 # ニートは隠し役職（出現率低）
                 if Math.random()<0.4
                     exceptions.push "Neet"
