@@ -11561,6 +11561,7 @@ module.exports.actions=(req,res,ss)->
 
                 safety={
                     jingais:false   # 人外の数を調整
+                    ppcheck:false   # ほぼteamsの処理をするだけ
                     teams:false     # 陣営の数を調整
                     jobs:false      # 職どうしの数を調整
                     strength:false  # 職の強さも考慮
@@ -11574,6 +11575,9 @@ module.exports.actions=(req,res,ss)->
                     when "low"
                         # 低い
                         safety.jingais=true
+                    when "lowlow"
+                        safety.jingais=true
+                        safety.ppcheck=true
                     when "middle"
                         safety.jingais=true
                         safety.teams=true
@@ -11824,7 +11828,7 @@ module.exports.actions=(req,res,ss)->
                     return null
 
 
-                if safety.teams
+                if safety.teams || safety.ppcheck
                     # 陣営調整もする
                     # 人狼陣営
                     if frees>0
@@ -12205,7 +12209,7 @@ module.exports.actions=(req,res,ss)->
                             job=possibility[r]
                             # 一般枠を使ったのでfreesを消費
                             frees--
-                        if safety.teams && !category?
+                        if (safety.teams || safety.ppcheck) && !category?
                             if job in Shared.game.teams.Werewolf
                                 if wolf_teams+1>=plsh
                                     # 人狼が過半数を越えた（PP）
@@ -12320,7 +12324,7 @@ module.exports.actions=(req,res,ss)->
                             possibility = possibility.filter (x)-> x != "MadWolf"
                             special_exceptions.push "MadWolf"
 
-                        if safety.teams && (job in Shared.game.teams.Werewolf)
+                        if (safety.teams || safety.ppcheck) && (job in Shared.game.teams.Werewolf)
                             wolf_teams++    # 人狼陣営が増えた
 
                         # ひとつ追加
