@@ -16,6 +16,8 @@ const initialStorage: TutorialStorage = {
   day2DayTarget: null,
   day2NightTarget: null,
   day2NightVictim: null,
+  day3DayTarget: null,
+  day3DayVictim: null,
 };
 
 export class GameTutorialStore {

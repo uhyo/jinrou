@@ -228,7 +228,7 @@ export const phases: Partial<Record<number, Phase>> = {
       });
 
       await driver.sleep(5e3);
-      driver.execute(storage.day2DayTarget);
+      driver.execute(storage.day2DayTarget, storage.day2DayTarget);
       driver.killPlayer(storage.day2DayTarget, 'punish');
       driver.changeGamePhase({
         day: 2,
@@ -351,11 +351,41 @@ export const phases: Partial<Record<number, Phase>> = {
     },
   },
   9: {
-    async step(driver, storage) {},
-    getStory(driver) {
+    async step(driver, storage) {
+      if (storage.day3DayTarget == null) {
+        return;
+      }
+      if (!driver.voteTo(storage.day3DayTarget)) {
+        return;
+      }
+      driver.closeForm('Human_day');
+      await driver.sleep(4e3);
+
+      storage.day3DayVictim = driver.randomAlivePlayer();
+
+      if (storage.day3DayVictim != null) {
+        driver.execute(storage.day3DayVictim, storage.day3DayTarget);
+        driver.killPlayer(storage.day3DayVictim, 'punish');
+      }
+      driver.endGame({
+        loser: storage.day3DayVictim,
+      });
+      await driver.sleep(3e3);
+
+      driver.addLog({
+        mode: 'gm',
+        name: driver.t('roles:jobname.GameMaster'),
+        comment: driver.t('phase9.stepMessage1'),
+      });
+    },
+    getStory(driver, storage) {
       return {
         gameInput: {
           onSpeak: driver.getSpeakHandler(),
+          onJobQuery: query => {
+            storage.day3DayTarget = query.target;
+            driver.step();
+          },
         },
       };
     },

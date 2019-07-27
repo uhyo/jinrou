@@ -51,6 +51,10 @@ export type ChangePhaseQuery = {
   gameStart?: boolean;
 };
 
+export type EndGameQuery = {
+  loser: string | null;
+};
+
 export interface Driver {
   t: TranslationFunction;
   step: () => unknown;
@@ -100,6 +104,10 @@ export interface Driver {
    */
   changeGamePhase(gameInfo: ChangePhaseQuery): void;
   /**
+   * End the game.
+   */
+  endGame(query: EndGameQuery): void;
+  /**
    * set RoleInfo.
    */
   setRoleInfo(roleInfo: RoleInfo): void;
@@ -130,7 +138,7 @@ export interface Driver {
   /**
    * Perform a punishment.
    */
-  execute(target: string, other?: string): void;
+  execute(target: string, myVote: string, other?: string): void;
 
   /**
    * Get a handler of speak.
@@ -170,6 +178,14 @@ export interface TutorialStorage {
    * victim of night 2.
    */
   day2NightVictim: string | null;
+  /**
+   * target of day 3 form.
+   */
+  day3DayTarget: string | null;
+  /**
+   * Victom of day 3.
+   */
+  day3DayVictim: string | null;
 }
 
 /**

@@ -177,21 +177,23 @@ export class DriverBase {
 
   public execute: Driver['execute'] = (
     target,
+    myvote,
     other = this.store.userInfo.userid,
   ) => {
-    const { innerStore } = this.store;
+    const { innerStore, userInfo } = this.store;
     const alives = innerStore.players.filter(({ dead }) => !dead);
-    // TODO
+    const voteresult = alives.map(pl => ({
+      id: pl.id,
+      name: pl.name,
+      voteto:
+        userInfo.userid === pl.id ? myvote : target === pl.id ? other : target,
+    }));
     this.addLog({
       mode: 'voteresult',
-      voteresult: alives.map(pl => ({
-        id: pl.id,
-        name: pl.name,
-        voteto: target === pl.id ? other : target,
-      })),
+      voteresult,
       tos: arrayMapToObjectEntries(alives, ({ id }) => [
         id,
-        target === id ? alives.length - 1 : other === id ? 1 : 0,
+        voteresult.filter(v => v.voteto === id).length,
       ]),
     });
   };
@@ -326,6 +328,41 @@ export class DriverBase {
       day: query.day,
       night: query.night,
     });
+  };
+
+  public endGame: Driver['endGame'] = ({ loser }) => {
+    const { innerStore, userInfo } = this.store;
+    // TODO
+    this.addLog({
+      mode: 'nextturn',
+      comment: this.t('game:system.judge', {
+        short: this.t('game:judge.short.human'),
+        result: this.t('game:judge.human'),
+      }),
+      day: 0,
+      night: false,
+    });
+
+    innerStore.update({
+      gameInfo: {
+        ...innerStore.gameInfo,
+        finished: true,
+        status: 'finished',
+      },
+    });
+
+    const players = innerStore.players.map(pl => ({
+      ...pl,
+      winner: pl.id !== loser,
+      jobname:
+        pl.id === loser
+          ? this.t('roles:jobname.Werewolf')
+          : pl.id === userInfo.userid
+            ? this.t('roles:jobname.Diviner')
+            : this.t('roles:jobname.Human'),
+    }));
+
+    innerStore.resetPlayers(players);
   };
 
   public setRoleInfo: Driver['setRoleInfo'] = roleInfo => {
