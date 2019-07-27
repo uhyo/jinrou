@@ -965,6 +965,7 @@ exports.new_rules=[
                         "super"
                         "high"
                         "middle"
+                        "lowlow"
                         "low"
                         "none"
                         "reverse"
