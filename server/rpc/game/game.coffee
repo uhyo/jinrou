@@ -11645,7 +11645,7 @@ module.exports.actions=(req,res,ss)->
                     exceptions.push "MadWolf"
                     special_exceptions.push "MadWolf"
                 # ニートは隠し役職（出現率低）
-                if Math.random()<0.4
+                if query.losemode == "on" || Math.random()<0.4
                     exceptions.push "Neet"
                     special_exceptions.push "Neet"
 
