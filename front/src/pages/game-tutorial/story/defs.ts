@@ -192,6 +192,7 @@ export interface TutorialStorage {
  * Definition of phase object.
  */
 export interface Phase {
+  isFinished?: boolean;
   init?(driver: Driver): void;
   step(driver: Driver, storage: TutorialStorage): Promise<number | void>;
   getStory(

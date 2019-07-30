@@ -48,7 +48,6 @@ export const GameTutorial: React.FunctionComponent<
   return (
     <>
       <h1 id="roomname">{i18n.t('tutorial_game:room.title')}</h1>
-      <p>{store.phase}</p>
       <Game
         i18n={i18n}
         roomid={0}

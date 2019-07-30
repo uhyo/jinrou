@@ -11,6 +11,7 @@ import { InteractiveDriver, SilentDriver } from './story/driver';
 import { phases } from './story/phases';
 import { UserInfo, currentPhaseStorageKey } from './defs';
 import { isCancellationError } from './story/driver/cancellation';
+import { showConfirmDialog } from '../../dialog';
 
 const initialStorage: TutorialStorage = {
   day2DayTarget: null,
@@ -21,11 +22,12 @@ const initialStorage: TutorialStorage = {
 };
 
 export class GameTutorialStore {
+  @observable.ref
   public innerStore: GameStore = new GameStore();
   @observable
-  public phase = 0;
+  public phase!: number;
   public skipMode = false;
-  public storage: TutorialStorage = initialStorage;
+  public storage!: TutorialStorage;
 
   private t: TranslationFunction;
   private interactiveDriver: InteractiveDriver;
@@ -33,7 +35,15 @@ export class GameTutorialStore {
   constructor(public userInfo: UserInfo, private i18n: i18n) {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game');
     this.interactiveDriver = new InteractiveDriver(this.t, this);
-    // initialize state of the room
+
+    this.reset();
+  }
+
+  private reset() {
+    this.phase = 0;
+    this.storage = Object.assign({}, initialStorage);
+
+    this.innerStore = new GameStore();
     this.innerStore.gameInfo = {
       day: 0,
       night: false,
@@ -128,6 +138,22 @@ export class GameTutorialStore {
       const proc = await this.stepWithDriver(driver);
       if (!proc) {
         break;
+      }
+    }
+    const finalPhase = phases[this.phase];
+    if (finalPhase != null && finalPhase.isFinished) {
+      // show user an option to reset
+      const res = await showConfirmDialog({
+        modal: true,
+        title: this.t('common.messageDialog.title'),
+        message: this.t('resetDialog.message'),
+        yes: this.t('resetDialog.ok'),
+        no: this.t('resetDialog.cancel'),
+      });
+      if (res) {
+        localStorage.removeItem(currentPhaseStorageKey);
+        this.reset();
+        return this.step();
       }
     }
   };

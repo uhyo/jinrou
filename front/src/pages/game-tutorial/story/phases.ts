@@ -1,7 +1,6 @@
 import { Phase } from './defs';
 import { inSequence } from '../../../util/function-composer';
 import { humanRole, divinerRole } from './roleInfo';
-import { setPriority } from 'os';
 
 export const phases: Partial<Record<number, Phase>> = {
   0: {
@@ -46,13 +45,13 @@ export const phases: Partial<Record<number, Phase>> = {
     // Phase 2: enter the room
     async step(driver) {
       driver.join();
-      await driver.sleep(1000);
+      await driver.sleep(6e3);
       driver.addLog({
         mode: 'prepare',
         name: driver.t('guide.name'),
         comment: driver.t('phase2.stepMessage1'),
       });
-      await driver.sleep(2500);
+      await driver.sleep(5e3);
       driver.addLog({
         mode: 'prepare',
         name: driver.t('guide.name'),
@@ -75,7 +74,7 @@ export const phases: Partial<Record<number, Phase>> = {
     // Phase 3: get ready
     async step(driver) {
       driver.ready(true);
-      await driver.sleep(1000); // TODO: change to 10s
+      await driver.sleep(10e3);
       // add 5 more players
       for (let i = 0; i < 5; i++) {
         const realid = `身代わりくん${i + 2}`;
@@ -227,7 +226,7 @@ export const phases: Partial<Record<number, Phase>> = {
         comment: driver.t('phase6.stepMessage1'),
       });
 
-      await driver.sleep(5e3);
+      await driver.sleep(7e3);
       driver.execute(storage.day2DayTarget, storage.day2DayTarget);
       driver.killPlayer(storage.day2DayTarget, 'punish');
       driver.changeGamePhase({
@@ -272,7 +271,7 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase7.stepMessage1'),
       });
-      await driver.sleep(4e3);
+      await driver.sleep(6e3);
       driver.addLog({
         mode: 'gm',
         name: driver.t('roles:jobname.GameMaster'),
@@ -303,7 +302,7 @@ export const phases: Partial<Record<number, Phase>> = {
         comment: driver.t('phase8.stepMessage1'),
       });
 
-      await driver.sleep(5e3);
+      await driver.sleep(8e3);
       // decide today's werewolf target
       storage.day2NightVictim = driver.randomAlivePlayer();
       driver.changeGamePhase({
@@ -393,6 +392,7 @@ export const phases: Partial<Record<number, Phase>> = {
     },
   },
   10: {
+    isFinished: true,
     async step() {},
     getStory(driver) {
       return {
