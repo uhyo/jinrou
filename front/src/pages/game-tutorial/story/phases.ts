@@ -377,6 +377,8 @@ export const phases: Partial<Record<number, Phase>> = {
         name: driver.t('roles:jobname.GameMaster'),
         comment: driver.t('phase9.stepMessage1'),
       });
+
+      return 10;
     },
     getStory(driver, storage) {
       return {
@@ -386,6 +388,16 @@ export const phases: Partial<Record<number, Phase>> = {
             storage.day3DayTarget = query.target;
             driver.step();
           },
+        },
+      };
+    },
+  },
+  10: {
+    async step() {},
+    getStory(driver) {
+      return {
+        gameInput: {
+          onSpeak: driver.getSpeakHandler(),
         },
       };
     },

@@ -349,6 +349,11 @@ export class DriverBase {
         finished: true,
         status: 'finished',
       },
+      timer: {
+        enabled: false,
+        name: '',
+        target: 0,
+      },
     });
 
     const players = innerStore.players.map(pl => ({
@@ -363,6 +368,13 @@ export class DriverBase {
     }));
 
     innerStore.resetPlayers(players);
+
+    if (innerStore.roleInfo != null) {
+      this.setRoleInfo({
+        ...innerStore.roleInfo,
+        win: true,
+      });
+    }
   };
 
   public setRoleInfo: Driver['setRoleInfo'] = roleInfo => {
