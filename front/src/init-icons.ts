@@ -33,6 +33,9 @@ import {
   faMicrophoneSlash,
   faFileSignature,
   faTheaterMasks,
+  faSchool,
+  faChartPie,
+  faAward,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -66,6 +69,9 @@ library.add(
   faPaperPlane,
   faFileSignature,
   faTheaterMasks,
+  faSchool,
+  faChartPie,
+  faAward,
 );
 
 // Publish to global.
