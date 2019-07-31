@@ -1,3 +1,4 @@
+#mypage-app.whole-page
 section.profile
   h1 プロフィール
   div#alert
@@ -81,19 +82,32 @@ section.profile
     tbody#newslist
 
   #rooms-app.whole-page
-  fieldset
-    h2 戦績
-    p
-      a(href="/my/log") 戦績を見る
 
-  fieldset
-    h2 称号
-    p 入室時に名前の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
-    p
-      a(href="/my/prize") 称号一覧を見る・肩書きを編集する
-    p
-      | 称号獲得数:
-      span#prizenumber 0
-    p#current-prize
+  .profile-bottom-menu
+    section.profile-bottom-menu-item
+      div
+        i.fas.fa-4x.fa-chart-pie
+      h2 戦績
+      p
+        a(href="/my/log") 戦績を見る
+
+    section.profile-bottom-menu-item
+      div
+        i.fas.fa-4x.fa-award
+      h2 称号
+      p 入室時に名前の前に表示する肩書きを、獲得した称号を組み合わせて設定できます。
+      p
+        a(href="/my/prize") 称号一覧を見る・肩書きを編集する
+      p
+        | 称号獲得数:
+        span#prizenumber 0
+      p#current-prize
+
+    section.profile-bottom-menu-item
+      div
+        i.fas.fa-4x.fa-school
+      h2 練習部屋
+      p
+        a(href="/tutorial/game") 練習部屋
   p
     a(href="/logout") ログアウト

@@ -3,9 +3,22 @@ app=require '/app'
 util=require '/util'
 
 name_length_max=20
+mypage_view = null
 
 exports.start=(user)->
     dialog = JinrouFront.loadDialog()
+
+    pi18n = app.getI18n()
+    papp = JinrouFront.loadMyPage()
+
+    Promise.all([pi18n, papp]).then(([i18n, japp])->
+        japp.place {
+            i18n: i18n
+            node: $("#mypage-app").get 0
+        }
+    ).then (v)->
+        mypage_view = v
+
 
     seticon=(url)->
         util.setHTTPSicon $("#myicon").get(0), url
@@ -165,4 +178,5 @@ exports.start=(user)->
             $("#newNewsNotice").remove()
 
 exports.end=->
+    mypage_view?.unmount()
     Index.game.rooms.end()
