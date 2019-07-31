@@ -65,7 +65,7 @@ exports.start=(roomid)->
                 rules: Shared.game.new_rules
                 categories: Shared.game.categoryList
                 reportForm: appConfig.reportForm
-                teamColors: makeTeamColors()
+                teamColors: Shared.game.makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
                         if result?
@@ -818,9 +818,3 @@ getPlayerInfoFlags = (ready, mode) ->
     if ready
         flags.push 'ready'
     flags
-# make team color map from jobinfo
-makeTeamColors = ->
-    result = {}
-    for team, obj of Shared.game.jobinfo
-        result[team] = obj.color
-    result

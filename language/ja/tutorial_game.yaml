@@ -1,0 +1,115 @@
+# metadata of tutorial room
+room:
+  title: '練習部屋'
+
+# guide NPC
+guide:
+  # main guide
+  name: '身代わりくん'
+  # other npcs
+  npc1: 'ゲルト'
+  npc2: 'オットー'
+  npc3: 'ヴァルター'
+  npc4: 'トーマス'
+  npc5: 'リーザ'
+
+# common data
+common:
+  messageDialog:
+    title: '練習部屋'
+    ok: '次へ'
+  # error message shown when this tool is not taught.
+  notTaughtMessage: '身代わりくん「この機能はまだ教えてませんよ！」'
+# reset dialog
+resetDialog:
+  message: '既に練習部屋をクリアしているようです。もう一度練習しますか？'
+  ok: 'もう一度練習する'
+  cancel: 'キャンセル'
+
+# phase 0: initialState
+phase0:
+  stepMessage: '練習部屋にようこそ！　この部屋は、他の人には見えない操作の練習用の部屋です。まずは発言してみましょう。'
+
+# phase 1: speak as audience
+phase1:
+  # message by guide after speaking as audience
+  stepMessage1: |
+    よくできました！　このように、観戦者でも発言ができます（観戦者発言禁止の村を除く）。
+
+    私は練習部屋の案内役を務める身代わりくんです。よろしくお願いします。
+  stepMessage2: |
+    ゲームに参加するには、まず村に入室します。上にある「ゲームに参加」ボタンを押してください。
+
+# phase 2: enter the room
+phase2:
+  # message by guide after entering the room
+  stepMessage1: |
+    ゲームに参加できました！
+    ゲームに参加している人は発言の色が変わります。試してみましょう。
+  stepMessage2: |
+    ゲーム開始の準備ができたら「準備完了/準備中」ボタンを押して準備完了状態にします。
+    席を外すときはもう一度ボタンを押して準備中に戻しましょう。
+
+    次の練習に進む準備ができたら準備完了状態で待機してください。
+# phase 4: start game
+phase4:
+  # message by guide before game start
+  stepMessage1: |
+    参加者が揃って全員準備完了したら、部屋を建てた人がゲームを開始するのを待ちましょう。
+    ゲームは1日目の夜から始まります。
+# phase 5: first night
+phase5:
+  # message by guide after game start
+  stepMessage1: |
+    ゲームが始まりました。あなたは村人のようです。
+    村人は夜にやることがありませんので、独り言でもつぶやきながら朝を待ちましょう。
+    夜の発言は独り言になり他の人には見えませんが、人狼や共有者など一部の役職は夜に会話できます。
+
+    ちなみに、ゲームマスターの発言はこの色になります。
+  # message by guide right after getting day 2
+  stepMessage2: |
+    昼になりました。昼の発言は全員に聞こえる発言です。積極的に議論に参加しましょう。
+    また、発言の種類を「独り言」にすることで独り言も使うことができます。
+  stepMessage3: |
+    昼の議論のあとは処刑したい相手に投票を行います。
+    投票は議論時間の終了前でも行えますが（投票専用時間ありの設定の場合を除く）、
+    一度投票すると投票先を変えられないので慎重に選びましょう。
+# phase 6: 2nd day
+phase6:
+  # message by guide after user voted
+  stepMessage1: |
+    投票できました！　投票のログは自分にしか見えません。
+    処刑が終わるまで他の人に自分の投票先を知られることは無いのでご安心ください。
+
+    全員の投票が終わると、処刑が行われて夜に進みます。
+# phase 7: 2nd night
+phase7:
+  # message by guide after changed to 2nd night
+  stepMessage1: |
+    2日目の夜を迎えました。今度は能力使用の練習をしましょう。
+    普通は変身することはできませんが、今回は特別に占い師に変身させてあげました。
+  stepMessage2: |
+    占い師は夜の間に対象者を1人選び、人狼かどうか知ることができます。
+    よく考えて占い対象を選びましょう。
+
+    投票と同じく、能力の使用先は一度選んだら変えることができません。注意してください。
+# phase 8: used diviner skill
+phase8:
+  # message by guide after using Diviner skill
+  stepMessage1: |
+    占い師の能力を使用しました。能力使用時にはこのように自分にしか見えないログが表示されます。
+    占い師の能力結果は翌朝表示されます（デフォルトの設定の場合）。
+  # message after moving to day 3
+  stepMessage2: |
+    3日目になりました。占い師の場合はこのように自分にだけ見える占い結果が表示されます。
+
+    今日は特に教えることはありません。昨日と同じように議論と投票を行いましょう！
+
+# phase 9: day 3
+phase9:
+  # message after the end of the game
+  stepMessage1: |
+    人狼を処刑して勝利しました！
+
+    以上で練習は終了です。お疲れ様でした。
+    次はメニューの「ルーム一覧」で入れる村を探したり、一緒に人狼を遊ぶ仲間を探したりしてみましょう！

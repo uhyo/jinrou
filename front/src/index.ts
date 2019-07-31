@@ -121,3 +121,12 @@ export function loadTopPage() {
     webpackChunkName: "top-page"
   */ './pages/top-page');
 }
+
+/**
+ * Asynchronously load the game-tutorial module.
+ */
+export function loadGameTutorial() {
+  return import(/*
+    webpackChunkName: "game-tutorial"
+  */ './pages/game-tutorial');
+}

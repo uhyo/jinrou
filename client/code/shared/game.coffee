@@ -662,6 +662,15 @@ exports.getjobobj = (job)->
         if team[job]?
             return team[job]
     return null
+
+# make team color map from jobinfo
+exports.makeTeamColors = ->
+    result = {}
+    for team, obj of Shared.game.jobinfo
+        result[team] = obj.color
+    result
+
+
 # jobinfo.name can now be removed
 exports.jobinfo=
     Human:
