@@ -212,6 +212,7 @@ export class DriverBase {
     }
     // add user to the room.
     this.addPlayer({
+      emitLog: true,
       id: userInfo.userid,
       realid: userInfo.userid,
       name: userInfo.name,

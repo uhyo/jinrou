@@ -4,7 +4,14 @@ room:
 
 # guide NPC
 guide:
+  # main guide
   name: '身代わりくん'
+  # other npcs
+  npc1: 'ゲルト'
+  npc2: 'オットー'
+  npc3: 'ヴァルター'
+  npc4: 'トーマス'
+  npc5: 'リーザ'
 
 # common data
 common:
@@ -21,7 +28,7 @@ resetDialog:
 
 # phase 0: initialState
 phase0:
-  stepMessage: '練習部屋にようこそ！　この部屋は操作の練習用の部屋です。他の人には見えません。まずは発言してみましょう。'
+  stepMessage: '練習部屋にようこそ！　この部屋は、他の人には見えない操作の練習用の部屋です。まずは発言してみましょう。'
 
 # phase 1: speak as audience
 phase1:

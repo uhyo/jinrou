@@ -38,6 +38,9 @@ export const phases: Partial<Record<number, Phase>> = {
           // go to next step if user speaks
           onSpeak: inSequence(driver.getSpeakHandler(), driver.step),
         },
+        roomHedaerInput: {
+          join: driver.getRejectionHandler(),
+        },
       };
     },
   },
@@ -81,7 +84,7 @@ export const phases: Partial<Record<number, Phase>> = {
         driver.addPlayer({
           id: realid,
           realid,
-          name: driver.t('guide.name') + (i + 2),
+          name: driver.t(`guide.npc${i + 1}`),
           anonymous: false,
           icon: null,
           winner: null,
