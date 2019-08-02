@@ -15,12 +15,17 @@ export const IconEdit: React.FunctionComponent<Props> = ({ icon, setIcon }) => {
   const clickHandler = () => {
     showIconSelectDialog({
       modal: true,
-    }).then(setIcon);
+    }).then(icon => icon && setIcon(icon));
   };
   return (
     <EditableInputWrapper label={t('profile.icon')}>
       {icon ? <img src={icon} width={48} height={48} /> : null}
       <EditButton onClick={clickHandler}>{t('profile.iconSelect')}</EditButton>
+      {icon ? (
+        <EditButton onClick={() => setIcon(null)}>
+          {t('profile.iconDelete')}
+        </EditButton>
+      ) : null}
     </EditableInputWrapper>
   );
 };

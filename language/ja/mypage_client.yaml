@@ -18,3 +18,5 @@ profile:
   icon: 'アイコン'
   # icon select button
   iconSelect: 'アイコンを選択'
+  # delete icon button
+  iconDelete: 'アイコンを消去'
