@@ -15,6 +15,12 @@ exports.start=(user)->
         japp.place {
             i18n: i18n
             node: $("#mypage-app").get 0
+            profile:
+                userid: user.userid
+                name: user.name
+                comment: user.comment
+                mail: user.mail
+                icon: user.icon
         }
     ).then (v)->
         mypage_view = v

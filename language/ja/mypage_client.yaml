@@ -1,2 +1,20 @@
 # title of mypage
-title: 'プロフィール'
+title: 'マイページ'
+
+# profile section
+profile:
+  title: 'プロフィール'
+  # label of edit button
+  edit: '編集'
+  userid: 'ユーザーID'
+  name: '名前'
+  nameHelp: 'ゲームの参加時に表示される名前です。'
+  comment: 'コメント'
+  commentHelp: 'コメントは自分のプロフィール画面に表示されます。'
+  mailAddress: 'メールアドレス'
+  mailAddressHelp: 'メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。'
+  mailAddressNotVerified: '未確認：入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。'
+  mailAddressChanging: '変更中：メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。'
+  icon: 'アイコン'
+  # icon select button
+  iconSelect: 'アイコンを選択'
