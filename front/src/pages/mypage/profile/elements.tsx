@@ -15,6 +15,10 @@ export const EditableInputs = styled.div`
   gap: ${formComponentsVerticalMergin};
 `;
 
+export const SaveButtonArea = styled.div`
+  grid-column: 1 / 4;
+`;
+
 export const InputLabel = styled.label`
   font-size: ${smallTextSize};
   line-height: 1.8;

@@ -4,9 +4,9 @@ import { Store } from '../store';
 import { SectionWrapper } from '../elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { useI18n } from '../../../i18n/react';
-import { EditableInputs, EditButton } from './elements';
-import { EditableInput, EditableInputWrapper } from './editable-input';
-import { Button } from '../../../common/forms/button';
+import { EditableInputs, EditButton, SaveButtonArea } from './elements';
+import { EditableInput } from './editable-input';
+import { ActiveButton } from '../../../common/forms/button';
 import { IconEdit } from './edit-icon';
 
 export const Profile: React.FunctionComponent<{
@@ -23,6 +23,8 @@ export const Profile: React.FunctionComponent<{
   const [icon, setIcon] = useState(store.profile.icon);
 
   const { mail } = store.profile;
+
+  const onSave = () => {};
 
   return (
     <SectionWrapper>
@@ -71,6 +73,13 @@ export const Profile: React.FunctionComponent<{
           }
         />
         <IconEdit icon={icon} setIcon={setIcon} />
+        {editing ? (
+          <SaveButtonArea>
+            <ActiveButton active type="button" onClick={onSave}>
+              {t('profile.save')}
+            </ActiveButton>
+          </SaveButtonArea>
+        ) : null}
       </EditableInputs>
     </SectionWrapper>
   );

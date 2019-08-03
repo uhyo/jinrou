@@ -20,3 +20,5 @@ profile:
   iconSelect: 'アイコンを選択'
   # delete icon button
   iconDelete: 'アイコンを消去'
+  # save button
+  save: '変更を保存'
