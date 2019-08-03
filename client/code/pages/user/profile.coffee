@@ -56,73 +56,6 @@ exports.start=(user)->
     ).then (v)->
         mypage_view = v
 
-
-    seticon=(url)->
-        util.setHTTPSicon $("#myicon").get(0), url
-        $("#changeprofile").get(0).elements["icon"].value=url
-    if user?.icon?
-        seticon user.icon
-
-    $("section.profile p.edit").click (je)->
-        transforminput je.target
-    transforminput=(t)->
-        return unless t?
-        inp=document.createElement "input"
-        inp.value=t.textContent
-        inp.name=t.dataset.pname
-        inp.type=t.dataset.type
-        inp.maxlength=t.dataset.maxlength
-        inp.required=true if t.dataset.required
-        np=document.createElement "p"
-        np.appendChild inp
-        t.parentNode?.replaceChild np,t
-        inp.focus()
-
-    $("#changeprofile").submit (je)->
-        je.preventDefault()
-        q=Index.util.formQuery je.target
-        q.userid=$("p.userid").get(0).textContent
-
-        dialog.then (dialog)->
-            dialog.showPromptDialog({
-                modal: true
-                password: true
-                autocomplete: "current-password"
-                title: "プロフィール"
-                message: "パスワードを入力してください"
-                ok: "OK"
-                cancel: "キャンセル"
-            }).then (result)->
-                if result
-                    q.password=result
-                    pf = ()=>
-                        ss.rpc "user.changeProfile", q,(result)->
-                            if result.error?
-                                dialog.showErrorDialog {
-                                    modal: true
-                                    message: String result.error
-                                }
-                            else
-                                app.page "user-profile",result,Index.user.profile,result
-                    if q.mail?
-                        ss.rpc "user.sendConfirmMail", q,(result)->
-                            if result.error?
-                                dialog.showErrorDialog {
-                                    modal: true
-                                    message: String result.error
-                                }
-                            else
-                                pf()
-                            if result.info?
-                                dialog.showMessage {
-                                    modal: true
-                                    title: "通知"
-                                    message: result.info
-                                    ok: "OK"
-                                }
-                    else
-                        pf()
-
     $("#mailconfirmsecuritybutton").click (je)->
         je.preventDefault()
         ss.rpc "user.changeMailconfirmsecurity", {
@@ -165,19 +98,6 @@ exports.start=(user)->
                         }
                     $("#changepassword").get(0)?.hidden=true
                     app.page "user-profile",result,Index.user.profile,result
-
-    $("#changeprofile").get(0).elements["twittericonbutton"].addEventListener "click",((e)->
-        dialog.then (dialog)->
-            dialog.showIconSelectDialog({
-                modal: true
-            }).then (url)->
-                seticon (url ? "")
-    ),false
-
-    $("#changeprofile").get(0).elements["colorsettingbutton"].addEventListener "click",(e)->
-        # 移動
-        app.showUrl "/my/settings"
-    ,false
 
     # 称号
     if user.prizeNumber > 0

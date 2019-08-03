@@ -8,46 +8,6 @@ section.profile
         p
           | 理由：
           b= ban.reason
-  form#changeprofile(action="/")
-    fieldset
-      h2 ユーザーID
-      p.userid=userid
-      h2
-        | 名前
-        i.far.fa-question-circle(data-helpicon, title="ゲームの参加時に表示される名前です。")
-      p.edit(data-pname="name",data-type="text",data-maxlength="20",data-required="required")=name
-      h2
-        | コメント
-        i.far.fa-question-circle(data-helpicon, title="自分のプロフィール画面に表示されます。")
-      p.edit(data-pname="comment",data-type="text",data-maxlength="100")=comment
-      h2 メールアドレス
-      p.edit(data-pname="mail",data-type="text",data-maxlength="50")=mail.address
-      if mail.new
-        p
-          | 変更中 (
-          = mail.new
-          | )
-          i.far.fa-question-circle(data-helpicon, title="メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。")
-      else if !mail.address
-        p
-          | 未登録
-          i.far.fa-question-circle(data-helpicon, title="メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。")
-      else if mail.verified
-        p 確認済
-      else
-        p
-          | 未確認
-          i.far.fa-question-circle(data-helpicon, title="入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。")
-      h2 アイコン
-      p
-        input(type="hidden",name="icon",value="")
-        img#myicon(width="48",height="48",alt="アイコン")
-        input(type="button",value="アイコン選択",name="twittericonbutton")
-      hr
-      p
-        input(type="submit",value="変更を保存",title="名前・コメント・アイコン·メールアドレス を変更したら保存ボタンで反映してください。")
-        = "｜"
-        input(type="button",name="colorsettingbutton",value="色設定")
   fieldset
     h2 セキュリティ設定
     form
