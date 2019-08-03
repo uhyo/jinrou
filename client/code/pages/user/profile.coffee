@@ -21,6 +21,7 @@ exports.start=(user)->
                 comment: user.comment
                 mail: user.mail
                 icon: user.icon
+            mailConfirmSecurity: user.mailconfirmsecurity
             onProfileSave:(q)->
                 new Promise (resolve)->
                     pf = ()=>
@@ -52,30 +53,31 @@ exports.start=(user)->
                                 })
                     else
                         pf()
+            onMailConfirmSecurityChange:(value)->
+                new Promise (resolve)->
+                    ss.rpc "user.changeMailconfirmsecurity", {
+                        mailconfirmsecurity: value
+                    }, (result)->
+                        if result?.error?
+                            dialog.then (dialog)->
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
+                            resolve false
+                        else
+                            dialog.then (dialog)->
+                                dialog.showMessageDialog {
+                                    modal: true
+                                    title: "通知"
+                                    message: result.info
+                                    ok: "OK"
+                                }
+                            resolve true
+
         }
     ).then (v)->
         mypage_view = v
-
-    $("#mailconfirmsecuritybutton").click (je)->
-        je.preventDefault()
-        ss.rpc "user.changeMailconfirmsecurity", {
-            mailconfirmsecurity: je.target.form.elements["mailconfirmsecurity"].checked
-        }, (result)->
-            if result?.error?
-                dialog.then (dialog)->
-                    dialog.showErrorDialog {
-                        modal: true
-                        message: String result.error
-                    }
-            else
-                dialog.then (dialog)->
-                    dialog.showMessageDialog {
-                        modal: true
-                        title: "通知"
-                        message: result.info
-                        ok: "OK"
-                    }
-                app.page "user-profile", result, Index.user.profile, result
 
     $("#changepasswordbutton").click (je)->
         $("#changepassword").get(0).hidden=false

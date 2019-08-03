@@ -9,16 +9,6 @@ section.profile
           | 理由：
           b= ban.reason
   fieldset
-    h2 セキュリティ設定
-    form
-      p
-        label
-          | パスワード・メールアドレスをロック
-          input(type="checkbox",name="mailconfirmsecurity", value="on", checked=mailconfirmsecurity)
-        i.far.fa-question-circle(data-helpicon, title="このオプションがONの間、パスワード・メールアドレスを変更できません。このオプションを解除するには登録メールアドレスの確認が必要です。")
-      p
-        input#mailconfirmsecuritybutton(type="button",value="変更を保存")
-  fieldset
     p
       input#changepasswordbutton(type="button",name="changepasswordbutton",value="パスワードを変更")
     form#changepassword(hidden)

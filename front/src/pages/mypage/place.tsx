@@ -19,7 +19,12 @@ export type IPlaceOptions = {
    * Initial profile of user.
    */
   profile: UserProfile;
+  /**
+   * Initial state of mailConfirmSecurity
+   */
+  mailConfirmSecurity: boolean;
 } & Omit<React.ComponentProps<typeof MyPage>, 'store'>;
+
 export interface IPlaceResult {
   unmount: () => void;
   store: Store;
@@ -29,10 +34,12 @@ export function place({
   i18n,
   node,
   profile,
+  mailConfirmSecurity,
   ...props
 }: IPlaceOptions): IPlaceResult {
   const store = new Store({
     profile,
+    mailConfirmSecurity,
   });
   const com = (
     <I18nProvider i18n={i18n}>

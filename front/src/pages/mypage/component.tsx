@@ -4,20 +4,27 @@ import { Store } from './store';
 import { AppWrapper } from './elements';
 import { Profile } from './profile';
 import { ProfileSaveQuery } from './defs';
+import { Security } from './security';
 
 interface Props {
   store: Store;
   onProfileSave: (query: ProfileSaveQuery) => Promise<boolean>;
+  onMailConfirmSecurityChange: (value: boolean) => Promise<boolean>;
 }
 export const MyPage: React.FunctionComponent<Props> = ({
   store,
   onProfileSave,
+  onMailConfirmSecurityChange,
 }) => {
   const t = useI18n('mypage_client');
   return (
     <AppWrapper>
       <h1>{t('title')}</h1>
       <Profile store={store} onSave={onProfileSave} />
+      <Security
+        store={store}
+        onMailConfirmSecurityChange={onMailConfirmSecurityChange}
+      />
     </AppWrapper>
   );
 };
