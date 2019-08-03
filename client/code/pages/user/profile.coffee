@@ -21,6 +21,37 @@ exports.start=(user)->
                 comment: user.comment
                 mail: user.mail
                 icon: user.icon
+            onProfileSave:(q)->
+                new Promise (resolve)->
+                    pf = ()=>
+                        ss.rpc "user.changeProfile", q,(result)->
+                            if result.error?
+                                dialog.then((d)-> d.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                })
+                                resolve false
+                            else
+                                resolve true
+                    if q.mail?
+                        ss.rpc "user.sendConfirmMail", q,(result)->
+                            if result.error?
+                                dialog.then((d)-> d.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                })
+                                resolve false
+                            else
+                                pf()
+                            if result.info?
+                                dialog.then((d)-> d.showMessageDialog {
+                                    modal: true
+                                    title: "通知"
+                                    message: result.info
+                                    ok: "OK"
+                                })
+                    else
+                        pf()
         }
     ).then (v)->
         mypage_view = v

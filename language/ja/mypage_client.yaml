@@ -22,3 +22,8 @@ profile:
   iconDelete: 'アイコンを消去'
   # save button
   save: '変更を保存'
+  # "enter password" prompt
+  savePrompt:
+    message: '変更を保存するにはパスワードを入力してください。'
+    ok: 'OK'
+    cancel: 'キャンセル'

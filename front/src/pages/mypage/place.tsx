@@ -9,7 +9,7 @@ import { UserProfile } from './defs';
 /**
  * Options to place.
  */
-export interface IPlaceOptions {
+export type IPlaceOptions = {
   i18n: i18n;
   /**
    * Node to place.
@@ -19,19 +19,24 @@ export interface IPlaceOptions {
    * Initial profile of user.
    */
   profile: UserProfile;
-}
+} & Omit<React.ComponentProps<typeof MyPage>, 'store'>;
 export interface IPlaceResult {
   unmount: () => void;
   store: Store;
 }
 
-export function place({ i18n, node, profile }: IPlaceOptions): IPlaceResult {
+export function place({
+  i18n,
+  node,
+  profile,
+  ...props
+}: IPlaceOptions): IPlaceResult {
   const store = new Store({
     profile,
   });
   const com = (
     <I18nProvider i18n={i18n}>
-      <MyPage store={store} />
+      <MyPage store={store} {...props} />
     </I18nProvider>
   );
 

@@ -18,3 +18,22 @@ export interface UserProfile {
     address: string;
   };
 }
+
+export type ProfileSaveQuery = {
+  /**
+   * Current password.
+   */
+  password: string;
+  /**
+   * new name.
+   */
+  name?: string;
+  /**
+   * new comment.
+   */
+  comment?: string;
+  /**
+   * new mail address.
+   */
+  mail?: string;
+};

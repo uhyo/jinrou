@@ -8,10 +8,13 @@ import { EditableInputs, EditButton, SaveButtonArea } from './elements';
 import { EditableInput } from './editable-input';
 import { ActiveButton } from '../../../common/forms/button';
 import { IconEdit } from './edit-icon';
+import { showPromptDialog } from '../../../dialog';
+import { ProfileSaveQuery } from '../defs';
 
 export const Profile: React.FunctionComponent<{
   store: Store;
-}> = observer(({ store }) => {
+  onSave: (query: ProfileSaveQuery) => Promise<boolean>;
+}> = observer(({ store, onSave }) => {
   const t = useI18n('mypage_client');
 
   const [editing, setEditing] = useState(false);
@@ -24,7 +27,34 @@ export const Profile: React.FunctionComponent<{
 
   const { mail } = store.profile;
 
-  const onSave = () => {};
+  const saveHandler = () => {
+    showPromptDialog({
+      modal: true,
+      password: true,
+      autocomplete: 'current-password',
+      title: t('profile.title'),
+      message: t('profile.savePrompt.message'),
+      ok: t('profile.savePrompt.ok'),
+      cancel: t('profile.savePrompt.cancel'),
+    }).then(async password => {
+      if (!password) {
+        return;
+      }
+      const query = {
+        name: newName !== store.profile.name ? newName : undefined,
+        comment: newComment !== store.profile.comment ? newComment : undefined,
+        mail:
+          newMailAddress !== store.profile.mail.address
+            ? newMailAddress
+            : undefined,
+        password,
+      };
+      const saved = await onSave(query);
+      if (saved) {
+        setEditing(false);
+      }
+    });
+  };
 
   return (
     <SectionWrapper>
@@ -63,19 +93,19 @@ export const Profile: React.FunctionComponent<{
           readOnly={!editing}
           maxLength={50}
           type="email"
-          onChange={setNewComment}
+          onChange={setNewMailAddress}
           additionalText={
             mail.new
               ? t('profile.mailAddressChanging')
               : mail.address && !mail.verified
                 ? t('profile.mailAddressNotVerified')
-                : 'あいう'
+                : undefined
           }
         />
         <IconEdit icon={icon} setIcon={setIcon} />
         {editing ? (
           <SaveButtonArea>
-            <ActiveButton active type="button" onClick={onSave}>
+            <ActiveButton active type="button" onClick={saveHandler}>
               {t('profile.save')}
             </ActiveButton>
           </SaveButtonArea>
