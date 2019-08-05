@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { CheckButton } from '../../../common/forms/check-button';
 import { Store } from '../store';
 import { Description } from './elements';
+import { Button } from '../../../common/forms/button';
+import { ChangePassword } from './change-password';
 
 interface Props {
   store: Store;
@@ -31,6 +33,8 @@ export const Security = ({ store, onMailConfirmSecurityChange }: Props) => {
     });
   };
 
+  const [changingPassword, setChangingPassword] = useState(false);
+
   return (
     <SectionWrapper>
       <h2>
@@ -43,6 +47,16 @@ export const Security = ({ store, onMailConfirmSecurityChange }: Props) => {
         </CheckButton>
       </p>
       <Description>{t('security.mailConfirmSecurityHelp')}</Description>
+      <hr />
+      {changingPassword ? (
+        <ChangePassword />
+      ) : (
+        <p>
+          <Button onClick={() => setChangingPassword(v => !v)}>
+            {t('security.changePassword')}
+          </Button>
+        </p>
+      )}
     </SectionWrapper>
   );
 };

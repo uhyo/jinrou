@@ -33,3 +33,5 @@ security:
   title: 'セキュリティ設定'
   mailConfirmSecurity: 'パスワード・メールアドレスをロック'
   mailConfirmSecurityHelp: 'この設定を有効にすると、パスワード・メールアドレスを変更できなくなります。設定を解除するには登録メールアドレスでの認証が必要です。'
+  # password change
+  changePassword: 'パスワードを変更'
