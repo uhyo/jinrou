@@ -1,6 +1,6 @@
 import React from 'react';
 import { useI18n } from '../../../i18n/react';
-import { EditableInputWrapper } from './editable-input';
+import { EditableInputWrapper } from '../editable-input';
 import { Button } from '../../../common/forms/button';
 import { showIconSelectDialog } from '../../../dialog';
 import styled from '../../../util/styled';

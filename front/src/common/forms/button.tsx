@@ -1,5 +1,11 @@
 import styled from '../../util/styled';
-import { lightBorderColor } from '../color';
+import {
+  lightBorderColor,
+  activeButtonColor,
+  activeButtonTextColor,
+  subActiveButtonColor,
+  subActiveButtonTextColor,
+} from '../color';
 import { contentMargin } from './style';
 
 /**
@@ -45,8 +51,20 @@ export const ActiveButton = styled(Button)<{
   ${props =>
     props.active
       ? `
-  background-color: #009900;
-  color: white;
+  background-color: ${activeButtonColor};
+  color: ${activeButtonTextColor};
+  `
+      : ''};
+`;
+
+export const SubActiveButton = styled(Button)<{
+  active?: boolean;
+}>`
+  ${props =>
+    props.active
+      ? `
+  background-color: ${subActiveButtonColor};
+  color: ${subActiveButtonTextColor};
   `
       : ''};
 `;

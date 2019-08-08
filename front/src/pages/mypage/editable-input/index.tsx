@@ -1,7 +1,9 @@
 import { useUniqueId } from '../../../util/useUniqueId';
 import React from 'react';
-import { InputLabel, InputContent, Input } from './elements';
 import { FontAwesomeIcon } from '../../../util/icon';
+import { Input, InputLabel, InputContent, EditableInputs } from './elements';
+
+export { EditableInputs };
 
 interface Props {
   label: string;
@@ -13,6 +15,7 @@ interface Props {
   required?: boolean;
   type?: string;
   maxLength?: number;
+  autoComplete?: string;
 }
 
 export const EditableInput: React.FunctionComponent<Props> = ({

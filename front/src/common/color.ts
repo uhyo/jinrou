@@ -41,3 +41,17 @@ export const helperTextColor = '#444444';
  * Color for link in form.
  */
 export const formLinkColor = '#666666';
+
+/**
+ * Color of active button.
+ */
+export const activeButtonColor = '#009900';
+
+export const activeButtonTextColor = '#ffffff';
+
+/**
+ * Color of another UI button.
+ */
+export const subActiveButtonColor = '#14607A';
+
+export const subActiveButtonTextColor = '#ffffff';

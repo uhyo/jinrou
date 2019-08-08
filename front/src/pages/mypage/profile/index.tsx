@@ -4,9 +4,9 @@ import { Store } from '../store';
 import { SectionWrapper } from '../elements';
 import { FontAwesomeIcon } from '../../../util/icon';
 import { useI18n } from '../../../i18n/react';
-import { EditableInputs, EditButton, SaveButtonArea } from './elements';
-import { EditableInput } from './editable-input';
-import { ActiveButton } from '../../../common/forms/button';
+import { EditButton, SaveButtonArea } from './elements';
+import { EditableInput, EditableInputs } from '../editable-input';
+import { SubActiveButton } from '../../../common/forms/button';
 import { IconEdit } from './edit-icon';
 import { showPromptDialog } from '../../../dialog';
 import { ProfileSaveQuery } from '../defs';
@@ -105,9 +105,9 @@ export const Profile: React.FunctionComponent<{
         <IconEdit icon={icon} setIcon={setIcon} />
         {editing ? (
           <SaveButtonArea>
-            <ActiveButton active type="button" onClick={saveHandler}>
+            <SubActiveButton active type="button" onClick={saveHandler}>
               {t('profile.save')}
-            </ActiveButton>
+            </SubActiveButton>
           </SaveButtonArea>
         ) : null}
       </EditableInputs>
