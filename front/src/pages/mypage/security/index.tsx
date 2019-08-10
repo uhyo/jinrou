@@ -7,6 +7,7 @@ import { Store } from '../store';
 import { Description } from './elements';
 import { Button } from '../../../common/forms/button';
 import { ChangePassword } from './change-password';
+import { ChangePasswordQuery } from '../defs';
 
 interface Props {
   store: Store;
@@ -15,9 +16,17 @@ interface Props {
    * Resolves to true if accepted.
    */
   onMailConfirmSecurityChange: (value: boolean) => Promise<boolean>;
+  /**
+   * Change the password.
+   */
+  onChangePassword: (value: ChangePasswordQuery) => Promise<boolean>;
 }
 
-export const Security = ({ store, onMailConfirmSecurityChange }: Props) => {
+export const Security = ({
+  store,
+  onMailConfirmSecurityChange,
+  onChangePassword,
+}: Props) => {
   const t = useI18n('mypage_client');
 
   const [mailConfirmSecurity, setMCS] = useState(store.mailConfirmSecurity);
@@ -35,6 +44,13 @@ export const Security = ({ store, onMailConfirmSecurityChange }: Props) => {
 
   const [changingPassword, setChangingPassword] = useState(false);
 
+  const handleChangePassword = async (query: ChangePasswordQuery) => {
+    const changed = await onChangePassword(query);
+    if (changed) {
+      setChangingPassword(false);
+    }
+  };
+
   return (
     <SectionWrapper>
       <h2>
@@ -49,7 +65,7 @@ export const Security = ({ store, onMailConfirmSecurityChange }: Props) => {
       <Description>{t('security.mailConfirmSecurityHelp')}</Description>
       <hr />
       {changingPassword ? (
-        <ChangePassword />
+        <ChangePassword onChangePassword={handleChangePassword} />
       ) : (
         <p>
           <Button onClick={() => setChangingPassword(v => !v)}>

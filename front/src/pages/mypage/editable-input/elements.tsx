@@ -4,7 +4,6 @@ import {
   formComponentsVerticalMergin,
 } from '../../../common/style';
 import { helperTextColor } from '../../../common/color';
-import { Button } from '../../../common/forms/button';
 
 export const EditableInputs = styled.div`
   color: ${helperTextColor};

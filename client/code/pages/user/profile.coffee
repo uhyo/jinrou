@@ -74,7 +74,29 @@ exports.start=(user)->
                                     ok: "OK"
                                 }
                             resolve true
-
+            onChangePassword:(query)->
+                new Promise (resolve)->
+                    ss.rpc "user.changePassword", {
+                        newpass: query.newPassword
+                        newpass2: query.newPassword2
+                        password: query.currentPassword
+                    }, (result)->
+                        if result?.error?
+                            dialog.then (dialog)->
+                                dialog.showErrorDialog {
+                                    modal: true
+                                    message: String result.error
+                                }
+                            resolve false
+                        else
+                            dialog.then (dialog)->
+                                dialog.showMessageDialog {
+                                    modal: true
+                                    title: "通知"
+                                    message: "パスワードを変更しました。"
+                                    ok: "OK"
+                                }
+                            resolve true
         }
     ).then (v)->
         mypage_view = v

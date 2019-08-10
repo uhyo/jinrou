@@ -3,18 +3,20 @@ import { useI18n } from '../../i18n/react';
 import { Store } from './store';
 import { AppWrapper } from './elements';
 import { Profile } from './profile';
-import { ProfileSaveQuery } from './defs';
+import { ProfileSaveQuery, ChangePasswordQuery } from './defs';
 import { Security } from './security';
 
 interface Props {
   store: Store;
   onProfileSave: (query: ProfileSaveQuery) => Promise<boolean>;
   onMailConfirmSecurityChange: (value: boolean) => Promise<boolean>;
+  onChangePassword: (query: ChangePasswordQuery) => Promise<boolean>;
 }
 export const MyPage: React.FunctionComponent<Props> = ({
   store,
   onProfileSave,
   onMailConfirmSecurityChange,
+  onChangePassword,
 }) => {
   const t = useI18n('mypage_client');
   return (
@@ -24,6 +26,7 @@ export const MyPage: React.FunctionComponent<Props> = ({
       <Security
         store={store}
         onMailConfirmSecurityChange={onMailConfirmSecurityChange}
+        onChangePassword={onChangePassword}
       />
     </AppWrapper>
   );

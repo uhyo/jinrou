@@ -37,3 +37,9 @@ export type ProfileSaveQuery = {
    */
   mail?: string;
 };
+
+export type ChangePasswordQuery = {
+  newPassword: string;
+  newPassword2: string;
+  currentPassword: string;
+};
