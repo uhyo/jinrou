@@ -19,6 +19,11 @@ export interface UserProfile {
   };
 }
 
+export type NewsEntry = {
+  time: number;
+  message: string;
+};
+
 export type ProfileSaveQuery = {
   /**
    * Current password.

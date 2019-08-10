@@ -11,8 +11,8 @@ exports.start=(user)->
     pi18n = app.getI18n()
     papp = JinrouFront.loadMyPage()
 
-    Promise.all([pi18n, papp]).then(([i18n, japp])->
-        japp.place {
+    pappReady = Promise.all([pi18n, papp]).then(([i18n, japp])->
+        mypage_view = japp.place {
             i18n: i18n
             node: $("#mypage-app").get 0
             profile:
@@ -101,6 +101,20 @@ exports.start=(user)->
     ).then (v)->
         mypage_view = v
 
+    # お知らせ一覧を取得
+    ss.rpc "user.getNews",(docs)->
+        if docs.error?
+            # ?
+            console.error docs.error
+            return
+        pappReady.then ()->
+            mypage_view.store.gotNews docs
+        if docs[0]
+            # ひとつでもあればここまで見たことにする
+            localStorage.latestNews=docs[0].time
+            # みたのでお知らせを除去
+            $("#newNewsNotice").remove()
+
     # 称号
     if user.prizeNumber > 0
         $("#prizenumber").text user.prizeNumber
@@ -113,28 +127,6 @@ exports.start=(user)->
     Index.game.rooms.start({
         noLinks: true
     })    # ルーム一覧を表示してもらう
-    # お知らせ一覧を取得する
-    ss.rpc "user.getNews",(docs)->
-        if docs.error?
-            # ?
-            console.error docs.error
-            return
-        table=$("#newslist").get 0
-        unless table?
-            # page may already have gone.
-            return
-        docs.forEach (doc)->
-            r=table.insertRow -1
-            cell=r.insertCell 0
-            d=new Date doc.time
-            cell.textContent="#{d.getFullYear()}-#{d.getMonth()+1}-#{d.getDate()}"
-            cell=r.insertCell 1
-            cell.textContent=doc.message
-        if docs[0]
-            # ひとつでもあればここまで見たことにする
-            localStorage.latestNews=docs[0].time
-            # みたのでお知らせを除去
-            $("#newNewsNotice").remove()
 
 exports.end=->
     mypage_view?.unmount()

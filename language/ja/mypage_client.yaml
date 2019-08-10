@@ -39,3 +39,10 @@ security:
   newPassword2: '新しいパスワード（再入力）'
   currentPassword: '現在のパスワード'
   passwordSave: '変更を保存'
+
+# news section
+news:
+  title: 'お知らせ'
+  loading: '読み込み中'
+  date: '日付'
+  message: '内容'

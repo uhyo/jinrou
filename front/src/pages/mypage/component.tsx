@@ -5,6 +5,7 @@ import { AppWrapper } from './elements';
 import { Profile } from './profile';
 import { ProfileSaveQuery, ChangePasswordQuery } from './defs';
 import { Security } from './security';
+import { News } from './news';
 
 interface Props {
   store: Store;
@@ -28,6 +29,7 @@ export const MyPage: React.FunctionComponent<Props> = ({
         onMailConfirmSecurityChange={onMailConfirmSecurityChange}
         onChangePassword={onChangePassword}
       />
+      <News store={store} />
     </AppWrapper>
   );
 };

@@ -5,6 +5,7 @@ import {
   faIdCard,
   faClock,
   faPaperPlane,
+  faNewspaper,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
@@ -72,6 +73,7 @@ library.add(
   faSchool,
   faChartPie,
   faAward,
+  faNewspaper,
 );
 
 // Publish to global.
