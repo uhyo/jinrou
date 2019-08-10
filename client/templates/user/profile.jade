@@ -1,6 +1,5 @@
 #mypage-app.whole-page
 section.profile
-  h1 プロフィール
   div#alert
     if ban.ban
       p アクセス制限により一部の行動が制限されています。
@@ -8,21 +7,6 @@ section.profile
         p
           | 理由：
           b= ban.reason
-  fieldset
-    p
-      input#changepasswordbutton(type="button",name="changepasswordbutton",value="パスワードを変更")
-    form#changepassword(hidden)
-      h3 パスワード変更
-      p: label
-        | 新しいパスワード
-        input(name="newpass",type="password",size="20",required,autocomplete="new-password")
-      p: label
-        | 再入力
-        input(name="newpass2",type="password",size="20",required,autocomplete="new-password")
-      p: label
-        | 現在のパスワード
-        input(name="password",type="password",size="20",required,autocomplete="current-password")
-      p: input(type="submit",value="変更")
   h1 お知らせ
   table.newstable
     thead

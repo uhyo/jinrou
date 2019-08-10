@@ -101,28 +101,6 @@ exports.start=(user)->
     ).then (v)->
         mypage_view = v
 
-    $("#changepasswordbutton").click (je)->
-        $("#changepassword").get(0).hidden=false
-        $("#changepassword").submit (je)->
-            je.preventDefault()
-            ss.rpc "user.changePassword", Index.util.formQuery(je.target),(result)->
-                if result?.error?
-                    dialog.then (dialog)->
-                        dialog.showErrorDialog {
-                            modal: true
-                            message: String result.error
-                        }
-                else
-                    dialog.then (dialog)->
-                        dialog.showMessageDialog {
-                            modal: true
-                            title: "通知"
-                            message: "パスワードを変更しました。"
-                            ok: "OK"
-                        }
-                    $("#changepassword").get(0)?.hidden=true
-                    app.page "user-profile",result,Index.user.profile,result
-
     # 称号
     if user.prizeNumber > 0
         $("#prizenumber").text user.prizeNumber
