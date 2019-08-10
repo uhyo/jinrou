@@ -21,7 +21,7 @@ exports.start=(user)->
                 comment: user.comment
                 mail: user.mail
                 icon: user.icon
-            ban: user.ban
+            ban: if user.ban?.ban then user.ban else null
             mailConfirmSecurity: user.mailconfirmsecurity
             onProfileSave:(q)->
                 new Promise (resolve)->
