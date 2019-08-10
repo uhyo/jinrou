@@ -30,12 +30,20 @@ export const News: React.FunctionComponent<Props> = observer(({ store }) => {
             </tr>
           </thead>
           <tbody>
-            {newsEntries.map((entry, i) => (
-              <tr key={i}>
-                <td>{entry.time}</td>
-                <td>{entry.message}</td>
-              </tr>
-            ))}
+            {newsEntries.map((entry, i) => {
+              const time = new Date(entry.time);
+              const year = time.getFullYear();
+              const month = ('0' + (time.getMonth() + 1)).slice(-2);
+              const day = ('0' + time.getDate()).slice(-2);
+              return (
+                <tr key={i}>
+                  <td>
+                    {year}-{month}-{day}
+                  </td>
+                  <td>{entry.message}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </NewsTable>
       )}
