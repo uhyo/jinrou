@@ -24,6 +24,10 @@ export type NewsEntry = {
   message: string;
 };
 
+export type BanInfo = {
+  reason: string;
+};
+
 export type ProfileSaveQuery = {
   /**
    * Current password.

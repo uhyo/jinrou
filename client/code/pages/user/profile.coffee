@@ -21,6 +21,7 @@ exports.start=(user)->
                 comment: user.comment
                 mail: user.mail
                 icon: user.icon
+            ban: user.ban
             mailConfirmSecurity: user.mailconfirmsecurity
             onProfileSave:(q)->
                 new Promise (resolve)->

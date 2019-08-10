@@ -6,6 +6,7 @@ import { Profile } from './profile';
 import { ProfileSaveQuery, ChangePasswordQuery } from './defs';
 import { Security } from './security';
 import { News } from './news';
+import { BanAlert } from './ban-alert';
 
 interface Props {
   store: Store;
@@ -23,6 +24,7 @@ export const MyPage: React.FunctionComponent<Props> = ({
   return (
     <AppWrapper>
       <h1>{t('title')}</h1>
+      <BanAlert store={store} />
       <Profile store={store} onSave={onProfileSave} />
       <Security
         store={store}
