@@ -611,6 +611,7 @@ userProfile = (doc, ban)->
         doc.ban =
             ban: true
             reason: ban.reason
+            expires: ban.expires
     else
         doc.ban =
             ban: false

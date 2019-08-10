@@ -26,6 +26,10 @@ export type NewsEntry = {
 
 export type BanInfo = {
   reason: string;
+  /**
+   * Expiry time in (ISO8601 string format)
+   */
+  expires?: string;
 };
 
 export type ProfileSaveQuery = {

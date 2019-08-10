@@ -51,3 +51,8 @@ news:
 ban:
   announcement: 'アクセス制限により一部の行動が制限されています。'
   reason: '理由：'
+  period: '期間：'
+  periodDayHour: 'あと{{days}}日{{hours}}時間'
+  periodHourMinute: 'あと{{hours}}時間{{minutes}}分'
+  periodMinute: 'あと{{minutes}}分'
+  periodLessThanMinute: 'あと1分未満'
