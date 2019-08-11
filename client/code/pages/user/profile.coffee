@@ -125,10 +125,6 @@ exports.start=(user)->
     else
         $("#current-prize").text "まだ肩書きは設定されていません。"
 
-    Index.game.rooms.start({
-        noLinks: true
-    })    # ルーム一覧を表示してもらう
-
 exports.end=->
     mypage_view?.unmount()
     Index.game.rooms.end()
