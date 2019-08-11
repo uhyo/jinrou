@@ -25,7 +25,6 @@ export const AppStyling = styled.div`
     input[type="time"],
     input[type="url"],
     input[type="week"],
-    button,
     select,
     textarea {
       font-size: 16px;

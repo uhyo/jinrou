@@ -66,11 +66,13 @@ export const Profile: React.FunctionComponent<{
       </h2>
       <EditableInputs>
         <EditableInput
+          type="text"
           label={t('profile.userid')}
           defaultValue={store.profile.userid}
           readOnly
         />
         <EditableInput
+          type="text"
           label={t('profile.name')}
           helpText={t('profile.nameHelp')}
           defaultValue={store.profile.name}
@@ -79,6 +81,7 @@ export const Profile: React.FunctionComponent<{
           onChange={setNewName}
         />
         <EditableInput
+          type="text"
           label={t('profile.comment')}
           helpText={t('profile.commentHelp')}
           defaultValue={store.profile.comment}

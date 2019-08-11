@@ -7,6 +7,7 @@ import {
   subActiveButtonTextColor,
 } from '../color';
 import { contentMargin } from './style';
+import { phone } from '../media';
 
 /**
  * Color used for borders.
@@ -40,6 +41,10 @@ export const Button = styled.button<IPropButton>`
   width: ${props => (props.expand ? '100%' : 'auto')};
   font-size: 0.9rem;
   text-align: center;
+
+  ${phone`
+    font-size: 0.75rem;
+  `};
 `;
 
 /**

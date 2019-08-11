@@ -1,6 +1,7 @@
 import styled from '../../../util/styled';
 import { smallTextSize } from '../../../common/style';
 import { helperTextColor, mediumBorderColor } from '../../../common/color';
+import { phone } from '../../../common/media';
 
 export const LinksWrapper = styled.div`
   display: flex;
@@ -11,7 +12,9 @@ export const LinksWrapper = styled.div`
 export const LinkElement = styled.a<{
   long?: boolean;
 }>`
-  flex: ${props => (props.long ? '9em 100 0' : '9em 1 0')};
+  flex-basis: 9em;
+  flex-grow: ${props => (props.long ? '100' : '1')};
+  flex-shrink: 0;
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
@@ -24,6 +27,10 @@ export const LinkElement = styled.a<{
   &:hover {
     background-color: rgba(0, 0, 0, 0.05);
   }
+
+  ${phone`
+    flex-basis: 6em;
+`};
 `;
 
 export const LinkTitle = styled.b`
