@@ -2,6 +2,7 @@ import React from 'react';
 import { Store } from '../store';
 import { useI18n } from '../../../i18n/react';
 import { BanSectionWrapper } from './element';
+import { FontAwesomeIcon } from '../../../util/icon';
 
 interface Props {
   store: Store;
@@ -16,18 +17,26 @@ export const BanAlert: React.FunctionComponent<Props> = ({ store }) => {
   console.log(ban);
   return (
     <BanSectionWrapper>
-      <p>{t('ban.announcement')}</p>
-      <p>
-        {t('ban.reason')} <b>{ban.reason}</b>
-      </p>
-      {ban.expires != null ? (
+      <div>
+        <FontAwesomeIcon icon="exclamation-triangle" size="4x" />
+      </div>
+      <div>
+        <p>{t('ban.announcement')}</p>
         <p>
-          {t('ban.period')}{' '}
-          <b>
-            <ExpiryMessage expires={new Date(ban.expires)} />
-          </b>
+          {t('ban.reason')} <b>{ban.reason}</b>
         </p>
-      ) : null}
+        {ban.expires != null ? (
+          <>
+            <p>
+              {t('ban.period')}{' '}
+              <b>
+                <ExpiryMessage expires={new Date(ban.expires)} />
+              </b>
+            </p>
+            <p>{t('ban.notice')}</p>
+          </>
+        ) : null}
+      </div>
     </BanSectionWrapper>
   );
 };

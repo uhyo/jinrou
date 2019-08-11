@@ -37,6 +37,7 @@ import {
   faSchool,
   faChartPie,
   faAward,
+  faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -74,6 +75,7 @@ library.add(
   faChartPie,
   faAward,
   faNewspaper,
+  faExclamationTriangle,
 );
 
 // Publish to global.

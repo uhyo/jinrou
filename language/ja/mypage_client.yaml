@@ -56,3 +56,4 @@ ban:
   periodHourMinute: 'あと{{hours}}時間{{minutes}}分'
   periodMinute: 'あと{{minutes}}分'
   periodLessThanMinute: 'あと1分未満'
+  notice: '期間が終了しても制限が解除されない場合は、ページの再読み込みをお試しください。'
