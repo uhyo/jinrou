@@ -57,3 +57,24 @@ ban:
   periodMinute: 'あと{{minutes}}分'
   periodLessThanMinute: 'あと1分未満'
   notice: '期間が終了しても制限が解除されない場合は、ページの再読み込みをお試しください。'
+
+# links section
+links:
+  rooms:
+    title: 'ルーム一覧'
+  mylog:
+    title: '戦績'
+    description: '自分が参加した部屋の一覧や勝率などのデータを閲覧できます。'
+  prize:
+    title: '称号'
+    description: '獲得した称号を閲覧したり、入室時に名前の前に表示する肩書きを設定したりできます。'
+    number: '称号獲得数：{{count}}'
+    current: '現在の肩書き：{{data}}'
+  gameTutorial:
+    title: '練習部屋'
+    description: 'ゲームの流れを練習できる1人用の部屋です。'
+  settings:
+    title: '設定'
+    description: '各種設定を変更できます。'
+  logout:
+    title: 'ログアウト'

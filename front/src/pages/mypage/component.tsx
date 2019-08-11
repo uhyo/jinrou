@@ -7,6 +7,7 @@ import { ProfileSaveQuery, ChangePasswordQuery } from './defs';
 import { Security } from './security';
 import { News } from './news';
 import { BanAlert } from './ban-alert';
+import { Links } from './links';
 
 interface Props {
   store: Store;
@@ -32,6 +33,7 @@ export const MyPage: React.FunctionComponent<Props> = ({
         onChangePassword={onChangePassword}
       />
       <News store={store} />
+      <Links store={store} />
     </AppWrapper>
   );
 };

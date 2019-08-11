@@ -1,10 +1,11 @@
 import { observable, action } from 'mobx';
-import { UserProfile, NewsEntry, BanInfo } from './defs';
+import { UserProfile, NewsEntry, BanInfo, PrizeInfo } from './defs';
 
 interface StoreInit {
   profile: UserProfile;
   mailConfirmSecurity: boolean;
   ban: BanInfo | null;
+  prize: PrizeInfo;
 }
 
 export class Store {
@@ -23,10 +24,14 @@ export class Store {
   @observable
   public ban: BanInfo | null;
 
+  @observable
+  public prize: PrizeInfo;
+
   constructor(init: StoreInit) {
     this.profile = init.profile;
     this.mailConfirmSecurity = init.mailConfirmSecurity;
     this.ban = init.ban;
+    this.prize = init.prize;
   }
 
   @action

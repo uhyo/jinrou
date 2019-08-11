@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom';
 import { MyPage } from './component';
 import { i18n, I18nProvider } from '../../i18n';
 import { Store } from './store';
-import { UserProfile, BanInfo } from './defs';
+import { UserProfile, BanInfo, PrizeInfo } from './defs';
 
 /**
  * Options to place.
@@ -24,6 +24,10 @@ export type IPlaceOptions = {
    */
   ban: BanInfo | null;
   /**
+   * prize information
+   */
+  prize: PrizeInfo;
+  /**
    * Initial state of mailConfirmSecurity
    */
   mailConfirmSecurity: boolean;
@@ -39,6 +43,7 @@ export function place({
   node,
   profile,
   ban,
+  prize,
   mailConfirmSecurity,
   ...props
 }: IPlaceOptions): IPlaceResult {
@@ -46,6 +51,7 @@ export function place({
     profile,
     mailConfirmSecurity,
     ban,
+    prize,
   });
   const com = (
     <I18nProvider i18n={i18n}>

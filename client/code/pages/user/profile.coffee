@@ -22,6 +22,9 @@ exports.start=(user)->
                 mail: user.mail
                 icon: user.icon
             ban: if user.ban?.ban then user.ban else null
+            prize:
+                totalNumber: user.prizeNumber
+                currentPrizeData: user.nowprizeData
             mailConfirmSecurity: user.mailconfirmsecurity
             onProfileSave:(q)->
                 new Promise (resolve)->
@@ -116,15 +119,5 @@ exports.start=(user)->
             # みたのでお知らせを除去
             $("#newNewsNotice").remove()
 
-    # 称号
-    if user.prizeNumber > 0
-        $("#prizenumber").text user.prizeNumber
-    if user.nowprizeData
-        nowprizeb = $("<b />").text user.nowprizeData
-        $("#current-prize").text("現在の肩書き：").append nowprizeb
-    else
-        $("#current-prize").text "まだ肩書きは設定されていません。"
-
 exports.end=->
     mypage_view?.unmount()
-    Index.game.rooms.end()

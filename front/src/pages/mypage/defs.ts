@@ -32,6 +32,20 @@ export type BanInfo = {
   expires?: string;
 };
 
+/**
+ * Info of current prize,
+ */
+export type PrizeInfo = {
+  /**
+   * Number of owned prizes.
+   */
+  totalNumber: number;
+  /**
+   * current katagaki
+   */
+  currentPrizeData?: string;
+};
+
 export type ProfileSaveQuery = {
   /**
    * Current password.
