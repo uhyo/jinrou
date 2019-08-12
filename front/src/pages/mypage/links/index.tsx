@@ -78,7 +78,7 @@ const Link: React.FunctionComponent<{
   description?: string | (() => React.ReactNode);
 }> = ({ icon, long, href, title, description }) => (
   <LinkElement href={href} long={long}>
-    <FontAwesomeIcon icon={icon} size="4x" />
+    <FontAwesomeIcon icon={icon} size="3x" />
     <LinkTitle>{title}</LinkTitle>
     {typeof description === 'string' ? (
       <LinkDescription>{description}</LinkDescription>
