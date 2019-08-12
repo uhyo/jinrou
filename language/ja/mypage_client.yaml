@@ -1,0 +1,80 @@
+# title of mypage
+title: 'マイページ'
+
+# profile section
+profile:
+  title: 'プロフィール'
+  # label of edit button
+  edit: '編集'
+  userid: 'ユーザーID'
+  name: '名前'
+  nameHelp: 'ゲームの参加時に表示される名前です。'
+  comment: 'コメント'
+  commentHelp: 'コメントは自分のプロフィール画面に表示されます。'
+  mailAddress: 'メールアドレス'
+  mailAddressHelp: 'メールアドレスを登録すると、パスワードを忘れたときに再設定できます。メールアドレスは他の用途には使用されません。'
+  mailAddressNotVerified: '未確認：入力されたメールアドレスの登録を完了するには、送信されたメールの指示に従ってください。'
+  mailAddressChanging: '変更中：メールアドレスの登録・変更を完了するには、送信されたメールの指示に従ってください。'
+  icon: 'アイコン'
+  # icon select button
+  iconSelect: 'アイコンを選択'
+  # delete icon button
+  iconDelete: 'アイコンを消去'
+  # save button
+  save: '変更を保存'
+  # "enter password" prompt
+  savePrompt:
+    message: '変更を保存するにはパスワードを入力してください。'
+    ok: 'OK'
+    cancel: 'キャンセル'
+
+# mail confirm security section
+security:
+  title: 'セキュリティ設定'
+  mailConfirmSecurity: 'パスワード・メールアドレスをロック'
+  mailConfirmSecurityHelp: 'この設定を有効にすると、パスワード・メールアドレスを変更できなくなります。設定を解除するには登録メールアドレスでの認証が必要です。'
+  # password change
+  changePassword: 'パスワードを変更'
+  newPassword: '新しいパスワード'
+  newPassword2: '新しいパスワード（再入力）'
+  currentPassword: '現在のパスワード'
+  passwordSave: '変更を保存'
+
+# news section
+news:
+  title: 'お知らせ'
+  loading: '読み込み中'
+  date: '日付'
+  message: '内容'
+
+# ban section
+ban:
+  announcement: 'アクセス制限により一部の行動が制限されています。'
+  reason: '理由：'
+  period: '期間：'
+  periodDayHour: 'あと{{days}}日{{hours}}時間'
+  periodHourMinute: 'あと{{hours}}時間{{minutes}}分'
+  periodMinute: 'あと{{minutes}}分'
+  periodLessThanMinute: 'あと1分未満'
+  notice: '期間が終了しても制限が解除されない場合は、ページの再読み込みをお試しください。'
+
+# links section
+links:
+  rooms:
+    title: 'ルーム一覧'
+  mylog:
+    title: '戦績'
+    description: '自分が参加した部屋の一覧や勝率などのデータを閲覧できます。'
+  prize:
+    title: '称号'
+    description: '獲得した称号を閲覧したり、入室時に名前の前に表示する肩書きを設定したりできます。'
+    number: '称号獲得数：{{count}}'
+    current: '現在の肩書き：{{data}}'
+  gameTutorial:
+    title: '練習部屋'
+    description: 'ゲームの流れを練習できる1人用の部屋です。'
+  settings:
+    title: '設定'
+    description: '各種設定を変更できます。'
+  logout:
+    title: 'ログアウト'

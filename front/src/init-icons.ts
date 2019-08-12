@@ -5,6 +5,7 @@ import {
   faIdCard,
   faClock,
   faPaperPlane,
+  faNewspaper,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faPlusSquare,
@@ -33,6 +34,13 @@ import {
   faMicrophoneSlash,
   faFileSignature,
   faTheaterMasks,
+  faSchool,
+  faChartPie,
+  faAward,
+  faExclamationTriangle,
+  faList,
+  faCog,
+  faDoorOpen,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -66,6 +74,14 @@ library.add(
   faPaperPlane,
   faFileSignature,
   faTheaterMasks,
+  faSchool,
+  faChartPie,
+  faAward,
+  faNewspaper,
+  faExclamationTriangle,
+  faList,
+  faCog,
+  faDoorOpen,
 );
 
 // Publish to global.

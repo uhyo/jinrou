@@ -1,6 +1,5 @@
 import { css } from '../util/styled';
 import {
-  ThemedCssFunction,
   CSSObject,
   InterpolationFunction,
   ThemedStyledProps,

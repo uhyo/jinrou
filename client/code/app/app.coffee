@@ -90,7 +90,7 @@ exports.init = ->
         JinrouFront.loadDialog().then (dialog)->
             dialog.showMessageDialog {
                 title: "ヘルプ"
-                message: t.getAttribute 'title'
+                message: t.getAttribute("data-title") || t.getAttribute('title')
                 ok: "OK"
             }
     # メニューの開閉

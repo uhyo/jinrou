@@ -130,3 +130,12 @@ export function loadGameTutorial() {
     webpackChunkName: "game-tutorial"
   */ './pages/game-tutorial');
 }
+
+/**
+ * Asynchronously load the mypage module.
+ */
+export function loadMyPage() {
+  return import(/*
+    webpackChunkName: "mypage"
+  */ './pages/mypage');
+}

@@ -1,6 +1,13 @@
 import styled from '../../util/styled';
-import { lightBorderColor } from '../color';
+import {
+  lightBorderColor,
+  activeButtonColor,
+  activeButtonTextColor,
+  subActiveButtonColor,
+  subActiveButtonTextColor,
+} from '../color';
 import { contentMargin } from './style';
+import { phone } from '../media';
 
 /**
  * Color used for borders.
@@ -34,6 +41,10 @@ export const Button = styled.button<IPropButton>`
   width: ${props => (props.expand ? '100%' : 'auto')};
   font-size: 0.9rem;
   text-align: center;
+
+  ${phone`
+    font-size: 0.75rem;
+  `};
 `;
 
 /**
@@ -45,8 +56,20 @@ export const ActiveButton = styled(Button)<{
   ${props =>
     props.active
       ? `
-  background-color: #009900;
-  color: white;
+  background-color: ${activeButtonColor};
+  color: ${activeButtonTextColor};
+  `
+      : ''};
+`;
+
+export const SubActiveButton = styled(Button)<{
+  active?: boolean;
+}>`
+  ${props =>
+    props.active
+      ? `
+  background-color: ${subActiveButtonColor};
+  color: ${subActiveButtonTextColor};
   `
       : ''};
 `;

@@ -24,6 +24,7 @@ i18next.use(xhrBackend).init({
     'rooms_client',
     'newroom_client',
     'top_client',
+    'mypage_client',
   ],
 });
 
