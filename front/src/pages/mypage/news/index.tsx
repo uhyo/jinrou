@@ -19,34 +19,37 @@ export const News: React.FunctionComponent<Props> = observer(({ store }) => {
         <FontAwesomeIcon icon={['far', 'newspaper']} />
         {t('news.title')}
       </h2>
-      {newsIsLoading ? (
-        <p>{t('news.loading')}</p>
-      ) : (
-        <NewsTable>
-          <thead>
-            <tr>
-              <th>{t('news.date')}</th>
-              <th>{t('news.message')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {newsEntries.map((entry, i) => {
-              const time = new Date(entry.time);
-              const year = time.getFullYear();
-              const month = ('0' + (time.getMonth() + 1)).slice(-2);
-              const day = ('0' + time.getDate()).slice(-2);
-              return (
-                <tr key={i}>
-                  <td>
-                    {year}-{month}-{day}
-                  </td>
-                  <td>{entry.message}</td>
+      <NewsTable>
+        <thead>
+          <tr>
+            <th>{t('news.date')}</th>
+            <th>{t('news.message')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {newsIsLoading
+            ? [0, 1, 2, 3, 4].map(idx => (
+                <tr key={`placeholder${idx}`}>
+                  <td />
+                  <td>{t('news.loading')}</td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </NewsTable>
-      )}
+              ))
+            : newsEntries.map((entry, i) => {
+                const time = new Date(entry.time);
+                const year = time.getFullYear();
+                const month = ('0' + (time.getMonth() + 1)).slice(-2);
+                const day = ('0' + time.getDate()).slice(-2);
+                return (
+                  <tr key={i}>
+                    <td>
+                      {year}-{month}-{day}
+                    </td>
+                    <td>{entry.message}</td>
+                  </tr>
+                );
+              })}
+        </tbody>
+      </NewsTable>
     </NewsSectionWrapper>
   );
 });
