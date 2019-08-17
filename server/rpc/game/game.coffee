@@ -2278,9 +2278,17 @@ class Game
             else if wolves==0 && vampires==0
                 # 村人勝利
                 team="Human"
+                # 道化生存時は勝敗反転
+                aliveClowns = @players.filter((x)-> x.isJobType("DarkClown") && !x.dead).length
+                if aliveClowns >= 1
+                    team="Werewolf"
             else if humans<=wolves && vampires==0
                 # 人狼勝利
                 team="Werewolf"
+                # 道化生存時は勝敗反転
+                aliveClowns = @players.filter((x)-> x.isJobType("DarkClown") && !x.dead).length
+                if aliveClowns >= 1
+                    team="Human"
             else if humans<=vampires && wolves==0
                 # ヴァンパイア勝利
                 team="Vampire"
@@ -11281,6 +11289,7 @@ jobs=
     Poet:Poet
     Amanojaku:Amanojaku
     Ascetic:Ascetic
+    DarkClown:DarkClown
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11457,6 +11466,7 @@ jobStrength=
     Poet:11
     Amanojaku:10
     Ascetic:20
+    DarkClown:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
