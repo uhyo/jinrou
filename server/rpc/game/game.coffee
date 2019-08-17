@@ -2278,9 +2278,17 @@ class Game
             else if wolves==0 && vampires==0
                 # 村人勝利
                 team="Human"
+                # 道化生存時は勝敗反転
+                aliveClowns = @players.filter((x)-> x.isJobType("DarkClown") && !x.dead).length
+                if aliveClowns >= 1
+                    team="Werewolf"
             else if humans<=wolves && vampires==0
                 # 人狼勝利
                 team="Werewolf"
+                # 道化生存時は勝敗反転
+                aliveClowns = @players.filter((x)-> x.isJobType("DarkClown") && !x.dead).length
+                if aliveClowns >= 1
+                    team="Human"
             else if humans<=vampires && wolves==0
                 # ヴァンパイア勝利
                 team="Vampire"
@@ -9528,8 +9536,8 @@ class Amanojaku extends Player
         team != "Human" && team != ""
         
 class Ascetic extends Player
-    type: "Ascetic"
-    team: "Raven"
+    type:"Ascetic"
+    team:"Raven"
     isWinner:(game, team)->
         ravens = game.players.filter (x)-> x.isJobType "Raven"
         aliver = ravens.filter (x)->!x.dead
@@ -9552,6 +9560,37 @@ class Ascetic extends Player
         result.ravens =
             game.players.filter((x)-> x.isJobType "Raven").map (x)->
                 x.publicinfo()
+                
+class DarkClown extends Bat
+    type:"DarkClown"
+    sleeping:->true
+    sunrise:(game)->
+        # 最初の1人がログを管理
+        clowns=game.players.filter (x)->x.isJobType "DarkClown"
+        firstClown=clowns[0]
+        if firstClown?.id==@id
+            # わ た し だ
+            innerClowns = firstClown.accessByJobTypeAll "DarkClown"
+            if innerClowns[0]?.objid == @objid
+                if clowns.some((x)->!x.dead) 
+                    if @flag != "reverse"
+                        # 道化が生存し、まだログを出していない
+                        log=
+                            mode:"system"
+                            comment: game.i18n.t "roles:DarkClown.alive"
+                        splashlog game.id,game,log
+                        # ログは1度きり
+                        @setFlag "reverse"
+                else if @flag!="normal"
+                    # 全員死亡していてまたログを出していない
+                    log=
+                        mode:"system"
+                        comment: game.i18n.t "roles:DarkClown.dead"
+                    splashlog game.id,game,log
+                    @setFlag "normal"
+
+    deadsunrise:(game)->
+        DarkClown::sunrise.call this, game
 
 # ============================
 # 処理上便宜的に使用
@@ -11250,6 +11289,7 @@ jobs=
     Poet:Poet
     Amanojaku:Amanojaku
     Ascetic:Ascetic
+    DarkClown:DarkClown
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11426,6 +11466,7 @@ jobStrength=
     Poet:11
     Amanojaku:10
     Ascetic:20
+    DarkClown:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

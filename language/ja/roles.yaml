@@ -132,6 +132,7 @@ jobname:
   Poet: "歌人"
   Amanojaku: "天邪鬼"
   Ascetic: "修験者"
+  DarkClown: "闇道化"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -834,6 +835,12 @@ Poet:
   select: "{{name}}は{{target}}に歌を送りました。"
   # received from someone.
   become: "{{name}}は{{sender}}からの歌を受け取って歌人になりました。"
+
+DarkClown:
+  # System log that a DarkClown is alive.
+  alive: "村に道化が潜んでいます。村人たちは正気を失いました。"
+  # System log that a DarkClown has dead.
+  dead: "村から道化が去り、村人たちは正気に返りました。"
 
 GameMaster:
   # Failed to revive.
