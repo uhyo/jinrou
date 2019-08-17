@@ -9528,8 +9528,8 @@ class Amanojaku extends Player
         team != "Human" && team != ""
         
 class Ascetic extends Player
-    type: "Ascetic"
-    team: "Raven"
+    type:"Ascetic"
+    team:"Raven"
     isWinner:(game, team)->
         ravens = game.players.filter (x)-> x.isJobType "Raven"
         aliver = ravens.filter (x)->!x.dead
@@ -9552,6 +9552,37 @@ class Ascetic extends Player
         result.ravens =
             game.players.filter((x)-> x.isJobType "Raven").map (x)->
                 x.publicinfo()
+                
+class DarkClown extends Bat
+    type:"DarkClown"
+    sleeping:->true
+    sunrise:(game)->
+        # 最初の1人がログを管理
+        clowns=game.players.filter (x)->x.isJobType "DarkClown"
+        firstClown=clowns[0]
+        if firstClown?.id==@id
+            # わ た し だ
+            innerClowns = firstClown.accessByJobTypeAll "DarkClown"
+            if innerClowns[0]?.objid == @objid
+                if clowns.some((x)->!x.dead) 
+                    if @flag != "reverse"
+                        # 道化が生存し、まだログを出していない
+                        log=
+                            mode:"system"
+                            comment: game.i18n.t "roles:DarkClown.alive"
+                        splashlog game.id,game,log
+                        # ログは1度きり
+                        @setFlag "reverse"
+                else if @flag!="normal"
+                    # 全員死亡していてまたログを出していない
+                    log=
+                        mode:"system"
+                        comment: game.i18n.t "roles:DarkClown.dead"
+                    splashlog game.id,game,log
+                    @setFlag "normal"
+
+    deadsunrise:(game)->
+        DarkClown::sunrise.call this, game
 
 # ============================
 # 処理上便宜的に使用
