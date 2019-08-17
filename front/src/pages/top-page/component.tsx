@@ -41,6 +41,7 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
       onLogin({
         userId: loginFormUserIdRef.current.value,
         password: loginFormPasswordRef.current.value,
+        rememberMe: true,
       })
         .then(({ error }) => {
           updateLoginError(error ? i18n.t('top_client:app.loginError') : '');

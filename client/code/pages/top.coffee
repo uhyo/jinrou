@@ -14,8 +14,8 @@ exports.start=->
                         if result
                             if query.rememberMe
                                 # 記憶
-                                localStorage.setItem "userid",form.elements["userid"].value
-                                localStorage.setItem "password", form.elements["password"].value
+                                localStorage.setItem "userid", query.userId
+                                localStorage.setItem "password", query.password
                             Index.app.showUrl "/my"
                             resolve {}
                         else
