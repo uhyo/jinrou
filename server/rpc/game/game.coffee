@@ -9596,19 +9596,22 @@ class DualPersonality extends Player
     type:"DualPersonality"
     team:""
     isWinner:(game, team)->
-        unless @flag in ["human","werewolf"]
-            !@dead
         if @flag == "human"
             team == "Human" && team != ""
-        else
+        else if @flag == "werewolf"
             team == "Werewolf" && team != ""
+        else
+            # エンドレス等変化後即日勝利判定を考慮
+            !@dead
     sunset:(game)->
-        unless @flag in ["human","werewolf"]
+        unless @flag?
+            # 初期陣営を決定する
             r = Math.random()
             if r<=0.5
                 @setFlag "human"
             else
                 @setFlag "werewolf"
+        # 1日毎に陣営を変える
         if @flag == "human"
             log=
                 mode:"skill"
@@ -9616,7 +9619,7 @@ class DualPersonality extends Player
                 comment: game.i18n.t "roles:DualPersonality.werewolf"
             splashlog game.id,game,log
             @setFlag "werewolf"
-        else
+        else if @flag == "werewolf"
             log=
                 mode:"skill"
                 to:@id
@@ -11109,11 +11112,11 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku"
+        if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku" || @main.type == "DualPersonality"
             win = win || @main.isWinner(game,team)
         # if it has team-independent winningness, adopt it.
         win = win || @main.isWinner(game, "")
-        if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku"
+        if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku" || @sub?.type == "DualPersonality"
             win = win || @sub.isWinner(game,team)
         if @sub?
             win = win || @sub.isWinner(game, "")
