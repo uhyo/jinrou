@@ -952,7 +952,7 @@ exports.jobinfo=
         DarkClown:
             color:"#444434"
         DualPersonality:
-            color:"#9DB699"
+            color:"#9db699"
     Neet:
         color:"#aaaaaa"
         Neet:
