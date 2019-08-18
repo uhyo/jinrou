@@ -11325,6 +11325,7 @@ jobs=
     Amanojaku:Amanojaku
     Ascetic:Ascetic
     DarkClown:DarkClown
+    DualPersonality:DualPersonality
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11502,6 +11503,7 @@ jobStrength=
     Amanojaku:10
     Ascetic:20
     DarkClown:15
+    DualPersonality:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
