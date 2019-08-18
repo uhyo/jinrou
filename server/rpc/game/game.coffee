@@ -9601,16 +9601,16 @@ class DualPersonality extends Player
         else if @flag == "werewolf"
             team == "Werewolf" && team != ""
         else
-            # 即日勝利判定を考慮
-            !@dead
-    sunrise:(game)->
+            false
+    sunset:(game)->
         unless @flag?
-            # 初期陣営を決定する
+            # 初期陣営を決定する（朝になるまでわからない！）
             r = Math.random()
             if r<=0.5
                 @setFlag "human"
             else
                 @setFlag "werewolf"
+    sunrise:(game)->
         # 1日毎に陣営を変える
         if @flag == "human"
             log=
