@@ -9616,14 +9616,14 @@ class DualPersonality extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:DualPersonality.werewolf"
+                comment: game.i18n.t "roles:DualPersonality.werewolf", {name: @name}
             splashlog game.id,game,log
             @setFlag "werewolf"
         else if @flag == "werewolf"
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:DualPersonality.human"
+                comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
             splashlog game.id,game,log
             @setFlag "human"
             
