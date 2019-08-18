@@ -133,6 +133,7 @@ jobname:
   Amanojaku: "天邪鬼"
   Ascetic: "修験者"
   DarkClown: "闇道化"
+  DualPersonality: "二重人格"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -841,6 +842,12 @@ DarkClown:
   alive: "村に道化が潜んでいます。村人たちは正気を失いました。"
   # System log that a DarkClown has dead.
   dead: "村から道化が去り、村人たちは正気に返りました。"
+  
+DualPersonality:
+  # Your team is "werewolf".
+  werewolf: "今日は人狼側の人格です。"
+  # Your team is "human".
+  human: "今日は村人側の人格です。"
 
 GameMaster:
   # Failed to revive.
