@@ -9601,9 +9601,9 @@ class DualPersonality extends Player
         else if @flag == "werewolf"
             team == "Werewolf" && team != ""
         else
-            # エンドレス等変化後即日勝利判定を考慮
+            # 即日勝利判定を考慮
             !@dead
-    sunset:(game)->
+    sunrise:(game)->
         unless @flag?
             # 初期陣営を決定する
             r = Math.random()
