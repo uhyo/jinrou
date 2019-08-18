@@ -9592,6 +9592,38 @@ class DarkClown extends Bat
     deadsunrise:(game)->
         DarkClown::sunrise.call this, game
 
+class DualPersonality extends Player
+    type:"DualPersonality"
+    team:""
+    isWinner:(game, team)->
+        unless @flag in ["human","werewolf"]
+            !@dead
+        if @flag == "human"
+            team == "Human" && team != ""
+        else
+            team == "Werewolf" && team != ""
+    sunset:(game)->
+        unless @flag in ["human","werewolf"]
+            r = Math.random()
+            if r<=0.5
+                @setFlag "human"
+            else
+                @setFlag "werewolf"
+        if @flag == "human"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:DualPersonality.werewolf"
+            splashlog game.id,game,log
+            @setFlag "werewolf"
+        else
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:DualPersonality.human"
+            splashlog game.id,game,log
+            @setFlag "human"
+            
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
