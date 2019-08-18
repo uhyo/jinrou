@@ -845,9 +845,9 @@ DarkClown:
   
 DualPersonality:
   # Your team is "werewolf".
-  werewolf: "今日は人狼側の人格です。"
+  werewolf: "今日の{{name}}は人狼側の人格です。"
   # Your team is "human".
-  human: "今日は村人側の人格です。"
+  human: "今日の{{name}}は村人側の人格です。"
 
 GameMaster:
   # Failed to revive.
