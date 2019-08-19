@@ -9604,11 +9604,21 @@ class DualPersonality extends Player
             false
     sunset:(game)->
         unless @flag?
-            # 初期陣営を決定する（朝になるまでわからない！）
+            # 初期陣営の決定＆初回だけ夜に通知
             r = Math.random()
             if r<=0.5
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
+                splashlog game.id,game,log
                 @setFlag "human"
             else
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:DualPersonality.werewolf", {name: @name}
+                splashlog game.id,game,log
                 @setFlag "werewolf"
     sunrise:(game)->
         # 1日毎に陣営を変える
