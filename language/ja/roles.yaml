@@ -133,6 +133,7 @@ jobname:
   Amanojaku: "天邪鬼"
   Ascetic: "修験者"
   DarkClown: "闇道化"
+  Sacrifice: "人身御供"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -708,6 +709,8 @@ Emma:
     samurai: "{{name}}は侍に一刀両断されたようです。"
     # Killed by Elementaler
     elemental: "{{name}}は暴走した精霊によって殺されたようです。"
+    # Sacrifice
+    sacrifice: "{{name}}は生贄に捧げられたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -841,6 +844,11 @@ DarkClown:
   alive: "村に道化が潜んでいます。村人たちは正気を失いました。"
   # System log that a DarkClown has dead.
   dead: "村から道化が去り、村人たちは正気に返りました。"
+
+Sacrifice:
+  # Selected a target.
+  select: "{{name}}が{{target}}を守るため自らの命を差し出そうとしています。"
+  protected: "{{name}}は人身御供を差し出し{{found}}に抵抗しました。"
 
 GameMaster:
   # Failed to revive.
