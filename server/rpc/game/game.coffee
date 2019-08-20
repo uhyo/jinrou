@@ -1839,7 +1839,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1880,7 +1880,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide",
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental"
+                    "hooligan","dragon","samurai","elemental","sacrifice"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1935,6 +1935,8 @@ class Game
                         "samurai"
                     when "elemental"
                         "elemental"
+                    when "sacrifice"
+                        "sacrifice"
                     else
                         null
                 if emma_log?
@@ -4905,7 +4907,7 @@ class Lycan extends Player
     fortuneResult: FortuneResult.werewolf
 class Priest extends Player
     type:"Priest"
-    midnightSort:70
+    midnightSort:69
     formType: FormType.optionalOnce
     hasDeadResistance:->true
     sleeping:->true
@@ -9594,14 +9596,13 @@ class DarkClown extends Bat
         
 class Sacrifice extends Player
 	type:"Sacrifice"
-	midnightSort:69
+	midnightSort:70
 	formType: FormType.optionalOnce
 	hasDeadResistance:->true
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
         @setTarget null
-
     job:(game,playerid,query)->
         if @flag?
             return game.i18n.t "error.common.alreadyUsed"
@@ -9622,7 +9623,6 @@ class Sacrifice extends Player
             comment: game.i18n.t "roles:Sacrifice.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
-
     midnight:(game,midnightSort)->
         # 複合させる
         pl = game.getPlayer game.skillTargetHook.get @target
@@ -9631,7 +9631,6 @@ class Sacrifice extends Player
         # 村人陣営以外は何も起こらない
         if pl.getTeam() != "Human"
 		    return
-
         newpl=Player.factory null, game, pl,null,SacrificeProtected # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id # 護衛元
@@ -11366,6 +11365,7 @@ jobs=
     Amanojaku:Amanojaku
     Ascetic:Ascetic
     DarkClown:DarkClown
+    Sacrifice:Sacrifice
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11412,6 +11412,7 @@ complexes=
     HooliganGuardComplex:HooliganGuardComplex
     SamuraiGuarded:SamuraiGuarded
     DraculaBitten:DraculaBitten
+    SacrificeProtected:SacrificeProtected
 
     # 役職ごとの強さ
 jobStrength=
@@ -11543,6 +11544,7 @@ jobStrength=
     Amanojaku:10
     Ascetic:20
     DarkClown:15
+    Sacrifice:14
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
