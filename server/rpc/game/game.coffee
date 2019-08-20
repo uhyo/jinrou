@@ -9591,6 +9591,52 @@ class DarkClown extends Bat
 
     deadsunrise:(game)->
         DarkClown::sunrise.call this, game
+        
+class Sacrifice extends Player
+	type:"Sacrifice"
+	midnightSort:69
+	formType: FormType.optionalOnce
+	hasDeadResistance:->true
+    sleeping:->true
+    jobdone:->@flag?
+    sunset:(game)->
+        @setTarget null
+
+    job:(game,playerid,query)->
+        if @flag?
+            return game.i18n.t "error.common.alreadyUsed"
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game,@id
+
+        @setTarget playerid
+        @setFlag "done"    # すでに能力を発動している
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Sacrifice.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+
+    midnight:(game,midnightSort)->
+        # 複合させる
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        # 村人陣営以外は何も起こらない
+        if pl.getTeam() != "Human"
+		    return
+
+        newpl=Player.factory null, game, pl,null,SacrificeProtected # 守られた人
+        pl.transProfile newpl
+        newpl.cmplFlag=@id # 護衛元
+        pl.transform game,newpl,true
+        null
 
 # ============================
 # 処理上便宜的に使用
@@ -10924,6 +10970,36 @@ class DraculaBitten extends Complex
         if attr == PlayerAttribute.draculaBitten
             return true
         return super
+
+# 生贄によって守られている人
+class SacrificeProtected extends Complex
+    cmplType:"SacrificeProtected"
+    checkDeathResistance:(game, found)->
+        if found in ["gone-day","gone-night"]
+            # If this is a gone death, do not guard.
+            return false
+        # その他の死因は耐える
+        game.getPlayer(@cmplFlag).addGamelog game,"SacrificeGJ",found,@id
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Sacrifice.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
+        # 襲撃失敗理由を保存（cover or holy...）
+        if Found.isNormalWerewolfAttack found
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.cover
+        # イケニエ
+        guard=game.getPlayer @cmplFlag
+        guard.die game, "sacrifice", guard?.id
+        # 1回のみ耐える	
+        @uncomplex game
+        return true
+    sunsetAlways:(game)->
+        # 一日しか効かない
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
+        @uncomplex game
 
 # 決定者
 class Decider extends Complex
