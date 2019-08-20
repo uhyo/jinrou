@@ -9593,49 +9593,6 @@ class DarkClown extends Bat
 
     deadsunrise:(game)->
         DarkClown::sunrise.call this, game
-        
-class Sacrifice extends Player
-	type:"Sacrifice"
-	midnightSort:70
-	formType: FormType.optionalOnce
-	hasDeadResistance:->true
-    sleeping:->true
-    jobdone:->@flag?
-    sunset:(game)->
-        @setTarget null
-    job:(game,playerid,query)->
-        if @flag?
-            return game.i18n.t "error.common.alreadyUsed"
-        if @target?
-            return game.i18n.t "error.common.alreadyUsed"
-        pl=game.getPlayer playerid
-        unless pl?
-            return game.i18n.t "error.common.nonexistentPlayer"
-        if playerid==@id
-            return game.i18n.t "error.common.noSelectSelf"
-        pl.touched game,@id
-
-        @setTarget playerid
-        @setFlag "done"    # すでに能力を発動している
-        log=
-            mode:"skill"
-            to:@id
-            comment: game.i18n.t "roles:Sacrifice.select", {name: @name, target: pl.name}
-        splashlog game.id,game,log
-        null
-    midnight:(game,midnightSort)->
-        # 複合させる
-        pl = game.getPlayer game.skillTargetHook.get @target
-        unless pl?
-            return
-        # 村人陣営以外は何も起こらない
-        if pl.getTeam() != "Human"
-		    return
-        newpl=Player.factory null, game, pl,null,SacrificeProtected # 守られた人
-        pl.transProfile newpl
-        newpl.cmplFlag=@id # 護衛元
-        pl.transform game,newpl,true
-        null
 
 class DualPersonality extends Player
     type:"DualPersonality"
@@ -9681,6 +9638,49 @@ class DualPersonality extends Player
                 comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
             splashlog game.id,game,log
             @setFlag "human"
+ 
+class Sacrifice extends Player
+	type:"Sacrifice"
+	midnightSort:70
+	formType: FormType.optionalOnce
+	hasDeadResistance:->true
+    sleeping:->true
+    jobdone:->@flag?
+    sunset:(game)->
+        @setTarget null
+    job:(game,playerid,query)->
+        if @flag?
+            return game.i18n.t "error.common.alreadyUsed"
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl.touched game,@id
+
+        @setTarget playerid
+        @setFlag "done"    # すでに能力を発動している
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Sacrifice.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game,midnightSort)->
+        # 複合させる
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        # 村人陣営以外は何も起こらない
+        if pl.getTeam() != "Human"
+		    return
+        newpl=Player.factory null, game, pl,null,SacrificeProtected # 守られた人
+        pl.transProfile newpl
+        newpl.cmplFlag=@id # 護衛元
+        pl.transform game,newpl,true
+        null
             
 # ============================
 # 処理上便宜的に使用
