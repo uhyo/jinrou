@@ -105,6 +105,7 @@ messages:
   Samurai: "護衛する相手を選択してください"
   Dracula: "吸血する相手を選択してください"
   Elementaler: "護衛する相手を選択してください"
+  Sacrifice: "守る相手を選択してください"
   GameMaster: "GM用コマンド"
 
 # Texts for GameMaster form.
