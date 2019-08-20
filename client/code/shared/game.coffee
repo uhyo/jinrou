@@ -34,7 +34,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "ObstructiveMad", # 人狼天国
 "WanderingGuard", # 錠前天国
 "BadLady", # 蒼汁天国、人狼天国
-"Bomber","Blasphemy","Ushinotokimairi",  # ねじれ天国
+"Bomber","Blasphemy","Ushinotokimairi","DualPersonality",  # ねじれ天国
 # 人狼式
 "Emma","EyesWolf","TongueWolf",
 # えけけ鯖
@@ -89,7 +89,7 @@ exports.teams=teams=
     Cult:["CultLeader"]
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -102,7 +102,7 @@ exports.categories=
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
     Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown"]
-    Switching:["Stalker","Copier","Doppleganger","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
+    Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:["Neet"]
 
@@ -951,6 +951,8 @@ exports.jobinfo=
             color:"#b09ca8"
         DarkClown:
             color:"#444434"
+        DualPersonality:
+            color:"#9db699"
     Neet:
         color:"#aaaaaa"
         Neet:

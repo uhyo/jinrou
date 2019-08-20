@@ -9592,6 +9592,51 @@ class DarkClown extends Bat
     deadsunrise:(game)->
         DarkClown::sunrise.call this, game
 
+class DualPersonality extends Player
+    type:"DualPersonality"
+    team:""
+    isWinner:(game, team)->
+        if @flag == "human"
+            team == "Human" && team != ""
+        else if @flag == "werewolf"
+            team == "Werewolf" && team != ""
+        else
+            false
+    sunset:(game)->
+        unless @flag?
+            # 初期陣営の決定＆初回だけ夜に通知
+            r = Math.random()
+            if r<=0.5
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
+                splashlog game.id,game,log
+                @setFlag "human"
+            else
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:DualPersonality.werewolf", {name: @name}
+                splashlog game.id,game,log
+                @setFlag "werewolf"
+    sunrise:(game)->
+        # 1日毎に陣営を変える
+        if @flag == "human"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:DualPersonality.werewolf", {name: @name}
+            splashlog game.id,game,log
+            @setFlag "werewolf"
+        else if @flag == "werewolf"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
+            splashlog game.id,game,log
+            @setFlag "human"
+            
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11077,11 +11122,11 @@ class Chemical extends Complex
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
-        if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku"
+        if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku" || @main.type == "DualPersonality"
             win = win || @main.isWinner(game,team)
         # if it has team-independent winningness, adopt it.
         win = win || @main.isWinner(game, "")
-        if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku"
+        if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku" || @sub?.type == "DualPersonality"
             win = win || @sub.isWinner(game,team)
         if @sub?
             win = win || @sub.isWinner(game, "")
@@ -11290,6 +11335,7 @@ jobs=
     Amanojaku:Amanojaku
     Ascetic:Ascetic
     DarkClown:DarkClown
+    DualPersonality:DualPersonality
     # 特殊
     GameMaster:GameMaster
     Helper:Helper
@@ -11467,6 +11513,7 @@ jobStrength=
     Amanojaku:10
     Ascetic:20
     DarkClown:15
+    DualPersonality:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
