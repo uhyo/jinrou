@@ -11022,6 +11022,8 @@ class SacrificeProtected extends Complex
         if found in ["gone-day","gone-night"]
             # If this is a gone death, do not guard.
             return false
+        if @getTeam != "Human"
+            return false
         # その他の死因は耐える
         game.getPlayer(@cmplFlag).addGamelog game,"SacrificeGJ",found,@id
         # show invisible detail
