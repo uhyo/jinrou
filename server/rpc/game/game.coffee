@@ -9640,10 +9640,10 @@ class DualPersonality extends Player
             @setFlag "human"
  
 class Sacrifice extends Player
-	type:"Sacrifice"
-	midnightSort:70
-	formType: FormType.optionalOnce
-	hasDeadResistance:->true
+    type:"Sacrifice"
+    midnightSort:70
+    formType: FormType.optionalOnce
+    hasDeadResistance:->true
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
@@ -9675,7 +9675,7 @@ class Sacrifice extends Player
             return
         # 村人陣営以外は何も起こらない
         if pl.getTeam() != "Human"
-		    return
+            return
         newpl=Player.factory null, game, pl,null,SacrificeProtected # 守られた人
         pl.transProfile newpl
         newpl.cmplFlag=@id # 護衛元
@@ -11022,7 +11022,7 @@ class SacrificeProtected extends Complex
         if found in ["gone-day","gone-night"]
             # If this is a gone death, do not guard.
             return false
-        if @getTeam != "Human"
+        if @getTeam() != "Human"
             return false
         # その他の死因は耐える
         game.getPlayer(@cmplFlag).addGamelog game,"SacrificeGJ",found,@id
