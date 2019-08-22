@@ -134,6 +134,7 @@ jobname:
   Ascetic: "修験者"
   DarkClown: "闇道化"
   DualPersonality: "二重人格"
+  Sacrifice: "人身御供"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -709,6 +710,8 @@ Emma:
     samurai: "{{name}}は侍に一刀両断されたようです。"
     # Killed by Elementaler
     elemental: "{{name}}は暴走した精霊によって殺されたようです。"
+    # Sacrifice
+    sacrifice: "{{name}}は生贄に捧げられたようです。"
 
 EyesWolf:
   # EyesWolf result strings
@@ -848,6 +851,11 @@ DualPersonality:
   werewolf: "今日の{{name}}は人狼側の人格です。"
   # Your team is "human".
   human: "今日の{{name}}は村人側の人格です。"
+
+Sacrifice:
+  # Selected a target.
+  select: "{{name}}が{{target}}を守るため自らの命を差し出そうとしています。"
+  protected: "{{name}}は人身御供を差し出し{{found}}に抵抗しました。"
 
 GameMaster:
   # Failed to revive.
