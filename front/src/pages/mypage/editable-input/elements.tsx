@@ -4,12 +4,17 @@ import {
   formComponentsVerticalMergin,
 } from '../../../common/style';
 import { helperTextColor } from '../../../common/color';
+import { phone } from '../../../common/media';
 
 export const EditableInputs = styled.div`
   color: ${helperTextColor};
   display: grid;
   grid-template-columns: auto auto 1fr;
   gap: ${formComponentsVerticalMergin};
+
+  ${phone`
+    grid-template-columns: auto 1fr;
+  `};
 `;
 
 export const InputLabel = styled.label`
@@ -17,8 +22,14 @@ export const InputLabel = styled.label`
   line-height: 1.8;
 `;
 
+export const InputHelpIcon = styled.span``;
+
 export const InputContent = styled.span`
   padding: 3px;
+
+  ${phone`
+    grid-column: 1 / 3;
+  `};
 `;
 
 export const Input = styled.input`

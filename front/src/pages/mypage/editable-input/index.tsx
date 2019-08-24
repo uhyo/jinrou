@@ -1,7 +1,13 @@
 import { useUniqueId } from '../../../util/useUniqueId';
 import React from 'react';
 import { FontAwesomeIcon } from '../../../util/icon';
-import { Input, InputLabel, InputContent, EditableInputs } from './elements';
+import {
+  Input,
+  InputLabel,
+  InputContent,
+  EditableInputs,
+  InputHelpIcon,
+} from './elements';
 
 export { EditableInputs };
 
@@ -48,7 +54,7 @@ export const EditableInputWrapper: React.FunctionComponent<{
 }> = ({ labelFor, label, helpText, children }) => (
   <>
     <InputLabel htmlFor={labelFor}>{label}</InputLabel>
-    <span>
+    <InputHelpIcon>
       {helpText ? (
         <FontAwesomeIcon
           size="sm"
@@ -57,7 +63,7 @@ export const EditableInputWrapper: React.FunctionComponent<{
           data-title={helpText}
         />
       ) : null}
-    </span>
+    </InputHelpIcon>
     <InputContent>{children}</InputContent>
   </>
 );
