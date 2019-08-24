@@ -9536,7 +9536,7 @@ class Amanojaku extends Player
     team:""
     isWinner:(game, team)->
         team != "Human" && team != ""
-        
+
 class Ascetic extends Player
     type:"Ascetic"
     team:"Raven"
@@ -9562,7 +9562,7 @@ class Ascetic extends Player
         result.ravens =
             game.players.filter((x)-> x.isJobType "Raven").map (x)->
                 x.publicinfo()
-                
+
 class DarkClown extends Bat
     type:"DarkClown"
     sleeping:->true
@@ -9574,7 +9574,7 @@ class DarkClown extends Bat
             # わ た し だ
             innerClowns = firstClown.accessByJobTypeAll "DarkClown"
             if innerClowns[0]?.objid == @objid
-                if clowns.some((x)->!x.dead) 
+                if clowns.some((x)->!x.dead)
                     if @flag != "reverse"
                         # 道化が生存し、まだログを出していない
                         log=
@@ -9638,7 +9638,7 @@ class DualPersonality extends Player
                 comment: game.i18n.t "roles:DualPersonality.human", {name: @name}
             splashlog game.id,game,log
             @setFlag "human"
- 
+
 class Sacrifice extends Player
     type:"Sacrifice"
     midnightSort:70
@@ -9681,7 +9681,7 @@ class Sacrifice extends Player
         newpl.cmplFlag=@id # 護衛元
         pl.transform game,newpl,true
         null
-            
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11038,7 +11038,7 @@ class SacrificeProtected extends Complex
         # イケニエ
         guard=game.getPlayer @cmplFlag
         guard.die game, "sacrifice", guard?.id
-        # 1回のみ耐える	
+        # 1回のみ耐える
         @uncomplex game
         return true
     sunsetAlways:(game)->
@@ -11974,6 +11974,7 @@ module.exports.actions=(req,res,ss)->
                     # 吸血鬼の眷属も
                     if joblist.Vampire == 0 && joblist.Dracula == 0
                         exceptions.push "VampireClan"
+                        special_exceptions.push "VampireClan"
 
 
                 nonavs = {}
@@ -12611,7 +12612,7 @@ module.exports.actions=(req,res,ss)->
                 ruleinfo_str = game.i18n.t "casting:castingName.#{query.jobrule}"
             if query.losemode == "on"
                 # 敗北村の場合は表示
-                ruleinfo_str = "#{game.i18n.t "common.losemode"}　" + (ruleinfo_str ? "")    
+                ruleinfo_str = "#{game.i18n.t "common.losemode"}　" + (ruleinfo_str ? "")
             if query.chemical == "on"
                 # ケミカル人狼の場合は表示
                 ruleinfo_str = "#{game.i18n.t "common.chemicalWerewolf"}　" + (ruleinfo_str ? "")
