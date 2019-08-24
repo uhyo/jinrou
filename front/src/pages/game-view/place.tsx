@@ -9,7 +9,7 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakQuery, Log, ReportFormConfig, ReportFormQuery } from './defs';
+import { SpeakQuery, ReportFormConfig, ReportFormQuery } from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 import { i18n } from '../../i18n';
 

@@ -7,12 +7,14 @@ import { arrayMapToObjectEntries } from '../../../../util/array-map-to-object';
 /**
  * @package
  */
-export class DriverBase {
+export abstract class DriverBase {
   protected cancellation = new Cancellation();
   constructor(
     public t: TranslationFunction,
     protected store: GameTutorialStore,
   ) {}
+
+  public abstract messageDialog: Driver['messageDialog'];
 
   /**
    * Get a player by id.
@@ -129,6 +131,17 @@ export class DriverBase {
     const { userInfo } = this.store;
     const pl = this.getPlayer(userid);
     if (pl == null) {
+      // no target
+      this.messageDialog({
+        message: this.t('game:error.voting.noTarget'),
+      });
+      return false;
+    }
+    if (userInfo.userid === userid) {
+      // cannot vote to myself
+      this.messageDialog({
+        message: this.t('game:error.voting.self'),
+      });
       return false;
     }
 

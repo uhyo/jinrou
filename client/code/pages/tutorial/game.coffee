@@ -13,6 +13,8 @@ exports.start = (roomid)->
             getUserProfile:->
                 new Promise (resolve)->
                     ss.rpc "user.myProfile", (res)->
+                        unless res.icon
+                            res.icon = null
                         resolve res
         })
     .then (v)->
