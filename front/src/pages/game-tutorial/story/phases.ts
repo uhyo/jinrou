@@ -6,8 +6,10 @@ export const phases: Partial<Record<number, Phase>> = {
   0: {
     // Initial phase: automatically proceed
     async step(driver) {
-      await driver.messageDialog({
-        message: driver.t('phase0.stepMessage'),
+      driver.addLog({
+        mode: 'prepare',
+        name: driver.t('guide.name'),
+        comment: driver.t('phase0.stepMessage'),
       });
       return 1;
     },
