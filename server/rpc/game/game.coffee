@@ -9623,6 +9623,12 @@ class DualPersonality extends Player
                 splashlog game.id,game,log
                 @setFlag "werewolf"
     sunrise:(game)->
+        unless @flag?
+            r = Math.random()
+            if r<=0.5
+                @setFlag "human"
+            else
+                @setFlag "werewolf"
         # 1日毎に陣営を変える
         if @flag == "human"
             log=
