@@ -11024,6 +11024,10 @@ class SacrificeProtected extends Complex
             return false
         if @getTeam() != "Human"
             return false
+        # 生贄先が生存していないとダメ
+        sacrifice=game.getPlayer @cmplFlag
+        if sacrifice.dead
+            return false
         # その他の死因は耐える
         game.getPlayer(@cmplFlag).addGamelog game,"SacrificeGJ",found,@id
         # show invisible detail
@@ -11035,9 +11039,8 @@ class SacrificeProtected extends Complex
         # 襲撃失敗理由を保存（cover or holy...）
         if Found.isNormalWerewolfAttack found
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.cover
-        # イケニエ
-        guard=game.getPlayer @cmplFlag
-        guard.die game, "sacrifice", guard?.id
+        #生贄
+        sacrifice.die game, "sacrifice", sacrifice?.id
         # 1回のみ耐える
         @uncomplex game
         return true
