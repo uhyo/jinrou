@@ -12526,6 +12526,9 @@ module.exports.actions=(req,res,ss)->
                             # 人狼系が2以上（この処理で人狼系の数と絶対狼の数が一致することはなくなる）
                             if countCategory("Werewolf")==0
                                 continue
+                            # 一匹狼とは共存できない
+                            if joblist.LoneWolf>0
+                                continue
 
                         joblist[job]++
                         if job == "MadWolf"
