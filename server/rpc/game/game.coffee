@@ -1282,7 +1282,7 @@ class Game
                 @werewolf_target_remain=1
             else if @rule.scapegoat=="on"
                 # 誰が襲ったかはランダム
-                onewolf=@players.filter (x)->x.isWerewolf()
+                onewolf=@players.filter (x)->x.isWerewolf() && x.isAttacker()
                 if onewolf.length>0
                     r=Math.floor Math.random()*onewolf.length
                     @werewolf_target.push {
@@ -3968,7 +3968,7 @@ class Poisoner extends Player
                 # 襲撃者を道連れにする
                 canbedead = canbedead.filter (x)->x.id==from
             else
-                canbedead=canbedead.filter (x)->x.isWerewolf()
+                canbedead=canbedead.filter (x)->x.isWerewolf() && x.isAttacker()
         else if found=="vampire"
             canbedead=canbedead.filter (x)->x.id==from
         return if canbedead.length==0
@@ -10449,7 +10449,7 @@ class TrapGuarded extends Complex
             if found == "vampire"
                 canbedead=game.players.filter (x)->!x.dead && x.id==from
             else
-                canbedead=game.players.filter (x)->!x.dead && x.isWerewolf()
+                canbedead=game.players.filter (x)->!x.dead && x.isWerewolf() && x.isAttacker()
             if canbedead.length > 0
                 r=Math.floor Math.random()*canbedead.length
                 pl=canbedead[r] # 被害者
