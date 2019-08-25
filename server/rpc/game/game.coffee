@@ -13210,6 +13210,9 @@ isLogTarget = (to, player)->
 writeGlobalJobInfo = (game, player, result={})->
     unless Phase.isBeforeStart(game.phase)
         result.myteam = player.getTeamDisp()
+        # 絶対狼は全員に公開
+        result.absolutewolves = game.players.filter((x)-> x.isJobType "AbsoluteWolf").map (x)->
+                x.publicinfo()
         # 女王観戦者の情報
         if player.getTeam() == "Human" && player.getTeamDisp() == "Human"
             result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
