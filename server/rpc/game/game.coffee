@@ -12529,6 +12529,10 @@ module.exports.actions=(req,res,ss)->
                             # 一匹狼とは共存できない
                             if joblist.LoneWolf>0
                                 continue
+                        if job == "LoneWolf"
+                            # 絶対狼とは共存できない
+                            if joblist.AbsoluteWolf>0
+                                continue
 
                         joblist[job]++
                         if job == "MadWolf"
