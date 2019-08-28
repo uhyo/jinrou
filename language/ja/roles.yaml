@@ -135,6 +135,7 @@ jobname:
   DarkClown: "闇道化"
   DualPersonality: "二重人格"
   Sacrifice: "人身御供"
+  Oracle: "預言者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -856,6 +857,11 @@ Sacrifice:
   # Selected a target.
   select: "{{name}}が{{target}}を守るため自らの命を差し出そうとしています。"
   protected: "{{name}}は人身御供を差し出し{{found}}に抵抗しました。"
+
+Oracle:
+  friend: "{{name}}に神託が下りました。恋人陣営が勝利目前です。"
+  fox: "{{name}}に神託が下りました。妖狐陣営が勝利目前です。"
+  werewolf: "{{name}}に神託が下りました。人狼陣営が勝利目前です。"
 
 GameMaster:
   # Failed to revive.
