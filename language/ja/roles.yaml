@@ -135,6 +135,7 @@ jobname:
   DarkClown: "闇道化"
   DualPersonality: "二重人格"
   Sacrifice: "人身御供"
+  AbsoluteWolf: "絶対狼"
   Oracle: "預言者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
@@ -846,7 +847,7 @@ DarkClown:
   alive: "村に道化が潜んでいます。村人たちは正気を失いました。"
   # System log that a DarkClown has dead.
   dead: "村から道化が去り、村人たちは正気に返りました。"
-  
+
 DualPersonality:
   # Your team is "werewolf".
   werewolf: "今日の{{name}}は人狼側の人格です。"
@@ -857,6 +858,9 @@ Sacrifice:
   # Selected a target.
   select: "{{name}}が{{target}}を守るため自らの命を差し出そうとしています。"
   protected: "{{name}}は人身御供を差し出し{{found}}に抵抗しました。"
+
+AbsoluteWolf:
+  protected: "{{name}}の絶対的な力に{{found}}は効きませんでした。"
 
 Oracle:
   friend: "{{name}}に神託が下りました。恋人陣営が勝利目前です。"

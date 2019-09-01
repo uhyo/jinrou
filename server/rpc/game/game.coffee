@@ -20,7 +20,7 @@ SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # jobs that not welcome while rebirth
 REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker"]
 # 冒涜者によって冒涜されない役職
-BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf"]
+BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf"]
 # 占い結果すぐに分かるを無効化する役職
 DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
 
@@ -8697,7 +8697,7 @@ class LunaticLover extends Player
             }
 
         # 狂愛対象が死亡したら後を追う
-        if pl.dead
+        if !@dead && pl.dead
             @die game, "friendsuicide"
             res = true
         return res
@@ -9688,6 +9688,29 @@ class Sacrifice extends Player
         pl.transform game,newpl,true
         null
 
+class AbsoluteWolf extends Werewolf
+    type:"AbsoluteWolf"
+    checkDeathResistance:(game, found)->
+        if found in ["gone-day","gone-night"]
+            # If this is a gone death, do not guard.
+            return false
+        # 陣営変化していたら喪失
+        if @getTeam() != "Werewolf"
+            return false
+        # 残りの狼の数と絶対狼の数が一致していたら喪失
+        wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
+        awolves=wolves.filter (x)->x.isJobType "AbsoluteWolf"
+        if wolves.length == awolves.length
+            return false
+        # その他の死因は耐える
+        # show invisible detail
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:AbsoluteWolf.protected", {name: @name, found: game.i18n.t "foundDetail.#{found}"}
+        splashlog game.id,game,log
+        return true
+
 class Oracle extends Player
     type:"Oracle"
     getTypeDisp:->
@@ -9750,7 +9773,7 @@ class Oracle extends Player
                 to:@id
                 comment: game.i18n.t "roles:Oracle.werewolf", {name: @name}
         if @flag? && @flag != "none"
-            splashlog game.id,game,log
+            splashlog game.id,game,lo
 
 # ============================
 # 処理上便宜的に使用
@@ -11487,6 +11510,7 @@ jobs=
     DarkClown:DarkClown
     DualPersonality:DualPersonality
     Sacrifice:Sacrifice
+    AbsoluteWolf:AbsoluteWolf
     Oracle:Oracle
 
     # 特殊
@@ -11669,6 +11693,7 @@ jobStrength=
     DarkClown:15
     DualPersonality:10
     Sacrifice:14
+    AbsoluteWolf:70
     Oracle:15
 
 module.exports.actions=(req,res,ss)->
@@ -12567,6 +12592,18 @@ module.exports.actions=(req,res,ss)->
                                     if joblist.Raven==0
                                         continue
 
+                        # 絶対狼はセーフティに関わらず処理を実施する
+                        if job == "AbsoluteWolf"
+                            # 人狼系が2以上（この処理で人狼系の数と絶対狼の数が一致することはなくなる）
+                            if countCategory("Werewolf")==0
+                                continue
+                            # 一匹狼とは共存できない
+                            if joblist.LoneWolf>0
+                                continue
+                        if job == "LoneWolf"
+                            # 絶対狼とは共存できない
+                            if joblist.AbsoluteWolf>0
+                                continue
 
                         joblist[job]++
                         if job == "MadWolf"
@@ -13251,6 +13288,9 @@ isLogTarget = (to, player)->
 writeGlobalJobInfo = (game, player, result={})->
     unless Phase.isBeforeStart(game.phase)
         result.myteam = player.getTeamDisp()
+        # 絶対狼は全員に公開
+        result.absolutewolves = game.players.filter((x)-> x.isJobType "AbsoluteWolf").map (x)->
+                x.publicinfo()
         # 女王観戦者の情報
         if player.getTeam() == "Human" && player.getTeamDisp() == "Human"
             result.queens = game.players.filter((x)-> x.isJobType "QueenSpectator").map (x)->
