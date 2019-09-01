@@ -8697,7 +8697,7 @@ class LunaticLover extends Player
             }
 
         # 狂愛対象が死亡したら後を追う
-        if pl.dead
+        if !@dead && pl.dead
             @die game, "friendsuicide"
             res = true
         return res
