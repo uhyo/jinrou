@@ -102,7 +102,7 @@ jobinfo:
     hooligans: "現在の暴動者は{{names}}です"
     draculas: "仲間のドラキュラは{{names}}です"
     draculaBitten: "吸血済みの相手は{{names}}です"
-
+    absolutewolves: "絶対狼は{{names}}です"
 
 # game-view: speak form.
 speak:
