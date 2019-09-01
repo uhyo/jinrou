@@ -9690,7 +9690,11 @@ class Sacrifice extends Player
 
 class Oracle extends Player
     type:"Oracle"
-    getTypeDisp:->"Human"
+    getTypeDisp:->
+        if @flag?
+            @type
+        else
+            "Human"
     getJobDisp:->
         # 何らかのフラグがあれば解放
         # "none" は一度預言者として解放済み
@@ -13392,7 +13396,8 @@ getIncludedRolesStr = (i18n, joblist)->
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
     # ループ後に最終的な村人を配列の先頭に加える
-    jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
+    if humannum > 0
+        jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
     jobinfos.join " "
 
 # getSpeakChoice系メソッドの結果を処理
