@@ -9711,6 +9711,70 @@ class AbsoluteWolf extends Werewolf
         splashlog game.id,game,log
         return true
 
+class Oracle extends Player
+    type:"Oracle"
+    getTypeDisp:->
+        if @flag?
+            @type
+        else
+            "Human"
+    getJobDisp:->
+        # 何らかのフラグがあれば解放
+        # "none" は一度預言者として解放済み
+        if @flag?
+            @game.i18n.t "roles:jobname.Oracle"
+        else
+            @game.i18n.t "roles:jobname.Human"
+    sunrise:(game)->
+        aliveps=game.players.filter (x)->!x.dead
+        alives=aliveps.length
+        humans=aliveps.map((x)->x.humanCount()).reduce(((a,b)->a+b), 0)
+        wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
+        foxes=aliveps.map((x)->x.isFox()).reduce(((a,b)->a+b), 0)
+        friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
+        nfriendsn=aliveps.map((x)->!x.isFriend()).reduce(((a,b)->a+b), 0)
+        # 恋人が生存
+        if friendsn > 0
+            if nfriendsn <= 2
+                @setFlag "friend"
+        # 人カウントと人狼系の差が2名以下
+        else if humans - wolves <= 2
+            if friendsn > 0
+                @setFlag "friend"
+            else if foxes > 0
+                @setFlag "fox"
+            else
+                @setFlag "werewolf"
+        # 人狼系の数が1名
+        else if wolves == 1
+            if friendsn > 0
+                @setFlag "friend"
+            else if foxes > 0
+                @setFlag "fox"
+            else if alives <= 4
+                @setFlag "werewolf"
+            else if alives > 4 && @flag?
+                @setFlag "none"
+        else if @flag?
+            @setFlag "none"
+        if @flag == "friend"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Oracle.friend", {name: @name}
+        else if @flag == "fox"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Oracle.fox", {name: @name}
+        else if @flag == "werewolf"
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Oracle.werewolf", {name: @name}
+        if @flag? && @flag != "none"
+            splashlog game.id,game,lo
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11447,6 +11511,7 @@ jobs=
     DualPersonality:DualPersonality
     Sacrifice:Sacrifice
     AbsoluteWolf:AbsoluteWolf
+    Oracle:Oracle
 
     # 特殊
     GameMaster:GameMaster
@@ -11629,6 +11694,7 @@ jobStrength=
     DualPersonality:10
     Sacrifice:14
     AbsoluteWolf:70
+    Oracle:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -11835,6 +11901,11 @@ module.exports.actions=(req,res,ss)->
                             # これは出してはいけない指定になっている
                             exceptions.push job
                             excluded_exceptions.push job
+
+                # 村人だと思い込むシリーズは村人除外で出現しない
+                if excluded_exceptions.some((x)->x=="Human")
+                    exceptions.push "Oracle"
+                    special_exceptions.push "Oracle"
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -13354,11 +13425,19 @@ getrulestr = (i18n, rule, jobs={})->
 # 闇鍋用の役職一覧ログを作成
 getIncludedRolesStr = (i18n, joblist)->
     jobinfos = []
+    humannum = 0
     for obj in Shared.game.categoryList
         for job in obj.roles
             num = joblist[job]
             if num > 0
-                jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
+                # 村人思い込み系シリーズ含む村人をカウント
+                if job in ["Human","Oracle"]
+                    humannum += num
+                else
+                    jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
+    # ループ後に最終的な村人を配列の先頭に加える
+    if humannum > 0
+        jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
     jobinfos.join " "
 
 # getSpeakChoice系メソッドの結果を処理

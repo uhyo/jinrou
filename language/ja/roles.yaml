@@ -136,6 +136,7 @@ jobname:
   DualPersonality: "二重人格"
   Sacrifice: "人身御供"
   AbsoluteWolf: "絶対狼"
+  Oracle: "預言者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -860,6 +861,11 @@ Sacrifice:
 
 AbsoluteWolf:
   protected: "{{name}}の絶対的な力に{{found}}は効きませんでした。"
+
+Oracle:
+  friend: "{{name}}に神託が下りました。恋人陣営が勝利目前です。"
+  fox: "{{name}}に神託が下りました。妖狐陣営が勝利目前です。"
+  werewolf: "{{name}}に神託が下りました。人狼陣営が勝利目前です。"
 
 GameMaster:
   # Failed to revive.
