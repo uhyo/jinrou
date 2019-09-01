@@ -12780,7 +12780,7 @@ module.exports.actions=(req,res,ss)->
                     # 闇鍋用の役職公開ログ
                     log=
                         mode:"system"
-                        comment: game.i18n.t "system.gamestart.roles", {info: getIncludedRolesStr game.i18n, joblist}
+                        comment: game.i18n.t "system.gamestart.roles", {info: getIncludedRolesStr game.i18n, joblist, false}
                     splashlog game.id,game,log
 
             for x in ["jobrule",
@@ -13412,7 +13412,7 @@ getrulestr = (i18n, rule, jobs={})->
     text = "#{ruleName} / "
 
     # write numbers of each role.
-    text += getIncludedRolesStr i18n, jobs
+    text += getIncludedRolesStr i18n, jobs, true
     text += " "
 
     # write number of categories.
@@ -13423,7 +13423,8 @@ getrulestr = (i18n, rule, jobs={})->
             text+="#{catName}#{num} "
     return text
 # 闇鍋用の役職一覧ログを作成
-getIncludedRolesStr = (i18n, joblist)->
+# accurate: 思い込み系役職も正確に表示する
+getIncludedRolesStr = (i18n, joblist, accurate)->
     jobinfos = []
     humannum = 0
     for obj in Shared.game.categoryList
@@ -13431,13 +13432,14 @@ getIncludedRolesStr = (i18n, joblist)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if job in ["Human","Oracle"]
+                if !accurate && (job in ["Human","Oracle"])
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
-    # ループ後に最終的な村人を配列の先頭に加える
-    if humannum > 0
-        jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
+    if !accurate
+        # ループ後に最終的な村人を配列の先頭に加える
+        if humannum > 0
+            jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
     jobinfos.join " "
 
 # getSpeakChoice系メソッドの結果を処理
