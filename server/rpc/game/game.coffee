@@ -13380,11 +13380,18 @@ getrulestr = (i18n, rule, jobs={})->
 # 闇鍋用の役職一覧ログを作成
 getIncludedRolesStr = (i18n, joblist)->
     jobinfos = []
+    humannum = 0
     for obj in Shared.game.categoryList
         for job in obj.roles
             num = joblist[job]
             if num > 0
-                jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
+                # 村人思い込み系シリーズ含む村人をカウント
+                if job in ["Human","Oracle"]
+                    humannum += num
+                else
+                    jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
+    # ループ後に最終的な村人を配列の先頭に加える
+    jobinfos.unshift "#{i18n.t "roles:jobname.Human"}#{humannum}"
     jobinfos.join " "
 
 # getSpeakChoice系メソッドの結果を処理
