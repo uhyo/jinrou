@@ -9690,15 +9690,16 @@ class Sacrifice extends Player
 
 class Oracle extends Player
     type:"Oracle"
+    getTypeDisp:->"Human"
     getJobDisp:->
         # 何らかのフラグがあれば解放
+        # "none" は一度預言者として解放済み
         if @flag?
             @game.i18n.t "roles:jobname.Oracle"
-        # "none" は一度預言者として解放済み
         else
             @game.i18n.t "roles:jobname.Human"
     sunrise:(game)->
-        aliveps=@players.filter (x)->!x.dead
+        aliveps=game.players.filter (x)->!x.dead
         alives=aliveps.length
         humans=aliveps.map((x)->x.humanCount()).reduce(((a,b)->a+b), 0)
         wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
