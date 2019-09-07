@@ -1280,18 +1280,7 @@ class Game
             @werewolf_target=[]
             unless @day==1 && @rule.scapegoat!="off"
                 @werewolf_target_remain=1
-            else if @rule.scapegoat=="on"
-                # 誰が襲ったかはランダム
-                onewolf=@players.filter (x)->x.isWerewolf() && x.isAttacker()
-                if onewolf.length>0
-                    r=Math.floor Math.random()*onewolf.length
-                    @werewolf_target.push {
-                        from: onewolf[r].id
-                        to: "身代わりくん"    # みがわり
-                        found: null
-                    }
-                @werewolf_target_remain=0
-            else
+            else if @rule.scapegoat!="on"
                 # 誰も襲わない
                 @werewolf_target_remain=0
 
@@ -1342,6 +1331,19 @@ class Game
             return if @judge()
 
             @runScapegoatJobs()
+
+            # 1日目は身代わりくんへの襲撃が発生
+            if @day == 1 && @rule.scapegoat == "on"
+                # 誰が襲ったかはランダム
+                onewolf = @players.filter (x)->x.isWerewolf() && x.isAttacker()
+                if onewolf.length > 0
+                    r = Math.floor Math.random()*onewolf.length
+                    @werewolf_target.push {
+                        from: onewolf[r].id
+                        to: "身代わりくん"    # みがわり
+                        found: null
+                    }
+                @werewolf_target_remain=0
 
             # 忍者のデータを作る
             @ninja_data = {}
