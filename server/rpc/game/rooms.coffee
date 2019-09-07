@@ -67,7 +67,7 @@ sethelper=(ss,roomid,userid,id,res)->
         if pl?.mode=="gm"
             res i18n.t "error.gmCannotBeHelper"
             return
-        if userid==id
+        if pl?.userid == topl?.userid
             res i18n.t "error.noSelfHelper"
             return
         unless room.mode=="waiting"
