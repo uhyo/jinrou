@@ -2125,6 +2125,9 @@ class Game
         if hunters.length == 0
             # 能力は発動しない
             return false
+        if @players.every((pl)-> pl.dead)
+            # if all players are dead, no hunter phase.
+            return false
         clearTimeout @timerid
         # ハンターフェイズ突入！！！
         @nextScene = nextScene
