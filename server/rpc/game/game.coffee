@@ -9747,9 +9747,16 @@ class Oracle extends Player
         friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
 
         flags = []
-        # 人カウントと人狼系の差が1名以下，Game.judge() is near
-        if humans - wolves <= 1
+        # 人カウントと人狼系の差が2名以下
+        if humans - wolves <= 2
             flags.push "werewolf"
+            if foxes > 0
+                flags.push "fox"
+            # 恋人が生存
+            if friendsn > 0
+                flags.push "friend"
+        # Werewolf team is almost losing
+        if wolves == 1
             if foxes > 0
                 flags.push "fox"
             # 恋人が生存
