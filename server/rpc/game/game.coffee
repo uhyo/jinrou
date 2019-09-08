@@ -9722,15 +9722,19 @@ class AbsoluteWolf extends Werewolf
 
 class Oracle extends Player
     type:"Oracle"
+    constructor:->
+        super
+        @setFlag []
+            # "team:String"
     getTypeDisp:->
-        if @flag?
+        if @flag? && @flag.length > 0
             @type
         else
             "Human"
     getJobDisp:->
         # 何らかのフラグがあれば解放
-        # "none" は一度預言者として解放済み
-        if @flag?
+        # "done" は一度預言者として解放済み
+        if @flag? && @flag.length > 0
             @game.i18n.t "roles:jobname.Oracle"
         else
             @game.i18n.t "roles:jobname.Human"
@@ -9741,48 +9745,39 @@ class Oracle extends Player
         wolves=aliveps.map((x)->x.werewolfCount()).reduce(((a,b)->a+b), 0)
         foxes=aliveps.map((x)->x.isFox()).reduce(((a,b)->a+b), 0)
         friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
-        nfriendsn=aliveps.map((x)->!x.isFriend()).reduce(((a,b)->a+b), 0)
-        # 恋人が生存
-        if friendsn > 0
-            if nfriendsn <= 2
-                @setFlag "friend"
-        # 人カウントと人狼系の差が2名以下
-        else if humans - wolves <= 2
+
+        flags = []
+        # 人カウントと人狼系の差が1名以下，Game.judge() is near
+        if humans - wolves <= 1
+            flags.push "werewolf"
+            if foxes > 0
+                flags.push "fox"
+            # 恋人が生存
             if friendsn > 0
-                @setFlag "friend"
-            else if foxes > 0
-                @setFlag "fox"
-            else
-                @setFlag "werewolf"
-        # 人狼系の数が1名
-        else if wolves == 1
-            if friendsn > 0
-                @setFlag "friend"
-            else if foxes > 0
-                @setFlag "fox"
-            else if alives <= 4
-                @setFlag "werewolf"
-            else if alives > 4 && @flag?
-                @setFlag "none"
-        else if @flag?
-            @setFlag "none"
-        if @flag == "friend"
+                flags.push "friend"
+        # "done" は一度預言者として解放済み
+        if @flag? && @flag.length > 0
+            flags.push "done"
+        @setFlag flags
+        
+        if @flag.includes "friend"
             log=
                 mode:"skill"
                 to:@id
                 comment: game.i18n.t "roles:Oracle.friend", {name: @name}
-        else if @flag == "fox"
+            splashlog game.id,game,log
+        if @flag.includes "fox"
             log=
                 mode:"skill"
                 to:@id
                 comment: game.i18n.t "roles:Oracle.fox", {name: @name}
-        else if @flag == "werewolf"
+            splashlog game.id,game,log
+        if @flag.includes "werewolf"
             log=
                 mode:"skill"
                 to:@id
                 comment: game.i18n.t "roles:Oracle.werewolf", {name: @name}
-        if @flag? && @flag != "none"
-            splashlog game.id,game,lo
+            splashlog game.id,game,log
 
 # ============================
 # 処理上便宜的に使用
