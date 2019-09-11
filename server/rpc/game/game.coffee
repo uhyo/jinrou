@@ -9782,7 +9782,7 @@ class Oracle extends Player
                 to:@id
                 comment: game.i18n.t "roles:Oracle.werewolf", {name: @name}
         if @flag? && @flag != "none"
-            splashlog game.id,game,lo
+            splashlog game.id,game,log
 
 # ============================
 # 処理上便宜的に使用
