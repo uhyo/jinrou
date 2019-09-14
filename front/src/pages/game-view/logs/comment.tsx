@@ -84,14 +84,14 @@ export const CommentContent: React.FunctionComponent<
         if (result.length === 1) {
           nodes.push(
             <b>
-              【{res[1]}D{res[2]}:{result[0]}】
+              【{res[1]}D{res[2]}={result[0]}】
             </b>,
           );
         } else {
           const sum = result.reduce((a, b) => a + b, 0);
           nodes.push(
             <b>
-              【{res[1]}D{res[2]}:{sum}({result.join('+')}
+              【{res[1]}D{res[2]}={sum}({result.join('+')}
               )】
             </b>,
           );
