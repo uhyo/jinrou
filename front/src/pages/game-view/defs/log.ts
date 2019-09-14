@@ -61,7 +61,16 @@ export interface NormalLog extends LogBase {
    * Size of comment.
    */
   size?: 'big' | 'small';
+  /**
+   * Supplement to log.
+   */
+  supplement?: LogSupplement[];
 }
+
+export type LogSupplement = {
+  type: 'dice';
+  result: number[] | null;
+};
 
 /**
  * Phase change log.

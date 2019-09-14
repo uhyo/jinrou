@@ -96,6 +96,8 @@ error:
     ban: "アクセス制限により、発言できません。"
     # Watchspeak is not allowed
     noWatchSpeak: "観戦者は発言できません。"
+    # too many special command is used.
+    tooManyCommands: "特殊コマンドの数が多すぎます。"
   # Error during job
   job:
     # Invalid target selection.

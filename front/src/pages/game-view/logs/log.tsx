@@ -1,13 +1,12 @@
 import * as React from 'react';
-import { autolink, compile } from 'my-autolink';
 import styled, { withTheme } from '../../../util/styled';
 import { Log, autolinkLogType } from '../defs';
 import { Rule } from '../../../defs';
 import { TranslationFunction, I18nInterp } from '../../../i18n';
 import { phone, notPhone } from '../../../common/media';
 import { Theme } from '../../../theme';
-import memoizeOne from 'memoize-one';
 import { FixedSizeLogRow } from './elements';
+import { CommentContent } from './comment';
 
 export interface IPropOneLog {
   /**
@@ -38,40 +37,6 @@ export interface IPropOneLog {
   rule: Rule | undefined;
 }
 
-const autolinkSetting = compile(
-  [
-    'url',
-    {
-      pattern() {
-        return /#(\d+)/g;
-      },
-      transform(_1, _2, num) {
-        return {
-          href: `/room/${num}`,
-        };
-      },
-    },
-  ],
-  {
-    url: {
-      attributes: {
-        rel: 'external',
-      },
-      text: url => {
-        // Convert any room URL to room number syntax.
-        const orig = location.origin;
-        if (url.slice(0, orig.length) === orig) {
-          const r = url.slice(orig.length).match(/^\/room\/(\d+)$/);
-          if (r != null) {
-            return `#${r[1]}`;
-          }
-        }
-        return url;
-      },
-    },
-  },
-);
-
 /**
  * Function to sanitize log text.
  * Removes Unicode bidi characters.
@@ -84,12 +49,6 @@ function sanitizeLog(log: string): string {
  * A component which shows one log.
  */
 class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
-  /**
-   * Function to memoize high-cost autolink computation
-   */
-  private autolink = memoizeOne((comment: string) =>
-    autolink(comment, autolinkSetting),
-  );
   public render() {
     const { t, theme, logClass, fixedSize, log, rule, icons } = this.props;
 
@@ -248,12 +207,12 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
       };
       // Server's bug? comment may actually be null
       const comment = autolinkLogType.includes(log.mode) ? (
-        <Comment
-          {...commentProps}
-          dangerouslySetInnerHTML={{
-            __html: this.autolink(sanitizeLog(log.comment) || ''),
-          }}
-        />
+        <Comment {...commentProps}>
+          <CommentContent
+            comment={log.comment || ''}
+            supplement={log.mode === 'nextturn' ? undefined : log.supplement}
+          />
+        </Comment>
       ) : (
         <Comment {...commentProps}>{sanitizeLog(log.comment)}</Comment>
       );

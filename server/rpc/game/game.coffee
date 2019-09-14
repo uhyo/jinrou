@@ -11,6 +11,7 @@ libi18n      = require '../../libs/i18n.coffee'
 libgame      = require '../../libs/game.coffee'
 libcasting   = require '../../libs/casting.coffee'
 libtime      = require '../../libs/time.coffee'
+libspeak     = require '../../libs/speak.coffee'
 
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
@@ -12922,12 +12923,19 @@ module.exports.actions=(req,res,ss)->
                 res game.i18n.t "error.speak.noWatchSpeak"
                 return
 
-        #console.log query,player
+        # process speak commands
+        supplement = libspeak.processSpeakCommand comment
+        if supplement.error?
+            # "tooManyCommands"
+            res game.i18n.t "error.speak.#{supplement.error}"
+            return
+
         log =
             comment:comment
             userid:req.session.userId
             name:player?.name ? req.session.user.name
             to:null
+            supplement: if supplement.length > 0 then supplement else undefined
         if query.size in ["big","small"]
             log.size=query.size
         # ログを流す
