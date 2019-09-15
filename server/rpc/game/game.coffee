@@ -9785,6 +9785,13 @@ class Oracle extends Player
         if @flag? && @flag != "none"
             splashlog game.id,game,log
 
+class NightRabbit extends Fox
+    type:"NightRabbit"
+    isListener:(game,log)->
+        if log.mode=="werewolf"
+            true
+        else super
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11522,6 +11529,7 @@ jobs=
     Sacrifice:Sacrifice
     AbsoluteWolf:AbsoluteWolf
     Oracle:Oracle
+    NightRabbit:NightRabbit
 
     # 特殊
     GameMaster:GameMaster
@@ -11705,6 +11713,7 @@ jobStrength=
     Sacrifice:14
     AbsoluteWolf:70
     Oracle:15
+    NightRabbit:32
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12039,14 +12048,17 @@ module.exports.actions=(req,res,ss)->
                         if frees <= 0
                             break
                         r = Math.random()
-                        if r<0.35 && !nonavs.Fox
+                        if r<0.3 && !nonavs.Fox
                             joblist.Fox++
                             frees--
-                        else if r < 0.55 && !nonavs.XianFox
+                        else if r < 0.5 && !nonavs.XianFox
                             joblist.XianFox++
                             frees--
-                        else if r<0.85 && !nonavs.TinyFox
+                        else if r<0.75 && !nonavs.TinyFox
                             joblist.TinyFox++
+                            frees--
+                        else if r<0.9 && !nonavs.NightRabbit
+                            joblist.NightRabbit++
                             frees--
                         else if !nonavs.Blasphemy
                             joblist.Blasphemy++
