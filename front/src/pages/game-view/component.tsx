@@ -43,6 +43,7 @@ import {
 } from '../../common/z-index';
 import memoizeOne from 'memoize-one';
 import { ReportForm } from './report-form';
+import { GameFooter } from './footer';
 
 type TeamColors = Record<string, string | undefined>;
 
@@ -252,7 +253,7 @@ export class Game extends React.Component<IPropGame, {}> {
               </Transition>
             </MainWrapper>
             <RoomFooterPart>
-              <ReportForm
+              <GameFooter
                 reportForm={reportForm}
                 onSubmit={onReportFormSubmit}
               />
