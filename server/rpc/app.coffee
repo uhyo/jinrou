@@ -15,6 +15,7 @@ exports.actions=(req,res,ss)->
                 maxLength: Config.maxlength.game.comment
                 mail: null
             })
+            shareButton: Config.shareButton
         }
     # 報告フォーム
     reportForm:(query)->

@@ -177,3 +177,7 @@ module.exports =
         description: "select this to report a malicious user."
       }
     ]
+  # settings for the share button.
+  shareButton:
+    # set this to true to enable share via Twitter button.
+    twitter: true

@@ -41,7 +41,10 @@ import {
   faList,
   faCog,
   faDoorOpen,
+  faShareAlt,
 } from '@fortawesome/free-solid-svg-icons';
+
+import { faTwitter } from '@fortawesome/free-brands-svg-icons';
 
 library.add(
   faQuestionCircle,
@@ -82,6 +85,8 @@ library.add(
   faList,
   faCog,
   faDoorOpen,
+  faShareAlt,
+  faTwitter,
 );
 
 // Publish to global.

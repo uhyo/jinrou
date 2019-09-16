@@ -148,6 +148,16 @@ export interface ReportFormConfig {
 }
 
 /**
+ * Config of share button.
+ */
+export interface ShareButtonConfig {
+  /**
+   * Whether to enable share with Twitter button.
+   */
+  twitter: boolean;
+}
+
+/**
  * Query of sending report form.
  */
 export interface ReportFormQuery {

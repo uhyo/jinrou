@@ -21,6 +21,7 @@ import {
   SpeakQuery,
   ReportFormConfig,
   ReportFormQuery,
+  ShareButtonConfig,
 } from './defs';
 import { GameStore } from './store';
 import { JobInfo } from './job-info';
@@ -71,6 +72,10 @@ interface IPropGame {
    * Definition of report forms.
    */
   reportForm: ReportFormConfig;
+  /**
+   * Config of share button.
+   */
+  shareButton: ShareButtonConfig;
   /**
    * Color of each team.
    */
@@ -125,6 +130,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleDefs,
       teamColors,
       reportForm,
+      shareButton,
       onJobQuery,
       onWillChange,
       onReportFormSubmit,
@@ -254,6 +260,7 @@ export class Game extends React.Component<IPropGame, {}> {
             <RoomFooterPart>
               <GameFooter
                 reportForm={reportForm}
+                shareButton={shareButton}
                 onSubmit={onReportFormSubmit}
               />
             </RoomFooterPart>

@@ -12,6 +12,10 @@ const reportForm = {
   categories: [],
 };
 
+const shareButton = {
+  twitter: false,
+};
+
 export interface IPropGameTutorial {
   i18n: i18n;
   store: GameTutorialStore;
@@ -55,6 +59,7 @@ export const GameTutorial: React.FunctionComponent<
         categories={emptyArray}
         ruleDefs={emptyArray}
         reportForm={reportForm}
+        shareButton={shareButton}
         teamColors={teamColors}
         roomControlHandlers={roomControlHandlers}
         {...gameInput}

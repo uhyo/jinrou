@@ -65,6 +65,7 @@ exports.start=(roomid)->
                 rules: Shared.game.new_rules
                 categories: Shared.game.categoryList
                 reportForm: appConfig.reportForm
+                shareButton: appConfig.shareButton
                 teamColors: Shared.game.makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
