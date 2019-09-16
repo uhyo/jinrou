@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useI18n } from '../../../i18n/react';
 import { Button } from '../../../common/forms/button';
 import { FontAwesomeIcon } from '../../../util/icon';
-import { ButtonContainer, Form, Description } from './elements';
+import { Form, Description } from './elements';
 import { ReportFormConfig, ReportFormQuery } from '../defs';
 import { Controls, ControlsMain } from '../../../common/forms/controls-wrapper';
 import { RadioButtons } from '../../../common/forms/radio';
@@ -12,15 +12,12 @@ import { Textarea } from '../../../common/forms/text';
 import { showMessageDialog } from '../../../dialog';
 
 export const ReportForm: React.FC<{
+  open: boolean;
   reportForm: ReportFormConfig;
   onSubmit: (query: ReportFormQuery) => void;
-}> = ({ reportForm, onSubmit }) => {
+}> = ({ open, reportForm, onSubmit }) => {
   const store = useLocalStore(() => ({
-    open: false,
     kindIndex: 0,
-    toggleOpen() {
-      this.open = !this.open;
-    },
     setKind(kindIndex: number) {
       this.kindIndex = kindIndex;
     },
@@ -32,7 +29,7 @@ export const ReportForm: React.FC<{
     () => {
       // if openState changed to true, scroll to the form.
       if (
-        store.open &&
+        open &&
         mainFormRef.current != null &&
         mainFormRef.current.scrollIntoView != null
       ) {
@@ -42,7 +39,7 @@ export const ReportForm: React.FC<{
         });
       }
     },
-    [store.open],
+    [open],
   );
   const handleKindChange = React.useCallback((kindIndexStr: string) => {
     store.setKind(Number(kindIndexStr));
@@ -50,7 +47,6 @@ export const ReportForm: React.FC<{
   const handleSubmit = React.useCallback(
     (e: React.SyntheticEvent<HTMLFormElement>) => {
       e.preventDefault();
-      store.toggleOpen();
       const query: ReportFormQuery = {
         kind: reportForm.categories[store.kindIndex].name,
         content: (textAreaRef.current && textAreaRef.current.value) || '',
@@ -74,56 +70,46 @@ export const ReportForm: React.FC<{
       return null;
     }
     const selected = reportForm.categories[store.kindIndex];
-    return (
-      <div>
-        <ButtonContainer>
-          <Button onClick={() => store.toggleOpen()}>
-            <FontAwesomeIcon icon={['far', 'paper-plane']} />{' '}
-            {t('reportForm.title')}
-          </Button>
-        </ButtonContainer>
-        {!store.open ? null : (
-          <section>
-            <Form ref={mainFormRef} onSubmit={handleSubmit}>
-              <h2>{t('reportForm.title')}</h2>
-              {t('reportForm.description')
-                .split('\n')
-                .map((line: string, i: number) => (
-                  <Description key={i}>{line}</Description>
-                ))}
-              <Controls title={t('reportForm.kind')}>
-                <RadioButtons
-                  current={String(store.kindIndex)}
-                  options={reportForm.categories.map((obj, i) => ({
-                    value: String(i),
-                    label: obj.name,
-                    title: obj.description,
-                  }))}
-                  onChange={handleKindChange}
-                />
-                <PlainText>
-                  <b>{selected.name}</b>: {selected.description}
-                </PlainText>
-              </Controls>
-              <Controls title={t('reportForm.content')}>
-                <Textarea
-                  ref={textAreaRef}
-                  rows={5}
-                  maxLength={reportForm.maxLength}
-                  placeholder={t('reportForm.contentPlaceHolder')}
-                  required
-                />
-              </Controls>
-              <ControlsMain>
-                <Button expand type="submit">
-                  <FontAwesomeIcon icon={['far', 'paper-plane']} />{' '}
-                  {t('reportForm.send')}
-                </Button>
-              </ControlsMain>
-            </Form>
-          </section>
-        )}
-      </div>
+    return !open ? null : (
+      <section>
+        <Form ref={mainFormRef} onSubmit={handleSubmit}>
+          <h2>{t('reportForm.title')}</h2>
+          {t('reportForm.description')
+            .split('\n')
+            .map((line: string, i: number) => (
+              <Description key={i}>{line}</Description>
+            ))}
+          <Controls title={t('reportForm.kind')}>
+            <RadioButtons
+              current={String(store.kindIndex)}
+              options={reportForm.categories.map((obj, i) => ({
+                value: String(i),
+                label: obj.name,
+                title: obj.description,
+              }))}
+              onChange={handleKindChange}
+            />
+            <PlainText>
+              <b>{selected.name}</b>: {selected.description}
+            </PlainText>
+          </Controls>
+          <Controls title={t('reportForm.content')}>
+            <Textarea
+              ref={textAreaRef}
+              rows={5}
+              maxLength={reportForm.maxLength}
+              placeholder={t('reportForm.contentPlaceHolder')}
+              required
+            />
+          </Controls>
+          <ControlsMain>
+            <Button expand type="submit">
+              <FontAwesomeIcon icon={['far', 'paper-plane']} />{' '}
+              {t('reportForm.send')}
+            </Button>
+          </ControlsMain>
+        </Form>
+      </section>
     );
   });
 };
