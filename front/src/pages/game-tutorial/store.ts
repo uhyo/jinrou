@@ -44,6 +44,7 @@ export class GameTutorialStore {
     this.storage = Object.assign({}, initialStorage);
 
     this.innerStore = new GameStore();
+    this.innerStore.roomName = this.t('room.title');
     this.innerStore.gameInfo = {
       day: 0,
       night: false,

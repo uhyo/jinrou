@@ -232,6 +232,9 @@ exports.start=(roomid)->
                 message: i18n.t "game_client:room.roomDoesNotExist"
             }).then ()-> Index.app.showUrl "/rooms"
             return
+        game_view?.store.update {
+            roomName: room.name
+        }
         # 今までのログを送ってもらう
         this_openjob_flag=false
         # 役職情報をもらった

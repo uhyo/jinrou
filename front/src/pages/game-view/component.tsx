@@ -261,6 +261,7 @@ export class Game extends React.Component<IPropGame, {}> {
               <GameFooter
                 reportForm={reportForm}
                 shareButton={shareButton}
+                roomName={store.roomName}
                 onSubmit={onReportFormSubmit}
               />
             </RoomFooterPart>

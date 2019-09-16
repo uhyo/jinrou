@@ -35,6 +35,10 @@ export interface IPlaceOptions {
    */
   roomid: number;
   /**
+   * Name of this room.
+   */
+  roomName: string;
+  /**
    * Definition of categories.
    */
   categories: RoleCategoryDefinition[];
@@ -102,6 +106,7 @@ export function place({
   i18n,
   node,
   roomid,
+  roomName,
   categories,
   rules,
   reportForm,
