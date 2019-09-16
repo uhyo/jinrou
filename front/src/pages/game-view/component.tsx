@@ -22,7 +22,7 @@ import {
   ReportFormConfig,
   ReportFormQuery,
 } from './defs';
-import { GameStore, UpdateQuery } from './store';
+import { GameStore } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 import { JobForms } from './job-forms';
@@ -33,8 +33,7 @@ import { Players } from './players';
 import { RoomControls } from './room-controls';
 import { lightA } from '../../styles/a';
 import { GlobalStyle } from './global-style';
-import { phone, notPhone } from '../../common/media';
-import { computeGlobalStyle } from '../../theme/global-style';
+import { phone } from '../../common/media';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
 import {
