@@ -20,6 +20,7 @@ import { sortBy } from '../../util/sort-by';
  * Query of updating the store.
  */
 export interface UpdateQuery {
+  roomName?: string;
   gameInfo?: GameInfo;
   roleInfo?: RoleInfo | null;
   speakState?: Partial<SpeakState>;
@@ -36,6 +37,12 @@ export interface UpdateQuery {
  * Store of current game state.
  */
 export class GameStore {
+  /**
+   * Name of room.
+   */
+  @observable
+  roomName: string = '';
+
   /**
    * current info of game.
    */
@@ -124,6 +131,7 @@ export class GameStore {
    */
   @action
   public update({
+    roomName,
     gameInfo,
     roleInfo,
     speakState,
@@ -136,6 +144,9 @@ export class GameStore {
     logPickup,
     speakFocus,
   }: UpdateQuery): void {
+    if (roomName != null) {
+      this.roomName = roomName;
+    }
     if (gameInfo != null) {
       this.gameInfo = gameInfo;
     }

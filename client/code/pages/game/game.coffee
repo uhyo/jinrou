@@ -65,6 +65,7 @@ exports.start=(roomid)->
                 rules: Shared.game.new_rules
                 categories: Shared.game.categoryList
                 reportForm: appConfig.reportForm
+                shareButton: appConfig.shareButton
                 teamColors: Shared.game.makeTeamColors()
                 onSpeak: (query)->
                     ss.rpc "game.game.speak", roomid, query, (result)->
@@ -231,6 +232,9 @@ exports.start=(roomid)->
                 message: i18n.t "game_client:room.roomDoesNotExist"
             }).then ()-> Index.app.showUrl "/rooms"
             return
+        game_view?.store.update {
+            roomName: room.name
+        }
         # 今までのログを送ってもらう
         this_openjob_flag=false
         # 役職情報をもらった

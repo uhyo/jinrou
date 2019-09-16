@@ -1,12 +1,5 @@
 import styled from 'styled-components';
-import { lightBorderColor, helperTextColor } from '../../../common/color';
-
-/**
- * Wrapper of the report button container.
- */
-export const ButtonContainer = styled.div`
-  text-align: right;
-`;
+import { lightBorderColor, helperTextColor } from '../../../../common/color';
 
 /**
  * Report form.

@@ -21,8 +21,9 @@ import {
   SpeakQuery,
   ReportFormConfig,
   ReportFormQuery,
+  ShareButtonConfig,
 } from './defs';
-import { GameStore, UpdateQuery } from './store';
+import { GameStore } from './store';
 import { JobInfo } from './job-info';
 import { SpeakForm } from './speak-form';
 import { JobForms } from './job-forms';
@@ -33,8 +34,7 @@ import { Players } from './players';
 import { RoomControls } from './room-controls';
 import { lightA } from '../../styles/a';
 import { GlobalStyle } from './global-style';
-import { phone, notPhone } from '../../common/media';
-import { computeGlobalStyle } from '../../theme/global-style';
+import { phone } from '../../common/media';
 import { styleModeOf } from './logic/style-mode';
 import { AppStyling } from '../../styles/phone';
 import {
@@ -43,7 +43,7 @@ import {
   jobinfoZIndex,
 } from '../../common/z-index';
 import memoizeOne from 'memoize-one';
-import { ReportForm } from './report-form';
+import { GameFooter } from './footer';
 
 type TeamColors = Record<string, string | undefined>;
 
@@ -72,6 +72,10 @@ interface IPropGame {
    * Definition of report forms.
    */
   reportForm: ReportFormConfig;
+  /**
+   * Config of share button.
+   */
+  shareButton: ShareButtonConfig;
   /**
    * Color of each team.
    */
@@ -126,6 +130,7 @@ export class Game extends React.Component<IPropGame, {}> {
       ruleDefs,
       teamColors,
       reportForm,
+      shareButton,
       onJobQuery,
       onWillChange,
       onReportFormSubmit,
@@ -253,8 +258,10 @@ export class Game extends React.Component<IPropGame, {}> {
               </Transition>
             </MainWrapper>
             <RoomFooterPart>
-              <ReportForm
+              <GameFooter
                 reportForm={reportForm}
+                shareButton={shareButton}
+                roomName={store.roomName}
                 onSubmit={onReportFormSubmit}
               />
             </RoomFooterPart>

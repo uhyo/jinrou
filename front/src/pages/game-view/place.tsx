@@ -9,7 +9,12 @@ import {
   RoomControlHandlers,
   RoleCategoryDefinition,
 } from '../../defs';
-import { SpeakQuery, ReportFormConfig, ReportFormQuery } from './defs';
+import {
+  SpeakQuery,
+  ReportFormConfig,
+  ReportFormQuery,
+  ShareButtonConfig,
+} from './defs';
 import { makeRefuseRevivalLogic } from './logic/refuse-revival';
 import { i18n } from '../../i18n';
 
@@ -30,6 +35,10 @@ export interface IPlaceOptions {
    */
   roomid: number;
   /**
+   * Name of this room.
+   */
+  roomName: string;
+  /**
    * Definition of categories.
    */
   categories: RoleCategoryDefinition[];
@@ -41,6 +50,10 @@ export interface IPlaceOptions {
    * Data of report form.
    */
   reportForm: ReportFormConfig;
+  /**
+   * Config of share button.
+   */
+  shareButton: ShareButtonConfig;
   /**
    * Color of teams.
    */
@@ -93,9 +106,11 @@ export function place({
   i18n,
   node,
   roomid,
+  roomName,
   categories,
   rules,
   reportForm,
+  shareButton,
   teamColors,
   onSpeak,
   onRefuseRevival,
@@ -117,6 +132,7 @@ export function place({
       ruleDefs={rules}
       teamColors={teamColors}
       reportForm={reportForm}
+      shareButton={shareButton}
       onSpeak={onSpeak}
       onRefuseRevival={refuseRevivalLogic}
       onJobQuery={onJobQuery}
