@@ -42,7 +42,6 @@ import {
   jobinfoZIndex,
 } from '../../common/z-index';
 import memoizeOne from 'memoize-one';
-import { ReportForm } from './report-form';
 import { GameFooter } from './footer';
 
 type TeamColors = Record<string, string | undefined>;

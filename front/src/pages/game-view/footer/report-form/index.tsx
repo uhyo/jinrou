@@ -1,15 +1,18 @@
 import * as React from 'react';
-import { useI18n } from '../../../i18n/react';
-import { Button } from '../../../common/forms/button';
-import { FontAwesomeIcon } from '../../../util/icon';
+import { useI18n } from '../../../../i18n/react';
+import { Button } from '../../../../common/forms/button';
+import { FontAwesomeIcon } from '../../../../util/icon';
 import { Form, Description } from './elements';
-import { ReportFormConfig, ReportFormQuery } from '../defs';
-import { Controls, ControlsMain } from '../../../common/forms/controls-wrapper';
-import { RadioButtons } from '../../../common/forms/radio';
+import { ReportFormConfig, ReportFormQuery } from '../../defs';
+import {
+  Controls,
+  ControlsMain,
+} from '../../../../common/forms/controls-wrapper';
+import { RadioButtons } from '../../../../common/forms/radio';
 import { useLocalStore, useObserver } from 'mobx-react-lite';
-import { PlainText } from '../../../common/forms/plain-text';
-import { Textarea } from '../../../common/forms/text';
-import { showMessageDialog } from '../../../dialog';
+import { PlainText } from '../../../../common/forms/plain-text';
+import { Textarea } from '../../../../common/forms/text';
+import { showMessageDialog } from '../../../../dialog';
 
 export const ReportForm: React.FC<{
   open: boolean;

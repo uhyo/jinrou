@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { lightBorderColor, helperTextColor } from '../../../common/color';
+import { lightBorderColor, helperTextColor } from '../../../../common/color';
 
 /**
  * Report form.

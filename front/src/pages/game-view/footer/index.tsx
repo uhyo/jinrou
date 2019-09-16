@@ -1,4 +1,4 @@
-import { ReportForm } from '../report-form';
+import { ReportForm } from './report-form';
 import React, { useState, useCallback } from 'react';
 import { ReportFormConfig, ReportFormQuery } from '../defs';
 import { observer } from 'mobx-react-lite';
