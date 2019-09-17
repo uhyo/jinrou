@@ -2307,7 +2307,7 @@ class Game
             if team=="Werewolf" && wolves==1
                 # 一匹狼判定
                 lw=aliveps.filter((x)->x.isWerewolf())[0]
-                if lw?.isJobType "LoneWolf"
+                if lw?.getTeam() == "LoneWolf"
                     team="LoneWolf"
 
             if team?
