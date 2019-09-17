@@ -65,7 +65,7 @@ export interface Driver {
   /**
    * Select an alive player randomly.
    */
-  randomAlivePlayer(): string | null;
+  randomAlivePlayer(excludeId?: string): string | null;
   /**
    * Sleep for given duration (in ms)
    */

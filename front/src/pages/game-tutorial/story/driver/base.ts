@@ -27,10 +27,12 @@ export abstract class DriverBase {
     return innerStore.players.find(pl => pl.realid === userInfo.userid);
   };
 
-  public randomAlivePlayer: Driver['randomAlivePlayer'] = () => {
+  public randomAlivePlayer: Driver['randomAlivePlayer'] = (
+    excludeId?: string,
+  ) => {
     const { innerStore, userInfo } = this.store;
     const candidates = innerStore.players.filter(
-      pl => !pl.dead && pl.id !== userInfo.userid,
+      pl => !pl.dead && pl.id !== userInfo.userid && pl.id !== excludeId,
     );
     if (candidates.length == 0) {
       // !?

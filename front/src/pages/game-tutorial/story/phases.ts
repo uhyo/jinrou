@@ -365,7 +365,10 @@ export const phases: Partial<Record<number, Phase>> = {
       driver.closeForm('Human_day');
       await driver.sleep(4e3);
 
-      storage.day3DayVictim = driver.randomAlivePlayer();
+      // 2日目の占い先は白なので処刑者から除外
+      storage.day3DayVictim = driver.randomAlivePlayer(
+        storage.day2NightTarget || undefined,
+      );
 
       if (storage.day3DayVictim != null) {
         driver.execute(storage.day3DayVictim, storage.day3DayTarget);
