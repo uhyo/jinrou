@@ -9701,10 +9701,10 @@ class AbsoluteWolf extends Werewolf
             # If this is a gone death, do not guard.
             return false
         # 陣営変化していたら喪失
-        if @getTeam() != "Werewolf"
+        me = game.getPlayer @id
+        if me.getTeam() != "Werewolf"
             return false
         # 追加勝利も許さない
-        me = game.getPlayer @id
         if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved")
             return false
         # 残りの狼の数と絶対狼の数が一致していたら喪失
@@ -11132,7 +11132,8 @@ class SacrificeProtected extends Complex
         if found in ["gone-day","gone-night"]
             # If this is a gone death, do not guard.
             return false
-        if @getTeam() != "Human"
+        me = game.getPlayer @id
+        if me.getTeam() != "Human"
             return false
         # 生贄先が生存していないとダメ
         sacrifice=game.getPlayer @cmplFlag
