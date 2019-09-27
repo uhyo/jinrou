@@ -618,6 +618,7 @@ const NavigationWrapper = styled.div`
       left: 0;
       bottom: 0;
       height: 2em;
+      height: calc(2em + env(safe-area-inset-bottom));
     `
         : ''}
   `};
