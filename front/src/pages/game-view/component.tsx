@@ -514,6 +514,7 @@ const SpeakFormPart = styled(RoomHeaderPart)`
 
     margin: 0;
     padding: 4px 8px;
+    padding: 4px 8px calc(4px + env(safe-area-inset-bottom));
   `};
 `;
 
