@@ -573,17 +573,22 @@ interface IPropComment {
    */
   size?: 'big' | 'small';
 }
+
+const getFontSize = (size: 'big' | 'small' | undefined) =>
+  size === 'big'
+    ? 'calc(1.2 * var(--base-font-size))'
+    : size === 'small'
+      ? 'calc(0.8 * var(--base-font-size))'
+      : 'var(--base-font-size)';
+const getLineHeight = (size: 'big' | 'small' | undefined) =>
+  size === 'big' ? '1' : size === 'small' ? '1.3' : '1';
 /**
  * Log comment box.
  */
 const Comment = styled(Main)<IPropComment>`
   white-space: pre-wrap;
-  font-size: ${({ size }) =>
-    size === 'big'
-      ? 'calc(1.2 * var(--base-font-size))'
-      : size === 'small'
-        ? 'calc(0.8 * var(--base-font-size))'
-        : 'var(--base-font-size)'};
+  font-size: ${({ size }) => getFontSize(size)};
+  line-height: ${({ size }) => getLineHeight(size)};
   ${({ size }) => (size === 'big' ? 'font-weight: bold;' : '')};
 `;
 
