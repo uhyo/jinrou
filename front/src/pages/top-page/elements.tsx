@@ -4,7 +4,7 @@ import { mediumBorderColor } from '../../common/color';
 import { pagePadding, formComponentsVerticalMergin } from '../../common/style';
 
 export const AppWrapper = styled(AppStyling)`
-  padding: 0 ${pagePadding};
+  padding: ${pagePadding};
 `;
 
 /**

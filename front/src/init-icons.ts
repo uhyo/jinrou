@@ -42,6 +42,10 @@ import {
   faCog,
   faDoorOpen,
   faShareAlt,
+  faHandHoldingUsd,
+  faHatWizard,
+  faMortarPestle,
+  faUserFriends,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
@@ -87,6 +91,10 @@ library.add(
   faDoorOpen,
   faShareAlt,
   faTwitter,
+  faHandHoldingUsd,
+  faHatWizard,
+  faMortarPestle,
+  faUserFriends,
 );
 
 // Publish to global.

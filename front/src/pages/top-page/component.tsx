@@ -71,7 +71,6 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
   return (
     <I18nProvider i18n={i18n}>
       <AppWrapper>
-        <h1>{i18n.t('common:app.name')}</h1>
         <p>
           {i18n.t('top_client:app.description')}
           <a href="/manual/features">{i18n.t('top_client:app.featuresLink')}</a>
