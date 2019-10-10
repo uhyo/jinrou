@@ -16,6 +16,8 @@ import { PlainText } from '../../common/forms/plain-text';
 import { InlineWarning } from '../../common/warning';
 import { useRefs } from '../../util/useRefs';
 import { Details } from '../../common/forms/details';
+import { Features } from './features';
+import { IsPhone } from '../../common/media';
 
 interface Props {
   i18n: i18n;
@@ -31,9 +33,16 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
     loginFormPasswordRef,
     signupFormUserIdRef,
     signupFormPasswordRef,
+    featuresSectionRef,
   ] = useRefs<
-    [HTMLInputElement, HTMLInputElement, HTMLInputElement, HTMLInputElement]
-  >(null, null, null, null);
+    [
+      HTMLInputElement,
+      HTMLInputElement,
+      HTMLInputElement,
+      HTMLInputElement,
+      HTMLElement
+    ]
+  >(null, null, null, null, null);
 
   const loginFormSubmitHandler = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -68,13 +77,34 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
         });
     }
   };
+
+  const gotoFeaturesHandler = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const target = featuresSectionRef.current;
+    if (!target) {
+      return;
+    }
+
+    target.scrollIntoView({
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <I18nProvider i18n={i18n}>
       <AppWrapper>
-        <p>
-          {i18n.t('top_client:app.description')}
-          <a href="/manual/features">{i18n.t('top_client:app.featuresLink')}</a>
-        </p>
+        <p>{i18n.t('top_client:app.description')}</p>
+        <IsPhone>
+          {isPhone =>
+            isPhone ? (
+              <p>
+                <a className="no-jump" href="/" onClick={gotoFeaturesHandler}>
+                  {i18n.t('top_client:app.featuresLink')}
+                </a>
+              </p>
+            ) : null
+          }
+        </IsPhone>
         <ContentsWrapper>
           <FormWrapper onSubmit={loginFormSubmitHandler}>
             <h2>
@@ -128,6 +158,7 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
             </ErrorLine>
             <WideButton>{i18n.t('top_client:signup.submit')}</WideButton>
           </FormWrapper>
+          <Features i18n={i18n} ref={featuresSectionRef} />
         </ContentsWrapper>
         <Footer>
           <p>

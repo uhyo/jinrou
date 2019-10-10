@@ -31,13 +31,19 @@ footer:
   # GitHub label
   github: 'GitHub'
 
+featuresTitle: 月下人狼の特徴
 # contents of top page.
 # it is a list of objects, and are used programatically.
-contents:
+features:
   - icon: hand-holding-usd
     title: 完全無料・無制限
     description:
-      - 月下人狼は完全無料です。無料で全ての機能を無制限に利用いただけます。
+      - 月下人狼は完全無料です。無料で全ての機能を無制限に利用できます。
+  - icon: file-signature
+    title: 一瞬で登録可能
+    description:
+      - 月下人狼の利用にはアカウントが必要ですが、アカウントは自分のユーザーIDとパスワードを決めるだけで終わります。ユーザーIDは人に見られるので注意して決めましょう。
+      - 必須ではありませんが、メールアドレスも登録すればパスワードを忘れても安心です。
   - icon: hat-wizard
     title: 豊富な役職
     description:
@@ -70,3 +76,8 @@ contents:
       - 普通の村では、自分のユーザー名をそのまま使って参加するので自分が誰なのか他の人にも分かります。
       - 一方の覆面村では、自分が誰なのかを隠して村に参加することができます。名前は村に入るときに決めましょう。
       - 新鮮な気持ちで人狼をやりたいときやシャイな人たちが集まって人狼をするときにおすすめです。
+  - icon: award
+    title: 称号を集めよう
+    description:
+      - 遊んだ村の数や、役職ごとの勝利数・敗北数に応じて称号が手に入ります。
+      - たくさん称号を集めて自分の肩書きを豪華にしましょう。
