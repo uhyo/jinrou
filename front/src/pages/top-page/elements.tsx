@@ -96,6 +96,7 @@ export const FeatureDescription = styled.div`
 
   p {
     line-height: 1.3;
+    text-align: justify;
   }
 `;
 
