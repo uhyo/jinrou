@@ -40,6 +40,7 @@ export const LoginFormContents = ({
         <FormInput
           ref={userIdRef}
           id={nameInputId}
+          type="text"
           autoComplete="username"
           required
         />

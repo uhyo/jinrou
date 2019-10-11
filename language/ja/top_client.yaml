@@ -3,30 +3,82 @@
 # description of app at the top.
 app:
   # description of app
-  description: "完全無料・リアルタイムチャット・高い自由度が特徴の人狼サーバーです。"
+  description: '月下人狼は完全無料・リアルタイムチャット・高い自由度が特徴のオンライン人狼サーバーです。'
   # link to features.
-  featuresLink: "この人狼の特徴を見る"
+  featuresLink: '特徴をもっと見る'
   # error message shown on login failure.
-  loginError: "ユーザーIDまたはパスワードが違います。"
+  loginError: 'ユーザーIDまたはパスワードが違います。'
 
 # sign up form
 signup:
-  title: "新規登録"
-  description1: "まだ月下人狼のアカウントを持っていない方はこちらから新規登録できます。"
-  description2: "新規登録はユーザーIDとパスワードを決めるだけで終わります。"
+  title: '新規登録'
+  description1: 'まだ月下人狼のアカウントを持っていない方はこちらから新規登録できます。'
+  description2: '新規登録はユーザーIDとパスワードを決めるだけで終わります。'
   # submit button
-  submit: "登録"
+  submit: '登録'
   # notices
   notice:
-    summaryOpen: "注意事項を閉じる"
-    summaryClosed: "注意事項を開く"
-    notice1: "ユーザーIDには半角英数とアンダーバーを使用できます。"
-    notice2: "ユーザーIDは一度決めたら変更できません。"
-    notice3: "マニュアルの{{link}}もご覧ください。"
-    manualLink: "禁止行為・注意事項"
+    summaryOpen: '注意事項を閉じる'
+    summaryClosed: '注意事項を開く'
+    notice1: 'ユーザーIDには半角英数とアンダーバーを使用できます。'
+    notice2: 'ユーザーIDは一度決めたら変更できません。'
+    notice3: 'マニュアルの{{link}}もご覧ください。'
+    manualLink: '禁止行為・注意事項'
 
 footer:
   # footer text.
-  text: "© 2011-2019 うひょ"
+  text: '© 2011-2019 うひょ'
   # GitHub label
-  github: "GitHub"
+  github: 'GitHub'
+
+featuresTitle: 月下人狼の特徴
+# contents of top page.
+# it is a list of objects, and are used programatically.
+features:
+  - icon: hand-holding-usd
+    title: 完全無料・無制限
+    description:
+      - 月下人狼は完全無料です。無料で全ての機能を無制限に利用できます。
+  - icon: file-signature
+    title: 一瞬で登録可能
+    description:
+      - 月下人狼の利用にはアカウントが必要ですが、アカウントは自分のユーザーIDとパスワードを決めるだけで終わります。ユーザーIDは人に見られるので注意して決めましょう。
+      - 必須ではありませんが、メールアドレスも登録すればパスワードを忘れても安心です。
+  - icon: hat-wizard
+    title: 豊富な役職
+    description:
+      - 月下人狼は役職が多いのも特徴です。
+      - 人狼・占い師などのいつもの役職はもちろん、月下人狼では100種類以上のさまざまな役職を取り揃えています。
+      - もちろん組み合わせも自由に設定できます。役職を組み合わせて自分だけの村を作ってみましょう。
+  - icon: cog
+    title: 設定項目も豊富
+    description:
+      - お好みに合わせて細かいルール調整も可能です。例えば占い師の結果は普通と初日白通知が選べます。
+      - ルールにこだわりがある人でも月下人狼なら理想のルールで遊べます。
+  - icon: user-friends
+    title: ヘルパー機能
+    description:
+      - ヘルパー機能は、他の人とペアを組んで一緒に参加できる機能です。
+      - ヘルパーになった人はペアの相手と視点を共有します。また、ヘルパーはペアの人だけにこっそりアドバイスできます。
+      - 初心者の方が参加するときは誰かがヘルパーになってあげると安心です。
+  - icon: mortar-pestle
+    title: 闇鍋モード
+    description:
+      - 月下人狼では闇鍋モードが人気です。闇鍋モードは出現役職がランダムに決まるモードで、毎回違う村を楽しむことができます。
+      - 中〜上級者向けに、開始後も出現役職が不明なモードもあります。
+  - icon: lock
+    title: 身内村OK
+    description:
+      - 月下人狼では部屋にパスワードを設定できます。パスワードを知らない人は部屋の中を見たり部屋に入ったりできません。
+      - ただし、終了後はパスワードが解除されます。個人情報を部屋に書かないように注意しましょう。
+  - icon: user-secret
+    title: 覆面村対応
+    description:
+      - 普通の村では、自分のユーザー名をそのまま使って参加するので自分が誰なのか他の人にも分かります。
+      - 一方の覆面村では、自分が誰なのかを隠して村に参加することができます。名前は村に入るときに決めましょう。
+      - 新鮮な気持ちで人狼をやりたいときやシャイな人たちが集まって人狼をするときにおすすめです。
+  - icon: award
+    title: 称号を集めよう
+    description:
+      - 遊んだ村の数や、役職ごとの勝利数・敗北数に応じて称号が手に入ります。
+      - たくさん称号を集めて自分の肩書きを豪華にしましょう。
