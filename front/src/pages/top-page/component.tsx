@@ -17,7 +17,7 @@ import { InlineWarning } from '../../common/warning';
 import { useRefs } from '../../util/useRefs';
 import { Details } from '../../common/forms/details';
 import { Features } from './features';
-import { IsPhone } from '../../common/media';
+import { Headline } from './headline';
 
 interface Props {
   i18n: i18n;
@@ -92,19 +92,8 @@ export const TopPage = ({ i18n, onLogin, onSignup }: Props) => {
 
   return (
     <I18nProvider i18n={i18n}>
+      <Headline onSeeFeature={gotoFeaturesHandler} />
       <AppWrapper>
-        <p>{i18n.t('top_client:app.description')}</p>
-        <IsPhone>
-          {isPhone =>
-            isPhone ? (
-              <p>
-                <a className="no-jump" href="/" onClick={gotoFeaturesHandler}>
-                  {i18n.t('top_client:app.featuresLink')}
-                </a>
-              </p>
-            ) : null
-          }
-        </IsPhone>
         <ContentsWrapper>
           <FormWrapper onSubmit={loginFormSubmitHandler}>
             <h2>
