@@ -870,7 +870,7 @@ Oracle:
   werewolf: "{{name}}に神託が下りました。人狼陣営が勝利目前です。"
 
 Fate:
-  changeRole: "{{name}}は運命の子でした。{{result}}となって人狼たちに立ち向かいます。"
+  changeRole: "{{name}}は運命の子でした。{{result}}として生きる覚悟を決めました。"
 
 GameMaster:
   # Failed to revive.
