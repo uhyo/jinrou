@@ -9802,7 +9802,7 @@ class Fate extends Player
     deadsunset:(game)->
         # 変化せずに死亡した場合は蘇生を考慮して初期化する
         if @flag?
-            @setFalg null
+            @setFlag null
     divined:(game,player)->
         super
         @setFlag true
