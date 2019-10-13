@@ -9819,7 +9819,7 @@ class Fate extends Player
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
+                comment: game.i18n.t "roles:Fate.changeRole", {name: @name, result: newpl.getJobDisp()}
             splashlog game.id,game,log
             null
 
