@@ -869,6 +869,9 @@ Oracle:
   fox: "{{name}}に神託が下りました。妖狐陣営が勝利目前です。"
   werewolf: "{{name}}に神託が下りました。人狼陣営が勝利目前です。"
 
+Fate:
+  changeRole: "{{name}}は運命の子でした。{{result}}となって人狼たちに立ち向かいます。"
+
 GameMaster:
   # Failed to revive.
   reviveFail: "プレイヤーを蘇生できませんでした。"
