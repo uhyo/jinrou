@@ -9810,8 +9810,8 @@ class Fate extends Player
         super
         @setFlag true
     midnight:(game,midnightSort)->
-        # 占われた！
-        if @flag?
+        # 死亡していたら変化しない
+        if @flag? && !@dead
             jobnames=Object.keys(jobs).filter (name)->(name in Shared.game.teams.Human)
             newjob=jobnames[Math.floor Math.random()*jobnames.length]
             newpl = Player.factory newjob, game
