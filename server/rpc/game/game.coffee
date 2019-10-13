@@ -9792,6 +9792,40 @@ class NightRabbit extends Fox
             true
         else super
 
+class Fate extends Player
+    type:"Fate"
+    midnightSort:122
+    getTypeDisp:->
+        if @flag?
+            @type
+        else
+            "Human"
+    getJobDisp:->
+        # 何らかのフラグがあれば解放
+        if @flag?
+            @game.i18n.t "roles:jobname.Fate"
+        else
+            @game.i18n.t "roles:jobname.Human"
+    divined:(game,player)->
+        super
+        @setFlag true
+    midnight:(game,midnightSort)->
+        # 占われた！
+        if @flag?
+            jobnames=Object.keys(jobs).filter (name)->(name in Shared.game.teams.Human)
+            newjob=jobnames[Math.floor Math.random()*jobnames.length]
+            newpl = Player.factory newjob, game
+            @transProfile newpl
+            @transferData newpl, true
+            newpl.sunset game   # 初期化してあげる
+            @transform game,newpl,false
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "system.changeRole", {name: @name, result: newpl.getJobDisp()}
+            splashlog game.id,game,log
+            null
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11531,6 +11565,7 @@ jobs=
     AbsoluteWolf:AbsoluteWolf
     Oracle:Oracle
     NightRabbit:NightRabbit
+    Fate:Fate
 
     # 特殊
     GameMaster:GameMaster
@@ -11715,6 +11750,7 @@ jobStrength=
     AbsoluteWolf:70
     Oracle:15
     NightRabbit:32
+    Fate:6
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -11924,8 +11960,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle"
-                    special_exceptions.push "Oracle"
+                    exceptions.push "Oracle","Fate"
+                    special_exceptions.push "Oracle","Fate"
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -12575,7 +12611,7 @@ module.exports.actions=(req,res,ss)->
                                     if Math.random()>0.1
                                         # 90%の確率で弾く（レア）
                                         continue
-                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructiveMad","Satori"
+                                when "Lycan","SeersMama","Sorcerer","WolfBoy","ObstructiveMad","Satori","Fate"
                                     # 占い系がいないと入れない
                                     if joblist.Diviner==0 && joblist.ApprenticeSeer==0 && joblist.PI==0
                                         continue
@@ -13462,7 +13498,7 @@ getIncludedRolesStr = (i18n, joblist, accurate)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if !accurate && (job in ["Human","Oracle"])
+                if !accurate && (job in ["Human","Oracle","Fate"])
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
