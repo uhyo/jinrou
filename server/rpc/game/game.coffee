@@ -9796,16 +9796,13 @@ class Fate extends Player
     type:"Fate"
     midnightSort:122
     getTypeDisp:->
-        if @flag?
-            @type
-        else
-            "Human"
+        "Human"
     getJobDisp:->
-        # 何らかのフラグがあれば解放
+        @game.i18n.t "roles:jobname.Human"
+    deadsunset:(game)->
+        # 変化せずに死亡した場合は蘇生を考慮して初期化する
         if @flag?
-            @game.i18n.t "roles:jobname.Fate"
-        else
-            @game.i18n.t "roles:jobname.Human"
+            @setFalg null
     divined:(game,player)->
         super
         @setFlag true
