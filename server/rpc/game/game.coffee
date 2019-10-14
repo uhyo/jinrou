@@ -9804,6 +9804,8 @@ class GachaAddicted extends Player
             status: "unused"
             # 残り票数
             votes: 1
+            # 消費した票数
+            spent: 0
             # 所持役職
             job: null
         }
@@ -9814,6 +9816,7 @@ class GachaAddicted extends Player
         @setFlag {
             status: "unused"
             votes: @flag?.votes ? 1
+            spent: 0
             job: null
         }
     job:(game, playerid, query)->
@@ -9857,12 +9860,14 @@ class GachaAddicted extends Player
                 @setFlag {
                     status: "used"
                     votes: @flag.votes
+                    spent: @flag.spent
                     job: job
                 }
             else
                 @setFlag {
                     status: @flag.status
                     votes: @flag.votes - 1
+                    spent: @flag.spent + 1
                     job: job
                 }
 
@@ -9883,6 +9888,7 @@ class GachaAddicted extends Player
             @setFlag {
                 status: "transforming"
                 votes: @flag.votes
+                spent: @flag.spent
                 job: @flag.job
             }
             log=
@@ -9899,6 +9905,11 @@ class GachaAddicted extends Player
         if @flag?.status == "transforming"
             # 実際に変化する
             newpl = Player.factory @flag.job, game
+            # 票を消費した場合はそのフラグを建てる
+            if @flag.spent > 0
+                newpl = Player.factory null, game, newpl, null, SpentVotesForGacha
+                newpl.cmplFlag = @flag.spent
+
             @transProfile newpl
             @transferData newpl, true
             @transform game, newpl, false
@@ -9908,10 +9919,18 @@ class GachaAddicted extends Player
                 to: @id
                 comment: game.i18n.t "system.changeRole", {
                     name: @name
-                    jobname: newpl.getJobDisp()
+                    result: newpl.getJobDisp()
                 }
 
             splashlog game.id, game, log
+        else
+            if @flag?.spent > 0
+                # 票の消費だけ
+                newpl = Player.factory null, game, this, null, SpentVotesForGacha
+                newpl.cmplFlag = @flag.spent
+                @transProfile newpl
+                @transferData newpl, true
+                @transform game, newpl, false
     isFormTarget:(jobtype)->
         (jobtype in ["GachaAddicted_Normal", "GachaAddicted_Premium", "GachaAddicted_Commit"]) || super
 
@@ -11327,6 +11346,24 @@ class SacrificeProtected extends Complex
         @sub?.sunsetAlways? game
         @uncomplex game
 
+# ガチャで票を失った状態
+# cmplFlag: 何票失っているか
+class SpentVotesForGacha extends Complex
+    cmplType:"SpentVotesForGacha"
+    voteafter:(game, target)->
+        @mcall game, @main.voteafter, game, target
+        @sub?.voteafter game,target
+        # 自分の票数を引く
+        game.votingbox.votePower this, -@cmplFlag
+    # 夜になったら消える
+    sunset:(game)->
+        @mcall game, @main.sunset, game
+        @sub?.sunset? game
+        @uncomplex game
+
+
+
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -11746,6 +11783,7 @@ complexes=
     SamuraiGuarded:SamuraiGuarded
     DraculaBitten:DraculaBitten
     SacrificeProtected:SacrificeProtected
+    SpentVotesForGacha:SpentVotesForGacha
 
     # 役職ごとの強さ
 jobStrength=
@@ -11882,6 +11920,7 @@ jobStrength=
     AbsoluteWolf:70
     Oracle:15
     NightRabbit:32
+    GachaAddicted:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
