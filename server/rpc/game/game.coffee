@@ -9792,6 +9792,194 @@ class NightRabbit extends Fox
             true
         else super
 
+class GachaAddicted extends Player
+    type:"GachaAddicted"
+    midnightSort: 120
+    constructor:->
+        super
+        @setFlag {
+            # "unused": まだノーマルガチャ引いていない
+            # "used": ノーマルガチャ引いた
+            # "transforming": この役職に変化する
+            status: "unused"
+            # 残り票数
+            votes: 1
+            # 消費した票数
+            spent: 0
+            # 所持役職
+            job: null
+        }
+    sleeping:->true
+    jobdone:-> !@flag? || @flag.status == "transforming"
+    sunset:(game)->
+        # ガチャを初期化
+        lastVote = game.votingbox.getHisVote this
+        nextVotes = lastVote?.power ? 1
+        lastSpent = @flag?.spent ? 0
+        @setFlag {
+            status: "unused"
+            votes: nextVotes + lastSpent
+            spent: 0
+            job: null
+        }
+    job:(game, playerid, query)->
+        unless @flag?
+            # ???
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        unless query.commandname in ["normal", "premium", "commit"]
+            return game.i18n.t "error.common.invalidSelection"
+        if @flag.status == "transforming"
+            return game.i18n.t "error.common.alreadyUsed"
+
+        if query.commandname == "normal" && @flag.status != "unused"
+            # ノーマルガチャ使用済
+            return game.i18n.t "error.common.alreadyUsed"
+        if query.commandname == "premium" && @flag.votes <= 0
+            # 課金する金がない
+            return game.i18n.t "error.common.alreadyUsed"
+        if query.commandname == "commit" && !@flag.job?
+            # まだガチャを引いていない
+            return game.i18n.t "error.common.cannotUseSkillNow"
+
+        if query.commandname in ["normal", "premium"]
+            # ガチャを引く
+            if query.commandname == "normal"
+                gachaTable = [[0.5, 1], [0.9, 2], [0.99, 3], [0.997, 4], [1, 5]]
+            else
+                gachaTable = [[0.9, 3], [0.98, 4], [0.998, 5], [1, 6]]
+            gachaPosition = Math.random()
+            # 引いたレア度を判定
+            gachaRarity = 1
+            for [max, lv] in gachaTable
+                if gachaPosition < max
+                    gachaRarity = lv
+                    break
+            # 役職を判定
+            candidates = Shared.game.gachaData[gachaRarity]
+            r = Math.floor Math.random() * candidates.length
+            job = candidates[r]
+
+            if query.commandname == "normal"
+                @setFlag {
+                    status: "used"
+                    votes: @flag.votes
+                    spent: @flag.spent
+                    job: job
+                }
+            else
+                @setFlag {
+                    status: @flag.status
+                    votes: @flag.votes - 1
+                    spent: @flag.spent + 1
+                    job: job
+                }
+
+            # ガチャ結果表示
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:GachaAddicted.gacha", {
+                    name: @name
+                    gachaType: game.i18n.t "roles:GachaAddicted.type.#{query.commandname}"
+                    rarity: "★".repeat gachaRarity
+                    jobname: game.i18n.t "roles:jobname.#{job}"
+                }
+            splashlog game.id, game, log
+            return null
+        else
+            # 変化
+            @setFlag {
+                status: "transforming"
+                votes: @flag.votes
+                spent: @flag.spent
+                job: @flag.job
+            }
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:GachaAddicted.commit", {
+                    name: @name
+                    jobname: game.i18n.t "roles:jobname.#{@flag.job}"
+                }
+            splashlog game.id, game, log
+            return null
+
+    midnight:(game)->
+        if @flag?.status == "transforming"
+            # 実際に変化する
+            newpl = Player.factory @flag.job, game
+            # 票を消費した場合はそのフラグを建てる
+            if @flag.spent > 0
+                newpl = Player.factory null, game, newpl, null, SpentVotesForGacha
+                newpl.cmplFlag = @flag.spent
+
+            @transProfile newpl
+            @transferData newpl, true
+            @transform game, newpl, false
+
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "system.changeRole", {
+                    name: @name
+                    result: newpl.getJobDisp()
+                }
+
+            splashlog game.id, game, log
+        else
+            if @flag?.spent > 0
+                # 票の消費だけ
+                top = game.getPlayer @id
+                newpl = Player.factory null, game, top, null, SpentVotesForGacha
+                newpl.cmplFlag = @flag.spent
+                @transProfile newpl
+                @transferData newpl, true
+                @transform game, newpl, true
+    isFormTarget:(jobtype)->
+        (jobtype in ["GachaAddicted_Normal", "GachaAddicted_Premium", "GachaAddicted_Commit"]) || super
+
+    getOpenForms:(game)->
+        if Phase.isNight(game.phase) && !@dead
+            res = []
+            if @flag?.status == "unused"
+                # ノーマルガチャの権利がある
+                res.push {
+                    type: "GachaAddicted_Normal"
+                    options: []
+                    formType: FormType.optional
+                    objid: @objid
+                }
+            if @flag?.votes > 0
+                # プレミアムガチャ
+                res.push {
+                    type: "GachaAddicted_Premium"
+                    options: []
+                    formType: FormType.optional
+                    objid: @objid
+                    data: {
+                        votes: @flag.votes
+                    }
+                }
+            if @flag?.job?
+                # 変化できる
+                res.push {
+                    type: "GachaAddicted_Commit"
+                    options: []
+                    formType: FormType.optional
+                    objid: @objid
+                    data: {
+                        job: @flag.job
+                    }
+                }
+            return res
+        else
+            return super
+    makeJobSelection:(game, isvote)->
+        if !isvote
+            return []
+        else
+            super
+
 class Fate extends Player
     type:"Fate"
     midnightSort:122
@@ -11192,6 +11380,24 @@ class SacrificeProtected extends Complex
         @sub?.sunsetAlways? game
         @uncomplex game
 
+# ガチャで票を失った状態
+# cmplFlag: 何票失っているか
+class SpentVotesForGacha extends Complex
+    cmplType:"SpentVotesForGacha"
+    voteafter:(game, target)->
+        @mcall game, @main.voteafter, game, target
+        @sub?.voteafter game,target
+        # 自分の票数を引く
+        game.votingbox.votePower this, -@cmplFlag
+    # 夜になったら消える
+    sunset:(game)->
+        @mcall game, @main.sunset, game
+        @sub?.sunset? game
+        @uncomplex game
+
+
+
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -11562,6 +11768,7 @@ jobs=
     AbsoluteWolf:AbsoluteWolf
     Oracle:Oracle
     NightRabbit:NightRabbit
+    GachaAddicted:GachaAddicted
     Fate:Fate
 
     # 特殊
@@ -11611,6 +11818,7 @@ complexes=
     SamuraiGuarded:SamuraiGuarded
     DraculaBitten:DraculaBitten
     SacrificeProtected:SacrificeProtected
+    SpentVotesForGacha:SpentVotesForGacha
 
     # 役職ごとの強さ
 jobStrength=
@@ -11747,6 +11955,7 @@ jobStrength=
     AbsoluteWolf:70
     Oracle:15
     NightRabbit:32
+    GachaAddicted:10
     Fate:6
 
 module.exports.actions=(req,res,ss)->

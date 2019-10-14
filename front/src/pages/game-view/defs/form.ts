@@ -70,6 +70,19 @@ interface SpecialFormData {
      */
     poemStyle: number[];
   };
+  // 課金者
+  GachaAddicted_Premium: {
+    /**
+     * 残り課金可能数
+     */
+    votes: number;
+  };
+  GachaAddicted_Commit: {
+    /**
+     * 変化先役職
+     */
+    job: string;
+  };
 }
 /**
  * Type of data for specific type.

@@ -14,6 +14,9 @@ export const specialNamedTypes = [
   'CraftyWolf2',
   'Poet1',
   'Poet2',
+  'GachaAddicted_Normal',
+  'GachaAddicted_Premium',
+  'GachaAddicted_Commit',
   // forms for quantum players.
   '_Quantum_Diviner',
   '_Quantum_Werewolf',
@@ -31,4 +34,7 @@ export const specialContentTypes = [
   'DragonKnight',
   'Poet1',
   'Poet2',
+  'GachaAddicted_Normal',
+  'GachaAddicted_Premium',
+  'GachaAddicted_Commit',
 ];
