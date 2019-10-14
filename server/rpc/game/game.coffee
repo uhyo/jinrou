@@ -9794,7 +9794,7 @@ class NightRabbit extends Fox
 
 class GachaAddicted extends Player
     type:"GachaAddicted"
-    midnightSort: 120
+    midnightSort: 122
     constructor:->
         super
         @setFlag {
@@ -9985,25 +9985,42 @@ class Fate extends Player
     type:"Fate"
     midnightSort:122
     getTypeDisp:->
-        "Human"
+        if @flag == "done"
+            super
+        else
+            "Human"
     getJobDisp:->
-        @game.i18n.t "roles:jobname.Human"
+        if @flag == "done"
+            super
+        else
+            @game.i18n.t "roles:jobname.Human"
     deadsunset:(game)->
         # 変化せずに死亡した場合は蘇生を考慮して初期化する
-        if @flag?
+        if @flag == "divined"
             @setFlag null
     divined:(game,player)->
         super
-        @setFlag true
+        unless @flag?
+            @setFlag "divined"
     midnight:(game,midnightSort)->
         # 死亡していたら変化しない
-        if @flag? && !@dead
+        if @flag == "divined" && !@dead
+            # 変化後を作成
             jobnames=Object.keys(jobs).filter (name)->(name in Shared.game.teams.Human)
             newjob=jobnames[Math.floor Math.random()*jobnames.length]
             newpl = Player.factory newjob, game
             @transProfile newpl
             @transferData newpl, true
             newpl.sunset game   # 初期化してあげる
+            # 右側に運命の子を作成（詳細表示用）
+            sub = Player.factory "Fate", game
+            @transProfile sub
+            @transferData sub
+            sub.setFlag "done"
+            newpl = Player.factory null, game, newpl, sub, Complex
+            @transProfile newpl
+            @transferData newpl, true
+
             @transform game,newpl,false
             log=
                 mode:"skill"
