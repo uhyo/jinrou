@@ -138,6 +138,7 @@ jobname:
   AbsoluteWolf: "絶対狼"
   Oracle: "預言者"
   NightRabbit: "夜兎"
+  GachaAddicted: "課金者"
   GameMaster: "ゲームマスター"
   Helper: "ヘルパー"
   Waiting: "待機中"
@@ -867,6 +868,13 @@ Oracle:
   friend: "{{name}}に神託が下りました。恋人陣営が勝利目前です。"
   fox: "{{name}}に神託が下りました。妖狐陣営が勝利目前です。"
   werewolf: "{{name}}に神託が下りました。人狼陣営が勝利目前です。"
+
+GachaAddicted:
+  type:
+    normal: "ノーマルガチャ"
+    premium: "プレミアムガチャ"
+  gacha: "{{name}}は{{gachaType}}を引いて{{rarity}}【{{jobname}}】を獲得しました。"
+  commit: "{{name}}は引き当てた【{{jobname}}】に決めました。"
 
 GameMaster:
   # Failed to revive.

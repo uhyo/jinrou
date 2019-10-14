@@ -20,6 +20,9 @@ specialName:
   CraftyWolf2: "狡猾な狼の能力"
   Poet1: "歌人の能力"
   Poet2: "歌人の能力"
+  GachaAddicted_Normal: "課金者の能力"
+  GachaAddicted_Premium: "課金者の能力"
+  GachaAddicted_Commit: "課金者の能力"
   _Quantum_Diviner: "占い師の能力"
   _Quantum_Werewolf: "人狼の襲撃"
 
@@ -161,3 +164,12 @@ Poet:
   # label for target selection
   targetSelectionLabel: "送る相手を選択："
   selectButton: "歌を送る"
+
+# Texts for GachaAddicted form.
+GachaAddicted:
+  descriptionNormal: "今日のノーマルガチャを引くことができます"
+  normalButton: "ガチャを引く"
+  descriptionPremium: "プレミアムガチャはあと{{votes}}回引くことができます"
+  premiumButton: "プレミアムガチャを引く"
+  descriptionCommit: "役職【{{jobname}}】を所持しています"
+  commitButton: "{{jobname}}に変化する"

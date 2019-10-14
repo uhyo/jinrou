@@ -21,6 +21,11 @@ import { makeWerewolfForm } from './werewolf';
 import { useI18n } from '../../../i18n/react';
 import { makeDragonKnightForm } from './dragonKnight';
 import { makePoet1Form, makePoet2Form } from './poet';
+import {
+  makeGachaAddictedNormalForm,
+  makeGachaAddictedPremiumForm,
+  makeGachaAddictedCommitForm,
+} from './gachaAddicted';
 
 export interface IPropJobForms {
   forms: FormDesc[];
@@ -223,6 +228,24 @@ function makeSpecialContent(props: FormContentProps): Partial<FormContent> {
     }
     case 'Poet2': {
       otherContents = makePoet2Form(props as FormContentProps<'Poet2'>);
+      break;
+    }
+    case 'GachaAddicted_Normal': {
+      ({ content: otherContents, buttons } = makeGachaAddictedNormalForm(
+        props as FormContentProps<'GachaAddicted_Normal'>,
+      ));
+      break;
+    }
+    case 'GachaAddicted_Premium': {
+      ({ content: otherContents, buttons } = makeGachaAddictedPremiumForm(
+        props as FormContentProps<'GachaAddicted_Premium'>,
+      ));
+      break;
+    }
+    case 'GachaAddicted_Commit': {
+      ({ content: otherContents, buttons } = makeGachaAddictedCommitForm(
+        props as FormContentProps<'GachaAddicted_Commit'>,
+      ));
       break;
     }
     default: {
