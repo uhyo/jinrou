@@ -71,7 +71,13 @@ export function makeGachaAddictedCommitForm({
     <p>
       {t('game_client_form:GachaAddicted.descriptionCommit', {
         jobname,
-      })}
+      })}{' '}
+      <a
+        href={`/manual/job/${data.job}?jobname=${encodeURIComponent(jobname)}`}
+        data-jobname={jobname}
+      >
+        {t('game_client:jobinfo.detail_one')}
+      </a>
     </p>
   );
   // name will be used as commandname in query.

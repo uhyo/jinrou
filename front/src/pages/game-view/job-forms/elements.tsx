@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { FormType } from '../defs';
 import { phone } from '../../../common/media';
+import { formLinkColor } from '../../../common/color';
 
 /**
  * Wrapper of all forms.
@@ -24,6 +25,10 @@ export const FormWrapper = styled.div`
 
   p {
     margin: 4px 0;
+  }
+
+  a {
+    color: ${formLinkColor};
   }
 `;
 

@@ -9813,9 +9813,12 @@ class GachaAddicted extends Player
     jobdone:-> !@flag? || @flag.status == "transforming"
     sunset:(game)->
         # ガチャを初期化
+        lastVote = game.votingbox.getHisVote this
+        nextVotes = lastVote?.power ? 1
+        lastSpent = @flag?.spent ? 0
         @setFlag {
             status: "unused"
-            votes: @flag?.votes ? 1
+            votes: nextVotes + lastSpent
             spent: 0
             job: null
         }
@@ -9926,11 +9929,12 @@ class GachaAddicted extends Player
         else
             if @flag?.spent > 0
                 # 票の消費だけ
-                newpl = Player.factory null, game, this, null, SpentVotesForGacha
+                top = game.getPlayer @id
+                newpl = Player.factory null, game, top, null, SpentVotesForGacha
                 newpl.cmplFlag = @flag.spent
                 @transProfile newpl
                 @transferData newpl, true
-                @transform game, newpl, false
+                @transform game, newpl, true
     isFormTarget:(jobtype)->
         (jobtype in ["GachaAddicted_Normal", "GachaAddicted_Premium", "GachaAddicted_Commit"]) || super
 
