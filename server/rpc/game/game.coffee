@@ -9908,13 +9908,14 @@ class GachaAddicted extends Player
         if @flag?.status == "transforming"
             # 実際に変化する
             newpl = Player.factory @flag.job, game
+            @transProfile newpl
+            @transferData newpl, true
             # 票を消費した場合はそのフラグを建てる
             if @flag.spent > 0
                 newpl = Player.factory null, game, newpl, null, SpentVotesForGacha
+                @transProfile newpl
+                @transferData newpl, true
                 newpl.cmplFlag = @flag.spent
-
-            @transProfile newpl
-            @transferData newpl, true
             @transform game, newpl, false
 
             log=
