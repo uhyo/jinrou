@@ -132,6 +132,15 @@ export function loadGameTutorial() {
 }
 
 /**
+ * Asynchronously load the game-start-tutorial module.
+ */
+export function loadGameStartTutorial() {
+  return import(/*
+    webpackChunkName: "game-start-tutorial"
+  */ './pages/game-start-tutorial');
+}
+
+/**
  * Asynchronously load the mypage module.
  */
 export function loadMyPage() {

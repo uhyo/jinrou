@@ -339,6 +339,9 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
         when "/tutorial/game"
             # ゲーム画面のチュートリアル
             page "tutorial-game", null, Index.tutorial.game, null
+        when "/tutorial/game-start"
+            # ゲーム開始画面のチュートリアル
+            page "tutorial-game-start", null, Index.tutorial.gameStart, null
         else
             if result=url.match /^\/room\/-?(\d+)$/
                 # ルーム

@@ -18,6 +18,7 @@ module.exports=
     reset:require '/reset'
     tutorial:
         game: require '/tutorial/game'
+        gameStart: require '/tutorial/gameStart'
     pages:
         casting:require '/pages/casting'
         castlist:require '/pages/castlist'
