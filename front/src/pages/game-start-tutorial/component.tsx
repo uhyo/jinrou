@@ -20,7 +20,7 @@ export interface IPropGameTutorial {
   store: GameStartTutorialStore;
   teamColors: Record<string, string | undefined>;
 }
-export const GameTutorial: React.FunctionComponent<
+export const GameStartTutorial: React.FunctionComponent<
   IPropGameTutorial
 > = observer(({ i18n, store, teamColors }) => {
   const emptyArray = React.useMemo(() => [], []);
@@ -51,7 +51,7 @@ export const GameTutorial: React.FunctionComponent<
       <Game
         i18n={i18n}
         roomid={0}
-        store={store.innerStore}
+        store={store.gameStore}
         categories={emptyArray}
         ruleDefs={emptyArray}
         reportForm={reportForm}

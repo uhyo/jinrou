@@ -1,9 +1,15 @@
-import { DriverBase } from './base';
+import { DriverBase, ParentStore } from './base';
 import { Driver, DriverMessageDialog } from '../defs';
 import { SpeakQuery } from '../../../game-view/defs';
 import { showMessageDialog } from '../../../../dialog';
 
-export class InteractiveDriver extends DriverBase implements Driver {
+interface ParentStoreInteractive extends ParentStore {
+  step: () => void;
+  isUserInRoom: boolean;
+}
+
+export class InteractiveDriver extends DriverBase<ParentStoreInteractive>
+  implements Driver {
   get step() {
     return this.store.step;
   }
@@ -29,7 +35,7 @@ export class InteractiveDriver extends DriverBase implements Driver {
   public getSpeakHandler() {
     return (query: SpeakQuery) => {
       const store = this.store;
-      const innerStore = store.innerStore;
+      const innerStore = store.gameStore;
       const mode = ({
         waiting: store.isUserInRoom ? 'prepare' : 'audience',
         playing:

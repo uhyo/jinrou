@@ -1,18 +1,21 @@
 import { TranslationFunction } from '../../../../i18n';
-import { GameTutorialStore } from '../../store';
 import { Driver } from '../defs';
 import { Cancellation } from './cancellation';
 import { arrayMapToObjectEntries } from '../../../../util/array-map-to-object';
+import { GameStore } from '../../../game-view';
+import { UserInfo } from '../../defs';
+
+export interface ParentStore {
+  gameStore: GameStore;
+  userInfo: UserInfo;
+}
 
 /**
  * @package
  */
-export abstract class DriverBase {
+export abstract class DriverBase<PS extends ParentStore = ParentStore> {
   protected cancellation = new Cancellation();
-  constructor(
-    public t: TranslationFunction,
-    protected store: GameTutorialStore,
-  ) {}
+  constructor(public t: TranslationFunction, protected store: PS) {}
 
   public abstract messageDialog: Driver['messageDialog'];
 
@@ -20,17 +23,17 @@ export abstract class DriverBase {
    * Get a player by id.
    */
   protected getPlayer = (id: string) => {
-    return this.store.innerStore.players.find(pl => pl.id === id);
+    return this.store.gameStore.players.find(pl => pl.id === id);
   };
   protected getMe = () => {
-    const { innerStore, userInfo } = this.store;
+    const { gameStore: innerStore, userInfo } = this.store;
     return innerStore.players.find(pl => pl.realid === userInfo.userid);
   };
 
   public randomAlivePlayer: Driver['randomAlivePlayer'] = (
     excludeId?: string,
   ) => {
-    const { innerStore, userInfo } = this.store;
+    const { gameStore: innerStore, userInfo } = this.store;
     const candidates = innerStore.players.filter(
       pl => !pl.dead && pl.id !== userInfo.userid && pl.id !== excludeId,
     );
@@ -49,11 +52,11 @@ export abstract class DriverBase {
       time: Date.now(),
       to: null,
     } as const;
-    this.store.innerStore.addLog(log);
+    this.store.gameStore.addLog(log);
   };
 
   public addPlayer: Driver['addPlayer'] = ({ emitLog, ...player }) => {
-    this.store.innerStore.addPlayer(player);
+    this.store.gameStore.addPlayer(player);
     if (emitLog) {
       this.addLog({
         mode: 'system',
@@ -65,7 +68,7 @@ export abstract class DriverBase {
   };
 
   public killPlayer: Driver['killPlayer'] = (plId, buryLogType) => {
-    const { innerStore } = this.store;
+    const { gameStore: innerStore } = this.store;
     const pl = this.getPlayer(plId);
     if (!pl) {
       return;
@@ -84,7 +87,7 @@ export abstract class DriverBase {
   };
 
   public openForm: Driver['openForm'] = form => {
-    const { innerStore } = this.store;
+    const { gameStore: innerStore } = this.store;
     const roleInfo = innerStore.roleInfo;
     if (roleInfo == null) {
       // !?
@@ -117,7 +120,7 @@ export abstract class DriverBase {
   };
 
   public closeForm: Driver['closeForm'] = objid => {
-    const { innerStore } = this.store;
+    const { gameStore: innerStore } = this.store;
     const { roleInfo } = innerStore;
 
     if (roleInfo == null) {
@@ -195,7 +198,7 @@ export abstract class DriverBase {
     myvote,
     other = this.store.userInfo.userid,
   ) => {
-    const { innerStore, userInfo } = this.store;
+    const { gameStore: innerStore, userInfo } = this.store;
     const alives = innerStore.players.filter(({ dead }) => !dead);
     const voteresult = alives.map(pl => ({
       id: pl.id,
@@ -219,7 +222,7 @@ export abstract class DriverBase {
    */
   public join() {
     const {
-      store: { innerStore, userInfo },
+      store: { gameStore: innerStore, userInfo },
     } = this;
     if (innerStore.players.find(player => player.realid === userInfo.userid)) {
       // already in the room!
@@ -258,7 +261,7 @@ export abstract class DriverBase {
    */
   public unjoin() {
     const {
-      store: { innerStore, userInfo },
+      store: { gameStore: innerStore, userInfo },
     } = this;
     if (!innerStore.players.find(player => player.realid === userInfo.userid)) {
       // not in the room
@@ -289,7 +292,7 @@ export abstract class DriverBase {
   }
   public ready(setReady?: boolean) {
     const {
-      store: { innerStore, userInfo },
+      store: { gameStore: innerStore, userInfo },
     } = this;
     const pl = innerStore.players.find(pl => pl.realid === userInfo.userid);
     if (pl == null) {
@@ -315,7 +318,7 @@ export abstract class DriverBase {
     ...query
   }) => {
     const {
-      store: { innerStore },
+      store: { gameStore: innerStore },
     } = this;
     const roomControls = gameStart ? null : undefined;
     if (gameStart) {
@@ -347,7 +350,7 @@ export abstract class DriverBase {
   };
 
   public endGame: Driver['endGame'] = ({ loser }) => {
-    const { innerStore, userInfo } = this.store;
+    const { gameStore: innerStore, userInfo } = this.store;
     // TODO
     this.addLog({
       mode: 'nextturn',
@@ -394,7 +397,7 @@ export abstract class DriverBase {
   };
 
   public setRoleInfo: Driver['setRoleInfo'] = roleInfo => {
-    this.store.innerStore.update({
+    this.store.gameStore.update({
       roleInfo,
     });
   };

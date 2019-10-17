@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { i18n, addResource } from '../../i18n';
-import { GameTutorial } from './component';
+import { GameStartTutorial } from './component';
 import { GameStartTutorialStore } from './store';
-import { UserInfo } from './defs';
+import { UserInfo } from '../game-tutorial/defs';
 
 export interface IPlaceOptions {
   /**
@@ -37,14 +37,20 @@ export async function place({
 }: IPlaceOptions): Promise<IPlaceResult> {
   const [userInfo] = await Promise.all([
     getUserProfile(),
+    addResource('tutorial_game', i18n),
     addResource('tutorial_game_start', i18n),
     addResource('roles', i18n),
     addResource('game', i18n),
   ]);
 
-  const store = new GameStartTutorialStore(i18n);
+  console.log(i18n.t('tutorial_game:guide.npc1'));
+
+  const store = new GameStartTutorialStore(userInfo, i18n);
+
+  await store.initialize();
+
   const com = (
-    <GameTutorial i18n={i18n} store={store} teamColors={teamColors} />
+    <GameStartTutorial i18n={i18n} store={store} teamColors={teamColors} />
   );
 
   ReactDOM.render(com, node);

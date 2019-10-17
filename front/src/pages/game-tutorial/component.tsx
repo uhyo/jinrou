@@ -55,7 +55,7 @@ export const GameTutorial: React.FunctionComponent<
       <Game
         i18n={i18n}
         roomid={0}
-        store={store.innerStore}
+        store={store.gameStore}
         categories={emptyArray}
         ruleDefs={emptyArray}
         reportForm={reportForm}

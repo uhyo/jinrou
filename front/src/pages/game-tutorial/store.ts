@@ -23,7 +23,7 @@ const initialStorage: TutorialStorage = {
 
 export class GameTutorialStore {
   @observable.ref
-  public innerStore: GameStore = new GameStore();
+  public gameStore: GameStore = new GameStore();
   @observable
   public phase!: number;
   public skipMode = false;
@@ -43,16 +43,16 @@ export class GameTutorialStore {
     this.phase = 0;
     this.storage = Object.assign({}, initialStorage);
 
-    this.innerStore = new GameStore();
-    this.innerStore.roomName = this.t('room.title');
-    this.innerStore.gameInfo = {
+    this.gameStore = new GameStore();
+    this.gameStore.roomName = this.t('room.title');
+    this.gameStore.gameInfo = {
       day: 0,
       night: false,
       finished: false,
       status: 'waiting',
       watchspeak: true,
     };
-    this.innerStore.roomControls = {
+    this.gameStore.roomControls = {
       type: 'prelude',
       owner: false,
       joined: false,
@@ -60,7 +60,7 @@ export class GameTutorialStore {
       blind: false,
       theme: false,
     };
-    this.innerStore.addPlayer({
+    this.gameStore.addPlayer({
       id: '身代わりくん',
       realid: '身代わりくん',
       name: this.t('guide.name'),
@@ -71,7 +71,7 @@ export class GameTutorialStore {
       jobname: null,
       flags: ['ready'],
     });
-    this.innerStore.logs.initializeLogs([]);
+    this.gameStore.logs.initializeLogs([]);
   }
 
   /**
@@ -183,7 +183,7 @@ export class GameTutorialStore {
   @computed
   get isUserInRoom(): boolean {
     return (
-      this.innerStore.players.find(
+      this.gameStore.players.find(
         player => player.realid === this.userInfo.userid,
       ) != null
     );
