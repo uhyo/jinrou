@@ -13,6 +13,11 @@ export class GameStartTutorialStore {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game_start');
   }
 
+  public reset() {
+    this.gameStore = new GameStore();
+    this.initialize();
+  }
+
   public initialize = async () => {
     const { gameStore } = this;
     gameStore.roomName = this.t('room.title');

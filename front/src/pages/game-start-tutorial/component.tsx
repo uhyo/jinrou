@@ -4,6 +4,7 @@ import { Game } from '../game-view/component';
 import { i18n } from '../../i18n';
 import { RoomControlHandlers } from '../../defs';
 import { observer } from 'mobx-react-lite';
+import { showConfirmDialog } from '../../dialog';
 
 const reportForm = {
   enable: false,
@@ -26,6 +27,23 @@ export const GameStartTutorial: React.FunctionComponent<
   const emptyArray = React.useMemo(() => [], []);
   const noop = React.useCallback(() => {}, []);
 
+  const reset = React.useCallback(
+    () => {
+      showConfirmDialog({
+        modal: true,
+        title: i18n.t('tutorial_game_start:reset.title') as string,
+        message: i18n.t('tutorial_game_start:reset.message'),
+        yes: i18n.t('tutorial_game_start:reset.yes'),
+        no: i18n.t('tutorial_game_start:reset.no'),
+      }).then(result => {
+        if (result) {
+          store.reset();
+        }
+      });
+    },
+    [store],
+  );
+
   const roomControlHandlers: RoomControlHandlers = {
     openGameStart: noop,
     kick: noop,
@@ -43,6 +61,7 @@ export const GameStartTutorial: React.FunctionComponent<
     onRefuseRevival: noop,
     onJobQuery: noop,
     onWillChange: noop,
+    onResetButtonPress: reset,
   };
   console.log(store);
   return (

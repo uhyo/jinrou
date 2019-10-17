@@ -101,6 +101,11 @@ interface IPropGame {
    */
   onReportFormSubmit: (query: ReportFormQuery) => void;
   /**
+   * Handle a press of reset button.
+   * If this handler is absent, reset button is not shown.
+   */
+  onResetButtonPress?: () => void;
+  /**
    * Handlers of room prelude.
    */
   roomControlHandlers: RoomControlHandlers;
@@ -134,6 +139,7 @@ export class Game extends React.Component<IPropGame, {}> {
       onJobQuery,
       onWillChange,
       onReportFormSubmit,
+      onResetButtonPress,
       roomControlHandlers,
     } = this.props;
     const {
@@ -263,6 +269,7 @@ export class Game extends React.Component<IPropGame, {}> {
                 shareButton={shareButton}
                 roomName={store.roomName}
                 onSubmit={onReportFormSubmit}
+                onResetButtonPress={onResetButtonPress}
               />
             </RoomFooterPart>
             <NavigationWrapper>

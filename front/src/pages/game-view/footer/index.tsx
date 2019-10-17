@@ -13,10 +13,11 @@ interface GameFooterProps {
   reportForm: ReportFormConfig;
   shareButton: ShareButtonConfig;
   onSubmit: (query: ReportFormQuery) => void;
+  onResetButtonPress?: () => void;
 }
 
 export const GameFooter: React.FunctionComponent<GameFooterProps> = observer(
-  ({ roomName, reportForm, shareButton, onSubmit }) => {
+  ({ roomName, reportForm, shareButton, onSubmit, onResetButtonPress }) => {
     const t = useI18n('game_client');
     const [reportFormOpen, setReportFormOpen] = useState(false);
     const submitHandler = useCallback(
@@ -30,6 +31,11 @@ export const GameFooter: React.FunctionComponent<GameFooterProps> = observer(
     return (
       <>
         <ButtonContainer>
+          {onResetButtonPress && (
+            <Button onClick={onResetButtonPress}>
+              <FontAwesomeIcon icon="sync-alt" /> {t('reset.title')}
+            </Button>
+          )}
           <ShareButton shareButton={shareButton} roomName={roomName} />
           <Button onClick={() => setReportFormOpen(state => !state)}>
             <FontAwesomeIcon icon={['far', 'paper-plane']} />{' '}

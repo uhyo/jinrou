@@ -381,3 +381,7 @@ reportForm:
   thankyou: '報告を送信しました。ご協力いただきありがとうございました。'
   # button to close message sent dialog.
   close: '閉じる'
+
+# reset button
+reset:
+  title: 'リセット'
