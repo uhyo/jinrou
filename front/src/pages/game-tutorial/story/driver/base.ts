@@ -245,7 +245,10 @@ export abstract class DriverBase<PS extends ParentStore = ParentStore> {
     innerStore.update({
       roomControls: {
         type: 'prelude',
-        owner: false,
+        owner:
+          innerStore.roomControls && innerStore.roomControls.type === 'prelude'
+            ? innerStore.roomControls.owner
+            : false,
         joined: true,
         old: false,
         blind: false,
@@ -273,7 +276,10 @@ export abstract class DriverBase<PS extends ParentStore = ParentStore> {
     innerStore.update({
       roomControls: {
         type: 'prelude',
-        owner: false,
+        owner:
+          innerStore.roomControls && innerStore.roomControls.type === 'prelude'
+            ? innerStore.roomControls.owner
+            : false,
         joined: false,
         old: false,
         blind: false,

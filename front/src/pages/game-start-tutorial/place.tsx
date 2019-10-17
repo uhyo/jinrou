@@ -43,8 +43,6 @@ export async function place({
     addResource('game', i18n),
   ]);
 
-  console.log(i18n.t('tutorial_game:guide.npc1'));
-
   const store = new GameStartTutorialStore(userInfo, i18n);
 
   await store.initialize();

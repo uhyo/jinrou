@@ -44,26 +44,33 @@ export const GameStartTutorial: React.FunctionComponent<
     [store],
   );
 
-  const roomControlHandlers: RoomControlHandlers = {
-    openGameStart: noop,
-    kick: noop,
-    kickRemove: noop,
-    resetReady: noop,
-    discard: noop,
-    newRoom: noop,
-    join: noop,
-    unjoin: noop,
-    ready: noop,
-    helper: noop,
-  };
-  const gameInput = {
-    onSpeak: noop,
-    onRefuseRevival: noop,
-    onJobQuery: noop,
-    onWillChange: noop,
-    onResetButtonPress: reset,
-  };
-  console.log(store);
+  const gameInput = React.useMemo(
+    () => ({
+      onSpeak: store.interactiveDriver.getSpeakHandler(),
+      onRefuseRevival: noop,
+      onJobQuery: noop,
+      onWillChange: noop,
+      onResetButtonPress: reset,
+    }),
+    [store],
+  );
+
+  const roomControlHandlers: RoomControlHandlers = React.useMemo(
+    () => ({
+      openGameStart: noop,
+      kick: noop,
+      kickRemove: noop,
+      resetReady: noop,
+      discard: noop,
+      newRoom: noop,
+      join: store.interactiveDriver.getJoinHandler(),
+      unjoin: store.interactiveDriver.getUnjoinHandler(),
+      ready: store.interactiveDriver.getReadyHandler(),
+      helper: noop,
+    }),
+    [store],
+  );
+
   return (
     <>
       <h1 id="roomname">{i18n.t('tutorial_game_start:room.title')}</h1>

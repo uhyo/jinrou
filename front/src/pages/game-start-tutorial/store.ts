@@ -1,16 +1,21 @@
 import { GameStore } from '../game-view';
-import { observable } from 'mobx';
+import { observable, computed } from 'mobx';
 import { i18n, TranslationFunction } from '../../i18n';
-import { SilentDriver } from '../game-tutorial/story/driver';
+import { SilentDriver, InteractiveDriver } from '../game-tutorial/story/driver';
 import { UserInfo } from '../game-tutorial/defs';
 
 export class GameStartTutorialStore {
   @observable.ref
   public gameStore: GameStore = new GameStore();
   private t: TranslationFunction;
+  public readonly silentDriver: SilentDriver;
+  public readonly interactiveDriver: InteractiveDriver;
 
   constructor(public userInfo: UserInfo, private i18n: i18n) {
     this.t = i18n.getFixedT(i18n.language, 'tutorial_game_start');
+
+    this.silentDriver = new SilentDriver(this.t, this);
+    this.interactiveDriver = new InteractiveDriver(this.t, this);
   }
 
   public reset() {
@@ -19,7 +24,7 @@ export class GameStartTutorialStore {
   }
 
   public initialize = async () => {
-    const { gameStore } = this;
+    const { gameStore, silentDriver: driver } = this;
     gameStore.roomName = this.t('room.title');
     gameStore.gameInfo = {
       day: 0,
@@ -37,7 +42,6 @@ export class GameStartTutorialStore {
       theme: false,
     };
     gameStore.logs.initializeLogs([]);
-    const driver = new SilentDriver(this.t, this);
 
     // add 6 players
     for (let i = 0; i < 6; i++) {
@@ -62,4 +66,16 @@ export class GameStartTutorialStore {
       comment: this.t('descriptionLog'),
     });
   };
+
+  // This is needed for InteractiveDriver
+  public step() {}
+
+  @computed
+  get isUserInRoom(): boolean {
+    return (
+      this.gameStore.players.find(
+        player => player.realid === this.userInfo.userid,
+      ) != null
+    );
+  }
 }
