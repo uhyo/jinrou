@@ -14,9 +14,26 @@ export class GameStartTutorialStore {
   }
 
   public initialize = async () => {
+    const { gameStore } = this;
+    gameStore.roomName = this.t('room.title');
+    gameStore.gameInfo = {
+      day: 0,
+      night: false,
+      finished: false,
+      status: 'waiting',
+      watchspeak: true,
+    };
+    gameStore.roomControls = {
+      type: 'prelude',
+      owner: true,
+      joined: false,
+      old: false,
+      blind: false,
+      theme: false,
+    };
+    gameStore.logs.initializeLogs([]);
     const driver = new SilentDriver(this.t, this);
 
-    console.log(driver.t(`tutorial_game:guide.npc1`));
     // add 6 players
     for (let i = 0; i < 6; i++) {
       const realid = `身代わりくん${i + 2}`;
@@ -33,5 +50,11 @@ export class GameStartTutorialStore {
         emitLog: true,
       });
     }
+    // initial log
+    driver.addLog({
+      mode: 'prepare',
+      name: this.t('tutorial_game:guide.name'),
+      comment: this.t('descriptionLog'),
+    });
   };
 }
