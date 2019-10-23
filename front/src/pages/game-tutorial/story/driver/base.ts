@@ -67,6 +67,10 @@ export abstract class DriverBase<PS extends ParentStore = ParentStore> {
     }
   };
 
+  public kickPlayer: Driver['kickPlayer'] = (playerId, emitLog) => {
+    // TODO
+  };
+
   public killPlayer: Driver['killPlayer'] = (plId, buryLogType) => {
     const { gameStore: innerStore } = this.store;
     const pl = this.getPlayer(plId);

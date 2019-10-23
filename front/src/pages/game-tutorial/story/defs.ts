@@ -83,6 +83,10 @@ export interface Driver {
    */
   addPlayer(player: DriverAddPlayerQuery): void;
   /**
+   * Kick a player.
+   */
+  kickPlayer(playerId: string, emitLog?: boolean): void;
+  /**
    * Kill a player and show a bury message if found is provided.
    */
   killPlayer(playerId: string, found?: string): void;
