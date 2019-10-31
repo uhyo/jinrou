@@ -16,7 +16,7 @@ interface Props {
 
 export const HelpChipArea: FunctionComponent<Props> = ({
   helpName,
-  display = 'inline-block',
+  display = 'inline',
   children,
 }) => {
   const helpChipContent = useContext(HelpChipContext);
@@ -34,15 +34,51 @@ export const HelpChipArea: FunctionComponent<Props> = ({
     [helpName, helpChipContent],
   );
 
+  const isAvailable = helpChipContent
+    ? helpChipContent.isAvailable(helpName)
+    : false;
+
   if (display === 'block') {
-    return <div onClickCapture={clickHandler}>{children}</div>;
+    return (
+      <Block isAvailable={isAvailable} onClickCapture={clickHandler}>
+        {children}
+      </Block>
+    );
   } else if (display === 'inline-block') {
-    return <InlineBlock onClickCapture={clickHandler}>{children}</InlineBlock>;
+    return (
+      <InlineBlock isAvailable={isAvailable} onClickCapture={clickHandler}>
+        {children}
+      </InlineBlock>
+    );
   } else {
-    return <span onClickCapture={clickHandler}>{children}</span>;
+    return (
+      <Span isAvailable={isAvailable} onClickCapture={clickHandler}>
+        {children}
+      </Span>
+    );
   }
 };
 
-const InlineBlock = styled.span`
+interface StyleProps {
+  isAvailable: boolean;
+}
+
+const cursorStyle = (props: StyleProps) =>
+  props.isAvailable ? 'help' : 'inherit';
+
+const Block = styled.div<StyleProps>`
+  cursor: ${cursorStyle};
+`;
+
+const InlineBlock = styled.span<StyleProps>`
   display: inline-block;
+  cursor: ${cursorStyle};
+`;
+
+const Span = styled.span<StyleProps>`
+  cursor: ${cursorStyle};
+
+  button {
+    cursor: ${cursorStyle};
+  }
 `;

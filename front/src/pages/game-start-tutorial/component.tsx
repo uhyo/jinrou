@@ -5,6 +5,7 @@ import { i18n } from '../../i18n';
 import { RoomControlHandlers } from '../../defs';
 import { observer } from 'mobx-react-lite';
 import { showConfirmDialog } from '../../dialog';
+import { useHelpChipHost } from '../../common/helpchip/useHelpChipHost';
 
 const reportForm = {
   enable: false,
@@ -71,8 +72,12 @@ export const GameStartTutorial: React.FunctionComponent<
     [store],
   );
 
+  const Host = useHelpChipHost(helpName => {
+    console.log(helpName);
+  });
+
   return (
-    <>
+    <Host.Provider>
       <h1 id="roomname">{i18n.t('tutorial_game_start:room.title')}</h1>
       <Game
         i18n={i18n}
@@ -87,6 +92,6 @@ export const GameStartTutorial: React.FunctionComponent<
         {...gameInput}
         onReportFormSubmit={noop}
       />
-    </>
+    </Host.Provider>
   );
 });

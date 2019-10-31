@@ -9,6 +9,8 @@ import {
 } from '../../../dialog';
 import { TranslationFunction } from '../../../i18n';
 import { PlayerInfo, RoomControlInfo } from '../defs';
+import { HelpChipArea } from '../../../common/helpchip';
+import { gameViewHelpNames } from '../helpChip';
 
 export interface IPropRoomControls {
   /**
@@ -45,9 +47,11 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
         <>
           {joined ? (
             <>
-              <button type="button" onClick={handlers.unjoin}>
-                {t('game_client:room.unjoin')}
-              </button>
+              <HelpChipArea helpName={gameViewHelpNames.joinUnjoin}>
+                <button type="button" onClick={handlers.unjoin}>
+                  {t('game_client:room.unjoin')}
+                </button>
+              </HelpChipArea>
               <button
                 type="button"
                 title={t('game_client:room.readyDescription')}
@@ -64,9 +68,11 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
               </button>
             </>
           ) : (
-            <button type="button" onClick={this.handleJoinClick}>
-              {t('game_client:room.join')}
-            </button>
+            <HelpChipArea helpName={gameViewHelpNames.joinUnjoin}>
+              <button type="button" onClick={this.handleJoinClick}>
+                {t('game_client:room.join')}
+              </button>
+            </HelpChipArea>
           )}
           {owner ? (
             <>

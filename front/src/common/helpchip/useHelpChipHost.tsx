@@ -22,6 +22,9 @@ export function useHelpChipHost(handler: (helpName: string) => void) {
         handler(helpName);
         return true;
       },
+      isAvailable(helpName) {
+        return !helpShownFlags[helpName];
+      },
     }),
     [handler],
   );
