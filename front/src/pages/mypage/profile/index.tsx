@@ -106,7 +106,7 @@ export const Profile: React.FunctionComponent<{
                 : undefined
           }
         />
-        <IconEdit icon={icon} setIcon={setIcon} />
+        <IconEdit icon={icon} setIcon={setIcon} setEditing={setEditing} />
         {editing ? (
           <SaveButtonArea>
             <SubActiveButton active type="button" onClick={saveHandler}>
