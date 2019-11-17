@@ -1,175 +1,176 @@
 # name for normal job form.
-normalName: "{{job}}の能力"
+normalName: '{{job}}の能力'
 # label of button of normal job form.
-normalButton: "選択"
+normalButton: '選択'
 
 # label for each form type.
 formType:
-  required: "必須"
-  optional: "任意"
-  optionalOnce: "任意（1回のみ）"
+  required: '必須'
+  optional: '任意'
+  optionalOnce: '任意（1回のみ）'
 
 # Name forms which is a little special.
 specialName:
-  _day: "処刑投票"
-  _Werewolf: "人狼の襲撃"
-  Dog1: "犬の能力"
-  Dog2: "犬の能力"
-  BadLady1: "悪女の能力"
-  BadLady2: "悪女の能力"
-  CraftyWolf2: "狡猾な狼の能力"
-  Poet1: "歌人の能力"
-  Poet2: "歌人の能力"
-  GachaAddicted_Normal: "課金者の能力"
-  GachaAddicted_Premium: "課金者の能力"
-  GachaAddicted_Commit: "課金者の能力"
-  _Quantum_Diviner: "占い師の能力"
-  _Quantum_Werewolf: "人狼の襲撃"
+  _day: '処刑投票'
+  _Werewolf: '人狼の襲撃'
+  Dog1: '犬の能力'
+  Dog2: '犬の能力'
+  BadLady1: '悪女の能力'
+  BadLady2: '悪女の能力'
+  CraftyWolf2: '狡猾な狼の能力'
+  Poet1: '歌人の能力'
+  Poet2: '歌人の能力'
+  GachaAddicted_Normal: '課金者の能力'
+  GachaAddicted_Premium: '課金者の能力'
+  GachaAddicted_Commit: '課金者の能力'
+  _Quantum_Diviner: '占い師の能力'
+  _Quantum_Werewolf: '人狼の襲撃'
 
 # Message for normal selection form.  normalMessage:
 messages:
-  _day: "処刑したい人に投票してください"
-  Waiting: "希望する役職を選択してください"
-  WolfDiviner: "占う相手を選択してください"
-  GreedyWolf: "今晩欲張る場合は選択してください"
-  Diviner: "占う相手を選択してください"
-  TinyFox: "占う相手を選択してください"
-  Guard: "護衛する相手を選択してください"
-  Magician: "蘇生する相手を選択してください"
-  Spy: "今晩村を去る場合は選択してください"
-  Fugitive: "逃亡先を選択してください"
-  Liar: "占う相手を選択してください"
-  Copier: "コピー対象を選択してください"
-  Light: "死神の手帳で殺す相手を選択してください"
-  Cupid: "恋人にする2人を1人ずつ選択してください"
-  Lover: "恋人にする相手を選択してください"
-  Stalker: "ストーキングする相手を選択してください"
-  Spellcaster: "呪いをかける相手を選択してください"
-  Priest: "守る相手を選択してください"
-  PI: "調査する相手を選択してください"
-  Sorcerer: "調べる相手を選択してください"
-  Doppleganger: "ドッペルゲンガー対象を選択してください"
-  CultLeader: "信者にする人を選択してください"
-  Vampire: "襲撃する相手を選択してください"
-  Cat: "蘇生する相手を選択してください"
-  OccultMania: "能力の対象を選択してください"
-  Dog1: "飼い主を殺す場合は選択してください"
-  Dog2: "飼い主にする相手を選択してください"
-  Dictator: "議論を中止する場合は処刑対象を選択してください"
-  Trapper: "護衛する対象を選択してください"
-  WolfBoy: "人狼に見せかける人を選択してください"
-  MinionSelector: "狼の子分にする人を指定してください"
-  Thief: "なりたい役職を選択してください"
-  Hoodlum: "恨む相手を1人ずつ選択してください"
-  _Quantum_Diviner: "占う相手を選択してください"
-  _Quantum_Werewolf: "襲撃する相手を選択してください"
-  Counselor: "カウンセリングする相手を選択してください"
-  Miko: "今晩自分を守る場合は選択してください"
-  FascinatingWolf: "誘惑する相手を選択してください"
-  ToughWolf: "今晩能力を使用する場合は襲撃対象を選択してください"
-  ThreateningWolf: "威嚇する場合は相手を選択してください"
-  WanderingGuard: "護衛する相手を選択してください"
-  ObstructiveMad: "邪魔する相手を選択してください"
-  TroubleMaker: "次の昼に能力を使用する場合は選択してください"
-  BloodyMary: "呪い殺す相手を選択してください"
-  SantaClaus: "プレゼントを送る相手を選択してください"
-  Phantom: "役職を盗む相手を選択してください"
-  BadLady1: "まず本命の相手を選択してください"
-  BadLady2: "手玉に取る相手を選択してください"
-  Pyrotechnist: "今晩花火を打ち上げる場合は選択してください"
-  Helper: "ヘルパー対象を選択してください"
-  Bomber: "爆弾を仕掛ける相手を選択してください"
-  Blasphemy: "冒涜する相手を選択してください"
-  Ushinotokimairi: "呪いをかける相手を選択してください"
-  Patissiere: "本命チョコをあげる相手を選択してください"
-  MadDog: "襲撃する相手を選択してください"
-  Hypnotist: "催眠術をかける相手を選択してください"
-  CraftyWolf: "死んだふりをする場合は選択してください"
-  CraftyWolf2: "死んだふりをやめる場合は選択してください"
-  GotChocolate: "チョコを食べる場合は選択してください"
-  Shishimai: "獅子舞で噛む相手を選択してください"
-  Pumpkin: "かぼちゃにする相手を選択してください"
-  MadScientist: "蘇生する対象を選択してください"
-  Forensic: "調査する対象を選択してください"
-  Cosplayer: "護衛する相手を選択してください"
-  Ninja: "偵察する対象を選択してください"
-  Hunter: "銃撃する対象を選択してください"
-  MadHunter: "銃撃する対象を選択してください"
-  Idol: "ファンにする人を選択してください"
-  XianFox: "透視する対象を選択してください"
-  SnowLover: "恋人にする相手を選択してください"
-  DecoyWolf: "囮になる対象を選択してください"
-  LunaticLover: "狂愛の対象を選択してください"
-  Hooligan: "暴動に参加させる相手を選択してください"
-  HooliganAttacker: "暴行を加える相手を選択してください"
-  HooliganGuard: "拘束する対象を選択してください"
-  Illusionist: "襲撃のすり替え対象を選択してください"
-  Satori: "読心術の対象を選択してください"
-  Samurai: "護衛する相手を選択してください"
-  Dracula: "吸血する相手を選択してください"
-  Elementaler: "護衛する相手を選択してください"
-  Sacrifice: "守る相手を選択してください"
-  GameMaster: "GM用コマンド"
+  _day: '処刑したい人に投票してください'
+  Waiting: '希望する役職を選択してください'
+  WolfDiviner: '占う相手を選択してください'
+  GreedyWolf: '今晩欲張る場合は選択してください'
+  Diviner: '占う相手を選択してください'
+  TinyFox: '占う相手を選択してください'
+  Guard: '護衛する相手を選択してください'
+  Magician: '蘇生する相手を選択してください'
+  Spy: '今晩村を去る場合は選択してください'
+  Fugitive: '逃亡先を選択してください'
+  Liar: '占う相手を選択してください'
+  Copier: 'コピー対象を選択してください'
+  Light: '死神の手帳で殺す相手を選択してください'
+  Cupid: '恋人にする2人を1人ずつ選択してください'
+  Lover: '恋人にする相手を選択してください'
+  Stalker: 'ストーキングする相手を選択してください'
+  Spellcaster: '呪いをかける相手を選択してください'
+  Priest: '守る相手を選択してください'
+  PI: '調査する相手を選択してください'
+  Sorcerer: '調べる相手を選択してください'
+  Doppleganger: 'ドッペルゲンガー対象を選択してください'
+  CultLeader: '信者にする人を選択してください'
+  Vampire: '襲撃する相手を選択してください'
+  Cat: '蘇生する相手を選択してください'
+  OccultMania: '能力の対象を選択してください'
+  Dog1: '飼い主を殺す場合は選択してください'
+  Dog2: '飼い主にする相手を選択してください'
+  Dictator: '議論を中止する場合は処刑対象を選択してください'
+  Trapper: '護衛する対象を選択してください'
+  WolfBoy: '人狼に見せかける人を選択してください'
+  MinionSelector: '狼の子分にする人を指定してください'
+  Thief: 'なりたい役職を選択してください'
+  Hoodlum: '恨む相手を1人ずつ選択してください'
+  _Quantum_Diviner: '占う相手を選択してください'
+  _Quantum_Werewolf: '襲撃する相手を選択してください'
+  Counselor: 'カウンセリングする相手を選択してください'
+  Miko: '今晩自分を守る場合は選択してください'
+  FascinatingWolf: '誘惑する相手を選択してください'
+  ToughWolf: '今晩能力を使用する場合は襲撃対象を選択してください'
+  ThreateningWolf: '威嚇する場合は相手を選択してください'
+  WanderingGuard: '護衛する相手を選択してください'
+  ObstructiveMad: '邪魔する相手を選択してください'
+  TroubleMaker: '次の昼に能力を使用する場合は選択してください'
+  BloodyMary: '呪い殺す相手を選択してください'
+  SantaClaus: 'プレゼントを送る相手を選択してください'
+  Phantom: '役職を盗む相手を選択してください'
+  BadLady1: 'まず本命の相手を選択してください'
+  BadLady2: '手玉に取る相手を選択してください'
+  Pyrotechnist: '今晩花火を打ち上げる場合は選択してください'
+  Helper: 'ヘルパー対象を選択してください'
+  Bomber: '爆弾を仕掛ける相手を選択してください'
+  Blasphemy: '冒涜する相手を選択してください'
+  Ushinotokimairi: '呪いをかける相手を選択してください'
+  Patissiere: '本命チョコをあげる相手を選択してください'
+  MadDog: '襲撃する相手を選択してください'
+  Hypnotist: '催眠術をかける相手を選択してください'
+  CraftyWolf: '死んだふりをする場合は選択してください'
+  CraftyWolf2: '死んだふりをやめる場合は選択してください'
+  GotChocolate: 'チョコを食べる場合は選択してください'
+  Shishimai: '獅子舞で噛む相手を選択してください'
+  Pumpkin: 'かぼちゃにする相手を選択してください'
+  MadScientist: '蘇生する対象を選択してください'
+  Forensic: '調査する対象を選択してください'
+  Cosplayer: '護衛する相手を選択してください'
+  Ninja: '偵察する対象を選択してください'
+  Hunter: '銃撃する対象を選択してください'
+  MadHunter: '銃撃する対象を選択してください'
+  Idol: 'ファンにする人を選択してください'
+  XianFox: '透視する対象を選択してください'
+  SnowLover: '恋人にする相手を選択してください'
+  DecoyWolf: '囮になる対象を選択してください'
+  LunaticLover: '狂愛の対象を選択してください'
+  Hooligan: '暴動に参加させる相手を選択してください'
+  HooliganAttacker: '暴行を加える相手を選択してください'
+  HooliganGuard: '拘束する対象を選択してください'
+  Illusionist: '襲撃のすり替え対象を選択してください'
+  Satori: '読心術の対象を選択してください'
+  Samurai: '護衛する相手を選択してください'
+  Dracula: '吸血する相手を選択してください'
+  Elementaler: '護衛する相手を選択してください'
+  Sacrifice: '守る相手を選択してください'
+  Synesthete: '色を見る相手を選択してください'
+  GameMaster: 'GM用コマンド'
 
 # Texts for GameMaster form.
 GameMaster:
-  deadalive: "死亡/蘇生"
-  kill: "死亡させる"
-  revive: "蘇生させる"
-  time: "時間延長/短縮"
-  longer: "{{count}}秒延長"
-  shorter: "{{count}}秒短縮"
+  deadalive: '死亡/蘇生'
+  kill: '死亡させる'
+  revive: '蘇生させる'
+  time: '時間延長/短縮'
+  longer: '{{count}}秒延長'
+  shorter: '{{count}}秒短縮'
 
 # Texts for _Werewolf form.
 _Werewolf:
-  description: "襲撃する相手を選択してください"
-  remains: "残り襲撃可能数：{{count}}"
+  description: '襲撃する相手を選択してください'
+  remains: '残り襲撃可能数：{{count}}'
 
 # Texts for Merchant form.
 Merchant:
   # name of kits.
   kit:
-    Diviner: "占いセット"
-    Psychic: "霊能セット"
-    Guard: "狩人セット"
+    Diviner: '占いセット'
+    Psychic: '霊能セット'
+    Guard: '狩人セット'
   # description.
-  description: "商品と発送先を選択してください"
+  description: '商品と発送先を選択してください'
 # Texts for HomeComer form (extends Merchant).
 HomeComer:
-  description: "おみやげの中身と贈る相手を選択してください"
+  description: 'おみやげの中身と贈る相手を選択してください'
 # Texts for Witch form.
 Witch:
-  description: "使用する薬と対象を選択してください"
+  description: '使用する薬と対象を選択してください'
   # name of drugs.
   drug:
-    kill: "毒薬"
-    revive: "蘇生薬"
+    kill: '毒薬'
+    revive: '蘇生薬'
 # Texts for DragonKnight form.
 DragonKnight:
-  description: "能力の対象を選択してください"
+  description: '能力の対象を選択してください'
   # normal guard button.
-  guardButton: "護衛"
+  guardButton: '護衛'
   # kill button.
-  killButton: "殺害（1回のみ）"
+  killButton: '殺害（1回のみ）'
   # kill button (already used)
-  killButtonUsed: "殺害（使用済）"
+  killButtonUsed: '殺害（使用済）'
 
 # Texts for Poet form.
 Poet:
   # description for initial form.
-  descriptionInit: "歌を入力して送る相手を選択してください。歌は最大17文字まで入力できます。"
+  descriptionInit: '歌を入力して送る相手を選択してください。歌は最大17文字まで入力できます。'
   # description for normal form.
-  descriptionReply: "{{name}}に送る歌を入力してください。歌は最大17文字まで入力できます。"
-  poemPlaceholder: "ここに歌を入力"
+  descriptionReply: '{{name}}に送る歌を入力してください。歌は最大17文字まで入力できます。'
+  poemPlaceholder: 'ここに歌を入力'
   # label for target selection
-  targetSelectionLabel: "送る相手を選択："
-  selectButton: "歌を送る"
+  targetSelectionLabel: '送る相手を選択：'
+  selectButton: '歌を送る'
 
 # Texts for GachaAddicted form.
 GachaAddicted:
-  descriptionNormal: "今日のノーマルガチャを引くことができます"
-  normalButton: "ガチャを引く"
-  descriptionPremium: "プレミアムガチャはあと{{votes}}回引くことができます"
-  premiumButton: "プレミアムガチャを引く"
-  descriptionCommit: "役職【{{jobname}}】を所持しています"
-  commitButton: "{{jobname}}に変化する"
+  descriptionNormal: '今日のノーマルガチャを引くことができます'
+  normalButton: 'ガチャを引く'
+  descriptionPremium: 'プレミアムガチャはあと{{votes}}回引くことができます'
+  premiumButton: 'プレミアムガチャを引く'
+  descriptionCommit: '役職【{{jobname}}】を所持しています'
+  commitButton: '{{jobname}}に変化する'
