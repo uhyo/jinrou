@@ -6710,9 +6710,11 @@ class FrankensteinsMonster extends Player
             for newtype in extracted
                 subpl = Player.factory newtype, game
                 @transProfile subpl
+                @transferData subpl
 
                 newpl=Player.factory null, game, targetpl, subpl, Complex    # 合成する
                 @transProfile newpl
+                @transferData newpl
 
                 # 置き換える
                 targetpl = newpl
