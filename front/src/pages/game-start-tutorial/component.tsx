@@ -77,7 +77,7 @@ export const GameStartTutorial: React.FunctionComponent<
   });
 
   return (
-    <Host.Provider>
+    <Host.Provider value={Host.helpChipContent}>
       <h1 id="roomname">{i18n.t('tutorial_game_start:room.title')}</h1>
       <Game
         i18n={i18n}
