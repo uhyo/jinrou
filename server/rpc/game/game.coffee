@@ -10052,6 +10052,8 @@ class Synesthete extends Player
         pl = game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
 
         @setTarget playerid
         pl.touched game, @id
