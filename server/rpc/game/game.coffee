@@ -8289,6 +8289,7 @@ class BlackCat extends Madman
 class Idol extends Player
     type:"Idol"
     formType: FormType.required
+    midnightSort:80
     sunset:(game)->
         super
         if !@flag
