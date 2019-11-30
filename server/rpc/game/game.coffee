@@ -12272,6 +12272,21 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "MadWolf"
                     special_exceptions.push "MadWolf"
+                # 闇道化
+                if safety.jingais || safety.jobs
+                    exceptions.push "DarkClown"
+                    special_exceptions.push "DarkClown"
+                # 絶対狼
+                if Math.random()<0.4
+                    exceptions.push "AbsoluteWolf"
+                    special_exceptions.push "AbsoluteWolf"
+                # 村人表記シリーズ
+                if Math.random()<0.3
+                    exceptions.push "Oracle"
+                    special_exceptions.push "Oracle"
+                if Math.random()<0.3
+                    exceptions.push "Fate"
+                    special_exceptions.push "Fate"
                 # ニートは隠し役職（出現率低）
                 if query.losemode == "on" || Math.random()<0.4
                     exceptions.push "Neet"
