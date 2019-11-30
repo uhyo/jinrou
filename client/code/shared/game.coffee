@@ -833,6 +833,8 @@ exports.jobinfo=
             color:"#edb232"
         Fate:
             color:"#062a66"
+        Synesthete:
+            color:"#ffb6c1"
 
     Werewolf:
         color:"#DD0000"
