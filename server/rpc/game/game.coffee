@@ -1855,7 +1855,7 @@ class Game
                     @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
                     @i18n.t "found.body", {name: x.name}
-                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide"
                     @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
@@ -1880,7 +1880,7 @@ class Game
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
-                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide",
+                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
                     "hooligan","dragon","samurai","elemental","sacrifice"
@@ -1930,6 +1930,8 @@ class Game
                         "dragonknightsuicide"
                     when "vampiresuicide"
                         "vampiresuicide"
+                    when "santasuicide"
+                        "santasuicide"
                     when "hooligan"
                         "hooligan"
                     when "dragon"
@@ -10100,6 +10102,14 @@ class Synesthete extends Player
 
 class Reindeer extends Player
     type: "Reindeer"
+    beforebury:(game)->
+        return false if @dead
+        santas = game.players.filter (pl)-> pl.isJobType "SantaClaus"
+        return unless santas.length
+        # サンタクロースが全滅していたら後追い
+        unless santas.some((x)->!x.dead)
+            @die game, "santasuicide"
+        return false
     # トナカイはサンタクロースを把握
     getVisibilityQuery:->
         res = super
