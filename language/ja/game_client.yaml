@@ -103,6 +103,7 @@ jobinfo:
     draculas: '仲間のドラキュラは{{names}}です'
     draculaBitten: '吸血済みの相手は{{names}}です'
     absolutewolves: '絶対狼は{{names}}です'
+    santaclauses: '仲間のサンタクロースは{{names}}です'
 
 # game-view: speak form.
 speak:
