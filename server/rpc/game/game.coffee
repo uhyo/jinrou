@@ -6878,6 +6878,28 @@ class SantaClaus extends Player
         super
         @setFlag "[]"
     isWinner:(game,team)->@flag=="gone" || super
+    hasDeadResistance:(game)->
+        # トナカイがいれば死亡耐性あり
+        reindeers = game.players.filter (x)-> !x.dead && x.isJobType "Reindeer"
+        return reindeers.length > 0
+    checkDeathResistance:(game, found, from)->
+        # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬はトナカイが身代わり可能
+        if Found.isNormalWerewolfAttack(found) || Found.isNormalVampireAttack(found) || found in ["witch"]
+            reindeers = game.players.filter (x)-> !x.dead && x.isJobType "Reindeer"
+            if reindeers.length > 0
+                reindeers = shuffle reindeers
+                victim = reindeers[0]
+                if Found.isNormalWerewolfAttack found
+                    victim.die game, "werewolf2", from
+                    game.addGuardLog @id, AttackKind.werewolf, GuardReason.cover
+                else if Found.isNormalVampireAttack(found)
+                    victim.die game, "vampire2", from
+                else
+                    victim.die game, found, from
+                victim.addGamelog game, "reindeervictim"
+                @addGamelog game, "santaavoid"
+                return true
+        return false
     sunset:(game)->
         # まだ届けられる人がいるかチェック
         if @flag == "gone"
@@ -10102,6 +10124,17 @@ class Synesthete extends Player
 
 class Reindeer extends Player
     type: "Reindeer"
+    isWinner:(game, team)->
+        if team == @getTeam()
+            # 村人陣営勝利なら勝利
+            return true
+        # サンタ勝利でも勝利
+        for pl in game.players
+            santas = pl.accessByJobTypeAll "SantaClaus"
+            if santas.some((pl)-> pl.flag == "gone")
+                return true
+        return false
+
     beforebury:(game)->
         return false if @dead
         santas = game.players.filter (pl)-> pl.isJobType "SantaClaus"
