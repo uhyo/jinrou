@@ -12696,6 +12696,11 @@ module.exports.actions=(req,res,ss)->
                             joblist.SantaClaus ?= 0
                             joblist.SantaClaus++
                             frees--
+                            # トナカイもいるぞ
+                            if Math.random() < 0.4 && frees > 0 && !nonavs.Reindeer
+                                joblist.Reindeer ?= 0
+                                joblist.Reindeer++
+                                frees--
                     else
                         # サンタは出にくい
                         if Math.random()<0.8
@@ -13025,6 +13030,10 @@ module.exports.actions=(req,res,ss)->
                         if job == "LoneWolf"
                             # 絶対狼とは共存できない
                             if joblist.AbsoluteWolf>0
+                                continue
+                        if job == "Reindeer"
+                            # トナカイはサンタ無しで出さない
+                            if joblist.SantaClaus == 0
                                 continue
 
                         joblist[job]++
