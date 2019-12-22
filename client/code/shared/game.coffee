@@ -71,7 +71,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 絶対的人狼
 "AbsoluteWolf",
 # オリジナル
-"SantaClaus","Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
+"SantaClaus","Reindeer",
+"Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
 "DecoyWolf","Hooligan","HomeComer","DragonKnight","Poet","Sacrifice",
 "Synesthete"
 ]
@@ -88,7 +89,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit"]
     Devil:["Devil"]
@@ -126,7 +127,7 @@ exports.gachaData =
     1: ["Human", "Couple", "Noble", "Slave", "Liar", "Lycan", "Oldman",
         "TinyGhost", "Twin"]
     2: ["Diviner", "Psychic", "Guard", "Magician", "ToughGuy", "ApprenticeSeer",
-        "Diseased", "Dog", "SeersMama", "DrawGirl", "Cosplayer"
+        "Diseased", "Dog", "SeersMama", "DrawGirl", "Cosplayer","Reindeer"
     ]
     3: ["Fugitive", "Cursed", "Spellcaster", "Prince", "PI", "OccultMania",
         "RedHood", "WanderingGuard", "Phantom", "Pyrotechnist", "Forensic",
@@ -835,6 +836,8 @@ exports.jobinfo=
             color:"#062a66"
         Synesthete:
             color:"#ffb6c1"
+        Reindeer:
+            color:"#917663"
 
     Werewolf:
         color:"#DD0000"

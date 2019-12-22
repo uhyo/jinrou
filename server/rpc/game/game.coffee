@@ -3217,6 +3217,8 @@ class Player
         draculas: false
         # ドラキュラに吸血された人
         draculaBitten: false
+        # サンタクロース
+        santaclauses: false
     }
     # 汎用的な役職属性取得関数 (Existential)
     getAttribute:(attr, game)->false
@@ -10096,6 +10098,13 @@ class Synesthete extends Player
             }
         splashlog game.id, game, log
 
+class Reindeer extends Player
+    type: "Reindeer"
+    # トナカイはサンタクロースを把握
+    getVisibilityQuery:->
+        res = super
+        res.santaclauses = true
+        res
 
 # ============================
 # 処理上便宜的に使用
@@ -11857,6 +11866,7 @@ jobs=
     GachaAddicted:GachaAddicted
     Fate:Fate
     Synesthete:Synesthete
+    Reindeer:Reindeer
 
     # 特殊
     GameMaster:GameMaster
@@ -12045,6 +12055,7 @@ jobStrength=
     GachaAddicted:10
     Fate:6
     Synesthete:11
+    Reindeer:7
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13693,6 +13704,10 @@ writeGlobalJobInfo = (game, player, result={})->
                 x.publicinfo()
         if vq.draculaBitten
             result.draculaBitten = game.players.filter((x)->x.getAttribute PlayerAttribute.draculaBitten, game).map (x)->
+                x.publicinfo()
+        # サンタクロースが分かる
+        if vq.santaclauses
+            result.santaclauses = game.players.filter((x)->x.isJobType "SantaClaus").map (x)->
                 x.publicinfo()
 
 #job情報を
