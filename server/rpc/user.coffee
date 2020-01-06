@@ -279,10 +279,20 @@ exports.actions =(req,res,ss)->
                 req.session.save ->
                 res userProfile(record, req.session.ban)
     sendConfirmMail:(query)->
-        if query.mail && query.mail.length > Config.maxlength.user.mail
-            res {error: i18n.t "error.confirmMail.mailAddressTooLong"}
-            return
-        mailer.sendConfirmMail(query,req,res,ss)
+        M.users.findOne {"userid":req.session.userId},(err,record)=>
+            if err?
+                res {error: String err}
+                return
+            if !record?
+                res {error: i18n.t "error.authFail"}
+                return
+            unless Server.auth.check query.password, record.password, record.salt
+                res {error: i18n.t "error.authFail"}
+                return
+            if query.mail && query.mail.length > Config.maxlength.user.mail
+                res {error: i18n.t "error.confirmMail.mailAddressTooLong"}
+                return
+            mailer.sendConfirmMail(query,req,res,ss)
     confirmMail:(query)->
         token = query.token
         timestamp = Number query.timestamp
