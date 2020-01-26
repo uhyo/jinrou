@@ -93,6 +93,10 @@ export interface ColorProfile {
    */
   probability_table: OneColor;
   /**
+   * Color of streaming log.
+   */
+  streaming: OneColor;
+  /**
    * Color of user's info.
    */
   userinfo: OneColor;
@@ -207,6 +211,10 @@ const commonDefaults = {
   },
   probability_table: {
     bg: '#eeeeee',
+    color: '#000000',
+  },
+  streaming: {
+    bg: '#ffe5c9',
     color: '#000000',
   },
   userinfo: {

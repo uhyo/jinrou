@@ -142,6 +142,8 @@ jobname:
   Fate: '運命の子'
   Synesthete: '共感覚者'
   Reindeer: 'トナカイ'
+  Streamer: '配信者'
+  Listener: '視聴者'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -896,6 +898,11 @@ Synesthete:
     - 金色
     - 銀色
     - 灰色
+
+Streamer:
+  becomeListener: '{{name}}は{{target}}の視聴者になりました。'
+  getJob: '{{name}}は今夜は{{job}}をやってみることにしました。'
+  retire: '{{name}}は視聴者がいなくなり引退して{{job}}になりました。'
 
 GameMaster:
   # Failed to revive.

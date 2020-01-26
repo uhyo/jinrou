@@ -293,6 +293,7 @@ exports.start=(roomid)->
                             draculaBitten: obj.draculaBitten
                             absolutewolves: obj.absolutewolves
                             santaclauses: obj.santaclauses
+                            listenerNumber: obj.listenerNumber
                         }
                     else
                         null
