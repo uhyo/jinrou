@@ -34,6 +34,10 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
    */
   myteam?: string;
   /**
+   * Info of currently open forms.
+   */
+  forms: FormDesc[];
+  /**
    * Your player number when quantum werewolf.
    */
   quantumwerewolf_number?: number;
@@ -44,9 +48,9 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
     supportingJob: string;
   };
   /**
-   * Info of currently open forms.
+   * Info for Streamer: current number of listeners.
    */
-  forms: FormDesc[];
+  listenerNumber?: number;
 }
 
 /**

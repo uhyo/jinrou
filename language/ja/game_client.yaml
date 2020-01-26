@@ -104,6 +104,7 @@ jobinfo:
     draculaBitten: '吸血済みの相手は{{names}}です'
     absolutewolves: '絶対狼は{{names}}です'
     santaclauses: '仲間のサンタクロースは{{names}}です'
+    listenerNumber: '現在の視聴者数は{{number}}人です'
 
 # game-view: speak form.
 speak:
@@ -144,6 +145,8 @@ speak:
     gmmonologue: '独り言'
     # talk of helpers.
     helperwhisper: '助言'
+    # talk of streamer.
+    streaming: '配信者の配信'
     # reply from GM to someone.
     gmreply: '→{{target}}'
   # label of multiline checkbox.
@@ -226,6 +229,8 @@ log:
   # poem sent by Poet
   poem:
     description: '{{target}}に{{name}}からの歌が届きました。'
+  # streaming
+  streaming: '{{name}}の配信'
 # Game view: player box.
 playerbox:
   # Alt for the dead image.

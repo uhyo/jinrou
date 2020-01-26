@@ -154,7 +154,14 @@ const RoleInfoInner = ({
   t: TranslationFunction;
   roleInfo: RoleInfo;
 }) => {
-  const { jobname, desc, win, quantumwerewolf_number, supporting } = roleInfo;
+  const {
+    jobname,
+    desc,
+    win,
+    quantumwerewolf_number,
+    supporting,
+    listenerNumber,
+  } = roleInfo;
   return (
     <>
       <JobStatus t={t} jobname={jobname} desc={desc} />
@@ -215,6 +222,15 @@ const RoleInfoInner = ({
           <I18nInterp ns="game_client" k="jobinfo.peers.quantumwerewolfNumber">
             {{
               number: quantumwerewolf_number,
+            }}
+          </I18nInterp>
+        </p>
+      )}
+      {listenerNumber == null ? null : (
+        <p>
+          <I18nInterp ns="game_client" k="jobinfo.peers.listenerNumber">
+            {{
+              number: listenerNumber,
             }}
           </I18nInterp>
         </p>

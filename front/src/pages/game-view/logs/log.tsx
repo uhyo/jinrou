@@ -192,7 +192,9 @@ class OneLogInner extends React.PureComponent<IPropOneLog, {}> {
             ? t('log.monologue', { name: log.name }) + ':'
             : log.mode === 'will'
               ? t('log.will', { name: log.name }) + ':'
-              : log.name + ':';
+              : log.mode === 'streaming'
+                ? t('log.streaming', { name: log.name }) + ':'
+                : log.name + ':';
       // Auto-link URLs and room numbers in it.
       const noName = icon == null && !nameText;
       const props = {
@@ -418,6 +420,13 @@ export function computeLogStyle(mode: Log['mode'], theme: Theme): LogStyle {
         background: theme.user.probability_table.bg,
         color: theme.user.probability_table.color,
         borderColor: null,
+      };
+    }
+    case 'streaming': {
+      return {
+        background: theme.user.streaming.bg,
+        color: theme.user.streaming.color,
+        borderColor: '#ffc68a',
       };
     }
     case 'system': {

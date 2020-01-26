@@ -1,106 +1,103 @@
 # Language file for user settings page.
 
 # title of page.
-title: "ユーザー設定"
+title: 'ユーザー設定'
 
 # loading text.
-loading: "読込中…"
+loading: '読込中…'
 
 # back to mypage link.
-backLink: "マイページに戻る"
+backLink: 'マイページに戻る'
 
 # description of settings page.
-description: "ユーザー設定は端末ごとに保存されます。"
-
+description: 'ユーザー設定は端末ごとに保存されます。'
 
 # colors.
 color:
   # default name of profile (without number).
-  defaultProfile: "デフォルト設定"
+  defaultProfile: 'デフォルト設定'
   # saved profiles
-  savedProfiles: "保存済みの色設定"
+  savedProfiles: '保存済みの色設定'
   # title of colors tab.
-  title: "色設定"
+  title: '色設定'
   # text color.
-  textColor: "文字色"
+  textColor: '文字色'
   # background color.
-  backgroundColor: "背景色"
+  backgroundColor: '背景色'
   # sample text
-  sampleText: "サンプル表示"
+  sampleText: 'サンプル表示'
   # text that indicates currently color is edited
-  editing: "編集中"
+  editing: '編集中'
   # button to edit profile.
-  editButton: "編集"
+  editButton: '編集'
   # button to delete profile,
-  deleteButton: "削除"
+  deleteButton: '削除'
   # button to use this profile.
-  useButton: "この設定を使用"
+  useButton: 'この設定を使用'
   # button label when this is currently used.
-  usedButtonLabel: "使用中"
+  usedButtonLabel: '使用中'
   # button to add a new profile.
-  addButton: "追加"
+  addButton: '追加'
   # new name dialog.
   profileNameDialog:
-    title: "設定を編集"
-    newMessage: "新しい設定の名前を入力してください。"
-    ok: "決定"
-    cancel: "キャンセル"
+    title: '設定を編集'
+    newMessage: '新しい設定の名前を入力してください。'
+    ok: '決定'
+    cancel: 'キャンセル'
   # delete profile dialog.
   deleteProfileDialog:
-    title: "設定の消去"
-    message: "設定「{{name}}」を削除してもよろしいですか？"
-    ok: "削除"
-    cancel: "キャンセル"
+    title: '設定の消去'
+    message: '設定「{{name}}」を削除してもよろしいですか？'
+    ok: '削除'
+    cancel: 'キャンセル'
   # name of each color settings.
   colorSetting:
-    day: "昼の背景色と文字色"
-    night: "夜の背景色と文字色"
-    heaven: "霊界の背景色と文字色"
-    system: "システムログ"
-    nextturn: "ターン進行ログ"
-    audience: "観客の発言"
-    couple: "共有者の会話"
-    fox: "妖狐の会話"
-    gm1: "ゲームマスターの発言1"
-    gm2: "ゲームマスターの発言2"
-    heavenmonologue: "霊界での独り言"
-    half_day: "悪霊憑きの発言（霊界）"
-    helperwhisper: "ヘルパーの発言"
-    hidden: "非公開の情報"
-    inlog: "エンドレス闇鍋時の入室ログ"
-    madcouple: "叫迷狂人の発言"
-    monologue: "独り言"
-    poem: "歌人の歌"
-    probability_table: "量子人狼の確率表"
-    userinfo: "蘇生辞退"
-    skill: "役職の能力"
-    voteto: "投票"
-    werewolf: "人狼の会話"
-    will: "遺言"
+    day: '昼の背景色と文字色'
+    night: '夜の背景色と文字色'
+    heaven: '霊界の背景色と文字色'
+    system: 'システムログ'
+    nextturn: 'ターン進行ログ'
+    audience: '観客の発言'
+    couple: '共有者の会話'
+    fox: '妖狐の会話'
+    gm1: 'ゲームマスターの発言1'
+    gm2: 'ゲームマスターの発言2'
+    heavenmonologue: '霊界での独り言'
+    half_day: '悪霊憑きの発言（霊界）'
+    helperwhisper: 'ヘルパーの発言'
+    hidden: '非公開の情報'
+    inlog: 'エンドレス闇鍋時の入室ログ'
+    madcouple: '叫迷狂人の発言'
+    monologue: '独り言'
+    poem: '歌人の歌'
+    probability_table: '量子人狼の確率表'
+    streaming: '配信者の配信'
+    userinfo: '蘇生辞退'
+    skill: '役職の能力'
+    voteto: '投票'
+    werewolf: '人狼の会話'
+    will: '遺言'
 
 # phone-ui.
 phone:
   # title of phone-ui tab.
-  title: "スマートフォン向け設定"
+  title: 'スマートフォン向け設定'
   # ui for smartphone.
   ui:
-    title: "スマートフォン向け表示"
-    yes: "使用する"
-    no: "使用しない"
+    title: 'スマートフォン向け表示'
+    yes: '使用する'
+    no: '使用しない'
   # font size for smartphones.
   fontSize:
-    title: "文字の大きさ"
-    description: "ゲーム画面の文字の大きさを設定します。"
-    large: "大"
-    normal: "中"
-    small: "小"
-    "very-small": "極小"
+    title: '文字の大きさ'
+    description: 'ゲーム画面の文字の大きさを設定します。'
+    large: '大'
+    normal: '中'
+    small: '小'
+    'very-small': '極小'
   # position of speak form
   speakFormPosition:
-    title: "発言フォームの位置"
-    description: "ゲーム画面の発言フォームの位置を設定します。"
-    normal: "通常"
-    fixed: "下に固定"
-
-
-
+    title: '発言フォームの位置'
+    description: 'ゲーム画面の発言フォームの位置を設定します。'
+    normal: '通常'
+    fixed: '下に固定'
