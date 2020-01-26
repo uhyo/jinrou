@@ -6,6 +6,7 @@ import { IRoleDescDialog } from '../defs';
 import { Dialog } from './base';
 import { NoButton } from './parts';
 import { I18n } from '../../i18n';
+import styled from '../../util/styled';
 
 export interface IPropRoleDescDialog extends IRoleDescDialog {
   onClose(): void;
@@ -40,7 +41,7 @@ export class RoleDescDialog extends React.PureComponent<
                 <NoButton onClick={this.handleClick}>{close}</NoButton>
               )}
               contents={() => (
-                <article
+                <RoleDescContent
                   dangerouslySetInnerHTML={{ __html: renderContent() }}
                 />
               )}
@@ -61,3 +62,9 @@ export class RoleDescDialog extends React.PureComponent<
     this.props.onClose();
   }
 }
+
+const RoleDescContent = styled.article`
+  p {
+    margin: 0.4em 0;
+  }
+`;

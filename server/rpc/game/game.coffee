@@ -10171,8 +10171,8 @@ class Streamer extends Player
             pl.transferData newpl
             pl.transform game, newpl, true
             # choose Listeners
-            listenerNumber = Math.floor(game.players.length / 5)
-            alives = game.players.filter (pl)-> !pl.dead
+            listenerNumber = Math.floor(game.players.length / 4)
+            alives = game.players.filter (pl)=> !pl.dead && !pl.scapegoat && pl.id != @id
             listeners = (shuffle alives).slice 0, listenerNumber
 
             for ls in listeners
