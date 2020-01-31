@@ -19,7 +19,7 @@ i18n = libi18n.getWithDefaultNS "game"
 # 身代わりセーフティありのときの除外役職一覧
 SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # jobs that not welcome while rebirth
-REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker"]
+REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf"]
 # 占い結果すぐに分かるを無効化する役職
@@ -12422,6 +12422,7 @@ module.exports.actions=(req,res,ss)->
                     "GotChocolate",
                     "HooliganAttacker",
                     "HooliganGuard",
+                    "Listener",
                 ]
                 exceptions.push special_exceptions...
                 # ユーザーが指定した入れないの
