@@ -11,7 +11,7 @@ class Graph
         @canvas.style.float="left"
         @area.style.clear="both"
         @area.appendChild @canvas
-        
+
         @data=null
     setData:(@data)->
 
@@ -62,9 +62,9 @@ class CircleGraph extends Graph
                 else
                     vals?.push name
                     su+=value
-                    
+
             su
-                
+
         @vals=[]
         @sum=chk @data,@vals
         #大きい順にsort
@@ -90,7 +90,7 @@ class CircleGraph extends Graph
                 title = document.createElement 'div'
                 title.classList.add 'graph-item-title'
                 control = document.createElement 'span'
-                control.classList.add 'graph-item-control' 
+                control.classList.add 'graph-item-control'
                 iconName = null
 
                 if typeof data[_name] == "object"
@@ -103,11 +103,11 @@ class CircleGraph extends Graph
                 square = FontAwesome.icon({iconName: iconName}, {
                     classes: ['fa-fw']
                 }).node[0]
-                control.style.color = names[_name].color ? "#cccccc"
+                control.style.color = names[_name]?.color ? "#cccccc"
                 control.appendChild square
 
                 title.appendChild control
-                title.appendChild document.createTextNode "#{names[_name].name} #{thissum} (#{(thissum/@sum*100).toPrecision(2)}%)"
+                title.appendChild document.createTextNode "#{names[_name]?.name ? ""} #{thissum} (#{(thissum/@sum*100).toPrecision(2)}%)"
                 li.appendChild title
                 child = datatable data[_name], name, names[_name]
                 li.appendChild child
@@ -146,21 +146,21 @@ class CircleGraph extends Graph
                 if typeof name=="object"
                     _name=name.name #valsのオブジェクトにはname
                 rad=Math.PI*2*@getsum(data[_name])/@sum*@circ
-            
+
                 ctx.beginPath()
                 # 外側の弧
                 ctx.arc tx,ty,r*dp/@depth,start+startangle,start+rad+startangle,false
                 # 内側の弧
                 ctx.arc tx,ty,r*(dp-1)/@depth,start+rad+startangle,start+startangle,true
                 ctx.closePath()
-                ctx.fillStyle=names[_name].color ? "#cccccc"
+                ctx.fillStyle=names[_name]?.color ? "#cccccc"
                 ctx.fill()
                 if typeof name=="object"
                     # 子供たち
                     onepart data[_name],name,names[_name],start,dp+1
                 start+=rad  #描画した
-            
-                
+
+
         onepart @data,@vals,@names,0
 
         ctx.restore()
@@ -171,10 +171,10 @@ class CircleGraph extends Graph
         for name,value of data
             sum+=@getsum value
         sum
-        
-            
-        
-        
-            
+
+
+
+
+
 
 exports.circleGraph=(size)->new CircleGraph size
