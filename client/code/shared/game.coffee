@@ -840,6 +840,8 @@ exports.jobinfo=
             color:"#917663"
         Streamer:
             color:"#c4302b"
+        Listener:
+            color:"#eefeff"
 
     Werewolf:
         color:"#DD0000"
