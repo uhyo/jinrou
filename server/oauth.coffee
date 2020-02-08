@@ -1,3 +1,4 @@
+request = require "request"
 # OAuth twitter client
 
 Twitter = require 'twitter'
@@ -48,20 +49,33 @@ tweet=(message, pass)->
     return unless pass == Config.admin.password
     return if rateLimits.isSuspended 'tweet'
     
-    twit.post 'statuses/update', {
-        status: message
-        trim_user: 'true'
-    }, (err, data, raw)->
-        if err?
-            unless Array.isArray(err)
-                console.error 'tweet:', err
-            rateLimits.examineError 'tweet', err, raw
-        if data?
-            console.log 'tweet:', data
+    if Config.twitter.enable
+        twit.post 'statuses/update', {
+            status: message
+            trim_user: 'true'
+        }, (err, data, raw)->
+            if err?
+                unless Array.isArray(err)
+                    console.error 'tweet:', err
+                rateLimits.examineError 'tweet', err, raw
+            if data?
+                console.log 'tweet:', data
+    if Config.weibo.enable
+        target = "https://api.weibo.com/2/statuses/share.json"
+        if message.match(Config.application.url) == null
+            message += "#{Config.application.url}"
+        opt = 
+            url: target
+            form:
+                access_token:Config.weibo.oauth.access_token
+                status: message
+        #console.log opt
+        request.post opt,(err,httpResponse,body)->
+            #console.log JSON.parse body
 
 exports.tweet=tweet
 exports.template=(roomid,message,pass)->
-        tweet "#{message} \u2013 #{Config.application.url}room/#{roomid}",pass
+    tweet "#{message} \u2013 #{Config.application.url}room/#{roomid}",pass
         
 exports.getTwitterIcon=(id,cb)->
     # This API is currently not available.

@@ -71,6 +71,7 @@ module.exports =
 
   twitter:
     # twitter提携用
+    enable:true
     oauth:
       # twitterアプリケーションの何か
       consumerKey:"******"
@@ -78,6 +79,15 @@ module.exports =
       # botアカウントのアクセストークン
       accessToken:"******"
       accessTokenSecret:"******"
+  weibo:
+    enable:false
+    oauth:
+      # this access_token expires after 5 years.
+      access_token:"******"
+      # followings are not used right now
+      appkey:"******"
+      secret:"******"
+      oauth_callback_url:"your callback url"
   smtpConfig:
     host: "smtp.yourserver.com"
     port: 465 # use SSL, port without SSL is often 25
