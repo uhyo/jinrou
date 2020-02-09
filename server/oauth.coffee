@@ -69,9 +69,10 @@ tweet=(message, pass)->
             form:
                 access_token:Config.weibo.oauth.access_token
                 status: message
-        #console.log opt
-        request.post opt,(err,httpResponse,body)->
-            #console.log JSON.parse body
+        request.post opt,(err,raw,body)->
+            body = JSON.parse body
+            if body.error != undefined
+                console.error 'weibo',body
 
 exports.tweet=tweet
 exports.template=(roomid,message,pass)->
