@@ -10281,6 +10281,11 @@ class QueenOfNight extends Madman
                 pl.transProfile newpl
                 newpl.cmplFlag=@id # 魅了元
                 pl.transform game,newpl,true
+                log=
+                    mode:"hidden"
+                    to:-1
+                    comment: game.i18n.t "roles:QueenOfNight.fascinatePlayer", {name: @name, target: pl.name}
+                splashlog game.id,game,log
 
 # ============================
 # 処理上便宜的に使用
