@@ -908,7 +908,7 @@ Streamer:
   retire: '{{name}}は視聴者がいなくなり引退して{{job}}になりました。'
 
 QueenOfNight:
-  FascinatePlayer: '{{target}}により{{name}}の心は搔き乱されました。'
+  FascinatePlayer: '{{name}}により{{target}}の心は搔き乱されました。'
 
 GameMaster:
   # Failed to revive.
