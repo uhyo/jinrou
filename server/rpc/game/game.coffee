@@ -10284,7 +10284,7 @@ class QueenOfNight extends Madman
                 log=
                     mode:"hidden"
                     to:-1
-                    comment: game.i18n.t "roles:QueenOfNight.fascinatePlayer", {name: @name, target: pl.name}
+                    comment: game.i18n.t "roles:QueenOfNight.FascinatePlayer", {name: @name, target: pl.name}
                 splashlog game.id,game,log
 
 # ============================
