@@ -144,6 +144,7 @@ jobname:
   Reindeer: 'トナカイ'
   Streamer: '配信者'
   Listener: '視聴者'
+  Tarzan: '野生児'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -903,6 +904,10 @@ Streamer:
   becomeListener: '{{name}}は{{target}}の視聴者になりました。'
   getJob: '{{name}}は今夜は{{job}}をやってみることにしました。'
   retire: '{{name}}は視聴者がいなくなり引退して{{job}}になりました。'
+
+Tarzan:
+  # Result of skill.
+  result: '{{name}}は{{count}}人の人狼の気配を感じた。'
 
 GameMaster:
   # Failed to revive.
