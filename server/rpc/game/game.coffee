@@ -10233,6 +10233,18 @@ class Listener extends Player
             # 配信者でなくなったので視聴をやめる
             @uncomplex game
 
+class Tarzan extends Player
+    type: "Tarzan"
+    sunrise:(game)->
+        super
+        wolves = game.players.filter (x)-> !x.dead && x.isWerewolf()
+        num = wolves.length
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Tarzan.result", {name: @name, count: num}
+        splashlog game.id, game, log
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12048,6 +12060,7 @@ jobs=
     Reindeer:Reindeer
     Streamer:Streamer
     Listener:Listener
+    Tarzan:Tarzan
 
     # 特殊
     GameMaster:GameMaster
@@ -12238,6 +12251,7 @@ jobStrength=
     Fate:6
     Synesthete:11
     Reindeer:7
+    Tarzan:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
