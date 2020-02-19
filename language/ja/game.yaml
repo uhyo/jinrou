@@ -265,6 +265,7 @@ foundDetail:
   elemental: "暴走した精霊の力"
   sacrifice: "生贄"
   santasuicide: "サンタクロースの後追い自殺"
+  fascinatesuicide: "月下美人による後追い自殺"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
