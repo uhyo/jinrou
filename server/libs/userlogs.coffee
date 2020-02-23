@@ -41,6 +41,10 @@ exports.addGameLogs = (game, cb)->
     timestamp = new Date
     # まずユーザーの勝敗ログ
     for pl in game.participants
+        if pl.originalType == "Watching"
+            # まだエンドレス闇鍋に参加前なので戦績にカウントしない
+            # #650
+            continue
         subtype =
             if pl.originalType == "GameMaster"
                 "gm"
