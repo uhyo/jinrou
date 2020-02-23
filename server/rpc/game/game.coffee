@@ -11230,7 +11230,8 @@ class PhantomStolen extends Complex
     getVisibilityQuery:(game)->
         Human::getVisibilityQuery.call this, game
     dying:(game,found)->
-    voted:(game, votingbox)-> Player.prototype.voted.call this, game, votingbox
+    # Neetの能力は特例的に存続 (#653)
+    # voted:(game, votingbox)-> Player.prototype.voted.call this, game, votingbox
     voteafter:->
     makejobinfo:(game,obj)->
         super
