@@ -913,7 +913,7 @@ QueenOfNight:
 
 Tarzan:
   # Result of skill.
-  result: '{{name}}は{{count}}人の人狼の気配を感じた。'
+  result: '{{name}}は{{count}}人の人狼の気配を感じました。'
 
 GameMaster:
   # Failed to revive.
