@@ -145,6 +145,7 @@ jobname:
   Streamer: '配信者'
   Listener: '視聴者'
   QueenOfNight: '月下美人'
+  Tarzan: '野生児'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -909,6 +910,10 @@ Streamer:
 
 QueenOfNight:
   FascinatePlayer: '{{name}}により{{target}}の心は搔き乱されました。'
+
+Tarzan:
+  # Result of skill.
+  result: '{{name}}は{{count}}人の人狼の気配を感じました。'
 
 GameMaster:
   # Failed to revive.

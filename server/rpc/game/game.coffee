@@ -10287,6 +10287,18 @@ class QueenOfNight extends Madman
                     comment: game.i18n.t "roles:QueenOfNight.FascinatePlayer", {name: @name, target: pl.name}
                 splashlog game.id,game,log
 
+class Tarzan extends Player
+    type: "Tarzan"
+    sunrise:(game)->
+        super
+        wolves = game.players.filter (x)-> !x.dead && x.isWerewolf()
+        num = wolves.length
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Tarzan.result", {name: @name, count: num}
+        splashlog game.id, game, log
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12115,6 +12127,7 @@ jobs=
     Streamer:Streamer
     Listener:Listener
     QueenOfNight:QueenOfNight
+    Tarzan:Tarzan
 
     # 特殊
     GameMaster:GameMaster
@@ -12308,6 +12321,7 @@ jobStrength=
     Reindeer:7
     Streamer:25
     QueenOfNight:20
+    Tarzan:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
