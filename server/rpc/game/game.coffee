@@ -10299,6 +10299,14 @@ class Tarzan extends Player
             comment: game.i18n.t "roles:Tarzan.result", {name: @name, count: num}
         splashlog game.id, game, log
 
+class CurseWolf extends Werewolf
+    type: "CurseWolf"
+    divined:(game,player)->
+        super
+        pl=game.getPlayer player.id
+        pl.die game, "curse", @id
+        @addGamelog game,"cursekill",null,pl.id
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12128,6 +12136,7 @@ jobs=
     Listener:Listener
     QueenOfNight:QueenOfNight
     Tarzan:Tarzan
+    CurseWolf:CurseWolf
 
     # 特殊
     GameMaster:GameMaster
@@ -12322,6 +12331,7 @@ jobStrength=
     Streamer:25
     QueenOfNight:20
     Tarzan:15
+    CurseWolf:60
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
