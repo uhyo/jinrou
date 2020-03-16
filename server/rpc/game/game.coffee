@@ -11744,6 +11744,7 @@ class StreamerTrial extends Complex
 class Fascinated extends Complex
     cmplType:"Fascinated"
     beforebury:(game,type,deads)->
+        super
         unless @dead
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
