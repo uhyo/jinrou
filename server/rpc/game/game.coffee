@@ -10299,6 +10299,20 @@ class Tarzan extends Player
             comment: game.i18n.t "roles:Tarzan.result", {name: @name, count: num}
         splashlog game.id, game, log
 
+class Hitokotonushinokami extends Diviner
+    type:"Hitokotonushinokami"
+    divineeffect:(game)->
+        p=game.getPlayer game.skillTargetHook.get @target
+        if p?
+            # 痛恨は重複させない
+            if !p.isCmplType("FatalStrike")
+                newpl=Player.factory null, game, p,null,FatalStrike
+                p.transProfile newpl
+                newpl.cmplFlag=@id
+                p.transform game,newpl,true
+            # 痛恨付与後に占いを実施
+            p.divined game,this
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11749,6 +11763,19 @@ class Fascinated extends Complex
             if pl? && pl.dead
                 @die game, "fascinatesuicide"
 
+# 痛恨の一撃
+class FatalStrike extends Complex
+    cmplType:"FatalStrike"
+    modifyMyVote:(game, vote)->
+        if @sub?
+            vote = @sub.modifyMyVote game, vote
+        vote = @mcall game, @main.modifyMyVote, game, vote
+
+        me = game.getPlayer @id
+        # 自分への投票を稀に100票増やす
+        if  Math.random()<0.05 && !me.isCmplType("VoteGuarded")
+            vote.votes = vote.votes + 100
+        vote
 
 # 決定者
 class Decider extends Complex
@@ -12128,6 +12155,7 @@ jobs=
     Listener:Listener
     QueenOfNight:QueenOfNight
     Tarzan:Tarzan
+    Hitokotonushinokami:Hitokotonushinokami
 
     # 特殊
     GameMaster:GameMaster
@@ -12179,6 +12207,7 @@ complexes=
     SpentVotesForGacha:SpentVotesForGacha
     StreamerTrial:StreamerTrial
     Fascinated:Fascinated
+    FatalStrike:FatalStrike
 
     # 役職ごとの強さ
 jobStrength=
@@ -12322,6 +12351,7 @@ jobStrength=
     Streamer:25
     QueenOfNight:20
     Tarzan:15
+    Hitokotonushinokami:28
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
