@@ -11775,6 +11775,7 @@ class FatalStrike extends Complex
         # 自分への投票を稀に100票増やす
         if  Math.random()<0.05 && !me.isCmplType("VoteGuarded")
             vote.votes = vote.votes + 100
+            @addGamelog game, "fatalstrike"
         vote
 
 # 決定者
