@@ -10305,7 +10305,7 @@ class Hitokotonushinokami extends Diviner
         p=game.getPlayer game.skillTargetHook.get @target
         if p?
             # 痛恨は重複させない
-            if !p.isCmplType("FatalStrike")
+            if !p.isCmplType("FatalStrike") && !p.isJobType("AbsoluteWolf")
                 newpl=Player.factory null, game, p,null,FatalStrike
                 p.transProfile newpl
                 newpl.cmplFlag=@id
