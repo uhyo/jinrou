@@ -2931,11 +2931,14 @@ class VotingBox
                 o.voteto=obj.to.id  # 投票先情報を付け加える
             table.push o
         for pl in alives
-            vote = gots[pl.id]
-            if vote?
-                vote = pl.modifyMyVote @game, vote
-                gots[pl.id] = vote
-                tos[pl.id] = vote.votes
+            vote = gots[pl.id] ? {
+                votes:0
+                priority:0
+            }
+            vote = pl.modifyMyVote @game, vote
+            if vote.votes > 0 || gots[pl.id]
+                 gots[pl.id] = vote
+                 tos[pl.id] = vote.votes
 
         # 獲得票数が少ない順に並べる
         cands=Object.keys(gots).sort (a,b)=>
