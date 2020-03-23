@@ -110,6 +110,7 @@ messages:
   Elementaler: '護衛する相手を選択してください'
   Sacrifice: '守る相手を選択してください'
   Synesthete: '色を見る相手を選択してください'
+  Hitokotonushinokami: '占う相手を選択してください'
   GameMaster: 'GM用コマンド'
 
 # Texts for GameMaster form.
