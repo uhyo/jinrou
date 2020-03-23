@@ -10302,6 +10302,14 @@ class Tarzan extends Player
             comment: game.i18n.t "roles:Tarzan.result", {name: @name, count: num}
         splashlog game.id, game, log
 
+class CurseWolf extends Werewolf
+    type: "CurseWolf"
+    divined:(game,player)->
+        super
+        pl=game.getPlayer player.id
+        pl.die game, "curse", @id
+        @addGamelog game,"cursekill",null,pl.id
+
 class Hitokotonushinokami extends Diviner
     type:"Hitokotonushinokami"
     divineeffect:(game)->
@@ -11761,6 +11769,7 @@ class StreamerTrial extends Complex
 class Fascinated extends Complex
     cmplType:"Fascinated"
     beforebury:(game,type,deads)->
+        super
         unless @dead
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
@@ -12160,6 +12169,7 @@ jobs=
     Listener:Listener
     QueenOfNight:QueenOfNight
     Tarzan:Tarzan
+    CurseWolf:CurseWolf
     Hitokotonushinokami:Hitokotonushinokami
 
     # 特殊
@@ -12356,6 +12366,7 @@ jobStrength=
     Streamer:25
     QueenOfNight:20
     Tarzan:15
+    CurseWolf:60
     Hitokotonushinokami:28
 
 module.exports.actions=(req,res,ss)->
