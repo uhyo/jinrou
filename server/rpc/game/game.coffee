@@ -1361,7 +1361,7 @@ class Game
                     if @rule.scapegoat=="on" && @day==1 && player.isWerewolf() && player.isAttacker()
                         # 身代わり襲撃は例外的にtrue
                         @ninja_data[player.id] = true
-                    if @rule.firstnightdivine == "auto" && @day == 1 && (player.isJobType("Diviner") || player.isJobType("Satori"))
+                    if @rule.firstnightdivine == "auto" && @day == 1 && (player.isJobType("Diviner") || player.isJobType("Satori") || player.isJobType("Hitokotonushinokami"))
                         # 初日白通知ありの占い師・サトリもtrue
                         @ninja_data[player.id] = true
         else
@@ -2931,11 +2931,14 @@ class VotingBox
                 o.voteto=obj.to.id  # 投票先情報を付け加える
             table.push o
         for pl in alives
-            vote = gots[pl.id]
-            if vote?
-                vote = pl.modifyMyVote @game, vote
-                gots[pl.id] = vote
-                tos[pl.id] = vote.votes
+            vote = gots[pl.id] ? {
+                votes:0
+                priority:0
+            }
+            vote = pl.modifyMyVote @game, vote
+            if vote.votes > 0 || gots[pl.id]
+                 gots[pl.id] = vote
+                 tos[pl.id] = vote.votes
 
         # 獲得票数が少ない順に並べる
         cands=Object.keys(gots).sort (a,b)=>
@@ -3759,7 +3762,7 @@ class Diviner extends Player
         # 占い対象
         targets = game.players.filter (x)->!x.dead
 
-        if @type == "Diviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
+        if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
             targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox")
             if targets2.length > 0
@@ -10307,6 +10310,20 @@ class CurseWolf extends Werewolf
         pl.die game, "curse", @id
         @addGamelog game,"cursekill",null,pl.id
 
+class Hitokotonushinokami extends Diviner
+    type:"Hitokotonushinokami"
+    divineeffect:(game)->
+        p=game.getPlayer game.skillTargetHook.get @target
+        if p?
+            # 痛恨は重複させない
+            if !p.isCmplType("FatalStrike") && !p.isJobType("AbsoluteWolf")
+                newpl=Player.factory null, game, p,null,FatalStrike
+                p.transProfile newpl
+                newpl.cmplFlag=@id
+                p.transform game,newpl,true
+            # 痛恨付与後に占いを実施
+            p.divined game,this
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11758,6 +11775,21 @@ class Fascinated extends Complex
             if pl? && pl.dead
                 @die game, "fascinatesuicide"
 
+# 痛恨の一撃
+class FatalStrike extends Complex
+    cmplType:"FatalStrike"
+    modifyMyVote:(game, vote)->
+        if @sub?
+            vote = @sub.modifyMyVote game, vote
+        vote = @mcall game, @main.modifyMyVote, game, vote
+
+        me = game.getPlayer @id
+        # 自分への投票を稀に100票増やす
+        if  Math.random()<0.05 && !me.isCmplType("VoteGuarded")
+            vote.votes = vote.votes + 100
+            kami = game.getPlayer @cmplFlag
+            kami.addGamelog game, "fatastrike", null, @id
+        vote
 
 # 決定者
 class Decider extends Complex
@@ -12138,6 +12170,7 @@ jobs=
     QueenOfNight:QueenOfNight
     Tarzan:Tarzan
     CurseWolf:CurseWolf
+    Hitokotonushinokami:Hitokotonushinokami
 
     # 特殊
     GameMaster:GameMaster
@@ -12189,6 +12222,7 @@ complexes=
     SpentVotesForGacha:SpentVotesForGacha
     StreamerTrial:StreamerTrial
     Fascinated:Fascinated
+    FatalStrike:FatalStrike
 
     # 役職ごとの強さ
 jobStrength=
@@ -12333,6 +12367,7 @@ jobStrength=
     QueenOfNight:20
     Tarzan:15
     CurseWolf:60
+    Hitokotonushinokami:28
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
