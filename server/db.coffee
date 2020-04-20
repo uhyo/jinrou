@@ -7,11 +7,11 @@ dbinit= (loaded)->
             throw err
         global.DB=db
         global.M={}	# collections
-        
+
         cols_count= (->
           count=0
           return (cb)->
-            if ++count>=10
+            if ++count>=9
               console.log "Mongodb Connected"
               # ゲームデータ読み込みをしてもらう
               #SS.server.game.game.loadDB()
@@ -78,17 +78,6 @@ dbinit= (loaded)->
           M.userlogs=col
           col.ensureIndex {"userid":1}, {unique: true}, (err,idxname)->
             cols_count()
-        DB.collection "logs", (err,col)->
-          if err?
-              console.log err
-              throw err
-          M.logs=col
-          col.ensureIndex {"timestamp": 1},(err,idxname)->
-            col.ensureIndex {"userid":1, "timestamp":1},(err,idxname)->
-              col.ensureIndex {"ip":1, "timestamp":1},(err,idxname)->
-                col.ensureIndex {"type":1, "timestamp":1},(err,idxname)->
-                  col.ensureIndex {"ip":1, "type":1, "timestamp":1}, (err,idxname)->
-                    cols_count()
         DB.collection "userrawlogs", (err,col)->
           if err?
             console.log err
@@ -110,3 +99,15 @@ dbinit= (loaded)->
 
 exports.dbinit=dbinit
 
+exports.getLogCollection = (collName, callback)->
+  DB.collection collName, (err,col)->
+    if err?
+      console.log err
+      callback err
+      return
+    col.ensureIndex {"timestamp": 1},(err,idxname)->
+      col.ensureIndex {"userid":1, "timestamp":1},(err,idxname)->
+        col.ensureIndex {"ip":1, "timestamp":1},(err,idxname)->
+          col.ensureIndex {"type":1, "timestamp":1},(err,idxname)->
+            col.ensureIndex {"ip":1, "type":1, "timestamp":1}, (err,idxname)->
+              callback null, col
