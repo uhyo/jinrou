@@ -132,6 +132,9 @@ module.exports =
       # style of poem (number of characters per line)
       poemStyle: [5, 7, 5]
   # Experimental feature: logging (boolean)
+  # logging:
+  #   enabled: true
+  #   rotate: true
   logging: false
   # Language Settings
   language:

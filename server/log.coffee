@@ -1,4 +1,5 @@
 # logging feature
+db = require './db'
 
 ###
 # speaklog =
@@ -35,13 +36,35 @@
 #     timestamp: number
 ###
 
+# both accept "logging: true" and "logging: { enabled: true }"
+isLogEnabled = Config.logging == true || !!Config.logging?.enabled
+logCollection = undefined
+
 saveInLogs = (log)->
-    M.logs.insert log
+    time = new Date log.timestamp
+    # for easier log rotation, log collection name changes every month
+    collName = if Config.logging?.rotate
+        "logs_#{time.getFullYear()}_#{time.getMonth()+1}"
+    else
+        "logs"
+
+    if !logCollection || logCollection.name != collName
+        logCollection = {
+            name: collName
+            coll: new Promise (resolve, reject)->
+                db.getLogCollection collName, (err, col)->
+                    if err?
+                        reject err
+                        return
+                    resolve col
+        }
+
+    logCollection.coll.then((col) -> col.insert log)
 
 
 # speak in room log
 exports.speakInRoom = (roomid, log, user)->
-    return unless Config.logging
+    return unless isLogEnabled
     return unless log?
     return unless user?
     log =
@@ -58,7 +81,7 @@ exports.speakInRoom = (roomid, log, user)->
 
 # speak in lobby
 exports.speakInLobby = (user, log)->
-    return unless Config.logging
+    return unless isLogEnabled
     return unless user?
     return unless log?
     log =
@@ -73,7 +96,7 @@ exports.speakInLobby = (user, log)->
 
 # login
 exports.login = (user)->
-    return unless Config.logging
+    return unless isLogEnabled
     return unless user?
     log =
         type: "login"
@@ -85,7 +108,7 @@ exports.login = (user)->
 
 # make room
 exports.makeroom = (user, room)->
-    return unless Config.logging
+    return unless isLogEnabled
     return unless user?
     return unless room?
     log =
