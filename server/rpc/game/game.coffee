@@ -10324,6 +10324,23 @@ class Hitokotonushinokami extends Diviner
             # 痛恨付与後に占いを実施
             p.divined game,this
 
+class RemoteWorker extends Player
+    type: "RemoteWorker"
+    humanCount:-> 0
+    hasDeadResistance:->true
+    checkDeathResistance:(game, found)->
+        if found=="punish" && !@flag?
+            # 処刑された
+            log=
+                mode:"system"
+                comment: game.i18n.t "roles:RemoteWorker.cancel", {name: @name, jobname: @jobname}
+            splashlog game.id,game,log
+            @addGamelog game,"remoteWorkerCO"
+            return true
+        else
+            return false
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12171,6 +12188,7 @@ jobs=
     Tarzan:Tarzan
     CurseWolf:CurseWolf
     Hitokotonushinokami:Hitokotonushinokami
+    RemoteWorker:RemoteWorker
 
     # 特殊
     GameMaster:GameMaster
@@ -12368,6 +12386,7 @@ jobStrength=
     Tarzan:15
     CurseWolf:60
     Hitokotonushinokami:28
+    RemoteWorker:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
