@@ -10331,7 +10331,7 @@ class RemoteWorker extends Player
     checkDeathResistance:(game, found)->
         # 村人陣営のときは処刑無効化
         me = game.getPlayer @id
-        if me.getTeam() != "Human"
+        if me.getTeam() != "Human" || me.isWerewolf()
             return false
         if found=="punish" && !@flag?
             # 処刑された
