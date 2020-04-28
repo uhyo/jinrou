@@ -21,7 +21,7 @@ SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # jobs that not welcome while rebirth
 REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener"]
 # 冒涜者によって冒涜されない役職
-BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf"]
+BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
 DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
 
@@ -10331,7 +10331,7 @@ class RemoteWorker extends Player
     checkDeathResistance:(game, found)->
         # 村人陣営のときは処刑無効化
         me = game.getPlayer @id
-        if me.getTeam() != "Human"
+        if me.getTeam() != "Human" || me.isWerewolf()
             return false
         if found=="punish" && !@flag?
             # 処刑された
