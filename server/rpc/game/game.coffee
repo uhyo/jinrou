@@ -12980,6 +12980,7 @@ module.exports.actions=(req,res,ss)->
                             joblist[selected]++
                             frees--
                 ((date)->
+                    year=date.getFullYear()
                     month=date.getMonth()
                     d=date.getDate()
                     # 期間機率提升
@@ -13095,7 +13096,13 @@ module.exports.actions=(req,res,ss)->
                     else
                         if Math.random()<0.15
                             exceptions.push "HomeComer"
-
+                    if year == 2020 && month == 4
+                        # 2020年5月: ざいたく
+                        # if Math.random() < 0.11 && frees > 0 && !nonavs.RemoteWorker
+                        if Math.random() < 1.11 && frees > 0 && !nonavs.RemoteWorker
+                            joblist.RemoteWorker ?= 0
+                            joblist.RemoteWOrker++
+                            frees--
                 )(new Date)
 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)

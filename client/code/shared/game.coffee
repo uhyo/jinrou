@@ -132,7 +132,7 @@ exports.gachaData =
         "TinyGhost", "Twin"]
     2: ["Diviner", "Psychic", "Guard", "Magician", "ToughGuy", "ApprenticeSeer",
         "Diseased", "Dog", "SeersMama", "DrawGirl", "Cosplayer","Reindeer", "Tarzan",
-        "RemoteWorker"
+        "RemoteWorker","RemoteWorker","RemoteWorker","RemoteWorker","RemoteWorker"
     ]
     3: ["Fugitive", "Cursed", "Spellcaster", "Prince", "PI", "OccultMania",
         "RedHood", "WanderingGuard", "Phantom", "Pyrotechnist", "Forensic",
