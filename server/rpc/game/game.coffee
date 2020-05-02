@@ -13098,10 +13098,9 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push "HomeComer"
                     if year == 2020 && month == 4
                         # 2020年5月: ざいたく
-                        # if Math.random() < 0.11 && frees > 0 && !nonavs.RemoteWorker
-                        if Math.random() < 1.11 && frees > 0 && !nonavs.RemoteWorker
+                        if Math.random() < 0.11 && frees > 0 && !nonavs.RemoteWorker
                             joblist.RemoteWorker ?= 0
-                            joblist.RemoteWOrker++
+                            joblist.RemoteWorker++
                             frees--
                 )(new Date)
 
