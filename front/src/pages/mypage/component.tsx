@@ -43,9 +43,11 @@ const Campaign: React.FunctionComponent = () => {
   return (
     <div>
       <img
+        style={{
+          maxWidth: '100%',
+        }}
         src="/images/campaign-202005.png"
         width="500"
-        height="302"
         alt="人狼だって、家でがまんしています。"
       />
     </div>
