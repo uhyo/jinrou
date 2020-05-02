@@ -10,6 +10,7 @@ import { SubActiveButton } from '../../../common/forms/button';
 import { IconEdit } from './edit-icon';
 import { showPromptDialog } from '../../../dialog';
 import { ProfileSaveQuery } from '../defs';
+import styled from '../../../util/styled';
 
 export const Profile: React.FunctionComponent<{
   store: Store;
@@ -58,7 +59,7 @@ export const Profile: React.FunctionComponent<{
   };
 
   return (
-    <SectionWrapper>
+    <ProfileWrapper>
       <h2>
         <FontAwesomeIcon icon="user" /> {t('profile.title')}
         <EditButton slim onClick={() => setEditing(true)}>
@@ -115,6 +116,10 @@ export const Profile: React.FunctionComponent<{
           </SaveButtonArea>
         ) : null}
       </EditableInputs>
-    </SectionWrapper>
+    </ProfileWrapper>
   );
 });
+
+const ProfileWrapper = styled(SectionWrapper)`
+  grid-column: 1 / 2;
+`;

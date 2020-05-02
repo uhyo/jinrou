@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useI18n } from '../../i18n/react';
 import { Store } from './store';
-import { AppWrapper } from './elements';
+import { AppWrapper, Header } from './elements';
 import { Profile } from './profile';
 import { ProfileSaveQuery, ChangePasswordQuery } from './defs';
 import { Security } from './security';
@@ -24,7 +24,7 @@ export const MyPage: React.FunctionComponent<Props> = ({
   const t = useI18n('mypage_client');
   return (
     <AppWrapper>
-      <h1>{t('title')}</h1>
+      <Header>{t('title')}</Header>
       <BanAlert store={store} />
       <Profile store={store} onSave={onProfileSave} />
       <Security
@@ -34,6 +34,20 @@ export const MyPage: React.FunctionComponent<Props> = ({
       />
       <News store={store} />
       <Links store={store} />
+      <Campaign />
     </AppWrapper>
+  );
+};
+
+const Campaign: React.FunctionComponent = () => {
+  return (
+    <div>
+      <img
+        src="/images/campaign-202005.png"
+        width="500"
+        height="302"
+        alt="人狼だって、家でがまんしています。"
+      />
+    </div>
   );
 };

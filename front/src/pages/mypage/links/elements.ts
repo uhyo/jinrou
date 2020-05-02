@@ -4,6 +4,7 @@ import { helperTextColor, mediumBorderColor } from '../../../common/color';
 import { phone } from '../../../common/media';
 
 export const LinksWrapper = styled.div`
+  grid-column: 1 / 3;
   display: flex;
   flex-flow: row wrap;
   margin: 0 -0.25em;
