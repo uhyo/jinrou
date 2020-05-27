@@ -925,7 +925,7 @@ RemoteWorker:
 
 IntuitionWolf:
   # Canceled a punishment.
-  guarded: '{{name}}は{{target}}に護衛されていることを直感しました。'
+  guarded: '{{name}}は{{target}}に護衛されたことを直感しました。'
 
 GameMaster:
   # Failed to revive.
