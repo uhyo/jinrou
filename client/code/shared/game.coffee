@@ -936,7 +936,7 @@ exports.jobinfo=
             color:"#f7f8f0"
         CurseWolf:
             color:"#484366"
-        IntuitionWolf
+        IntuitionWolf:
             color:"#fcac07"
 
     Fox:
