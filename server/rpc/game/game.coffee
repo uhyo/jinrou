@@ -10352,7 +10352,7 @@ class IntuitionWolf extends Werewolf
         log=
             mode:"skill"
             to:@id
-            comment: game.i18n.t "roles:IntuitionWolf.guarded", {name: @name, target: pl.id}
+            comment: game.i18n.t "roles:IntuitionWolf.guarded", {name: @name, target: pl.name}
         splashlog game.id,game,log
 
 # ============================
