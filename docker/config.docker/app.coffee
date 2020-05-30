@@ -79,6 +79,8 @@ module.exports =
       # botアカウントのアクセストークン
       accessToken:"******"
       accessTokenSecret:"******"
+  weibo:
+    enable: false
   smtpConfig:
     host: "smtp.yourserver.com"
     port: 465 # use SSL, port without SSL is often 25
@@ -138,3 +140,7 @@ module.exports =
     # If set to true, browsers other than latest ones will use fallback (legacy) build of front-end scripts.
     # If this is set to true, "notSupportedPage" feature is automatically disabled.
     legacyBuilds: process.env.NODE_ENV == 'production'
+  # settings for the share button.
+  shareButton:
+    # set this to true to enable share via Twitter button.
+    twitter: true
