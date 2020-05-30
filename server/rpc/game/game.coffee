@@ -10344,6 +10344,16 @@ class RemoteWorker extends Player
         else
             return false
 
+class IntuitionWolf extends Werewolf
+    type: "IntuitionWolf"
+    whenguarded:(game,player)->
+        super
+        pl=game.getPlayer player.id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:IntuitionWolf.guarded", {name: @name, target: pl.name}
+        splashlog game.id,game,log
 
 # ============================
 # 処理上便宜的に使用
@@ -12193,6 +12203,7 @@ jobs=
     CurseWolf:CurseWolf
     Hitokotonushinokami:Hitokotonushinokami
     RemoteWorker:RemoteWorker
+    IntuitionWolf:IntuitionWolf
 
     # 特殊
     GameMaster:GameMaster
@@ -12391,6 +12402,7 @@ jobStrength=
     CurseWolf:60
     Hitokotonushinokami:28
     RemoteWorker:10
+    IntuitionWolf:50
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
