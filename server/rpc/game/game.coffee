@@ -9983,9 +9983,9 @@ class GachaAddicted extends Player
                 top = game.getPlayer @id
                 newpl = Player.factory null, game, top, null, SpentVotesForGacha
                 newpl.cmplFlag = @flag.spent
-                @transProfile newpl
-                @transferData newpl, true
-                @transform game, newpl, true
+                top.transProfile newpl
+                top.transferData newpl, true
+                top.transform game, newpl, true
     isFormTarget:(jobtype)->
         (jobtype in ["GachaAddicted_Normal", "GachaAddicted_Premium", "GachaAddicted_Commit"]) || super
 
@@ -13800,6 +13800,7 @@ module.exports.actions=(req,res,ss)->
 
         try
             plobj = player.accessByObjid query.objid
+            console.log "plobj", plobj
             unless plobj?
                 res {error: game.i18n.t "common:error.invalidInput"}
                 return
