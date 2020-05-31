@@ -10366,6 +10366,7 @@ class Lorelei extends Player
     type:"Lorelei"
     team:"Lorelei"
     midnightSort:115
+    humanCount:-> 0
     constructor:->
         super
         @setFlag null
@@ -11888,14 +11889,14 @@ class LoreleiFamilia extends Complex
     cmplType:"LoreleiFamilia"
     getTeam:->"Lorelei"
     getTeamDisp:->"Lorelei"
-    getJobname:-> @game.i18n.t "roles:Lorelei.jobname", {jobname: @main.getJobname()}
-    getJobDisp:-> @game.i18n.t "roles:Lorelei.jobname", {jobname: @main.getJobDisp()}
+    getJobname:-> @game.i18n.t "roles:LoreleiFamilia.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:LoreleiFamilia.jobname", {jobname: @main.getJobDisp()}
     isWinner:(game,team)->@getTeam()==team
     makejobinfo:(game,result)->
         @sub?.makejobinfo? game,result
         @main.makejobinfo game,result
         result.desc?.push {
-            name: @game.i18n.t "roles:Lorelei.name"
+            name: @game.i18n.t "roles:LoreleiFamilia.name"
             type:"LoreleiFamilia"
         }
         # ローレライを把握
