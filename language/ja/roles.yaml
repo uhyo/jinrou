@@ -932,7 +932,7 @@ IntuitionWolf:
   guarded: '{{name}}は{{target}}に護衛されたことを直感しました。'
 
 Lorelei:
-  select: '{{name}}はローレライの歌声に魅了された。'
+  select: '{{name}}はローレライの歌声に魅了されました。'
   song: '村に歌声が響き渡りました。'
 
 GameMaster:
