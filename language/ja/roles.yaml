@@ -933,6 +933,7 @@ IntuitionWolf:
 
 Lorelei:
   select: '{{name}}はローレライの歌声に魅了された。'
+  song: '村に歌声が響き渡りました。'
 
 GameMaster:
   # Failed to revive.
