@@ -267,6 +267,7 @@ foundDetail:
   santasuicide: "サンタクロースの後追い自殺"
   fascinatesuicide: "月下美人による後追い自殺"
   lorelei: "怨嗟の歌声"
+  loreleisuicide: "ローレライの後追い自殺"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
