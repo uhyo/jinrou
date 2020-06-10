@@ -1860,7 +1860,7 @@ class Game
                     @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
                     @i18n.t "found.body", {name: x.name}
-                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
@@ -1885,7 +1885,7 @@ class Game
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
-                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide"
+                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
                     "hooligan","dragon","samurai","elemental","sacrifice","lorelei"
@@ -1951,6 +1951,8 @@ class Game
                         "fascinatesuicide"
                     when "lorelei"
                         "lorelei"
+                    when "loreleisuicide"
+                        "loreleisuicide"
                     else
                         null
                 if emma_log?
@@ -10385,6 +10387,7 @@ class Lorelei extends Player
                 newfamilia = pls[i]
                 newpl = Player.factory null, game, newfamilia, null, LoreleiFamilia
                 newfamilia.transProfile newpl
+                newpl.cmplFlag=@id
                 newfamilia.transform game, newpl, true
                 log=
                     mode: "skill"
@@ -10392,6 +10395,11 @@ class Lorelei extends Player
                     comment: game.i18n.t "roles:Lorelei.select", {name: newfamilia.name}
                 splashlog game.id, game, log
             @setFlag "sing"
+    sunset:(game)->
+        gs = game.players.filter (x)-> x.isCmplType "LoreleiFamilia"
+            if gs.length > 0
+                # 既に配役されている
+                @setFlag "done"
     sunrise:(game)->
         if @flag == "sing"
             log=
@@ -10401,23 +10409,24 @@ class Lorelei extends Player
             @setFlag "done"
     dying:(game, found)->
         super
-        # 生存者の中から、隣にいる（一番近しい位置）を殺害！
-        canbedead = game.players.filter (x)=>x.id == @id || !x.dead # 生きている人たちと自分
-        pl = null
-        canbedead.forEach (x,i)=>
-            if x.id == @id
-                if Math.random() <= 0.5
-                    if i==0
-                        pl= canbedead[canbedead.length-1]
+        if @flag != "sing" && @flag != "done"
+            # 生存者の中から、隣にいる（一番近しい位置）を殺害！
+            canbedead = game.players.filter (x)=>x.id == @id || !x.dead # 生きている人たちと自分
+            pl = null
+            canbedead.forEach (x,i)=>
+                if x.id == @id
+                    if Math.random() <= 0.5
+                        if i==0
+                            pl= canbedead[canbedead.length-1]
+                        else
+                            pl= canbedead[i-1]
                     else
-                        pl= canbedead[i-1]
-                else
-                    if i>=canbedead.length-1
-                        pl= canbedead[0]
-                    else
-                        pl= canbedead[i+1]
-        pl.die game, "lorelei", @id
-        @addGamelog game,"loreleikill",null,pl.id
+                        if i>=canbedead.length-1
+                            pl= canbedead[0]
+                        else
+                            pl= canbedead[i+1]
+            pl.die game, "lorelei", @id
+            @addGamelog game,"loreleikill",null,pl.id
 
 # ============================
 # 処理上便宜的に使用
@@ -11905,7 +11914,14 @@ class LoreleiFamilia extends Complex
         result.loreleis = game.players.filter((x)->
             x.isJobType "Lorelei")
             .map (x)-> x.publicinfo()
-        
+    beforebury:(game,type,deads)->
+        unless @dead
+            pl=game.getPlayer @cmplFlag
+            if pl? && pl.dead
+                lo = game.players.filter (x)-> !x.dead && x.isJobType("Lorelei")
+                if lo.length = 0
+                   @die game, "loreleisuicide"
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
