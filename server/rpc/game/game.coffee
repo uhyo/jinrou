@@ -2379,9 +2379,9 @@ class Game
                         else
                             # 恋人バトル
                             team = null
-            # ローレライ判定
-            if alives>0 && aliveps.filter((x)->x.isJobType("Lorelei"))
-                team="Lorelei"
+                # ローレライ判定
+                if alives>0 && aliveps.some((x)->x.isJobType("Lorelei"))
+                    team="Lorelei"
             # ヴァンパイア（吸血勝利）判定
             isVampireWinner = =>
                 # 生存中のドラキュラが存在する必要がある
@@ -14467,4 +14467,3 @@ shuffle= (arr)->
 # ゲーム情報ツイート
 tweet=(roomid,message)->
     Server.oauth.template roomid,message,Config.admin.password
-
