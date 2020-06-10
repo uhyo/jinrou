@@ -10393,11 +10393,12 @@ class Lorelei extends Player
                 splashlog game.id, game, log
             @setFlag "sing"
     sunrise:(game)->
-        if @flag?
+        if @flag == "sing"
             log=
                 mode:"system"
                 comment: game.i18n.t "roles:Lorelei.song"
             splashlog game.id,game,log
+            @setFlag "done"
     dying:(game, found)->
         super
         # 生存者の中から、隣にいる（一番近しい位置）を殺害！
