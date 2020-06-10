@@ -10402,7 +10402,8 @@ class Lorelei extends Player
     dying:(game, found)->
         super
         # 生存者の中から、隣にいる（一番近しい位置）を殺害！
-        canbedead = game.players.filter (x)->!x.dead # 生きている人たち
+        canbedead = game.players.filter (x)=>x.id == @id || !x.dead # 生きている人たちと自分
+        pl = null
         canbedead.forEach (x,i)=>
             if x.id == @id
                 if Math.random() <= 0.5
