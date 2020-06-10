@@ -10371,8 +10371,8 @@ class Lorelei extends Player
         super
         @setFlag null
     midnight:(game,midnightSort)->
-        num = Math.floor(game.players.length - 1) / 4)
-        if game.day >= num && @flag?
+        num = Math.floor((game.players.length - 1) / 4)
+        if game.day >= num && !@flag?
             gs = game.players.filter (x)-> x.isCmplType "LoreleiFamilia"
             if gs.length > 0
                 # 既に配役されている
