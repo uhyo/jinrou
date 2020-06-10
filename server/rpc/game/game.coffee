@@ -10381,7 +10381,7 @@ class Lorelei extends Player
             pls = game.players.filter (x)-> !x.scapegoat && !x.dead && !x.isCmplType("LoreleiFamilia") && !x.isJobType("Lorelei")
             pls = shuffle pls
             # 眷属にする
-            for i in [0 ... 1]
+            for i in [0 .. 1]
                 newfamilia = pls[i]
                 newpl = Player.factory null, game, newfamilia, null, LoreleiFamilia
                 newfamilia.transProfile newpl
