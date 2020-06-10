@@ -10391,7 +10391,7 @@ class Lorelei extends Player
                     to: newfamilia.id
                     comment: game.i18n.t "roles:Lorelei.select", {name: newfamilia.name}
                 splashlog game.id, game, log
-                @setFlag true
+            @setFlag "sing"
     sunrise:(game)->
         if @flag?
             log=
