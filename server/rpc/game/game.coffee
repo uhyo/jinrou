@@ -13326,8 +13326,8 @@ module.exports.actions=(req,res,ss)->
 
                         # 絶対狼はセーフティに関わらず処理を実施する
                         if job == "AbsoluteWolf"
-                            # 人狼系が2以上（この処理で人狼系の数と絶対狼の数が一致することはなくなる）
-                            if countCategory("Werewolf")==0
+                            # 人狼系が2以上且つ人狼数と絶対狼数は一致しないこと
+                            if countCategory("Werewolf")==0 || countCategory("Werewolf") == joblist.AbsoluteWolf
                                 continue
                             # 一匹狼とは共存できない
                             if joblist.LoneWolf>0
