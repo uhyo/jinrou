@@ -11919,7 +11919,7 @@ class LoreleiFamilia extends Complex
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
                 lo = game.players.filter (x)-> !x.dead && x.isJobType("Lorelei")
-                if lo.length = 0
+                if lo.length == 0
                    @die game, "loreleisuicide"
 
 # 決定者
