@@ -10397,9 +10397,9 @@ class Lorelei extends Player
             @setFlag "sing"
     sunset:(game)->
         gs = game.players.filter (x)-> x.isCmplType "LoreleiFamilia"
-            if gs.length > 0
-                # 既に配役されている
-                @setFlag "done"
+        if gs.length > 0
+            # 既に配役されている
+            @setFlag "done"
     sunrise:(game)->
         if @flag == "sing"
             log=
