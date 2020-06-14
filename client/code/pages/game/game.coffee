@@ -294,6 +294,7 @@ exports.start=(roomid)->
                             absolutewolves: obj.absolutewolves
                             santaclauses: obj.santaclauses
                             listenerNumber: obj.listenerNumber
+                            loreleis: obj.loreleis
                         }
                     else
                         null

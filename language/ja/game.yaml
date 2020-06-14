@@ -266,6 +266,8 @@ foundDetail:
   sacrifice: "生贄"
   santasuicide: "サンタクロースの後追い自殺"
   fascinatesuicide: "月下美人による後追い自殺"
+  lorelei: "怨嗟の歌声"
+  loreleisuicide: "ローレライの後追い自殺"
   fallback: "不明"
   situation: "{{name}}の死因は{{detail}}でした。"
 
@@ -284,6 +286,7 @@ judge:
   lonewolf: "人狼は最後の村人を喰い殺すと次の獲物を求めて独り去っていくのだった……"
   raven: "村は鴉に支配されました。"
   hooligan: "村は暴徒によって破壊し尽くされました。"
+  lorelei: "ローレライが村人を魅了し、すべて渦の中に消えていった……"
   draw: "引き分けになりました。"
   scapegoat: "村は身代わりくんに支配されました。"
   # short summary
@@ -298,7 +301,7 @@ judge:
     lonewolf: "一匹狼勝利"
     raven: "鴉勝利"
     hooligan: "暴徒勝利"
-
+    lorelei: "ローレライ勝利"
 
 # Terms for quantum werewolf
 quantum:

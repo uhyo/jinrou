@@ -150,6 +150,7 @@ jobname:
   Hitokotonushinokami: '一言主神'
   RemoteWorker: '在宅者'
   IntuitionWolf: '直感派狼'
+  Lorelei: 'ローレライ'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -177,6 +178,7 @@ teamName:
   Cult: 'カルトリーダー陣営'
   Raven: '鴉陣営'
   Hooligan: '暴徒陣営'
+  Lorelei: 'ローレライ陣営'
   Neet: 'ニート'
   Others: 'その他'
 
@@ -724,6 +726,8 @@ Emma:
     elemental: '{{name}}は暴走した精霊によって殺されたようです。'
     # Sacrifice
     sacrifice: '{{name}}は生贄に捧げられたようです。'
+    # Lorelei
+    lorelei: '{{name}}は怨嗟の歌声に導かれたようです。'
 
 EyesWolf:
   # EyesWolf result strings
@@ -927,6 +931,10 @@ IntuitionWolf:
   # Canceled a punishment.
   guarded: '{{name}}は{{target}}に護衛されたことを直感しました。'
 
+Lorelei:
+  select: '{{name}}はローレライの歌声に魅了されました。'
+  song: '村に歌声が響き渡りました。'
+
 GameMaster:
   # Failed to revive.
   reviveFail: 'プレイヤーを蘇生できませんでした。'
@@ -998,6 +1006,10 @@ FanOfIdol:
   name: 'ファン'
   # message when his idol is dead.
   idolDead: 'アイドルが死亡したショックで{{name}}は今夜能力を使えなくなりました。'
+
+LoreleiFamilia:
+  name: 'ローレライのしもべ'
+  jobname: 'ローレライのしもべ（{{jobname}}）'
 
 Decider:
   jobname: '{{jobname}}（決定者）'

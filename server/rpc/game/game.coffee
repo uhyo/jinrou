@@ -1847,7 +1847,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1860,7 +1860,7 @@ class Game
                     @i18n.t "found.leave", {name: x.name}
                 when "deathnote"
                     @i18n.t "found.body", {name: x.name}
-                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide"
+                when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     @i18n.t "found.suicide", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
@@ -1885,10 +1885,10 @@ class Game
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
-                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide"
+                    "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1949,6 +1949,10 @@ class Game
                         "sacrifice"
                     when "fascinatesuicide"
                         "fascinatesuicide"
+                    when "lorelei"
+                        "lorelei"
+                    when "loreleisuicide"
+                        "loreleisuicide"
                     else
                         null
                 if emma_log?
@@ -2377,6 +2381,9 @@ class Game
                         else
                             # 恋人バトル
                             team = null
+                # ローレライ判定
+                if alives>0 && aliveps.some((x)->x.isJobType("Lorelei"))
+                    team="Lorelei"
             # ヴァンパイア（吸血勝利）判定
             isVampireWinner = =>
                 # 生存中のドラキュラが存在する必要がある
@@ -2490,6 +2497,8 @@ class Game
                     [@i18n.t("judge.lonewolf"),@i18n.t("judge.short.lonewolf")]
                 when "Hooligan"
                     [@i18n.t("judge.hooligan"), @i18n.t("judge.short.hooligan")]
+                when "Lorelei"
+                    [@i18n.t("judge.lorelei"), @i18n.t("judge.short.lorelei")]
                 when "Draw"
                     [@i18n.t("judge.draw"),""]
             # 身代わりくん单独勝利
@@ -10355,6 +10364,70 @@ class IntuitionWolf extends Werewolf
             comment: game.i18n.t "roles:IntuitionWolf.guarded", {name: @name, target: pl.name}
         splashlog game.id,game,log
 
+class Lorelei extends Player
+    type:"Lorelei"
+    team:"Lorelei"
+    midnightSort:115
+    humanCount:-> 0
+    constructor:->
+        super
+        @setFlag null
+    midnight:(game,midnightSort)->
+        num = Math.floor((game.players.length - 1) / 4)
+        if game.day >= num && !@flag?
+            gs = game.players.filter (x)-> x.isCmplType "LoreleiFamilia"
+            if gs.length > 0
+                # 既に配役されている
+                return
+            # 候補
+            pls = game.players.filter (x)-> !x.scapegoat && !x.dead && !x.isCmplType("LoreleiFamilia") && !x.isJobType("Lorelei")
+            pls = shuffle pls
+            # 眷属にする
+            for i in [0 .. 1]
+                newfamilia = pls[i]
+                newpl = Player.factory null, game, newfamilia, null, LoreleiFamilia
+                newfamilia.transProfile newpl
+                newpl.cmplFlag=@id
+                newfamilia.transform game, newpl, true
+                log=
+                    mode: "skill"
+                    to: newfamilia.id
+                    comment: game.i18n.t "roles:Lorelei.select", {name: newfamilia.name}
+                splashlog game.id, game, log
+            @setFlag "sing"
+    sunset:(game)->
+        gs = game.players.filter (x)-> x.isCmplType "LoreleiFamilia"
+        if gs.length > 0
+            # 既に配役されている
+            @setFlag "done"
+    sunrise:(game)->
+        if @flag == "sing"
+            log=
+                mode:"system"
+                comment: game.i18n.t "roles:Lorelei.song"
+            splashlog game.id,game,log
+            @setFlag "done"
+    dying:(game, found)->
+        super
+        if @flag != "sing" && @flag != "done"
+            # 生存者の中から、隣にいる（一番近しい位置）を殺害！
+            canbedead = game.players.filter (x)=>x.id == @id || !x.dead # 生きている人たちと自分
+            pl = null
+            canbedead.forEach (x,i)=>
+                if x.id == @id
+                    if Math.random() <= 0.5
+                        if i==0
+                            pl= canbedead[canbedead.length-1]
+                        else
+                            pl= canbedead[i-1]
+                    else
+                        if i>=canbedead.length-1
+                            pl= canbedead[0]
+                        else
+                            pl= canbedead[i+1]
+            pl.die game, "lorelei", @id
+            @addGamelog game,"loreleikill",null,pl.id
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11822,6 +11895,33 @@ class FatalStrike extends Complex
             kami.addGamelog game, "fatastrike", null, @id
         vote
 
+# ローレライの眷属
+class LoreleiFamilia extends Complex
+    cmplType:"LoreleiFamilia"
+    getTeam:->"Lorelei"
+    getTeamDisp:->"Lorelei"
+    getJobname:-> @game.i18n.t "roles:LoreleiFamilia.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:LoreleiFamilia.jobname", {jobname: @main.getJobDisp()}
+    isWinner:(game,team)->@getTeam()==team
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game,result
+        result.desc?.push {
+            name: @game.i18n.t "roles:LoreleiFamilia.name"
+            type:"LoreleiFamilia"
+        }
+        # ローレライを把握
+        result.loreleis = game.players.filter((x)->
+            x.isJobType "Lorelei")
+            .map (x)-> x.publicinfo()
+    beforebury:(game,type,deads)->
+        unless @dead
+            pl=game.getPlayer @cmplFlag
+            if pl? && pl.dead
+                lo = game.players.filter (x)-> !x.dead && x.isJobType("Lorelei")
+                if lo.length == 0
+                   @die game, "loreleisuicide"
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -11951,6 +12051,8 @@ class Chemical extends Complex
             myt = "Cult"
         else if maint=="Hooligan" || subt=="Hooligan"
             myt = "Hooligan"
+        else if maint=="Lorelei" || subt=="Lorelei"
+            myt = "Lorelei"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
         else if maint=="Raven" || subt=="Raven"
@@ -12204,6 +12306,7 @@ jobs=
     Hitokotonushinokami:Hitokotonushinokami
     RemoteWorker:RemoteWorker
     IntuitionWolf:IntuitionWolf
+    Lorelei:Lorelei
 
     # 特殊
     GameMaster:GameMaster
@@ -12256,6 +12359,7 @@ complexes=
     StreamerTrial:StreamerTrial
     Fascinated:Fascinated
     FatalStrike:FatalStrike
+    LoreleiFamilia:LoreleiFamilia
 
     # 役職ごとの強さ
 jobStrength=
@@ -12403,6 +12507,7 @@ jobStrength=
     Hitokotonushinokami:28
     RemoteWorker:10
     IntuitionWolf:50
+    Lorelei:12
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13340,6 +13445,15 @@ module.exports.actions=(req,res,ss)->
                             # トナカイはサンタ無しで出さない
                             if joblist.SantaClaus == 0
                                 continue
+                        # ローレライ
+                        if job == "Lorelei"
+                            # 人外数調整に組み込む , 13人未満では配役しない
+                            if (safety.jingais && Math.random()<0.4) || playersnumber<13
+                                continue
+                            else
+                                # ローレライは2人以上出さない
+                                possibility = possibility.filter (x)-> x != "Lorelei"
+                                special_exceptions.push "Lorelei"
 
                         joblist[job]++
                         if job == "MadWolf"
@@ -14371,4 +14485,3 @@ shuffle= (arr)->
 # ゲーム情報ツイート
 tweet=(roomid,message)->
     Server.oauth.template roomid,message,Config.admin.password
-
