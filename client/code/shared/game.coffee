@@ -80,15 +80,15 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "SantaClaus","Reindeer",
 "Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
 "DecoyWolf","Hooligan","HomeComer","DragonKnight","Poet","Sacrifice",
-"Synesthete","Streamer","RemoteWorker"
+"Synesthete","Streamer","RemoteWorker","Lorelei"
 ]
 # 隠されていて自分で入れることができない役職
 exports.hiddenJobs = [
-    "Light", "Neet", "MinionSelector", "QuantumPlayer", "HolyProtected"
+    "Light", "Neet", "MinionSelector", "QuantumPlayer", "HolyProtected", "Lorelei"
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei"]
 
 # 黒が出る人
 exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf"]
@@ -104,6 +104,7 @@ exports.teams=teams=
     Cult:["CultLeader"]
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
+    Lorelei:["Lorelei"]
     Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality"],
     Neet:["Neet"]
 
@@ -116,7 +117,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:["Neet"]
@@ -994,6 +995,10 @@ exports.jobinfo=
         color: "#f39800"
         Hooligan:
             color: "#ff5900"
+    Lorelei:
+        color: "#b51b70"
+        Lorelei:
+            color: "#b51b70"
     Others:
         color:"#cccccc"
         Bat:
@@ -1725,6 +1730,9 @@ exports.jobinfos=[
     }
     {
         name:"hooligans"
+    }
+    {
+        name:"loreleis"
     }
 ]
 
