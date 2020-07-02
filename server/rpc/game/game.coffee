@@ -13269,7 +13269,8 @@ module.exports.actions=(req,res,ss)->
                     category = null
                     job = null
                     team = null
-                    while true
+                    sub_counter = 0
+                    while sub_counter++ < 300
                         # 前のループで確保したものが残っていたら返す
                         if category? || team?
                             if category?
