@@ -80,11 +80,11 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "SantaClaus","Reindeer",
 "Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
 "DecoyWolf","Hooligan","HomeComer","DragonKnight","Poet","Sacrifice",
-"Synesthete","Streamer","RemoteWorker","Lorelei"
+"Synesthete","Streamer","RemoteWorker"
 ]
 # 隠されていて自分で入れることができない役職
 exports.hiddenJobs = [
-    "Light", "Neet", "MinionSelector", "QuantumPlayer", "HolyProtected", "Lorelei"
+    "Light", "Neet", "MinionSelector", "QuantumPlayer", "HolyMarked", "Lorelei"
 ]
 
 # 人外
