@@ -106,6 +106,7 @@ jobinfo:
     santaclauses: '仲間のサンタクロースは{{names}}です'
     listenerNumber: '現在の視聴者数は{{number}}人です'
     loreleis: 'ローレライは{{names}}です'
+    gamblerStock: '現在{{number}}票持っています'
 
 # game-view: speak form.
 speak:

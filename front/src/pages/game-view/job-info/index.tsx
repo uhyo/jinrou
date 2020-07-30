@@ -162,6 +162,7 @@ const RoleInfoInner = ({
     quantumwerewolf_number,
     supporting,
     listenerNumber,
+    gamblerStock,
   } = roleInfo;
   return (
     <>
@@ -232,6 +233,15 @@ const RoleInfoInner = ({
           <I18nInterp ns="game_client" k="jobinfo.peers.listenerNumber">
             {{
               number: listenerNumber,
+            }}
+          </I18nInterp>
+        </p>
+      )}
+      {gamblerStock == null ? null : (
+        <p>
+          <I18nInterp ns="game_client" k="jobinfo.peers.gamblerStock">
+            {{
+              number: gamblerStock,
             }}
           </I18nInterp>
         </p>

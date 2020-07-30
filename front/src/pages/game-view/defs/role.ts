@@ -51,6 +51,10 @@ export interface RoleInfo extends RolePeersInfo, RoleOtherPlayerInfo {
    * Info for Streamer: current number of listeners.
    */
   listenerNumber?: number;
+  /**
+   * Info for Gambler: current number of stocked votes.
+   */
+  gamblerStock?: number;
 }
 
 /**

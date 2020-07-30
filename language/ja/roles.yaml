@@ -151,6 +151,7 @@ jobname:
   RemoteWorker: '在宅者'
   IntuitionWolf: '直感派狼'
   Lorelei: 'ローレライ'
+  Gambler: 'ギャンブラー'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -934,6 +935,13 @@ IntuitionWolf:
 Lorelei:
   select: '{{name}}はローレライの歌声に魅了されました。'
   song: '村に歌声が響き渡りました。'
+
+Gambler:
+  form:
+    bet: '賭けに出る'
+    keep: '賭けに出ない'
+  bet: '{{name}}は賭けに出ました。'
+  keep: '{{name}}は賭けに出ませんでした。'
 
 GameMaster:
   # Failed to revive.

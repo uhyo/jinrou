@@ -10428,6 +10428,78 @@ class Lorelei extends Player
             pl.die game, "lorelei", @id
             @addGamelog game,"loreleikill",null,pl.id
 
+class Gambler extends Player
+    type: "Gambler"
+    formType: FormType.optional
+    constructor:->
+        super
+        @setFlag {
+            # number of stocked votes
+            stock: 0
+            # whether to bet on today's vote (boolean | null)
+            bet: null
+        }
+    jobdone:(game)-> @flag.bet? || !Phase.isDay(game.phase)
+    chooseJobDay:(game)-> true
+    makeJobSelection:(game, isvote)->
+        unless isvote
+            return [
+                {
+                    name: game.i18n.t('roles:Gambler.form.keep')
+                    value: "keep"
+                }
+                {
+                    name: game.i18n.t('roles:Gambler.form.bet')
+                    value: "bet"
+                }
+            ]
+        else
+            return super
+    job:(game, playerid, query)->
+        if @flag.bet?
+            return game.i18n.t "error.common.alreadyUsed"
+        unless Phase.isDay(game.phase)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        unless playerid in ["keep", "bet"]
+            return game.i18n.t "error.common.invalidSelection"
+
+        isBet = playerid == "bet"
+        @setFlag {
+            stock: @flag.stock
+            bet: isBet
+        }
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: if isBet
+                game.i18n.t "roles:Gambler.bet", { name: @name }
+            else
+                game.i18n.t "roles:Gambler.keep", { name: @name }
+        splashlog game.id, game, log
+    sunset:(game)->
+        if @flag.bet
+            @setFlag {
+                stock: 0
+                bet: @flag.bet
+            }
+    sunrise:(game)->
+        # 選択状況初期化
+        @setFlag {
+            stock: @flag.stock + 1
+            bet: null
+        }
+    voteafter:(game, target)->
+        super
+        if @flag.bet
+            game.votingbox.votePower this, @flag.stock - 1
+        else
+            game.votingbox.votePower this, -1
+    makejobinfo:(game, result)->
+        super
+        result.gamblerStock = @flag.stock
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12307,6 +12379,7 @@ jobs=
     RemoteWorker:RemoteWorker
     IntuitionWolf:IntuitionWolf
     Lorelei:Lorelei
+    Gambler:Gambler
 
     # 特殊
     GameMaster:GameMaster
@@ -12508,6 +12581,7 @@ jobStrength=
     RemoteWorker:10
     IntuitionWolf:50
     Lorelei:12
+    Gambler:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
