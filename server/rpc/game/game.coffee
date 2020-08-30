@@ -10499,6 +10499,9 @@ class Gambler extends Player
         super
         result.gamblerStock = @flag.stock
 
+class Faker extends Gambler
+    type: "Faker"
+    team: "Werewolf"
 
 # ============================
 # 処理上便宜的に使用
@@ -12380,6 +12383,7 @@ jobs=
     IntuitionWolf:IntuitionWolf
     Lorelei:Lorelei
     Gambler:Gambler
+    Faker:Faker
 
     # 特殊
     GameMaster:GameMaster
