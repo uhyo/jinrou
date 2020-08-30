@@ -10503,6 +10503,26 @@ class Faker extends Gambler
     type: "Faker"
     team: "Werewolf"
 
+class SealWolf extends Werewolf
+    type: "SealWolf"
+    voteafter:(game, target)->
+        super
+        myIndex = game.players.findIndex (pl)=> pl.id == @id
+        left = if myIndex > 0
+            game.players[myIndex - 1]
+        else
+            game.players[game.players.length - 1]
+        right = if myIndex < game.players.length - 1
+            game.players[myIndex + 1]
+        else
+            game.players[0]
+        if left.dead
+            game.votingbox.votePower this, 1
+        if right.dead
+            game.votingbox.votePower this, 1
+
+
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12384,6 +12404,7 @@ jobs=
     Lorelei:Lorelei
     Gambler:Gambler
     Faker:Faker
+    SealWolf:SealWolf
 
     # 特殊
     GameMaster:GameMaster
