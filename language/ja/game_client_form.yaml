@@ -112,6 +112,7 @@ messages:
   Synesthete: '色を見る相手を選択してください'
   Hitokotonushinokami: '占う相手を選択してください'
   Gambler: '賭けに出るかどうか選択してください'
+  Faker: '賭けに出るかどうか選択してください'
   GameMaster: 'GM用コマンド'
 
 # Texts for GameMaster form.
