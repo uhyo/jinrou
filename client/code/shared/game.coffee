@@ -27,7 +27,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Dictator","SeersMama","Trapper","WolfBoy","King",
 # Twitter人狼の役職
 "Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
-# 人狼議事
+# 人狼物語
 "CurseWolf",
 # 人狼物語（瓜科国）
 "MadCouple",
