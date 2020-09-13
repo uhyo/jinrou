@@ -36,7 +36,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人狼物語（薔薇の下国）
 "NightRabbit",
 # 人狼物語（深海国）
-"Fate","QueenOfNight",
+"Fate","QueenOfNight","CynthiaWolf",
 # 人狼物語（三日月国）
 "Tarzan",
 # 天国系の役職
@@ -92,15 +92,15 @@ exports.hiddenJobs = [
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","Trickster"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","CynthiaWolf","Trickster"]
 
 # 黒が出る人
-exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf"]
+exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf"]
 
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
@@ -116,7 +116,7 @@ exports.teams=teams=
 exports.categories=
     Human: teams.Human.filter((x)->
         not (x in ["GotChocolate", "Phantom", "OccultMania", "Cursed", "BloodyMary","Listener"]))
-    Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf"]
+    Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad","Satori","QueenOfNight","Faker"]
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster"]
     Immoral:["Immoral","Blasphemy"]
@@ -950,6 +950,8 @@ exports.jobinfo=
             color:"#8a7458"
         SealWolf:
             color:"#333366"
+        CynthiaWolf:
+            color:"#dc143c"
 
     Fox:
         color:"#934293"

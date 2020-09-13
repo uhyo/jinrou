@@ -154,6 +154,7 @@ jobname:
   Gambler: 'ギャンブラー'
   Faker: 'イカサマ師'
   SealWolf: '印狼'
+  CynthiaWolf: '月狼'
   Trickster: '悪戯妖精'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -946,6 +947,9 @@ Gambler:
   bet: '{{name}}は賭けに出ました。'
   keep: '{{name}}は賭けに出ませんでした。'
 
+CynthiaWolf:
+  affected: '{{target}}は{{name}}の放つ月のオーラに魅せられました。'
+
 Trickster:
   # First select.
   select1: '{{name}}は絆を結ぶ1人目に{{target}}を選びました。'
@@ -1031,6 +1035,12 @@ FanOfIdol:
 LoreleiFamilia:
   name: 'ローレライのしもべ'
   jobname: 'ローレライのしもべ（{{jobname}}）'
+
+MoonPhilia:
+  # name for desc
+  name: '月狂病'
+  # jobname
+  jobname: '月狂病（{{jobname}}）'
 
 Bonds:
   name: '絆'

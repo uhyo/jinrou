@@ -10521,6 +10521,50 @@ class SealWolf extends Werewolf
         if right.dead
             game.votingbox.votePower this, 1
 
+class CynthiaWolf extends Werewolf
+    type:"CynthiaWolf"
+    midnightSort:122
+    constructor:->
+        super
+        @flag="[]"
+    divined:(game,player)->
+        super
+        # リストに追加する
+        fl=try
+            JSON.parse @flag || "[]"
+        catch e
+            []
+        fl.push player.id
+        @setFlag JSON.stringify fl
+    whenguarded:(game,player)->
+        super
+        # リストに追加する
+        fl=try
+            JSON.parse @flag || "[]"
+        catch e
+            []
+        fl.push player.id
+        @setFlag JSON.stringify fl
+    sunset:(game)->
+        @setFlag "[]"
+    midnight:(game,midnightSort)->
+        fl=try
+            JSON.parse @flag || "[]"
+        catch e
+            []
+        for id in fl
+            pl=game.getPlayer id
+            if pl? && !pl.dead
+                newpl=Player.factory null, game, pl,null,MoonPhilia # 月狂病
+                pl.transProfile newpl
+                newpl.cmplFlag=@id # 魅了元
+                pl.transform game,newpl,true
+                log=
+                    mode:"skill"
+                    to:pl.id
+                    comment: game.i18n.t "roles:CynthiaWolf.affected", {name: @name, target: pl.name}
+                splashlog game.id,game,log
+
 class Trickster extends Fox
     type: "Trickster"
     formType: FormType.required
@@ -10569,7 +10613,6 @@ class Trickster extends Fox
         plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
         for pl,i in plpls
             # 2人ぶん処理
-
             pl.touched game,@id
             newpl=Player.factory null, game, pl,null,Bonds
             newpl.cmplFlag=plpls[1-i].id
@@ -12070,6 +12113,26 @@ class LoreleiFamilia extends Complex
                 if lo.length == 0
                    @die game, "loreleisuicide"
 
+# 月狂病
+class MoonPhilia extends WolfMinion
+    cmplType:"MoonPhilia"
+    getJobname:-> @game.i18n.t "roles:MoonPhilia.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:MoonPhilia.jobname", {jobname: @main.getJobDisp()}
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @mcall game,@main.makejobinfo,game,result
+        result.desc?.push {
+            name: @game.i18n.t "roles:MoonPhilia.name"
+            type:"MoonPhilia"
+        }
+    isListener:(game, log)->
+        if log.mode == "madcouple"
+            true
+        else
+            super
+    getSpeakChoice:(game)->
+        ["madcouple"].concat super
+
 class Bonds extends Complex
     cmplType:"Bonds"
     getJobname:-> @game.i18n.t "roles:Bonds.jobname", {jobname: @main.getJobname()}
@@ -12486,6 +12549,7 @@ jobs=
     Gambler:Gambler
     Faker:Faker
     SealWolf:SealWolf
+    CynthiaWolf:CynthiaWolf
     Trickster:Trickster
 
     # 特殊
@@ -12540,6 +12604,7 @@ complexes=
     Fascinated:Fascinated
     FatalStrike:FatalStrike
     LoreleiFamilia:LoreleiFamilia
+    MoonPhilia:MoonPhilia
     Bonds:Bonds
 
     # 役職ごとの強さ
@@ -12690,6 +12755,9 @@ jobStrength=
     IntuitionWolf:50
     Lorelei:12
     Gambler:15
+    Faker:15
+    SealWolf:60
+    CynthiaWolf:55
     Trickster:30
 
 module.exports.actions=(req,res,ss)->
