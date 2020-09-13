@@ -154,6 +154,7 @@ jobname:
   Gambler: 'ギャンブラー'
   Faker: 'イカサマ師'
   SealWolf: '印狼'
+  CynthiaWolf: '月狼'
   Sleepwalker: '夢遊病者'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -946,6 +947,9 @@ Gambler:
   bet: '{{name}}は賭けに出ました。'
   keep: '{{name}}は賭けに出ませんでした。'
 
+CynthiaWolf:
+  affected: '{{target}}は{{name}}の放つ月のオーラに魅せられました。'
+
 Sleepwalker:
   awake: '{{name}}は深夜徘徊を自覚しました。'
 
@@ -1024,6 +1028,12 @@ FanOfIdol:
 LoreleiFamilia:
   name: 'ローレライのしもべ'
   jobname: 'ローレライのしもべ（{{jobname}}）'
+
+MoonPhilia:
+  # name for desc
+  name: '月狂病'
+  # jobname
+  jobname: '月狂病（{{jobname}}）'
 
 Decider:
   jobname: '{{jobname}}（決定者）'
