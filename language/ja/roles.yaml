@@ -952,9 +952,9 @@ Trickster:
   # Error: select another player
   noSelectTwice: 'もう一人別の人を選んでください。'
   # Select a target.
-  select: '{{name}}は{{target}}へ運命の絆を結びました。'
+  select: '{{name}}は{{target}}に運命の絆を結びました。'
   # Became a lover.
-  become: '{{name}}は運命の絆を結ばされました。'
+  become: '{{name}}は運命の絆を結びました。'
 
 GameMaster:
   # Failed to revive.
@@ -1034,7 +1034,7 @@ LoreleiFamilia:
 
 Bonds:
   name: '絆'
-  jobname: '絆（{{jobname}}）'
+  jobname: '{{jobname}}（絆）'
 
 Decider:
   jobname: '{{jobname}}（決定者）'
