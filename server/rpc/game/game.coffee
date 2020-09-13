@@ -3667,6 +3667,15 @@ class Werewolf extends Player
     type:"Werewolf"
     sunset:(game)->
         @setTarget null
+        
+        # 夢遊病者だ！
+        sw=game.players.filter (x)->!x.dead && x.isJobType("Sleepwalker")
+        # 2日目の夜のみ公開する
+        if game.day == 2 && sw.length>0
+            log=
+                mode:"wolfskill"
+                comment: game.i18n.t "system:werewolf.sleepwalker", {results: sw.map((x)->x.name).join(',')}
+            splashlog game.id,game,log
 
     formType: FormType.required
     sleeping:(game)->
@@ -10519,7 +10528,27 @@ class SealWolf extends Werewolf
         if right.dead
             game.votingbox.votePower this, 1
 
-
+class Sleepwalker extends Player
+    type:"Sleepwalker"
+    getTypeDisp:->
+        if @flag?
+            @type
+        else
+            "Human"
+    getJobDisp:->
+        if @flag?
+            @game.i18n.t "roles:jobname.Sleepwalker"
+        else
+            @game.i18n.t "roles:jobname.Human"
+    sunset:(game)->
+        unless @flag
+            if game.day > 2
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:Sleepwalker.awake", {name: @name}
+                splashlog game.id,game,log
+                @setFlag true  #使用済
 
 # ============================
 # 処理上便宜的に使用
@@ -12390,6 +12419,7 @@ jobs=
     Gambler:Gambler
     Faker:Faker
     SealWolf:SealWolf
+    Sleepwalker:Sleepwalker
 
     # 特殊
     GameMaster:GameMaster
@@ -12592,6 +12622,7 @@ jobStrength=
     IntuitionWolf:50
     Lorelei:12
     Gambler:15
+    Sleepwalker:2
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -12835,6 +12866,9 @@ module.exports.actions=(req,res,ss)->
                 if Math.random()<0.3
                     exceptions.push "Fate"
                     special_exceptions.push "Fate"
+                if Math.random()<0.3
+                    exceptions.push "Sleepwalker"
+                    special_exceptions.push "Sleepwalker"
                 # ニートは隠し役職（出現率低）
                 if query.losemode == "on" || Math.random()<0.4
                     exceptions.push "Neet"
@@ -14380,7 +14414,7 @@ getIncludedRolesStr = (i18n, joblist, accurate)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if !accurate && (job in ["Human","Oracle","Fate"])
+                if !accurate && (job in ["Human","Oracle","Fate","Sleepwalker"])
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
