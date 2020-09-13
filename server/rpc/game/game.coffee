@@ -10523,6 +10523,7 @@ class SealWolf extends Werewolf
 
 class Trickster extends Fox
     formType: FormType.required
+    midnightSort:45
     constructor:->
         super
         @setFlag null  # 絆1
@@ -10562,7 +10563,8 @@ class Trickster extends Fox
 
         @setTarget playerid
         # 二人が決定した
-
+        null
+    midnight:(game,midnightSort)->
         plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
         for pl,i in plpls
             # 2人ぶん処理
