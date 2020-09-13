@@ -154,6 +154,7 @@ jobname:
   Gambler: 'ギャンブラー'
   Faker: 'イカサマ師'
   SealWolf: '印狼'
+  Trickster: '悪戯妖精'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -945,6 +946,16 @@ Gambler:
   bet: '{{name}}は賭けに出ました。'
   keep: '{{name}}は賭けに出ませんでした。'
 
+Trickster:
+  # First select.
+  select1: '{{name}}は絆を結ぶ1人目に{{target}}を選びました。'
+  # Error: select another player
+  noSelectTwice: 'もう一人別の人を選んでください。'
+  # Select a target.
+  select: '{{name}}は{{target}}へ運命の絆を結びました。'
+  # Became a lover.
+  become: '{{name}}は運命の絆を結ばされました。'
+
 GameMaster:
   # Failed to revive.
   reviveFail: 'プレイヤーを蘇生できませんでした。'
@@ -1020,6 +1031,10 @@ FanOfIdol:
 LoreleiFamilia:
   name: 'ローレライのしもべ'
   jobname: 'ローレライのしもべ（{{jobname}}）'
+
+Bonds:
+  name: '絆'
+  jobname: '絆（{{jobname}}）'
 
 Decider:
   jobname: '{{jobname}}（決定者）'
