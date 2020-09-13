@@ -10522,6 +10522,7 @@ class SealWolf extends Werewolf
             game.votingbox.votePower this, 1
 
 class Trickster extends Fox
+    type: "Trickster"
     formType: FormType.required
     midnightSort:45
     constructor:->
