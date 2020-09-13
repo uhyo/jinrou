@@ -3674,7 +3674,7 @@ class Werewolf extends Player
         if game.day == 2 && sw.length>0
             log=
                 mode:"wolfskill"
-                comment: game.i18n.t "system:werewolf.sleepwalker", {results: sw.map((x)->x.name).join(',')}
+                comment: game.i18n.t "system.werewolf.sleepwalker", {results: sw.map((x)->x.name).join(',')}
             splashlog game.id,game,log
 
     formType: FormType.required
