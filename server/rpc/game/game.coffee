@@ -9962,7 +9962,7 @@ class GachaAddicted extends Player
             return null
 
     midnight:(game)->
-        if @flag?.status == "transforming"
+        if @flag?.status == "transforming" && !@dead
             # 実際に変化する
             newpl = Player.factory @flag.job, game
             @transProfile newpl
