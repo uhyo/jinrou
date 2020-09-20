@@ -12902,8 +12902,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle","Fate"
-                    special_exceptions.push "Oracle","Fate"
+                    exceptions.push "Oracle","Fate","Sleepwalker"
+                    special_exceptions.push "Oracle","Fate","Sleepwalker"
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
