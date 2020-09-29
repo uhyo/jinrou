@@ -156,6 +156,7 @@ jobname:
   SealWolf: '印狼'
   CynthiaWolf: '月狼'
   Trickster: '悪戯妖精'
+  Sleepwalker: '夢遊病者'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -959,6 +960,9 @@ Trickster:
   select: '{{name}}は{{target}}に運命の絆を結びました。'
   # Became a lover.
   become: '{{name}}は運命の絆を結びました。'
+
+Sleepwalker:
+  awake: '{{name}}は深夜徘徊を自覚しました。'
 
 GameMaster:
   # Failed to revive.
