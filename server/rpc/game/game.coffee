@@ -10616,10 +10616,19 @@ class Trickster extends Fox
             return game.i18n.t "roles:Trickster.noSelectTwice"
 
         @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Trickster.select2", {name: @name, target: pl.name}
+        splashlog game.id,game,log
         # 二人が決定した
         null
     midnight:(game,midnightSort)->
         plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
+
+        if !plpls[0] || !plpls[1]
+            return
+
         for pl,i in plpls
             # 2人ぶん処理
             pl.touched game,@id

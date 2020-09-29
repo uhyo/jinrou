@@ -113,6 +113,7 @@ messages:
   Hitokotonushinokami: '占う相手を選択してください'
   Gambler: '賭けに出るかどうか選択してください'
   Faker: '賭けに出るかどうか選択してください'
+  Trickster: '絆を結ぶ2人を1人ずつ選択してください'
   GameMaster: 'GM用コマンド'
 
 # Texts for GameMaster form.

@@ -954,6 +954,7 @@ CynthiaWolf:
 Trickster:
   # First select.
   select1: '{{name}}は絆を結ぶ1人目に{{target}}を選びました。'
+  select2: '{{name}}は絆を結ぶ2人目に{{target}}を選びました。'
   # Error: select another player
   noSelectTwice: 'もう一人別の人を選んでください。'
   # Select a target.
