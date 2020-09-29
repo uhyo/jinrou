@@ -1867,6 +1867,8 @@ class Game
                     @i18n.t "found.body", {name: x.name}
                 when "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     @i18n.t "found.suicide", {name: x.name}
+                when "bonds"
+                    @i18n.t "found.bonds", {name: x.name}
                 when "infirm"
                     @i18n.t "found.infirm", {name: x.name}
                 when "hunter"
@@ -1886,7 +1888,7 @@ class Game
 
             # Show invisible detail of death
             # but do not show for obvious type of death.
-            unless (obj.found in ["punish", "infirm", "hunter", "gm", "gone-day", "gone-night"]) || (obj.found == "curse" && @rule.deadfox == "obvious")
+            unless (obj.found in ["punish", "infirm", "bonds", "hunter", "gm", "gone-day", "gone-night"]) || (obj.found == "curse" && @rule.deadfox == "obvious")
                 if ["werewolf","werewolf2","trickedWerewolf","poison","hinamizawa",
                     "vampire","vampire2","witch","dog","trap",
                     "marycurse","psycho","curse","punish","spygone","deathnote",
@@ -10563,6 +10565,72 @@ class CynthiaWolf extends Werewolf
                     comment: game.i18n.t "roles:CynthiaWolf.affected", {name: @name, target: pl.name}
                 splashlog game.id,game,log
 
+class Trickster extends Fox
+    type: "Trickster"
+    formType: FormType.required
+    midnightSort:45
+    constructor:->
+        super
+        @setFlag null  # 絆1
+        @setTarget null    # 絆2
+    sunset:(game)->
+        if game.day>=2 && @flag?
+            # 2日目以降はもう遅い
+            @setFlag ""
+            @setTarget ""
+        else
+            @setFlag null
+            @setTarget null
+    sleeping:->@flag? && @target?
+    job:(game,playerid,query)->
+        if @flag? && @target?
+            return game.i18n.t "error.common.alreadyUsed"
+
+        # 自分は選べるが身代わりくんは選択できない
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        if pl.id == "身代わりくん"
+            return game.i18n.t "error.common.noScapegoat"
+
+        unless @flag?
+            @setFlag playerid
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Trickster.select1", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            return null
+        if @flag==playerid
+            return game.i18n.t "roles:Trickster.noSelectTwice"
+
+        @setTarget playerid
+        # 二人が決定した
+        null
+    midnight:(game,midnightSort)->
+        plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
+        for pl,i in plpls
+            # 2人ぶん処理
+            pl.touched game,@id
+            newpl=Player.factory null, game, pl,null,Bonds
+            newpl.cmplFlag=plpls[1-i].id
+            pl.transProfile newpl
+            pl.transform game,newpl,true
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Trickster.select", {name: @name, target: newpl.name}
+            splashlog game.id,game,log
+            log=
+                mode:"skill"
+                to:newpl.id
+                comment: game.i18n.t "roles:Trickster.become", {name: newpl.name}
+            splashlog game.id,game,log
+        # 2人とも更新する
+        game.splashjobinfo [game.getPlayer(@flag), game.getPlayer(@target)]
+        null
 
 # ============================
 # 処理上便宜的に使用
@@ -12065,6 +12133,34 @@ class MoonPhilia extends WolfMinion
     getSpeakChoice:(game)->
         ["madcouple"].concat super
 
+class Bonds extends Complex
+    cmplType:"Bonds"
+    getJobname:-> @game.i18n.t "roles:Bonds.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:Bonds.jobname", {jobname: @main.getJobDisp()}
+
+    beforebury:(game,type,deads)->
+        res1 = @mcall game,@main.beforebury,game,type,deads
+        res2 = @sub?.beforebury? game,type,deads
+        unless @dead
+            pl=game.getPlayer @cmplFlag
+            if pl? && pl.dead && pl.isCmplType("Bonds")
+                @die game, "bonds"
+        return res1 || res2
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game, result
+        result.desc?.push {
+            name: game.i18n.t "roles:Bonds.name"
+            type:"Bonds"
+        }
+
+        bo=[this,game.getPlayer(@cmplFlag)].filter((x)->x?.isCmplType("Bonds")).map (x)->
+                x.publicinfo()
+            if Array.isArray result.bonds
+                result.bonds=result.bonds.concat bo
+            else
+                result.bonds=bo
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -12454,6 +12550,7 @@ jobs=
     Faker:Faker
     SealWolf:SealWolf
     CynthiaWolf:CynthiaWolf
+    Trickster:Trickster
 
     # 特殊
     GameMaster:GameMaster
@@ -12508,6 +12605,7 @@ complexes=
     FatalStrike:FatalStrike
     LoreleiFamilia:LoreleiFamilia
     MoonPhilia:MoonPhilia
+    Bonds:Bonds
 
     # 役職ごとの強さ
 jobStrength=
@@ -12643,7 +12741,7 @@ jobStrength=
     Sacrifice:14
     AbsoluteWolf:70
     Oracle:15
-    NightRabbit:32
+    NightRabbit:40
     GachaAddicted:10
     Fate:6
     Synesthete:11
@@ -12660,6 +12758,7 @@ jobStrength=
     Faker:15
     SealWolf:60
     CynthiaWolf:55
+    Trickster:30
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13013,13 +13112,16 @@ module.exports.actions=(req,res,ss)->
                         if r<0.3 && !nonavs.Fox
                             joblist.Fox++
                             frees--
-                        else if r < 0.5 && !nonavs.XianFox
-                            joblist.XianFox++
-                            frees--
-                        else if r<0.75 && !nonavs.TinyFox
+                        else if r < 0.55 && !nonavs.TinyFox
                             joblist.TinyFox++
                             frees--
-                        else if r<0.9 && !nonavs.NightRabbit
+                        else if r<0.7 && !nonavs.XianFox
+                            joblist.XianFox++
+                            frees--
+                        else if r<0.85 && !nonavs.Trickster
+                            joblist.Trickster++
+                            frees--
+                        else if r<0.95 && !nonavs.NightRabbit
                             joblist.NightRabbit++
                             frees--
                         else if !nonavs.Blasphemy

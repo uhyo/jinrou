@@ -155,6 +155,7 @@ jobname:
   Faker: 'イカサマ師'
   SealWolf: '印狼'
   CynthiaWolf: '月狼'
+  Trickster: '悪戯妖精'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -949,6 +950,16 @@ Gambler:
 CynthiaWolf:
   affected: '{{target}}は{{name}}の放つ月のオーラに魅せられました。'
 
+Trickster:
+  # First select.
+  select1: '{{name}}は絆を結ぶ1人目に{{target}}を選びました。'
+  # Error: select another player
+  noSelectTwice: 'もう一人別の人を選んでください。'
+  # Select a target.
+  select: '{{name}}は{{target}}に運命の絆を結びました。'
+  # Became a lover.
+  become: '{{name}}は運命の絆を結びました。'
+
 GameMaster:
   # Failed to revive.
   reviveFail: 'プレイヤーを蘇生できませんでした。'
@@ -1030,6 +1041,10 @@ MoonPhilia:
   name: '月狂病'
   # jobname
   jobname: '月狂病（{{jobname}}）'
+
+Bonds:
+  name: '絆'
+  jobname: '{{jobname}}（絆）'
 
 Decider:
   jobname: '{{jobname}}（決定者）'
