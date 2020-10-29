@@ -168,6 +168,7 @@ system:
     wolfcub: "狼の子の力で、今日は2人襲撃できます。"
     # A user is notified to be attacked by a werewolf.
     attacked: "{{name}}は人狼に襲われました。"
+    sleepwalker: "{{results}}が徘徊しています。"
   # Logs related to voting
   voting:
     # No player was punished.
@@ -222,6 +223,7 @@ found:
   suicide: "{{name}}は誰かの後を追って自ら死を選びました。"
   infirm: "{{name}}は老衰で死亡しました。"
   hunter: "{{name}}は銃弾を受けて死亡しました。"
+  bonds: "{{name}}は絆に引きずられるように誰かの後を追って自ら死を選びました。"
   gm: "{{name}}はGMによって死亡しました。"
   goneDay: "{{name}}は投票しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
   goneNight: "{{name}}は夜に能力を発動しなかったため突然死しました。突然死は重大な迷惑行為なので絶対にしないようにしましょう。"
