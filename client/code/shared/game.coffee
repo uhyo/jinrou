@@ -86,7 +86,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "SantaClaus","Reindeer",
 "Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
 "DecoyWolf","Hooligan","HomeComer","DragonKnight","Poet","Sacrifice",
-"Synesthete","Streamer","RemoteWorker"
+"Synesthete","Streamer","RemoteWorker","Disguised"
 ]
 # 隠されていて自分で入れることができない役職
 exports.hiddenJobs = [
@@ -101,7 +101,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster"]
     Devil:["Devil"]
@@ -138,7 +138,7 @@ exports.categoryList = Object.keys(exports.categories)
 # ガチャデータ（課金者用）
 exports.gachaData =
     1: ["Human", "Couple", "Noble", "Slave", "Liar", "Lycan", "Oldman",
-        "TinyGhost", "Twin", "Sleepwalker"]
+        "TinyGhost", "Twin", "Sleepwalker", "Disguised"]
     2: ["Diviner", "Psychic", "Guard", "Magician", "ToughGuy", "ApprenticeSeer",
         "Diseased", "Dog", "SeersMama", "DrawGirl", "Cosplayer","Reindeer", "Tarzan",
         "RemoteWorker"
@@ -867,6 +867,8 @@ exports.jobinfo=
             color:"#edbd80"
         Sleepwalker:
             color:"#46ba32"
+        Disguised:
+            color:"#f1a502"
 
     Werewolf:
         color:"#DD0000"

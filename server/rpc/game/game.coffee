@@ -10672,6 +10672,10 @@ class Sleepwalker extends Player
                 splashlog game.id,game,log
                 @setFlag true  #使用済
 
+class Disguised extends Player
+    type: "Disguised"
+    isWerewolfVisible:-> true
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12592,6 +12596,7 @@ jobs=
     CynthiaWolf:CynthiaWolf
     Trickster:Trickster
     Sleepwalker:Sleepwalker
+    Disguised:Disguised
 
     # 特殊
     GameMaster:GameMaster
@@ -12801,6 +12806,7 @@ jobStrength=
     CynthiaWolf:55
     Trickster:30
     Sleepwalker:2
+    Disguised:6
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
