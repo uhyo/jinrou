@@ -5637,6 +5637,7 @@ class MinionSelector extends Player
 # 盗人
 class Thief extends Player
     type:"Thief"
+    team:""
     isWinner:-> false
     formType: FormType.required
     sleeping:(game)->@target?
