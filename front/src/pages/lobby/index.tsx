@@ -1,0 +1,1 @@
+export { place } from './place';
