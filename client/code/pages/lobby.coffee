@@ -1,4 +1,5 @@
 socids=null
+lobby_view = null
 exports.start=->
     # ロビーに入る
     getlog=(log,channel)->
@@ -63,6 +64,27 @@ exports.start=->
         Index.socket.on "bye",null,deleteuser
         Index.socket.on "lobby_heartbeat",null,heartbeat
     ]
+
+    # Report form
+    Promise.all([
+        JinrouFront.loadLobby(),
+        JinrouFront.loadDialog(),
+        Index.app.getI18n(),
+        Index.app.getApplicationConfig()
+    ])
+        .then ([lb, dialog, i18n, appConfig])->
+            lobby_view = lb.place {
+                i18n: i18n
+                node: $("#lobby-app").get 0
+                reportForm: appConfig.reportForm
+                onReportFormSubmit:(query)->
+                    query.room = -1
+                    query.userAgent = navigator.userAgent
+                    ss.rpc "app.reportForm", query, (result)->
+                        console.log result
+            }
+
 exports.end=->
+    lobby_view?.unmount()
     ss.rpc "lobby.bye", ->
     Index.socket.off socid for socid in socids

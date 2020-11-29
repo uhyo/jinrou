@@ -139,3 +139,12 @@ export function loadMyPage() {
     webpackChunkName: "mypage"
   */ './pages/mypage');
 }
+
+/**
+ * Asynchronously load the lobby module.
+ */
+export function loadLobby() {
+  return import(/*
+    webpackChunkName: "lobby"
+  */ './pages/lobby');
+}
