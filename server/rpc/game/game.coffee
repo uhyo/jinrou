@@ -10677,6 +10677,57 @@ class Disguised extends Player
     type: "Disguised"
     isWerewolfVisible:-> true
 
+class Saint extends Player
+    type:"Saint"
+    midnightSort:122 # 自分が死亡したときは蘇生しない
+    formType: FormType.optionalOnce # 任意・4日目のみ
+    isReviver:->!@dead
+    job_target:Player.JOB_T_DEAD
+    sunset:(game)->
+        @setTarget (if game.day != 4 then "" else null)
+        if game.players.every((x)->!x.dead)
+            @setTarget ""  # 誰も死んでいないなら能力発動しない
+    job:(game,playerid)->
+        if game.day != 4
+            # まだ発動できない
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
+        pl.touched game,@id
+
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Saint.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    sleeping:(game)->game.day != 4 || @target?
+    midnight:(game,midnightSort)->
+        return unless @target?
+        pl=game.getPlayer game.skillTargetHook.get @target
+        return unless pl?
+        return unless pl.dead
+
+        # 蘇生
+        @addGamelog game,"raise",true,pl.id
+        pl.revive game
+
+    makejobinfo:(game,result)->
+        super
+        # 共有者は仲間が分かる
+        result.peers=game.players.filter((x)->x.isJobType("Couple") || x.isJobType("Saint")).map (x)->
+            x.publicinfo()
+    isListener:(game,log)->
+        if log.mode=="couple"
+            true
+        else super
+    getSpeakChoice:(game)->
+        ["couple"].concat super
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12598,6 +12649,7 @@ jobs=
     Trickster:Trickster
     Sleepwalker:Sleepwalker
     Disguised:Disguised
+    Saint:Saint
 
     # 特殊
     GameMaster:GameMaster
@@ -12808,6 +12860,7 @@ jobStrength=
     Trickster:30
     Sleepwalker:2
     Disguised:6
+    Saint:13
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
