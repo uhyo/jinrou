@@ -3959,7 +3959,7 @@ class Couple extends Player
     makejobinfo:(game,result)->
         super
         # 共有者は仲間が分かる
-        result.peers=game.players.filter((x)->x.isJobType "Couple").map (x)->
+        result.peers=game.players.filter((x)->x.isJobType ("Couple") || x.isJobType("Saint")).map (x)->
             x.publicinfo()
     isListener:(game,log)->
         if log.mode=="couple"
@@ -10677,7 +10677,7 @@ class Disguised extends Player
     type: "Disguised"
     isWerewolfVisible:-> true
 
-class Saint extends Player
+class Saint extends Couple
     type:"Saint"
     midnightSort:122 # 自分が死亡したときは蘇生しない
     formType: FormType.optionalOnce # 任意・4日目のみ
@@ -10715,18 +10715,6 @@ class Saint extends Player
         # 蘇生
         @addGamelog game,"raise",true,pl.id
         pl.revive game
-
-    makejobinfo:(game,result)->
-        super
-        # 共有者は仲間が分かる
-        result.peers=game.players.filter((x)->x.isJobType("Couple") || x.isJobType("Saint")).map (x)->
-            x.publicinfo()
-    isListener:(game,log)->
-        if log.mode=="couple"
-            true
-        else super
-    getSpeakChoice:(game)->
-        ["couple"].concat super
 
 # ============================
 # 処理上便宜的に使用
