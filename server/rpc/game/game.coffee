@@ -3184,6 +3184,8 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
+        alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
+        
         if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem","streaming"]
             # 全員に見える
             true
@@ -3191,7 +3193,8 @@ class Player
             # 死んでたら見える
             @dead
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide"    # 隠すかどうか
+            if game.rule.voteresult!="hide" && alives.length=0 # 隠すかどうか
+                true
         else
             false
     # 他の人に向けたログが見えるかどうか
@@ -10677,6 +10680,17 @@ class Disguised extends Player
     type: "Disguised"
     isWerewolfVisible:-> true
 
+class NetherWolf extends Werewolf
+    type:"NetherWolf"
+    isReviver:->!@dead
+    isListener:(game,log)->
+        if log.mode=="heaven"
+            true
+        else super
+
+class DarkWolf extends Werewolf
+    type:"DarkWolf"
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -12598,6 +12612,8 @@ jobs=
     Trickster:Trickster
     Sleepwalker:Sleepwalker
     Disguised:Disguised
+    NetherWolf:NetherWolf
+    DarkWolf:DarkWolf
 
     # 特殊
     GameMaster:GameMaster
@@ -12808,6 +12824,8 @@ jobStrength=
     Trickster:30
     Sleepwalker:2
     Disguised:6
+    NetherWolf:45
+    DarkWolf:55
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
