@@ -3193,8 +3193,7 @@ class Player
             # 死んでたら見える
             @dead
         else if log.mode=="voteresult"
-            if game.rule.voteresult!="hide" && alives.length=0 # 隠すかどうか
-                true
+            game.rule.voteresult!="hide" && alives.length=0 # 隠すかどうか
         else
             false
     # 他の人に向けたログが見えるかどうか
