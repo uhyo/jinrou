@@ -159,6 +159,8 @@ jobname:
   Sleepwalker: '夢遊病者'
   Disguised: '仮装者'
   Saint: '御子'
+  NetherWolf: '冥狼'
+  DarkWolf: '闇狼'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'

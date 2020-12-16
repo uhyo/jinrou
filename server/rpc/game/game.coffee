@@ -3184,6 +3184,8 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
+        alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
+        
         if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem","streaming"]
             # 全員に見える
             true
@@ -3191,7 +3193,7 @@ class Player
             # 死んでたら見える
             @dead
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide"    # 隠すかどうか
+            game.rule.voteresult!="hide" && alives.length=0 # 隠すかどうか
         else
             false
     # 他の人に向けたログが見えるかどうか
@@ -10715,6 +10717,17 @@ class Saint extends Couple
         # 蘇生
         @addGamelog game,"raise",true,pl.id
         pl.revive game
+        
+class NetherWolf extends Werewolf
+    type:"NetherWolf"
+    isReviver:->!@dead
+    isListener:(game,log)->
+        if log.mode=="heaven"
+            true
+        else super
+
+class DarkWolf extends Werewolf
+    type:"DarkWolf"
 
 # ============================
 # 処理上便宜的に使用
@@ -12638,6 +12651,8 @@ jobs=
     Sleepwalker:Sleepwalker
     Disguised:Disguised
     Saint:Saint
+    NetherWolf:NetherWolf
+    DarkWolf:DarkWolf
 
     # 特殊
     GameMaster:GameMaster
@@ -12849,6 +12864,8 @@ jobStrength=
     Sleepwalker:2
     Disguised:6
     Saint:13
+    NetherWolf:45
+    DarkWolf:55
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
