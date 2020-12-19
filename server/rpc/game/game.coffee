@@ -9782,8 +9782,8 @@ class AbsoluteWolf extends Werewolf
         me = game.getPlayer @id
         if me.getTeam() != "Werewolf"
             return false
-        # 追加勝利も許さない
-        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved")
+        # 追加勝利も許さない＆絆化していたら死ぬ
+        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved") || me.isCmplType("Bonds")
             return false
         # 残りの狼の数と絶対狼の数が一致していたら喪失
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
