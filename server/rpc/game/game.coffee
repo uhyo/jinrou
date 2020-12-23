@@ -3968,7 +3968,7 @@ class Couple extends Player
     makejobinfo:(game,result)->
         super
         # 共有者は仲間が分かる
-        result.peers=game.players.filter((x)->x.isJobType ("Couple") || x.isJobType("Saint")).map (x)->
+        result.peers=game.players.filter((x)->x.isJobType("Couple") || x.isJobType("Saint")).map (x)->
             x.publicinfo()
     isListener:(game,log)->
         if log.mode=="couple"
