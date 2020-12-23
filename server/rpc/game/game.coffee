@@ -84,9 +84,10 @@ PsychicResult =
     # priority of resutls in chemical.
     _chemicalPriority:
         human: 0
-        werewolf: 1
-        BigWolf: 2
-        TinyFox: 2
+        oni: 1
+        werewolf: 2
+        BigWolf: 3
+        TinyFox: 3
     # function to combine two results in chemical.
     # filter out low priority results.
     combineChemical: (res1, res2)->
@@ -3190,6 +3191,8 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
+        alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
+
         if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem","streaming"]
             # 全員に見える
             true
@@ -3197,7 +3200,7 @@ class Player
             # 死んでたら見える
             @dead
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide"    # 隠すかどうか
+            game.rule.voteresult!="hide" && alives.length==0 # 隠すかどうか
         else
             false
     # 他の人に向けたログが見えるかどうか
@@ -3965,7 +3968,7 @@ class Couple extends Player
     makejobinfo:(game,result)->
         super
         # 共有者は仲間が分かる
-        result.peers=game.players.filter((x)->x.isJobType "Couple").map (x)->
+        result.peers=game.players.filter((x)->x.isJobType("Couple") || x.isJobType("Saint")).map (x)->
             x.publicinfo()
     isListener:(game,log)->
         if log.mode=="couple"
@@ -9779,8 +9782,8 @@ class AbsoluteWolf extends Werewolf
         me = game.getPlayer @id
         if me.getTeam() != "Werewolf"
             return false
-        # 追加勝利も許さない
-        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved")
+        # 追加勝利も許さない＆絆化していたら死ぬ
+        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved") || me.isCmplType("Bonds")
             return false
         # 残りの狼の数と絶対狼の数が一致していたら喪失
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
@@ -10743,6 +10746,55 @@ class Oni extends Player
                 successCount: successCount + 1
             }
 
+class Saint extends Couple
+    type:"Saint"
+    midnightSort:122 # 自分が死亡したときは蘇生しない
+    formType: FormType.optionalOnce # 任意・4日目のみ
+    isReviver:->!@dead
+    job_target:Player.JOB_T_DEAD
+    sunset:(game)->
+        @setTarget (if game.day != 4 then "" else null)
+        if game.players.every((x)->!x.dead)
+            @setTarget ""  # 誰も死んでいないなら能力発動しない
+    job:(game,playerid)->
+        if game.day != 4
+            # まだ発動できない
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        unless pl.dead
+            return game.i18n.t "error.common.notDead"
+        @setTarget playerid
+        pl.touched game,@id
+
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Saint.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    sleeping:(game)->game.day != 4 || @target?
+    midnight:(game,midnightSort)->
+        return unless @target?
+        pl=game.getPlayer game.skillTargetHook.get @target
+        return unless pl?
+        return unless pl.dead
+
+        # 蘇生
+        @addGamelog game,"raise",true,pl.id
+        pl.revive game
+
+class NetherWolf extends Werewolf
+    type:"NetherWolf"
+    isReviver:->!@dead
+    isListener:(game,log)->
+        if log.mode=="heaven"
+            true
+        else super
+
+class DarkWolf extends Werewolf
+    type:"DarkWolf"
 
 # ============================
 # 処理上便宜的に使用
@@ -12385,6 +12437,8 @@ class Chemical extends Complex
             FortuneResult.vampire
         else if FortuneResult.werewolf in [fsm, fss]
             FortuneResult.werewolf
+        else if FortuneResult.oni in [fsm, fss]
+            FortuneResult.oni
         else
             FortuneResult.human
     getPsychicResult:->
@@ -12666,6 +12720,9 @@ jobs=
     Sleepwalker:Sleepwalker
     Disguised:Disguised
     Oni:Oni
+    Saint:Saint
+    NetherWolf:NetherWolf
+    DarkWolf:DarkWolf
 
     # 特殊
     GameMaster:GameMaster
@@ -12877,6 +12934,9 @@ jobStrength=
     Sleepwalker:2
     Disguised:6
     Oni:11
+    Saint:13
+    NetherWolf:45
+    DarkWolf:55
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
