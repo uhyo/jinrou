@@ -84,9 +84,10 @@ PsychicResult =
     # priority of resutls in chemical.
     _chemicalPriority:
         human: 0
-        werewolf: 1
-        BigWolf: 2
-        TinyFox: 2
+        oni: 1
+        werewolf: 2
+        BigWolf: 3
+        TinyFox: 3
     # function to combine two results in chemical.
     # filter out low priority results.
     combineChemical: (res1, res2)->
@@ -9781,8 +9782,8 @@ class AbsoluteWolf extends Werewolf
         me = game.getPlayer @id
         if me.getTeam() != "Werewolf"
             return false
-        # 追加勝利も許さない
-        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved")
+        # 追加勝利も許さない＆絆化していたら死ぬ
+        if me.isCmplType("HooliganMember") || me.isCmplType("LunaticLoved") || me.isCmplType("Bonds")
             return false
         # 残りの狼の数と絶対狼の数が一致していたら喪失
         wolves=game.players.filter (x)->x.isWerewolf() && !x.dead
@@ -12436,6 +12437,8 @@ class Chemical extends Complex
             FortuneResult.vampire
         else if FortuneResult.werewolf in [fsm, fss]
             FortuneResult.werewolf
+        else if FortuneResult.oni in [fsm, fss]
+            FortuneResult.oni
         else
             FortuneResult.human
     getPsychicResult:->
