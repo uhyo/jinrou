@@ -13538,7 +13538,7 @@ module.exports.actions=(req,res,ss)->
                     # 期間機率提升
                     if month==11 && 24<=d<=25
                         # 12/24〜12/25はサンタがよくでる
-                        if Math.random()<0.5 && frees>0 && !nonavs.SantaClaus
+                        if Math.random()<0.4 && frees>0 && !nonavs.SantaClaus
                             joblist.SantaClaus ?= 0
                             joblist.SantaClaus++
                             frees--
@@ -13547,6 +13547,11 @@ module.exports.actions=(req,res,ss)->
                                 joblist.Reindeer ?= 0
                                 joblist.Reindeer++
                                 frees--
+                        # 御子も出やすい
+                        if Math.random()<0.4 && frees>0 && !nonavs.Saint
+                            joblist.Saint ?= 0
+                            joblist.Saint++
+                            frees--
                     else
                         # サンタは出にくい
                         if Math.random()<0.8
