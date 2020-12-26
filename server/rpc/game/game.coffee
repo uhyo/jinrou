@@ -14555,12 +14555,14 @@ islogOK=(game,player,log)->
             game.getPlayer player.flag
         else
             player
+    alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
+
     unless actpl?
         # 観戦者
         if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]
             !log.to?    # 観戦者にも公開
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide"    # 投票結果公開なら公開
+            game.rule.voteresult!="hide" && alives.length==0 # 投票結果公開なら公開
         else
             false   # その他は非公開
     else if log.mode=="gmmonologue"
