@@ -162,6 +162,9 @@ jobname:
   Saint: '御子'
   NetherWolf: '冥狼'
   DarkWolf: '闇狼'
+  SpaceWerewolfCrew: 'クルー'
+  SpaceWerewolfImposter: '詐欺師'
+  SpaceWerewolfObserver: '観察者'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -979,6 +982,12 @@ Oni:
 
 Saint:
   select: '{{name}}は{{target}}に奇蹟の力を使います。'
+
+SpaceWerewolfObserver:
+  # Selected a target.
+  select: '{{name}}は{{target}}を観察しました。'
+  resultImposter: '{{name}}が{{target}}を観察したところ、{{target}}は裏切り者でした。'
+  resultNotImposter: '{{name}}が{{target}}を観察したところ、{{target}}は裏切り者ではありませんでした。'
 
 GameMaster:
   # Failed to revive.

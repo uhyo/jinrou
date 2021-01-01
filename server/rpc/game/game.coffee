@@ -3259,6 +3259,8 @@ class Player
         draculaBitten: false
         # サンタクロース
         santaclauses: false
+        # 詐欺師（宇宙人狼）
+        spaceWerewolfImposters: false
     }
     # 汎用的な役職属性取得関数 (Existential)
     getAttribute:(attr, game)->false
@@ -10797,6 +10799,61 @@ class DarkWolf extends Werewolf
     type:"DarkWolf"
 
 # ============================
+# Roles for Space Werewolf
+
+class SpaceWerewolfCrew extends Player
+    type: "SpaceWerewolfCrew"
+
+class SpaceWerewolfImposter extends Werewolf
+    type: "SpaceWerewolfImposter"
+    # 会話不可
+    getSpeakChoice:(game)->
+        res=super
+        return res.filter (x)-> x != "werewolf"
+    getVisibilityQuery:->
+        res = super
+        res.wolves = false
+        res.spaceWerewolfImposters = true
+        res
+
+class SpaceWerewolfObserver extends Diviner
+    type: "SpaceWerewolfObserver"
+    job:(game,playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        @setTarget playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:SpaceWerewolfObserver.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game, @target
+        null
+    dodivine:(game)->
+        origp = game.getPlayer @target
+        p = game.getPlayer game.skillTargetHook.get @target
+        if p? && origp?
+            resultKey = if p.getFortuneResult() == FortuneResult.werewolf
+                "roles:SpaceWerewolfObserver.resultImposter"
+            else
+                "roles:SpaceWerewolfObserver.resultNotImposter"
+
+            @setFlag @flag.concat {
+                player: origp.publicinfo()
+                result: game.i18n.t resultKey, {
+                    name: @name
+                    target: origp.name
+                }
+                day: game.day
+            }
+            @addGamelog game,"spacewerewolfobserverdivine",p.type,@target    # 占った
+
+# ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
@@ -12723,6 +12780,9 @@ jobs=
     Saint:Saint
     NetherWolf:NetherWolf
     DarkWolf:DarkWolf
+    SpaceWerewolfCrew:SpaceWerewolfCrew
+    SpaceWerewolfImposter:SpaceWerewolfImposter
+    SpaceWerewolfObserver:SpaceWerewolfObserver
 
     # 特殊
     GameMaster:GameMaster
@@ -14632,6 +14692,10 @@ writeGlobalJobInfo = (game, player, result={})->
         # サンタクロースが分かる
         if vq.santaclauses
             result.santaclauses = game.players.filter((x)->x.isJobType "SantaClaus").map (x)->
+                x.publicinfo()
+        # 詐欺師（宇宙人狼）
+        if vq.spaceWerewolfImposters
+            result.spaceWerewolfImposters = game.players.filter((x)->x.isJobType "SpaceWerewolfImposter").map (x)->
                 x.publicinfo()
 
 #job情報を

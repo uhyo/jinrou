@@ -116,6 +116,7 @@ messages:
   Trickster: '絆を結ぶ2人を1人ずつ選択してください'
   Oni: '人攫いの対象を選択してください'
   Saint: '蘇生する相手を選択してください'
+  SpaceWerewolfObserver: '観察する対象を選択してください'
   GameMaster: 'GM用コマンド'
 
 # Texts for GameMaster form.
