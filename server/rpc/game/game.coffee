@@ -2267,6 +2267,8 @@ class Game
         vampires=aliveps.map((x)->x.vampireCount()).reduce(((a,b)->a+b), 0)
         friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
 
+        allImpostersn = @players.filter((x)-> x.isJobType("SpaceWerewolfImposter")).length
+
         team=null
         friends_count=null
 
@@ -2483,10 +2485,15 @@ class Game
                 when "Human"
                     if alives>0 && aliveps.every((x)->x.isJobType "Neet")
                         [@i18n.t("judge.neet"),@i18n.t("judge.short.human")]
+                    else if allImpostersn > 0
+                        [@i18n.t("judge.spaceWerewolf.human"),@i18n.t("judge.short.human")]
                     else
                         [@i18n.t("judge.human"),@i18n.t("judge.short.human")]
                 when "Werewolf"
-                    [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
+                    if allImpostersn > 0
+                        [@i18n.t("judge.spaceWerewolf.werewolf"),@i18n.t("judge.short.werewolf")]
+                    else
+                        [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
                 when "Fox"
                     [@i18n.t("judge.fox"),@i18n.t("judge.short.fox")]
                 when "Raven"
@@ -3259,6 +3266,8 @@ class Player
         draculaBitten: false
         # サンタクロース
         santaclauses: false
+        # 詐欺師（宇宙人狼）
+        spaceWerewolfImposters: false
     }
     # 汎用的な役職属性取得関数 (Existential)
     getAttribute:(attr, game)->false
@@ -3717,9 +3726,16 @@ class Werewolf extends Player
         game.werewolf_target_remain--
         game.checkWerewolfTarget()
         tp.touched game,@id
+
+        isSpaceWerewolf = game.players.some (x)-> x.isJobType "SpaceWerewolfImposter"
+
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:Werewolf.select", {name: @name, target: tp.name}
+            comment: if isSpaceWerewolf
+                game.i18n.t "roles:SpaceWerewolfImposter.select", {name: @name, target: tp.name}
+            else
+                game.i18n.t "roles:Werewolf.select", {name: @name, target: tp.name}
+
         if @isJobType "SolitudeWolf"
             # 孤独な狼なら自分だけ…
             log.to=@id
@@ -10798,6 +10814,117 @@ class DarkWolf extends Werewolf
     type:"DarkWolf"
 
 # ============================
+# Roles for Space Werewolf
+
+class SpaceWerewolfCrew extends Player
+    type: "SpaceWerewolfCrew"
+
+class SpaceWerewolfImposter extends Werewolf
+    type: "SpaceWerewolfImposter"
+    # 会話不可
+    getSpeakChoice:(game)->
+        res=super
+        return res.filter (x)-> x != "werewolf"
+    getVisibilityQuery:->
+        res = super
+        res.wolves = false
+        res.spaceWerewolfImposters = true
+        res
+
+class SpaceWerewolfObserver extends Diviner
+    type: "SpaceWerewolfObserver"
+    job:(game,playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        @setTarget playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:SpaceWerewolfObserver.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game, @target
+        null
+    dodivine:(game)->
+        origp = game.getPlayer @target
+        p = game.getPlayer game.skillTargetHook.get @target
+        if p? && origp?
+            resultKey = if p.getFortuneResult() == FortuneResult.werewolf
+                "roles:SpaceWerewolfObserver.resultImposter"
+            else
+                "roles:SpaceWerewolfObserver.resultNotImposter"
+
+            @setFlag @flag.concat {
+                player: origp.publicinfo()
+                result: game.i18n.t resultKey, {
+                    name: @name
+                    target: origp.name
+                }
+                day: game.day
+            }
+            @addGamelog game,"spacewerewolfobserverdivine",p.type,@target    # 占った
+
+class SpaceWerewolfGuard extends Player
+    type:"SpaceWerewolfGuard"
+    midnightSort: 80
+    formType: FormType.required
+    hasDeadResistance:->true
+    sleeping:->@target?
+    sunset:(game)->
+        @setTarget null
+
+        if game.day==1 && game.rule.scapegoat != "off"
+            # 狩人は一日目護衛しない
+            @setTarget ""  # 誰も守らない
+            return
+        # 護衛可能対象
+        pls = game.players.filter (pl)=>
+            if game.rule.guardmyself!="ok" && pl.id == @id
+                return false
+            if game.rule.consecutiveguard=="no" && pl.id == @flag
+                return false
+            return !pl.dead
+
+        if pls.length == 0
+            @setTarget ""
+            return
+    job:(game,playerid)->
+        if playerid==@id && game.rule.guardmyself!="ok"
+            return game.i18n.t "error.common.noSelectSelf"
+        else if playerid==@flag && game.rule.consecutiveguard=="no"
+            return game.i18n.t "roles:Guard.noGuardSame"
+        else
+            @setTarget playerid
+            @setFlag playerid
+
+            pl=game.getPlayer(playerid)
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:SpaceWerewolfGuard.select", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            null
+    midnight:(game,midnightSort)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        pl.whenguarded game,this
+        # 複合させる
+        newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 護衛元cmplFlag
+        pl.transform game,newpl,true
+        newpl.touched game,@id
+        null
+
+class SpaceWerewolfSabotage extends ObstructiveMad
+    type:"SpaceWerewolfSabotage"
+
+# ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
     type:"GameMaster"
@@ -11660,7 +11787,11 @@ class DivineObstructed extends Complex
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}
+                comment:
+                    if @isJobType "SpaceWerewolfObserver"
+                        game.i18n.t "roles:ObstructiveMad.spaceWerewolfObserverBlocked", {name: @name, target: pl.name}
+                    else
+                        game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}
             splashlog game.id,game,log
     dodivine:(game)->
         # 占おうとした。邪魔成功
@@ -12724,6 +12855,11 @@ jobs=
     Saint:Saint
     NetherWolf:NetherWolf
     DarkWolf:DarkWolf
+    SpaceWerewolfCrew:SpaceWerewolfCrew
+    SpaceWerewolfImposter:SpaceWerewolfImposter
+    SpaceWerewolfObserver:SpaceWerewolfObserver
+    SpaceWerewolfGuard:SpaceWerewolfGuard
+    SpaceWerewolfSabotage:SpaceWerewolfSabotage
 
     # 特殊
     GameMaster:GameMaster
@@ -13126,6 +13262,11 @@ module.exports.actions=(req,res,ss)->
                     "HooliganAttacker",
                     "HooliganGuard",
                     "Listener",
+                    "SpaceWerewolfCrew",
+                    "SpaceWerewolfImposter",
+                    "SpaceWerewolfObserver",
+                    "SpaceWerewolfGuard",
+                    "SpaceWerewolfSabotage"
                 ]
                 exceptions.push special_exceptions...
                 # ユーザーが指定した入れないの
@@ -14633,6 +14774,10 @@ writeGlobalJobInfo = (game, player, result={})->
         # サンタクロースが分かる
         if vq.santaclauses
             result.santaclauses = game.players.filter((x)->x.isJobType "SantaClaus").map (x)->
+                x.publicinfo()
+        # 詐欺師（宇宙人狼）
+        if vq.spaceWerewolfImposters
+            result.spaceWerewolfImposters = game.players.filter((x)->x.isJobType "SpaceWerewolfImposter").map (x)->
                 x.publicinfo()
 
 #job情報を

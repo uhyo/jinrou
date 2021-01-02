@@ -20,17 +20,23 @@ export interface IPropJobsString {
 export const JobsString: React.FC<IPropJobsString> = observer(
   ({ t, jobNumbers, categoryNumbers, roles, categories }) => (
     <>
-      {roles.map(id => {
-        const val = jobNumbers[id] || 0;
-        if (val > 0) {
-          return (
-            <React.Fragment key={id}>
-              {t(`roles:jobname.${id}`)}: {val}{' '}
-            </React.Fragment>
-          );
-        } else {
-          return null;
-        }
+      {categories.map(cat => {
+        return (
+          <React.Fragment key={cat.id}>
+            {cat.roles.map(id => {
+              const val = jobNumbers[id] || 0;
+              if (val > 0) {
+                return (
+                  <React.Fragment key={id}>
+                    {t(`roles:jobname.${id}`)}: {val}{' '}
+                  </React.Fragment>
+                );
+              } else {
+                return null;
+              }
+            })}
+          </React.Fragment>
+        );
       })}
       {categories.map(({ id }) => {
         const val = categoryNumbers.get(id) || 0;

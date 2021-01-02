@@ -108,6 +108,7 @@ jobinfo:
     loreleis: 'ローレライは{{names}}です'
     gamblerStock: '現在{{number}}票持っています'
     bonds: '絆を{{names}}と結んでいます'
+    spaceWerewolfImposters: '仲間の詐欺師は{{names}}です'
 
 # game-view: speak form.
 speak:

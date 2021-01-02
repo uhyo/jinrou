@@ -57,6 +57,10 @@ interface IPropCasting {
    */
   categories: RoleCategoryDefinition[];
   /**
+   * Categories including hidden roles.
+   */
+  allCategories: RoleCategoryDefinition[];
+  /**
    * Definition of rules.
    */
   ruledefs: RuleGroup;
@@ -69,7 +73,15 @@ interface IPropCasting {
 @observer
 export class Casting extends React.Component<IPropCasting, {}> {
   public render() {
-    const { i18n, store, roles, castings, categories, ruledefs } = this.props;
+    const {
+      i18n,
+      store,
+      roles,
+      castings,
+      categories,
+      allCategories,
+      ruledefs,
+    } = this.props;
     const {
       playersNumber,
       currentCasting,
@@ -134,7 +146,7 @@ export class Casting extends React.Component<IPropCasting, {}> {
                           jobNumbers={jobNumbers}
                           categoryNumbers={categoryNumbers}
                           roles={roles}
-                          categories={categories}
+                          categories={allCategories}
                         />
                       </>
                     )}
