@@ -113,6 +113,7 @@ export function place({
       roles={roles}
       castings={castings}
       categories={cs}
+      allCategories={categories}
       ruledefs={rules}
       onStart={startHandler}
     />

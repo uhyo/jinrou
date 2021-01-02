@@ -291,6 +291,9 @@ judge:
   lorelei: 'ローレライが村人を魅了し、すべて渦の中に消えていった……'
   draw: '引き分けになりました。'
   scapegoat: '村は身代わりくんに支配されました。'
+  spaceWerewolf:
+    human: 'クルーたちの努力により全ての裏切り者が排除されました。'
+    werewolf: '裏切り者の手によって任務は失敗に終わりました。'
   # short summary
   short:
     human: '村人勝利'
