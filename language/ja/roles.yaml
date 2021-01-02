@@ -165,6 +165,8 @@ jobname:
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
+  SpaceWerewolfGuard: '見張り'
+  SpaceWerewolfSabotage: '破壊者'
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -526,6 +528,8 @@ ObstructiveMad:
   select: '{{name}}が{{target}}を邪魔しました。'
   # a Diviner is blocked.
   blocked: '{{name}}が{{target}}を占いましたが、何者かに邪魔されました。'
+  # SpaceWerewolfObserver is blocked
+  spaceWerewolfObserverBlocked: '{{name}}は何者かの妨害を受けて{{target}}の観察に失敗しました。'
 
 TroubleMaker:
   # Select to make a trouble.
@@ -988,6 +992,9 @@ SpaceWerewolfObserver:
   select: '{{name}}は{{target}}を観察しました。'
   resultImposter: '{{name}}が{{target}}を観察したところ、{{target}}は裏切り者でした。'
   resultNotImposter: '{{name}}が{{target}}を観察したところ、{{target}}は裏切り者ではありませんでした。'
+
+SpaceWerewolfGuard:
+  select: '{{name}}は{{target}}を護衛しました。'
 
 GameMaster:
   # Failed to revive.

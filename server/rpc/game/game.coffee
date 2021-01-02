@@ -2267,6 +2267,8 @@ class Game
         vampires=aliveps.map((x)->x.vampireCount()).reduce(((a,b)->a+b), 0)
         friendsn=aliveps.map((x)->x.isFriend()).reduce(((a,b)->a+b), 0)
 
+        allImpostersn = @players.filter((x)-> x.isJobType("SpaceWerewolfImposter")).length
+
         team=null
         friends_count=null
 
@@ -2483,10 +2485,15 @@ class Game
                 when "Human"
                     if alives>0 && aliveps.every((x)->x.isJobType "Neet")
                         [@i18n.t("judge.neet"),@i18n.t("judge.short.human")]
+                    else if allImpostersn > 0
+                        [@i18n.t("judge.spaceWerewolf.human"),@i18n.t("judge.short.human")]
                     else
                         [@i18n.t("judge.human"),@i18n.t("judge.short.human")]
                 when "Werewolf"
-                    [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
+                    if allImpostersn > 0
+                        [@i18n.t("judge.spaceWerewolf.werewolf"),@i18n.t("judge.short.werewolf")]
+                    else
+                        [@i18n.t("judge.werewolf"),@i18n.t("judge.short.werewolf")]
                 when "Fox"
                     [@i18n.t("judge.fox"),@i18n.t("judge.short.fox")]
                 when "Raven"
@@ -10853,6 +10860,62 @@ class SpaceWerewolfObserver extends Diviner
             }
             @addGamelog game,"spacewerewolfobserverdivine",p.type,@target    # 占った
 
+class SpaceWerewolfGuard extends Player
+    type:"SpaceWerewolfGuard"
+    midnightSort: 80
+    formType: FormType.required
+    hasDeadResistance:->true
+    sleeping:->@target?
+    sunset:(game)->
+        @setTarget null
+
+        if game.day==1 && game.rule.scapegoat != "off"
+            # 狩人は一日目護衛しない
+            @setTarget ""  # 誰も守らない
+            return
+        # 護衛可能対象
+        pls = game.players.filter (pl)=>
+            if game.rule.guardmyself!="ok" && pl.id == @id
+                return false
+            if game.rule.consecutiveguard=="no" && pl.id == @flag
+                return false
+            return !pl.dead
+
+        if pls.length == 0
+            @setTarget ""
+            return
+    job:(game,playerid)->
+        if playerid==@id && game.rule.guardmyself!="ok"
+            return game.i18n.t "error.common.noSelectSelf"
+        else if playerid==@flag && game.rule.consecutiveguard=="no"
+            return game.i18n.t "roles:Guard.noGuardSame"
+        else
+            @setTarget playerid
+            @setFlag playerid
+
+            pl=game.getPlayer(playerid)
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:SpaceWerewolfGuard.select", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            null
+    midnight:(game,midnightSort)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        pl.whenguarded game,this
+        # 複合させる
+        newpl=Player.factory null, game, pl,null,Guarded   # 守られた人
+        pl.transProfile newpl
+        newpl.cmplFlag=@id  # 護衛元cmplFlag
+        pl.transform game,newpl,true
+        newpl.touched game,@id
+        null
+
+class SpaceWerewolfSabotage extends ObstructiveMad
+    type:"SpaceWerewolfSabotage"
+
 # ============================
 # 処理上便宜的に使用
 class GameMaster extends Player
@@ -11716,7 +11779,11 @@ class DivineObstructed extends Complex
             log=
                 mode:"skill"
                 to:@id
-                comment: game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}
+                comment:
+                    if pl.isJobType "SpaceWerewolfObserver"
+                        game.i18n.t "roles:ObstructiveMad.spaceWerewolfObserverBlocked", {name: @name, target: pl.name}
+                    else
+                        game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}
             splashlog game.id,game,log
     dodivine:(game)->
         # 占おうとした。邪魔成功
@@ -12783,6 +12850,8 @@ jobs=
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
+    SpaceWerewolfGuard:SpaceWerewolfGuard
+    SpaceWerewolfSabotage:SpaceWerewolfSabotage
 
     # 特殊
     GameMaster:GameMaster
