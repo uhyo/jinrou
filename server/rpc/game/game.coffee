@@ -13261,6 +13261,11 @@ module.exports.actions=(req,res,ss)->
                     "HooliganAttacker",
                     "HooliganGuard",
                     "Listener",
+                    "SpaceWerewolfCrew",
+                    "SpaceWerewolfImposter",
+                    "SpaceWerewolfObserver",
+                    "SpaceWerewolfGuard",
+                    "SpaceWerewolfSabotage"
                 ]
                 exceptions.push special_exceptions...
                 # ユーザーが指定した入れないの
