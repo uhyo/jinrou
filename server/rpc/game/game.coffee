@@ -10775,6 +10775,7 @@ class Saint extends Couple
         splashlog game.id,game,log
         null
     sleeping:(game)->game.day != 4 || @target?
+    jobdone:(game)->game.day != 4 || @target?
     midnight:(game,midnightSort)->
         return unless @target?
         pl=game.getPlayer game.skillTargetHook.get @target
