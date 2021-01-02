@@ -3726,9 +3726,16 @@ class Werewolf extends Player
         game.werewolf_target_remain--
         game.checkWerewolfTarget()
         tp.touched game,@id
+
+        isSpaceWerewolf = game.players.some (x)-> x.isJobType "SpaceWerewolfImposter"
+
         log=
             mode:"wolfskill"
-            comment: game.i18n.t "roles:Werewolf.select", {name: @name, target: tp.name}
+            comment: if isSpaceWerewolf
+                game.i18n.t "roles:SpaceWerewolfImposter.select", {name: @name, target: tp.name}
+            else
+                game.i18n.t "roles:Werewolf.select", {name: @name, target: tp.name}
+
         if @isJobType "SolitudeWolf"
             # 孤独な狼なら自分だけ…
             log.to=@id
@@ -11780,7 +11787,7 @@ class DivineObstructed extends Complex
                 mode:"skill"
                 to:@id
                 comment:
-                    if pl.isJobType "SpaceWerewolfObserver"
+                    if @isJobType "SpaceWerewolfObserver"
                         game.i18n.t "roles:ObstructiveMad.spaceWerewolfObserverBlocked", {name: @name, target: pl.name}
                     else
                         game.i18n.t "roles:ObstructiveMad.blocked", {name: @name, target: pl.name}

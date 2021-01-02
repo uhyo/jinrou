@@ -987,6 +987,11 @@ Oni:
 Saint:
   select: '{{name}}は{{target}}に奇蹟の力を使います。'
 
+# Werewolf
+SpaceWerewolfImposter:
+  # Selected a target.
+  select: '{{name}}たち詐欺師は{{target}}に狙いを定めました。'
+
 SpaceWerewolfObserver:
   # Selected a target.
   select: '{{name}}は{{target}}を観察しました。'
