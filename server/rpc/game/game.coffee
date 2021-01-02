@@ -10790,7 +10790,7 @@ class Saint extends Couple
             comment: game.i18n.t "roles:Saint.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         null
-    sleeping:(game)->game.day != 4 || @target?
+    sleeping:-> true
     jobdone:(game)->game.day != 4 || @target?
     midnight:(game,midnightSort)->
         return unless @target?
