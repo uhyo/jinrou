@@ -10690,7 +10690,8 @@ class Sleepwalker extends Player
     sunset:(game)->
         unless @flag
             if game.day == 1
-                game.werewolf_flag.push "Sleepwalker"
+                if !game.werewolf_flag.some((x)->x=="Sleepwalker")
+                    game.werewolf_flag.push "Sleepwalker"
             else if game.day > 2
                 log=
                     mode:"skill"
