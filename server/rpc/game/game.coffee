@@ -10764,7 +10764,7 @@ class Oni extends Player
 
 class Saint extends Couple
     type:"Saint"
-    midnightSort:122 # 自分が死亡したときは蘇生しない
+    midnightSort:122
     formType: FormType.optionalOnce # 任意・4日目のみ
     isReviver:->!@dead
     job_target:Player.JOB_T_DEAD
@@ -10798,9 +10798,10 @@ class Saint extends Couple
         return unless pl?
         return unless pl.dead
 
-        # 蘇生
-        @addGamelog game,"raise",true,pl.id
-        pl.revive game
+        # 自分が死んだら蘇生しない
+        if !@dead
+            @addGamelog game,"raise",true,pl.id
+            pl.revive game
 
 class NetherWolf extends Werewolf
     type:"NetherWolf"
