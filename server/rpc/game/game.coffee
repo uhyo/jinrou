@@ -1311,6 +1311,15 @@ class Game
                         mode:"wolfskill"
                         comment: @i18n.t "system.werewolf.wolfcub"
                     splashlog @id,this,log
+                else if fl=="Sleepwalker"
+                    # 夢遊病者だ！
+                    alive_Sleepwalker=@players.filter (x)->!x.dead && x.isJobType("Sleepwalker")
+                    # 2日目の夜のみ公開する
+                    if @day == 2 && alive_Sleepwalker.length>0
+                        log=
+                            mode:"wolfskill"
+                            comment: @i18n.t "system.werewolf.sleepwalker", {results: alive_Sleepwalker.map((x)->x.name).join(',')}
+                        splashlog @id,this,log
                 else
                     werewolf_flag_result.push fl
             @werewolf_flag=werewolf_flag_result
@@ -3687,16 +3696,6 @@ class Werewolf extends Player
     type:"Werewolf"
     sunset:(game)->
         @setTarget null
-
-        # 夢遊病者だ！
-        sw=game.players.filter (x)->!x.dead && x.isJobType("Sleepwalker")
-        # 2日目の夜のみ公開する
-        if game.day == 2 && sw.length>0
-            log=
-                mode:"wolfskill"
-                comment: game.i18n.t "system.werewolf.sleepwalker", {results: sw.map((x)->x.name).join(',')}
-            splashlog game.id,game,log
-
     formType: FormType.required
     sleeping:(game)->
         # もう襲撃選択終了しているときはtrue
@@ -10694,7 +10693,10 @@ class Sleepwalker extends Player
             @game.i18n.t "roles:jobname.Human"
     sunset:(game)->
         unless @flag
-            if game.day > 2
+            if game.day == 1
+                if !game.werewolf_flag.some((x)->x=="Sleepwalker")
+                    game.werewolf_flag.push "Sleepwalker"
+            else if game.day > 2
                 log=
                     mode:"skill"
                     to:@id
