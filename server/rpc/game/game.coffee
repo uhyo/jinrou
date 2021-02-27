@@ -4209,6 +4209,7 @@ class Spy extends Player
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     midnightSort:120
+    isReviver:->!@dead
     constructor:->
         super
         @setFlag {
@@ -9889,6 +9890,7 @@ class NightRabbit extends Fox
 class GachaAddicted extends Player
     type:"GachaAddicted"
     midnightSort: 122
+    isReviver:->!@dead
     constructor:->
         super
         @setFlag {
@@ -10078,6 +10080,7 @@ class GachaAddicted extends Player
 class Fate extends Player
     type:"Fate"
     midnightSort:122
+    isReviver:->!@dead
     getTypeDisp:->
         if @flag == "done"
             super
@@ -10218,6 +10221,7 @@ class Streamer extends Player
     type: "Streamer"
     getSpeakChoice:(game)->
         ["streaming", "-monologue"].concat super
+    isReviver:->!@dead
     sunset:(game)->
         unless @flag?
             # equip self with StreamerTrial
