@@ -141,6 +141,8 @@ GuardReason =
     trap: 'trap'
     # 雪女
     snow: 'snow'
+    # 曲芸師
+    acrobat: 'acrobat'
 # Type of open forms.
 FormType =
     # 必須
@@ -1311,6 +1313,15 @@ class Game
                         mode:"wolfskill"
                         comment: @i18n.t "system.werewolf.wolfcub"
                     splashlog @id,this,log
+                else if fl=="Sleepwalker"
+                    # 夢遊病者だ！
+                    alive_Sleepwalker=@players.filter (x)->!x.dead && x.isJobType("Sleepwalker")
+                    # 2日目の夜のみ公開する
+                    if @day == 2 && alive_Sleepwalker.length>0
+                        log=
+                            mode:"wolfskill"
+                            comment: @i18n.t "system.werewolf.sleepwalker", {results: alive_Sleepwalker.map((x)->x.name).join(',')}
+                        splashlog @id,this,log
                 else
                     werewolf_flag_result.push fl
             @werewolf_flag=werewolf_flag_result
@@ -3687,16 +3698,6 @@ class Werewolf extends Player
     type:"Werewolf"
     sunset:(game)->
         @setTarget null
-
-        # 夢遊病者だ！
-        sw=game.players.filter (x)->!x.dead && x.isJobType("Sleepwalker")
-        # 2日目の夜のみ公開する
-        if game.day == 2 && sw.length>0
-            log=
-                mode:"wolfskill"
-                comment: game.i18n.t "system.werewolf.sleepwalker", {results: sw.map((x)->x.name).join(',')}
-            splashlog game.id,game,log
-
     formType: FormType.required
     sleeping:(game)->
         # もう襲撃選択終了しているときはtrue
@@ -4209,6 +4210,7 @@ class Spy extends Player
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     midnightSort:120
+    isReviver:->!@dead
     constructor:->
         super
         @setFlag {
@@ -9889,6 +9891,7 @@ class NightRabbit extends Fox
 class GachaAddicted extends Player
     type:"GachaAddicted"
     midnightSort: 122
+    isReviver:->!@dead
     constructor:->
         super
         @setFlag {
@@ -10078,6 +10081,7 @@ class GachaAddicted extends Player
 class Fate extends Player
     type:"Fate"
     midnightSort:122
+    isReviver:->!@dead
     getTypeDisp:->
         if @flag == "done"
             super
@@ -10218,6 +10222,7 @@ class Streamer extends Player
     type: "Streamer"
     getSpeakChoice:(game)->
         ["streaming", "-monologue"].concat super
+    isReviver:->!@dead
     sunset:(game)->
         unless @flag?
             # equip self with StreamerTrial
@@ -10690,7 +10695,10 @@ class Sleepwalker extends Player
             @game.i18n.t "roles:jobname.Human"
     sunset:(game)->
         unless @flag
-            if game.day > 2
+            if game.day == 1
+                if !game.werewolf_flag.some((x)->x=="Sleepwalker")
+                    game.werewolf_flag.push "Sleepwalker"
+            else if game.day > 2
                 log=
                     mode:"skill"
                     to:@id
@@ -10764,7 +10772,7 @@ class Oni extends Player
 
 class Saint extends Couple
     type:"Saint"
-    midnightSort:122 # 自分が死亡したときは蘇生しない
+    midnightSort:122
     formType: FormType.optionalOnce # 任意・4日目のみ
     isReviver:->!@dead
     job_target:Player.JOB_T_DEAD
@@ -10798,9 +10806,10 @@ class Saint extends Couple
         return unless pl?
         return unless pl.dead
 
-        # 蘇生
-        @addGamelog game,"raise",true,pl.id
-        pl.revive game
+        # 自分が死んだら蘇生しない
+        if !@dead
+            @addGamelog game,"raise",true,pl.id
+            pl.revive game
 
 class NetherWolf extends Werewolf
     type:"NetherWolf"
@@ -10812,6 +10821,24 @@ class NetherWolf extends Werewolf
 
 class DarkWolf extends Werewolf
     type:"DarkWolf"
+
+class Acrobat extends Madman
+    type:"Acrobat"
+    hasDeadResistance:-> true
+    checkDeathResistance:(game, found)->
+        if Found.isNormalWerewolfAttack(found) && !@flag?
+            # 襲撃回避
+            @setFlag "used"    # 能力使用済
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Acrobat.cancel", {name: @name}
+            splashlog game.id,game,log
+            @addGamelog game,"acrobatcancel"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.acrobat
+            return true
+        else
+            return false
 
 # ============================
 # Roles for Space Werewolf
@@ -12855,6 +12882,7 @@ jobs=
     Saint:Saint
     NetherWolf:NetherWolf
     DarkWolf:DarkWolf
+    Acrobat:Acrobat
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13074,6 +13102,7 @@ jobStrength=
     Saint:13
     NetherWolf:45
     DarkWolf:55
+    Acrobat:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
