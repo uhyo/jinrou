@@ -162,6 +162,7 @@ jobname:
   Saint: '御子'
   NetherWolf: '冥狼'
   DarkWolf: '闇狼'
+  Acrobat: '曲芸師'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -773,6 +774,8 @@ EyesWolf:
     trap: '{{name}}への襲撃は罠に阻まれました。'
     # Guard by a SnowLover
     snow: '{{name}}への襲撃は雪の力に阻まれました。'
+    # Target was Acrobat
+    acrobat: '{{name}}への襲撃は曲芸的な動きで回避されました。'
 
 TongueWolf:
   # Result of TongueWolf skill.
@@ -986,6 +989,9 @@ Oni:
 
 Saint:
   select: '{{name}}は{{target}}に奇蹟の力を使います。'
+
+Acrobat:
+  cancel: '{{name}}は人狼の襲撃を回避しました。'
 
 # Werewolf
 SpaceWerewolfImposter:

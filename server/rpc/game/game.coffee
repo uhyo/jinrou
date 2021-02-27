@@ -141,6 +141,8 @@ GuardReason =
     trap: 'trap'
     # 雪女
     snow: 'snow'
+    # 曲芸師
+    acrobat: 'acrobat'
 # Type of open forms.
 FormType =
     # 必須
@@ -10820,6 +10822,24 @@ class NetherWolf extends Werewolf
 class DarkWolf extends Werewolf
     type:"DarkWolf"
 
+class Acrobat extends Madman
+    type:"Acrobat"
+    hasDeadResistance:-> true
+    checkDeathResistance:(game, found)->
+        if Found.isNormalWerewolfAttack(found) && !@flag?
+            # 襲撃回避
+            @setFlag "used"    # 能力使用済
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Acrobat.cancel", {name: @name}
+            splashlog game.id,game,log
+            @addGamelog game,"acrobatcancel"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.acrobat
+            return true
+        else
+            return false
+
 # ============================
 # Roles for Space Werewolf
 
@@ -12862,6 +12882,7 @@ jobs=
     Saint:Saint
     NetherWolf:NetherWolf
     DarkWolf:DarkWolf
+    Acrobat:Acrobat
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13081,6 +13102,7 @@ jobStrength=
     Saint:13
     NetherWolf:45
     DarkWolf:55
+    Acrobat:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
