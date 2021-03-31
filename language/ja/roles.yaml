@@ -163,6 +163,7 @@ jobname:
   NetherWolf: '冥狼'
   DarkWolf: '闇狼'
   Acrobat: '曲芸師'
+  Hanami: '花見客'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -992,6 +993,9 @@ Saint:
 
 Acrobat:
   cancel: '{{name}}は人狼の襲撃を回避しました。'
+
+Hanami:
+  drunk: '{{name}}たちは花見を楽しみました。まだ誰か酔っ払っているようです。'
 
 # Werewolf
 SpaceWerewolfImposter:

@@ -992,18 +992,23 @@ class Game
                 newpl=Player.factory null, this, pl, sub, Complex
                 pl.transProfile newpl
                 pl.transform @,newpl,true
+        # 酔っ払いを作成
+        drunkCount = @players.filter((x)-> x.isJobType "Hanami").length
         if @rule.drunk
+            drunkCount++
+        if drunkCount
             # 酔っ払いがいる場合
-            nonvillagers= @players.filter (x)->!x.isJobType "Human"
+            nonvillagers = @players.filter (x)->!x.isJobType("Human") && !x.isJobType("Hanami")
 
-            if nonvillagers.length>0
+            while nonvillagers.length > 0 && drunkCount > 0
+                r = Math.floor Math.random() * nonvillagers.length
+                pl = nonvillagers[r]
 
-                r=Math.floor Math.random()*nonvillagers.length
-                pl=nonvillagers[r]
-
-                newpl=Player.factory null, this, pl,null,Drunk # 酔っ払い
+                newpl = Player.factory null, this, pl, null, Drunk # 酔っ払いを付加
                 pl.transProfile newpl
                 pl.transform @,newpl,true,true
+                nonvillagers.splice r, 1
+                drunkCount--
 
 
         # プレイヤーシャッフル
@@ -10840,6 +10845,17 @@ class Acrobat extends Madman
         else
             return false
 
+class Hanami extends Player
+    type: "Hanami"
+    sunset:(game)->
+        if game.day == 1
+            # The beginning of the game. Show the log to notify a Drunk is added to someone
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Hanami.drunk", { name: @name }
+            splashlog game.id,game,log
+
 # ============================
 # Roles for Space Werewolf
 
@@ -12883,6 +12899,7 @@ jobs=
     NetherWolf:NetherWolf
     DarkWolf:DarkWolf
     Acrobat:Acrobat
+    Hanami:Hanami
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13103,6 +13120,7 @@ jobStrength=
     NetherWolf:45
     DarkWolf:55
     Acrobat:15
+    Hanami:7
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13318,8 +13336,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle","Fate","Sleepwalker"
-                    special_exceptions.push "Oracle","Fate","Sleepwalker"
+                    exceptions.push "Oracle","Fate","Sleepwalker","Hanami"
+                    special_exceptions.push "Oracle","Fate","Sleepwalker","Hanami"
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -13354,6 +13372,9 @@ module.exports.actions=(req,res,ss)->
                 if Math.random()<0.3
                     exceptions.push "Sleepwalker"
                     special_exceptions.push "Sleepwalker"
+                if Math.random()<0.3
+                    exceptions.push "Hanami"
+                    special_exceptions.push "Hanami"
                 # ニートは隠し役職（出現率低）
                 if query.losemode == "on" || Math.random()<0.4
                     exceptions.push "Neet"
@@ -13518,6 +13539,10 @@ module.exports.actions=(req,res,ss)->
                     if joblist.Vampire == 0 && joblist.Dracula == 0
                         exceptions.push "VampireClan"
                         special_exceptions.push "VampireClan"
+                    # 花見客は狼1では出ない
+                    if countCategory("Werewolf") < 2
+                        exceptions.push "Hanami"
+                        special_exceptions.push "Hanami"
 
 
                 nonavs = {}
