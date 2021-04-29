@@ -10722,6 +10722,8 @@ class Oni extends Player
     formType: FormType.optional
     fortuneResult: FortuneResult.oni
     psychicResult: PsychicResult.oni
+    # 鬼の人さらい減衰率
+    attenuationRate: 0.2
     hasDeadResistance:-> true
     sleeping:->true
     jobdone:->@target?
@@ -10766,7 +10768,7 @@ class Oni extends Player
         unless pl?
             return
         successCount = @flag?.successCount ? 0
-        successRate = Math.pow 0.2, successCount
+        successRate = Math.pow @attenuationRate, successCount
         if successRate < 0.01
             successRate = 0.01
         if Math.random() < successRate
@@ -10858,6 +10860,7 @@ class Hanami extends Player
 
 class GoldOni extends Oni
     type: "GoldOni"
+    attenuationRate: 0.5
     constructor:->
         super
 

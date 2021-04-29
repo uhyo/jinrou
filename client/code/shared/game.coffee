@@ -1809,6 +1809,9 @@ exports.jobinfos=[
     {
         name:"bonds"
     }
+    {
+        name:"targets"
+    }
 ]
 
 # 全ての役職が現れる可能性があるモードかどうか
