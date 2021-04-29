@@ -127,7 +127,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:[
@@ -1095,6 +1095,8 @@ exports.jobinfo=
             color:"#9db699"
         Oni:
             color:"#d14545"
+        GoldOni:
+            color:"#dbb400"
     Neet:
         color:"#aaaaaa"
         Neet:
