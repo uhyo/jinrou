@@ -2,7 +2,7 @@ Shared=
     game:exports
 
 # 身代わりセーフティありのときの除外役職一覧
-exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Oni","Hanami"]
+exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Oni","Hanami","GoldOni"]
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
@@ -51,7 +51,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Gambler","Faker","NetherWolf",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
-"SealWolf","Oni",
+"SealWolf","Oni","GoldOni"
 # えけけ鯖
 "MadHunter","Ascetic"
 # 人狼パーティー
@@ -115,7 +115,7 @@ exports.teams=teams=
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
     Lorelei:["Lorelei"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
