@@ -10722,6 +10722,8 @@ class Oni extends Player
     formType: FormType.optional
     fortuneResult: FortuneResult.oni
     psychicResult: PsychicResult.oni
+    # 鬼の人さらい減衰率
+    attenuationRate: 0.2
     hasDeadResistance:-> true
     sleeping:->true
     jobdone:->@target?
@@ -10766,12 +10768,12 @@ class Oni extends Player
         unless pl?
             return
         successCount = @flag?.successCount ? 0
-        successRate = Math.pow 0.2, successCount
+        successRate = Math.pow @attenuationRate, successCount
         if successRate < 0.01
             successRate = 0.01
         if Math.random() < successRate
             pl.die game, "oni", @id
-            @setFlag {
+            @setFlag Object.assign {}, @flag, {
                 successCount: successCount + 1
             }
 
@@ -10855,6 +10857,38 @@ class Hanami extends Player
                 to: @id
                 comment: game.i18n.t "roles:Hanami.drunk", { name: @name }
             splashlog game.id,game,log
+
+class GoldOni extends Oni
+    type: "GoldOni"
+    attenuationRate: 0.5
+    constructor:->
+        super
+
+        # 討伐人数を決定
+        targetNumber = Math.floor Math.random() * 4 + 1
+        @setFlag Object.assign @flag, {
+            targetNumber: targetNumber
+        }
+    isWinner:(game, team)->
+        # 自身の生存 + 村人勝利 + 左方向n人死亡
+        if @dead
+            return false
+        if team != "Human"
+            return false
+        myPosition = game.players.findIndex (pl)=> pl.id == @id
+        targets = game.players.slice(Math.max(0, myPosition - (@flag.targetNumber ? 0)), myPosition)
+        return targets.every (pl)-> pl.dead
+    checkDeathResistance:(game, found)->
+        # 40%で狼の襲撃に耐える
+        if Math.random() < 0.4 && Found.isNormalWerewolfAttack found
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
+            return true
+        return false
+    makejobinfo:(game, result)->
+        super
+        myPosition = game.players.findIndex (pl)=> pl.id == @id
+        targets = game.players.slice(Math.max(0, myPosition - (@flag.targetNumber ? 0)), myPosition)
+        result.targets = targets.map (pl)-> pl.publicinfo()
 
 # ============================
 # Roles for Space Werewolf
@@ -12900,6 +12934,7 @@ jobs=
     DarkWolf:DarkWolf
     Acrobat:Acrobat
     Hanami:Hanami
+    GoldOni:GoldOni
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13121,6 +13156,7 @@ jobStrength=
     DarkWolf:55
     Acrobat:15
     Hanami:7
+    GoldOni:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

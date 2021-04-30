@@ -82,6 +82,7 @@ export type RolePeersInfo = Partial<
     | 'santaclauses'
     | 'loreleis'
     | 'bonds'
+    | 'targets'
     | 'spaceWerewolfImposters',
     PublicPlayerInfo[]
   >
