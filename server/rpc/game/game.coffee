@@ -1356,6 +1356,30 @@ class Game
                         newpl.cmplFlag=x[0].id
                         pl.transform this,newpl,true
 
+            # 血狼
+            x = @players.filter((pl)->pl.isJobType("BloodWolf"))
+            nwolf=@players.filter((x)->!x.isWerewolf())
+            if x.length
+                bloodseal = false
+                for pyr in x
+                    for pyr_sub in pyr.accessByJobTypeAll "BloodWolf"
+                        # 花火が上がった場合はそちらを優先させる
+                        if pyr_sub.flag == "using" && !onfire
+                            bloodseal = true
+                            pyr_sub.setFlag "done"
+                            # 全体公開
+                            log=
+                                mode:"system"
+                                comment: @i18n.t "roles:BloodWolf.affect"
+                            splashlog @id, this, log
+                # 人狼系以外に影響を及ぼす
+                if bloodseal
+                    for pl in nwolf
+                        newpl=Player.factory null, this, pl,null,Threatened #威嚇と同じ効果
+                        pl.transProfile newpl
+                        newpl.cmplFlag=x[0].id
+                        pl.transform this,newpl,true
+
             @runSunset()
 
             #sunset後の死体処理
@@ -10890,6 +10914,50 @@ class GoldOni extends Oni
         targets = game.players.slice(Math.max(0, myPosition - (@flag.targetNumber ? 0)), myPosition)
         result.targets = targets.map (pl)-> pl.publicinfo()
 
+class BloodWolf extends Werewolf
+    type:"BloodWolf"
+    jobdone:(game)->
+        if Phase.isDay(game.phase)
+            @flag?
+        else
+            super
+    chooseJobDay:(game)->true
+    job:(game,playerid,query)->
+        if query.jobtype!="BloodWolf"
+            # 人狼の仕事
+            return super
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+        unless Phase.isDay(game.phase)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        # 自爆スイッチ
+        log=
+            mode:"system"
+            comment: game.i18n.t "roles:BloodWolf.using", {name: @name}
+        splashlog game.id,game,log
+        @setFlag using
+        # その場で殺す!!!
+        @die game, "punish"
+        # XXX executeの中と同じことが書いてある
+        game.bury "punish"
+        return if game.rule.hunter_lastattack == "no" && game.judge()
+        # 次のターンへ移行
+        unless game.hunterCheck("nextturn")
+            if game.rule.hunter_lastattack == "yes"
+                return if game.judge()
+            game.nextturn()
+        return null
+
+    checkJobValidity:(game,query)->
+        if query.jobtype=="BloodWolf"
+            # 対象選択は不要
+            return true
+        return super
+    makeJobSelection:(game, isvote)->
+        unless isvote
+            []
+        else super
+
 # ============================
 # Roles for Space Werewolf
 
@@ -12935,6 +13003,7 @@ jobs=
     Acrobat:Acrobat
     Hanami:Hanami
     GoldOni:GoldOni
+    BloodWolf:BloodWolf    
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13157,6 +13226,7 @@ jobStrength=
     Acrobat:15
     Hanami:7
     GoldOni:10
+    BloodWolf:46
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
