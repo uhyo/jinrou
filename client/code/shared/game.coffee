@@ -1008,7 +1008,7 @@ exports.jobinfo=
         Acrobat:
             color:"#d1ebb5"
         BloodWolf:
-            color:"#b30000"
+            color:"#d7003a"
 
     Fox:
         color:"#934293"
