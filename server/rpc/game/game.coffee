@@ -10947,16 +10947,23 @@ class BloodWolf extends Werewolf
                 return if game.judge()
             game.nextturn()
         return null
+    getOpenForms:(game)->
+        res = super
+        if Phase.isDay(game.phase) && !@dead && !@flag?
+            #昼の能力選択可能
+            res.push {
+                type: "BloodWolf"
+                options: @makeJobSelection game, false
+                formType: FormType.optionalOnce
+                objid: @objid
+            }
+        return res
 
     checkJobValidity:(game,query)->
         if query.jobtype=="BloodWolf"
             # 対象選択は不要
             return true
         return super
-    makeJobSelection:(game, isvote)->
-        unless isvote
-            []
-        else super
 
 # ============================
 # Roles for Space Werewolf
