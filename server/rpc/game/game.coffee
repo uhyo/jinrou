@@ -10888,8 +10888,9 @@ class GoldOni extends Oni
     constructor:->
         super
 
-        # 討伐人数を決定
-        targetNumber = Math.floor Math.random() * 4 + 1
+        # 討伐人数を決定（最大 人狼数+1）
+        wolfNumber = game.players.filter((x)-> x.isWerewolf()).length
+        targetNumber = Math.floor Math.random() * (wolfNumber + 1) + 1
         @setFlag Object.assign @flag, {
             targetNumber: targetNumber
         }
@@ -13010,7 +13011,7 @@ jobs=
     Acrobat:Acrobat
     Hanami:Hanami
     GoldOni:GoldOni
-    BloodWolf:BloodWolf    
+    BloodWolf:BloodWolf
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
