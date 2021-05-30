@@ -10889,7 +10889,7 @@ class GoldOni extends Oni
         super
 
         # 討伐人数を決定（最大 人狼数+1）
-        wolfNumber = game.players.filter((x)-> x.isWerewolf()).length
+        wolfNumber = @game.players.filter((x)-> x.isWerewolf()).length
         targetNumber = Math.floor Math.random() * (wolfNumber + 1) + 1
         @setFlag Object.assign @flag, {
             targetNumber: targetNumber
@@ -10923,7 +10923,7 @@ class BloodWolf extends Werewolf
         else
             super
     chooseJobDay:(game)->true
-    job:(game,playerid,query)->
+    job:(game, playerid, query)->
         if query.jobtype!="BloodWolf"
             # 人狼の仕事
             return super
@@ -10933,10 +10933,10 @@ class BloodWolf extends Werewolf
             return game.i18n.t "error.common.cannotUseSkillNow"
         # 自爆スイッチ
         log=
-            mode:"system"
-            comment: game.i18n.t "roles:BloodWolf.using", {name: @name}
-        splashlog game.id,game,log
-        @setFlag using
+            mode: "system"
+            comment: game.i18n.t "roles:BloodWolf.using", { name: @name }
+        splashlog game.id, game, log
+        @setFlag "using"
         # その場で殺す!!!
         @die game, "punish"
         # XXX executeの中と同じことが書いてある
@@ -10954,13 +10954,13 @@ class BloodWolf extends Werewolf
             #昼の能力選択可能
             res.push {
                 type: "BloodWolf"
-                options: @makeJobSelection game, false
+                options: []
                 formType: FormType.optionalOnce
                 objid: @objid
             }
         return res
 
-    checkJobValidity:(game,query)->
+    checkJobValidity:(game, query)->
         if query.jobtype=="BloodWolf"
             # 対象選択は不要
             return true
