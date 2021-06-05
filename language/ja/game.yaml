@@ -271,6 +271,7 @@ foundDetail:
   lorelei: '怨嗟の歌声'
   loreleisuicide: 'ローレライの後追い自殺'
   oni: '人攫い'
+  selfdestruct: '自爆'
   fallback: '不明'
   situation: '{{name}}の死因は{{detail}}でした。'
 
