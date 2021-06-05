@@ -1364,14 +1364,15 @@ class Game
                 for pyr in x
                     for pyr_sub in pyr.accessByJobTypeAll "BloodWolf"
                         # 花火が上がった場合はそちらを優先させる
-                        if pyr_sub.flag == "using" && !onfire
-                            bloodseal = true
+                        if pyr_sub.flag == "using"
                             pyr_sub.setFlag "done"
-                            # 全体公開
-                            log=
-                                mode:"system"
-                                comment: @i18n.t "roles:BloodWolf.affect"
-                            splashlog @id, this, log
+                            if pyr_sub.dead  && !onfire
+                                bloodseal = true
+                                # 全体公開
+                                log=
+                                    mode:"system"
+                                    comment: @i18n.t "roles:BloodWolf.affect"
+                                splashlog @id, this, log
                 # 人狼系以外に影響を及ぼす
                 if bloodseal
                     for pl in nwolf
