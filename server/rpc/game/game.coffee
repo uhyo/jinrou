@@ -10966,6 +10966,24 @@ class BloodWolf extends Werewolf
             return true
         return super
 
+class Reincarnator extends Player
+    type:"Reincarnator"
+    isReviver:->true
+    dying:(game,found)->
+        super
+        # 死体
+        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && x.isHuman() && !x.isJobType("Devil")
+        if deads.length==0
+            return
+        pl=deads[Math.floor(Math.random()*deads.length)]
+        @addGamelog game, "reincarnation", null, pl.id
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Reincarnator.revive", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        pl.revive game
+
 # ============================
 # Roles for Space Werewolf
 
@@ -13012,6 +13030,7 @@ jobs=
     Hanami:Hanami
     GoldOni:GoldOni
     BloodWolf:BloodWolf
+    Reincarnator:Reincarnator
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13235,6 +13254,7 @@ jobStrength=
     Hanami:7
     GoldOni:10
     BloodWolf:46
+    Reincarnator:15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
