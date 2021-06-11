@@ -12450,9 +12450,9 @@ class SpentVotesForGacha extends Complex
         # 自分の票数を引く
         game.votingbox.votePower this, -@cmplFlag
     # 夜になったら消える
-    sunset:(game)->
-        @mcall game, @main.sunset, game
-        @sub?.sunset? game
+    sunsetAlways:(game)->
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
         @uncomplex game
 
 # 配信者のサブ役職管理
