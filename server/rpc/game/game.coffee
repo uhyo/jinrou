@@ -8549,6 +8549,9 @@ class XianFox extends Fox
         super
         @setTarget null
         @setFlag null
+    deadsunset:(game)->
+        @setTarget null
+        @setFlag null
     job:(game, playerid)->
         pl=game.getPlayer playerid
         unless pl?
