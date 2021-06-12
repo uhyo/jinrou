@@ -4686,9 +4686,7 @@ class Light extends Player
     midnight:(game,midnightSort)->
         t=game.getPlayer game.skillTargetHook.get @target
         # デスノートで殺す
-        if t.assassinationReflectivity > 0 && Math.random() < t.assassinationReflectivity
-            @die game, "deathnote", t.id
-        else if t? && !t.dead
+        if t? && !t.dead
             t.die game, "deathnote", @id
 
         # 誰かに移る処理
