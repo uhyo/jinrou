@@ -1462,6 +1462,13 @@ exports.new_rules=[
                     id:"chemical"
                     value:"on"
             }
+            {
+                type: 'item'
+                value:
+                    type:"checkbox"
+                    id:"ushi"
+                    value:"on"
+            }
         ]
     }
     # 人狼系
