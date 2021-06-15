@@ -13448,6 +13448,13 @@ module.exports.actions=(req,res,ss)->
                             exceptions.push job
                             excluded_exceptions.push job
 
+                # 2陣営戦
+                if query.ushi=="on"
+                    addTeamToExceptions "Fox"        #第三陣営（妖狐・背徳）除外
+                    addTeamToExceptions "Others"     #陣営に属さない役職の除外
+                    addCategoryToExceptions "Others" #第四陣営以降の役職の除外
+                    addCategoryToExceptions "None"   #ニートの除外
+
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
                     exceptions.push "Oracle","Fate","Sleepwalker","Hanami"
@@ -14396,7 +14403,7 @@ module.exports.actions=(req,res,ss)->
             "dynamic_day_time",
             "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical","ushi",
             "firstnightdivine","consecutiveguard",
             "hunter_lastattack",
             "poisonwolf",
