@@ -166,6 +166,7 @@ jobname:
   Hanami: '花見客'
   GoldOni: '金鬼'
   BloodWolf: '血狼'
+  Reincarnator: '転生者'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1004,6 +1005,9 @@ Hanami:
 BloodWolf:
   using: '{{name}}は自らを犠牲に血月の力を引き出します。'
   affect: '血月の力により村人たちは能力を封印されています。'
+
+Reincarnator:
+  revive: '{{name}}は{{target}}へ転生しました。'
 
 # Werewolf
 SpaceWerewolfImposter:
