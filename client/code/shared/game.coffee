@@ -1571,6 +1571,13 @@ exports.new_rules=[
                     id:"couplesound"
                     value:"aloud"
             }
+            {
+                type: 'item'
+                value:
+                    type:"checkbox"
+                    id:"shoji"
+                    value:"on"
+            }
         ]
     }
     # 護衛役職

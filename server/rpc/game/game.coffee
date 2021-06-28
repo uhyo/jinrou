@@ -24,6 +24,8 @@ REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","Quantum
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
 DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
+# 会話覗き役職
+LOG_PEEKING_JOBS = ["NightRabbit"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -14353,6 +14355,12 @@ module.exports.actions=(req,res,ss)->
                     comment: game.i18n.t "system.gamestart.divinerModeChanged"
                 splashlog game.id,game,log
 
+            if query.shoji=="on" && LOG_PEEKING_JOBS.some((job)-> joblist[job] > 0)
+                log=
+                    mode:"system"
+                    comment: game.i18n.t "system.gamestart.shoji"
+                splashlog game.id,game,log
+
             if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋", "特殊ルール.easyYaminabe"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
@@ -14417,7 +14425,7 @@ module.exports.actions=(req,res,ss)->
 
             for x in ["jobrule",
             "dynamic_day_time",
-            "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
+            "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview","shoji",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
             "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
             "firstnightdivine","consecutiveguard",

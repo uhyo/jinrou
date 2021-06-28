@@ -139,6 +139,7 @@ system:
     rebirth: '{{name}}は転生しました。'
   # gameStart-related logs
   gamestart:
+    shoji: '壁に耳あり障子に目あり。'
     # Diviner result mode is changed
     divinerModeChanged: '占い結果に影響する役職が存在するので、占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。'
     # Excluded jobs
