@@ -109,6 +109,7 @@ jobinfo:
     gamblerStock: '現在{{number}}票持っています'
     bonds: '絆を{{names}}と結んでいます'
     targets: 'あなたのターゲットは{{names}}です'
+    enemies: '宿敵は{{names}}です'
     spaceWerewolfImposters: '仲間の詐欺師は{{names}}です'
 
 # game-view: speak form.

@@ -2,7 +2,7 @@ Shared=
     game:exports
 
 # 身代わりセーフティありのときの除外役職一覧
-exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Oni","Hanami","GoldOni"]
+exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Oni","Hanami","GoldOni","Duelist"]
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox",
@@ -51,7 +51,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Gambler","Faker","NetherWolf",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
-"SealWolf","Oni","GoldOni"
+"SealWolf","Oni","GoldOni","Duelist",
 # えけけ鯖
 "MadHunter","Ascetic"
 # 人狼パーティー
@@ -118,6 +118,7 @@ exports.teams=teams=
     Cult:["CultLeader"]
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
+    Duel:["Duelist"]
     Lorelei:["Lorelei"]
     Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni"],
     Neet:["Neet"]
@@ -131,7 +132,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:[
@@ -1071,6 +1072,10 @@ exports.jobinfo=
         color: "#f39800"
         Hooligan:
             color: "#ff5900"
+    Duel:
+        color: "#ccaaac"
+        Duelist:
+            color: "#bbaa22"
     Lorelei:
         color: "#b51b70"
         Lorelei:
@@ -1833,6 +1838,9 @@ exports.jobinfos=[
     }
     {
         name:"targets"
+    }
+    {
+        name:"enemies"
     }
 ]
 

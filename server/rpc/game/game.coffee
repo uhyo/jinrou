@@ -10670,7 +10670,7 @@ class Trickster extends Fox
             return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
-        if pl.id == "身代わりくん"
+        if pl.scapegoat
             return game.i18n.t "error.common.noScapegoat"
 
         unless @flag?
@@ -10996,6 +10996,63 @@ class Reincarnator extends Player
             comment: game.i18n.t "roles:Reincarnator.revive", {name: @name, target: pl.name}
         splashlog game.id,game,log
         pl.revive game
+
+class Duelist extends Player
+    type:"Duelist"
+    team:"Duel"
+    formType: FormType.required
+    constructor:->
+        super
+        @setTarget null    # 相手
+    sunset:(game)->
+        unless @flag?
+            if @scapegoat
+                # 身代わりくんは求愛しない
+                @setFlag true
+                @setTarget ""
+            else
+                @setTarget null
+    sleeping:(game)->@flag || @target?
+    job:(game,playerid,query)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        if pl.scapegoat
+            return game.i18n.t "error.common.noScapegoat"
+        pl.touched game,@id
+
+        @setTarget playerid
+        @setFlag true
+        # 恋人二人が決定した
+
+        mytop = game.getPlayer @id
+        plpls = [mytop, pl]
+        for x,i in plpls
+            newpl=Player.factory null, game, x,null,Enemy # 恋人だ！
+            x.transProfile newpl
+            x.transform game,newpl,true  # 入れ替え
+            newpl.cmplFlag=plpls[1-i].id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Duelist.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        log=
+            mode:"skill"
+            to:newpl.id
+            comment: game.i18n.t "roles:Duelist.become", {name: pl.name}
+        splashlog game.id,game,log
+        # 2人とも更新する
+        game.splashjobinfo [mytop, pl]
+
+        null
 
 # ============================
 # Roles for Space Werewolf
@@ -12641,6 +12698,33 @@ class Bonds extends Complex
             else
                 result.bonds=bo
 
+class Enemy extends Complex
+    # cmplFlag: 相方のid
+    cmplType:"Enemy"
+    getTeam:-> "Duel"
+    getTeamDisp:-> "Duel"
+    getJobname:-> @game.i18n.t "roles:Enemy.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:Enemy.jobname", {jobname: @main.getJobDisp()}
+
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game, result
+        result.desc?.push {
+            name: game.i18n.t "roles:Enemy.name"
+            type:"Enemy"
+        }
+        ene=[this,game.getPlayer(@cmplFlag)].filter((x)->x?.isCmplType("Enemy")).map (x)->
+                x.publicinfo()
+            if Array.isArray result.enemies
+                result.enemies=result.enemies.concat ene
+            else
+                result.enemies=ene
+    isWinner:(game,team)->
+        if @dead
+            return false
+        pl=game.getPlayer @cmplFlag
+        return pl.dead
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -12776,6 +12860,8 @@ class Chemical extends Complex
             myt = "Lorelei"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
+        else if maint=="Duel" || subt=="Duel"
+            myt = "Duel"
         else if maint=="Raven" || subt=="Raven"
             myt = "Raven"
         else if maint=="Fox" || subt=="Fox"
@@ -13044,6 +13130,7 @@ jobs=
     GoldOni:GoldOni
     BloodWolf:BloodWolf
     Reincarnator:Reincarnator
+    Duelist:Duelist
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13104,6 +13191,7 @@ complexes=
     LoreleiFamilia:LoreleiFamilia
     MoonPhilia:MoonPhilia
     Bonds:Bonds
+    Enemy:Enemy
 
     # 役職ごとの強さ
 jobStrength=
@@ -13268,6 +13356,7 @@ jobStrength=
     GoldOni:10
     BloodWolf:46
     Reincarnator:15
+    Duelist:18
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

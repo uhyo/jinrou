@@ -167,6 +167,7 @@ jobname:
   GoldOni: '金鬼'
   BloodWolf: '血狼'
   Reincarnator: '転生者'
+  Duelist: '決闘者'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -199,6 +200,7 @@ teamName:
   Cult: 'カルトリーダー陣営'
   Raven: '鴉陣営'
   Hooligan: '暴徒陣営'
+  Duel: '決闘者陣営'
   Lorelei: 'ローレライ陣営'
   Neet: 'ニート'
   Others: 'その他'
@@ -1009,6 +1011,12 @@ BloodWolf:
 Reincarnator:
   revive: '{{name}}は{{target}}へ転生しました。'
 
+Duelist:
+  # Select a target.
+  select: '{{name}}は{{target}}に決闘を申し込みました。'
+  # Become a enemy.
+  become: '{{target}}は{{name}}との決闘に挑みます。'
+
 # Werewolf
 SpaceWerewolfImposter:
   # Selected a target.
@@ -1094,6 +1102,12 @@ FanOfIdol:
   name: 'ファン'
   # message when his idol is dead.
   idolDead: 'アイドルが死亡したショックで{{name}}は今夜能力を使えなくなりました。'
+
+Enemy:
+  # name for desc
+  name: '宿敵'
+  # jobname of Enemy
+  jobname: '宿敵（{{jobname}}）'
 
 LoreleiFamilia:
   name: 'ローレライのしもべ'
