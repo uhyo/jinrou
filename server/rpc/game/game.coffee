@@ -13095,6 +13095,7 @@ jobs=
     Hanami:Hanami
     GoldOni:GoldOni
     BloodWolf:BloodWolf
+    Duelist:Duelist
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13155,6 +13156,7 @@ complexes=
     LoreleiFamilia:LoreleiFamilia
     MoonPhilia:MoonPhilia
     Bonds:Bonds
+    Enemy:Enemy
 
     # 役職ごとの強さ
 jobStrength=
@@ -13318,6 +13320,7 @@ jobStrength=
     Hanami:7
     GoldOni:10
     BloodWolf:46
+    Duelist:18
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
