@@ -3458,6 +3458,7 @@ class Player
     # 死亡させられそうな場合に耐性をチェック
     # Returns true if it resisted its death.
     checkDeathResistance:-> false
+    assassinationReflectivity: 0
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
@@ -10756,6 +10757,7 @@ class Oni extends Player
     psychicResult: PsychicResult.oni
     # 鬼の人さらい減衰率
     attenuationRate: 0.2
+    assassinationReflectivity: 0.3
     hasDeadResistance:-> true
     sleeping:->true
     jobdone:->@target?
@@ -10803,7 +10805,9 @@ class Oni extends Player
         successRate = Math.pow @attenuationRate, successCount
         if successRate < 0.01
             successRate = 0.01
-        if Math.random() < successRate
+        if pl.assassinationReflectivity > 0 && Math.random() < pl.assassinationReflectivity
+            @die game, "oni", pl.id
+        else if Math.random() < successRate
             pl.die game, "oni", @id
             @setFlag Object.assign {}, @flag, {
                 successCount: successCount + 1
@@ -10893,6 +10897,7 @@ class Hanami extends Player
 class GoldOni extends Oni
     type: "GoldOni"
     attenuationRate: 0.5
+    assassinationReflectivity: 0.4
     constructor:->
         super
 
