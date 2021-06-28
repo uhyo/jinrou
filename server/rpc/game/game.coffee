@@ -19,7 +19,7 @@ i18n = libi18n.getWithDefaultNS "game"
 # 身代わりセーフティありのときの除外役職一覧
 SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # jobs that not welcome while rebirth
-REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener"]
+REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener","SpaceWerewolfCrew","SpaceWerewolfImposter","SpaceWerewolfObserver","SpaceWerewolfGuard","SpaceWerewolfSabotage"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
@@ -1462,7 +1462,7 @@ class Game
                         else
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
-                deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat
+                deads=shuffle @players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat
                 # 転生確率
                 # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
                 # 1ターンに2人しぬとしてp(n+2)=2とおくとp=2/(n+2) 。
