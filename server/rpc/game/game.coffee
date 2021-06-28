@@ -1364,14 +1364,15 @@ class Game
                 for pyr in x
                     for pyr_sub in pyr.accessByJobTypeAll "BloodWolf"
                         # 花火が上がった場合はそちらを優先させる
-                        if pyr_sub.flag == "using" && !onfire
-                            bloodseal = true
+                        if pyr_sub.flag == "using"
                             pyr_sub.setFlag "done"
-                            # 全体公開
-                            log=
-                                mode:"system"
-                                comment: @i18n.t "roles:BloodWolf.affect"
-                            splashlog @id, this, log
+                            if pyr_sub.dead  && !onfire
+                                bloodseal = true
+                                # 全体公開
+                                log=
+                                    mode:"system"
+                                    comment: @i18n.t "roles:BloodWolf.affect"
+                                splashlog @id, this, log
                 # 人狼系以外に影響を及ぼす
                 if bloodseal
                     for pl in nwolf
@@ -1897,7 +1898,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1940,7 +1941,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -2007,6 +2008,8 @@ class Game
                         "loreleisuicide"
                     when "oni"
                         "oni"
+                    when "selfdestruct"
+                        "selfdestruct"
                     else
                         null
                 if emma_log?
@@ -10938,7 +10941,7 @@ class BloodWolf extends Werewolf
         splashlog game.id, game, log
         @setFlag "using"
         # その場で殺す!!!
-        @die game, "punish"
+        @die game, "selfdestruct"
         # XXX executeの中と同じことが書いてある
         game.bury "punish"
         return if game.rule.hunter_lastattack == "no" && game.judge()

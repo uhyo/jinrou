@@ -754,6 +754,8 @@ Emma:
     lorelei: '{{name}}は怨嗟の歌声に導かれたようです。'
     # Killed by Oni
     oni: '{{name}}は鬼に攫われたようです。'
+    # Self-Destruct
+    selfdestruct: '{{name}}は自爆したようです。'
 
 EyesWolf:
   # EyesWolf result strings
