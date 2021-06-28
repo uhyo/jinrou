@@ -10661,7 +10661,7 @@ class Trickster extends Fox
             return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
-        if pl.id == "身代わりくん"
+        if pl.scapegoat
             return game.i18n.t "error.common.noScapegoat"
 
         unless @flag?
@@ -10993,6 +10993,8 @@ class Duelist extends Player
             return game.i18n.t "error.common.nonexistentPlayer"
         if playerid==@id
             return game.i18n.t "error.common.noSelectSelf"
+        if pl.scapegoat
+            return game.i18n.t "error.common.noScapegoat"
         pl.touched game,@id
 
         @setTarget playerid
