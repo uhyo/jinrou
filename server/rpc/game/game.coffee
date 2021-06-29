@@ -19,11 +19,13 @@ i18n = libi18n.getWithDefaultNS "game"
 # 身代わりセーフティありのときの除外役職一覧
 SAFETY_EXCLUDED_JOBS = Shared.game.SAFETY_EXCLUDED_JOBS
 # jobs that not welcome while rebirth
-REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener"]
+REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","QuantumPlayer","Waiting","Watching","GotChocolate","HooliganGuard","HooliganAttacker","Listener","SpaceWerewolfCrew","SpaceWerewolfImposter","SpaceWerewolfObserver","SpaceWerewolfGuard","SpaceWerewolfSabotage"]
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
 DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
+# 会話覗き役職
+LOG_PEEKING_JOBS = ["NightRabbit"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -1356,6 +1358,31 @@ class Game
                         newpl.cmplFlag=x[0].id
                         pl.transform this,newpl,true
 
+            # 血狼
+            x = @players.filter((pl)->pl.isJobType("BloodWolf"))
+            nwolf=@players.filter((x)->!x.isWerewolf())
+            if x.length
+                bloodseal = false
+                for pyr in x
+                    for pyr_sub in pyr.accessByJobTypeAll "BloodWolf"
+                        # 花火が上がった場合はそちらを優先させる
+                        if pyr_sub.flag == "using"
+                            pyr_sub.setFlag "done"
+                            if pyr_sub.dead  && !onfire
+                                bloodseal = true
+                                # 全体公開
+                                log=
+                                    mode:"system"
+                                    comment: @i18n.t "roles:BloodWolf.affect"
+                                splashlog @id, this, log
+                # 人狼系以外に影響を及ぼす
+                if bloodseal
+                    for pl in nwolf
+                        newpl=Player.factory null, this, pl,null,Threatened #威嚇と同じ効果
+                        pl.transProfile newpl
+                        newpl.cmplFlag=x[0].id
+                        pl.transform this,newpl,true
+
             @runSunset()
 
             #sunset後の死体処理
@@ -1438,7 +1465,7 @@ class Game
                         else
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
-                deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat
+                deads=shuffle @players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat
                 # 転生確率
                 # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
                 # 1ターンに2人しぬとしてp(n+2)=2とおくとp=2/(n+2) 。
@@ -1873,7 +1900,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1916,7 +1943,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -1983,6 +2010,8 @@ class Game
                         "loreleisuicide"
                     when "oni"
                         "oni"
+                    when "selfdestruct"
+                        "selfdestruct"
                     else
                         null
                 if emma_log?
@@ -3429,6 +3458,7 @@ class Player
     # 死亡させられそうな場合に耐性をチェック
     # Returns true if it resisted its death.
     checkDeathResistance:-> false
+    assassinationReflectivity: 0
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
@@ -8525,6 +8555,9 @@ class XianFox extends Fox
         super
         @setTarget null
         @setFlag null
+    deadsunset:(game)->
+        @setTarget null
+        @setFlag null
     job:(game, playerid)->
         pl=game.getPlayer playerid
         unless pl?
@@ -10637,7 +10670,7 @@ class Trickster extends Fox
             return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
-        if pl.id == "身代わりくん"
+        if pl.scapegoat
             return game.i18n.t "error.common.noScapegoat"
 
         unless @flag?
@@ -10724,6 +10757,7 @@ class Oni extends Player
     psychicResult: PsychicResult.oni
     # 鬼の人さらい減衰率
     attenuationRate: 0.2
+    assassinationReflectivity: 0.3
     hasDeadResistance:-> true
     sleeping:->true
     jobdone:->@target?
@@ -10771,7 +10805,9 @@ class Oni extends Player
         successRate = Math.pow @attenuationRate, successCount
         if successRate < 0.01
             successRate = 0.01
-        if Math.random() < successRate
+        if pl.assassinationReflectivity > 0 && Math.random() < pl.assassinationReflectivity
+            @die game, "oni", pl.id
+        else if Math.random() < successRate
             pl.die game, "oni", @id
             @setFlag Object.assign {}, @flag, {
                 successCount: successCount + 1
@@ -10861,11 +10897,13 @@ class Hanami extends Player
 class GoldOni extends Oni
     type: "GoldOni"
     attenuationRate: 0.5
+    assassinationReflectivity: 0.4
     constructor:->
         super
 
-        # 討伐人数を決定
-        targetNumber = Math.floor Math.random() * 4 + 1
+        # 討伐人数を決定（最大 人狼数+1）
+        wolfNumber = @game.players.filter((x)-> x.isWerewolf()).length
+        targetNumber = Math.floor Math.random() * (wolfNumber + 1) + 1
         @setFlag Object.assign @flag, {
             targetNumber: targetNumber
         }
@@ -10889,6 +10927,132 @@ class GoldOni extends Oni
         myPosition = game.players.findIndex (pl)=> pl.id == @id
         targets = game.players.slice(Math.max(0, myPosition - (@flag.targetNumber ? 0)), myPosition)
         result.targets = targets.map (pl)-> pl.publicinfo()
+
+class BloodWolf extends Werewolf
+    type:"BloodWolf"
+    jobdone:(game)->
+        if Phase.isDay(game.phase)
+            @flag?
+        else
+            super
+    chooseJobDay:(game)->true
+    job:(game, playerid, query)->
+        if query.jobtype!="BloodWolf"
+            # 人狼の仕事
+            return super
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+        unless Phase.isDay(game.phase)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        # 自爆スイッチ
+        log=
+            mode: "system"
+            comment: game.i18n.t "roles:BloodWolf.using", { name: @name }
+        splashlog game.id, game, log
+        @setFlag "using"
+        # その場で殺す!!!
+        @die game, "selfdestruct"
+        # XXX executeの中と同じことが書いてある
+        game.bury "punish"
+        return if game.rule.hunter_lastattack == "no" && game.judge()
+        # 次のターンへ移行
+        unless game.hunterCheck("nextturn")
+            if game.rule.hunter_lastattack == "yes"
+                return if game.judge()
+            game.nextturn()
+        return null
+    getOpenForms:(game)->
+        res = super
+        if Phase.isDay(game.phase) && !@dead && !@flag?
+            #昼の能力選択可能
+            res.push {
+                type: "BloodWolf"
+                options: []
+                formType: FormType.optionalOnce
+                objid: @objid
+            }
+        return res
+
+    checkJobValidity:(game, query)->
+        if query.jobtype=="BloodWolf"
+            # 対象選択は不要
+            return true
+        return super
+
+class Reincarnator extends Player
+    type:"Reincarnator"
+    isReviver:->true
+    dying:(game,found)->
+        super
+        # 死体
+        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && x.isHuman() && !x.isJobType("Devil")
+        if deads.length==0
+            return
+        pl=deads[Math.floor(Math.random()*deads.length)]
+        @addGamelog game, "reincarnation", null, pl.id
+        log=
+            mode:"hidden"
+            to:-1
+            comment: game.i18n.t "roles:Reincarnator.revive", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        pl.revive game
+
+class Duelist extends Player
+    type:"Duelist"
+    team:"Duel"
+    formType: FormType.required
+    constructor:->
+        super
+        @setTarget null    # 相手
+    sunset:(game)->
+        unless @flag?
+            if @scapegoat
+                # 身代わりくんは求愛しない
+                @setFlag true
+                @setTarget ""
+            else
+                @setTarget null
+    sleeping:(game)->@flag || @target?
+    job:(game,playerid,query)->
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        if pl.scapegoat
+            return game.i18n.t "error.common.noScapegoat"
+        pl.touched game,@id
+
+        @setTarget playerid
+        @setFlag true
+        # 恋人二人が決定した
+
+        mytop = game.getPlayer @id
+        plpls = [mytop, pl]
+        for x,i in plpls
+            newpl=Player.factory null, game, x,null,Enemy # 恋人だ！
+            x.transProfile newpl
+            x.transform game,newpl,true  # 入れ替え
+            newpl.cmplFlag=plpls[1-i].id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Duelist.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        log=
+            mode:"skill"
+            to:newpl.id
+            comment: game.i18n.t "roles:Duelist.become", {name: pl.name, target: @name}
+        splashlog game.id,game,log
+        # 2人とも更新する
+        game.splashjobinfo [mytop, pl]
+
+        null
 
 # ============================
 # Roles for Space Werewolf
@@ -12374,9 +12538,9 @@ class SpentVotesForGacha extends Complex
         # 自分の票数を引く
         game.votingbox.votePower this, -@cmplFlag
     # 夜になったら消える
-    sunset:(game)->
-        @mcall game, @main.sunset, game
-        @sub?.sunset? game
+    sunsetAlways:(game)->
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
         @uncomplex game
 
 # 配信者のサブ役職管理
@@ -12534,6 +12698,33 @@ class Bonds extends Complex
             else
                 result.bonds=bo
 
+class Enemy extends Complex
+    # cmplFlag: 相方のid
+    cmplType:"Enemy"
+    getTeam:-> "Duel"
+    getTeamDisp:-> "Duel"
+    getJobname:-> @game.i18n.t "roles:Enemy.jobname", {jobname: @main.getJobname()}
+    getJobDisp:-> @game.i18n.t "roles:Enemy.jobname", {jobname: @main.getJobDisp()}
+
+    makejobinfo:(game,result)->
+        @sub?.makejobinfo? game,result
+        @main.makejobinfo game, result
+        result.desc?.push {
+            name: game.i18n.t "roles:Enemy.name"
+            type:"Enemy"
+        }
+        ene=[this,game.getPlayer(@cmplFlag)].filter((x)->x?.isCmplType("Enemy")).map (x)->
+                x.publicinfo()
+            if Array.isArray result.enemies
+                result.enemies=result.enemies.concat ene
+            else
+                result.enemies=ene
+    isWinner:(game,team)->
+        if @dead
+            return false
+        pl=game.getPlayer @cmplFlag
+        return pl.dead
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -12669,6 +12860,8 @@ class Chemical extends Complex
             myt = "Lorelei"
         else if maint=="Friend" || subt=="Friend"
             myt = "Friend"
+        else if maint=="Duel" || subt=="Duel"
+            myt = "Duel"
         else if maint=="Raven" || subt=="Raven"
             myt = "Raven"
         else if maint=="Fox" || subt=="Fox"
@@ -12935,6 +13128,9 @@ jobs=
     Acrobat:Acrobat
     Hanami:Hanami
     GoldOni:GoldOni
+    BloodWolf:BloodWolf
+    Reincarnator:Reincarnator
+    Duelist:Duelist
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -12995,6 +13191,7 @@ complexes=
     LoreleiFamilia:LoreleiFamilia
     MoonPhilia:MoonPhilia
     Bonds:Bonds
+    Enemy:Enemy
 
     # 役職ごとの強さ
 jobStrength=
@@ -13157,6 +13354,9 @@ jobStrength=
     Acrobat:15
     Hanami:7
     GoldOni:10
+    BloodWolf:46
+    Reincarnator:15
+    Duelist:18
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13369,6 +13569,13 @@ module.exports.actions=(req,res,ss)->
                             # これは出してはいけない指定になっている
                             exceptions.push job
                             excluded_exceptions.push job
+
+                # 2陣営戦
+                if query.ushi=="on"
+                    addTeamToExceptions "Fox"        #第三陣営（妖狐・背徳）除外
+                    addTeamToExceptions "Others"     #陣営に属さない役職の除外
+                    addCategoryToExceptions "Others" #第四陣営以降の役職の除外
+                    addCategoryToExceptions "None"   #ニートの除外
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
@@ -14258,6 +14465,12 @@ module.exports.actions=(req,res,ss)->
                     comment: game.i18n.t "system.gamestart.divinerModeChanged"
                 splashlog game.id,game,log
 
+            if query.shoji=="on" && LOG_PEEKING_JOBS.some((job)-> joblist[job] > 0)
+                log=
+                    mode:"system"
+                    comment: game.i18n.t "system.gamestart.shoji"
+                splashlog game.id,game,log
+
             if query.yaminabe_hidejobs!="" && !(query.jobrule in ["特殊ルール.闇鍋", "特殊ルール.一部闇鍋", "特殊ルール.エンドレス闇鍋", "特殊ルール.easyYaminabe"])
                 # 闇鍋以外で配役情報を公開しないときはアレする
                 ruleinfo_str = ""
@@ -14322,9 +14535,9 @@ module.exports.actions=(req,res,ss)->
 
             for x in ["jobrule",
             "dynamic_day_time",
-            "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview",
+            "decider","authority","scapegoat","will","wolfsound","couplesound","heavenview","shoji",
             "wolfattack","guardmyself","votemyself","deadfox","deathnote","divineresult","psychicresult","waitingnight",
-            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical",
+            "safety","friendsjudge","noticebitten","voteresult","GMpsychic","wolfminion","drunk","losemode","gjmessage","rolerequest","runoff","drawvote","chemical","ushi",
             "firstnightdivine","consecutiveguard",
             "hunter_lastattack",
             "poisonwolf",

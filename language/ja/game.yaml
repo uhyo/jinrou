@@ -139,6 +139,7 @@ system:
     rebirth: '{{name}}は転生しました。'
   # gameStart-related logs
   gamestart:
+    shoji: '壁に耳あり障子に目あり。'
     # Diviner result mode is changed
     divinerModeChanged: '占い結果に影響する役職が存在するので、占い結果が「すぐ分かる」から「翌朝分かる」に変更されました。'
     # Excluded jobs
@@ -271,6 +272,7 @@ foundDetail:
   lorelei: '怨嗟の歌声'
   loreleisuicide: 'ローレライの後追い自殺'
   oni: '人攫い'
+  selfdestruct: '自爆'
   fallback: '不明'
   situation: '{{name}}の死因は{{detail}}でした。'
 
