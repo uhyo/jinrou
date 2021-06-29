@@ -11047,7 +11047,7 @@ class Duelist extends Player
         log=
             mode:"skill"
             to:newpl.id
-            comment: game.i18n.t "roles:Duelist.become", {name: pl.name}
+            comment: game.i18n.t "roles:Duelist.become", {name: pl.name, target: @name}
         splashlog game.id,game,log
         # 2人とも更新する
         game.splashjobinfo [mytop, pl]
