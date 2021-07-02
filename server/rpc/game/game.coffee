@@ -10911,7 +10911,7 @@ class GoldOni extends Oni
         # 自身の生存 + 村人勝利 + 左方向n人死亡
         if @dead
             return false
-        if team != "Human" && team != ""
+        if team != "Human"
             return false
         myPosition = game.players.findIndex (pl)=> pl.id == @id
         targets = game.players.slice(Math.max(0, myPosition - (@flag.targetNumber ? 0)), myPosition)
