@@ -13655,6 +13655,7 @@ module.exports.actions=(req,res,ss)->
                     fox_number=0
                     vampire_number=0
                     devil_number=0
+                    lorelei_number=0
                     if playersnumber>=9
                         wolf_number++
                         if playersnumber>=12
@@ -13699,6 +13700,8 @@ module.exports.actions=(req,res,ss)->
                         vampire_number++
                     if playersnumber>=11 && Math.random()<0.2
                         devil_number++
+                    if playersnumber>=13 && Math.random()<0.1
+                        lorelei_number++
 
                     if query.jobrule == "特殊ルール.一部闇鍋"
                         # 一部闇鍋の指定との兼ね合いを調整する
@@ -13763,6 +13766,15 @@ module.exports.actions=(req,res,ss)->
                             frees -= diff
                         else
                             joblist.Devil += frees
+                            frees = 0
+
+                    diff = Math.max 0, (lorelei_number - joblist.Lorelei)
+                    if !nonavs.Lorelei && diff > 0
+                        if diff <= frees
+                            joblist.Lorelei += diff
+                            frees -= diff
+                        else
+                            joblist.Lorelei += frees
                             frees = 0
                     # 人外は選んだのでもう選ばれなくする
                     exceptions=exceptions.concat Shared.game.nonhumans
@@ -13867,8 +13879,8 @@ module.exports.actions=(req,res,ss)->
                         exceptions.push "VampireClan"
 
                     # 妖狐陣営
-                    if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0)
-                        if joblist.Fox + joblist.TinyFox + joblist.XianFox == 1
+                    if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0 || joblist.Trickster > 0)
+                        if joblist.Fox + joblist.TinyFox + joblist.XianFox + joblist.Trickster == 1
                             if playersnumber>=14
                                 # 1人くらいは…
                                 if Math.random()<0.25 && !nonavs.Immoral
@@ -14335,8 +14347,8 @@ module.exports.actions=(req,res,ss)->
                                 continue
                         # ローレライ
                         if job == "Lorelei"
-                            # 人外数調整に組み込む , 13人未満では配役しない
-                            if (safety.jingais && Math.random()<0.4) || playersnumber<13
+                            # 13人未満では配役しない
+                            if playersnumber<13
                                 continue
                             else
                                 # ローレライは2人以上出さない
