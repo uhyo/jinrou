@@ -13847,7 +13847,8 @@ module.exports.actions=(req,res,ss)->
                             joblist.team_Human += diff
                             frees -= diff
 
-                        addTeamToExceptions "Human"
+                        if query.ushi!="on"
+                            addTeamToExceptions "Human"
                     # ヴァンパイア陣営
                     if frees > 0 && (joblist.Vampire > 0 || joblist.Dracula > 0)
                         if joblist.Vampire + joblist.Dracula == 1
