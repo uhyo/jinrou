@@ -11084,22 +11084,6 @@ class Duelist extends Player
 
 class MementoDisposer extends Forensic
     type:"MementoDisposer"
-    job:(game,playerid)->
-        if game.day < 2
-            return game.i18n.t "error.common.cannotUseSkillNow"
-        pl = game.getPlayer playerid
-        unless pl?
-            return game.i18n.t "error.common.nonexistentPlayer"
-        unless pl.dead
-            return game.i18n.t "error.common.notDead"
-        pl.touched game, @id
-        @setTarget playerid
-        log=
-            mode:"skill"
-            to:@id
-            comment: game.i18n.t "roles:MementoDisposer.select", {name: @name, target: pl.name}
-        splashlog game.id, game, log
-        null
     midnight:(game)->
         pl = game.getPlayer game.skillTargetHook.get @target
         origpl = game.getPlayer @target
