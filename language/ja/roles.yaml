@@ -168,6 +168,8 @@ jobname:
   BloodWolf: '血狼'
   Reincarnator: '転生者'
   Duelist: '決闘者'
+  Interpreter: '通訳'
+  Hierarch: '教主'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1016,6 +1018,13 @@ Duelist:
   select: '{{name}}は{{target}}に決闘を申し込みました。'
   # Become a enemy.
   become: '{{target}}は{{name}}との決闘に挑みます。'
+
+Interpreter:
+  select1: '{{name}}は通訳をする1人目に{{target}}を選びました。'
+  select2: '{{name}}は通訳をする2人目に{{target}}を選びました。'
+  noSelectTwice: 'もう一人別の人を選んでください。'
+  select: '{{name}}は{{target}}を通訳します。'
+  become: '{{name}}は通訳を手配されました。'
 
 # Werewolf
 SpaceWerewolfImposter:
