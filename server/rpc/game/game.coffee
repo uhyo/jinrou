@@ -30,7 +30,7 @@ LOG_PEEKING_JOBS = ["NightRabbit"]
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
     "Diviner","Liar","PI","Forensic","Ninja","Synesthete",
-    "Guard","Spellcaster","Priest","Witch","Counselor","Cosplayer",
+    "Guard","Spellcaster","Priest","Witch","Counselor","Cosplayer","Interpreter",
 ]
 
 # フェイズの一覧
@@ -11051,8 +11051,90 @@ class Duelist extends Player
         splashlog game.id,game,log
         # 2人とも更新する
         game.splashjobinfo [mytop, pl]
-
         null
+
+class Interpreter extends Player
+    type: "Interpreter"
+    formType: FormType.required
+    midnightSort:45
+    constructor:->
+        super
+        @setFlag null
+        @setTarget null
+    #通訳は聞くことだけは可能
+    isListener:(game,log)->
+        if log.mode=="couple"
+            true
+        else super
+    sunset:(game)->
+        if @flag?
+            @setFlag ""
+            @setTarget ""
+        else
+            @setFlag null
+            @setTarget null
+    sleeping:->@flag? && @target?
+    job:(game,playerid,query)->
+        if @flag? && @target?
+            return game.i18n.t "error.common.alreadyUsed"
+
+        # 自分は選べるが身代わりくんは選択できない
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        if pl.scapegoat
+            return game.i18n.t "error.common.noScapegoat"
+
+        unless @flag?
+            @setFlag playerid
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Interpreter.select1", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            return null
+        if @flag==playerid
+            return game.i18n.t "roles:Trickster.noSelectTwice"
+
+        @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Interpreter.select2", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        # 二人が決定した
+        null
+    midnight:(game,midnightSort)->
+        plpls=[game.getPlayer(@flag), game.getPlayer(@target)]
+
+        if !plpls[0] || !plpls[1]
+            return
+
+        for pl,i in plpls
+            # 2人ぶん処理
+            pl.touched game,@id
+            newpl=Player.factory null, game, pl,null,Interpreted
+            newpl.cmplFlag=plpls[1-i].id
+            pl.transProfile newpl
+            pl.transform game,newpl,true
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Interpreter.select", {name: @name, target: newpl.name}
+            splashlog game.id,game,log
+            log=
+                mode:"skill"
+                to:newpl.id
+                comment: game.i18n.t "roles:Interpreter.become", {name: newpl.name}
+            splashlog game.id,game,log
+        # 2人とも更新する
+        game.splashjobinfo [game.getPlayer(@flag), game.getPlayer(@target)]
+        null
+
+class Hierarch extends CultLeader
+    type: "Hierarch"
 
 # ============================
 # Roles for Space Werewolf
@@ -11732,6 +11814,12 @@ class CultMember extends Complex
     isCult:->true
     getJobname:-> @game.i18n.t "roles:CultMember.jobname", {jobname: @main.getJobname()}
     getJobDisp:-> @game.i18n.t "roles:CultMember.jobname", {jobname: @main.getJobDisp()}
+    isWinner:(game, team)->
+        # 教主が生存しているなら
+        hierarches = game.players.filter (x)->!x.dead && x.isJobType "Hierarch"
+        if team == "Cult" && hierarches.length > 1
+            return true
+        return @main.isWinner game, team
     makejobinfo:(game,result)->
         super
         # 信者の説明
@@ -12725,6 +12813,15 @@ class Enemy extends Complex
         pl=game.getPlayer @cmplFlag
         return pl.dead
 
+#通訳されている（共鳴状態）
+class Interpreted extends Complex
+    isListener:(game,log)->
+        if log.mode=="couple"
+            true
+        else super
+    getSpeakChoice:(game)->
+        ["couple"].concat super
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -13131,6 +13228,8 @@ jobs=
     BloodWolf:BloodWolf
     Reincarnator:Reincarnator
     Duelist:Duelist
+    Interpreter:Interpreter
+    Hierarch:Hierarch
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13192,6 +13291,7 @@ complexes=
     MoonPhilia:MoonPhilia
     Bonds:Bonds
     Enemy:Enemy
+    Interpreted:Interpreted
 
     # 役職ごとの強さ
 jobStrength=
@@ -13357,6 +13457,8 @@ jobStrength=
     BloodWolf:46
     Reincarnator:15
     Duelist:18
+    Interpreter:15
+    Hierarch:11
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
