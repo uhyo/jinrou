@@ -48,7 +48,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BadLady", # 蒼汁天国、人狼天国
 # ねじれ天国
 "Bomber","Blasphemy","Ushinotokimairi","DualPersonality","GachaAddicted",
-"Gambler","Faker","NetherWolf",
+"Gambler","Faker","NetherWolf","Interpreter","Hierarch",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
 "SealWolf","Oni","GoldOni","Duelist",
@@ -109,13 +109,13 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","Interpreter"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
     Vampire:["Vampire","Dracula","VampireClan"]
-    Cult:["CultLeader"]
+    Cult:["CultLeader","Hierarch"]
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
     Duel:["Duelist"]
@@ -132,7 +132,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
     # Special category for "no category"
     None:[
@@ -162,7 +162,7 @@ exports.gachaData =
     4: ["Poisoner", "Merchant", "MadWolf", "Light", "Cat", "Witch", "Dictator",
         "Miko", "HolyMarked", "TroubleMaker", "FrankensteinsMonster",
         "SantaClaus", "Baker", "SpiritPossessed", "Hunter", "Idol", "Elementaler","Fate",
-        "Synesthete", "Streamer","Reincarnator"]
+        "Synesthete", "Streamer", "Reincarnator", "Interpreter"]
     5: ["QueenSpectator", "Priest", "Trapper", "Counselor", "BloodyMary", "King",
         "Illusionist", "DragonKnight"]
     6: ["Neet", "Helper", "Watching"]
@@ -913,6 +913,8 @@ exports.jobinfo=
             color:"#feeeed"
         Reincarnator:
             color:"#5acff2"
+        Interpreter:
+            color:"#56cbe3"
 
     Werewolf:
         color:"#DD0000"
@@ -1062,6 +1064,8 @@ exports.jobinfo=
         color: "#b09d87"
         CultLeader:
             color:"#b09d87"
+        Hierarch:
+            color:"#3b3536"
     Raven:
         color: "#444466"
         Raven:
