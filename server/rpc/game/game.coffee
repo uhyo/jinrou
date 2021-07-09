@@ -11077,16 +11077,11 @@ class Interpreter extends Player
     job:(game,playerid,query)->
         if @flag? && @target?
             return game.i18n.t "error.common.alreadyUsed"
-
-        # 自分は選べるが身代わりくんは選択できない
         pl=game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
         if pl.dead
             return game.i18n.t "error.common.alreadyDead"
-        if pl.scapegoat
-            return game.i18n.t "error.common.noScapegoat"
-
         unless @flag?
             @setFlag playerid
             log=
