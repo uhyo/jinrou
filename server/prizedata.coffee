@@ -65,7 +65,7 @@ loadTable=(arr)->
     normaljobs=["all","Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","Fox"]
     # 数をパースする
     for num in nums
-        res=num.match /^(\d+)(?:\(\d+\))?$/
+        res=num.match /^(\d+)(?:\()?(\d+\))?$/
         if res
             normals.push parseInt res[1]
             if res[2]?
