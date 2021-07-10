@@ -10985,7 +10985,7 @@ class Reincarnator extends Player
     dying:(game,found)->
         super
         # 死体
-        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && x.isHuman() && !x.isJobType("Devil")
+        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.type in Shared.game.nonhumans)
         if deads.length==0
             return
         pl=deads[Math.floor(Math.random()*deads.length)]
@@ -11047,7 +11047,7 @@ class Duelist extends Player
         log=
             mode:"skill"
             to:newpl.id
-            comment: game.i18n.t "roles:Duelist.become", {name: pl.name, target: @name}
+            comment: game.i18n.t "roles:Duelist.become", {name: @name, target: pl.name}
         splashlog game.id,game,log
         # 2人とも更新する
         game.splashjobinfo [mytop, pl]
@@ -14472,6 +14472,9 @@ module.exports.actions=(req,res,ss)->
             if query.yaminabe_hidejobs != "" && query.jobrule == "特殊ルール.自由配役"
                 # ルール名のみ
                 ruleinfo_str = game.i18n.t "casting:castingName.#{query.jobrule}"
+            if query.ushi == "on"
+                # 2陣営戦の場合は表示
+                ruleinfo_str = "#{game.i18n.t "common.ushi"}　" + (ruleinfo_str ? "")
             if query.losemode == "on"
                 # 敗北村の場合は表示
                 ruleinfo_str = "#{game.i18n.t "common.losemode"}　" + (ruleinfo_str ? "")
