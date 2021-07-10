@@ -169,6 +169,8 @@ jobname:
   Reincarnator: '転生者'
   Duelist: '決闘者'
   MementoDisposer: '遺品整理士'
+  Interpreter: '通訳'
+  Hierarch: '教主'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1022,6 +1024,13 @@ MementoDisposer:
   select: '{{name}}は{{target}}の遺品を整理しました。'
   resultYes: '{{name}}が整理すると、{{target}}の遺品から凶器を発見しました。'
   resultNo: '{{name}}が整理すると、{{target}}の遺品には怪しい物はありませんでした。'
+  
+Interpreter:
+  select1: '{{name}}は通訳をする1人目に{{target}}を選びました。'
+  select2: '{{name}}は通訳をする2人目に{{target}}を選びました。'
+  noSelectTwice: 'もう一人別の人を選んでください。'
+  select: '{{name}}は{{target}}を通訳します。'
+  become: '{{name}}は通訳を手配されました。'
 
 # Werewolf
 SpaceWerewolfImposter:
