@@ -119,6 +119,7 @@ messages:
   GoldOni: '人攫いの対象を選択してください'
   BloodWolf: '自爆する場合は選択してください'
   Duelist: '宿敵にする相手を選択してください'
+  MementoDisposer: '整理する対象を選択してください'
   Interpreter: '通訳をする2人を1人ずつ選択してください'
   Hierarch: '信者にする人を選択してください'
   SpaceWerewolfObserver: '観察する対象を選択してください'
