@@ -2463,7 +2463,7 @@ class Game
                 team="Hooligan"
 
             # カルト判定
-            if alives>0 && aliveps.every((x)->x.isCult() || x.isJobType("CultLeader") || x.isJobType("Hierarch") && x.getTeam()=="Cult" )
+            if alives>0 && aliveps.every((x)->x.isCult() || (x.isJobType("CultLeader") || x.isJobType("Hierarch")) && x.getTeam()=="Cult" )
                 # 全員信者
                 team="Cult"
             # 悪魔くん判定
