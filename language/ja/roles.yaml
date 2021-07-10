@@ -168,6 +168,7 @@ jobname:
   BloodWolf: '血狼'
   Reincarnator: '転生者'
   Duelist: '決闘者'
+  MementoDisposer: '遺品整理士'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1016,6 +1017,11 @@ Duelist:
   select: '{{name}}は{{target}}に決闘を申し込みました。'
   # Become a enemy.
   become: '{{target}}は{{name}}との決闘に挑みます。'
+
+MementoDisposer:
+  select: '{{name}}は{{target}}の遺品を整理しました。'
+  resultYes: '{{name}}が整理すると、{{target}}の遺品から凶器を発見しました。'
+  resultNo: '{{name}}が整理すると、{{target}}の遺品には怪しい物はありませんでした。'
 
 # Werewolf
 SpaceWerewolfImposter:

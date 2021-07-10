@@ -30,7 +30,7 @@ LOG_PEEKING_JOBS = ["NightRabbit"]
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
     "Diviner","Liar","PI","Forensic","Ninja","Synesthete",
-    "Guard","Spellcaster","Priest","Witch","Counselor","Cosplayer",
+    "Guard","Spellcaster","Priest","Witch","Counselor","Cosplayer","MementoDisposer",
 ]
 
 # フェイズの一覧
@@ -3318,6 +3318,7 @@ class Player
     getAttribute:(attr, game)->false
     # ----- 役職判定用
     hasDeadResistance:->false
+    hasDeadlyWeapon:->false
     # -----
 
     # Am I Dead?
@@ -3782,6 +3783,7 @@ class Werewolf extends Player
     isHuman:->false
     isWerewolf:->true
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     # おおかみ専用メソッド：襲撃できるか
     isAttacker:->!@dead
 
@@ -4062,6 +4064,7 @@ class Fox extends Player
 
 class Poisoner extends Player
     type:"Poisoner"
+    hasDeadlyWeapon:->true
     dying:(game,found,from)->
         super
         # 埋毒者の逆襲
@@ -4488,6 +4491,7 @@ class Merchant extends Player
         null
 class QueenSpectator extends Player
     type:"QueenSpectator"
+    hasDeadlyWeapon:->true
     dying:(game,found)->
         super
         # 感染
@@ -4671,6 +4675,7 @@ class Light extends Player
     type:"Light"
     formType: FormType.optional
     midnightSort:100
+    hasDeadlyWeapon:->true
     sleeping:->true
     jobdone:(game)->@target? || game.day==1
     sunset:(game)->
@@ -5297,6 +5302,7 @@ class Vampire extends Player
     isHuman:->false
     isVampire:->true
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     getVisibilityQuery:->
         res = super
         # ヴァンパイアが分かる
@@ -5409,6 +5415,7 @@ class Witch extends Player
     type:"Witch"
     midnightSort:100
     formType: FormType.optional
+    hasDeadlyWeapon:->true
     isReviver:->!@dead
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     sleeping:->true
@@ -5753,6 +5760,7 @@ class Dog extends Player
     midnightSort:80
     formType: FormType.optionalOnce
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     sunset:(game)->
         super
         @setTarget null    # 1日目:飼い主選択 選択後:かみ殺す人選択
@@ -5908,6 +5916,7 @@ class Trapper extends Player
     midnightSort:81
     formType: FormType.required
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -6831,6 +6840,11 @@ class FrankensteinsMonster extends Player
 class BloodyMary extends Player
     type:"BloodyMary"
     formType: FormType.optional
+    hasDeadlyWeapon:->
+        if @flag?
+            true
+        else
+            false
     isReviver:->true
     getJobname:->if @flag then @jobname else @game.i18n.t("roles:BloodyMary.mary")
     getJobDisp:->@getJobname()
@@ -6943,6 +6957,7 @@ class King extends Player
 class PsychoKiller extends Madman
     type:"PsychoKiller"
     midnightSort:104
+    hasDeadlyWeapon:->true
     constructor:->
         super
         @flag="[]"
@@ -6971,6 +6986,7 @@ class PsychoKiller extends Madman
 class SantaClaus extends Player
     type:"SantaClaus"
     midnightSort:101
+    hasDeadlyWeapon:->true
     formType: FormType.required
     sleeping:->@target?
     constructor:->
@@ -7402,6 +7418,7 @@ class Bomber extends Madman
     type:"Bomber"
     midnightSort:81
     formType: FormType.optional
+    hasDeadlyWeapon:->true
     sleeping:->true
     jobdone:->@flag?
     sunset:(game)->
@@ -7540,6 +7557,7 @@ class Patissiere extends Player
     team:"Friend"
     formType: FormType.required
     midnightSort:45
+    hasDeadlyWeapon:->true
     sunset:(game)->
         unless @flag?
             if @scapegoat
@@ -7796,6 +7814,7 @@ class MadDog extends Madman
     psychicResult: PsychicResult.werewolf
     midnightSort:100
     formType: FormType.optional
+    hasDeadlyWeapon:->true
     jobdone:(game)->@target? || @flag
     sleeping:->true
     constructor:->
@@ -8249,6 +8268,7 @@ class Twin extends Player
 class Hunter extends Player
     type:"Hunter"
     formType: FormType.required
+    hasDeadlyWeapon:->true
     sleeping:(game)-> true
     hunterJobdone:(game)-> @flag != "hunting" || @target? || game.phase != Phase.hunter
     dying:(game, found)->
@@ -8394,6 +8414,7 @@ class TongueWolf extends Werewolf
 
 class BlackCat extends Madman
     type:"BlackCat"
+    hasDeadlyWeapon:->true
     dying:(game,found,from)->
         super
         if found == "punish"
@@ -8760,6 +8781,7 @@ class LunaticLover extends Player
     type: "LunaticLover"
     team: "Friend"
     formType: FormType.required
+    hasDeadlyWeapon:->true
     constructor:->
         super
         @setFlag {
@@ -8843,6 +8865,7 @@ class Hooligan extends Player
     type: "Hooligan"
     team: "Hooligan"
     formType: FormType.required
+    hasDeadlyWeapon:->true
     midnightSort:100
     constructor:->
         super
@@ -8953,6 +8976,7 @@ class HooliganAttacker extends Player
     type: "HooliganAttacker"
     team: ""
     formType: FormType.optional
+    hasDeadlyWeapon:->true
     midnightSort: 100
     jobdone:(game)-> @target?
     isWinner:(game, team)->
@@ -9129,6 +9153,7 @@ class DragonKnight extends Player
     midnightSort:80
     formType: FormType.optional
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     sleeping:->true
     jobdone:(game)-> game.day <= 1 || @target?
     constructor:->
@@ -9318,6 +9343,7 @@ class Samurai extends Player
     midnightSort: 82
     formType: FormType.required
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -9444,6 +9470,7 @@ class Elementaler extends Player
     midnightSort: 80
     formType: FormType.required
     hasDeadResistance:->true
+    hasDeadlyWeapon:->true
     sleeping:->@target?
     sunset:(game)->
         @setTarget null
@@ -10446,6 +10473,7 @@ class Lorelei extends Player
     type:"Lorelei"
     team:"Lorelei"
     midnightSort:115
+    hasDeadlyWeapon:->true
     humanCount:-> 0
     constructor:->
         super
@@ -10759,6 +10787,7 @@ class Oni extends Player
     attenuationRate: 0.2
     assassinationReflectivity: 0.3
     hasDeadResistance:-> true
+    hasDeadlyWeapon:->true
     sleeping:->true
     jobdone:->@target?
     constructor:->
@@ -11051,8 +11080,23 @@ class Duelist extends Player
         splashlog game.id,game,log
         # 2人とも更新する
         game.splashjobinfo [mytop, pl]
-
         null
+
+class MementoDisposer extends Forensic
+    type:"MementoDisposer"
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        origpl = game.getPlayer @target
+        return unless pl? && origpl?
+        # 死亡耐性を調べる
+        fl = pl.hasDeadlyWeapon game
+        result = if fl then "resultYes" else "resultNo"
+        @addGamelog game,"memento", fl, pl.id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:MementoDisposer.#{result}", {name: @name, target: origpl.name}
+        splashlog game.id, game, log
 
 # ============================
 # Roles for Space Werewolf
@@ -13131,6 +13175,7 @@ jobs=
     BloodWolf:BloodWolf
     Reincarnator:Reincarnator
     Duelist:Duelist
+    MementoDisposer:MementoDisposer
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13357,6 +13402,7 @@ jobStrength=
     BloodWolf:46
     Reincarnator:15
     Duelist:18
+    MementoDisposer:13
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
