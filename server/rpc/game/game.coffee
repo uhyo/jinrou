@@ -11176,6 +11176,65 @@ class Interpreter extends Player
 class Hierarch extends CultLeader
     type: "Hierarch"
 
+class Dreamer extends Player
+    type:"Dreamer"
+    hasDeadResistance:->true
+    getTypeDisp:->
+        if @flag?
+            @type
+        else
+            "Human"
+    getJobDisp:->
+        if @flag?
+            @game.i18n.t "roles:jobname.Dreamer"
+        else
+            @game.i18n.t "roles:jobname.Human"
+    getTeam:->
+        if @flag?
+            "Werewolf"
+        else
+            "Human"
+    isWinner:(game,team)->
+        if @flag?
+            team in ["Werewolf","LoneWolf"]
+        else
+            team==@getTeam()
+    getVisibilityQuery:->
+        if @flag?
+            res = super
+            res.wolves = true
+            res
+        else
+            super
+    getSpeakChoice:(game)->
+        if @flag?
+            ["werewolf"].concat super
+        else
+            super
+    isListener:(game,log)->
+        if @flag?
+            if log.mode=="werewolf"
+                true
+            else
+                super
+        else
+            super
+    checkDeathResistance:(game, found)->
+        # 耐性は一度だけ
+        if Found.isNormalWerewolfAttack(found) && !@flag?
+            # 噛まれた場合人狼側になる
+            @setFlag "bitten"
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Dreamer.cancel", {name: @name}
+            splashlog game.id,game,log
+            @addGamelog game,"dreamercancel"
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
+            return true
+        else
+            return false
+
 # ============================
 # Roles for Space Werewolf
 
@@ -13271,6 +13330,7 @@ jobs=
     MementoDisposer:MementoDisposer
     Interpreter:Interpreter
     Hierarch:Hierarch
+    Dreamer:Dreamer
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13499,8 +13559,9 @@ jobStrength=
     Reincarnator:15
     Duelist:18
     MementoDisposer:13
-  Interpreter:15
+    Interpreter:15
     Hierarch:11
+    Dreamer:5
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13723,8 +13784,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle","Fate","Sleepwalker","Hanami"
-                    special_exceptions.push "Oracle","Fate","Sleepwalker","Hanami"
+                    exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
+                    special_exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -13759,6 +13820,9 @@ module.exports.actions=(req,res,ss)->
                 if Math.random()<0.3
                     exceptions.push "Sleepwalker"
                     special_exceptions.push "Sleepwalker"
+                if Math.random()<0.3
+                    exceptions.push "Dreamer"
+                    special_exceptions.push "Dreamer"
                 if Math.random()<0.3
                     exceptions.push "Hanami"
                     special_exceptions.push "Hanami"
@@ -14666,7 +14730,7 @@ module.exports.actions=(req,res,ss)->
                         continue if num==0
                         if obj[job]?
                             # この陣営だ
-                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult", "Raven", "Hooligan"]
+                            if query.hide_singleton_teams == "on" && team in ["Devil", "Vampire", "Cult", "Raven", "Hooligan", "Duel"]
                                 # count as その他
                                 teamcount["Others"] += num
                             else
@@ -15355,7 +15419,7 @@ getIncludedRolesStr = (i18n, joblist, accurate)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if !accurate && (job in ["Human","Oracle","Fate","Sleepwalker"])
+                if !accurate && (job in ["Human","Oracle","Fate","Sleepwalker","Dreamer"])
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
