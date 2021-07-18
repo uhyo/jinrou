@@ -122,6 +122,7 @@ messages:
   MementoDisposer: '整理する対象を選択してください'
   Interpreter: '通訳をする2人を1人ずつ選択してください'
   Hierarch: '信者にする人を選択してください'
+  VariationFox: '変化する場合は選択してください'
   SpaceWerewolfObserver: '観察する対象を選択してください'
   SpaceWerewolfGuard: '見張る対象を選択してください'
   SpaceWerewolfSabotage: '妨害する対象を選択してください'
