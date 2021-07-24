@@ -11710,6 +11710,9 @@ class Complex
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @sub?.divined? game,player
+    whenguarded:(game,player)->
+        @mcall game,@main.whenguarded,game,player
+        @sub?.whenguarded? game,player
     touched:(game, from)->
         @mcall game, @main.touched, game, from
         @sub?.touched game, from
@@ -11780,6 +11783,12 @@ class Complex
         if @mcall game, @main.hasDeadResistance, game
             return true
         if @sub?.hasDeadResistance game
+            return true
+        return false
+    hasDeadlyWeapon:(game)->
+        if @mcall game, @main.hasDeadlyWeapon, game
+            return true
+        if @sub?.hasDeadlyWeapon game
             return true
         return false
     getAttribute:(attr, game)->
