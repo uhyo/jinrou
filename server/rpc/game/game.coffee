@@ -15228,6 +15228,7 @@ makelogsFor=(game,player,log)->
                 name: log.possess_name
                 time: log.time
                 size: log.size
+                supplement: log.supplement
             return [log, otherslog]
 
         return [log]
@@ -15258,6 +15259,7 @@ makelogsFor=(game,player,log)->
             name:log.possess_name
             time:log.time
             size:log.size
+            supplement: log.supplement
         return [otherslog]
 
     return []
