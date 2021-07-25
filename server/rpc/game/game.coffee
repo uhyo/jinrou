@@ -11957,7 +11957,7 @@ class CultMember extends Complex
     isWinner:(game, team)->
         # 教主が生存しているなら
         hierarches = game.players.filter (x)->!x.dead && x.isJobType "Hierarch"
-        if team == "Cult" && hierarches.length > 1
+        if team == "Cult" && hierarches.length > 0
             return true
         return @main.isWinner game, team
     makejobinfo:(game,result)->
