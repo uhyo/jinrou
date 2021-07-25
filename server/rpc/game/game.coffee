@@ -3845,7 +3845,7 @@ class Diviner extends Player
 
         if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -9276,7 +9276,7 @@ class Satori extends Diviner
 
         if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -11235,6 +11235,38 @@ class Dreamer extends Player
         else
             return false
 
+class VariationFox extends Fox
+    type:"VariationFox"
+    formType: FormType.optional
+    job_target:0
+    sleeping:->true
+    jobdone:->@flag?
+    sunset:(game)->
+        @setFlag null
+    job:(game,playerid)->
+        @setFlag true
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:VariationFox.variation", {name: @name}
+        splashlog game.id,game,log
+        null
+    checkDeathResistance:(game, found)->
+        if Found.isNormalWerewolfAttack found && !@flag?
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
+            return true
+        return false
+    divined:(game,player)->
+        super
+        if !@flag?
+            @die game,"curse", player.id
+            player.addGamelog game,"cursekill",null,@id
+    makeJobSelection:(game, isvote)->
+        # 夜は投票しない
+        unless isvote
+            []
+        else super
+
 # ============================
 # Roles for Space Werewolf
 
@@ -11737,6 +11769,9 @@ class Complex
     divined:(game,player)->
         @mcall game,@main.divined,game,player
         @sub?.divined? game,player
+    whenguarded:(game,player)->
+        @mcall game,@main.whenguarded,game,player
+        @sub?.whenguarded? game,player
     touched:(game, from)->
         @mcall game, @main.touched, game, from
         @sub?.touched game, from
@@ -11807,6 +11842,12 @@ class Complex
         if @mcall game, @main.hasDeadResistance, game
             return true
         if @sub?.hasDeadResistance game
+            return true
+        return false
+    hasDeadlyWeapon:(game)->
+        if @mcall game, @main.hasDeadlyWeapon, game
+            return true
+        if @sub?.hasDeadlyWeapon game
             return true
         return false
     getAttribute:(attr, game)->
@@ -13331,6 +13372,7 @@ jobs=
     Interpreter:Interpreter
     Hierarch:Hierarch
     Dreamer:Dreamer
+    VariationFox:VariationFox
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13562,6 +13604,7 @@ jobStrength=
     Interpreter:15
     Hierarch:11
     Dreamer:5
+    VariationFox:27
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13936,14 +13979,17 @@ module.exports.actions=(req,res,ss)->
                         if frees <= 0
                             break
                         r = Math.random()
-                        if r<0.3 && !nonavs.Fox
+                        if r<0.25 && !nonavs.Fox
                             joblist.Fox++
                             frees--
-                        else if r < 0.55 && !nonavs.TinyFox
+                        else if r < 0.45 && !nonavs.TinyFox
                             joblist.TinyFox++
                             frees--
-                        else if r<0.7 && !nonavs.XianFox
+                        else if r<0.6 && !nonavs.XianFox
                             joblist.XianFox++
+                            frees--
+                        else if r<0.75 && !nonavs.VariationFox
+                            joblist.VariationFox++
                             frees--
                         else if r<0.85 && !nonavs.Trickster
                             joblist.Trickster++
@@ -14088,8 +14134,8 @@ module.exports.actions=(req,res,ss)->
                         exceptions.push "VampireClan"
 
                     # 妖狐陣営
-                    if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0 || joblist.NightRabbit > 0 || joblist.Trickster > 0)
-                        if joblist.Fox + joblist.TinyFox + joblist.XianFox + joblist.NightRabbit + joblist.Trickster == 1
+                    if frees>0 && (joblist.Fox>0 || joblist.TinyFox > 0 || joblist.XianFox > 0 || joblist.NightRabbit > 0 || joblist.Trickster > 0 || joblist.VariationFox > 0)
+                        if joblist.Fox + joblist.TinyFox + joblist.XianFox + joblist.NightRabbit + joblist.Trickster + joblist.VariationFox == 1
                             if playersnumber>=14
                                 # 1人くらいは…
                                 if Math.random()<0.25 && !nonavs.Immoral

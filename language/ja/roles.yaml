@@ -172,6 +172,7 @@ jobname:
   Interpreter: '通訳'
   Hierarch: '教主'
   Dreamer: '胡蝶'
+  VariationFox: '歪狐'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1035,6 +1036,9 @@ Interpreter:
 
 Dreamer:
   cancel: '夢から覚めた{{name}}は胡蝶でした。'
+
+VariationFox:
+  variation: '{{name}}は自身の体質を変異します。'
 
 # Werewolf
 SpaceWerewolfImposter:
