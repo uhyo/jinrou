@@ -11252,12 +11252,11 @@ class VariationFox extends Fox
         splashlog game.id,game,log
         null
     checkDeathResistance:(game, found)->
-        if Found.isNormalWerewolfAttack found && !@flag?
+        if Found.isNormalWerewolfAttack(found) && !@flag?
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
         return false
     divined:(game,player)->
-        super
         if !@flag?
             @die game,"curse", player.id
             player.addGamelog game,"cursekill",null,@id
