@@ -1460,12 +1460,21 @@ exports.new_rules=[
                         "2"
                     ]
             }
+            # Losemode is temporarily disabled because
+            # it doesn't result in a fun game.
+            # {
+            #     type: 'item'
+            #     value:
+            #         type:"checkbox"
+            #         id:"losemode"
+            #         value:"on"
+            # }
             {
                 type: 'item'
                 value:
-                    type:"checkbox"
-                    id:"losemode"
-                    value:"on"
+                    type: "hidden"
+                    id: "losemode"
+                    value: ""
             }
             {
                 type: 'item'
