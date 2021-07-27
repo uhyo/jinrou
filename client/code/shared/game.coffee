@@ -36,11 +36,11 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # 人狼物語（瓜科国）
 "MadCouple",
 # 人狼物語（薔薇の下国）
-"NightRabbit",
+"NightRabbit","Dreamer",
 # 人狼物語（深海国）
 "Fate","QueenOfNight","CynthiaWolf","Saint",
 # 人狼物語（三日月国）
-"Tarzan",
+"Tarzan","VariationFox",
 # 天国系の役職
 "Lover", # 人狼天国
 "ObstructiveMad", # 人狼天国
@@ -48,7 +48,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BadLady", # 蒼汁天国、人狼天国
 # ねじれ天国
 "Bomber","Blasphemy","Ushinotokimairi","DualPersonality","GachaAddicted",
-"Gambler","Faker","NetherWolf",
+"Gambler","Faker","NetherWolf","Interpreter","Hierarch",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
 "SealWolf","Oni","GoldOni","Duelist",
@@ -59,7 +59,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 # その他
 "RedHood","Baker","XianFox","LunaticLover"
 # 人狼放浪記
-"MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic"
+"MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic","MementoDisposer",
 # 牢獄の悪夢
 "PsychoKiller","Cosplayer",
 # 人狼NET
@@ -102,20 +102,20 @@ exports.hiddenJobs = [
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","CynthiaWolf","Trickster","NetherWolf","DarkWolf","BloodWolf","SpaceWerewolfImposter"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","CynthiaWolf","Trickster","NetherWolf","DarkWolf","BloodWolf","VariationFox","SpaceWerewolfImposter"]
 
 # 黒が出る人
 exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","BloodWolf","SpaceWerewolfImposter"]
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf"]
-    Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster"]
+    Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster","VariationFox"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
     Vampire:["Vampire","Dracula","VampireClan"]
-    Cult:["CultLeader"]
+    Cult:["CultLeader","Hierarch"]
     Raven:["Raven","Ascetic"]
     Hooligan:["Hooligan", "HooliganAttacker"]
     Duel:["Duelist"]
@@ -126,14 +126,14 @@ exports.teams=teams=
 # カテゴリ分け(一部闇鍋でつかうぞ!)
 exports.categories=
     Human: teams.Human.filter((x)->
-        not (x in ["GotChocolate", "Phantom", "OccultMania", "Cursed", "BloodyMary","Listener","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard"]))
+        not (x in ["GotChocolate", "Phantom", "OccultMania", "Cursed", "BloodyMary","Dreamer","Listener","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard"]))
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","BloodWolf"]
     Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad","Satori","QueenOfNight","Faker","Acrobat"]
-    Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster"]
+    Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
-    Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
+    Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief","Dreamer"]
     # Special category for "no category"
     None:[
         "Neet",
@@ -153,16 +153,16 @@ exports.gachaData =
         "TinyGhost", "Twin", "Sleepwalker", "Disguised", "Hanami"]
     2: ["Diviner", "Psychic", "Guard", "Magician", "ToughGuy", "ApprenticeSeer",
         "Diseased", "Dog", "SeersMama", "DrawGirl", "Cosplayer","Reindeer", "Tarzan",
-        "RemoteWorker","RemoteWorker","RemoteWorker","RemoteWorker","RemoteWorker"
+        "RemoteWorker", "Dreamer"
     ]
     3: ["Fugitive", "Cursed", "Spellcaster", "Prince", "PI", "OccultMania",
         "RedHood", "WanderingGuard", "Phantom", "Pyrotechnist", "Forensic",
         "Ninja", "Emma", "HomeComer", "Samurai", "Sacrifice", "Oracle", "Poet",
-        "GachaAddicted","Hitokotonushinokami","Gambler","Saint"]
+        "GachaAddicted","Hitokotonushinokami","Gambler","Saint","MementoDisposer"]
     4: ["Poisoner", "Merchant", "MadWolf", "Light", "Cat", "Witch", "Dictator",
         "Miko", "HolyMarked", "TroubleMaker", "FrankensteinsMonster",
         "SantaClaus", "Baker", "SpiritPossessed", "Hunter", "Idol", "Elementaler","Fate",
-        "Synesthete", "Streamer","Reincarnator"]
+        "Synesthete", "Streamer", "Reincarnator", "Interpreter"]
     5: ["QueenSpectator", "Priest", "Trapper", "Counselor", "BloodyMary", "King",
         "Illusionist", "DragonKnight"]
     6: ["Neet", "Helper", "Watching"]
@@ -913,6 +913,12 @@ exports.jobinfo=
             color:"#feeeed"
         Reincarnator:
             color:"#5acff2"
+        MementoDisposer:
+            color:"#c293be"
+        Interpreter:
+            color:"#56cbe3"
+        Dreamer:
+            color:"#0c756d"
 
     Werewolf:
         color:"#DD0000"
@@ -1031,6 +1037,8 @@ exports.jobinfo=
             color:"#202f55"
         Trickster:
             color:"#27dcce"
+        VariationFox:
+            color:"#b8b842"
 
     Friend:
         color:"#ffb5e5"
@@ -1062,6 +1070,8 @@ exports.jobinfo=
         color: "#b09d87"
         CultLeader:
             color:"#b09d87"
+        Hierarch:
+            color:"#3b3536"
     Raven:
         color: "#444466"
         Raven:
@@ -1450,12 +1460,21 @@ exports.new_rules=[
                         "2"
                     ]
             }
+            # Losemode is temporarily disabled because
+            # it doesn't result in a fun game.
+            # {
+            #     type: 'item'
+            #     value:
+            #         type:"checkbox"
+            #         id:"losemode"
+            #         value:"on"
+            # }
             {
                 type: 'item'
                 value:
-                    type:"checkbox"
-                    id:"losemode"
-                    value:"on"
+                    type: "hidden"
+                    id: "losemode"
+                    value: ""
             }
             {
                 type: 'item'
