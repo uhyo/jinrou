@@ -12895,7 +12895,15 @@ class MoonPhilia extends WolfMinion
         else
             super
     getSpeakChoice:(game)->
-        ["madcouple"].concat super
+        result=@mcall game,@main.getSpeakChoice,game
+        if @sub?
+            for obj in @sub.getSpeakChoice game
+                unless result.some((x)->x==obj)
+                    result.push obj
+        for obj in ["madcouple"]
+            unless result.some((x)->x==obj)
+                result.push obj
+        result
 
 class Bonds extends Complex
     cmplType:"Bonds"
@@ -12959,7 +12967,15 @@ class Interpreted extends Complex
             true
         else super
     getSpeakChoice:(game)->
-        ["couple"].concat super
+        result=@mcall game,@main.getSpeakChoice,game
+        if @sub?
+            for obj in @sub.getSpeakChoice game
+                unless result.some((x)->x==obj)
+                    result.push obj
+        for obj in ["couple"]
+            unless result.some((x)->x==obj)
+                result.push obj
+        result
 
 # 決定者
 class Decider extends Complex
