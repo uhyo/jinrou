@@ -3459,7 +3459,7 @@ class Player
     # 死亡させられそうな場合に耐性をチェック
     # Returns true if it resisted its death.
     checkDeathResistance:-> false
-    assassinationReflectivity: 0
+    assassinationReflex:-> false
     # 殺されたとき(found:死因。fromは場合によりplayerid。punishの場合は[playerid]))
     die:(game,found,from)->
         return if @dead
@@ -10785,7 +10785,10 @@ class Oni extends Player
     psychicResult: PsychicResult.oni
     # 鬼の人さらい減衰率
     attenuationRate: 0.2
-    assassinationReflectivity: 0.3
+    assassinationReflex:->
+        if Math.random() <= 0.3
+            return true
+        return false
     hasDeadResistance:-> true
     hasDeadlyWeapon:->true
     sleeping:->true
@@ -10834,8 +10837,9 @@ class Oni extends Player
         successRate = Math.pow @attenuationRate, successCount
         if successRate < 0.01
             successRate = 0.01
-        if pl.assassinationReflectivity > 0 && Math.random() < pl.assassinationReflectivity
+        if pl.assassinationReflex game
             @die game, "oni", pl.id
+            @addGamelog game,"assassinationreflex",null,pl.id
         else if Math.random() < successRate
             pl.die game, "oni", @id
             @setFlag Object.assign {}, @flag, {
@@ -10926,7 +10930,10 @@ class Hanami extends Player
 class GoldOni extends Oni
     type: "GoldOni"
     attenuationRate: 0.5
-    assassinationReflectivity: 0.4
+    assassinationReflex:->
+        if Math.random() <= 0.4
+            return true
+        return false
     constructor:->
         super
 
@@ -11847,6 +11854,12 @@ class Complex
         if @mcall game, @main.hasDeadlyWeapon, game
             return true
         if @sub?.hasDeadlyWeapon game
+            return true
+        return false
+    assassinationReflex:(game)->
+        if @mcall game, @main.assassinationReflex, game
+            return true
+        if @sub?.assassinationReflex game
             return true
         return false
     getAttribute:(attr, game)->
