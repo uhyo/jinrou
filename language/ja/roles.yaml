@@ -765,6 +765,8 @@ Emma:
     oni: '{{name}}は鬼に攫われたようです。'
     # Self-Destruct
     selfdestruct: '{{name}}は自爆したようです。'
+    # Killed by Assassin
+    assassinate: '{{name}}は暗殺されたようです。'
 
 EyesWolf:
   # EyesWolf result strings
