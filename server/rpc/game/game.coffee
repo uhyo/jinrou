@@ -1900,7 +1900,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1943,7 +1943,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -2012,6 +2012,8 @@ class Game
                         "oni"
                     when "selfdestruct"
                         "selfdestruct"
+                    when "assassinate"
+                        "assassinate"
                     else
                         null
                 if emma_log?
@@ -4414,8 +4416,8 @@ class Fugitive extends Player
         @addGamelog game,"runto",null,pl.id
         null
     checkDeathResistance:(game, found)->
-        # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬は回避
-        if Found.isNormalWerewolfAttack(found) || Found.isNormalVampireAttack(found) || found in ["witch", "oni"]
+        # 狼の襲撃・ヴァンパイアの襲撃・魔女の毒薬・人攫い・暗殺は回避
+        if Found.isNormalWerewolfAttack(found) || Found.isNormalVampireAttack(found) || found in ["witch", "oni", "assassinate"]
             if @target!=""
                 if Found.isNormalWerewolfAttack found
                     game.addGuardLog @id, AttackKind.werewolf, GuardReason.absent
@@ -11273,6 +11275,49 @@ class VariationFox extends Fox
             []
         else super
 
+class Assassin extends Player
+    type:"Assassin"
+    midnightSort:100
+    formType: FormType.optionalOnce
+    hasDeadlyWeapon:->true
+    sleeping:->true
+    jobdone:->@target? || @flag
+    constructor:->
+        super
+        @setFlag null
+    sunset:(game)->
+        if @flag || game.day==1
+            @setTarget ""
+        else
+            @setTarget null
+    job:(game, playerid)->
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        if @flag || @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        @setTarget playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Assassin.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        pl=game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        if pl.assassinationReflex game
+            @die game, "assassinate", pl.id
+            @addGamelog game,"assassinationreflex",null,pl.id
+        else
+            pl.die game, "assassinate", @id
+        @setFlag true
+        null
+
 # ============================
 # Roles for Space Werewolf
 
@@ -13385,6 +13430,7 @@ jobs=
     Hierarch:Hierarch
     Dreamer:Dreamer
     VariationFox:VariationFox
+    Assassin:Assassin
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13617,6 +13663,7 @@ jobStrength=
     Hierarch:11
     Dreamer:5
     VariationFox:27
+    Assassin:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
