@@ -10809,7 +10809,7 @@ class Oni extends Player
         return wolves.some (pl)-> !pl.dead
     checkDeathResistance:(game, found)->
         # 30%で狼の襲撃に耐える
-        if Math.random() < 0.3 && Found.isNormalWerewolfAttack found
+        if Math.random() < 0.3 && Found.isNormalWerewolfAttack found && !@scapegoat
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
         return false
@@ -10956,7 +10956,7 @@ class GoldOni extends Oni
         return targets.every (pl)-> pl.dead
     checkDeathResistance:(game, found)->
         # 40%で狼の襲撃に耐える
-        if Math.random() < 0.4 && Found.isNormalWerewolfAttack found
+        if Math.random() < 0.4 && Found.isNormalWerewolfAttack found && !@scapegoat
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
         return false
