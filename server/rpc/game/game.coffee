@@ -1465,7 +1465,9 @@ class Game
                         else
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
-                deads=shuffle @players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat
+                deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)->
+                        log.id==x.id && log.event=="found" && log.day==@day 
+                    ))
                 # 転生確率
                 # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
                 # 1ターンに2人しぬとしてp(n+2)=2とおくとp=2/(n+2) 。
