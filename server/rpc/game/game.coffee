@@ -11014,7 +11014,7 @@ class Reincarnator extends Player
     dying:(game,found)->
         super
         # 死体
-        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.type in Shared.game.nonhumans)
+        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.isJobType in Shared.game.nonhumans)
         if deads.length==0
             return
         pl=deads[Math.floor(Math.random()*deads.length)]
