@@ -1466,7 +1466,7 @@ class Game
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
                 deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)->
-                        log.id==x.id && log.event=="found" && log.day==@day 
+                        log.id==x.id && log.event=="found" && log.day==@day
                     ))
                 # 転生確率
                 # 1人の転生確率をpとすると死者n人に対して転生人数の期待値はpn人。
@@ -11026,7 +11026,11 @@ class Reincarnator extends Player
         super
         unless found in ["gone-day", "gone-night"]
             # 死体
-            deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.type in Shared.game.nonhumans)
+            deads = game.players.filter (x)=>
+                if !(x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id)
+                    return false
+                # 人外は除く
+                return getAllMainRoles(x).every((role)-> !(role.type in Shared.game.nonhumans))
             if deads.length==0
                 return
             pl=deads[Math.floor(Math.random()*deads.length)]
