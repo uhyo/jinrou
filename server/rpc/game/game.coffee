@@ -11024,18 +11024,19 @@ class Reincarnator extends Player
     isReviver:->true
     dying:(game,found)->
         super
-        # 死体
-        deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.type in Shared.game.nonhumans)
-        if deads.length==0
-            return
-        pl=deads[Math.floor(Math.random()*deads.length)]
-        @addGamelog game, "reincarnation", null, pl.id
-        log=
-            mode:"hidden"
-            to:-1
-            comment: game.i18n.t "roles:Reincarnator.revive", {name: @name, target: pl.name}
-        splashlog game.id,game,log
-        pl.revive game
+        unless found in ["gone-day", "gone-night"]
+            # 死体
+            deads = game.players.filter (x)->x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !(x.type in Shared.game.nonhumans)
+            if deads.length==0
+                return
+            pl=deads[Math.floor(Math.random()*deads.length)]
+            @addGamelog game, "reincarnation", null, pl.id
+            log=
+                mode:"hidden"
+                to:-1
+                comment: game.i18n.t "roles:Reincarnator.revive", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            pl.revive game
 
 class Duelist extends Player
     type:"Duelist"
