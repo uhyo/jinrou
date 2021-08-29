@@ -20,6 +20,7 @@ export const EditableInputs = styled.div`
 export const InputLabel = styled.label`
   font-size: ${smallTextSize};
   line-height: 1.8;
+  grid-column: 1;
 `;
 
 export const InputHelpIcon = styled.span``;
