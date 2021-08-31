@@ -173,6 +173,7 @@ jobname:
   Hierarch: '教主'
   Dreamer: '胡蝶'
   VariationFox: '歪狐'
+  Assassin: '暗殺者'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -764,6 +765,8 @@ Emma:
     oni: '{{name}}は鬼に攫われたようです。'
     # Self-Destruct
     selfdestruct: '{{name}}は自爆したようです。'
+    # Killed by Assassin
+    assassinate: '{{name}}は暗殺されたようです。'
 
 EyesWolf:
   # EyesWolf result strings
@@ -1039,6 +1042,9 @@ Dreamer:
 
 VariationFox:
   variation: '{{name}}は自身の体質を変異します。'
+
+Assassin:
+  select: '{{name}}が{{target}}を暗殺しました。'
 
 # Werewolf
 SpaceWerewolfImposter:
