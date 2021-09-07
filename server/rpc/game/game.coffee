@@ -12065,11 +12065,10 @@ class Guarded extends Complex
 # 黙らされた人
 class Muted extends Complex
     cmplType:"Muted"
-
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
-        @sub?.sunset? game
+        @mcall game,@main.sunsetAlways,game
+        @sub?.sunsetAlways? game
         @uncomplex game
     getSpeakChoiceDay:(game)->
         base = @main.getSpeakChoiceDay game
