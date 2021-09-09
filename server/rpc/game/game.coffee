@@ -11355,7 +11355,7 @@ class Shadow extends Madman
             # 狼側にも通達する
             log=
                 mode:"wolfskill"
-                comment: game.i18n.t "system.werewolf.shadow", {target: pl.name}
+                comment: game.i18n.t "roles:Shadow.notification", {target: pl.name}
             splashlog game.id,game,log
             @setFlag true  #使用済
 
