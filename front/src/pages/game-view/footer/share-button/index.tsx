@@ -8,11 +8,7 @@ import { ShareButtonConfig } from '../../defs';
 declare global {
   interface Navigator {
     canShare?(data?: { url?: string; text?: string; title?: string }): boolean;
-    share?(data: {
-      url?: string;
-      text?: string;
-      title?: string;
-    }): Promise<void>;
+    share(data: { url?: string; text?: string; title?: string }): Promise<void>;
   }
 }
 
