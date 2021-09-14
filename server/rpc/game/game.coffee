@@ -12787,7 +12787,7 @@ class DraculaBitten extends Complex
 class SacrificeProtected extends Complex
     cmplType:"SacrificeProtected"
     checkDeathResistance:(game, found)->
-        if found in ["gone-day","gone-night"]
+        if found in ["gone-day","gone-night","sacrifice"]
             # If this is a gone death, do not guard.
             return false
         me = game.getPlayer @id
