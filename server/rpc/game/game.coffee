@@ -13084,6 +13084,7 @@ class Enemy extends Complex
 
 #通訳されている（共鳴状態）
 class Interpreted extends Complex
+    cmplType:"Interpreted"
     isListener:(game,log)->
         if log.mode=="couple"
             true
