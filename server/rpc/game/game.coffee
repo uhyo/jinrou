@@ -26,6 +26,8 @@ BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","
 DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf", "Shadow"]
 # 会話覗き役職
 LOG_PEEKING_JOBS = ["NightRabbit"]
+# 村人だと思い込む役職
+HUMAN_DISP_JOBS = ["Oracle","Fate","Sleepwalker","Dreamer"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -765,6 +767,10 @@ class Game
         unless options.yaminabe_hidejobs    # 公開モード
             for job,num of joblist
                 continue unless num>0
+                # 村人だと思い込むシリーズは村人にまとめる
+                if job in HUMAN_DISP_JOBS
+                    job = "Human"
+                    num += (@jobscount.Human?.number ? 0)
                 @jobscount[job]=
                     name: @i18n.t "roles:jobname.#{job}"
                     number:num
@@ -13971,8 +13977,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
-                    special_exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
+                    exceptions.push "Hanami", HUMAN_DISP_JOBS...
+                    special_exceptions.push "Hanami", HUMAN_DISP_JOBS...
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -15611,7 +15617,7 @@ getIncludedRolesStr = (i18n, joblist, accurate)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if !accurate && (job in ["Human","Oracle","Fate","Sleepwalker","Dreamer"])
+                if !accurate && (job == "Human" || job in HUMAN_DISP_JOBS)
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
