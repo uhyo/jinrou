@@ -12897,7 +12897,7 @@ class SpentVotesForGacha extends Complex
 class StreamerTrial extends Complex
     cmplType: "StreamerTrial"
     sunset:(game)->
-        unless @isMainJobType "Streamer"
+        unless @isJobType "Streamer"
             # I am no longer a Streamer, so remove this one
             @mcall game, @main.sunset, game
             @uncomplex game, false
