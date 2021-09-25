@@ -1465,7 +1465,7 @@ class Game
                         else
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
-                deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)->
+                deads=shuffle @players.filter (x)=>x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)=>
                         log.id==x.id && log.event=="found" && log.day==@day
                     ))
                 # 転生確率
