@@ -23,7 +23,7 @@ REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","Quantum
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
-DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
+DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf", "Shadow"]
 # 会話覗き役職
 LOG_PEEKING_JOBS = ["NightRabbit"]
 
@@ -11325,6 +11325,40 @@ class Assassin extends Player
         @setFlag true
         null
 
+class Shadow extends Madman
+    type:"Shadow"
+    sleeping:->true
+    sunset:(game)->
+        unless @flag
+            # 狩人を探す
+            guards = game.players.filter (pl)->pl.isJobType "Guard"
+            if guards.length > 0
+                for i in [0 ... guards.length]
+                    newpl=Player.factory null, game, guards[i],null,ShadowBlacked
+                    pl.transProfile newpl
+                    newpl.cmplFlag=@id # 支配元
+                    pl.transform game,newpl,true
+            # 人狼を探す
+            wolves = game.players.filter (x)->x.isWerewolf()
+            return if wolves.length==0
+            r=Math.floor Math.random()*wolves.length
+            pl=wolves[r] # 選ばれし人狼
+            newpl=Player.factory null, game, pl,null,ShadowWhited
+            pl.transProfile newpl
+            newpl.cmplFlag=@id # 支配元
+            pl.transform game,newpl,true
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Shadow.select", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            # 狼側にも通達する
+            log=
+                mode:"wolfskill"
+                comment: game.i18n.t "roles:Shadow.notification", {target: pl.name}
+            splashlog game.id,game,log
+            @setFlag true  #使用済
+
 # ============================
 # Roles for Space Werewolf
 
@@ -12592,6 +12626,30 @@ class VampireBlooded extends Complex
     cmplType:"VampireBlooded"
     getFortuneResult:-> FortuneResult.vampire
 
+class ShadowBlacked extends Complex
+    cmplType:"ShadowBlacked"
+    getFortuneResult:->
+        super
+        shadow=game.getPlayer @cmplFlag
+        unless shadow.dead
+            FortuneResult.werewolf
+    beforebury:(game,type,deads)->
+        shadow=game.getPlayer @cmplFlag
+        if shadow? && shadow.dead
+            @uncomplex game
+
+class ShadowWhited extends Complex
+    cmplType:"ShadowWhited"
+    getFortuneResult:->
+        super
+        shadow=game.getPlayer @cmplFlag
+        unless shadow.dead
+            FortuneResult.human
+    beforebury:(game,type,deads)->
+        shadow=game.getPlayer @cmplFlag
+        if shadow? && shadow.dead
+            @uncomplex game
+
 # 催眠術をかけられた
 class UnderHypnosis extends Complex
     cmplType:"UnderHypnosis"
@@ -13453,6 +13511,7 @@ jobs=
     Dreamer:Dreamer
     VariationFox:VariationFox
     Assassin:Assassin
+    Shadow:Shadow
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13494,6 +13553,8 @@ complexes=
     Blacked:Blacked
     Whited:Whited
     VampireBlooded:VampireBlooded
+    ShadowBlacked:ShadowBlacked
+    ShadowWhited:ShadowWhited
     UnderHypnosis:UnderHypnosis
     VoteGuarded:VoteGuarded
     Chemical:Chemical
@@ -13686,6 +13747,7 @@ jobStrength=
     Dreamer:5
     VariationFox:27
     Assassin:20
+    Shadow:25
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
