@@ -13211,7 +13211,7 @@ class Chemical extends Complex
                 @main.vampireCount()
         else
             0
-    getFortuneResult:->
+    getFortuneResult:(game)->
         fsm = @main.getFortuneResult(game)
         fss = @sub?.getFortuneResult(game)
         if FortuneResult.vampire in [fsm, fss]
