@@ -552,7 +552,7 @@ module.exports.actions=(req,res,ss)->
                 res i18n.t "common:error.invalidInput"
                 return
             if pl.mode=="gm"
-                res i18n.t "common.kick.noKickGM"
+                res i18n.t "error.kick.noKickGM"
                 return
             room.players = room.players.filter (x)=> x.realid != pl.realid
             for p, i in room.players

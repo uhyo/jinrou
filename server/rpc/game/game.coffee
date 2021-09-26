@@ -23,9 +23,11 @@ REBIRTH_EXCLUDED_JOBS = ["MinionSelector","Thief","GameMaster","Helper","Quantum
 # 冒涜者によって冒涜されない役職
 BLASPHEMY_DEFENCE_JOBS = ["Fugitive","QueenSpectator","Liar","Spy2","LoneWolf","AbsoluteWolf","RemoteWorker"]
 # 占い結果すぐに分かるを無効化する役職
-DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf"]
+DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere", "Hypnotist", "DecoyWolf", "Shadow"]
 # 会話覗き役職
 LOG_PEEKING_JOBS = ["NightRabbit"]
+# 村人だと思い込む役職
+HUMAN_DISP_JOBS = ["Oracle","Fate","Sleepwalker","Dreamer"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -765,6 +767,10 @@ class Game
         unless options.yaminabe_hidejobs    # 公開モード
             for job,num of joblist
                 continue unless num>0
+                # 村人だと思い込むシリーズは村人にまとめる
+                if job in HUMAN_DISP_JOBS
+                    job = "Human"
+                    num += (@jobscount.Human?.number ? 0)
                 @jobscount[job]=
                     name: @i18n.t "roles:jobname.#{job}"
                     number:num
@@ -1465,7 +1471,7 @@ class Game
                         else
                             @participants=@participants.filter (x)->x!=player
                 # たまに転生
-                deads=shuffle @players.filter (x)->x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)->
+                deads=shuffle @players.filter (x)=>x.dead && !x.norevive && !x.scapegoat && !(@gamelogs.some((log)=>
                         log.id==x.id && log.event=="found" && log.day==@day
                     ))
                 # 転生確率
@@ -3247,8 +3253,6 @@ class Player
 
     # ログが見えるかどうか（通常のゲーム中、個人宛は除外）
     isListener:(game,log)->
-        alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
-
         if log.mode in ["day","system","nextturn","prepare","monologue","heavenmonologue","skill","will","voteto","gm","gmreply","helperwhisper","probability_table","userinfo","poem","streaming"]
             # 全員に見える
             true
@@ -3256,7 +3260,7 @@ class Player
             # 死んでたら見える
             @dead
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide" && alives.length==0 # 隠すかどうか
+            game.rule.voteresult!="hide" # 隠すかどうか
         else
             false
     # 他の人に向けたログが見えるかどうか
@@ -3849,7 +3853,7 @@ class Diviner extends Player
 
         if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -3901,7 +3905,7 @@ class Diviner extends Player
             # show original target's name even if target is forced to another player.
             @setFlag @flag.concat {
                 player: origp.publicinfo()
-                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: origp.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: origp.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult(game)}"}
                 day: game.day
             }
             @addGamelog game,"divine",p.type,@target    # 占った
@@ -4117,7 +4121,7 @@ class TinyFox extends Diviner
         if p? && origpl?
             success= Math.random()<0.5  # 成功したかどうか
             key = if success then "roles:TinyFox.resultlog_success" else "roles:TinyFox.resultlog_fail"
-            re = game.i18n.t key, {name: @name, target: origpl.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult()}"}
+            re = game.i18n.t key, {name: @name, target: origpl.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult(game)}"}
             @setFlag @flag.concat {
                 player: origpl.publicinfo()
                 result: re
@@ -4558,10 +4562,10 @@ class Liar extends Player
             @addGamelog game,"liardivine",null,p.id
             result = if Math.random()<0.3
                 # 成功
-                p.getFortuneResult()
+                p.getFortuneResult(game)
             else
                 # 逆
-                fr = p.getFortuneResult()
+                fr = p.getFortuneResult(game)
                 switch fr
                     when FortuneResult.human
                         FortuneResult.werewolf
@@ -5114,7 +5118,7 @@ class PI extends Diviner
 
 
         if pls.length>0
-            rs=pls.map((x)->x?.getFortuneResult())
+            rs=pls.map((x)->x?.getFortuneResult(game))
                 .filter((x)->x != FortuneResult.human)    # 村人以外
                 .map((x)-> game.i18n.t "roles:fortune.#{x}")
             # 重複をとりのぞく
@@ -9280,7 +9284,7 @@ class Satori extends Diviner
 
         if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult() == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -9315,7 +9319,7 @@ class Satori extends Diviner
         unless pl? && origpl?
             return
 
-        fortune = pl.getFortuneResult()
+        fortune = pl.getFortuneResult(game)
         result = null
         if fortune == FortuneResult.human
             # check special roles
@@ -11325,6 +11329,40 @@ class Assassin extends Player
         @setFlag true
         null
 
+class Shadow extends Madman
+    type:"Shadow"
+    sleeping:->true
+    sunset:(game)->
+        unless @flag
+            # 狩人を探す
+            guards = game.players.filter (pl)->pl.isJobType "Guard"
+            if guards.length > 0
+                for pl in guards
+                    newpl=Player.factory null, game, pl, null, ShadowBlacked
+                    pl.transProfile newpl
+                    newpl.cmplFlag=@id # 支配元
+                    pl.transform game, newpl, true
+            # 人狼を探す
+            wolves = game.players.filter (x)->x.isWerewolf()
+            return if wolves.length==0
+            r=Math.floor Math.random()*wolves.length
+            pl=wolves[r] # 選ばれし人狼
+            newpl=Player.factory null, game, pl, null, ShadowWhited
+            pl.transProfile newpl
+            newpl.cmplFlag=@id # 支配元
+            pl.transform game,newpl,true
+            log=
+                mode:"skill"
+                to:@id
+                comment: game.i18n.t "roles:Shadow.select", {name: @name, target: pl.name}
+            splashlog game.id,game,log
+            # 狼側にも通達する
+            log=
+                mode:"wolfskill"
+                comment: game.i18n.t "roles:Shadow.notification", {target: pl.name}
+            splashlog game.id,game,log
+            @setFlag true  #使用済
+
 # ============================
 # Roles for Space Werewolf
 
@@ -11365,7 +11403,7 @@ class SpaceWerewolfObserver extends Diviner
         origp = game.getPlayer @target
         p = game.getPlayer game.skillTargetHook.get @target
         if p? && origp?
-            resultKey = if p.getFortuneResult() == FortuneResult.werewolf
+            resultKey = if p.getFortuneResult(game) == FortuneResult.werewolf
                 "roles:SpaceWerewolfObserver.resultImposter"
             else
                 "roles:SpaceWerewolfObserver.resultNotImposter"
@@ -12065,11 +12103,10 @@ class Guarded extends Complex
 # 黙らされた人
 class Muted extends Complex
     cmplType:"Muted"
-
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 一日しか効かない
-        @mcall game,@main.sunset,game
-        @sub?.sunset? game
+        @mcall game,@main.sunsetAlways,game
+        @sub?.sunsetAlways? game
         @uncomplex game
     getSpeakChoiceDay:(game)->
         base = @main.getSpeakChoiceDay game
@@ -12593,6 +12630,32 @@ class VampireBlooded extends Complex
     cmplType:"VampireBlooded"
     getFortuneResult:-> FortuneResult.vampire
 
+class ShadowBlacked extends Complex
+    cmplType:"ShadowBlacked"
+    getFortuneResult:(game)->
+        shadow=game.getPlayer @cmplFlag
+        unless shadow.dead
+            FortuneResult.werewolf
+        else
+            super
+    beforebury:(game,type,deads)->
+        shadow=game.getPlayer @cmplFlag
+        if shadow? && shadow.dead
+            @uncomplex game
+
+class ShadowWhited extends Complex
+    cmplType:"ShadowWhited"
+    getFortuneResult:(game)->
+        shadow=game.getPlayer @cmplFlag
+        unless shadow.dead
+            FortuneResult.human
+        else
+            super
+    beforebury:(game,type,deads)->
+        shadow=game.getPlayer @cmplFlag
+        if shadow? && shadow.dead
+            @uncomplex game
+
 # 催眠術をかけられた
 class UnderHypnosis extends Complex
     cmplType:"UnderHypnosis"
@@ -12788,7 +12851,7 @@ class DraculaBitten extends Complex
 class SacrificeProtected extends Complex
     cmplType:"SacrificeProtected"
     checkDeathResistance:(game, found)->
-        if found in ["gone-day","gone-night"]
+        if found in ["gone-day","gone-night","sacrifice"]
             # If this is a gone death, do not guard.
             return false
         me = game.getPlayer @id
@@ -12840,7 +12903,7 @@ class SpentVotesForGacha extends Complex
 class StreamerTrial extends Complex
     cmplType: "StreamerTrial"
     sunset:(game)->
-        unless @isMainJobType "Streamer"
+        unless @isJobType "Streamer"
             # I am no longer a Streamer, so remove this one
             @mcall game, @main.sunset, game
             @uncomplex game, false
@@ -13027,6 +13090,7 @@ class Enemy extends Complex
 
 #通訳されている（共鳴状態）
 class Interpreted extends Complex
+    cmplType:"Interpreted"
     isListener:(game,log)->
         if log.mode=="couple"
             true
@@ -13148,8 +13212,8 @@ class Chemical extends Complex
         else
             0
     getFortuneResult:->
-        fsm = @main.getFortuneResult()
-        fss = @sub?.getFortuneResult()
+        fsm = @main.getFortuneResult(game)
+        fss = @sub?.getFortuneResult(game)
         if FortuneResult.vampire in [fsm, fss]
             FortuneResult.vampire
         else if FortuneResult.werewolf in [fsm, fss]
@@ -13454,6 +13518,7 @@ jobs=
     Dreamer:Dreamer
     VariationFox:VariationFox
     Assassin:Assassin
+    Shadow:Shadow
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13495,6 +13560,8 @@ complexes=
     Blacked:Blacked
     Whited:Whited
     VampireBlooded:VampireBlooded
+    ShadowBlacked:ShadowBlacked
+    ShadowWhited:ShadowWhited
     UnderHypnosis:UnderHypnosis
     VoteGuarded:VoteGuarded
     Chemical:Chemical
@@ -13687,6 +13754,7 @@ jobStrength=
     Dreamer:5
     VariationFox:27
     Assassin:20
+    Shadow:25
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -13909,8 +13977,8 @@ module.exports.actions=(req,res,ss)->
 
                 # 村人だと思い込むシリーズは村人除外で出現しない
                 if excluded_exceptions.some((x)->x=="Human")
-                    exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
-                    special_exceptions.push "Oracle","Fate","Sleepwalker","Hanami","Dreamer"
+                    exceptions.push "Hanami", HUMAN_DISP_JOBS...
+                    special_exceptions.push "Hanami", HUMAN_DISP_JOBS...
                 # メアリーの特殊処理（セーフティ高じゃないとでない）
                 if query.yaminabe_hidejobs=="" || (!safety.jobs && query.yaminabe_safety!="none")
                     exceptions.push "BloodyMary"
@@ -15319,6 +15387,14 @@ makelogsFor=(game,player,log)->
                 size: log.size
                 supplement: log.supplement
             return [log, otherslog]
+        if log.mode=="voteresult" && game.rule.voteresult != "hide"
+            aliveDarkwolves = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
+            if aliveDarkwolves.length > 0
+                # 闇狼により投票結果が隠されたログを表示
+                log=
+                    mode: "system"
+                    comment: game.i18n.t "roles:DarkWolf.hidden"
+                    time: log.time
 
         return [log]
 
@@ -15365,14 +15441,13 @@ islogOK=(game,player,log)->
             game.getPlayer player.flag
         else
             player
-    alives = game.players.filter (x)->!x.dead && x.isJobType("DarkWolf")
 
     unless actpl?
         # 観戦者
         if log.mode in ["day","system","prepare","nextturn","audience","will","gm","gmaudience","probability_table"]
             !log.to?    # 観戦者にも公開
         else if log.mode=="voteresult"
-            game.rule.voteresult!="hide" && alives.length==0 # 投票結果公開なら公開
+            game.rule.voteresult!="hide" # 投票結果公開なら公開
         else
             false   # その他は非公開
     else if log.mode=="gmmonologue"
@@ -15555,7 +15630,7 @@ getIncludedRolesStr = (i18n, joblist, accurate)->
             num = joblist[job]
             if num > 0
                 # 村人思い込み系シリーズ含む村人をカウント
-                if !accurate && (job in ["Human","Oracle","Fate","Sleepwalker","Dreamer"])
+                if !accurate && (job == "Human" || job in HUMAN_DISP_JOBS)
                     humannum += num
                 else
                     jobinfos.push "#{i18n.t "roles:jobname.#{job}"}#{num}"
