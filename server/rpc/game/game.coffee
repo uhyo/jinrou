@@ -11363,6 +11363,38 @@ class Shadow extends Madman
             splashlog game.id,game,log
             @setFlag true  #使用済
 
+class AttractiveWoman extends Madman
+    type:"AttractiveWoman"
+    formType: FormType.optional
+    sleeping:-> true
+    jobdone:-> @target?
+    sunset:(game)->
+        @setTarget null
+    job:(game, playerid)->
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        @setTarget playerid
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:AttractiveWoman.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        return unless @target
+        pl = game.getPlayer game.skillTargetHook.get @target
+        return unless pl?
+
+        # 魅了を複合
+        newpl = Player.factory null, game, pl, null, WomanAttracted    # Complex
+        newpl.cmplFlag = @id
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+        @addGamelog game, "attractivewomanattraction", pl.type, pl.id
+
 # ============================
 # Roles for Space Werewolf
 
@@ -13106,6 +13138,24 @@ class Interpreted extends Complex
                 result.push obj
         result
 
+# 美女に魅了された人
+class WomanAttracted extends Complex
+    cmplType: "WomanAttracted"
+    beforebury:(game, type, deads)->
+        super
+        return if @dead
+        for pl in deads
+            continue unless pl.id == @cmplFlag
+            continue unless pl.dead
+            # 人狼の襲撃以外で美女が死んだ場合は後追い
+            unless Found.isNormalWerewolfAttack pl.found
+                @die game, "fascinatesuicide"
+    sunsetAlways:(game)->
+        # 一日しか効かない
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
+        @uncomplex game
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -13519,6 +13569,7 @@ jobs=
     VariationFox:VariationFox
     Assassin:Assassin
     Shadow:Shadow
+    AttractiveWoman:AttractiveWoman
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13583,6 +13634,7 @@ complexes=
     Bonds:Bonds
     Enemy:Enemy
     Interpreted:Interpreted
+    WomanAttracted:WomanAttracted
 
     # 役職ごとの強さ
 jobStrength=
@@ -13755,6 +13807,7 @@ jobStrength=
     VariationFox:27
     Assassin:20
     Shadow:25
+    AttractiveWoman:16
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
