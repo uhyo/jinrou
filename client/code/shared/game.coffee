@@ -1204,6 +1204,7 @@ exports.new_rules=[
                     id: 'decider'
                     defaultChecked: false
                     value: '1'
+                    disabled:(rule)->rule.casting=="特殊ルール.量子人狼"
             }
             {
                 type: 'item'
@@ -1212,6 +1213,7 @@ exports.new_rules=[
                     id:"authority"
                     defaultChecked: false
                     value:"1"
+                    disabled:(rule)->rule.casting=="特殊ルール.量子人狼"
             }
             {
                 type: 'item'
@@ -1220,6 +1222,7 @@ exports.new_rules=[
                     id:"deathnote"
                     defaultChecked: false
                     value:"1"
+                    disabled:(rule)->rule.casting=="特殊ルール.量子人狼"
             }
             {
                 type: 'item'
@@ -1228,6 +1231,7 @@ exports.new_rules=[
                     id:"wolfminion"
                     defaultChecked: false
                     value:"1"
+                    disabled:(rule)->rule.casting=="特殊ルール.量子人狼"
             }
             {
                 type: 'item'
@@ -1236,6 +1240,7 @@ exports.new_rules=[
                     id:"drunk"
                     defaultChecked: false
                     value:"1"
+                    disabled:(rule)->rule.casting=="特殊ルール.量子人狼"
             }
             {
                 type: 'item'
