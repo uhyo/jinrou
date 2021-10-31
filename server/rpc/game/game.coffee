@@ -11376,6 +11376,7 @@ class AttractiveWoman extends Madman
         pl = game.getPlayer playerid
         unless pl?
             return game.i18n.t "error.common.nonexistentPlayer"
+        pl.touched game, @id
         @setTarget playerid
         log=
             mode:"skill"
