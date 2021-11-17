@@ -5282,7 +5282,6 @@ class CultLeader extends Player
     midnight:(game,midnightSort)->
         t=game.getPlayer game.skillTargetHook.get @target
         return unless t?
-        return if t.dead
         log=
             mode:"skill"
             to:t.id
@@ -10856,7 +10855,7 @@ class Oni extends Player
 
 class Saint extends Couple
     type:"Saint"
-    midnightSort:122
+    midnightSort:100
     formType: FormType.optionalOnce # 任意・4日目のみ
     isReviver:->!@dead
     job_target:Player.JOB_T_DEAD
