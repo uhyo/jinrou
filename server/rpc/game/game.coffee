@@ -14409,6 +14409,13 @@ module.exports.actions=(req,res,ss)->
                                     break
                                 rval *= 0.6
                     exceptions.push "Cupid", "Lover", "BadLady", "Patissiere", "SnowLover", "LunaticLover"
+                    # 決闘者陣営
+                    if frees>0
+                        if playersnumber<9
+                            addTeamToExceptions "Duel"
+                        else if playersnumber<12
+                            if Math.random()<0.50
+                                addTeamToExceptions "Duel"
 
                 # 占い確定
                 if (safety.teams || safety.jobs) && joblist.Diviner == 0
