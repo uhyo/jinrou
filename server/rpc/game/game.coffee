@@ -3853,7 +3853,7 @@ class Diviner extends Player
 
         if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -9283,7 +9283,7 @@ class Satori extends Diviner
 
         if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -11394,6 +11394,29 @@ class AttractiveWoman extends Madman
         pl.transProfile newpl
         pl.transform game, newpl, true
         @addGamelog game, "attractivewomanattraction", pl.type, pl.id
+
+class Actress extends Fox
+    type:"Actress"
+    isFoxVisible:->false
+    getVisibilityQuery:->
+        res = super
+        res.foxes = false
+        res
+    isListener:(game,log)->
+        if log.mode=="fox"
+            false
+        else super
+    getSpeakChoice:(game)->
+        res=super
+        return res.filter (x)->x!="fox"
+    isWinner:(game,team)->
+        team in ["Werewolf","Fox"]
+    dying:(game,found)->
+        super
+        log=
+            mode:"system"
+            comment: game.i18n.t "roles:Actress.existence", {name: @name}
+        splashlog game.id,game,log
 
 # ============================
 # Roles for Space Werewolf
@@ -13570,6 +13593,7 @@ jobs=
     Assassin:Assassin
     Shadow:Shadow
     AttractiveWoman:AttractiveWoman
+    Actress:Actress
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13808,6 +13832,7 @@ jobStrength=
     Assassin:20
     Shadow:25
     AttractiveWoman:16
+    Actress:20
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -14182,19 +14207,22 @@ module.exports.actions=(req,res,ss)->
                         if frees <= 0
                             break
                         r = Math.random()
-                        if r<0.25 && !nonavs.Fox
+                        if r<0.24 && !nonavs.Fox
                             joblist.Fox++
                             frees--
-                        else if r < 0.45 && !nonavs.TinyFox
+                        else if r < 0.42 && !nonavs.TinyFox
                             joblist.TinyFox++
                             frees--
-                        else if r<0.6 && !nonavs.XianFox
+                        else if r<0.56 && !nonavs.XianFox
                             joblist.XianFox++
                             frees--
-                        else if r<0.75 && !nonavs.VariationFox
+                        else if r<0.68 && !nonavs.VariationFox
                             joblist.VariationFox++
                             frees--
-                        else if r<0.85 && !nonavs.Trickster
+                        else if r<0.8 && !nonavs.Actress
+                            joblist.Actress++
+                            frees--
+                        else if r<0.9 && !nonavs.Trickster
                             joblist.Trickster++
                             frees--
                         else if r<0.95 && !nonavs.NightRabbit
