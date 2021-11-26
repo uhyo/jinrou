@@ -11030,7 +11030,7 @@ class Reincarnator extends Player
         unless found in ["gone-day", "gone-night"]
             # 死体
             deads = game.players.filter (x)=>
-                if !(x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id)
+                if !(x.dead && !x.found && !x.norevive && !x.scapegoat && x.id != @id && !x.isJobType("Reincarnator"))
                     return false
                 # 人外は除く
                 return getAllMainRoles(x).every((role)-> !(role.type in Shared.game.nonhumans))
