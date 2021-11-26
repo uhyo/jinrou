@@ -176,6 +176,7 @@ jobname:
   Assassin: '暗殺者'
   Shadow: '影法師'
   AttractiveWoman: '美女'
+  DestroyCraziest: '破壊の狂人'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1057,6 +1058,9 @@ Shadow:
 
 AttractiveWoman:
   select: '{{name}}は{{target}}を魅了しました。'
+
+DestroyCraziest:
+  select: '{{name}}は{{target}}に破壊の呪いをかけました。'
 
 # Werewolf
 SpaceWerewolfImposter:
