@@ -176,6 +176,7 @@ jobname:
   Assassin: '暗殺者'
   Shadow: '影法師'
   AttractiveWoman: '美女'
+  Actress: '女狐'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1057,6 +1058,9 @@ Shadow:
 
 AttractiveWoman:
   select: '{{name}}は{{target}}を魅了しました。'
+
+Actress:
+  existence: '{{name}}は舞台を降りました。'
 
 # Werewolf
 SpaceWerewolfImposter:
