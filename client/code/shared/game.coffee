@@ -62,6 +62,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "RedHood","Baker","XianFox","LunaticLover"
 # 人狼放浪記
 "MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic","MementoDisposer",
+# 真紅の狼
+"DestroyCraziest","Actress",
 # 牢獄の悪夢
 "PsychoKiller","Cosplayer",
 # 人狼NET
@@ -106,7 +108,7 @@ exports.hiddenJobs = [
 ]
 
 # 人外
-exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","CynthiaWolf","Trickster","NetherWolf","DarkWolf","BloodWolf","VariationFox","SpaceWerewolfImposter"]
+exports.nonhumans=["Werewolf","Fox","BigWolf","TinyFox","WolfDiviner","MadWolf","Devil","Vampire","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","XianFox","DecoyWolf","Dracula","AbsoluteWolf","NightRabbit","CurseWolf","IntuitionWolf","Lorelei","SealWolf","CynthiaWolf","Trickster","NetherWolf","DarkWolf","BloodWolf","VariationFox","Actress","SpaceWerewolfImposter"]
 
 # 黒が出る人
 exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub","Dog","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","MadDog","CraftyWolf","Cosplayer","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","BloodWolf","SpaceWerewolfImposter"]
@@ -114,8 +116,8 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 # チームたち
 exports.teams=teams=
     Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer","Assassin"]
-    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf","Shadow","AttractiveWoman"]
-    Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster","VariationFox"]
+    Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf","Shadow","AttractiveWoman","DestroyCraziest"]
+    Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster","VariationFox","Actress"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover"]
     Vampire:["Vampire","Dracula","VampireClan"]
@@ -132,8 +134,8 @@ exports.categories=
     Human: teams.Human.filter((x)->
         not (x in ["GotChocolate", "Phantom", "OccultMania", "Cursed", "BloodyMary","Dreamer","Listener","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard"]))
     Werewolf:["Werewolf","BigWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","BloodWolf"]
-    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad","Satori","QueenOfNight","Faker","Acrobat","Shadow","AttractiveWoman"]
-    Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox"]
+    Madman:["Madman","Fanatic","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad","Satori","QueenOfNight","Faker","Acrobat","Shadow","AttractiveWoman","DestroyCraziest"]
+    Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
     Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
@@ -1030,6 +1032,8 @@ exports.jobinfo=
             color:"#74797d"
         AttractiveWoman:
             color:"#bd5a66"
+        DestroyCraziest:
+            color:"#616e19"
 
     Fox:
         color:"#934293"
@@ -1049,6 +1053,8 @@ exports.jobinfo=
             color:"#27dcce"
         VariationFox:
             color:"#b8b842"
+        Actress:
+            color:"#e84e23"
 
     Friend:
         color:"#ffb5e5"
