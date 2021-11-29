@@ -11398,15 +11398,31 @@ class AttractiveWoman extends Madman
 
 class DestroyCraziest extends WolfBoy
     type:"DestroyCraziest"
+    midnightSort:90
+    formType: FormType.optional
+    sleeping:->true
+    jobdone:->@target?
+    sunset:(game)->
+        @setTarget null
+    job:(game,playerid)->
+        @setTarget playerid
+        pl=game.getPlayer playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:DestroyCraziest.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
     midnight:(game,midnightSort)->
         # 複合させる
         pl = game.getPlayer game.skillTargetHook.get @target
         unless pl?
             return
-        newpl=Player.factory null, game, pl,null,NoGuarded
+        newpl = Player.factory null, game, pl, null, NoGuarded
         pl.transProfile newpl
-        newpl.cmplFlag=@id  # 護衛元cmplFlag
-        pl.transform game,newpl,true
+        newpl.cmplFlag = @id  # 護衛元cmplFlag
+        pl.transform game, newpl, true
         null
 
 class Actress extends Fox
@@ -12148,7 +12164,13 @@ class Guarded extends Complex
         return super
     checkDeathResistance:(game, found, from)->
         guard=game.getPlayer @cmplFlag
-        unless Found.isGuardableAttack found || guard.cmplType=="NoGuarded"
+
+        # NoGuardedがいたら護衛無効
+        me = game.getPlayer @id
+        if me?.isCmplType "NoGuarded"
+            return super
+
+        unless Found.isGuardableAttack found
             return super
         else
             # 狼に噛まれた場合は耐える
@@ -12294,7 +12316,13 @@ class TrapGuarded extends Complex
 
     checkDeathResistance:(game, found, from)->
         guard=game.getPlayer @cmplFlag
-        unless Found.isGuardableAttack found || guard.cmplType=="NoGuarded"
+
+        # NoGuardedがいたら護衛無効
+        me = game.getPlayer @id
+        if me?.isCmplType "NoGuarded"
+            return super
+
+        unless Found.isGuardableAttack found
             # 狼・ヴァンパイア以外だとしぬ
             return super
         else
@@ -12879,7 +12907,13 @@ class SamuraiGuarded extends Complex
     cmplType: "SamuraiGuarded"
     checkDeathResistance:(game, found, from)->
         samurai = game.getPlayer @cmplFlag
-        unless Found.isGuardableAttack found || samurai.cmplType=="NoGuarded"
+
+        # NoGuardedがいたら護衛無効
+        me = game.getPlayer @id
+        if me?.isCmplType "NoGuarded"
+            return super
+
+        unless Found.isGuardableAttack found
             # 襲撃以外は素通し
             return super
         # 狼に噛まれた場合は耐えるが相打ち
@@ -13196,7 +13230,7 @@ class WomanAttracted extends Complex
 # 護衛貫通
 class NoGuarded extends Complex
     cmplType:"NoGuarded"
-    sunset:(game)->
+    sunsetAlways:(game)->
         # 一日しか効かない
         @mcall game,@main.sunset,game
         @sub?.sunset? game
@@ -13683,6 +13717,7 @@ complexes=
     Enemy:Enemy
     Interpreted:Interpreted
     WomanAttracted:WomanAttracted
+    NoGuarded:NoGuarded
 
     # 役職ごとの強さ
 jobStrength=

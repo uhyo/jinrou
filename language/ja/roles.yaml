@@ -1060,7 +1060,6 @@ Shadow:
 AttractiveWoman:
   select: '{{name}}は{{target}}を魅了しました。'
 
-
 DestroyCraziest:
   select: '{{name}}は{{target}}に破壊の呪いをかけました。'
 
