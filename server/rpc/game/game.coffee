@@ -14639,7 +14639,7 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.2
                             exceptions.push "Pumpkin"
 
-                    if (month==9 && 28<=d<=31) || (month==11 && 24<=d<=25) || (month==11 || d==31)
+                    if (month==9 && 28<=d<=31) || (month==11 && 24<=d<=25) || (month==11 && d==31)
                         # 暴徒が出る季節
                         r = if month == 9 && d == 28
                             # 軽トラ記念日
