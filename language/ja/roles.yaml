@@ -178,6 +178,7 @@ jobname:
   AttractiveWoman: '美女'
   DestroyCraziest: '破壊の狂人'
   Actress: '女狐'
+  StraySheep: '迷える子羊'
   SpaceWerewolfCrew: 'クルー'
   SpaceWerewolfImposter: '詐欺師'
   SpaceWerewolfObserver: '観察者'
@@ -1065,6 +1066,9 @@ DestroyCraziest:
 
 Actress:
   existence: '{{name}}は舞台を降りました。'
+
+StraySheep:
+  select: '{{name}}は身代わりになろうとしています。'
 
 # Werewolf
 SpaceWerewolfImposter:
