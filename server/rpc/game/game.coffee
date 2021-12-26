@@ -11484,7 +11484,7 @@ class StraySheep extends Player
                 newpl = Player.factory null, game, p, null, RaidProtected #いい感じの護衛
                 p.transProfile newpl
                 p.transform game, newpl, true
-            null
+        null
     sunsetAlways:(game)->
         pl = game.getPlayer @id
         newpl=Player.factory null, game, pl,null,NoGuarded # 毎日護衛無効（仮仕様）
