@@ -126,6 +126,7 @@ messages:
   Assassin: '暗殺の対象を選択してください'
   AttractiveWoman: '魅了する相手を選択してください'
   DestroyCraziest: '破壊の対象を選択してください'
+  StraySheep: '能力を使用する場合は選択してください'
   SpaceWerewolfObserver: '観察する対象を選択してください'
   SpaceWerewolfGuard: '見張る対象を選択してください'
   SpaceWerewolfSabotage: '妨害する対象を選択してください'
