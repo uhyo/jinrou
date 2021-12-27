@@ -11453,7 +11453,7 @@ class StraySheep extends Player
     midnightSort:79
     formType: FormType.optionalOnce
     sleeping:->true
-    jobdone:->!!@flag
+    jobdone:->game.day<=1 || !!@flag
     job:(game,playerid)->
         if @flag
             return game.i18n.t "error.common.alreadyUsed"
