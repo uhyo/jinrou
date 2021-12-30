@@ -10855,7 +10855,7 @@ class Oni extends Player
 
 class Saint extends Couple
     type:"Saint"
-    midnightSort:100
+    midnightSort:121
     formType: FormType.optionalOnce # 任意・4日目のみ
     isReviver:->!@dead
     job_target:Player.JOB_T_DEAD
