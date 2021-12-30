@@ -9118,7 +9118,7 @@ class HomeComer extends Merchant
 
 class Illusionist extends Player
     type:"Illusionist"
-    midnightSort:80
+    midnightSort:78
     formType: FormType.optionalOnce
     sleeping:->true
     jobdone:(game)->game.day <= 1 || @flag? || @target?
@@ -11448,6 +11448,58 @@ class Actress extends Fox
             comment: game.i18n.t "roles:Actress.existence", {name: @name}
         splashlog game.id,game,log
 
+class StraySheep extends Player
+    type:"StraySheep"
+    midnightSort:79
+    formType: FormType.optionalOnce
+    sleeping:->true
+    jobdone:->game.day<=1 || !!@flag
+    job:(game,playerid)->
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+        @setFlag "using"
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:StraySheep.select", {name: @name}
+        splashlog game.id,game,log
+        null
+    midnight:(game,midnightSort)->
+        # ここが無効化されたら発動しないように
+        if @flag=="using"
+            @setFlag "using2"
+        # 人狼の襲撃を自分に設定する
+        for target in game.werewolf_target
+            # 襲撃対象を書き換える
+            if target.to
+                # 襲撃対象無しの場合は書き換えられない
+                target.to = @id
+            # 襲撃方法を変更
+            target.found = "trickedWerewolf"
+        # 自分を除く全員に襲撃無効を付与する（仮仕様）
+        alives = game.players.filter((x)->!x.dead).map((x)-> x.id)
+        for pid in alives
+            p = game.getPlayer pid
+            if p.id != @id
+                newpl = Player.factory null, game, p, null, RaidProtected #いい感じの護衛
+                p.transProfile newpl
+                p.transform game, newpl, true
+        null
+    sunsetAlways:(game)->
+        pl = game.getPlayer @id
+        newpl=Player.factory null, game, pl,null,NoGuarded # 毎日護衛無効（仮仕様）
+        pl.transProfile newpl
+        pl.transform game,newpl,true
+    sunrise:(game)->
+        # 能力発動した場合は必ず死亡させる
+        if @flag=="using2" && !@dead
+            @die game, "werewolf2"
+    makeJobSelection:(game, isvote)->
+        # 夜は投票しない
+        unless isvote
+            []
+        else super
+
 # ============================
 # Roles for Space Werewolf
 
@@ -12117,6 +12169,9 @@ class HolyProtected extends Complex
         if found in ["gone-day", "gone-night"]
             # If this is a gone death, do not guard.
             return false
+        me = game.getPlayer @id
+        if me.isJobType "StraySheep"
+            return false
         # 一回耐える 死なない代わりに元に戻る
         log=
             mode:"skill"
@@ -12390,6 +12445,9 @@ class MikoProtected extends Complex
         # The draw caused by Miko's escape is annoying.
         if found in ["gone-day","gone-night"]
             @addGamelog game,"miko-gone",null,null
+            return false
+        me = game.getPlayer @id
+        if me.isJobType "StraySheep"
             return false
         # 耐える
         game.getPlayer(@id).addGamelog game,"mikoGJ",found
@@ -12958,7 +13016,7 @@ class SacrificeProtected extends Complex
             # If this is a gone death, do not guard.
             return false
         me = game.getPlayer @id
-        if me.getTeam() != "Human"
+        if me.getTeam() != "Human" || me.isJobType "StraySheep"
             return false
         # 生贄先が生存していないとダメ
         sacrifice=game.getPlayer @cmplFlag
@@ -13234,6 +13292,22 @@ class NoGuarded extends Complex
         # 一日しか効かない
         @mcall game,@main.sunset,game
         @sub?.sunset? game
+        @uncomplex game
+
+# 襲撃系無効（仮仕様）
+class RaidProtected extends Complex
+    cmplType:"RaidProtected"
+    checkDeathResistance:(game, found)->
+        # この他の死因を防ぐ
+        if found in ["punish", "infirm", "bonds", "hunter", "gmpunish", "gone-day", "gone-night", "hinamizawa", "poison", "vampire2", "trap", "marycurse", "psycho", "curse", "spygone",
+                     "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide", "vampiresuicide", "santasuicide", "fascinatesuicide", "loreleisuicide",
+                     "crafty", "greedy", "tough", "lunaticlover", "sacrifice", "lorelei", "selfdestruct"]
+            return false
+        return true
+    sunsetAlways:(game)->
+        # 一日しか効かない
+        @mcall game, @main.sunsetAlways, game
+        @sub?.sunsetAlways? game
         @uncomplex game
 
 # 決定者
@@ -13652,6 +13726,7 @@ jobs=
     AttractiveWoman:AttractiveWoman
     DestroyCraziest:DestroyCraziest
     Actress:Actress
+    StraySheep:StraySheep
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13718,6 +13793,7 @@ complexes=
     Interpreted:Interpreted
     WomanAttracted:WomanAttracted
     NoGuarded:NoGuarded
+    RaidProtected:RaidProtected
 
     # 役職ごとの強さ
 jobStrength=
@@ -13893,6 +13969,7 @@ jobStrength=
     AttractiveWoman:16
     DestroyCraziest:15
     Actress:20
+    StraySheep:8
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
