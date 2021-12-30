@@ -11452,9 +11452,9 @@ class StraySheep extends Player
     type:"StraySheep"
     midnightSort:79
     formType: FormType.optionalOnce
-    sleeping:->true
-    jobdone:->game.day<=1 || !!@flag
-    job:(game,playerid)->
+    sleeping:-> true
+    jobdone:(game)-> game.day<=1 || !!@flag
+    job:(game, playerid)->
         if @flag
             return game.i18n.t "error.common.alreadyUsed"
         @setFlag "using"
@@ -11464,7 +11464,7 @@ class StraySheep extends Player
             comment: game.i18n.t "roles:StraySheep.select", {name: @name}
         splashlog game.id,game,log
         null
-    midnight:(game,midnightSort)->
+    midnight:(game, midnightSort)->
         # ここが無効化されたら発動しないように
         if @flag=="using"
             @setFlag "using2"
