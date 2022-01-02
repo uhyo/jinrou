@@ -13298,7 +13298,7 @@ class RaidProtected extends Complex
     cmplType:"RaidProtected"
     checkDeathResistance:(game, found)->
         # この他の死因を防ぐ
-        if found in ["punish", "infirm", "bonds", "hunter", "gmpunish", "gone-day", "gone-night", "hinamizawa", "poison", "vampire2", "trap", "marycurse", "psycho", "curse", "spygone",
+        if found in ["punish", "infirm", "bonds", "hunter", "gmpunish", "gone-day", "gone-night", "hinamizawa", "poison", "werewolf2", "vampire2", "trap", "marycurse", "psycho", "curse", "spygone",
                      "foxsuicide", "friendsuicide", "twinsuicide", "dragonknightsuicide", "vampiresuicide", "santasuicide", "fascinatesuicide", "loreleisuicide",
                      "crafty", "greedy", "tough", "lunaticlover", "sacrifice", "lorelei", "selfdestruct"]
             return false
