@@ -13303,10 +13303,10 @@ class RaidProtected extends Complex
                      "crafty", "greedy", "tough", "lunaticlover", "sacrifice", "lorelei", "selfdestruct"]
             return false
         return true
-    sunsetAlways:(game)->
-        # 一日しか効かない
-        @mcall game, @main.sunsetAlways, game
-        @sub?.sunsetAlways? game
+    sunrise:(game)->
+        # 昼からは元に戻してあげる
+        @mcall game,@main.sunrise,game
+        @sub?.sunrise? game
         @uncomplex game
 
 # 決定者
