@@ -11499,6 +11499,25 @@ class StraySheep extends Player
             []
         else super
 
+class FrontOni extends Oni
+    type: "FrontOni"
+    isWinner:(game, team)->
+        # 自身の生存 + 人狼陣営の全滅
+        if @dead
+            return false
+        wolves = game.players.filter (pl)-> pl.getTeam() == "Werewolf"
+        return wolves.every (pl)-> pl.dead
+
+class BackOni extends Oni
+    type: "BackOni"
+    isWinner:(game, team)->
+        # 自身の生存 + 妖狐陣営の全滅
+        if @dead
+            return false
+        wolves = game.players.filter (pl)-> pl.getTeam() == "Fox"
+        return wolves.every (pl)-> pl.dead
+
+
 # ============================
 # Roles for Space Werewolf
 
@@ -13726,6 +13745,8 @@ jobs=
     DestroyCraziest:DestroyCraziest
     Actress:Actress
     StraySheep:StraySheep
+    FrontOni:FrontOni
+    BackOni:BackOni
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13969,6 +13990,8 @@ jobStrength=
     DestroyCraziest:15
     Actress:20
     StraySheep:8
+    FrontOni:10
+    BackOni:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -14741,6 +14764,25 @@ module.exports.actions=(req,res,ss)->
                         if Math.random()<0.15
                             exceptions.push "HomeComer"
 
+                    if month == 1 && d == 3
+                        # 節分: 鬼系が出やすい
+                        r = Math.random()
+                        if r < 0.2 && frees > 0 && !nonavs.Oni
+                            joblist.Oni ?= 0
+                            joblist.Oni++
+                            frees--
+                        else if r < 0.3 && frees > 0 && !nonavs.GoldOni
+                            joblist.GoldOni ?= 0
+                            joblist.GoldOni++
+                            frees--
+                        else if r < 0.4 && frees > 0 && !nonavs.GoldOni
+                            joblist.FrontOni ?= 0
+                            joblist.FrontOni++
+                            frees--
+                        else if r < 0.5 && frees > 0 && !nonavs.GoldOni
+                            joblist.BackOni ?= 0
+                            joblist.BackOni++
+                            frees--
                 )(new Date)
 
                 possibility=Object.keys(jobs).filter (x)->!(x in exceptions)
