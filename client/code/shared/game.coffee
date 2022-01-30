@@ -53,7 +53,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "Gambler","Faker","NetherWolf","Interpreter","Hierarch",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
-"SealWolf","Oni","GoldOni","Duelist",
+"SealWolf","Oni","GoldOni","Duelist","FrontOni","BackOni",
 # えけけ鯖
 "MadHunter","Ascetic"
 # 人狼パーティー
@@ -126,7 +126,7 @@ exports.teams=teams=
     Hooligan:["Hooligan", "HooliganAttacker"]
     Duel:["Duelist"]
     Lorelei:["Lorelei"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni","FrontOni","BackOni"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -138,7 +138,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief","Dreamer"]
     # Special category for "no category"
     None:[
@@ -1138,6 +1138,10 @@ exports.jobinfo=
             color:"#d14545"
         GoldOni:
             color:"#dbb400"
+        FrontOni:
+            color:"#d4914a"
+        BackOni:
+            color:"#f0bd86"
     Neet:
         color:"#aaaaaa"
         Neet:
