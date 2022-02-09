@@ -186,6 +186,8 @@ jobname:
   SpaceWerewolfSabotage: '破壊者'
   FrontOni: '前鬼'
   BackOni: '後鬼'
+
+  # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
