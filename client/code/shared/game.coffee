@@ -50,7 +50,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BadLady", # 蒼汁天国、人狼天国
 # ねじれ天国
 "Bomber","Blasphemy","Ushinotokimairi","DualPersonality","GachaAddicted",
-"Gambler","Faker","NetherWolf","Interpreter","Hierarch",
+"Gambler","Faker","NetherWolf","Interpreter","Hierarch","Secretary",
 # 人狼式
 "Emma","EyesWolf","TongueWolf","Oracle","Hitokotonushinokami",
 "SealWolf","Oni","GoldOni","Duelist","FrontOni","BackOni",
@@ -115,7 +115,7 @@ exports.blacks=["Werewolf","WolfDiviner","MadWolf","Lycan","LoneWolf","WolfCub",
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer","Assassin","StraySheep"]
+    Human:["Human","Diviner","Psychic","Guard","Couple","Poisoner","ToughGuy","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer","Assassin","StraySheep","Secretary"]
     Werewolf:["Werewolf","Madman","BigWolf","Fanatic","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf","Shadow","AttractiveWoman","DestroyCraziest"]
     Fox:["Fox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster","VariationFox","Actress"]
     Devil:["Devil"]
@@ -168,7 +168,7 @@ exports.gachaData =
     4: ["Poisoner", "Merchant", "Light", "Cat", "Witch", "Dictator",
         "Miko", "HolyMarked", "TroubleMaker", "FrankensteinsMonster",
         "SantaClaus", "Baker", "SpiritPossessed", "Hunter", "Idol", "Elementaler","Fate",
-        "Synesthete", "Streamer", "Reincarnator", "Interpreter", "Assassin"]
+        "Synesthete", "Streamer", "Reincarnator", "Interpreter", "Assassin","Secretary"]
     5: ["QueenSpectator", "MadWolf", "Priest", "Trapper", "Counselor", "BloodyMary", "King",
         "Illusionist", "DragonKnight"]
     6: ["Neet", "Helper", "Watching"]
@@ -929,6 +929,8 @@ exports.jobinfo=
             color:"#660200"
         StraySheep:
             color:"#5ffa5c"
+        Secretary:
+            color:"#d8e9f2"
 
     Werewolf:
         color:"#DD0000"

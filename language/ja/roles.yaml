@@ -186,6 +186,9 @@ jobname:
   SpaceWerewolfSabotage: '破壊者'
   FrontOni: '前鬼'
   BackOni: '後鬼'
+  Secretary: '秘書'
+
+  # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
@@ -1071,6 +1074,9 @@ Actress:
 
 StraySheep:
   select: '{{name}}は身代わりになろうとしています。'
+
+Secretary:
+  select: '{{name}}は{{target}}を補佐しました。'
 
 # Werewolf
 SpaceWerewolfImposter:
