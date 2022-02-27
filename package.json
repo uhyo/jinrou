@@ -1,7 +1,7 @@
 {
   "name": "werewolf",
   "description": "You are a werewolf.",
-  "version": "1.14.50",
+  "version": "1.14.51",
   "author": "uhyo <uhyohyo@uhyohyohyo.sakura.ne.jp>",
   "private": false,
   "engines": {
