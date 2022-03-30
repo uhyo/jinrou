@@ -98,7 +98,8 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "SantaClaus","Reindeer",
 "Pyrotechnist","Patissiere","Shishimai","Idol","LurkingMad",
 "DecoyWolf","Hooligan","HomeComer","DragonKnight","Poet","Sacrifice",
-"Synesthete","Streamer","RemoteWorker","Disguised","Acrobat","Hanami"
+"Synesthete","Streamer","RemoteWorker","Disguised","Acrobat","Hanami",
+"ResidualHaunting"
 ]
 # 隠されていて自分で入れることができない役職
 exports.hiddenJobs = [
@@ -126,7 +127,7 @@ exports.teams=teams=
     Hooligan:["Hooligan", "HooliganAttacker"]
     Duel:["Duelist"]
     Lorelei:["Lorelei"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni","FrontOni","BackOni"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni","FrontOni","BackOni","ResidualHaunting"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -138,7 +139,7 @@ exports.categories=
     Fox:["Fox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress"]
     Immoral:["Immoral","Blasphemy"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni","ResidualHaunting"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief","Dreamer"]
     # Special category for "no category"
     None:[
@@ -1144,6 +1145,8 @@ exports.jobinfo=
             color:"#d4914a"
         BackOni:
             color:"#f0bd86"
+        ResidualHaunting:
+            color:"#c2aa8a"
     Neet:
         color:"#aaaaaa"
         Neet:
