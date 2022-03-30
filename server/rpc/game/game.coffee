@@ -4135,7 +4135,7 @@ class Bat extends Player
     type:"Bat"
     team:""
     isWinner:(game,team)->
-        !@dead  # 生きて入ればとにかく勝利
+        libgame.checkAliveForJudgement game, this
 class Noble extends Player
     type:"Noble"
     hasDeadResistance:(game)->
@@ -4445,7 +4445,7 @@ class Fugitive extends Player
             @die game, "vampire2", pl.id
 
     isWinner:(game,team)->
-        team==@getTeam() && !@dead   # 村人勝利で生存
+        team==@getTeam() && libgame.checkAliveForJudgement(game, this)   # 村人勝利で生存
 class Merchant extends Player
     type:"Merchant"
     constructor:->
@@ -4578,7 +4578,7 @@ class Liar extends Player
                 result: game.i18n.t "roles:fortune.#{result}"
                 day: game.day
             }
-    isWinner:(game,team)->team==@getTeam() && !@dead # 村人勝利で生存
+    isWinner:(game,team)->team==@getTeam() && libgame.checkAliveForJudgement(game, this) # 村人勝利で生存
 class Spy2 extends Player
     type:"Spy2"
     team:"Werewolf"
@@ -4604,7 +4604,7 @@ class Spy2 extends Player
             comment:str
         splashlog game.id,game,log2
 
-    isWinner:(game,team)-> team==@getTeam() && !@dead
+    isWinner:(game,team)-> team==@getTeam() && libgame.checkAliveForJudgement(game, this)
 class Copier extends Player
     type:"Copier"
     team:""
@@ -4869,25 +4869,14 @@ class Stalker extends Player
         splashlog game.id,game,log
         @setFlag playerid  # ストーキング対象プレイヤー
         null
-    isWinner:(game,team)->
-        if @isWinnerStalk?
-            @isWinnerStalk game,team,[]
-        else
-            false
-    # ストーカー連鎖対応版
-    isWinnerStalk:(game,team,ids)->
-        if @id in ids
-            # ループしてるので負け
-            return false
+    isWinner:(game, team, context)->
         pl=game.getPlayer @flag
         return false unless pl?
+
         if team != "" && team==pl.getTeam()
             return true
-        if pl.isJobType("Stalker") && pl.isWinnerStalk?
-            # ストーカーを追跡
-            return pl.isWinnerStalk game,team,ids.concat @id
-        else
-            return pl.isWinner game,team
+
+        return libgame.devolveJudgement game, team, context
 
     makejobinfo:(game,result)->
         super
@@ -5351,7 +5340,7 @@ class Vampire extends Player
 class LoneWolf extends Werewolf
     type:"LoneWolf"
     team:"LoneWolf"
-    isWinner:(game,team)->team==@getTeam() && !@dead
+    isWinner:(game,team)->team==@getTeam() && libgame.checkAliveForJudgement(game, this)
 class Cat extends Poisoner
     type:"Cat"
     midnightSort:100
@@ -6028,7 +6017,7 @@ class Hoodlum extends Player
         null
 
     isWinner:(game,team)->
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             # 死んでたらだめ
             return false
         pls=JSON.parse(@flag||"[]").map (id)->game.getPlayer id
@@ -8699,10 +8688,10 @@ class Raven extends Player
         ravens = game.players.filter (x)-> x.isJobType "Raven"
         if ravens.length > 1
             # 鴉勝利かつ生存
-            team == @team && !@dead
+            team == @team && libgame.checkAliveForJudgement(game, this)
         else
             # 単独の場合は生存でOK
-            !@dead
+            libgame.checkAliveForJudgement(game, this)
     sunrise:(game)->
 
         # もうログを出していたらやめる
@@ -8987,7 +8976,7 @@ class HooliganAttacker extends Player
     midnightSort: 100
     jobdone:(game)-> @target?
     isWinner:(game, team)->
-        !@dead
+        libgame.checkAliveForJudgement(game, this)
     sunset:(game)->
         @setTarget null
         @setFlag "unused"
@@ -9047,7 +9036,7 @@ class HooliganGuard extends Player
         @setFlag null
     jobdone:(game)-> @target? || @flag == game.day
     isWinner:(game, team)->
-        !@dead
+        libgame.checkAliveForJudgement(game, this)
     sunset:(game)->
         @setTarget null
     job:(game, playerid)->
@@ -10808,7 +10797,7 @@ class Oni extends Player
         }
     isWinner:(game, team)->
         # 自身の生存 + 人狼系の生存
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             return false
         wolves = game.players.filter (pl)-> pl.isWerewolf()
         return wolves.some (pl)-> !pl.dead
@@ -10952,7 +10941,7 @@ class GoldOni extends Oni
         }
     isWinner:(game, team)->
         # 自身の生存 + 村人勝利 + 左方向n人死亡
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             return false
         if team != "Human"
             return false
@@ -11503,7 +11492,7 @@ class FrontOni extends Oni
     type: "FrontOni"
     isWinner:(game, team)->
         # 自身の生存 + 人狼陣営の全滅
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             return false
         wolves = game.players.filter (pl)-> pl.getTeam() == "Werewolf"
         return wolves.every (pl)-> pl.dead
@@ -11512,7 +11501,7 @@ class BackOni extends Oni
     type: "BackOni"
     isWinner:(game, team)->
         # 自身の生存 + 妖狐陣営の全滅
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             return false
         wolves = game.players.filter (pl)-> pl.getTeam() == "Fox"
         return wolves.every (pl)-> pl.dead
@@ -11527,6 +11516,8 @@ class Secretary extends Player
     job:(game, playerid)->
         @setTarget playerid
         pl=game.getPlayer playerid
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
         pl.touched game,@id
         log=
             mode:"skill"
@@ -11545,6 +11536,48 @@ class Secretary extends Player
         pl.transform game, newpl, true
         @addGamelog game, "secretary", pl.type, pl.id
         null
+
+class ResidualHaunting extends Player
+    type: "ResidualHaunting"
+    team: ""
+    formType: FormType.optionalOnce
+    sleeping:-> true
+    jobdone:-> @flag? && @flag != "#noselect#"
+    isWinner:(game, team, context)->
+        unless @flag?
+            # 憑依していないと敗北
+            return false
+        pl = game.getPlayer @flag
+        unless pl?
+            return false
+        return libgame.devolveJudgement game, team, pl, context
+    sunset:(game)->
+        if !@flag?
+            @setFlag "#noselect#"
+    job: (game, playerid)->
+        if @flag? && @flag != "#noselect#"
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+
+        @setFlag playerid
+        pl.touched game, @id
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:ResidualHaunting.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        @addGamelog game, "residualHaunting", pl.type, pl.id
+        null
+    midnight:(game)->
+        if @flag == "#noselect#" && game.day >= 3
+            # 3日目の夜までに憑依対象を選択していない場合は死亡する
+            @die game, "selfdestruct"
+
 
 # ============================
 # Roles for Space Werewolf
@@ -12200,7 +12233,7 @@ class Friend extends Complex    # 恋人
             # みんないっしょ
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
-    isWinner:(game,team)->@getTeam()==team && !@dead
+    isWinner:(game,team)->@getTeam()==team && libgame.checkAliveForJudgement(game, this)
     # 相手のIDは?
     getPartner:->
         if @cmplType=="Friend"
@@ -12954,7 +12987,7 @@ class LunaticLoved extends Complex
     cmplType:"LunaticLoved"
     isWinner:(game, team)->
         # 生存していれば狂愛陣営として勝利
-        if !@dead
+        if libgame.checkAliveForJudgement(game, this)
             return true
         # 通常の勝利条件
         return @main.isWinner game, team
@@ -13290,7 +13323,7 @@ class Enemy extends Complex
             else
                 result.enemies=ene
     isWinner:(game,team)->
-        if @dead
+        unless libgame.checkAliveForJudgement(game, this)
             return false
         pl=game.getPlayer @cmplFlag
         return pl.dead
@@ -13522,39 +13555,19 @@ class Chemical extends Complex
             myt = ""
         return myt
     getTeamDisp:->@getTeam()
-    isWinner:(game,team)->
+    isWinner:(game, team, context)->
         myt = @getTeam()
         win = false
         maint = @main.getTeam()
         subt = @sub?.getTeam()
         if maint == myt || maint == "Devil" || @main.type == "Stalker" || @main.type == "Amanojaku" || @main.type == "DualPersonality" || @main.type == "GoldOni"
-            win = win || @main.isWinner(game,team)
+            win = win || @main.isWinner(game, team, context)
         # if it has team-independent winningness, adopt it.
-        win = win || @main.isWinner(game, "")
+        win = win || @main.isWinner(game, "", context)
         if subt == myt || subt == "Devil" || @sub?.type == "Stalker" || @sub?.type == "Amanojaku" || @sub?.type == "DualPersonality" || @sub?.type == "GoldOni"
-            win = win || @sub.isWinner(game,team)
+            win = win || @sub.isWinner(game, team, context)
         if @sub?
-            win = win || @sub.isWinner(game, "")
-        return win
-    isWinnerStalk:(game,team,ids)->
-        if @id in ids
-            # infinite loop of Stalkers is formed, so terminate by false.
-            return false
-        # same as above but stalker-aware.
-        myt = @getTeam()
-        win = false
-        maint = @main.getTeam()
-        subt = @sub?.getTeam()
-        if maint == myt || maint == "" || maint == "Devil" || @main.type == "Stalker"
-            if @main.isWinnerStalk?
-                win = win || @main.isWinnerStalk(game, team, ids)
-            else
-                win = win || @main.isWinner(game,team)
-        if subt == myt || subt == "" || subt == "Devil" || @sub?.type == "Stalker"
-            if @sub.isWinnerStalk?
-                win = win || @sub.isWinnerStalk(game, team, ids)
-            else
-                win = win || @sub.isWinner(game,team)
+            win = win || @sub.isWinner(game, "", context)
         return win
 
     checkDeathResistance:(game, found, from)->
@@ -13789,6 +13802,7 @@ jobs=
     FrontOni:FrontOni
     BackOni:BackOni
     Secretary:Secretary
+    ResidualHaunting:ResidualHaunting
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -14036,6 +14050,7 @@ jobStrength=
     FrontOni:10
     BackOni:10
     Secretary:18
+    ResidualHaunting:10
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

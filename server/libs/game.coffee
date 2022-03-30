@@ -83,3 +83,31 @@ iterRules = (rules)->
             result.push obj.value
     return result
 
+
+# Checks whether one player is alive, specifically for judgement.
+# We consider ResidualHaunting's skill.
+exports.checkAliveForJudgement = (game, player)->
+    if !player.dead
+        return true
+    hasresiduals = game.players.some (pl)->
+        pl.accessByJobTypeAll("ResidualHaunting").some (p)->
+            !p.dead && p.flag == player.id
+    if hasresiduals
+        return true
+    return false
+
+# Checks whether given player wins.
+# This function should be used in `isWinner` method and propagate passed context to this method.
+# Context is used for preventing infinite loops.
+exports.devolveJudgement = devolveJudgement = (game, team, player, context)->
+    if !context?
+        context = {}
+    if !context.devolveJudgement?
+        context.devolveJudgement = []
+    if player.id in context.devolveJudgement
+        # infinite loop
+        return false
+    newcontext = Object.assign {}, context, {
+        devolveJudgement: context.devolveJudgement.concat [player.id]
+    }
+    return player.isWinner(game, team, newcontext)

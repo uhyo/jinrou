@@ -130,6 +130,7 @@ messages:
   FrontOni: '人攫いの対象を選択してください'
   BackOni: '人攫いの対象を選択してください'
   Secretary: '補佐する相手を選択してください'
+  ResidualHaunting: '取り憑く相手を選択してください'
 
   # Message for normal selection form of special subjobs.  normalMessage:
   SpaceWerewolfObserver: '観察する対象を選択してください'
