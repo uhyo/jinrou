@@ -4876,7 +4876,7 @@ class Stalker extends Player
         if team != "" && team==pl.getTeam()
             return true
 
-        return libgame.devolveJudgement game, team, context
+        return libgame.devolveJudgement game, team, this, context
 
     makejobinfo:(game,result)->
         super
