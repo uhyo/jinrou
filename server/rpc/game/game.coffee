@@ -11514,10 +11514,10 @@ class Secretary extends Player
     sunset:(game)->
         @setTarget null
     job:(game, playerid)->
-        @setTarget playerid
         pl=game.getPlayer playerid
         if pl.id == @id
             return game.i18n.t "error.common.noSelectSelf"
+        @setTarget playerid
         pl.touched game,@id
         log=
             mode:"skill"
