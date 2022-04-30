@@ -188,6 +188,7 @@ jobname:
   BackOni: '後鬼'
   Secretary: '秘書'
   ResidualHaunting: '地縛霊'
+  HouseKeeper: '家政婦'
 
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
@@ -1081,6 +1082,10 @@ Secretary:
 
 ResidualHaunting:
   select: '{{name}}は{{target}}の家に取り憑きました。'
+
+HouseKeeper:
+  select: '{{name}}は{{target}}の家に訪れました。'
+  detect: '{{name}}は{{werewolf}}が{{target}}を襲うのを目撃しました。'
 
 # Werewolf
 SpaceWerewolfImposter:
