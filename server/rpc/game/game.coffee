@@ -166,6 +166,9 @@ Found =
     # whether this is a werewolf attack.
     isNormalWerewolfAttack: (found)->
         found in ["werewolf", "trickedWerewolf"]
+    # whether this is any kind of werewolf attack.
+    isWerewolfAttack: (found)->
+        found in ["werewolf", "werewolf2", "trickedWerewolf"]
     # whether this is a vampire attack.
     isNormalVampireAttack: (found)->
         found == "vampire"
@@ -11578,6 +11581,42 @@ class ResidualHaunting extends Player
             # 3日目の夜までに憑依対象を選択していない場合は死亡する
             @die game, "selfdestruct"
 
+class HouseKeeper extends Player
+    type: "HouseKeeper"
+    formType: FormType.optional
+    midnightSort: 95
+    sleeping:-> true
+    jobdone:(game)-> game.day == 1 || @target?
+    sunset: (game)->
+        @setTarget null
+    job: (game, playerid)->
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        @setTarget playerid
+        pl.touched game, @id
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:HouseKeeper.select", {name: @name, target: pl.name}
+        splashlog game.id, game, log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        if pl.isWerewolf() && pl.getTeam() != "Human"
+            # 人狼を訪れた場合は死亡する
+            @die game, "werewolf2", pl.id
+            return
+        newpl = Player.factory null, game, pl, null, HouseKeeped
+        newpl.cmplFlag = @id
+        pl.transProfile newpl
+        pl.transform game, newpl, true
+
+
 
 # ============================
 # Roles for Space Werewolf
@@ -13402,6 +13441,39 @@ class OnedayAuthority extends Complex
         @sub?.sunsetAlways? game
         @uncomplex game
 
+# 家政婦が訪れた人
+class HouseKeeped extends Complex
+    cmplType: "HouseKeeped"
+    dying: (game, found, from)->
+        super
+        unless from?
+            return
+        from = if Array.isArray from then from else [from]
+        if from.length == 0
+            return
+        unless Found.isWerewolfAttack found
+            return
+        r = Math.floor Math.random() * from.length
+        werewolf = game.getPlayer from[r]
+        unless werewolf?
+            return
+        houseKeeper = game.getPlayer @cmplFlag
+        unless houseKeeper?
+            return
+        # 襲撃した人狼の正体を知る
+        log =
+            mode: "skill"
+            to: houseKeeper.id
+            comment: game.i18n.t "roles:HouseKeeper.detect", { name: houseKeeper.name, werewolf: werewolf.name, target: @name }
+        splashlog game.id, game, log
+        houseKeeper.addGamelog game, "houseKeeperDetect", null, werewolf.id
+    sunrise:(game)->
+        # 1日で解除
+        @mcall game,@main.sunrise,game
+        @sub?.sunrise? game
+        @uncomplex game
+
+
 # 決定者
 class Decider extends Complex
     cmplType:"Decider"
@@ -13803,6 +13875,7 @@ jobs=
     BackOni:BackOni
     Secretary:Secretary
     ResidualHaunting:ResidualHaunting
+    HouseKeeper: HouseKeeper
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -13871,6 +13944,7 @@ complexes=
     NoGuarded:NoGuarded
     RaidProtected:RaidProtected
     OnedayAuthority:OnedayAuthority
+    HouseKeeped: HouseKeeped
 
     # 役職ごとの強さ
 jobStrength=
@@ -14051,6 +14125,7 @@ jobStrength=
     BackOni:10
     Secretary:18
     ResidualHaunting:10
+    HouseKeeper: 15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
