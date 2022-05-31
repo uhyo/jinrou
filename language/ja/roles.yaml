@@ -189,6 +189,7 @@ jobname:
   Secretary: '秘書'
   ResidualHaunting: '地縛霊'
   HouseKeeper: '家政婦'
+  RainyBoy: '雨男'
 
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
@@ -1086,6 +1087,10 @@ ResidualHaunting:
 HouseKeeper:
   select: '{{name}}は{{target}}の家に訪れました。'
   detect: '{{name}}は{{werewolf}}が{{target}}を襲うのを目撃しました。'
+
+RainyBoy:
+  select: '{{name}}は翌日に雨を降らせます。'
+  weather: '今日は雨が降っています。'
 
 # Werewolf
 SpaceWerewolfImposter:

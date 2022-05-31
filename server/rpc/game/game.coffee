@@ -11616,6 +11616,61 @@ class HouseKeeper extends Player
         pl.transProfile newpl
         pl.transform game, newpl, true
 
+class RainyBoy extends Madman
+    type: "RainyBoy"
+    formType: FormType.optionalOnce
+    midnightSort: 90
+    sleeping:-> true
+    jobdone: (game)-> game.day == 1 || @flag?
+    # flag:
+    # - activated （能力使用）
+    # - rainy(day) （(day)日に使用）
+    job: (game)->
+        if game.day == 1
+            # 1日目は発動できない
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        if @flag?
+            # 能力使用済
+            return game.i18n.t "error.common.alreadyUsed"
+        @setFlag "activated"
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:RainyBoy.select", {name: @name}
+        splashlog game.id, game, log
+        @addGamelog game, "rainyBoy", "", ""
+        null
+    midnightAlways: (game)->
+        # 全員に邪魔を付与
+        # （昼に自身が処刑されても発動）
+        if @flag == "rainy" + game.day
+            for p in game.players
+                if p.dead
+                    continue
+                pls = p.accessMainLevel()
+                for pl in pls
+                    newpl = Player.factory null, game, pl, null, DivineObstructed
+                    pl.transProfile newpl
+                    newpl.cmplFlag = @id  # 邪魔元
+                    pl.transform game, newpl, true
+        null
+    sunrise: (game)->
+        if @flag == "activated"
+            # 天候を伝える
+            log=
+                mode: "system"
+                comment: game.i18n.t "roles:RainyBoy.weather"
+            splashlog game.id, game, log
+            @setFlag "rainy" + game.day
+    makeJobSelection: (game, isvote)->
+        # 夜は投票しない
+        unless isvote
+            []
+        else super
+
+
+
+
 
 
 # ============================
@@ -13876,6 +13931,7 @@ jobs=
     Secretary:Secretary
     ResidualHaunting:ResidualHaunting
     HouseKeeper: HouseKeeper
+    RainyBoy:RainyBoy
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
