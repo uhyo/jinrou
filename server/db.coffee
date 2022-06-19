@@ -100,7 +100,7 @@ dbinit= (loaded)->
             console.log err
             throw err
           M.gamelogs = col
-          col.ensureIndex { "gameid": 1, "timestamp": 1 }, (err, idxname)->
+          col.ensureIndex { "gameid": 1, "time": 1 }, (err, idxname)->
             cols_count()
 
 

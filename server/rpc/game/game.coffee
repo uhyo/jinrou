@@ -454,6 +454,11 @@ class Game
         @winner=null    # 勝ったチーム名
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
 
+        # ログの保存モード
+        # v2: DBのgamelogs collectionに保存する
+        # v1: DBのgames内にオブジェクトのlogプロパティとして保存する
+        @log_save_mode = "v2"
+
         # ----- DBには現れないプロパティ -----
         @timerid=null
         @timer_start=null   # 残り時間のカウント開始時間（秒）
@@ -577,6 +582,7 @@ class Game
             werewolf_target_remain:@werewolf_target_remain
             #quantum_patterns:@quantum_patterns
             finish_time:@finish_time
+            log_save_mode: @log_save_mode
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
@@ -611,6 +617,7 @@ class Game
 
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
+        game.log_save_mode = obj.log_save_mode ? "v1"
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
@@ -15476,31 +15483,46 @@ module.exports.actions=(req,res,ss)->
                     splashlog game.id,game,log
     # 情報を開示
     getlog:(roomid)->
-        M.games.findOne {id:roomid}, (err,doc)=>
-            if err?
-                console.error err
-                res {error: err}
-            else if !doc?
-                res {error: i18n.t "error.common.noSuchGame"}
-            else
-                unless games[roomid]?
-                    games[roomid] = Game.unserialize doc,ss
-                game = games[roomid]
+        gameP = if games[roomid]?
+            Promise.resolve games[roomid]
+        else
+            new Promise (resolve,reject) =>
+                loadGame roomid, ss, (err, game)->
+                    if err?
+                        reject err
+                    else
+                        resolve game
+        gameP
+            .then (game)->
                 # ゲーム後の行動
-                player=game.getPlayerReal req.session.userId
-                result=
-                    #logs:game.logs.filter (x)-> islogOK game,player,x
-                    logs:game.makelogs (doc.logs ? []), player
-                result=makejobinfo game,player,result
-                result.timer=if game.timerid?
-                    game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
+                player = game.getPlayerReal req.session.userId
+                result = makejobinfo game, player, {}
+                result.timer = if game.timerid?
+                    game.timer_remain - (Date.now()/1000 - game.timer_start)    # 全体 - 経過時間
                 else
                     null
-                result.timer_mode=game.timer_mode
-                if game.day==0
+                result.timer_mode = game.timer_mode
+                if game.day == 0
                     # 開始前はプレイヤー情報配信しない
                     delete result.game.players
-                res result
+                # ログの情報を足す
+                if game.log_save_mode == "v2"
+                    M.gamelogs.find({ gameid: game.id }, { sort: { time: 1 } }).toArray (err, docs)->
+                        if err?
+                            res { error: err }
+                        else
+                            result.logs = game.makelogs (docs ? []), player
+                            res result
+                else
+                    M.games.findOne { id: roomid }, { logs: 1 }, (err, doc)->
+                        if doc?
+                            result.logs = game.makelogs (doc.logs ? []), player
+                            res result
+                        else
+                            console.error err
+                            res { error: err }
+            .catch (err)->
+                res { error: err }
 
     speak: (roomid,query)->
         game=games[roomid]

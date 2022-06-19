@@ -22,12 +22,15 @@ class LogSaver
     saveIntoDb:()->
         logs = @pending
         @pending = []
-        M.games.updateOne({id: @game.id}, {
-            $push: {
-                logs: {
-                    $each: logs
+        if @game.log_save_mode == "v2"
+            M.gamelogs.insertMany logs.map((log) => Object.assign(log, { gameid: @game.id }))
+        else
+            M.games.updateOne({id: @game.id}, {
+                $push: {
+                    logs: {
+                        $each: logs
+                    }
                 }
-            }
-        }, {w: 1})
+            }, {w: 1})
 
 exports.LogSaver = LogSaver
