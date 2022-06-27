@@ -193,7 +193,7 @@ loadGame = (roomid, ss, callback)->
     if games[roomid]?
         callback null, games[roomid]
     else
-        M.games.findOne {id:roomid}, (err,doc)=>
+        M.games.findOne {id:roomid}, { logs: 0 } (err,doc)=>
             if err?
                 console.error err
                 callback err,null
@@ -15483,46 +15483,38 @@ module.exports.actions=(req,res,ss)->
                     splashlog game.id,game,log
     # 情報を開示
     getlog:(roomid)->
-        gameP = if games[roomid]?
-            Promise.resolve games[roomid]
-        else
-            new Promise (resolve,reject) =>
-                loadGame roomid, ss, (err, game)->
-                    if err?
-                        reject err
-                    else
-                        resolve game
-        gameP
-            .then (game)->
-                # ゲーム後の行動
-                player = game.getPlayerReal req.session.userId
-                result = makejobinfo game, player, {}
-                result.timer = if game.timerid?
-                    game.timer_remain - (Date.now()/1000 - game.timer_start)    # 全体 - 経過時間
-                else
-                    null
-                result.timer_mode = game.timer_mode
-                if game.day == 0
-                    # 開始前はプレイヤー情報配信しない
-                    delete result.game.players
-                # ログの情報を足す
-                if game.log_save_mode == "v2"
-                    M.gamelogs.find({ gameid: game.id }, { sort: { time: 1 } }).toArray (err, docs)->
-                        if err?
-                            res { error: err }
-                        else
-                            result.logs = game.makelogs (docs ? []), player
-                            res result
-                else
-                    M.games.findOne { id: roomid }, { logs: 1 }, (err, doc)->
-                        if doc?
-                            result.logs = game.makelogs (doc.logs ? []), player
-                            res result
-                        else
-                            console.error err
-                            res { error: err }
-            .catch (err)->
+        loadGame roomid, ss, (err, game)->
+            if err?
                 res { error: err }
+                return
+
+            # ゲーム後の行動
+            player = game.getPlayerReal req.session.userId
+            result = makejobinfo game, player, {}
+            result.timer = if game.timerid?
+                game.timer_remain - (Date.now()/1000 - game.timer_start)    # 全体 - 経過時間
+            else
+                null
+            result.timer_mode = game.timer_mode
+            if game.day == 0
+                # 開始前はプレイヤー情報配信しない
+                delete result.game.players
+            # ログの情報を足す
+            if game.log_save_mode == "v2"
+                M.gamelogs.find({ gameid: game.id }, { sort: { time: 1 } }).toArray (err, docs)->
+                    if err?
+                        res { error: err }
+                    else
+                        result.logs = game.makelogs (docs ? []), player
+                        res result
+            else
+                M.games.findOne { id: roomid }, { logs: 1 }, (err, doc)->
+                    if doc?
+                        result.logs = game.makelogs (doc.logs ? []), player
+                        res result
+                    else
+                        console.error err
+                        res { error: err }
 
     speak: (roomid,query)->
         game=games[roomid]
