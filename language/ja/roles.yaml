@@ -190,6 +190,7 @@ jobname:
   ResidualHaunting: '地縛霊'
   HouseKeeper: '家政婦'
   RainyBoy: '雨男'
+  DarkPsychic: '闇の霊媒師'
 
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
@@ -780,6 +781,8 @@ Emma:
     selfdestruct: '{{name}}は自爆したようです。'
     # Killed by Assassin
     assassinate: '{{name}}は暗殺されたようです。'
+    # Killed by DarkPsychic
+    ghostrevenge: '{{name}}は亡霊の怨念に殺されたようです。'
 
 EyesWolf:
   # EyesWolf result strings
