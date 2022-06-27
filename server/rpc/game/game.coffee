@@ -28,6 +28,8 @@ DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere"
 LOG_PEEKING_JOBS = ["NightRabbit"]
 # 村人だと思い込む役職
 HUMAN_DISP_JOBS = ["Oracle","Fate","Sleepwalker","Dreamer"]
+# 狩人仲間の役職
+GUARD_JOBS = ["Guard", "Cosplayer", "WanderingGuard", "Samurai", "Trapper", "DragonKnight", "Elementaler"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -193,14 +195,17 @@ loadGame = (roomid, ss, callback)->
     if games[roomid]?
         callback null, games[roomid]
     else
-        M.games.findOne {id:roomid}, (err,doc)=>
+        M.games.findOne {id:roomid}, { logs: 0 }, (err,doc)=>
             if err?
                 console.error err
-                callback err,null
+                callback err, null
             else if !doc?
-                callback i18n.t("error.common.noSuchGame"),null
+                callback i18n.t("error.common.noSuchGame"), null
+            else if games[roomid]?
+                # prevents duplicate instantiation of Game
+                callback null, games[roomid]
             else
-                games[roomid] = Game.unserialize doc,ss
+                games[roomid] = Game.unserialize doc, ss
                 callback null, games[roomid]
 #内部用
 module.exports=
@@ -454,6 +459,11 @@ class Game
         @winner=null    # 勝ったチーム名
         @quantum_patterns=[]    # 全部の場合を列挙({(id):{jobtype:"Jobname",dead:Boolean},...})
 
+        # ログの保存モード
+        # v2: DBのgamelogs collectionに保存する
+        # v1: DBのgames内にオブジェクトのlogプロパティとして保存する
+        @log_save_mode = "v2"
+
         # ----- DBには現れないプロパティ -----
         @timerid=null
         @timer_start=null   # 残り時間のカウント開始時間（秒）
@@ -577,6 +587,7 @@ class Game
             werewolf_target_remain:@werewolf_target_remain
             #quantum_patterns:@quantum_patterns
             finish_time:@finish_time
+            log_save_mode: @log_save_mode
         }
     #DB用をもとにコンストラクト
     @unserialize:(obj,ss)->
@@ -611,6 +622,7 @@ class Game
 
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
+        game.log_save_mode = obj.log_save_mode ? "v1"
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
@@ -1911,7 +1923,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1954,7 +1966,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -2025,6 +2037,8 @@ class Game
                         "selfdestruct"
                     when "assassinate"
                         "assassinate"
+                    when "ghostrevenge"
+                        "ghostrevenge"
                     else
                         null
                 if emma_log?
@@ -11668,7 +11682,30 @@ class RainyBoy extends Madman
             []
         else super
 
-
+class DarkPsychic extends Psychic
+    type: "DarkPsychic"
+    hasDeadlyWeapon:-> true
+    dying:(game, found, from)->
+        super
+        unless found == "punish"
+            return
+        # 処刑された場合は亡霊モードになる
+        @setFlag "punished"
+    midnightAlways:(game)->
+        unless @flag == "punished"
+            return
+        @setFlag "done"
+        # 狩人を全て殺害する
+        for p in game.players
+            if p.dead
+                continue
+            pls = p.accessMainLevel()
+            isGuard = pls.some (pl)->
+                pl.type in GUARD_JOBS
+            unless isGuard
+                continue
+            p.die game, "ghostrevenge"
+            @addGamelog game, "ghostrevenge", null, p.id
 
 
 
@@ -13932,6 +13969,7 @@ jobs=
     ResidualHaunting:ResidualHaunting
     HouseKeeper: HouseKeeper
     RainyBoy:RainyBoy
+    DarkPsychic:DarkPsychic
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -14182,6 +14220,8 @@ jobStrength=
     Secretary:18
     ResidualHaunting:10
     HouseKeeper: 15
+    RainyBoy: 10
+    DarkPsychic: 8
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
@@ -15477,31 +15517,38 @@ module.exports.actions=(req,res,ss)->
                     splashlog game.id,game,log
     # 情報を開示
     getlog:(roomid)->
-        M.games.findOne {id:roomid}, (err,doc)=>
+        loadGame roomid, ss, (err, game)->
             if err?
-                console.error err
-                res {error: err}
-            else if !doc?
-                res {error: i18n.t "error.common.noSuchGame"}
+                res { error: err }
+                return
+
+            # ゲーム後の行動
+            player = game.getPlayerReal req.session.userId
+            result = makejobinfo game, player, {}
+            result.timer = if game.timerid?
+                game.timer_remain - (Date.now()/1000 - game.timer_start)    # 全体 - 経過時間
             else
-                unless games[roomid]?
-                    games[roomid] = Game.unserialize doc,ss
-                game = games[roomid]
-                # ゲーム後の行動
-                player=game.getPlayerReal req.session.userId
-                result=
-                    #logs:game.logs.filter (x)-> islogOK game,player,x
-                    logs:game.makelogs (doc.logs ? []), player
-                result=makejobinfo game,player,result
-                result.timer=if game.timerid?
-                    game.timer_remain-(Date.now()/1000-game.timer_start)    # 全体 - 経過時間
-                else
-                    null
-                result.timer_mode=game.timer_mode
-                if game.day==0
-                    # 開始前はプレイヤー情報配信しない
-                    delete result.game.players
-                res result
+                null
+            result.timer_mode = game.timer_mode
+            if game.day == 0
+                # 開始前はプレイヤー情報配信しない
+                delete result.game.players
+            # ログの情報を足す
+            if game.log_save_mode == "v2"
+                M.gamelogs.find({ gameid: game.id }, { sort: { time: 1 } }).toArray (err, docs)->
+                    if err?
+                        res { error: err }
+                    else
+                        result.logs = game.makelogs (docs ? []), player
+                        res result
+            else
+                M.games.findOne { id: roomid }, { logs: 1 }, (err, doc)->
+                    if doc?
+                        result.logs = game.makelogs (doc.logs ? []), player
+                        res result
+                    else
+                        console.error err
+                        res { error: err }
 
     speak: (roomid,query)->
         game=games[roomid]

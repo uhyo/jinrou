@@ -275,6 +275,7 @@ foundDetail:
   oni: '人攫い'
   selfdestruct: '自爆'
   assassinate: '暗殺'
+  ghostrevenge: '亡霊の怨念'
   fallback: '不明'
   situation: '{{name}}の死因は{{detail}}でした。'
 
