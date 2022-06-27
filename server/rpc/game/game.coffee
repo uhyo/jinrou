@@ -201,6 +201,9 @@ loadGame = (roomid, ss, callback)->
                 callback err, null
             else if !doc?
                 callback i18n.t("error.common.noSuchGame"), null
+            else if games[roomid]?
+                # prevents duplicate instantiation of Game
+                callback null, games[roomid]
             else
                 games[roomid] = Game.unserialize doc, ss
                 callback null, games[roomid]
