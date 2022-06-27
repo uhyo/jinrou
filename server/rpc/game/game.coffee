@@ -28,6 +28,8 @@ DIVINER_NOIMMEDIATE_JOBS = ["WolfBoy", "ObstructiveMad", "Pumpkin", "Patissiere"
 LOG_PEEKING_JOBS = ["NightRabbit"]
 # 村人だと思い込む役職
 HUMAN_DISP_JOBS = ["Oracle","Fate","Sleepwalker","Dreamer"]
+# 狩人仲間の役職
+GUARD_JOBS = ["Guard", "Cosplayer", "WanderingGuard", "Samurai", "Trapper", "DragonKnight", "Elementaler"]
 
 # 配信者が獲得できる役職
 STREAMER_AVAILABLE_JOBS = [
@@ -193,14 +195,17 @@ loadGame = (roomid, ss, callback)->
     if games[roomid]?
         callback null, games[roomid]
     else
-        M.games.findOne {id:roomid}, { logs: 0 } (err,doc)=>
+        M.games.findOne {id:roomid}, { logs: 0 }, (err,doc)=>
             if err?
                 console.error err
-                callback err,null
+                callback err, null
             else if !doc?
-                callback i18n.t("error.common.noSuchGame"),null
+                callback i18n.t("error.common.noSuchGame"), null
+            else if games[roomid]?
+                # prevents duplicate instantiation of Game
+                callback null, games[roomid]
             else
-                games[roomid] = Game.unserialize doc,ss
+                games[roomid] = Game.unserialize doc, ss
                 callback null, games[roomid]
 #内部用
 module.exports=
@@ -1918,7 +1923,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
+                when "werewolf","werewolf2","trickedWerewolf","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -1961,7 +1966,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -2032,6 +2037,8 @@ class Game
                         "selfdestruct"
                     when "assassinate"
                         "assassinate"
+                    when "ghostrevenge"
+                        "ghostrevenge"
                     else
                         null
                 if emma_log?
@@ -11675,7 +11682,30 @@ class RainyBoy extends Madman
             []
         else super
 
-
+class DarkPsychic extends Psychic
+    type: "DarkPsychic"
+    hasDeadlyWeapon:-> true
+    dying:(game, found, from)->
+        super
+        unless found == "punish"
+            return
+        # 処刑された場合は亡霊モードになる
+        @setFlag "punished"
+    midnightAlways:(game)->
+        unless @flag == "punished"
+            return
+        @setFlag "done"
+        # 狩人を全て殺害する
+        for p in game.players
+            if p.dead
+                continue
+            pls = p.accessMainLevel()
+            isGuard = pls.some (pl)->
+                pl.type in GUARD_JOBS
+            unless isGuard
+                continue
+            p.die game, "ghostrevenge"
+            @addGamelog game, "ghostrevenge", null, p.id
 
 
 
@@ -13939,6 +13969,7 @@ jobs=
     ResidualHaunting:ResidualHaunting
     HouseKeeper: HouseKeeper
     RainyBoy:RainyBoy
+    DarkPsychic:DarkPsychic
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -14189,6 +14220,8 @@ jobStrength=
     Secretary:18
     ResidualHaunting:10
     HouseKeeper: 15
+    RainyBoy: 10
+    DarkPsychic: 8
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'
