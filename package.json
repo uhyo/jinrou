@@ -24,7 +24,7 @@
     "i18next-node-fs-backend": "^1.0.0",
     "jade": "^0.26.3",
     "mongodb": "^2.2.35",
-    "nodemailer": "^2.7.2",
+    "nodemailer": "^6.6.1",
     "oauth": "^0.9.6",
     "pug": "^2.0.1",
     "request": "^2.88.0",
