@@ -133,6 +133,7 @@ messages:
   ResidualHaunting: '取り憑く相手を選択してください'
   HouseKeeper: '訪れる相手を選択してください'
   RainyBoy: '翌日雨を降らせる場合は選択してください'
+  Itako: '死者の声を聴く場合は選択してください'
 
   # Message for normal selection form of special subjobs.  normalMessage:
   SpaceWerewolfObserver: '観察する対象を選択してください'
