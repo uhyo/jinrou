@@ -11707,6 +11707,45 @@ class DarkPsychic extends Psychic
             p.die game, "ghostrevenge"
             @addGamelog game, "ghostrevenge", null, p.id
 
+class Itako extends Player
+    type: "Itako"
+    formType: FormType.optionalOnce
+    sleeping:-> true
+    jobdone: (game)-> game.day == 1 || @target? || @flag
+    job_target: Player.JOB_T_DEAD
+    job: (game, playerid)->
+        if game.day == 1
+            # 1日目は発動できない
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        if @flag?
+            # 能力使用済
+            return game.i18n.t "error.common.alreadyUsed"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        @setTarget playerid
+        pl.touched game, @id
+
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Itako.select", { name: @name, target: pl.name }
+        splashlog game.id, game, log
+        null
+    midnight: (game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        unless pl?
+            return
+        @setFlag true
+        # 対象の役職を知る
+        jobname = pl.getMainJobname()
+        log=
+            mode: "skill"
+            to: @id
+            comment: game.i18n.t "roles:Itako.result", { name: @name, target: pl.name, job: jobname }
+        splashlog game.id, game, log
+        @addGamelog game, "itakoresult", pl.type, pl.id
+
 
 
 
@@ -13970,6 +14009,7 @@ jobs=
     HouseKeeper: HouseKeeper
     RainyBoy:RainyBoy
     DarkPsychic:DarkPsychic
+    Itako:Itako
     SpaceWerewolfCrew:SpaceWerewolfCrew
     SpaceWerewolfImposter:SpaceWerewolfImposter
     SpaceWerewolfObserver:SpaceWerewolfObserver
@@ -14222,6 +14262,7 @@ jobStrength=
     HouseKeeper: 15
     RainyBoy: 10
     DarkPsychic: 8
+    Itako: 15
 
 module.exports.actions=(req,res,ss)->
     req.use 'user.fire.wall'

@@ -191,6 +191,7 @@ jobname:
   HouseKeeper: '家政婦'
   RainyBoy: '雨男'
   DarkPsychic: '闇の霊媒師'
+  Itako: 'イタコ'
 
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
@@ -1094,6 +1095,10 @@ HouseKeeper:
 RainyBoy:
   select: '{{name}}は翌日に雨を降らせます。'
   weather: '今日は雨が降っています。'
+
+Itako:
+  select: '{{name}}は{{target}}の声に耳を傾けました。'
+  result: '{{name}}は{{target}}を声を聴きました。{{target}}は{{job}}でした。'
 
 # Werewolf
 SpaceWerewolfImposter:
