@@ -11691,7 +11691,7 @@ class DarkPsychic extends Psychic
             return
         # 処刑された場合は亡霊モードになる
         @setFlag "punished"
-    midnightAlways:(game)->
+    deadnight:(game,midnightSort)->
         unless @flag == "punished"
             return
         @setFlag "done"
