@@ -233,7 +233,7 @@ module.exports.actions=(req,res,ss)->
             res {error: i18n.t "error.newRoom.banned"}
             return
 
-        M.rooms.find().sort({id:-1}).limit(1).nextObject (err,doc)=>
+        M.rooms.find().sort({id:-1}).limit(1).next().then (doc)->
             id=if doc? then doc.id+1 else 1
             room=
                 id:id   #ID連番

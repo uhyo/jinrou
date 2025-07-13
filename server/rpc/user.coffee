@@ -45,7 +45,7 @@ login= (query,req,cb,ss)->
                     req.session.ban = ban
                 req.session.save (err)->
                     # お知らせ情報をとってきてあげる
-                    M.news.find().sort({time:-1}).nextObject (err,doc)->
+                    M.news.find().sort({time:-1}).next().then (doc)->
                         cb {
                             login:true
                             lastNews:doc?.time
