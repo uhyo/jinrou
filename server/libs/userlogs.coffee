@@ -108,7 +108,7 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
         start_day = new Date end_day
         start_day.setDate(start_day.getDate() - days)
 
-        cur = M.userrawlogs.find({
+        stream = M.userrawlogs.find({
             $and: [{
                 userid: userid
             }, {
@@ -116,7 +116,7 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
             }, {
                 timestamp: {$lt: end_day}
             }]
-        }).sort({timestamp: 1})
+        }).sort({timestamp: 1}).stream()
         # 集計オブジェクト
         result = {
             userid: userid
@@ -143,10 +143,7 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
         sub_gone = 0
         sub_time = start_day.getTime()
         # 集計
-        cur.each (err, doc)->
-            if err?
-                cb err, null
-                return
+        stream.on "data", (doc)->
             t = if doc?
                 doc.timestamp.getTime()
             else
@@ -164,14 +161,6 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
                 sub_draw=0
                 sub_gone=0
                 sub_time += 1000*60*60*24
-            unless doc?
-                # 集計終了
-                M.usersummary.insert result, (err)->
-                    if err?
-                        cb err, null
-                    else
-                        cb null, result
-                return
 
             switch doc.type
                 when DataTypes.game
@@ -198,7 +187,18 @@ exports.getUserSummary = getUserSummary = (userid, cb)->
                 when DataTypes.gone
                     result.gone += 1
                     sub_gone += 1
-
+        stream.on "error", (err)->
+            console.error err
+            cb err, null
+            return
+        stream.on "end", ()->
+            # 集計終了
+            M.usersummary.insert result, (err)->
+                if err?
+                    cb err, null
+                else
+                    cb null, result
+            return
 
 # ユーザーの戦績を全て取得
 exports.getUserData=(userid, recent, all, cb)->

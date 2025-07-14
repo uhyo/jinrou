@@ -1,11 +1,12 @@
 dbinit= (loaded)->
     c=Config.mongo
     mongodb=require 'mongodb'
-    mongodb.MongoClient.connect "mongodb://#{c.user}:#{c.pass}@#{c.host}:#{c.port}/#{c.database}?w=0",(err,db)->
+    client = new mongodb.MongoClient("mongodb://#{c.user}:#{c.pass}@#{c.host}:#{c.port}/#{c.database}?w=0")
+    client.connect (err)->
         if err?
             console.error err
             throw err
-        global.DB=db
+        global.DB=client.db(c.database)
         global.M={}	# collections
 
         cols_count= (->
@@ -18,103 +19,88 @@ dbinit= (loaded)->
               loaded()
         )()
 
-        DB.collection "users", (err,col)->
-          if err?
-            console.log err
-            throw err
-          M.users=col
-          col.ensureIndex {"userid":1}, {unique: true}, (err,idxname)->
-            col.ensureIndex {"mail.token":1, "mail.timestamp":1}, (err)->
-              col.ensureIndex {"mail.address":1}, (err)->
-                cols_count()
-        DB.collection "rooms", (err,col)->
-          if err?
-            console.log err
-            throw err
-          M.rooms=col
-          col.ensureIndex {"id": 1}, {unique: true}, (err,idxname)->
-            col.ensureIndex {"mode": 1},(err,idxname)->
-              col.ensureIndex {"mode": 1, "made": -1}, (err,idxname)->
-                col.ensureIndex {"players.realid": 1,"mode": 1, "made": -1}, (err,idxname)->
-                  col.ensureIndex {"made": -1, "mode": 1}, (err,idxname)->
-                    cols_count()
-        DB.collection "games", (err,col)->
-          if err?
-            console.log err
-            throw err
-          M.games=col
-          col.ensureIndex {"id":1}, {unique: true}, (err,idxname)->
-            col.ensureIndex {"finished":1, "id":1}, (err,idxname)->
-              cols_count()
-        DB.collection "lobby",(err,col)->	# ロビーのログ
-          if err?
-            console.log err
-            throw err
-          M.lobby=col
-          col.ensureIndex {"time":1},(err,idxname)->
-            cols_count()
-        DB.collection "blacklist",(err,col)->
-          if err?
-            console.log err
-            throw err
-          M.blacklist=col
-          col.ensureIndex "id", {unique: true}, (err,idxname)->
-            col.ensureIndex "userid", {unique: true}, (err,idxname)->
-              col.ensureIndex "ip",(err,idxname)->
-                col.ensureIndex "expires",(err,idxname)->
-                  col.ensureIndex "forgiveDate", {expireAfterSeconds: 365*24*60*60}, (err,idxname)->
-                    cols_count()
-        DB.collection "news",(err,col)->
-          if err?
-            console.log err
-            throw err
-          M.news=col
-          col.ensureIndex "time",(err,idxname)->
-            cols_count()
-        DB.collection "userlogs",(err,col)->
-          if err?
-              console.log err
-              throw err
-          M.userlogs=col
-          col.ensureIndex {"userid":1}, {unique: true}, (err,idxname)->
-            cols_count()
-        DB.collection "userrawlogs", (err,col)->
-          if err?
-            console.log err
-            throw err
-          M.userrawlogs = col
-          col.ensureIndex {"userid": 1, "type": 1, "subtype": 1, "timestamp": 1}, (err, idxname)->
-            col.ensureIndex {"userid": 1, "type": 1, "gameid": 1}, {unique: true}, (err, idxname)->
-              col.ensureIndex {"userid": 1, "timestamp": 1, "type": 1, "subtype": 1}, (err, idxname)->
-                cols_count()
-        DB.collection "usersummary", (err,col)->
-          if err?
-            console.log err
-            throw err
-          M.usersummary = col
-          col.ensureIndex {"userid": 1}, {unique: true}, (err,idxname)->
-            col.ensureIndex {"timestamp": 1}, {expireAfterSeconds: 60*60*24}, (err, idxname)->
-              cols_count()
-        DB.collection "gamelogs", (err, col)->
-          if err?
-            console.log err
-            throw err
-          M.gamelogs = col
-          col.ensureIndex { "gameid": 1, "time": 1 }, (err, idxname)->
-            cols_count()
+        M.users=DB.collection "users"
+        u1 = M.users.createIndex({"userid":1}, {unique: true})
+        u2 = M.users.createIndex({"mail.token":1, "mail.timestamp":1})
+        u3 = M.users.createIndex({"mail.address":1})
+        Promise.all([u1, u2, u3]).then (results)->
+          # console.log "Users collection indexes created"
+          cols_count()
 
+        M.rooms=DB.collection "rooms"
+        r1 = M.rooms.createIndex({"id": 1}, {unique: true})
+        r2 = M.rooms.createIndex({"mode": 1})
+        r3 = M.rooms.createIndex({"mode": 1, "made": -1})
+        r4 = M.rooms.createIndex({"players.realid": 1,"mode": 1, "made": -1})
+        r5 = M.rooms.createIndex({"made": -1, "mode": 1})
+        Promise.all([r1, r2, r3, r4, r5]).then (results)->
+          # console.log "Rooms collection indexes created"
+          cols_count()
+        
+        M.games=DB.collection "games"
+        g1 = M.games.createIndex({"id":1}, {unique: true})
+        g2 = M.games.createIndex({"finished":1, "id":1})
+        Promise.all([g1, g2]).then (results)->
+          # console.log "Games collection indexes created"
+          cols_count()
+        
+        M.lobby=DB.collection "lobby"
+        l1 = M.lobby.createIndex({"time":1})
+        l1.then (result)->
+          # console.log "Lobby collection indexes created"
+          cols_count()
+
+        M.blacklist=DB.collection "blacklist"
+        b1 = M.blacklist.createIndex("id", {unique: true})
+        b2 = M.blacklist.createIndex("userid", {unique: true})
+        b3 = M.blacklist.createIndex("ip")
+        b4 = M.blacklist.createIndex("expires")
+        b5 = M.blacklist.createIndex("forgiveDate", {expireAfterSeconds: 365*24*60*60})
+        Promise.all([b1, b2, b3, b4, b5]).then (results)->
+          # console.log "Blacklist collection indexes created"
+          cols_count()
+
+        M.news=DB.collection "news"
+        n1 = M.news.createIndex("time")
+        n1.then (result)->
+          # console.log "News collection indexes created"
+          cols_count()
+
+        M.userlogs=DB.collection "userlogs"
+        userlogs1 = M.userlogs.createIndex({"userid":1}, {unique: true})
+        userlogs1.then (result)->
+          # console.log "Userlogs collection indexes created"
+          cols_count()
+
+        M.userrawlogs=DB.collection "userrawlogs"
+        userrawlogs1 = M.userrawlogs.createIndex({"userid": 1, "type": 1, "subtype": 1, "timestamp": 1})
+        userrawlogs2 = M.userrawlogs.createIndex({"userid": 1, "type": 1, "gameid": 1}, {unique: true})
+        userrawlogs3 = M.userrawlogs.createIndex({"userid": 1, "timestamp": 1, "type": 1, "subtype": 1})
+        Promise.all([userrawlogs1, userrawlogs2, userrawlogs3]).then (results)->
+          # console.log "Userrawlogs collection indexes created"
+          cols_count()
+
+        M.usersummary=DB.collection "usersummary"
+        usersummary1 = M.usersummary.createIndex({"userid": 1}, {unique: true})
+        usersummary2 = M.usersummary.createIndex({"timestamp": 1}, {expireAfterSeconds: 60*60*24})
+        Promise.all([usersummary1, usersummary2]).then (results)->
+          # console.log "Usersummary collection indexes created"
+          cols_count()
+
+        M.gamelogs=DB.collection "gamelogs"
+        gl1 = M.gamelogs.createIndex({"gameid": 1, "time": 1})
+        gl1.then (result)->
+          # console.log "Gamelogs collection indexes created"
+          cols_count()
 
 exports.dbinit=dbinit
 
 exports.getLogCollection = (collName, callback)->
-  DB.collection collName, (err,col)->
-    if err?
-      console.log err
-      callback err
-      return
-    col.ensureIndex {"timestamp": 1},(err,idxname)->
-      col.ensureIndex {"userid":1, "timestamp":1},(err,idxname)->
-        col.ensureIndex {"ip":1, "timestamp":1},(err,idxname)->
-          col.ensureIndex {"type":1, "timestamp":1},(err,idxname)->
-            col.ensureIndex {"ip":1, "type":1, "timestamp":1}, (err,idxname)->
-              callback null, col
+  col = DB.collection collName
+  index1 = col.createIndex({"timestamp": 1})
+  index2 = col.createIndex({"userid":1, "timestamp":1})
+  index3 = col.createIndex({"ip":1, "timestamp":1})
+  index4 = col.createIndex({"type":1, "timestamp":1})
+  index5 = col.createIndex({"ip":1, "type":1, "timestamp":1})
+  Promise.all([index1, index2, index3, index4, index5]).then (results)->
+    callback null, col
