@@ -144,7 +144,7 @@ module.exports.actions=(req,res,ss)->
             res results
     getMyRooms:(page)->
         # extract user's play logs from userrawlogs
-        M.userrawlogs.aggregate [
+        stream = M.userrawlogs.aggregate([
             {
                 $match:
                     userid: req.session.userId
@@ -166,23 +166,26 @@ module.exports.actions=(req,res,ss)->
             }, {
                 $unwind: "$room"
             },
-        ], (err, results)->
-            if err?
-                res {error: String err}
-                return
-            for x in results
-                if x.room?
-                    if x.room.password?
-                        x.room.needpassword = true
-                        x.room.password = undefined
-                    if x.room.blind
-                        x.room.owner = undefined
-                    for p in x.room.players
-                        # find my player
-                        if p.realid == req.session.userId
-                            p.me = true
-                        p.realid = undefined
+        ]).stream()
+        results = []
+        stream.on "data", (x)->
+            if x.room?
+                if x.room.password?
+                    x.room.needpassword = true
+                    x.room.password = undefined
+                if x.room.blind
+                    x.room.owner = undefined
+                for p in x.room.players
+                    # find my player
+                    if p.realid == req.session.userId
+                        p.me = true
+                    p.realid = undefined
+            results.push x
+        stream.on "end", ->
+            # ここで結果を返す
             res results
+        stream.on "error", (err)->
+            res {error: String err}
 
 
     oneRoom:(roomid)->
