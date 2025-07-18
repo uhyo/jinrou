@@ -270,7 +270,7 @@ exports.actions =(req,res,ss)->
                     return
 
                 record.icon=query.icon
-            M.users.update {"userid":req.session.userId}, record, {safe:true},(err,count)=>
+            M.users.updateOne {"userid":req.session.userId}, {$set: record}, {safe:true},(err,count)=>
                 if err?
                     res {error: String errr}
                     return
