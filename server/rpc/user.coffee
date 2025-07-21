@@ -330,7 +330,7 @@ exports.actions =(req,res,ss)->
                         address:doc.mail.address
                         verified:doc.mail.verified
                     doc.mailconfirmsecurity = false
-            M.users.update {"userid":doc.userid}, doc, {safe:true},(err,count)=>
+            M.users.updateOne {"userid":doc.userid}, {$set: doc}, {safe:true},(err,count)=>
                 if err?
                     res {error: String err}
                     return
