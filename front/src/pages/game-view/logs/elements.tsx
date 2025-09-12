@@ -54,6 +54,7 @@ export const LogWrapper = styled.div<{
 export const FixedSizeChunkWrapper = styled.div<{
   visible: boolean;
 }>`
+  contain: layout style;
   display: ${({ visible }) => (visible ? 'block' : 'none')};
 `;
 
