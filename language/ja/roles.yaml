@@ -51,6 +51,7 @@ jobname:
   Witch: '魔女'
   Oldman: '老人'
   Tanner: '皮なめし職人'
+  Teruteru: 'てるてる坊主'
   Thief: '盗人'
   OccultMania: 'オカルトマニア'
   WolfCub: '狼の子'
@@ -293,6 +294,9 @@ TinyFox:
 # Magician
 Magician:
   select: '{{name}}は{{target}}に死者蘇生術をかけました。'
+
+Teruteru:
+  announce: 'てるてる坊主 {{name}} 怨霊の力が満ちました。処刑されれば勝利です。。'
 
 # Spy
 Spy:

@@ -5552,6 +5552,30 @@ class Tanner extends Player
             # 突然死はダメ
             @setFlag "gone"
     isWinner:(game,team)->@dead && @flag!="gone"
+
+class Teruteru extends Player
+    type:"Teruteru"
+    team:""
+    checkDeathResistance:(game, found)->
+        if found=="punish" && !@flag?
+            # 処刑された
+            if @target==true
+                @setFlag "win"
+            return false
+        else
+            return false
+    isWinner:(game,team)->@dead && @flag=="win"
+    sunrise:(game)->
+        if ((game.players.length <= 4 && game.day == 2) || (game.players.length <= 6 && game.day == 3) || (game.players.length <= 10 && game.day == 4)  || (game.day >= 5)) && @target!=true
+            @setTarget true
+            log=
+                mode: "skill"
+                to: @id
+                comment: game.i18n.t "roles:Teruteru.announce", {
+                    name: @name,
+                }
+            splashlog game.id, game, log
+
 class OccultMania extends Player
     type:"OccultMania"
     midnightSort:102
@@ -13876,6 +13900,7 @@ jobs=
     Witch:Witch
     Oldman:Oldman
     Tanner:Tanner
+    Teruteru:Teruteru
     OccultMania:OccultMania
     MinionSelector:MinionSelector
     WolfCub:WolfCub
@@ -14133,6 +14158,7 @@ jobStrength=
     Witch:23
     Oldman:4
     Tanner:15
+    Teruteru:15
     OccultMania:10
     MinionSelector:0
     WolfCub:70
