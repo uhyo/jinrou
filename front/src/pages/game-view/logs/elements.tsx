@@ -24,6 +24,7 @@ export const LogWrapper = styled.div<{
   fixedSize: boolean;
 }>`
   width: 100%;
+  contain: layout style;
   display: ${props => (props.fixedSize ? 'block' : 'grid')};
   grid-template-columns:
     minmax(8px, max-content)
