@@ -4736,6 +4736,19 @@ class Fanatic extends Madman
         # 狂信者は人狼が分かる
         res.wolves = true
         res
+
+class HearMadman extends Fanatic
+    type:"HearMadman"
+    getVisibilityQuery:->
+        res = super
+        # 聴狂人は人狼を聞くことができる
+        res.wolves = true
+        res
+    isListener:(game,log)->
+        if log.mode=="werewolf"
+            true
+        else super
+
 class Immoral extends Player
     type:"Immoral"
     team:"Fox"
@@ -13878,6 +13891,7 @@ jobs=
     Copier:Copier
     Light:Light
     Fanatic:Fanatic
+    HearMadman:HearMadman
     Immoral:Immoral
     Devil:Devil
     ToughGuy:ToughGuy
@@ -14136,6 +14150,7 @@ jobStrength=
     Copier:10
     Light:30
     Fanatic:20
+    HearMadman:25
     Immoral:5
     Devil:20
     ToughGuy:11
