@@ -5,6 +5,7 @@ import {
   NowPrize,
   NowPrizeType,
   PrizeSelection,
+  PrizeStatus,
 } from './defs';
 import { splitPrizesIntoGroups } from './logic/prize-groups';
 import { fillTemplate } from './logic/fill-nowprize';
@@ -71,6 +72,25 @@ export class PrizeStore {
   public shrinked: boolean = true;
 
   /**
+   * Status of all prizes (conditions and progress).
+   */
+  @observable
+  public status: PrizeStatus = [];
+
+  /**
+   * Whether the status of all prizes is already loaded.
+   * The status is fetched lazily when the section is expanded first.
+   */
+  @observable
+  public statusLoaded: boolean = false;
+
+  /**
+   * Whether the status (称号图鉴) section is shrinked.
+   */
+  @observable
+  public statusShrinked: boolean = true;
+
+  /**
    * Whether a change is made.
    */
   @observable
@@ -82,6 +102,21 @@ export class PrizeStore {
   @action
   public setPrizes(prizes: Prize[]): void {
     this.prizes = prizes;
+  }
+  /**
+   * Set status of all prizes.
+   */
+  @action
+  public setStatus(status: PrizeStatus): void {
+    this.status = status;
+    this.statusLoaded = true;
+  }
+  /**
+   * Set shrinkedness of the prize status section.
+   */
+  @action
+  public setStatusShrinked(shrinked: boolean): void {
+    this.statusShrinked = shrinked;
   }
   /**
    * Set current prizes

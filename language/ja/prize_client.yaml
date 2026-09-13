@@ -4,7 +4,7 @@
 title: "称号"
 
 # description of prizes
-description: "称号は勝利回数・敗北回数などの特定を条件を満たすことで入手できます。"
+description: "称号は勝利回数・敗北回数などの特定の条件を満たすことで入手できます。"
 
 # back to mypage link.
 backLink: "マイページに戻る"
@@ -43,3 +43,56 @@ save:
   # reminder to save
   reminder: "変更を反映するには「肩書きを保存」ボタンを押してください。"
 
+# prize status (称号図鑑)
+status:
+  # title of the status section
+  title: "称号図鑑（獲得条件と進捗）"
+  # label of open button of the status section
+  openLabel: "称号の条件と進捗を見る"
+  # label of close button of the status section
+  closeLabel: "称号図鑑を閉じる"
+  # description of the status section
+  description: "ここでは、獲得できる全ての称号の達成条件と現在の進捗を表示します。勝敗回数称号は「陣営 → 職業 → 勝利/敗北」の階層でグループ化され、特殊称号は種類ごとにグループ化されています。各階層の分類をクリックすると展開して確認できます。"
+  # titles of series
+  series:
+    winlose: "勝敗回数称号"
+    winteamcount: "陣営勝利称号"
+    counter: "特殊称号（回数）"
+    ownprizes: "称号収集数"
+  # labels of win / lose subsections inside a job group
+  winTitle: "勝利称号"
+  loseTitle: "敗北称号"
+  # label of the group of "all jobs"
+  jobAll: "全職業"
+  # achieved / not achieved
+  achieved: "獲得済み"
+  notAchieved: "未獲得"
+  # progress text
+  progress: "{{current}}/{{required}}"
+  # count summary of a series or a group
+  groupCount: "獲得済み {{achieved}}/{{total}}"
+  # condition texts
+  condition:
+    wincount: "「{{job}}」で勝利 {{count}}回"
+    wincountAll: "勝利 {{count}}回（全職業合計）"
+    losecount: "「{{job}}」で敗北 {{count}}回"
+    losecountAll: "敗北 {{count}}回（全職業合計）"
+    winteamcount: "陣営「{{team}}」で勝利 {{count}}回"
+    counter: "{{description}} {{count}}回"
+    ownprizes: "称号を {{count}}個獲得"
+  # descriptions of counter prizes
+  counterDescription:
+    cursekill: "相手を呪殺する"
+    divineblack2: "1日目の夜の占いで人狼と出る（初日黒）"
+    GJ: "護衛に成功する（GJ判定を獲得）"
+    lovers_wincount: "恋人として勝利する"
+    lovers_losecount: "恋人として敗北する"
+    getkits_merchant: "商品を受け取る"
+    sendkits_to_wolves: "商品を人狼側に送る"
+    nocopy: "コピーせずに終了"
+    day2hanged: "2日目の昼に吊られる"
+    allgamecount: "ゲームに参加する"
+    aliveatlast: "ゲーム終了時に生存"
+    revive: "蘇生する"
+    brainwashed: "洗脳されて信者になる"
+    shishimaibit: "獅子舞に噛まれる"

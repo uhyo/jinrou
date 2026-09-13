@@ -224,6 +224,39 @@ exports.actions =(req,res,ss)->
             prizes: generatePrizeDataForClient req.session.user.prize
             nowprize: req.session.user.nowprize
         }
+    # 称号の状態一覧（条件と進捗）を取得
+    getPrizeStatus: ->
+        unless req.session.userId
+            # not logged in
+            res {
+                error: i18n.t "common:error.needLogin"
+            }
+            return
+        # 計算に必要なカウンタだけ取得する(projection)
+        M.userlogs.findOne {userid:req.session.userId}, {
+            fields: {
+                wincount: true
+                losecount: true
+                winteamcount: true
+                counter: true
+            }
+        },(err,doc)->
+            if err?
+                console.error err
+                res {error: i18n.t "common:error.error"}
+                return
+            statuses = Server.prize.getPrizeStatus(doc)
+            # 職業名・陣営名を補完する
+            for row in statuses
+                switch row.series
+                    when "wincount","losecount"
+                        row.jobName = if row.kind=="all" then null else i18n.t "roles:jobname.#{row.kind}"
+                        row.teamName = if row.team=="all" then null else i18n.t "roles:teamName.#{row.team}"
+                    when "winteamcount"
+                        row.teamName = i18n.t "roles:teamName.#{row.kind}"
+            res {
+                statuses: statuses
+            }
 # お知らせをとってきてもらう
     getNews:->
         M.news.find().sort({time:-1}).limit(5).toArray (err,results)->

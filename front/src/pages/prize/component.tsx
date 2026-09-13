@@ -5,6 +5,7 @@ import { PrizeStore } from './store';
 import { observer } from 'mobx-react';
 import { PageWrapper, Reminder, SaveButton, NowPrizeWrapper } from './elements';
 import { PrizeList } from './prize-list';
+import { PrizeStatus } from './status';
 import { ConjucntionList } from './nowprize/conjunctions';
 import { NowPrizeList } from './nowprize';
 import { WideButton } from '../../common/button';
@@ -40,6 +41,8 @@ export class PrizePage extends React.Component<IPropPrize, {}> {
           <h2>{i18n.t('list.title')}</h2>
           <p>{i18n.t('list.prizeNumber', { count: store.prizeNumber })}</p>
           <PrizeList i18n={i18n} store={store} />
+
+          <PrizeStatus i18n={i18n} store={store} />
 
           <h2>{i18n.t('edit.title')}</h2>
           <p>{i18n.t('edit.description')}</p>
