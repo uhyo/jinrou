@@ -36,6 +36,7 @@ readyResetJobCollection = new Map
 
 module.exports=
     # サーバー用 部屋1つ取得
+    # 注意: 部屋が存在しない場合、cbにはnullが渡される
     oneRoomS:(roomid,cb)->
         M.rooms.findOne {id:roomid},(err,result)=>
             if err?
@@ -192,6 +193,9 @@ module.exports.actions=(req,res,ss)->
         M.rooms.findOne {id:roomid},(err,result)=>
             if err?
                 res {error:err}
+                return
+            unless result?
+                res {error: i18n.t "error.noSuchRoom"}
                 return
             # クライアントからの問い合わせの場合
             pl = result.players.filter((x)-> x.realid==req.session.userId)[0]

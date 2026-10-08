@@ -626,7 +626,12 @@ class Game
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
+                # oneRoomSは部屋が存在しない場合nullを渡してくる
+                unless room?
+                    console.error "Game.unserialize: room ##{game.id} is not found"
+                    return
                 if room.error?
+                    console.error "Game.unserialize: failed to load room ##{game.id}", room.error
                     return
                 game.players=[]
                 supporters=[]
@@ -14319,6 +14324,10 @@ module.exports.actions=(req,res,ss)->
             res i18n.t "error.common.noSuchGame"
             return
         Server.game.rooms.oneRoomS roomid,(room)->
+            # oneRoomSは部屋が存在しない場合nullを渡してくる
+            unless room?
+                res i18n.t "rooms:error.noSuchRoom"
+                return
             if room.error?
                 res room.error
                 return
@@ -15787,7 +15796,7 @@ module.exports.actions=(req,res,ss)->
         else
             # ルーム情報から探す
             Server.game.rooms.oneRoomS roomid,(room)=>
-                pl=room.players.filter((x)=>x.realid==req.session.userId)[0]
+                pl=room?.players?.filter((x)=>x.realid==req.session.userId)[0]
                 if pl?
                     log.name=pl.name
                 else
