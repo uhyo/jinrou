@@ -1259,7 +1259,7 @@ class Game
                         Human:0
                         Werewolf:0
                     }
-                    if @rule.quantumwerewolf_dead=="on"
+                    if @rule.quantumwerewolf_dead!="no"
                         #死亡確率も
                         probability_table[x.id].dead=0
                     if @rule.quantumwerewolf_diviner=="on"
@@ -2320,7 +2320,7 @@ class Game
     checkWerewolfTarget:->
         if @werewolf_target_remain > 0
             # list up Werewolf-attackable player.
-            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.werewolfattack=="ok")
+            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.wolfattack=="ok")
             if targets.length == 0
                 # no food is remaining!!!
                 @werewolf_target_remain = 0
