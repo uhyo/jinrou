@@ -13077,26 +13077,40 @@ class ShadowBlacked extends Complex
     cmplType:"ShadowBlacked"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        unless shadow.dead
+        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
+        # 占いの深夜処理ごと TypeError で落ちていた。
+        if shadow? && !shadow.dead
             FortuneResult.werewolf
         else
-            super
+            # 【注意】Complex に getFortuneResult は無いので super は呼べない
+            # (呼ぶと "Cannot read property 'apply' of undefined" で落ちる)。
+            # 支配下の役職の結果に戻す。
+            @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        if shadow? && shadow.dead
+        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        if !shadow? || shadow.dead
             @uncomplex game
 
 class ShadowWhited extends Complex
     cmplType:"ShadowWhited"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        unless shadow.dead
+        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
+        # 占いの深夜処理ごと TypeError で落ちていた。
+        if shadow? && !shadow.dead
             FortuneResult.human
         else
-            super
+            # 【注意】Complex に getFortuneResult は無いので super は呼べない
+            # (呼ぶと "Cannot read property 'apply' of undefined" で落ちる)。
+            # 支配下の役職の結果に戻す。
+            @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        if shadow? && shadow.dead
+        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        if !shadow? || shadow.dead
             @uncomplex game
 
 # 催眠術をかけられた
