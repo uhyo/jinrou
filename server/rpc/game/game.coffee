@@ -3350,6 +3350,16 @@ class Player
 
     # Am I Dead?
     isDead:->{dead:@dead,found:@found}
+    # 複合役職（ケミカル人狼等）の内側（main/sub）から呼ばれた場合でも、
+    # 必ずプレイヤー本体（トップレベル）のオブジェクトを返す。
+    # 見つからない場合は自分自身を返す。
+    getTopPlayer:(game)->
+        searchTopPlayer this, game
+    # プレイヤー本体が死亡しているかどうか。
+    # 複合役職の sub 側から beforebury 等が呼ばれると @dead は役職オブジェクト自身の
+    # 状態を指してしまうため、本体の生死はこのメソッドで判定する。
+    isPlayerDead:(game)->
+        @getTopPlayer(game).dead
     # get my team
     getTeam:-> @team
     # Display of my team.
@@ -3979,7 +3989,7 @@ class Psychic extends Player
 
     # 処刑で死んだ人を調べる
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
             @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {
@@ -4194,7 +4204,7 @@ class Magician extends Player
     type:"Magician"
     midnightSort:100
     formType: FormType.required
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     sunset:(game)->
         @setTarget (if game.day<3 then "" else null)
         if game.players.every((x)->!x.dead)
@@ -4275,7 +4285,7 @@ class Spy extends Player
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     midnightSort:120
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     constructor:->
         super
         @setFlag {
@@ -4753,7 +4763,7 @@ class Immoral extends Player
     type:"Immoral"
     team:"Fox"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game, "foxsuicide"
@@ -4936,7 +4946,7 @@ class Cursed extends Player
         else
             return false
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type == "punish" && @flag in ["bitten", "vampire"]
             # 投票後（夜になる直前）のタイミングで狼に変化
             log=null
@@ -4967,7 +4977,7 @@ class Cursed extends Player
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner", game
@@ -5225,7 +5235,7 @@ class Doppleganger extends Player
         }
         null
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 対象が死んだら移る
         targetid = @flag?.target
         if deads.some((x)=> x.id == targetid)
@@ -5444,7 +5454,7 @@ class Witch extends Player
     midnightSort:100
     formType: FormType.optional
     hasDeadlyWeapon:->true
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     sleeping:->true
     jobdone:->@target? || (@flag in [3,5,6])
@@ -5541,7 +5551,7 @@ class Witch extends Player
 class Oldman extends Player
     type:"Oldman"
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 老衰は朝になったタイミングのみ
         return false unless type == "day"
 
@@ -6294,7 +6304,7 @@ class QuantumPlayer extends Player
 class RedHood extends Player
     type:"RedHood"
     sleeping:->true
-    isReviver:->!@dead || @flag?
+    isReviver:->!@isPlayerDead(@game) || @flag?
     dying:(game,found,from)->
         super
         if Found.isNormalWerewolfAttack found
@@ -6305,7 +6315,7 @@ class RedHood extends Player
             @setFlag null
     beforebury:(game, type)->
         # 自分を食った狼が死んだら即座に蘇生
-        if @flag && @dead
+        if @flag && @isPlayerDead(game)
             w=game.getPlayer @flag
             if w?.dead
                 pl = game.getPlayer @id
@@ -6730,7 +6740,7 @@ class WanderingGuard extends Player
         pl.transform game,newpl,true
         null
     beforebury:(game,type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type=="day"
             # 昼になったとき
             if game.players.filter((x)->x.dead && x.found).length==0
@@ -6839,7 +6849,7 @@ class FrankensteinsMonster extends Player
             # 処刑で死んだらもうひとり処刑できる
             game.votingbox.addPunishedNumber 1
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 新しく死んだひとたちで村人陣営ひとたち
         founds=deads.filter (x)->x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
 
@@ -7519,7 +7529,7 @@ class Blasphemy extends Player
         else
             @setTarget null
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         if @flag
             # まだ狐を作ってないときは耐える
             # 狐が全員死んでいたら自殺
@@ -7961,7 +7971,7 @@ class CraftyWolf extends Werewolf
     jobdone:(game)->super && @flag == "going"
     deadJobdone:(game)->@flag != "revivable"
     midnightSort:100
-    isReviver:->!@dead || (@flag in ["reviving","revivable"])
+    isReviver:->!@isPlayerDead(@game) || (@flag in ["reviving","revivable"])
     sunset:(game)->
         super
         # 生存状態で昼になったら死んだふり能力初期化
@@ -8146,7 +8156,7 @@ class MadScientist extends Madman
     type:"MadScientist"
     midnightSort:100
     formType: FormType.optionalOnce
-    isReviver:->!@dead && @flag!="done"
+    isReviver:->!@isPlayerDead(@game) && @flag!="done"
     sleeping:->true
     jobdone:->@flag=="done" || @target?
     job_target: Player.JOB_T_DEAD
@@ -8199,7 +8209,7 @@ class MadScientist extends Madman
         splashlog game.id,game,log
 class SpiritPossessed extends Player
     type:"SpiritPossessed"
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
 
 class Forensic extends Player
     type:"Forensic"
@@ -8307,7 +8317,7 @@ class Ninja extends Player
 class Twin extends Player
     type:"Twin"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 死亡状態の双子がいたら死亡
         if game.players.some((x)-> x.dead && x.isJobType "Twin")
             @die game, "twinsuicide"
@@ -8887,7 +8897,7 @@ class LunaticLover extends Player
         unless pl?
             return false
         res = false
-        if !@dead && Array.isArray @flag?.killTarget
+        if !@isPlayerDead(game) && Array.isArray @flag?.killTarget
             # 狂愛対象が死亡してしまった！
             targetpls =
                 @flag.killTarget.map((id)->
@@ -9291,7 +9301,7 @@ class DragonKnight extends Player
                 killUsed: true
             }
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type == "day"
             # 昼になったとき
             if @flag.day == game.day-1
@@ -9511,7 +9521,7 @@ class VampireClan extends Player
         res.draculas = true
         res
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # ヴァンパイア系が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isVampire())
             @die game, "vampiresuicide"
@@ -10008,7 +10018,7 @@ class NightRabbit extends Fox
 class GachaAddicted extends Player
     type:"GachaAddicted"
     midnightSort: 122
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     constructor:->
         super
         @setFlag {
@@ -10198,7 +10208,7 @@ class GachaAddicted extends Player
 class Fate extends Player
     type:"Fate"
     midnightSort:122
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     getTypeDisp:->
         if @flag == "done"
             super
@@ -10322,7 +10332,7 @@ class Reindeer extends Player
         return false
 
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         santas = game.players.filter (pl)-> pl.isJobType "SantaClaus"
         return unless santas.length
         # サンタクロースが全滅していたら後追い
@@ -10339,7 +10349,7 @@ class Streamer extends Player
     type: "Streamer"
     getSpeakChoice:(game)->
         ["streaming", "-monologue"].concat super
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     sunset:(game)->
         unless @flag?
             # equip self with StreamerTrial
@@ -10902,7 +10912,7 @@ class Saint extends Couple
     type:"Saint"
     midnightSort:121
     formType: FormType.optionalOnce # 任意・4日目のみ
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     job_target:Player.JOB_T_DEAD
     sunset:(game)->
         @setTarget (if game.day != 4 then "" else null)
@@ -10941,7 +10951,7 @@ class Saint extends Couple
 
 class NetherWolf extends Werewolf
     type:"NetherWolf"
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     isListener:(game,log)->
         if log.mode=="heaven"
             true
@@ -12152,7 +12162,9 @@ class Complex
     setObjid:(@objid)->@main.setObjid @objid
     setOriginalType:(@originalType)->@main.setOriginalType @originalType
     setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
-    setNorevive:(@norevive)->@main.setNorevive @norevive
+    setNorevive:(@norevive)->
+        @main.setNorevive @norevive
+        @sub?.setNorevive @norevive
 
     sleeping:(game)-> @mcall game, @main.sleeping, game
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
@@ -12174,6 +12186,14 @@ class Complex
                 return isSubDead
         # seems to be alive, who knows?
         return {dead:@dead,found:@found}
+    # 複合役職でも必ずプレイヤー本体（トップレベル）を得る。
+    # 【注意】Complex は Player を継承しておらず、main 経由のプロトタイプチェーンで
+    # Player のメソッドを借りているだけなので、内側（sub等）からも使えるよう明示的に定義する。
+    getTopPlayer:(game)->
+        searchTopPlayer this, game
+    # プレイヤー本体が死亡しているかどうか（複合役職の内側から呼ばれても本体の生死で判定できる）
+    isPlayerDead:(game)->
+        @getTopPlayer(game).dead
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
     isMainJobType:(type)-> @main.isMainJobType type
@@ -12282,7 +12302,7 @@ class Complex
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
         # deal with Walking Dead
-        unless @dead
+        unless @isPlayerDead game
             isPlDead = @isDead()
             if isPlDead.dead && isPlDead.found
                 @setDead isPlDead.dead,isPlDead.found
@@ -12312,6 +12332,10 @@ class Complex
         unless @dead
             # 生きている
             return
+        # 本体が蘇生を辞退している場合は、sub だけ蘇生してしまう事故を防ぐため先に確認する
+        # （sub の norevive は setNorevive で本体と同期するが、念のため本体で判定する）
+        top = game.getPlayer @id
+        return if top? && top.norevive
         # まずsubを蘇生
         if @sub?
             @sub.revive game
@@ -12321,7 +12345,7 @@ class Complex
         # 次にmainを蘇生
         @mcall game,@main.revive,game
         if @main.dead
-            # 蘇生できなかった
+            # 蘇生できなかったので、sub の蘇生も巻き戻しておく
             @setDead true, @main.found
         else
             # 蘇生できた
@@ -12406,7 +12430,7 @@ class Friend extends Complex    # 恋人
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
-        unless @dead
+        unless @isPlayerDead game
             ato=false
             if game.rule.friendssplit=="split"
                 # 独立
@@ -13406,7 +13430,7 @@ class Fascinated extends Complex
     cmplType:"Fascinated"
     beforebury:(game,type,deads)->
         super
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
                 @die game, "fascinatesuicide"
@@ -13447,7 +13471,7 @@ class LoreleiFamilia extends Complex
             x.isJobType "Lorelei")
             .map (x)-> x.publicinfo()
     beforebury:(game,type,deads)->
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
                 lo = game.players.filter (x)-> !x.dead && x.isJobType("Lorelei")
@@ -13490,7 +13514,7 @@ class Bonds extends Complex
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead && pl.isCmplType("Bonds")
                 @die game, "bonds"
@@ -13560,7 +13584,7 @@ class WomanAttracted extends Complex
     cmplType: "WomanAttracted"
     beforebury:(game, type, deads)->
         super
-        return if @dead
+        return if @isPlayerDead game
         for pl in deads
             continue unless pl.id == @cmplFlag
             continue unless pl.dead
@@ -16236,6 +16260,14 @@ processSpeakChoice = (choices)->
 # Generate an ID for use as Player objid.
 generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
+
+# 複合役職（ケミカル人狼等）の内側（main/sub）からでも、プレイヤー本体（トップレベル）を得る。
+# ゲーム上に見つからない場合は、渡されたオブジェクト自身を返す。
+# Player#getTopPlayer / Complex#getTopPlayer の共通実装。
+searchTopPlayer = (pl, game)->
+    top = game?.getPlayer pl.id
+    if top? then top else pl
+
 
 # Check equality of player object,
 # based on cmplId and objId
