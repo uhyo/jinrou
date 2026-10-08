@@ -71,6 +71,12 @@ sethelper=(ss,roomid,userid,id,res)->
         if pl?.userid == topl?.userid
             res i18n.t "error.noSelfHelper"
             return
+        if topl? && topl.mode != "player"
+            # ヘルパーの対象は実際にゲームに参加するプレイヤーだけ。
+            # GMや他のヘルパーを対象にすると、開始処理(setplayers)が
+            # 対象を見つけられず、ゲームを開始できなくなる。
+            res i18n.t "error.helperTargetNotPlayer"
+            return
         unless room.mode=="waiting"
             res i18n.t "error.alreadyStarted"
             return

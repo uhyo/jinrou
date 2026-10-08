@@ -623,6 +623,13 @@ class Game
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
         game.log_save_mode = obj.log_save_mode ? "v1"
+        # 開始前(day==0)のゲームは、開始に必要な情報(配役・希望役職の一覧)を
+        # DBに保存していないので、ロードし直しても再開できない。
+        # 開始前に戻して、もう一度開始できるようにする。
+        neverStarted = !game.finished && game.day == 0
+        if neverStarted
+            game.phase = Phase.preparing
+            game.rule = null
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
@@ -633,6 +640,13 @@ class Game
                 if room.error?
                     console.error "Game.unserialize: failed to load room ##{game.id}", room.error
                     return
+                if neverStarted && room.mode != "waiting"
+                    # 開始していないのに部屋だけ"playing"のまま残っている
+                    # （開始処理の途中でサーバーが落ちた等）。
+                    # waitingに戻さないとgameStartもjoinも拒否されて詰む。
+                    console.error "Game.unserialize: room ##{game.id} is '#{room.mode}' but its game has never started; resetting the room to 'waiting'"
+                    M.rooms.update {id:game.id, mode:room.mode},{$set:{mode:"waiting"}}
+                    ss.publish.channel "room#{game.id}","refresh",{id:game.id}
                 game.players=[]
                 supporters=[]
                 for plobj in room.players
@@ -1057,9 +1071,16 @@ class Game
                 # ヘルパーだ
                 ppl=@players.filter((x)->x.id==result[1])[0]
                 unless ppl?
-                    # This is a bug!
-                    res @i18n.t "error.gamestart.helperNotExist", {name: pl.name}
-                    return
+                    # ヘルパーの対象はプレイヤーでなければならない。
+                    # GMや他のヘルパーを対象にしたヘルパーは@playersに
+                    # 見つからない（room.playersのmodeがhelper_*のまま
+                    # 残っている等）。以前はここで配役処理全体を中断して
+                    # いたが、呼び出し側(role requesting経由)がエラーを
+                    # 握り潰すため対局が進まず、部屋がplayingのまま
+                    # 残ってしまっていた。対象が居ないヘルパーは諦めて
+                    # ゲームを続行する。
+                    console.error "Game.setplayers: game ##{@id} helper '#{pl.name}' has no target player (id=#{result[1]}); ignoring"
+                    continue
                 helper=Player.factory "Helper", this
                 helper.setProfile {
                     id:pl.realid
@@ -1627,6 +1648,9 @@ class Game
                     unless result?
                         @nextturn()
                         @ss.publish.channel "room#{@id}","refresh",{id:@id}
+                    else
+                        # 配役に失敗した
+                        @abortStart result
                 true
             else
                 false
@@ -1660,6 +1684,20 @@ class Game
             true
         else
             false
+
+    # 開始処理に失敗したときに部屋を開始前に戻す。
+    # room.modeだけ"playing"に進んでしまうと、gameStartは
+    # 「すでに開始している」を返し、二度と開始できなくなる。
+    abortStart:(error)->
+        console.error "Game.abortStart: game ##{@id} failed to start:", error
+        @phase = Phase.preparing
+        # まだ開始していないので部屋をwaitingに戻す（"end"は上書きしない）
+        M.rooms.update {id:@id, mode:"playing"},{$set:{mode:"waiting"}}
+        log=
+            mode:"system"
+            comment: String error
+        splashlog @id, this, log
+        @ss.publish.channel "room#{@id}","refresh",{id:@id}
 
     #夜の能力を処理する
     midnight:->
