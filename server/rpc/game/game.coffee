@@ -15573,7 +15573,13 @@ module.exports.actions=(req,res,ss)->
             if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼","特殊ルール.エンドレス闇鍋"])
                 # 希望役職制あり
                 # とりあえず入れなくする
-                M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                # This write is fire-and-forget (the room is updated without
+                # waiting for an acknowledgement). When the game ends right
+                # after it starts, the "end" write can reach the DB before
+                # this one and would then be overwritten, leaving the room
+                # stuck as "playing". Restrict it to rooms that are still
+                # waiting so it can never overwrite a finished room.
+                M.rooms.update {id:roomid, mode:"waiting"},{$set:{mode:"playing"}}
                 # 役職選択中
                 game.phase = Phase.rolerequesting
                 game.rolerequesttable={}
@@ -15588,7 +15594,11 @@ module.exports.actions=(req,res,ss)->
                 game.setplayers (result)->
                     unless result?
                         # プレイヤー初期化に成功
-                        M.rooms.update {id:roomid},{
+                        # Same as the role-requesting branch above: only start
+                        # a room that is still waiting. Otherwise a game that
+                        # finishes immediately could be overwritten and leave
+                        # mode stuck at "playing".
+                        M.rooms.update {id:roomid, mode:"waiting"},{
                             $set:{
                                 mode:"playing",
                                 jobrule:query.jobrule
