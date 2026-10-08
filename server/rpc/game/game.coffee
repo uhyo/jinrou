@@ -1209,15 +1209,93 @@ class Game
 
             @beginturn()
 
+    # 量子人狼: 生き残っている世界線(@quantum_patterns)から各プレイヤーの確率を計算し,
+    # @flag を更新してログ用の確率テーブルを返す.
+    # 世界線は処刑・襲撃などの死亡でも収束するので, 確率を表示・判定に使う前に必ず呼ぶこと.
+    updateQuantumProbability:->
+        probability_table={}
+        numberref_table={}
+        for x in @players
+            count=
+                Human:0
+                Diviner:0
+                Werewolf:0
+                dead:0
+            for obj in @quantum_patterns
+                count[obj[x.id].jobtype]++
+                if obj[x.id].dead==true
+                    count.dead++
+            sum=count.Human+count.Diviner+count.Werewolf
+            pflag=JSON.parse x.flag
+            if sum==0
+                # 世界が崩壊した
+                x.setFlag JSON.stringify {
+                    number:pflag?.number
+                    Human:0
+                    Diviner:0
+                    Werewolf:0
+                    dead:0
+                }
+                # ログ用
+                probability_table[x.id]={
+                    name:x.name
+                    Human:0
+                    Werewolf:0
+                }
+                if @rule.quantumwerewolf_dead!="no"
+                    #死亡確率も
+                    probability_table[x.id].dead=0
+                if @rule.quantumwerewolf_diviner=="on"
+                    # 占い師の確率も
+                    probability_table[x.id].Diviner=0
+            else
+                x.setFlag JSON.stringify {
+                    number:pflag?.number
+                    Human:count.Human/sum
+                    Diviner:count.Diviner/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                # ログ用
+                if @rule.quantumwerewolf_diviner=="on"
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:count.Human/sum
+                        Diviner:count.Diviner/sum
+                        Werewolf:count.Werewolf/sum
+                    }
+                else
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:(count.Human+count.Diviner)/sum
+                        Werewolf:count.Werewolf/sum
+                    }
+                if @rule.quantumwerewolf_dead!="no" || count.dead==sum
+                    # 死亡率も
+                    probability_table[x.id].dead=count.dead/sum
+            if @rule.quantumwerewolf_table=="anonymous"
+                # 番号を表示
+                numberref_table[pflag.number]=x
+                probability_table[x.id].name= @i18n.t "quantum.player", {num: pflag.number}
+        if @rule.quantumwerewolf_table=="anonymous"
+            # ソートしなおしてあげて痕跡を消す
+            probability_table=((probability_table,numberref_table)->
+                result={}
+                i=1
+                x=null
+                while x=numberref_table[i]
+                    result["_$_player#{i}"]=probability_table[x.id]
+                    i++
+                result
+            )(probability_table,numberref_table)
+        probability_table
+
     beginturn:->
         night = Phase.isNight @phase
 
         if @rule.jobrule=="特殊ルール.量子人狼"
             # 量子人狼
-            # 全員の確率を出してあげるよーーーーー
-            # 確率テーブルを
-            probability_table={}
-            numberref_table={}
+            # 死亡が確定した(どの世界線でも死んでいる)プレイヤーを死亡させる
             dead_flg=true
             while dead_flg
                 dead_flg=false
@@ -1232,79 +1310,9 @@ class Game
                         # 死んだ!!!!!!!!!!!!!!!!!
                         x.die this, "werewolf"
                         dead_flg=true
-            for x in @players
-                count=
-                    Human:0
-                    Diviner:0
-                    Werewolf:0
-                    dead:0
-                for obj in @quantum_patterns
-                    count[obj[x.id].jobtype]++
-                    if obj[x.id].dead==true
-                        count.dead++
-                sum=count.Human+count.Diviner+count.Werewolf
-                pflag=JSON.parse x.flag
-                if sum==0
-                    # 世界が崩壊した
-                    x.setFlag JSON.stringify {
-                        number:pflag?.number
-                        Human:0
-                        Diviner:0
-                        Werewolf:0
-                        dead:0
-                    }
-                    # ログ用
-                    probability_table[x.id]={
-                        name:x.name
-                        Human:0
-                        Werewolf:0
-                    }
-                    if @rule.quantumwerewolf_dead=="on"
-                        #死亡確率も
-                        probability_table[x.id].dead=0
-                    if @rule.quantumwerewolf_diviner=="on"
-                        # 占い師の確率も
-                        probability_table[x.id].Diviner=0
-                else
-                    x.setFlag JSON.stringify {
-                        number:pflag?.number
-                        Human:count.Human/sum
-                        Diviner:count.Diviner/sum
-                        Werewolf:count.Werewolf/sum
-                        dead:count.dead/sum
-                    }
-                    # ログ用
-                    if @rule.quantumwerewolf_diviner=="on"
-                        probability_table[x.id]={
-                            name:x.name
-                            Human:count.Human/sum
-                            Diviner:count.Diviner/sum
-                            Werewolf:count.Werewolf/sum
-                        }
-                    else
-                        probability_table[x.id]={
-                            name:x.name
-                            Human:(count.Human+count.Diviner)/sum
-                            Werewolf:count.Werewolf/sum
-                        }
-                    if @rule.quantumwerewolf_dead!="no" || count.dead==sum
-                        # 死亡率も
-                        probability_table[x.id].dead=count.dead/sum
-                if @rule.quantumwerewolf_table=="anonymous"
-                    # 番号を表示
-                    numberref_table[pflag.number]=x
-                    probability_table[x.id].name= @i18n.t "quantum.player", {num: pflag.number}
-            if @rule.quantumwerewolf_table=="anonymous"
-                # ソートしなおしてあげて痕跡を消す
-                probability_table=((probability_table,numberref_table)->
-                    result={}
-                    i=1
-                    x=null
-                    while x=numberref_table[i]
-                        result["_$_player#{i}"]=probability_table[x.id]
-                        i++
-                    result
-                )(probability_table,numberref_table)
+            # 全員の確率を出してあげるよーーーーー
+            # 確率テーブルを作り @flag を更新する
+            probability_table=@updateQuantumProbability()
             # ログを出す
             log=
                 mode:"probability_table"
@@ -1456,7 +1464,7 @@ class Game
                     pl.transProfile newpl
                     pl.transform this, newpl, true
             # エンドレス闇鍋用途中参加処理
-            if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
+            if @rule.jobrule=="特殊ルール.量子人狼"
                 jobnames=Object.keys(jobs).filter (name)->!(name in REBIRTH_EXCLUDED_JOBS)
                 pcs=@participants.concat []
                 join_count=0
@@ -2346,32 +2354,15 @@ class Game
 
         # 量子人狼のときは特殊ルーチン
         if @rule.jobrule=="特殊ルール.量子人狼"
-            assured_wolf=
-                alive:0
-                dead:0
-            total_wolf=0
             obj=@quantum_patterns[0]
             if obj?
-                for key,value of obj
-                    if value.jobtype=="Werewolf"
-                        total_wolf++
-                for x in @players
-                    unless x.flag
-                        # まだだった・・・
-                        break
-                    flag=JSON.parse x.flag
-                    if flag.Werewolf==1
-                        # うわあああ絶対人狼だ!!!!!!!!!!
-                        if flag.dead==1
-                            assured_wolf.dead++
-                        else if flag.dead==0
-                            assured_wolf.alive++
-                if alives<=assured_wolf.alive*2
-                    # あーーーーーーー
-                    team="Werewolf"
-                else if assured_wolf.dead==total_wolf
-                    # 全滅した
-                    team="Human"
+                # 世界線は beginturn 以外(処刑・襲撃など)でも収束するので,
+                # 判定に使う確率(@flag)をここで必ず作り直す.
+                # (@flag は勝敗を各プレイヤーに配る isWinner からも見られる)
+                # 作り直さないと, 処刑された確定人狼が「生存中の人狼」として
+                # 数えられ, 人狼勝利と誤判定してしまう(room 250799).
+                @updateQuantumProbability()
+                team=libgame.judgeQuantumWerewolf @quantum_patterns, @players
             else
                 # もうひとつもないんだ・・・
                 log=
