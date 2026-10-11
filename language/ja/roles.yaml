@@ -199,6 +199,10 @@ jobname:
   SuperWerewolf: 'SP人狼'
   SuperDiviner: 'SP占い師'
   OldGuard: '老騎士'
+  HimeFox: '姫狐'
+  Perfidious: '背信者'
+  Heretic: '異端者'
+  MindPsychic: '念縛霊能者'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1245,3 +1249,21 @@ SuperDiviner:
   SuperSelect: '{{name}}は{{target}}を追加で占いました。'
   # 占い結果
   resultlog: '{{name}}は{{target}}を占いました。{{target}}は{{result}}でした。'
+
+HimeFox:
+  # 生贄の対象を選択した
+  selectSacrifice: '{{name}}は{{target}}を生贄に選びました。'
+  # 生贄を捧げて念殺を行った
+  select: '{{name}}は{{sacrifice}}を生贄に捧げ、{{target}}に念殺を行いました。'
+  # 念殺が念殺の護りに阻まれた
+  nekikillBlocked: '昨夜の念殺は念殺の護りに阻まれました。'
+  # 念殺が猫又に跳ね返された
+  nekikillFailed: '猫又の力によって念殺が跳ね返されました。'
+
+MindPsychic:
+  # 霊能結果
+  result:
+    human: '人間'
+  # 念殺の護りをかけた
+  curseGuardSelect: '{{name}}は{{target}}に念殺の護りをかけました。'
+

@@ -66,6 +66,8 @@ export type RolePeersInfo = Partial<
     | 'peers'
     | 'madpeers'
     | 'foxes'
+    | 'perfidious'
+    | 'perfidious'
     | 'nobles'
     | 'queens'
     | 'spy2s'

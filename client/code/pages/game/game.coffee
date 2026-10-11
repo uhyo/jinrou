@@ -275,6 +275,8 @@ exports.start=(roomid)->
                             peers: obj.peers
                             madpeers: obj.madpeers
                             foxes: obj.foxes
+                            perfidious: obj.perfidious
+                            perfidious: obj.perfidious
                             nobles: obj.nobles
                             queens: obj.queens
                             spy2s: obj.spy2s

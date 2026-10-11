@@ -28,6 +28,8 @@ specialName:
 
   SuperDiviner: 'SP占い師の能力'
   NormalDiviner: 'SP占い師の能力'
+  HimeFox: '姫狐の能力'
+  NekikillTarget: '姫狐の能力'
 # Message for normal selection form.  normalMessage:
 messages:
   _day: '処刑したい人に投票してください'
@@ -147,6 +149,14 @@ messages:
   SuperWerewolf: 'SP能力を発動して、今宵はもう1人襲撃する場合に選択します'
   SuperDiviner: 'SP占いの対象を選択してください'
   OldGuard: '護衛する対象を選択してください'
+  HimeFox:
+    sacrifice:
+      description: '生贄にする背信者か異端者を選択してください'
+      button: '生贄を選択'
+    nekikill:
+      description: '念殺する対象を選択してください'
+      button: '念殺対象を選択'
+  MindPsychic: '念殺の護りをかける対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

@@ -81,6 +81,7 @@ jobinfo:
   detail: '{{job}}の詳細'
   # Info of peers.
   peers:
+    perfidious: '仲間の背信者は{{names}}'
     wolves: '仲間の人狼は{{names}}です'
     peers: '仲間の共有者は{{names}}です'
     madpeers: '仲間の叫迷狂人は{{names}}です'
