@@ -215,6 +215,7 @@ jobname:
   MagicalGirl: '魔法少女'
   ButaOtoko: '猪男'
   Princess: '姫'
+  LandmineGirl: '地雷少女'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1323,3 +1324,9 @@ MagicalGirl:
 
 Princess:
   inherit: '{{name}}は女王観戦者の座を継承しました。'
+
+LandmineGirl:
+  knownWolf: '{{name}}は{{target}}が人狼であることを知りました。'
+  ready: '地雷少女{{name}}は襲撃できるようになりました。'
+  select: '愛されたい一心で、{{name}}は{{target}}を襲撃しました。'
+  counterKilled: '{{name}}は{{target}}を襲撃し、反撃されました。'

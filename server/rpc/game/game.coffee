@@ -164,10 +164,13 @@ Found =
         found in ["werewolf"]
     # whether this is a guardable attack.
     isGuardableAttack:(found)->
-        found in ["vampire", "nineTailedFox"] || Found.isGuardableWerewolfAttack(found)
+        found in ["vampire", "nineTailedFox", "landmineAssassinate"] || Found.isGuardableWerewolfAttack(found)
     # whether this is a werewolf attack.
     isNormalWerewolfAttack: (found)->
         found in ["werewolf", "trickedWerewolf"]
+    # whether foxes resist this attack.
+    isFoxResistantAttack: (found)->
+        Found.isNormalWerewolfAttack(found) || found == "landmineAssassinate"
     # whether this is any kind of werewolf attack.
     isWerewolfAttack: (found)->
         found in ["werewolf", "werewolf2", "trickedWerewolf"]
@@ -1988,7 +1991,7 @@ class Game
             x = obj.pl
             situation=switch obj.found
                 #死因
-                when "werewolf","werewolf2","trickedWerewolf","nineTailedFox","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
+                when "werewolf","werewolf2","trickedWerewolf","nineTailedFox","poison","hinamizawa","vampire","vampire2","witch","dog","trap","marycurse","psycho","crafty","greedy","tough","lunaticlover","hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","landmineAssassinate","ghostrevenge"
                     @i18n.t "found.normal", {name: x.name}
                 when "curse"    # 呪殺
                     if @rule.deadfox=="obvious"
@@ -2035,7 +2038,7 @@ class Game
                     "foxsuicide","friendsuicide","twinsuicide","dragonknightsuicide","vampiresuicide","santasuicide","fascinatesuicide","loreleisuicide"
                     "infirm","hunter",
                     "gmpunish","gone-day","gone-night","crafty","greedy","tough","lunaticlover",
-                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","ghostrevenge"
+                    "hooligan","dragon","samurai","elemental","sacrifice","lorelei","oni","selfdestruct","assassinate","landmineAssassinate","ghostrevenge"
                 ].includes obj.found
                     detail = @i18n.t "foundDetail.#{obj.found}"
                 else
@@ -2107,6 +2110,8 @@ class Game
                     when "selfdestruct"
                         "selfdestruct"
                     when "assassinate"
+                        "assassinate"
+                    when "landmineAssassinate"
                         "assassinate"
                     when "ghostrevenge"
                         "ghostrevenge"
@@ -4713,7 +4718,7 @@ class Fox extends Player
     isFoxVisible:->true
     hasDeadResistance:->true
     checkDeathResistance:(game, found)->
-        if Found.isNormalWerewolfAttack found
+        if Found.isFoxResistantAttack found
             # 襲撃耐性
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
@@ -4853,6 +4858,9 @@ class Poisoner extends Player
             else
                 canbedead=canbedead.filter (x)->x.isWerewolf() && x.isAttacker()
         else if found in ["vampire", "nineTailedFox"]
+            canbedead=canbedead.filter (x)->x.id==from
+        else if found=="landmineAssassinate"
+            # 地雷少女の襲撃では、襲撃者を道連れにする
             canbedead=canbedead.filter (x)->x.id==from
         return if canbedead.length==0
         r=Math.floor Math.random()*canbedead.length
@@ -12412,6 +12420,93 @@ class Assassin extends Player
         @setFlag true
         null
 
+class LandmineGirl extends Madman
+    type:"LandmineGirl"
+    # 通常の人狼襲撃（固定優先度 105）の後に結算する。
+    midnightSort:106
+    formType: FormType.optionalOnce
+    hasDeadlyWeapon:->true
+    sleeping:->true
+    constructor:->
+        super
+        @setFlag {
+            knownWolf: null
+            used: false
+            readyNotified: false
+        }
+    getState:->
+        @flag ? {
+            knownWolf: null
+            used: false
+        }
+    canAttack:(game)->
+        state = @getState()
+        wolf = game.getPlayer state.knownWolf
+        wolf?.dead && !state.used
+    jobdone:(game)->@target? || @getState().used || !@canAttack(game)
+    sunset:(game)->
+        state = @getState()
+        if game.day == 1 && !state.knownWolf?
+            wolves = game.players.filter (pl)-> pl.isWerewolf()
+            if wolves.length > 0
+                wolf = wolves[Math.floor Math.random() * wolves.length]
+                state.knownWolf = wolf.id
+                @setFlag state
+                log =
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:LandmineGirl.knownWolf", {name: @name, target: wolf.name}
+                splashlog game.id,game,log
+        if @canAttack(game)
+            @setTarget null
+            unless state.readyNotified
+                state.readyNotified = true
+                @setFlag state
+                log =
+                    mode:"skill"
+                    to:@id
+                    comment: game.i18n.t "roles:LandmineGirl.ready", {name: @name}
+                splashlog game.id,game,log
+        else
+            @setTarget ""
+    job:(game, playerid)->
+        if !@canAttack(game)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        if @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        if playerid == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        @setTarget playerid
+        pl.touched game,@id
+        log =
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:LandmineGirl.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        pl = game.getPlayer game.skillTargetHook.get @target
+        return unless pl?
+        state = @getState()
+        state.used = true
+        @setFlag state
+        # 人狼・吸血鬼を襲撃した場合は、対象を倒せずに反撃される。
+        if pl.isWerewolf()
+            @die game, "werewolf2", pl.id
+            @addGamelog game,"counterKilled",null,pl.id
+            return
+        if pl.isVampire()
+            @die game, "vampire2", pl.id
+            @addGamelog game,"counterKilled",null,pl.id
+            return
+        pl.die game, "landmineAssassinate", @id
+        null
+
 class Shadow extends Madman
     type:"Shadow"
     sleeping:->true
@@ -13915,7 +14010,7 @@ class TrapGuarded extends Complex
             # 反撃する
             canbedead=[]
             ft=game.getPlayer from
-            if found in ["vampire", "nineTailedFox"]
+            if found in ["vampire", "nineTailedFox", "landmineAssassinate"]
                 canbedead=game.players.filter (x)->!x.dead && x.id==from
             else
                 canbedead=game.players.filter (x)->!x.dead && x.isWerewolf() && x.isAttacker()
@@ -14262,7 +14357,7 @@ class FoxMinion extends Complex
     getJobname:-> @game.i18n.t "roles:FoxMinion.jobname", {jobname: @main.getJobname()}
     # 襲撃耐性
     checkDeathResistance:(game, found, from)->
-        if Found.isNormalWerewolfAttack found
+        if Found.isFoxResistantAttack found
             # 襲撃耐性
             game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance
             return true
@@ -15322,6 +15417,7 @@ jobs=
     Dreamer:Dreamer
     VariationFox:VariationFox
     Assassin:Assassin
+    LandmineGirl:LandmineGirl
     Shadow:Shadow
     AttractiveWoman:AttractiveWoman
     DestroyCraziest:DestroyCraziest
@@ -15601,6 +15697,7 @@ jobStrength=
     Dreamer:5
     VariationFox:27
     Assassin:20
+    LandmineGirl:20
     Shadow:25
     AttractiveWoman:16
     DestroyCraziest:15
