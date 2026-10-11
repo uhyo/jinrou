@@ -9,7 +9,7 @@ exports.jobs=["Human","Werewolf","Diviner","SuperDiviner","Psychic","MindPsychic
 # ミラーズホロウの人狼
 "Hunter","Cupid","MumouDiviner",
 # 特殊役職?
-"Poisoner","BigWolf","TinyFox","Cat","Paladin",
+"Poisoner","BigWolf","DoubleHeadedWolf","TinyFox","Cat","Paladin","ButaOtoko",
 # るる鯖で見つけた役職
 "Fanatic","HearMadman","Immoral"
 # 特殊役職2
@@ -130,7 +130,7 @@ exports.teams=teams=
     Hooligan:["Hooligan", "HooliganAttacker"]
     Duel:["Duelist"]
     Lorelei:["Lorelei"]
-    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Teruteru","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni","FrontOni","BackOni","ResidualHaunting"],
+    Others:["Bat","Stalker","Doppleganger","Copier","Tanner","Teruteru","ButaOtoko","Thief","Hoodlum","QuantumPlayer","Shishimai","HooliganGuard","Amanojaku","DarkClown","DualPersonality","Oni","GoldOni","FrontOni","BackOni","ResidualHaunting"],
     Neet:["Neet"]
 
 # カテゴリ分け(一部闇鍋でつかうぞ!)
@@ -142,7 +142,7 @@ exports.categories=
     Fox:["Fox","HimeFox","NineTailedFox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress","FoxMatchmaker"]
     Immoral:["Immoral","Blasphemy","Perfidious","Heretic"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
-    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Teruteru","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni","ResidualHaunting"]
+    Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Teruteru","ButaOtoko","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni","ResidualHaunting"]
     Switching:["Stalker","Copier","Doppleganger","DualPersonality","OccultMania","Cursed","BloodyMary","Phantom","Thief","Dreamer"]
     # Special category for "no category"
     None:[
