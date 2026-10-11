@@ -166,6 +166,7 @@ messages:
   MumouDiviner: '占う対象を選択してください'
   SuperFox: '呪う対象を選択してください'
   LastStandWolf: '最後の1匹になったとき、必死の襲撃を行う場合に対象を選択してください'
+  FoxMatchmaker: '恋人にする2人を順番に選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

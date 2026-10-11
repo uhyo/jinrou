@@ -3999,7 +3999,7 @@ class Diviner extends Player
 
         if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -4782,6 +4782,58 @@ class NineTailedFox extends Fox
         target.die game, "nineTailedFox", @id
         if target.dead && target.found == "nineTailedFox"
             @addGamelog game,"nineTailedFoxAttack",target.type,target.id
+
+class FoxMatchmaker extends Fox
+    type:"FoxMatchmaker"
+    team:"Fox"
+    formType: FormType.required
+    constructor:->
+        super
+        @setFlag null
+        @setTarget null
+    sunset:(game)->
+        if game.day>=2 && @flag? && !Array.isArray @flag
+            @setFlag ""
+            @setTarget ""
+        else if !@flag? || !Array.isArray @flag
+            @setFlag null
+            @setTarget null
+    sleeping:-> Array.isArray(@flag) || @flag? && @target?
+    getVisibilityQuery:-> Player.prototype.getVisibilityQuery.call this
+    isFoxVisible:->false
+    isListener:(game,log)-> Player.prototype.isListener.call this, game, log
+    getSpeakChoice:(game)-> Player.prototype.getSpeakChoice.call this, game
+    isWinner:(game, team)-> team in ["Friend", "Fox"]
+    hasMatchedLover:(playerid)->
+        return false unless playerid?
+        return playerid in @flag if Array.isArray @flag
+        playerid == @flag || playerid == @target
+    job:(game,playerid,query)->
+        if Array.isArray(@flag) || @flag? && @target?
+            return game.i18n.t "error.common.alreadyUsed"
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        unless @flag?
+            @setFlag playerid
+            splashlog game.id,game,{mode:"skill",to:@id,comment:game.i18n.t "roles:FoxMatchmaker.select1",{name:@name,target:pl.name}}
+            return null
+        if @flag==playerid
+            return game.i18n.t "roles:Cupid.noSelectTwice"
+        @setTarget playerid
+        loverIds=[@flag,@target]
+        plpls=loverIds.map (id)->game.getPlayer id
+        @setFlag loverIds
+        for pl,i in plpls
+            pl.touched game,@id
+            newpl=Player.factory null,game,pl,null,FoxMatchmakerFriend
+            newpl.cmplFlag=plpls[1-i].id
+            pl.transProfile newpl
+            pl.transform game,newpl,true
+            splashlog game.id,game,{mode:"skill",to:@id,comment:game.i18n.t "roles:FoxMatchmaker.select",{name:@name,target:newpl.name}}
+            splashlog game.id,game,{mode:"skill",to:newpl.id,comment:game.i18n.t "roles:FoxMatchmaker.become",{name:newpl.name}}
+        game.splashjobinfo loverIds.map (id)->game.getPlayer id
+        null
 
 
 class Poisoner extends Player
@@ -10191,7 +10243,7 @@ class Satori extends Diviner
 
         if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -13486,13 +13538,26 @@ class Friend extends Complex    # 恋人
             # みんないっしょ
             result.friends=game.players.filter((x)->x.isFriend()).map (x)->
                 x.publicinfo()
-    isWinner:(game,team)->@getTeam()==team && libgame.checkAliveForJudgement(game, this)
+    isWinner:(game,team)->
+        return true if @getTeam()==team && libgame.checkAliveForJudgement(game, this)
+        getAllMainRoles(this).some (role)-> role.type == "FoxMatchmaker" && role.isWinner game, team
     # 相手のIDは?
     getPartner:->
         if @cmplType=="Friend"
             return @cmplFlag
         else
             return @main.getPartner()
+class FoxMatchmakerFriend extends Friend
+    cmplType:"FoxMatchmakerFriend"
+    getPartner:-> if @cmplType=="FoxMatchmakerFriend" then @cmplFlag else @main.getPartner()
+    isWinner:(game,team)->
+        return true if Friend.prototype.isWinner.call this, game, team
+        if team == "Fox"
+            return game.players.some (pl)=>
+                return false if pl.dead
+                matchmakers = getAllMainRoles(pl).filter (obj)-> obj.hasMatchedLover?
+                matchmakers.some (matchmaker)-> matchmaker.hasMatchedLover @id
+        false
 # 聖職者にまもられた人
 class HolyProtected extends Complex
     # cmplFlag: 護衛元
@@ -14943,6 +15008,7 @@ jobs=
     NineTailedFox:NineTailedFox
     HimeFox:HimeFox
     SuperFox:SuperFox
+    FoxMatchmaker:FoxMatchmaker
     Poisoner:Poisoner
     BigWolf:BigWolf
     TinyFox:TinyFox
@@ -15146,6 +15212,7 @@ complexes=
     Complex:Complex
     HeroAwakened:HeroAwakened
     Friend:Friend
+    FoxMatchmakerFriend:FoxMatchmakerFriend
     HolyProtected:HolyProtected
     CultMember:CultMember
     Guarded:Guarded
@@ -15220,6 +15287,7 @@ jobStrength=
     NineTailedFox:30
     HimeFox:20
     SuperFox:20
+    FoxMatchmaker:20
     Poisoner:20
     BigWolf:80
     TinyFox:10

@@ -210,6 +210,7 @@ jobname:
   SuperFox: 'SP妖狐'
   LastStandWolf: '最後の狼'
   Hero: '英雄'
+  FoxMatchmaker: '狐の仲人'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1298,3 +1299,8 @@ LastStandWolf:
 Hero:
   awaken: '{{name}}は英雄として覚醒しました。'
   resist: '{{name}}は襲撃に耐え、自分が英雄であることに気づきました。'
+
+FoxMatchmaker:
+  select1: '{{name}}は{{target}}を1人目の恋人の候補に選びました。'
+  select: '{{name}}は{{target}}と恋人を結びました。'
+  become: '{{name}}は狐の仲人によって恋人にされました。'
