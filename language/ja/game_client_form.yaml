@@ -165,6 +165,7 @@ messages:
   Paladin: '護衛する対象を選択してください'
   MumouDiviner: '占う対象を選択してください'
   SuperFox: '呪う対象を選択してください'
+  LastStandWolf: '最後の1匹になったとき、必死の襲撃を行う場合に対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

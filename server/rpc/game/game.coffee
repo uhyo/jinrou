@@ -1805,6 +1805,18 @@ class Game
                                     tw.addGamelog this,"toughwolfKilled",t.type,t.id
                             break
                 unless flg_flg
+                    for fl in @werewolf_flag
+                        res = fl.match /^LastStandWolf_(.+)$/
+                        if res?
+                            lw = @getPlayer res[1]
+                            t = @getPlayer actTarget
+                            if t?
+                                t.setDead true,"werewolf"
+                                t.dying this,"werewolf",lw?.id
+                                flg_flg=true
+                                lw?.addGamelog this,"lastStandWolfKilled",t.type,t.id
+                            break
+                unless flg_flg
                     # 一途は発動しなかった
                     for fl in @werewolf_flag
                         res = fl.match /^GreedyWolf_(.+)$/
@@ -1822,7 +1834,7 @@ class Game
                         break
         @werewolf_flag=@werewolf_flag.filter (fl)->
             # こいつらは1夜限り
-            return !(/^(?:GreedyWolf|ToughWolf|SuperWerewolf)_/.test fl)
+            return !(/^(?:GreedyWolf|ToughWolf|SuperWerewolf|LastStandWolf)_/.test fl)
     # ドラキュラの攻撃を処理する
     midnightDraculaAttack:->
         if @day == 1
@@ -7372,6 +7384,29 @@ class ToughWolf extends Werewolf
                     objid: @objid
                 }
         return res
+
+class LastStandWolf extends Werewolf
+    type:"LastStandWolf"
+    job:(game,playerid,query)->
+        return super if query.jobtype!="LastStandWolf"
+        return game.i18n.t "error.common.alreadyUsed" if @flag
+        alivewolves = game.players.filter (x)-> !x.dead && x.isWerewolf()
+        return game.i18n.t "error.common.cannotUseSkillNow" unless alivewolves.length == 1 && alivewolves[0].id == @id
+        res=super
+        return res if res?
+        @setFlag true
+        game.werewolf_flag.push "LastStandWolf_#{@id}"
+        tp=game.getPlayer playerid
+        return game.i18n.t "error.common.nonexistentPlayer" unless tp?
+        splashlog game.id,game,{mode:"wolfskill",comment:game.i18n.t "roles:LastStandWolf.select", {name: @name, target: tp.name}}
+        null
+    getOpenForms:(game)->
+        res = super
+        unless @sleeping game
+            alivewolves = game.players.filter (x)-> !x.dead && x.isWerewolf()
+            if !@flag && alivewolves.length == 1 && alivewolves[0].id == @id
+                res.push {type:@type,options:@makeJobSelection(game,false),formType:FormType.optionalOnce,objid:@objid}
+        res
 
 class ThreateningWolf extends Werewolf
     type:"ThreateningWolf"
@@ -14916,6 +14951,7 @@ jobs=
     FascinatingWolf:FascinatingWolf
     SolitudeWolf:SolitudeWolf
     ToughWolf:ToughWolf
+    LastStandWolf:LastStandWolf
     ThreateningWolf:ThreateningWolf
     HolyMarked:HolyMarked
     WanderingGuard:WanderingGuard
@@ -15189,6 +15225,7 @@ jobStrength=
     FascinatingWolf:52
     SolitudeWolf:20
     ToughWolf:55
+    LastStandWolf:55
     ThreateningWolf:50
     HolyMarked:6
     WanderingGuard:10

@@ -208,6 +208,7 @@ jobname:
   Paladin: '聖騎士'
   MumouDiviner: '無謀な占い師'
   SuperFox: 'SP妖狐'
+  LastStandWolf: '最後の狼'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1289,3 +1290,6 @@ SuperFox:
   select: '{{name}}は{{target}}に呪いをかけました。'
   # 呪いの影響を受けた
   affected: '{{name}}は呪いの影響を受け、今夜は能力を発動できません。'
+
+LastStandWolf:
+  select: '{{name}}は最後の狼の襲撃を発動しました。対象は{{target}}です。'
