@@ -211,6 +211,7 @@ jobname:
   LastStandWolf: '最後の狼'
   Hero: '英雄'
   FoxMatchmaker: '狐の仲人'
+  Elder: '長老'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -405,6 +406,7 @@ Priest:
   select: '{{name}}が{{target}}を聖なる力で守りました。'
   protected: '{{name}}は聖なる力で{{found}}に抵抗しました。'
 
+# Elder
 # Prince
 Prince:
   # Canceled a punishment.
@@ -1304,3 +1306,6 @@ FoxMatchmaker:
   select1: '{{name}}は{{target}}を1人目の恋人の候補に選びました。'
   select: '{{name}}は{{target}}と恋人を結びました。'
   become: '{{name}}は狐の仲人によって恋人にされました。'
+
+Elder:
+  attackerNotice: '襲撃された{{target}}は長老です。'
