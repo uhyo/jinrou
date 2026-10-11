@@ -3828,6 +3828,62 @@ class Player
 
 class Human extends Player
     type:"Human"
+
+class Hero extends Human
+    type:"Hero"
+    constructor:->
+        super
+        @setFlag {awakened: false, revealed: false, attackResisted: false}
+    getHeroFlag:->
+        {awakened: @flag?.awakened == true, revealed: @flag?.revealed == true, attackResisted: @flag?.attackResisted == true, reason: @flag?.reason, attackFound: @flag?.attackFound, attackFrom: @flag?.attackFrom}
+    getTypeDisp:-> if @flag?.revealed || @flag?.awakened then @type else "Human"
+    getJobDisp:-> if @flag?.revealed || @flag?.awakened then @jobname else @game.i18n.t "roles:jobname.Human"
+    shouldAwakenByCount:(game)-> game.players.filter((x)->!x.dead).length <= Math.ceil game.players.length / 3
+    isAwakened:(game)-> @flag?.awakened || game.getPlayer(@id)?.isCmplType?("HeroAwakened")
+    awaken:(game, reason)->
+        return if @isAwakened game
+        top = game.getPlayer @id
+        return unless top?
+        flag = @getHeroFlag()
+        flag.awakened = true
+        flag.revealed = true
+        flag.reason = reason
+        @setFlag flag
+        diviner = Player.factory "Diviner", game
+        psychic = Player.factory "Psychic", game
+        guard = Player.factory "Guard", game
+        top.transProfile diviner
+        top.transProfile psychic
+        top.transProfile guard
+        if Phase.isNight game.phase
+            diviner.sunset game
+            psychic.sunset game
+            guard.sunset game
+        withDiviner = Player.factory null, game, top, diviner, Complex
+        top.transProfile withDiviner
+        withPsychic = Player.factory null, game, withDiviner, psychic, Complex
+        top.transProfile withPsychic
+        newpl = Player.factory null, game, withPsychic, guard, HeroAwakened
+        top.transProfile newpl
+        top.transform game, newpl, true
+        splashlog game.id, game, {mode:"skill", to:@id, comment: game.i18n.t "roles:Hero.awaken", {name: @name}}
+        game.splashjobinfo [newpl]
+    sunrise:(game)-> @awaken game, "count" if @shouldAwakenByCount game
+    sunset:(game)-> @awaken game, "count" if @shouldAwakenByCount game
+    hasDeadResistance:->true
+    checkDeathResistance:(game, found, from)->
+        if !@flag?.attackResisted && found in ["werewolf", "nineTailedFox", "vampire"]
+            flag = @getHeroFlag()
+            flag.revealed = true
+            flag.attackResisted = true
+            flag.attackFound = found
+            flag.attackFrom = from
+            @setFlag flag
+            game.addGuardLog @id, AttackKind.werewolf, GuardReason.tolerance if Found.isGuardableWerewolfAttack found
+            game.splashjobinfo [game.getPlayer @id]
+            splashlog game.id, game, {mode:"skill", to:@id, comment: game.i18n.t "roles:Hero.resist", {name: @name}}
+            return true
+        false
 class Werewolf extends Player
     type:"Werewolf"
     sunset:(game)->
@@ -13917,6 +13973,9 @@ class WatchingFireworks extends Complex
         else
             return super
 # 爆弾魔に爆弾を仕掛けられた人
+class HeroAwakened extends Complex
+    cmplType:"HeroAwakened"
+
 class BombTrapped extends Complex
     # cmplFlag: 護衛元ID
     cmplType:"BombTrapped"
@@ -14868,6 +14927,7 @@ getGame=(id)->
 # 仕事一覧
 jobs=
     Human:Human
+    Hero:Hero
     Werewolf:Werewolf
     Diviner:Diviner
     SuperDiviner:SuperDiviner
@@ -15084,6 +15144,7 @@ jobs=
 
 complexes=
     Complex:Complex
+    HeroAwakened:HeroAwakened
     Friend:Friend
     HolyProtected:HolyProtected
     CultMember:CultMember
@@ -15143,6 +15204,7 @@ complexes=
     # 役職ごとの強さ
 jobStrength=
     Human:5
+    Hero:20
     Werewolf:40
     Diviner:25
     SuperDiviner:20

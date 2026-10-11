@@ -209,6 +209,7 @@ jobname:
   MumouDiviner: '無謀な占い師'
   SuperFox: 'SP妖狐'
   LastStandWolf: '最後の狼'
+  Hero: '英雄'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1293,3 +1294,7 @@ SuperFox:
 
 LastStandWolf:
   select: '{{name}}は最後の狼の襲撃を発動しました。対象は{{target}}です。'
+
+Hero:
+  awaken: '{{name}}は英雄として覚醒しました。'
+  resist: '{{name}}は襲撃に耐え、自分が英雄であることに気づきました。'

@@ -2,7 +2,7 @@ Shared=
     game:exports
 
 # 身代わりセーフティありのときの除外役職一覧
-exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Hanami","Duelist"]
+exports.SAFETY_EXCLUDED_JOBS = SAFETY_EXCLUDED_JOBS = ["QueenSpectator","Spy2","Poisoner","Cat","Cupid","BloodyMary","Noble", "Lover", "Twin","Hunter","MadHunter","Idol","SnowLover","Raven","LunaticLover","HooliganGuard","HooliganAttacker","SantaClaus","Hanami","Duelist","Hero"]
 # ------ 役職一覧
 # 基本役職
 exports.jobs=["Human","Werewolf","Diviner","SuperDiviner","Psychic","MindPsychic","Madman","Guard","OldGuard","SuperGuard","Couple","Fox","NineTailedFox","SuperFox",
@@ -63,7 +63,7 @@ exports.jobs=["Human","Werewolf","Diviner","SuperDiviner","Psychic","MindPsychic
 # 人狼放浪記
 "MadDog","CraftyWolf","Pumpkin","MadScientist","SpiritPossessed","Forensic","MementoDisposer",
 # 真紅の狼
-"DestroyCraziest","Actress","HimeFox","StraySheep",
+"DestroyCraziest","Actress","HimeFox","StraySheep","Hero",
 # 牢獄の悪夢
 "PsychoKiller","Cosplayer","DarkPsychic",
 # 人狼NET
