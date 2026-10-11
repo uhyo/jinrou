@@ -5975,11 +5975,16 @@ class Dictator extends Player
         @setTarget playerid    # 処刑する人
         log=
             mode:"system"
-            comment: game.i18n.t "roles:Dictator.select", {name: @name, target: pl.name}
+            comment: game.i18n.t "roles:#{@type}.select", {name: @name, target: pl.name}
         splashlog game.id,game,log
         @setFlag true  # 使用済
         # その場で殺す!!!
         pl.die game, "punish", [@id]
+        # 天黑了
+        log=
+            mode:"system"
+            comment: game.i18n.t "roles:#{@type}.sunset", {name: @name}
+        splashlog game.id,game,log
         # XXX executeの中と同じことが書いてある
         game.bury "punish"
         return if game.rule.hunter_lastattack == "no" && game.judge()
@@ -5989,6 +5994,9 @@ class Dictator extends Player
                 return if game.judge()
             game.nextturn()
         return null
+class MadDictator extends Dictator
+    type:"MadDictator"
+    team:"Werewolf"
 class SeersMama extends Player
     type:"SeersMama"
     sleeping:->true
@@ -14020,6 +14028,7 @@ jobs=
     Thief:Thief
     Dog:Dog
     Dictator:Dictator
+    MadDictator:MadDictator
     SeersMama:SeersMama
     Trapper:Trapper
     WolfBoy:WolfBoy
@@ -14280,6 +14289,7 @@ jobStrength=
     Thief:0
     Dog:7
     Dictator:18
+    MadDictator:18
     SeersMama:15
     Trapper:13
     WolfBoy:11

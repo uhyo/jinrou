@@ -141,6 +141,7 @@ messages:
   SpaceWerewolfSabotage: '妨害する対象を選択してください'
   GameMaster: 'GM用コマンド'
 
+  MadDictator: '議論を打ち切り、処刑対象を指定します'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

@@ -196,6 +196,7 @@ jobname:
   Itako: 'イタコ'
 
   WerewolfDescendant: '人狼の末裔'
+  MadDictator: '悪裁者'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1223,3 +1224,7 @@ Chemical:
 
 WerewolfDescendant:
   transform: '{{name}}は人狼の末裔として覚醒し、人狼に変化しました。'
+
+MadDictator:
+  select: '悪裁者{{name}}は{{target}}の処刑を宣言しました。'
+  sunset: '悪裁者{{name}}の宣言により、日が暮れました。'
