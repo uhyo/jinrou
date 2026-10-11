@@ -214,6 +214,7 @@ jobname:
   Elder: '長老'
   MagicalGirl: '魔法少女'
   ButaOtoko: '猪男'
+  Princess: '姫'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -345,6 +346,7 @@ Merchant:
   # A kit is delivered to a player.
   delivered: '{{name}}に{{kit}}が到着しました。'
 
+# Princess
 # Liar
 Liar:
   # Result.
@@ -1318,3 +1320,6 @@ MagicalGirl:
     Psychic: '霊能セット'
     Guard: '狩人セット'
   select: '{{name}}は{{kit}}を選び、今夜その能力を獲得します。'
+
+Princess:
+  inherit: '{{name}}は女王観戦者の座を継承しました。'

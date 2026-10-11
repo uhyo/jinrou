@@ -279,6 +279,7 @@ exports.start=(roomid)->
                             perfidious: obj.perfidious
                             nobles: obj.nobles
                             queens: obj.queens
+                            princesses: obj.princesses
                             spy2s: obj.spy2s
                             friends: obj.friends
                             stalking: obj.stalking
