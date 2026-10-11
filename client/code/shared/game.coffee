@@ -122,9 +122,9 @@ exports.blacks=["Werewolf","DoubleHeadedWolf","WolfDiviner","MadWolf","Lycan","L
 
 # チームたち
 exports.teams=teams=
-    Human:["Human","Diviner","MumouDiviner","SuperDiviner","SuperGuard","Psychic","Guard","Paladin","OldGuard","Couple","Poisoner","ToughGuy","Elder","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","MagicalGirl","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer","Assassin","StraySheep","Secretary","HouseKeeper","DarkPsychic","Itako"]
+    Human:["Human","Diviner","MumouDiviner","SuperDiviner","SuperGuard","Psychic","MindPsychic","Guard","Paladin","OldGuard","Couple","Poisoner","ToughGuy","Elder","Noble","Slave","Magician","Fugitive","Merchant","QueenSpectator","Princess","MadWolf","Liar","Light","Cursed","ApprenticeSeer","Diseased","Spellcaster","Lycan","Priest","Prince","PI","Cat","Witch","Oldman","OccultMania","Dog","Dictator","SeersMama","Trapper","RedHood","Counselor","Miko","HolyMarked","WanderingGuard","TroubleMaker","FrankensteinsMonster","BloodyMary","King","SantaClaus","Phantom","DrawGirl","Pyrotechnist","MagicalGirl","Baker","SpiritPossessed","GotChocolate","Forensic","Cosplayer","TinyGhost","Ninja","Twin","Hunter","Emma","Idol","HomeComer","Illusionist","DragonKnight","Samurai","Elementaler","Poet","Sacrifice","Oracle","GachaAddicted","Fate","Synesthete","Reindeer","Streamer","Tarzan","Hitokotonushinokami","RemoteWorker","Gambler","Sleepwalker","Disguised","Saint","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard","Hanami","Reincarnator","MementoDisposer","Interpreter","Dreamer","Assassin","StraySheep","Hero","Secretary","HouseKeeper","DarkPsychic","Itako"]
     Werewolf:["Werewolf","Madman","MadDictator","BigWolf","DoubleHeadedWolf","Fanatic","HearMadman","Spy","WolfDiviner","Spy2","Sorcerer","LoneWolf","MinionSelector","WolfCub","WhisperingMad","WolfBoy","GreedyWolf","SuperWerewolf","FascinatingWolf","SolitudeWolf","ToughWolf","LastStandWolf","ThreateningWolf","ObstructiveMad","PsychoKiller","CautiousWolf","Bomber","Ushinotokimairi","MadDog","Hypnotist","CraftyWolf","Pumpkin","MadScientist","MadHunter","MadCouple","EyesWolf","TongueWolf","BlackCat","LurkingMad","DecoyWolf","Satori","AbsoluteWolf","QueenOfNight","CurseWolf","IntuitionWolf","Faker","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","SpaceWerewolfImposter","Acrobat","BloodWolf","Shadow","AttractiveWoman","DestroyCraziest","RainyBoy","WerewolfDescendant"]
-    Fox:["Fox","HimeFox","NineTailedFox","SuperFox","TinyFox","Immoral","Blasphemy","XianFox","NightRabbit","Trickster","VariationFox","Actress","FoxMatchmaker"]
+    Fox:["Fox","HimeFox","NineTailedFox","SuperFox","TinyFox","Immoral","Blasphemy","Perfidious","Heretic","XianFox","NightRabbit","Trickster","VariationFox","Actress","FoxMatchmaker"]
     Devil:["Devil"]
     Friend:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","FoxMatchmaker"]
     Vampire:["Vampire","Dracula","VampireClan"]
@@ -142,7 +142,7 @@ exports.categories=
         not (x in ["GotChocolate", "Phantom", "OccultMania", "Cursed", "BloodyMary","Dreamer","Listener","SpaceWerewolfCrew","SpaceWerewolfObserver","SpaceWerewolfGuard"]))
     Werewolf:["Werewolf","BigWolf","DoubleHeadedWolf","WolfDiviner","LoneWolf","WolfCub","GreedyWolf","SuperWerewolf","FascinatingWolf","SolitudeWolf","ToughWolf","LastStandWolf","ThreateningWolf","CautiousWolf","CraftyWolf","EyesWolf","TongueWolf","DecoyWolf","AbsoluteWolf","CurseWolf","IntuitionWolf","SealWolf","CynthiaWolf","NetherWolf","DarkWolf","BloodWolf"]
     Madman:["Madman","MadDictator","Fanatic","HearMadman","Spy","Spy2","Sorcerer","WhisperingMad","WolfBoy","ObstructiveMad","PsychoKiller","Bomber","Ushinotokimairi","MadDog","Hypnotist","Pumpkin","MadScientist","MadHunter","MadCouple","BlackCat","LurkingMad","Satori","QueenOfNight","Faker","Acrobat","Shadow","AttractiveWoman","DestroyCraziest","RainyBoy","WerewolfDescendant"]
-    Fox:["Fox","HimeFox","NineTailedFox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress","FoxMatchmaker"]
+    Fox:["Fox","HimeFox","NineTailedFox","SuperFox","TinyFox","XianFox","NightRabbit","Trickster","VariationFox","Actress","FoxMatchmaker"]
     Immoral:["Immoral","Blasphemy","Perfidious","Heretic"]
     # sort by teams （恋人陣営、単独陣営、その他、変化系その他、変化系村人陣営）
     Others:["Cupid","Lover","BadLady","Patissiere","SnowLover","LunaticLover","Devil","CultLeader","Hierarch","Vampire","Dracula","VampireClan","Raven","Ascetic","Hooligan","Lorelei","Bat","Tanner","Teruteru","ButaOtoko","Hoodlum","Shishimai","Amanojaku","DarkClown","Oni","GoldOni","Duelist","FrontOni","BackOni","ResidualHaunting"]
@@ -790,6 +790,8 @@ exports.jobinfo=
             color:"#ffffab"
         Poisoner:
             color:"#853c24"
+        Elder:
+            color:"#7d9b5a"
         Noble:
             color:"#ffff00"
         Slave:
@@ -954,6 +956,8 @@ exports.jobinfo=
             color:"#660200"
         StraySheep:
             color:"#5ffa5c"
+        Hero:
+            color:"#d9a520"
         Secretary:
             color:"#d8e9f2"
         HouseKeeper:
@@ -969,10 +973,14 @@ exports.jobinfo=
             color:"#220000"
         Madman:
             color:"#ffbb00"
+        MadDictator:
+            color:"#cc0000"
         BigWolf:
             color:"#660000"
         DoubleHeadedWolf:
             color:"#4f0000"
+        SuperWerewolf:
+            color:"#8b0000"
         Spy:
             color:"#ad5d28"
         WolfDiviner:
@@ -1179,6 +1187,8 @@ exports.jobinfo=
             color:"#ede4b9"
         Teruteru:
             color:"#66ccff"
+        ButaOtoko:
+            color:"#f0a4bd"
         Thief:
             color:"#a4a4a4"
         Hoodlum:

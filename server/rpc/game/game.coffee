@@ -15525,6 +15525,7 @@ jobStrength=
     Werewolf:40
     Diviner:25
     SuperDiviner:20
+    MumouDiviner:20
     Psychic:15
     MindPsychic:15
     Madman:10
