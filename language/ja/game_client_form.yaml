@@ -146,6 +146,7 @@ messages:
   MadDictator: '議論を打ち切り、処刑対象を指定します'
   SuperWerewolf: 'SP能力を発動して、今宵はもう1人襲撃する場合に選択します'
   SuperDiviner: 'SP占いの対象を選択してください'
+  OldGuard: '護衛する対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

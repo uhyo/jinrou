@@ -198,6 +198,7 @@ jobname:
   MadDictator: '悪裁者'
   SuperWerewolf: 'SP人狼'
   SuperDiviner: 'SP占い師'
+  OldGuard: '老騎士'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
