@@ -360,6 +360,8 @@ ruleGroup:
   quantum:
     name: "量子人狼の設定"
 
+  werewolf_descendant:
+    name: "人狼の末裔の設定"
 # rule-related string.
 common:
   minutes: "分"
