@@ -6,6 +6,8 @@ error:
   gmCannotBeHelper: "GMはヘルパーになれません。"
   # a player cannot be a helper of oneself.
   noSelfHelper: "自分のヘルパーにはなれません。"
+  # a helper must target a player who actually plays the game.
+  helperTargetNotPlayer: "ヘルパーになれるのはプレイヤーだけです。"
   # This room has already started.
   alreadyStarted: "この部屋はもう始まっています。"
   # You have not join this room.

@@ -623,11 +623,30 @@ class Game
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
         game.log_save_mode = obj.log_save_mode ? "v1"
+        # 開始前(day==0)のゲームは、開始に必要な情報(配役・希望役職の一覧)を
+        # DBに保存していないので、ロードし直しても再開できない。
+        # 開始前に戻して、もう一度開始できるようにする。
+        neverStarted = !game.finished && game.day == 0
+        if neverStarted
+            game.phase = Phase.preparing
+            game.rule = null
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
-                if room.error?
+                # oneRoomSは部屋が存在しない場合nullを渡してくる
+                unless room?
+                    console.error "Game.unserialize: room ##{game.id} is not found"
                     return
+                if room.error?
+                    console.error "Game.unserialize: failed to load room ##{game.id}", room.error
+                    return
+                if neverStarted && room.mode != "waiting"
+                    # 開始していないのに部屋だけ"playing"のまま残っている
+                    # （開始処理の途中でサーバーが落ちた等）。
+                    # waitingに戻さないとgameStartもjoinも拒否されて詰む。
+                    console.error "Game.unserialize: room ##{game.id} is '#{room.mode}' but its game has never started; resetting the room to 'waiting'"
+                    M.rooms.update {id:game.id, mode:room.mode},{$set:{mode:"waiting"}}
+                    ss.publish.channel "room#{game.id}","refresh",{id:game.id}
                 game.players=[]
                 supporters=[]
                 for plobj in room.players
@@ -1052,9 +1071,16 @@ class Game
                 # ヘルパーだ
                 ppl=@players.filter((x)->x.id==result[1])[0]
                 unless ppl?
-                    # This is a bug!
-                    res @i18n.t "error.gamestart.helperNotExist", {name: pl.name}
-                    return
+                    # ヘルパーの対象はプレイヤーでなければならない。
+                    # GMや他のヘルパーを対象にしたヘルパーは@playersに
+                    # 見つからない（room.playersのmodeがhelper_*のまま
+                    # 残っている等）。以前はここで配役処理全体を中断して
+                    # いたが、呼び出し側(role requesting経由)がエラーを
+                    # 握り潰すため対局が進まず、部屋がplayingのまま
+                    # 残ってしまっていた。対象が居ないヘルパーは諦めて
+                    # ゲームを続行する。
+                    console.error "Game.setplayers: game ##{@id} helper '#{pl.name}' has no target player (id=#{result[1]}); ignoring"
+                    continue
                 helper=Player.factory "Helper", this
                 helper.setProfile {
                     id:pl.realid
@@ -1622,6 +1648,9 @@ class Game
                     unless result?
                         @nextturn()
                         @ss.publish.channel "room#{@id}","refresh",{id:@id}
+                    else
+                        # 配役に失敗した
+                        @abortStart result
                 true
             else
                 false
@@ -1655,6 +1684,20 @@ class Game
             true
         else
             false
+
+    # 開始処理に失敗したときに部屋を開始前に戻す。
+    # room.modeだけ"playing"に進んでしまうと、gameStartは
+    # 「すでに開始している」を返し、二度と開始できなくなる。
+    abortStart:(error)->
+        console.error "Game.abortStart: game ##{@id} failed to start:", error
+        @phase = Phase.preparing
+        # まだ開始していないので部屋をwaitingに戻す（"end"は上書きしない）
+        M.rooms.update {id:@id, mode:"playing"},{$set:{mode:"waiting"}}
+        log=
+            mode:"system"
+            comment: String error
+        splashlog @id, this, log
+        @ss.publish.channel "room#{@id}","refresh",{id:@id}
 
     #夜の能力を処理する
     midnight:->
@@ -14319,6 +14362,10 @@ module.exports.actions=(req,res,ss)->
             res i18n.t "error.common.noSuchGame"
             return
         Server.game.rooms.oneRoomS roomid,(room)->
+            # oneRoomSは部屋が存在しない場合nullを渡してくる
+            unless room?
+                res i18n.t "rooms:error.noSuchRoom"
+                return
             if room.error?
                 res room.error
                 return
@@ -15564,7 +15611,13 @@ module.exports.actions=(req,res,ss)->
             if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼","特殊ルール.エンドレス闇鍋"])
                 # 希望役職制あり
                 # とりあえず入れなくする
-                M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                # This write is fire-and-forget (the room is updated without
+                # waiting for an acknowledgement). When the game ends right
+                # after it starts, the "end" write can reach the DB before
+                # this one and would then be overwritten, leaving the room
+                # stuck as "playing". Restrict it to rooms that are still
+                # waiting so it can never overwrite a finished room.
+                M.rooms.update {id:roomid, mode:"waiting"},{$set:{mode:"playing"}}
                 # 役職選択中
                 game.phase = Phase.rolerequesting
                 game.rolerequesttable={}
@@ -15579,7 +15632,11 @@ module.exports.actions=(req,res,ss)->
                 game.setplayers (result)->
                     unless result?
                         # プレイヤー初期化に成功
-                        M.rooms.update {id:roomid},{
+                        # Same as the role-requesting branch above: only start
+                        # a room that is still waiting. Otherwise a game that
+                        # finishes immediately could be overwritten and leave
+                        # mode stuck at "playing".
+                        M.rooms.update {id:roomid, mode:"waiting"},{
                             $set:{
                                 mode:"playing",
                                 jobrule:query.jobrule
@@ -15787,7 +15844,7 @@ module.exports.actions=(req,res,ss)->
         else
             # ルーム情報から探す
             Server.game.rooms.oneRoomS roomid,(room)=>
-                pl=room.players.filter((x)=>x.realid==req.session.userId)[0]
+                pl=room?.players?.filter((x)=>x.realid==req.session.userId)[0]
                 if pl?
                     log.name=pl.name
                 else
