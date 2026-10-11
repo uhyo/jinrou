@@ -222,6 +222,7 @@ jobname:
   Waiting: '待機中'
   Watching: '観戦者'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Name of categories.
 categoryName:
   Human: '村人系'
@@ -257,6 +258,7 @@ fortune:
   pumpkin: 'かぼちゃ'
   oni: '鬼'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Psychic result.
 psychic:
   human: '村人'
@@ -267,6 +269,7 @@ psychic:
   # delimiter of multiple result in chemical.
   _delimiter: '×'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Diviner
 Diviner:
   # Divine result
