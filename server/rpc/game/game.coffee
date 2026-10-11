@@ -8368,6 +8368,74 @@ class Pyrotechnist extends Player
             []
         else super
 
+# 魔法少女
+class MagicalGirl extends Player
+    type:"MagicalGirl"
+    formType: FormType.optionalOnce
+    sleeping:->true
+    constructor:->
+        super
+        @setFlag {
+            used: false
+            day: null
+            kit: null
+        }
+    jobdone:(game)->
+        @flag?.used || !Phase.isDay(game.phase)
+    chooseJobDay:(game)->true
+    makeJobSelection:(game, isvote)->
+        unless isvote
+            return [
+                {
+                    name: game.i18n.t "roles:MagicalGirl.kit.Diviner"
+                    value: "Diviner"
+                }
+                {
+                    name: game.i18n.t "roles:MagicalGirl.kit.Psychic"
+                    value: "Psychic"
+                }
+                {
+                    name: game.i18n.t "roles:MagicalGirl.kit.Guard"
+                    value: "Guard"
+                }
+            ]
+        else
+            super
+    job:(game, playerid)->
+        if @flag?.used
+            return game.i18n.t "error.common.alreadyUsed"
+        unless Phase.isDay(game.phase)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        unless playerid in ["Diviner","Psychic","Guard"]
+            return game.i18n.t "error.common.invalidSelection"
+
+        @setFlag {
+            used: true
+            day: game.day
+            kit: playerid
+        }
+        top = game.getPlayer @id
+        unless top?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        # 当晚附加一次性套装
+        sub = Player.factory playerid, game
+        top.transProfile sub
+        newpl = Player.factory null, game, top, sub, MagicalGirlKit
+        top.transProfile newpl
+        top.transform game, newpl, true
+
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:MagicalGirl.select", {
+                name: @name
+                kit: game.i18n.t("roles:MagicalGirl.kit.#{playerid}")
+            }
+        splashlog game.id,game,log
+        game.splashjobinfo [newpl]
+        null
+
 # パン屋
 class Baker extends Player
     type:"Baker"
@@ -14054,6 +14122,19 @@ class WatchingFireworks extends Complex
             return []
         else
             return super
+
+# 魔法少女的一次性套装（仅当晚生效）
+class MagicalGirlKit extends Complex
+    cmplType:"MagicalGirlKit"
+    sunrise:(game)->
+        @mcall game,@main.sunrise,game
+        @sub?.sunrise? game
+        @uncomplex game
+    deadsunrise:(game)->
+        @mcall game,@main.deadsunrise,game
+        @sub?.deadsunrise? game
+        @uncomplex game
+
 # 爆弾魔に爆弾を仕掛けられた人
 class HeroAwakened extends Complex
     cmplType:"HeroAwakened"
@@ -15111,6 +15192,7 @@ jobs=
     DrawGirl:DrawGirl
     CautiousWolf:CautiousWolf
     Pyrotechnist:Pyrotechnist
+    MagicalGirl:MagicalGirl
     Baker:Baker
     Bomber:Bomber
     Blasphemy:Blasphemy
@@ -15248,6 +15330,7 @@ complexes=
     PhantomStolen:PhantomStolen
     KeepedLover:KeepedLover
     WatchingFireworks:WatchingFireworks
+    MagicalGirlKit:MagicalGirlKit
     BombTrapped:BombTrapped
     FoxMinion:FoxMinion
     DivineCursed:DivineCursed
@@ -15390,6 +15473,7 @@ jobStrength=
     DrawGirl:10
     CautiousWolf:45
     Pyrotechnist:20
+    MagicalGirl:20
     Baker:16
     Bomber:23
     Blasphemy:10

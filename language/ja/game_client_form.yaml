@@ -167,6 +167,7 @@ messages:
   SuperFox: '呪う対象を選択してください'
   LastStandWolf: '最後の1匹になったとき、必死の襲撃を行う場合に対象を選択してください'
   FoxMatchmaker: '恋人にする2人を順番に選択してください'
+  MagicalGirl: '今夜獲得するセット能力を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'
@@ -247,3 +248,10 @@ SuperGuard:
   GuardButton: '護衛'
   SuperGuardUsedButton: 'SP護衛（一度だけ）'
   SuperGuardUsedButtonUsed: 'SP護衛（使用済み）'
+
+MagicalGirl:
+  kit:
+    Diviner: '占いセット'
+    Psychic: '霊能セット'
+    Guard: '狩人セット'
+  description: '今夜獲得するセット能力を選択してください'
