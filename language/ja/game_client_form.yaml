@@ -142,6 +142,7 @@ messages:
   GameMaster: 'GM用コマンド'
 
   MadDictator: '議論を打ち切り、処刑対象を指定します'
+  SuperWerewolf: 'SP能力を発動して、今宵はもう1人襲撃する場合に選択します'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

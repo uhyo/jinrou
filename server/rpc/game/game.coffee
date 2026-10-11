@@ -1822,7 +1822,7 @@ class Game
                         break
         @werewolf_flag=@werewolf_flag.filter (fl)->
             # こいつらは1夜限り
-            return !(/^(?:GreedyWolf|ToughWolf)_/.test fl)
+            return !(/^(?:GreedyWolf|ToughWolf|SuperWerewolf)_/.test fl)
     # ドラキュラの攻撃を処理する
     midnightDraculaAttack:->
         if @day == 1
@@ -6509,6 +6509,32 @@ class GreedyWolf extends Werewolf
             # なしでOK!
             return true
         return super
+class SuperWerewolf extends Werewolf
+    type:"SuperWerewolf"
+    canUseSuperWerewolf:(game)-> game.day >= 2
+    sleeping:(game)->game.werewolf_target_remain<=0
+    jobdone:(game)->game.werewolf_target_remain<=0 && (@flag || !@canUseSuperWerewolf(game))
+    job:(game,playerid,query)->
+        return super if query.jobtype!="SuperWerewolf"
+        return game.i18n.t "error.common.alreadyUsed" if @flag
+        return game.i18n.t "error.common.cannotUseSkillNow" unless @canUseSuperWerewolf(game)
+        return game.i18n.t "error.common.cannotUseSkillNow" if game.werewolf_target_remain+game.werewolf_target.length==0
+        @setFlag true
+        splashlog game.id,game,{mode:"wolfskill",comment:game.i18n.t "roles:SuperWerewolf.select", {name: @name}}
+        game.werewolf_target_remain++
+        game.werewolf_flag.push "SuperWerewolf_#{@id}"
+        game.splashjobinfo game.players.filter (x)=>x.id!=@id && x.isWerewolf()
+        null
+    getOpenForms:(game)->
+        res = super
+        if Phase.isNight(game.phase) && !@flag && @canUseSuperWerewolf(game)
+            res.push {type:"SuperWerewolf",options:[],formType:FormType.optionalOnce,objid:@objid}
+        res
+    makeJobSelection:(game,isvote)->
+        if !isvote && @sleeping(game) && !@jobdone(game) then [] else super
+    checkJobValidity:(game,query)->
+        return true if query.jobtype=="SuperWerewolf"
+        super
 class FascinatingWolf extends Werewolf
     type:"FascinatingWolf"
     sleeping:(game)->super && @flag?
@@ -14038,6 +14064,7 @@ jobs=
     Counselor:Counselor
     Miko:Miko
     GreedyWolf:GreedyWolf
+    SuperWerewolf:SuperWerewolf
     FascinatingWolf:FascinatingWolf
     SolitudeWolf:SolitudeWolf
     ToughWolf:ToughWolf
@@ -14299,6 +14326,7 @@ jobStrength=
     Counselor:25
     Miko:14
     GreedyWolf:60
+    SuperWerewolf:60
     FascinatingWolf:52
     SolitudeWolf:20
     ToughWolf:55

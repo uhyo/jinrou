@@ -197,6 +197,7 @@ jobname:
 
   WerewolfDescendant: '人狼の末裔'
   MadDictator: '悪裁者'
+  SuperWerewolf: 'SP人狼'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1228,3 +1229,6 @@ WerewolfDescendant:
 MadDictator:
   select: '悪裁者{{name}}は{{target}}の処刑を宣言しました。'
   sunset: '悪裁者{{name}}の宣言により、日が暮れました。'
+
+SuperWerewolf:
+  select: '人狼{{name}}がSP能力を発動しました。人狼たちは今宵、もう1人襲撃できます。'
