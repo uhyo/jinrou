@@ -15013,6 +15013,20 @@ class HouseKeeped extends Complex
         @sub?.sunrise? game
         @uncomplex game
 
+# 霊能者の念殺護りの複合クラス - 念殺攻撃のみを防ぐ
+class GuardedByPsychic extends Complex
+    cmplType: "GuardedByPsychic"
+    checkDeathResistance:(game, found, from)->
+        guard = game.getPlayer @cmplFlag
+        unless found == "nekikill"
+            return super
+        guard.addGamelog game, "curseGuard", null, @id
+        true
+    sunrise:(game)->
+        @mcall game, @main.sunrise, game
+        @sub?.sunrise? game
+        @uncomplex game
+
 
 # 決定者
 class Decider extends Complex
