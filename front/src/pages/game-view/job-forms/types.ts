@@ -17,6 +17,8 @@ export const specialNamedTypes = [
   'GachaAddicted_Normal',
   'GachaAddicted_Premium',
   'GachaAddicted_Commit',
+  'NormalDiviner',
+  'SuperDiviner',
   // forms for quantum players.
   '_Quantum_Diviner',
   '_Quantum_Werewolf',
@@ -37,4 +39,6 @@ export const specialContentTypes = [
   'GachaAddicted_Normal',
   'GachaAddicted_Premium',
   'GachaAddicted_Commit',
+  'NormalDiviner',
+  'SuperDiviner',
 ];

@@ -39,6 +39,8 @@ export interface FormOption {
  * Specially-defined form data.
  */
 interface SpecialFormData {
+  NormalDiviner: { SuperDivinerUsed: boolean };
+  SuperDiviner: { SuperDivinerUsed: boolean };
   // 人狼の襲撃
   _Werewolf: {
     /**

@@ -26,6 +26,8 @@ specialName:
   _Quantum_Diviner: '占い師の能力'
   _Quantum_Werewolf: '人狼の襲撃'
 
+  SuperDiviner: 'SP占い師の能力'
+  NormalDiviner: 'SP占い師の能力'
 # Message for normal selection form.  normalMessage:
 messages:
   _day: '処刑したい人に投票してください'
@@ -143,6 +145,7 @@ messages:
 
   MadDictator: '議論を打ち切り、処刑対象を指定します'
   SuperWerewolf: 'SP能力を発動して、今宵はもう1人襲撃する場合に選択します'
+  SuperDiviner: 'SP占いの対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'
@@ -205,3 +208,12 @@ GachaAddicted:
   premiumButton: 'プレミアムガチャを引く'
   descriptionCommit: '役職【{{jobname}}】を所持しています'
   commitButton: '{{jobname}}に変化する'
+
+SuperDiviner:
+  # フォームの説明
+  description: '占いの対象を選択してください'
+  Superdescription: 'SP占いの対象を選択してください'
+  # ボタンのラベル
+  DivinerButton: '占う'
+  SuperDivinerUsedButton: 'SP占い（一度だけ）'
+  SuperDivinerUsedButtonUsed: 'SP占い（使用済み）'

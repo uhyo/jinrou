@@ -1,5 +1,4 @@
 # Terms for each role.
-
 # Name of all jobs.
 jobname:
   Human: '村人'
@@ -198,6 +197,7 @@ jobname:
   WerewolfDescendant: '人狼の末裔'
   MadDictator: '悪裁者'
   SuperWerewolf: 'SP人狼'
+  SuperDiviner: 'SP占い師'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1232,3 +1232,15 @@ MadDictator:
 
 SuperWerewolf:
   select: '人狼{{name}}がSP能力を発動しました。人狼たちは今宵、もう1人襲撃できます。'
+
+SuperDiviner:
+  # 占い結果
+  result:
+    human: '人間'
+  # 今日の占い対象は自動で選ばれる
+  auto: '{{name}}は今日、ランダムに1人を占います。'
+  # 占い対象を選択した
+  select: '{{name}}は{{target}}を占いました。'
+  SuperSelect: '{{name}}は{{target}}を追加で占いました。'
+  # 占い結果
+  resultlog: '{{name}}は{{target}}を占いました。{{target}}は{{result}}でした。'

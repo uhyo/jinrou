@@ -2,7 +2,6 @@
 Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
-
 libarray     = require '../../libs/array.coffee'
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
@@ -12,7 +11,6 @@ libgame      = require '../../libs/game.coffee'
 libcasting   = require '../../libs/casting.coffee'
 libtime      = require '../../libs/time.coffee'
 libspeak     = require '../../libs/speak.coffee'
-
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
@@ -3988,6 +3986,192 @@ class Diviner extends Player
             to:@id
             comment:r.result
         splashlog game.id,game,log
+class SuperDiviner extends Diviner
+    type:"SuperDiviner"
+    midnightSort:80
+    sleeping:->@flag[0].NormalDivinerTarget? || @scapegoat
+    jobdone:->@flag[0].NormalDivinerTarget? && @flag[0].SuperDivinerUsed
+    constructor:->
+        super
+        @setFlag [{
+            # type of action this night
+            type: null
+            # day on which this action is taken.
+            day: 0
+            # whether extra divination is already used.
+            SuperDivinerUsed: false
+            # normal divination target
+            NormalDivinerTarget: null
+            # extra divination target
+            SuperDivinerTarget: null
+            # divination results array
+            results: []
+        }]
+    job:(game,playerid,query)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        type = query.commandname
+        unless type in ["SuperDiviner", "NormalDiviner"]
+            return game.i18n.t "error.common.invalidQuery"
+
+        # cannot use extra divination more than once
+        if @flag[0].SuperDivinerUsed && type == "SuperDiviner"
+            return game.i18n.t "error.common.alreadyUsed"
+
+        # Set target based on type
+        if type == "NormalDiviner"
+            @flag[0].NormalDivinerTarget = playerid
+        else if type == "SuperDiviner"
+            @flag[0].SuperDivinerUsed = true
+            @flag[0].SuperDivinerTarget = playerid
+
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: if type == "NormalDiviner"
+                game.i18n.t "roles:Diviner.select", {name: @name, target: pl.name}
+            else
+                game.i18n.t "roles:SuperDiviner.SuperSelect", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            if type == "NormalDiviner"
+                @setTarget @flag[0].NormalDivinerTarget
+                @dodivine game
+                @showdivineresult game, @flag[0].NormalDivinerTarget
+            else
+                savedTarget = @target
+                @setTarget @flag[0].SuperDivinerTarget
+                @dodivine game
+                @showdivineresult game, @flag[0].SuperDivinerTarget
+                @setTarget savedTarget
+        null
+    #占い実行 - Override to use results array in flag[0]
+    dodivine:(game)->
+        target = game.skillTargetHook.get @target
+        origp = game.getPlayer @target
+        p=game.getPlayer target
+        if p? && origp?
+            # show original target's name even if target is forced to another player.
+            @flag[0].results.push {
+                player: origp.publicinfo()
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: origp.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult(game)}"}
+                day: game.day
+            }
+            @addGamelog game,"divine",p.type,@target    # 占った
+    getOpenForms:(game)->
+        if !@dead && Phase.isNight(game.phase)
+            res = []
+            if(!@flag[0].NormalDivinerTarget)
+                # manually generate form.
+                res.push {
+                    type: "NormalDiviner"
+                    options: @makeJobSelection game, false
+                    formType: FormType.required
+                    objid: @objid
+                }
+            if(!@flag[0].SuperDivinerUsed)
+                res.push {
+                    type: "SuperDiviner"
+                    options: @makeJobSelection game, false
+                    formType: FormType.optionalOnce
+                    objid: @objid
+                    data:
+                        SuperDivinerUsed: @flag[0].SuperDivinerUsed
+                }
+            return res
+        else
+            return super
+    isFormTarget:(jobtype)->
+        (jobtype in ["NormalDiviner", "SuperDiviner"]) || super
+    # Override to use results array in flag[0]
+    showdivineresult:(game, target)->
+        results = @flag[0].results
+        return unless results?.length > 0
+        r = results[results.length-1]
+        return unless r?
+        # result of which day to show?
+        resday = (
+            if game.rule.divineresult == "immediate"
+                game.day
+            else
+                game.day - 1)
+        return if r.day != resday
+
+        log=
+            mode:"skill"
+            to:@id
+            comment:r.result
+        splashlog game.id,game,log
+    midnight:(game,midnightSort)->
+        savedTarget = @target
+        unless game.rule.divineresult=="immediate"
+            # 执行普通占卜
+            if @flag[0].NormalDivinerTarget?
+                @setTarget @flag[0].NormalDivinerTarget
+                @dodivine game
+            # 执行额外占卜
+            if @flag[0].SuperDivinerTarget?
+                @setTarget @flag[0].SuperDivinerTarget
+                @dodivine game
+        @setTarget savedTarget
+        @divineeffect game
+
+    sunrise:(game)->
+        # Call parent sunrise for base class behavior, but skip the showdivineresult part
+        Player.prototype.sunrise.call @, game
+        unless game.rule.divineresult=="immediate"
+            resday = game.day - 1
+            # 通常の占い結果と追加の占い結果をそれぞれ表示する（results 配列から読み込む）
+            for r in @flag[0].results
+                continue if r.day != resday
+                log =
+                    mode:"skill"
+                    to:@id
+                    comment:r.result
+                splashlog game.id,game,log
+            # 重置目标
+            @flag[0].NormalDivinerTarget = null
+            @flag[0].SuperDivinerTarget = null
+    sunset:(game)->
+        super
+        # 重置目标
+        @flag[0].NormalDivinerTarget = null
+        @flag[0].SuperDivinerTarget = null
+        # 占い対象
+        targets = game.players.filter (x)->!x.dead
+
+        if (@type == "SuperDiviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
+            # 自動白通知
+            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("SuperFox") && !x.isJobType("FoxMatchmaker")
+            if targets2.length > 0
+                # ランダムに決定
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:game.i18n.t "roles:Diviner.auto", {name: @name}
+                splashlog game.id,game,log
+
+                r=Math.floor Math.random()*targets2.length
+                @job game,targets2[r].id,{
+                    commandname:"NormalDiviner"
+                }
+                return
+    divineeffect:(game)->
+        # 对普通占卜目标执行效果
+        if @flag[0].NormalDivinerTarget?
+            p=game.getPlayer game.skillTargetHook.get @flag[0].NormalDivinerTarget
+            if p?
+                p.divined game,this
+        # 对额外占卜目标执行效果
+        if @flag[0].SuperDivinerTarget?
+            p2=game.getPlayer game.skillTargetHook.get @flag[0].SuperDivinerTarget
+            if p2?
+                p2.divined game,this
+
+
 class Psychic extends Player
     type:"Psychic"
     constructor:->
@@ -13998,6 +14182,7 @@ jobs=
     Human:Human
     Werewolf:Werewolf
     Diviner:Diviner
+    SuperDiviner:SuperDiviner
     Psychic:Psychic
     Madman:Madman
     Guard:Guard
@@ -14260,6 +14445,7 @@ jobStrength=
     Human:5
     Werewolf:40
     Diviner:25
+    SuperDiviner:20
     Psychic:15
     Madman:10
     Guard:23
