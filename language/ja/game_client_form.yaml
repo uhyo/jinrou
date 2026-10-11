@@ -157,6 +157,7 @@ messages:
       description: '念殺する対象を選択してください'
       button: '念殺対象を選択'
   MindPsychic: '念殺の護りをかける対象を選択してください'
+  NineTailedFox: '襲撃する対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'

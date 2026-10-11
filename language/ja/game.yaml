@@ -291,6 +291,7 @@ foundDetail:
   fallback: '不明'
   situation: '{{name}}の死因は{{detail}}でした。'
 
+  nineTailedFox: '九尾の狐の襲撃'
 # Result of Game
 judge:
   human: '村民達の知恵と勇気により村は平穏を取り戻しました。'

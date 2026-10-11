@@ -9,6 +9,7 @@ jobname:
   Guard: '狩人'
   Couple: '共有者'
   Fox: '妖狐'
+  NineTailedFox: '九尾の狐'
   Poisoner: '埋毒者'
   BigWolf: '大狼'
   TinyFox: '子狐'
@@ -1267,3 +1268,5 @@ MindPsychic:
   # 念殺の護りをかけた
   curseGuardSelect: '{{name}}は{{target}}に念殺の護りをかけました。'
 
+NineTailedFox:
+  select: '{{name}}は{{target}}を襲撃しました。'
