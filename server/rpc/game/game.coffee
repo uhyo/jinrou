@@ -4398,6 +4398,134 @@ class OldGuard extends Guard
         }
         return false
 
+class SuperGuard extends Guard
+    type:"SuperGuard"
+    midnightSort:80
+    formType: FormType.optional
+    hasDeadResistance:->true
+    sleeping:->@target? || @scapegoat
+    jobdone:(game)-> @target? && (@target == "" || @flag[0].SuperGuardUsed)
+    constructor:->
+        super
+        @setFlag [{
+            # type of action this night
+            type: null
+            # day on which this action is taken.
+            day: 0
+            # whether kill is already used.
+            SuperGuardUsed: false
+            SuperGuardTarget: null
+            lastGuard: null
+        }]
+    sunset:(game)->
+        @setTarget null
+        @flag[0].SuperGuardTarget = null
+
+        if game.day==1 && game.rule.scapegoat != "off"
+            @setTarget ""
+            return
+
+        if @makeJobSelection(game, false).length == 0
+            @setTarget ""
+            return
+    job:(game, playerid, query)->
+        type = query.commandname
+        unless type in ["SuperGuard", "NormalGuard"]
+            return game.i18n.t "error.common.invalidQuery"
+
+        if @flag[0].SuperGuardUsed && type == "SuperGuard"
+            return game.i18n.t "error.common.alreadyUsed"
+
+        pl = game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        if pl.id == @id
+            return game.i18n.t "error.common.noSelectSelf"
+        if pl.dead
+            return game.i18n.t "error.common.alreadyDead"
+        if game.rule.consecutiveguard=="no" && playerid==@flag[0].lastGuard
+            return game.i18n.t "roles:Guard.noGuardSame"
+
+        if type == "SuperGuard"
+            @flag[0].SuperGuardUsed = true
+            @flag[0].SuperGuardTarget = playerid
+        else
+            @setTarget playerid
+            @flag[0].lastGuard = playerid
+
+        # touch targeted player.
+        pl.touched game, @id
+        # show selection log.
+        log=
+            mode:"skill"
+            to:@id
+            comment: if type == "NormalGuard"
+                game.i18n.t "roles:Guard.select", {name: @name, target: pl.name}
+            else
+                game.i18n.t "roles:SuperGuard.SuperSelect", {name: @name, target: pl.name}
+
+        splashlog game.id,game,log
+        null
+    midnight:(game)->
+        if @target? && @target != ""
+            pl = game.getPlayer game.skillTargetHook.get @target
+            if pl?
+                pl.whenguarded game,this
+                newpl=Player.factory null, game, pl,null,Guarded
+                pl.transProfile newpl
+                newpl.cmplFlag=@id
+                pl.transform game,newpl,true
+                newpl.touched game,@id
+
+        if @flag[0].SuperGuardTarget != null
+            superpl = game.getPlayer game.skillTargetHook.get @flag[0].SuperGuardTarget
+            unless superpl?
+                return
+            superpl.whenguarded game, this
+            newpl = Player.factory null, game, superpl, null, Guarded
+            superpl.transProfile newpl
+            newpl.cmplFlag = @id
+            superpl.transform game, newpl, true
+            newpl.touched game, @id
+            @flag[0].SuperGuardTarget = null
+        null
+
+    getOpenForms:(game)->
+            if !@dead && Phase.isNight(game.phase)
+                return [] if @target == ""
+                res = []
+                unless @target?
+                    # manually generate form.
+                    res.push {
+                        type: "NormalGuard"
+                        options: @makeJobSelection game, false
+                        formType: FormType.required
+                        objid: @objid
+                    }
+                if(!@flag[0].SuperGuardUsed)
+                    res.push {
+                        type: "SuperGuard"
+                        options: @makeJobSelection game, false
+                        formType: FormType.optionalOnce
+                        objid: @objid
+                        # give data of whether kill is already used.
+                        data:
+                            SuperGuardUsed: @flag[0].SuperGuardUsed
+                    }
+                return res
+            else
+                return super
+    isFormTarget:(jobtype)->
+        (jobtype in ["NormalGuard", "SuperGuard"]) || super
+    makeJobSelection:(game, isvote)->
+        res = Player.prototype.makeJobSelection.call this, game, isvote
+        return res if isvote
+        res.filter (obj)=>
+            return false if obj.value == @id
+            return false if game.rule.consecutiveguard=="no" && obj.value == @flag[0].lastGuard
+            true
+
+
 class Couple extends Player
     type:"Couple"
     makejobinfo:(game,result)->
@@ -14543,6 +14671,7 @@ jobs=
     MindPsychic:MindPsychic
     Madman:Madman
     Guard:Guard
+    SuperGuard:SuperGuard
     Couple:Couple
     Fox:Fox
     NineTailedFox:NineTailedFox
@@ -14814,6 +14943,7 @@ jobStrength=
     Madman:10
     Guard:23
     OldGuard:18
+    SuperGuard:20
     Couple:10
     Fox:25
     NineTailedFox:30

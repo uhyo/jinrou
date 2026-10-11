@@ -21,6 +21,8 @@ export const specialNamedTypes = [
   'NekikillTarget',
   'NormalDiviner',
   'SuperDiviner',
+  'NormalGuard',
+  'SuperGuard',
   // forms for quantum players.
   '_Quantum_Diviner',
   '_Quantum_Werewolf',
@@ -45,4 +47,6 @@ export const specialContentTypes = [
   'NekikillTarget',
   'NormalDiviner',
   'SuperDiviner',
+  'NormalGuard',
+  'SuperGuard',
 ];

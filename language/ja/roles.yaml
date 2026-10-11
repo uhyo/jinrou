@@ -204,6 +204,7 @@ jobname:
   Perfidious: '背信者'
   Heretic: '異端者'
   MindPsychic: '念縛霊能者'
+  SuperGuard: 'SP狩人'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1270,3 +1271,12 @@ MindPsychic:
 
 NineTailedFox:
   select: '{{name}}は{{target}}を襲撃しました。'
+
+SuperGuard:
+  # 同じ人を2夜連続で護衛することはできない
+  noGuardSame: '同じ人を2夜連続で護衛することはできません。'
+  # 護衛対象を選択した
+  select: '{{name}}は{{target}}を護衛しました。'
+  SuperSelect: '{{name}}は{{target}}を追加で護衛しました。'
+  # GJ のログ
+  gj: '{{guard}}は{{name}}の護衛に成功しました。'

@@ -30,6 +30,8 @@ specialName:
   NormalDiviner: 'SP占い師の能力'
   HimeFox: '姫狐の能力'
   NekikillTarget: '姫狐の能力'
+  SuperGuard: 'SP狩人の能力'
+  NormalGuard: 'SP狩人の能力'
 # Message for normal selection form.  normalMessage:
 messages:
   _day: '処刑したい人に投票してください'
@@ -158,6 +160,7 @@ messages:
       button: '念殺対象を選択'
   MindPsychic: '念殺の護りをかける対象を選択してください'
   NineTailedFox: '襲撃する対象を選択してください'
+  SuperGuard: 'SP護衛の対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'
@@ -229,3 +232,12 @@ SuperDiviner:
   DivinerButton: '占う'
   SuperDivinerUsedButton: 'SP占い（一度だけ）'
   SuperDivinerUsedButtonUsed: 'SP占い（使用済み）'
+
+SuperGuard:
+  # フォームの説明
+  description: '護衛の対象を選択してください'
+  Superdescription: 'SP護衛の対象を選択してください'
+  # ボタンのラベル
+  GuardButton: '護衛'
+  SuperGuardUsedButton: 'SP護衛（一度だけ）'
+  SuperGuardUsedButtonUsed: 'SP護衛（使用済み）'

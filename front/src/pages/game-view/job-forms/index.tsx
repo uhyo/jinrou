@@ -22,6 +22,7 @@ import { useI18n } from '../../../i18n/react';
 import { makeDragonKnightForm } from './dragonKnight';
 import { makePoet1Form, makePoet2Form } from './poet';
 import { makeNormalDivinerForm, makeSuperDivinerForm } from './superdiviner';
+import { makeNormalGuardForm, makeSuperGuardForm } from './superguard';
 import {
   makeGachaAddictedNormalForm,
   makeGachaAddictedPremiumForm,
@@ -210,6 +211,18 @@ function makeSpecialContent(props: FormContentProps): Partial<FormContent> {
     case 'SuperDiviner': {
       ({ content: otherContents, buttons } = makeSuperDivinerForm(
         props as FormContentProps<'SuperDiviner'>,
+      ));
+      break;
+    }
+    case 'NormalGuard': {
+      ({ content: otherContents, buttons } = makeNormalGuardForm(
+        props as FormContentProps<'NormalGuard'>,
+      ));
+      break;
+    }
+    case 'SuperGuard': {
+      ({ content: otherContents, buttons } = makeSuperGuardForm(
+        props as FormContentProps<'SuperGuard'>,
       ));
       break;
     }
