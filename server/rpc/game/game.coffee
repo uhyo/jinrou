@@ -4187,6 +4187,92 @@ class SuperDiviner extends Diviner
                 p2.divined game,this
 
 
+
+class MumouDiviner extends Player
+    type:"MumouDiviner"
+    midnightSort: 100
+    formType: FormType.required
+    constructor:->
+        super
+        @setFlag []
+    sunset:(game)->
+        super
+        @setTarget null
+        targets = game.players.filter (x)->!x.dead
+
+        if @type == "MumouDiviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
+            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress")
+            if targets2.length > 0
+                log=
+                    mode:"skill"
+                    to:@id
+                    comment:game.i18n.t "roles:Diviner.auto", {name: @name}
+                splashlog game.id,game,log
+
+                r=Math.floor Math.random()*targets2.length
+                @job game,targets2[r].id,{}
+                return
+    sleeping:->@target?
+    job:(game,playerid)->
+        pl=game.getPlayer playerid
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+
+        @setTarget playerid
+        pl.touched game,@id
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:Diviner.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        if game.rule.divineresult=="immediate"
+            @dodivine game
+            @showdivineresult game, @target
+        null
+    sunrise:(game)->
+        super
+        unless game.rule.divineresult=="immediate"
+            @showdivineresult game, @target
+
+    midnight:(game,midnightSort)->
+        unless game.rule.divineresult=="immediate"
+            @dodivine game
+        @divineeffect game
+        newpl = Player.factory null, game, @, null, NoGuarded
+        @transProfile newpl
+        newpl.cmplFlag = @id
+        @transform game, newpl, true
+    divineeffect:(game)->
+        p=game.getPlayer game.skillTargetHook.get @target
+        if p?
+            p.divined game,this
+    dodivine:(game)->
+        target = game.skillTargetHook.get @target
+        origp = game.getPlayer @target
+        p=game.getPlayer target
+        if p? && origp?
+            @setFlag @flag.concat {
+                player: origp.publicinfo()
+                result: game.i18n.t "roles:Diviner.resultlog", {name: @name, target: origp.name, result: game.i18n.t "roles:fortune.#{p.getFortuneResult(game)}"}
+                day: game.day
+            }
+            @addGamelog game,"divine",p.type,@target
+    showdivineresult:(game, target)->
+        r=@flag[@flag.length-1]
+        return unless r?
+        resday = (
+            if game.rule.divineresult == "immediate"
+                game.day
+            else
+                game.day - 1)
+        return if r.day != resday
+
+        log=
+            mode:"skill"
+            to:@id
+            comment:r.result
+        splashlog game.id,game,log
+
 class Psychic extends Player
     type:"Psychic"
     constructor:->
@@ -14674,6 +14760,7 @@ jobs=
     Werewolf:Werewolf
     Diviner:Diviner
     SuperDiviner:SuperDiviner
+    MumouDiviner:MumouDiviner
     Psychic:Psychic
     MindPsychic:MindPsychic
     Madman:Madman
