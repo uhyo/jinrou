@@ -3378,7 +3378,8 @@ class Player
     isWerewolfVisible:->@isWerewolf()
     # 妖狐の仲間としてみえるか
     isFoxVisible:->false
-    # 背德以外背德系仲間としてみえるか
+    # 「背信者」として表示されるか。
+    # 背信者と異端者は区別されず、どちらも同じ「背信者」として表示する（意図した挙動）。
     isPerfidiousVisible:->false
     # 恋人かどうか
     isFriend:->false
@@ -17590,6 +17591,8 @@ writeGlobalJobInfo = (game, player, result={})->
         if vq.spaceWerewolfImposters
             result.spaceWerewolfImposters = game.players.filter((x)->x.isJobType "SpaceWerewolfImposter").map (x)->
                 x.publicinfo()
+        # 背信者リストには背信者と異端者の両方が入る。
+        # 表示ラベルは常に「同伴の背信者」（game_client:jobinfo.peers.perfidious）で統一する（意図した挙動）。
         if vq.perfidious
             result.perfidious = game.players.filter((x)->x.isPerfidiousVisible()).map (x)->
                 x.publicinfo()

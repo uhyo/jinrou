@@ -81,7 +81,6 @@ jobinfo:
   detail: '{{job}}の詳細'
   # Info of peers.
   peers:
-    perfidious: '仲間の背信者は{{names}}'
     wolves: '仲間の人狼は{{names}}です'
     peers: '仲間の共有者は{{names}}です'
     madpeers: '仲間の叫迷狂人は{{names}}です'
@@ -114,6 +113,9 @@ jobinfo:
     spaceWerewolfImposters: '仲間の詐欺師は{{names}}です'
 
     princesses: '姫は{{names}}です'
+    # 背信者と異端者は区別せず、どちらも「背信者」として表示する（意図した挙動）。
+    # 表示ラベルは常に「仲間の背信者」で統一される。
+    perfidious: '仲間の背信者は{{names}}'
 # game-view: speak form.
 speak:
   say: '発言'
