@@ -11765,6 +11765,31 @@ class RainyBoy extends Madman
             []
         else super
 
+class WerewolfDescendant extends Madman
+    type: "WerewolfDescendant"
+    getVisibilityQuery:(game)->
+        res = super
+        if game?.rule && game.rule.werewolfdescendant_knows_wolves == "on"
+            res.wolves = true
+        res
+    beforebury:(game, type)->
+        return false if @dead
+        wolves = game.players.filter (pl)-> pl.isWerewolf()
+        unless wolves.every((pl)-> pl.dead)
+            return false
+        newpl = Player.factory "Werewolf", game
+        @transProfile newpl
+        @transferData newpl, true
+        log =
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:WerewolfDescendant.transform", {name: @name}
+        splashlog game.id, game, log
+        @transform game, newpl, false
+        newpl.sunset game
+        game.splashjobinfo [newpl]
+        false
+
 class DarkPsychic extends Psychic
     type: "DarkPsychic"
     hasDeadlyWeapon:-> true
@@ -14121,6 +14146,7 @@ jobs=
     ResidualHaunting:ResidualHaunting
     HouseKeeper: HouseKeeper
     RainyBoy:RainyBoy
+    WerewolfDescendant:WerewolfDescendant
     DarkPsychic:DarkPsychic
     Itako:Itako
     SpaceWerewolfCrew:SpaceWerewolfCrew
@@ -14376,6 +14402,7 @@ jobStrength=
     ResidualHaunting:10
     HouseKeeper: 15
     RainyBoy: 10
+    WerewolfDescendant: 10
     DarkPsychic: 8
     Itako: 15
 
@@ -15612,6 +15639,7 @@ module.exports.actions=(req,res,ss)->
             "hunter_lastattack",
             "poisonwolf",
             "friendssplit",
+            "werewolfdescendant_knows_wolves",
             "quantumwerewolf_table","quantumwerewolf_dead","quantumwerewolf_diviner","quantumwerewolf_firstattack","yaminabe_hidejobs","yaminabe_safety",
             "hide_singleton_teams"
             ]

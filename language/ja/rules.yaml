@@ -326,6 +326,11 @@ rule:
     yes: "あり"
     no: "なし"
 
+  werewolfdescendant_knows_wolves:
+    name: "人狼の末裔が人狼を知ることができる"
+    label: "「あり」にすると、人狼の末裔は狂信者と同じように、人狼が誰かを知ることができます。"
+    yes: "あり"
+    no: "なし"
 # texts related to rule groups.
 ruleGroup:
   yaminabe_option:

@@ -195,6 +195,7 @@ jobname:
   DarkPsychic: '闇の霊媒師'
   Itako: 'イタコ'
 
+  WerewolfDescendant: '人狼の末裔'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1219,3 +1220,6 @@ Authority:
 
 Chemical:
   jobname: '{{left}}×{{right}}'
+
+WerewolfDescendant:
+  transform: '{{name}}は人狼の末裔として覚醒し、人狼に変化しました。'
