@@ -4333,6 +4333,13 @@ class Guard extends Player
         newpl.touched game,@id
         null
 
+class Paladin extends Guard
+    type:"Paladin"
+    midnightSort: 70
+    divined:(game,player)->
+        super
+        @die game,"curse", player.id
+        player.addGamelog game,"cursekill",null,@id
 class OldGuard extends Guard
     type:"OldGuard"
     midnightSort:79
@@ -14671,6 +14678,7 @@ jobs=
     MindPsychic:MindPsychic
     Madman:Madman
     Guard:Guard
+    Paladin:Paladin
     SuperGuard:SuperGuard
     Couple:Couple
     Fox:Fox
@@ -14942,6 +14950,7 @@ jobStrength=
     MindPsychic:15
     Madman:10
     Guard:23
+    Paladin:20
     OldGuard:18
     SuperGuard:20
     Couple:10

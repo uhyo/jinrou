@@ -161,6 +161,7 @@ messages:
   MindPsychic: '念殺の護りをかける対象を選択してください'
   NineTailedFox: '襲撃する対象を選択してください'
   SuperGuard: 'SP護衛の対象を選択してください'
+  Paladin: '護衛する対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'
