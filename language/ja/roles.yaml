@@ -207,6 +207,7 @@ jobname:
   SuperGuard: 'SP狩人'
   Paladin: '聖騎士'
   MumouDiviner: '無謀な占い師'
+  SuperFox: 'SP妖狐'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
@@ -1282,3 +1283,9 @@ SuperGuard:
   SuperSelect: '{{name}}は{{target}}を追加で護衛しました。'
   # GJ のログ
   gj: '{{guard}}は{{name}}の護衛に成功しました。'
+
+SuperFox:
+  # 呪いの対象を選択した
+  select: '{{name}}は{{target}}に呪いをかけました。'
+  # 呪いの影響を受けた
+  affected: '{{name}}は呪いの影響を受け、今夜は能力を発動できません。'

@@ -2,6 +2,7 @@
 Shared=
     game:require '../../../client/code/shared/game.coffee'
     prize:require '../../../client/code/shared/prize.coffee'
+
 libarray     = require '../../libs/array.coffee'
 libblacklist = require '../../libs/blacklist.coffee'
 libuserlogs  = require '../../libs/userlogs.coffee'
@@ -11,6 +12,7 @@ libgame      = require '../../libs/game.coffee'
 libcasting   = require '../../libs/casting.coffee'
 libtime      = require '../../libs/time.coffee'
 libspeak     = require '../../libs/speak.coffee'
+
 cron=require 'cron'
 i18n = libi18n.getWithDefaultNS "game"
 
@@ -4773,6 +4775,80 @@ class TinyFox extends Diviner
             }
             @addGamelog game,"foxdivine",success,p.id
     divineeffect:(game)->
+
+
+class SuperFox extends Fox
+    type:"SuperFox"
+    team:"Fox"
+    midnightSort:100
+    formType: FormType.optionalOnce
+    isFox:->true
+    sleeping:(game)->true
+    chooseJobDay:(game)->true
+    jobdone:(game)->
+        if Phase.isDay(game.phase)
+            @flag?
+        else
+            super
+    sunrise:(game)->
+        super
+        # 一度きりの対象。毎晩同じ威嚇を繰り返し適用しないようにする
+        @setTarget null
+    job:(game,playerid,query)->
+        if @flag
+            return game.i18n.t "error.common.alreadyUsed"
+        unless Phase.isDay(game.phase)
+            return game.i18n.t "error.common.cannotUseSkillNow"
+        if playerid==@id
+            return game.i18n.t "error.common.noSelectSelf"
+        pl=game.getPlayer playerid
+        # pl.touched game,@id
+        unless pl?
+            return game.i18n.t "error.common.nonexistentPlayer"
+        @setTarget playerid
+        @setFlag {
+            target: playerid
+        }
+        log=
+            mode:"skill"
+            to:@id
+            comment: game.i18n.t "roles:SuperFox.select", {name: @name, target: pl.name}
+        splashlog game.id,game,log
+        null
+    sunset:(game)->
+        target = @flag?.target ? @target
+        t=game.getPlayer target
+        unless t?
+            return super
+        if t.dead
+            return super
+
+        # 威嚇して能力無しにする
+        @addGamelog game,"threaten",t.type,target
+        # 複合させる
+
+        log=
+            mode:"skill"
+            to:t.id
+            comment: game.i18n.t "roles:SuperFox.affected", {name: t.name}
+        splashlog game.id,game,log
+
+        newpl=Player.factory null, game, t,null,Threatened  # カウンセリングされた
+        t.transProfile newpl
+        t.transform game,newpl,true
+
+        super
+    getOpenForms:(game)->
+        res = []
+        if Phase.isDay(game.phase) && !@dead && !@flag?
+            #昼の能力選択可能
+            res.push {
+                type: "SuperFox"
+                options: @makeJobSelection game, false
+                formType: FormType.optionalOnce
+                objid: @objid
+            }
+        return res
 
 
 class Bat extends Player
@@ -14771,6 +14847,7 @@ jobs=
     Fox:Fox
     NineTailedFox:NineTailedFox
     HimeFox:HimeFox
+    SuperFox:SuperFox
     Poisoner:Poisoner
     BigWolf:BigWolf
     TinyFox:TinyFox
@@ -15044,6 +15121,7 @@ jobStrength=
     Fox:25
     NineTailedFox:30
     HimeFox:20
+    SuperFox:20
     Poisoner:20
     BigWolf:80
     TinyFox:10
