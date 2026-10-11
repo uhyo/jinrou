@@ -52,7 +52,7 @@ dbinit= (loaded)->
 
         M.blacklist=DB.collection "blacklist"
         b1 = M.blacklist.createIndex("id", {unique: true})
-        b2 = M.blacklist.createIndex("userid", {unique: true})
+        b2 = M.blacklist.createIndex("userid")
         b3 = M.blacklist.createIndex("ip")
         b4 = M.blacklist.createIndex("expires")
         b5 = M.blacklist.createIndex("forgiveDate", {expireAfterSeconds: 365*24*60*60})
