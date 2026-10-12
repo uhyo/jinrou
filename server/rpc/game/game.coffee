@@ -2371,7 +2371,7 @@ class Game
     checkWerewolfTarget:->
         if @werewolf_target_remain > 0
             # list up Werewolf-attackable player.
-            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.werewolfattack=="ok")
+            targets = @players.filter (pl)=> !pl.dead && (!pl.isWerewolf() || @rule.wolfattack=="ok")
             if targets.length == 0
                 # no food is remaining!!!
                 @werewolf_target_remain = 0
