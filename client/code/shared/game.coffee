@@ -25,7 +25,7 @@ exports.jobs=["Human","Werewolf","Diviner","Psychic","Madman","Guard","Couple","
 "BloodyMary",
 # うそつき人狼の役職
 "Dictator","SeersMama","Trapper","WolfBoy","King","MadDictator",
-# Twitter人狼的职业
+# Twitter人狼の役職
 "Counselor","Miko","GreedyWolf","FascinatingWolf","SolitudeWolf","ToughWolf","ThreateningWolf",
 # メビウス人狼
 "Assassin",

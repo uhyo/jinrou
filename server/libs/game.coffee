@@ -96,7 +96,7 @@ exports.checkAliveForJudgement = (game, player)->
         return true
     return false
 
-# 量子人狼(特殊规则.量子人狼)の勝敗判定.
+# 量子人狼(特殊ルール.量子人狼)の勝敗判定.
 # quantum_patterns: 生き残っている世界線の一覧.
 #   世界線は { (playerid): {jobtype: String, rank: Number, dead: Boolean} }.
 # players: 判定対象のプレイヤーの一覧(id と dead を見る).

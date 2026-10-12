@@ -272,7 +272,7 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
                     nowprize: result?.nowprize ? []
                 }
         when "/reset"
-            # 找回密码
+            # パスワード再発行
             page "reset",null,Index.reset, null
         when "/rooms"
             # 部屋一覧

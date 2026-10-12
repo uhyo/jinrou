@@ -331,7 +331,7 @@ exports.actions =(req,res,ss)->
         timestamp = Number query.timestamp
         # console.log query
         M.users.findOne {"mail.token":token,"mail.timestamp":timestamp},(err,doc)->
-            # 有效时间：1小时
+            # 有効時間：1時間
             if err?
                 res {error: i18n.t "error.confirmMail.expired"}
                 return

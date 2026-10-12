@@ -1415,7 +1415,7 @@ class Game
                                 mode:"system"
                                 comment: @i18n.t "roles:Pyrotechnist.affect"
                             splashlog @id, this, log
-                # 全员花火の虜にしてしまう
+                # 全員を花火の虜にしてしまう
                 if onfire
                     for pl in @players
                         newpl=Player.factory null, this, pl,null,WatchingFireworks
@@ -2662,7 +2662,7 @@ class Game
                     [@i18n.t("judge.lorelei"), @i18n.t("judge.short.lorelei")]
                 when "Draw"
                     [@i18n.t("judge.draw"),""]
-            # 身代わりくん单独勝利
+            # 身代わりくん単独勝利
             winpl = @players.filter (x)->x.winner
             if(winpl.length==1 && winpl[0].realid=="身代わりくん")
                 resultstring = @i18n.t("judge.scapegoat")
@@ -4018,7 +4018,7 @@ class Diviner extends Player
 
         if (@type == "Diviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -4212,11 +4212,11 @@ class SuperDiviner extends Diviner
     midnight:(game,midnightSort)->
         savedTarget = @target
         unless game.rule.divineresult=="immediate"
-            # 执行普通占卜
+            # 通常の占いを実行
             if @flag[0].NormalDivinerTarget?
                 @setTarget @flag[0].NormalDivinerTarget
                 @dodivine game
-            # 执行额外占卜
+            # 追加の占いを実行
             if @flag[0].SuperDivinerTarget?
                 @setTarget @flag[0].SuperDivinerTarget
                 @dodivine game
@@ -4236,12 +4236,12 @@ class SuperDiviner extends Diviner
                     to:@id
                     comment:r.result
                 splashlog game.id,game,log
-            # 重置目标
+            # 対象をリセット
             @flag[0].NormalDivinerTarget = null
             @flag[0].SuperDivinerTarget = null
     sunset:(game)->
         super
-        # 重置目标
+        # 対象をリセット
         @flag[0].NormalDivinerTarget = null
         @flag[0].SuperDivinerTarget = null
         # 占い対象
@@ -4249,7 +4249,7 @@ class SuperDiviner extends Diviner
 
         if (@type == "SuperDiviner" || @type == "Hitokotonushinokami") && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("SuperFox") && !x.isJobType("FoxMatchmaker")
+            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("SuperFox") && !x.isJobType("FoxMatchmaker")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -4264,12 +4264,12 @@ class SuperDiviner extends Diviner
                 }
                 return
     divineeffect:(game)->
-        # 对普通占卜目标执行效果
+        # 通常の占い対象に効果を適用
         if @flag[0].NormalDivinerTarget?
             p=game.getPlayer game.skillTargetHook.get @flag[0].NormalDivinerTarget
             if p?
                 p.divined game,this
-        # 对额外占卜目标执行效果
+        # 追加の占い対象に効果を適用
         if @flag[0].SuperDivinerTarget?
             p2=game.getPlayer game.skillTargetHook.get @flag[0].SuperDivinerTarget
             if p2?
@@ -4290,7 +4290,7 @@ class MumouDiviner extends Player
         targets = game.players.filter (x)->!x.dead
 
         if @type == "MumouDiviner" && game.day == 1 && game.rule.firstnightdivine == "auto"
-            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress")
+            targets2 = targets.filter (x)=> x.id != @id && [FortuneResult.human, FortuneResult.werewolf].includes(x.getFortuneResult(game)) && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress")
             if targets2.length > 0
                 log=
                     mode:"skill"
@@ -6870,7 +6870,7 @@ class Dictator extends Player
         @setFlag true  # 使用済
         # その場で殺す!!!
         pl.die game, "punish", [@id]
-        # 天黑了
+        # 日が暮れる
         log=
             mode:"system"
             comment: game.i18n.t "roles:#{@type}.sunset", {name: @name}
@@ -8477,7 +8477,7 @@ class MagicalGirl extends Player
         unless top?
             return game.i18n.t "error.common.nonexistentPlayer"
 
-        # 当晚附加一次性套装
+        # その夜だけ有効な使い切りセットを追加
         sub = Player.factory playerid, game
         top.transProfile sub
         newpl = Player.factory null, game, top, sub, MagicalGirlKit
@@ -10387,7 +10387,7 @@ class Satori extends Diviner
 
         if @type == "Satori" && game.day == 1 && game.rule.firstnightdivine == "auto"
             # 自動白通知
-            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "替身君" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
+            targets2 = targets.filter (x)=> x.id != @id && x.getFortuneResult(game) == FortuneResult.human && x.id != "身代わりくん" && !x.isJobType("Fox") && !x.isJobType("NineTailedFox") && !x.isJobType("XianFox") && !x.isJobType("NightRabbit") && !x.isJobType("Trickster") && !x.isJobType("VariationFox") && !x.isJobType("Actress") && !x.isJobType("FoxMatchmaker") && !x.isJobType("BigWolf") && !x.isJobType("Diviner")
             if targets2.length > 0
                 # ランダムに決定
                 log=
@@ -12434,7 +12434,7 @@ class Assassin extends Player
 
 class LandmineGirl extends Madman
     type:"LandmineGirl"
-    # 通常の人狼襲撃（固定優先度 105）の後に結算する。
+    # 通常の人狼襲撃（固定優先度 105）の後に処理する。
     midnightSort:106
     formType: FormType.optionalOnce
     hasDeadlyWeapon:->true
@@ -14269,7 +14269,7 @@ class WatchingFireworks extends Complex
         else
             return super
 
-# 魔法少女的一次性套装（仅当晚生效）
+# 魔法少女の使い切りセット（その夜だけ有効）
 class MagicalGirlKit extends Complex
     cmplType:"MagicalGirlKit"
     sunrise:(game)->
@@ -14434,7 +14434,7 @@ class ShadowBlacked extends Complex
     cmplType:"ShadowBlacked"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 影法師が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
         # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
         # 占いの深夜処理ごと TypeError で落ちていた。
         if shadow? && !shadow.dead
@@ -14446,7 +14446,7 @@ class ShadowBlacked extends Complex
             @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        # 影法師が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
         if !shadow? || shadow.dead
             @uncomplex game
 
@@ -14454,7 +14454,7 @@ class ShadowWhited extends Complex
     cmplType:"ShadowWhited"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 影法師が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
         # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
         # 占いの深夜処理ごと TypeError で落ちていた。
         if shadow? && !shadow.dead
@@ -14466,7 +14466,7 @@ class ShadowWhited extends Complex
             @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        # 影法師が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
         if !shadow? || shadow.dead
             @uncomplex game
 
@@ -15985,7 +15985,7 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "MadWolf"
                     special_exceptions.push "MadWolf"
-                # 公主は女王観战者の安全性チェックを通した後にだけ出す
+                # 姫は女王観戦者の安全性チェックを通した後にだけ出す
                 if safety.jobs
                     exceptions.push "Princess"
                     special_exceptions.push "Princess"
@@ -16404,7 +16404,7 @@ module.exports.actions=(req,res,ss)->
                 ((date)->
                     month=date.getMonth()
                     d=date.getDate()
-                    # 期間機率提升
+                    # 期間限定で確率を上げる
                     if month==11 && 24<=d<=25
                         # 12/24〜12/25はサンタがよくでる
                         if Math.random()<0.4 && frees>0 && !nonavs.SantaClaus
@@ -16736,7 +16736,7 @@ module.exports.actions=(req,res,ss)->
                                     if Math.random() < 0.2
                                         initPrincessForQueen()
                                 when "Princess"
-                                    # safety.jobsでは公主単独のランダム生成はさせない
+                                    # safety.jobsでは姫単独のランダム生成はさせない
                                     continue
                                 when "Spy2"
                                     # スパイIIは2人いるとかわいそうなので入れない
@@ -17592,7 +17592,7 @@ writeGlobalJobInfo = (game, player, result={})->
             result.spaceWerewolfImposters = game.players.filter((x)->x.isJobType "SpaceWerewolfImposter").map (x)->
                 x.publicinfo()
         # 背信者リストには背信者と異端者の両方が入る。
-        # 表示ラベルは常に「同伴の背信者」（game_client:jobinfo.peers.perfidious）で統一する（意図した挙動）。
+        # 表示ラベルは常に「仲間の背信者」（game_client:jobinfo.peers.perfidious）で統一する（意図した挙動）。
         if vq.perfidious
             result.perfidious = game.players.filter((x)->x.isPerfidiousVisible()).map (x)->
                 x.publicinfo()
