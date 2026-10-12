@@ -640,11 +640,14 @@ class Game
                 if room.error?
                     console.error "Game.unserialize: failed to load room ##{game.id}", room.error
                     return
-                if neverStarted && room.mode != "waiting"
-                    # 開始していないのに部屋だけ"playing"のまま残っている
-                    # （開始処理の途中でサーバーが落ちた等）。
-                    # waitingに戻さないとgameStartもjoinも拒否されて詰む。
-                    console.error "Game.unserialize: room ##{game.id} is '#{room.mode}' but its game has never started; resetting the room to 'waiting'"
+                # 開始していないのに部屋だけ"playing"のまま残っている場合
+                # （開始処理の途中でサーバーが落ちた等）だけwaitingに戻す。
+                # waitingに戻さないとgameStartもjoinも拒否されて詰む。
+                # 注意: room.mode == "end"（廃止済み/終了済み）をここで
+                # waitingに戻してはいけない。廃止した部屋が「募集中」として
+                # 部屋一覧（/rooms, /rooms/old）に復活してしまう。
+                if neverStarted && room.mode == "playing"
+                    console.error "Game.unserialize: room ##{game.id} is 'playing' but its game has never started; resetting the room to 'waiting'"
                     M.rooms.update {id:game.id, mode:room.mode},{$set:{mode:"waiting"}}
                     ss.publish.channel "room#{game.id}","refresh",{id:game.id}
                 game.players=[]
