@@ -156,7 +156,15 @@ export class RoomControls extends React.Component<IPropRoomControls, {}> {
           label: t('game_client:room.helperDialog.nohelper'),
           value: '',
         },
-      ].concat(players.map(({ name, id }) => ({ label: name, value: id }))),
+      ].concat(
+        // Only players can be helped: a GM or an existing helper cannot be
+        // a target (the server rejects it, and setplayers cannot resolve it).
+        players
+          .filter(
+            ({ flags }) => !flags.includes('gm') && !flags.includes('helper'),
+          )
+          .map(({ name, id }) => ({ label: name, value: id })),
+      ),
     });
     if (target == null) {
       // cancellation

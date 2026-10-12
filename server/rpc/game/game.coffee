@@ -623,11 +623,30 @@ class Game
         game.werewolf_target=obj.werewolf_target ? []
         game.werewolf_target_remain=obj.werewolf_target_remain ? 0
         game.log_save_mode = obj.log_save_mode ? "v1"
+        # 開始前(day==0)のゲームは、開始に必要な情報(配役・希望役職の一覧)を
+        # DBに保存していないので、ロードし直しても再開できない。
+        # 開始前に戻して、もう一度開始できるようにする。
+        neverStarted = !game.finished && game.day == 0
+        if neverStarted
+            game.phase = Phase.preparing
+            game.rule = null
         # 開始前ならルーム情報からプレイヤーを復元
         if game.day==0
             Server.game.rooms.oneRoomS game.id,(room)->
-                if room.error?
+                # oneRoomSは部屋が存在しない場合nullを渡してくる
+                unless room?
+                    console.error "Game.unserialize: room ##{game.id} is not found"
                     return
+                if room.error?
+                    console.error "Game.unserialize: failed to load room ##{game.id}", room.error
+                    return
+                if neverStarted && room.mode != "waiting"
+                    # 開始していないのに部屋だけ"playing"のまま残っている
+                    # （開始処理の途中でサーバーが落ちた等）。
+                    # waitingに戻さないとgameStartもjoinも拒否されて詰む。
+                    console.error "Game.unserialize: room ##{game.id} is '#{room.mode}' but its game has never started; resetting the room to 'waiting'"
+                    M.rooms.update {id:game.id, mode:room.mode},{$set:{mode:"waiting"}}
+                    ss.publish.channel "room#{game.id}","refresh",{id:game.id}
                 game.players=[]
                 supporters=[]
                 for plobj in room.players
@@ -1052,9 +1071,16 @@ class Game
                 # ヘルパーだ
                 ppl=@players.filter((x)->x.id==result[1])[0]
                 unless ppl?
-                    # This is a bug!
-                    res @i18n.t "error.gamestart.helperNotExist", {name: pl.name}
-                    return
+                    # ヘルパーの対象はプレイヤーでなければならない。
+                    # GMや他のヘルパーを対象にしたヘルパーは@playersに
+                    # 見つからない（room.playersのmodeがhelper_*のまま
+                    # 残っている等）。以前はここで配役処理全体を中断して
+                    # いたが、呼び出し側(role requesting経由)がエラーを
+                    # 握り潰すため対局が進まず、部屋がplayingのまま
+                    # 残ってしまっていた。対象が居ないヘルパーは諦めて
+                    # ゲームを続行する。
+                    console.error "Game.setplayers: game ##{@id} helper '#{pl.name}' has no target player (id=#{result[1]}); ignoring"
+                    continue
                 helper=Player.factory "Helper", this
                 helper.setProfile {
                     id:pl.realid
@@ -1209,15 +1235,93 @@ class Game
 
             @beginturn()
 
+    # 量子人狼: 生き残っている世界線(@quantum_patterns)から各プレイヤーの確率を計算し,
+    # @flag を更新してログ用の確率テーブルを返す.
+    # 世界線は処刑・襲撃などの死亡でも収束するので, 確率を表示・判定に使う前に必ず呼ぶこと.
+    updateQuantumProbability:->
+        probability_table={}
+        numberref_table={}
+        for x in @players
+            count=
+                Human:0
+                Diviner:0
+                Werewolf:0
+                dead:0
+            for obj in @quantum_patterns
+                count[obj[x.id].jobtype]++
+                if obj[x.id].dead==true
+                    count.dead++
+            sum=count.Human+count.Diviner+count.Werewolf
+            pflag=JSON.parse x.flag
+            if sum==0
+                # 世界が崩壊した
+                x.setFlag JSON.stringify {
+                    number:pflag?.number
+                    Human:0
+                    Diviner:0
+                    Werewolf:0
+                    dead:0
+                }
+                # ログ用
+                probability_table[x.id]={
+                    name:x.name
+                    Human:0
+                    Werewolf:0
+                }
+                if @rule.quantumwerewolf_dead!="no"
+                    #死亡確率も
+                    probability_table[x.id].dead=0
+                if @rule.quantumwerewolf_diviner=="on"
+                    # 占い師の確率も
+                    probability_table[x.id].Diviner=0
+            else
+                x.setFlag JSON.stringify {
+                    number:pflag?.number
+                    Human:count.Human/sum
+                    Diviner:count.Diviner/sum
+                    Werewolf:count.Werewolf/sum
+                    dead:count.dead/sum
+                }
+                # ログ用
+                if @rule.quantumwerewolf_diviner=="on"
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:count.Human/sum
+                        Diviner:count.Diviner/sum
+                        Werewolf:count.Werewolf/sum
+                    }
+                else
+                    probability_table[x.id]={
+                        name:x.name
+                        Human:(count.Human+count.Diviner)/sum
+                        Werewolf:count.Werewolf/sum
+                    }
+                if @rule.quantumwerewolf_dead!="no" || count.dead==sum
+                    # 死亡率も
+                    probability_table[x.id].dead=count.dead/sum
+            if @rule.quantumwerewolf_table=="anonymous"
+                # 番号を表示
+                numberref_table[pflag.number]=x
+                probability_table[x.id].name= @i18n.t "quantum.player", {num: pflag.number}
+        if @rule.quantumwerewolf_table=="anonymous"
+            # ソートしなおしてあげて痕跡を消す
+            probability_table=((probability_table,numberref_table)->
+                result={}
+                i=1
+                x=null
+                while x=numberref_table[i]
+                    result["_$_player#{i}"]=probability_table[x.id]
+                    i++
+                result
+            )(probability_table,numberref_table)
+        probability_table
+
     beginturn:->
         night = Phase.isNight @phase
 
         if @rule.jobrule=="特殊ルール.量子人狼"
             # 量子人狼
-            # 全員の確率を出してあげるよーーーーー
-            # 確率テーブルを
-            probability_table={}
-            numberref_table={}
+            # 死亡が確定した(どの世界線でも死んでいる)プレイヤーを死亡させる
             dead_flg=true
             while dead_flg
                 dead_flg=false
@@ -1232,79 +1336,9 @@ class Game
                         # 死んだ!!!!!!!!!!!!!!!!!
                         x.die this, "werewolf"
                         dead_flg=true
-            for x in @players
-                count=
-                    Human:0
-                    Diviner:0
-                    Werewolf:0
-                    dead:0
-                for obj in @quantum_patterns
-                    count[obj[x.id].jobtype]++
-                    if obj[x.id].dead==true
-                        count.dead++
-                sum=count.Human+count.Diviner+count.Werewolf
-                pflag=JSON.parse x.flag
-                if sum==0
-                    # 世界が崩壊した
-                    x.setFlag JSON.stringify {
-                        number:pflag?.number
-                        Human:0
-                        Diviner:0
-                        Werewolf:0
-                        dead:0
-                    }
-                    # ログ用
-                    probability_table[x.id]={
-                        name:x.name
-                        Human:0
-                        Werewolf:0
-                    }
-                    if @rule.quantumwerewolf_dead!="no"
-                        #死亡確率も
-                        probability_table[x.id].dead=0
-                    if @rule.quantumwerewolf_diviner=="on"
-                        # 占い師の確率も
-                        probability_table[x.id].Diviner=0
-                else
-                    x.setFlag JSON.stringify {
-                        number:pflag?.number
-                        Human:count.Human/sum
-                        Diviner:count.Diviner/sum
-                        Werewolf:count.Werewolf/sum
-                        dead:count.dead/sum
-                    }
-                    # ログ用
-                    if @rule.quantumwerewolf_diviner=="on"
-                        probability_table[x.id]={
-                            name:x.name
-                            Human:count.Human/sum
-                            Diviner:count.Diviner/sum
-                            Werewolf:count.Werewolf/sum
-                        }
-                    else
-                        probability_table[x.id]={
-                            name:x.name
-                            Human:(count.Human+count.Diviner)/sum
-                            Werewolf:count.Werewolf/sum
-                        }
-                    if @rule.quantumwerewolf_dead!="no" || count.dead==sum
-                        # 死亡率も
-                        probability_table[x.id].dead=count.dead/sum
-                if @rule.quantumwerewolf_table=="anonymous"
-                    # 番号を表示
-                    numberref_table[pflag.number]=x
-                    probability_table[x.id].name= @i18n.t "quantum.player", {num: pflag.number}
-            if @rule.quantumwerewolf_table=="anonymous"
-                # ソートしなおしてあげて痕跡を消す
-                probability_table=((probability_table,numberref_table)->
-                    result={}
-                    i=1
-                    x=null
-                    while x=numberref_table[i]
-                        result["_$_player#{i}"]=probability_table[x.id]
-                        i++
-                    result
-                )(probability_table,numberref_table)
+            # 全員の確率を出してあげるよーーーーー
+            # 確率テーブルを作り @flag を更新する
+            probability_table=@updateQuantumProbability()
             # ログを出す
             log=
                 mode:"probability_table"
@@ -1456,7 +1490,7 @@ class Game
                     pl.transProfile newpl
                     pl.transform this, newpl, true
             # エンドレス闇鍋用途中参加処理
-            if @rule.jobrule=="特殊ルール.エンドレス闇鍋"
+            if @rule.jobrule=="特殊ルール.量子人狼"
                 jobnames=Object.keys(jobs).filter (name)->!(name in REBIRTH_EXCLUDED_JOBS)
                 pcs=@participants.concat []
                 join_count=0
@@ -1622,6 +1656,9 @@ class Game
                     unless result?
                         @nextturn()
                         @ss.publish.channel "room#{@id}","refresh",{id:@id}
+                    else
+                        # 配役に失敗した
+                        @abortStart result
                 true
             else
                 false
@@ -1655,6 +1692,20 @@ class Game
             true
         else
             false
+
+    # 開始処理に失敗したときに部屋を開始前に戻す。
+    # room.modeだけ"playing"に進んでしまうと、gameStartは
+    # 「すでに開始している」を返し、二度と開始できなくなる。
+    abortStart:(error)->
+        console.error "Game.abortStart: game ##{@id} failed to start:", error
+        @phase = Phase.preparing
+        # まだ開始していないので部屋をwaitingに戻す（"end"は上書きしない）
+        M.rooms.update {id:@id, mode:"playing"},{$set:{mode:"waiting"}}
+        log=
+            mode:"system"
+            comment: String error
+        splashlog @id, this, log
+        @ss.publish.channel "room#{@id}","refresh",{id:@id}
 
     #夜の能力を処理する
     midnight:->
@@ -2346,32 +2397,15 @@ class Game
 
         # 量子人狼のときは特殊ルーチン
         if @rule.jobrule=="特殊ルール.量子人狼"
-            assured_wolf=
-                alive:0
-                dead:0
-            total_wolf=0
             obj=@quantum_patterns[0]
             if obj?
-                for key,value of obj
-                    if value.jobtype=="Werewolf"
-                        total_wolf++
-                for x in @players
-                    unless x.flag
-                        # まだだった・・・
-                        break
-                    flag=JSON.parse x.flag
-                    if flag.Werewolf==1
-                        # うわあああ絶対人狼だ!!!!!!!!!!
-                        if flag.dead==1
-                            assured_wolf.dead++
-                        else if flag.dead==0
-                            assured_wolf.alive++
-                if alives<=assured_wolf.alive*2
-                    # あーーーーーーー
-                    team="Werewolf"
-                else if assured_wolf.dead==total_wolf
-                    # 全滅した
-                    team="Human"
+                # 世界線は beginturn 以外(処刑・襲撃など)でも収束するので,
+                # 判定に使う確率(@flag)をここで必ず作り直す.
+                # (@flag は勝敗を各プレイヤーに配る isWinner からも見られる)
+                # 作り直さないと, 処刑された確定人狼が「生存中の人狼」として
+                # 数えられ, 人狼勝利と誤判定してしまう(room 250799).
+                @updateQuantumProbability()
+                team=libgame.judgeQuantumWerewolf @quantum_patterns, @players
             else
                 # もうひとつもないんだ・・・
                 log=
@@ -3350,6 +3384,16 @@ class Player
 
     # Am I Dead?
     isDead:->{dead:@dead,found:@found}
+    # 複合役職（ケミカル人狼等）の内側（main/sub）から呼ばれた場合でも、
+    # 必ずプレイヤー本体（トップレベル）のオブジェクトを返す。
+    # 見つからない場合は自分自身を返す。
+    getTopPlayer:(game)->
+        searchTopPlayer this, game
+    # プレイヤー本体が死亡しているかどうか。
+    # 複合役職の sub 側から beforebury 等が呼ばれると @dead は役職オブジェクト自身の
+    # 状態を指してしまうため、本体の生死はこのメソッドで判定する。
+    isPlayerDead:(game)->
+        @getTopPlayer(game).dead
     # get my team
     getTeam:-> @team
     # Display of my team.
@@ -3979,7 +4023,7 @@ class Psychic extends Player
 
     # 処刑で死んだ人を調べる
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         @setFlag if @flag? then @flag else ""
         deads.filter((x)-> x.found=="punish").forEach (x)=>
             @setFlag @flag + game.i18n.t("roles:Psychic.resultlog", {
@@ -4194,7 +4238,7 @@ class Magician extends Player
     type:"Magician"
     midnightSort:100
     formType: FormType.required
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     sunset:(game)->
         @setTarget (if game.day<3 then "" else null)
         if game.players.every((x)->!x.dead)
@@ -4275,7 +4319,7 @@ class Spy extends Player
 class WolfDiviner extends Werewolf
     type:"WolfDiviner"
     midnightSort:120
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     constructor:->
         super
         @setFlag {
@@ -4753,7 +4797,7 @@ class Immoral extends Player
     type:"Immoral"
     team:"Fox"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 狐が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isFox())
             @die game, "foxsuicide"
@@ -4936,7 +4980,7 @@ class Cursed extends Player
         else
             return false
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type == "punish" && @flag in ["bitten", "vampire"]
             # 投票後（夜になる直前）のタイミングで狼に変化
             log=null
@@ -4967,7 +5011,7 @@ class Cursed extends Player
 class ApprenticeSeer extends Player
     type:"ApprenticeSeer"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 占い師が誰か死んでいたら占い師に進化
         if game.players.some((x)->x.dead && x.isJobType("Diviner")) || game.players.every((x)->!x.isJobType("Diviner"))
             newpl=Player.factory "Diviner", game
@@ -5225,7 +5269,7 @@ class Doppleganger extends Player
         }
         null
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 対象が死んだら移る
         targetid = @flag?.target
         if deads.some((x)=> x.id == targetid)
@@ -5444,7 +5488,7 @@ class Witch extends Player
     midnightSort:100
     formType: FormType.optional
     hasDeadlyWeapon:->true
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     job_target:Player.JOB_T_ALIVE | Player.JOB_T_DEAD   # 死人も生存も
     sleeping:->true
     jobdone:->@target? || (@flag in [3,5,6])
@@ -5541,7 +5585,7 @@ class Witch extends Player
 class Oldman extends Player
     type:"Oldman"
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 老衰は朝になったタイミングのみ
         return false unless type == "day"
 
@@ -6294,7 +6338,7 @@ class QuantumPlayer extends Player
 class RedHood extends Player
     type:"RedHood"
     sleeping:->true
-    isReviver:->!@dead || @flag?
+    isReviver:->!@isPlayerDead(@game) || @flag?
     dying:(game,found,from)->
         super
         if Found.isNormalWerewolfAttack found
@@ -6305,7 +6349,7 @@ class RedHood extends Player
             @setFlag null
     beforebury:(game, type)->
         # 自分を食った狼が死んだら即座に蘇生
-        if @flag && @dead
+        if @flag && @isPlayerDead(game)
             w=game.getPlayer @flag
             if w?.dead
                 pl = game.getPlayer @id
@@ -6730,7 +6774,7 @@ class WanderingGuard extends Player
         pl.transform game,newpl,true
         null
     beforebury:(game,type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type=="day"
             # 昼になったとき
             if game.players.filter((x)->x.dead && x.found).length==0
@@ -6839,7 +6883,7 @@ class FrankensteinsMonster extends Player
             # 処刑で死んだらもうひとり処刑できる
             game.votingbox.addPunishedNumber 1
     beforebury:(game,type,deads)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 新しく死んだひとたちで村人陣営ひとたち
         founds=deads.filter (x)->x.getTeam()=="Human" && !x.isJobType("FrankensteinsMonster")
 
@@ -7519,7 +7563,7 @@ class Blasphemy extends Player
         else
             @setTarget null
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         if @flag
             # まだ狐を作ってないときは耐える
             # 狐が全員死んでいたら自殺
@@ -7961,7 +8005,7 @@ class CraftyWolf extends Werewolf
     jobdone:(game)->super && @flag == "going"
     deadJobdone:(game)->@flag != "revivable"
     midnightSort:100
-    isReviver:->!@dead || (@flag in ["reviving","revivable"])
+    isReviver:->!@isPlayerDead(@game) || (@flag in ["reviving","revivable"])
     sunset:(game)->
         super
         # 生存状態で昼になったら死んだふり能力初期化
@@ -8146,7 +8190,7 @@ class MadScientist extends Madman
     type:"MadScientist"
     midnightSort:100
     formType: FormType.optionalOnce
-    isReviver:->!@dead && @flag!="done"
+    isReviver:->!@isPlayerDead(@game) && @flag!="done"
     sleeping:->true
     jobdone:->@flag=="done" || @target?
     job_target: Player.JOB_T_DEAD
@@ -8199,7 +8243,7 @@ class MadScientist extends Madman
         splashlog game.id,game,log
 class SpiritPossessed extends Player
     type:"SpiritPossessed"
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
 
 class Forensic extends Player
     type:"Forensic"
@@ -8307,7 +8351,7 @@ class Ninja extends Player
 class Twin extends Player
     type:"Twin"
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # 死亡状態の双子がいたら死亡
         if game.players.some((x)-> x.dead && x.isJobType "Twin")
             @die game, "twinsuicide"
@@ -8887,7 +8931,7 @@ class LunaticLover extends Player
         unless pl?
             return false
         res = false
-        if !@dead && Array.isArray @flag?.killTarget
+        if !@isPlayerDead(game) && Array.isArray @flag?.killTarget
             # 狂愛対象が死亡してしまった！
             targetpls =
                 @flag.killTarget.map((id)->
@@ -9291,7 +9335,7 @@ class DragonKnight extends Player
                 killUsed: true
             }
     beforebury:(game, type)->
-        return false if @dead
+        return false if @isPlayerDead game
         if type == "day"
             # 昼になったとき
             if @flag.day == game.day-1
@@ -9511,7 +9555,7 @@ class VampireClan extends Player
         res.draculas = true
         res
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         # ヴァンパイア系が全員死んでいたら自殺
         unless game.players.some((x)->!x.dead && x.isVampire())
             @die game, "vampiresuicide"
@@ -10008,7 +10052,7 @@ class NightRabbit extends Fox
 class GachaAddicted extends Player
     type:"GachaAddicted"
     midnightSort: 122
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     constructor:->
         super
         @setFlag {
@@ -10198,7 +10242,7 @@ class GachaAddicted extends Player
 class Fate extends Player
     type:"Fate"
     midnightSort:122
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     getTypeDisp:->
         if @flag == "done"
             super
@@ -10322,7 +10366,7 @@ class Reindeer extends Player
         return false
 
     beforebury:(game)->
-        return false if @dead
+        return false if @isPlayerDead game
         santas = game.players.filter (pl)-> pl.isJobType "SantaClaus"
         return unless santas.length
         # サンタクロースが全滅していたら後追い
@@ -10339,7 +10383,7 @@ class Streamer extends Player
     type: "Streamer"
     getSpeakChoice:(game)->
         ["streaming", "-monologue"].concat super
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     sunset:(game)->
         unless @flag?
             # equip self with StreamerTrial
@@ -10902,7 +10946,7 @@ class Saint extends Couple
     type:"Saint"
     midnightSort:121
     formType: FormType.optionalOnce # 任意・4日目のみ
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     job_target:Player.JOB_T_DEAD
     sunset:(game)->
         @setTarget (if game.day != 4 then "" else null)
@@ -10941,7 +10985,7 @@ class Saint extends Couple
 
 class NetherWolf extends Werewolf
     type:"NetherWolf"
-    isReviver:->!@dead
+    isReviver:->!@isPlayerDead(@game)
     isListener:(game,log)->
         if log.mode=="heaven"
             true
@@ -12152,7 +12196,9 @@ class Complex
     setObjid:(@objid)->@main.setObjid @objid
     setOriginalType:(@originalType)->@main.setOriginalType @originalType
     setOriginalJobname:(@originalJobname)->@main.setOriginalJobname @originalJobname
-    setNorevive:(@norevive)->@main.setNorevive @norevive
+    setNorevive:(@norevive)->
+        @main.setNorevive @norevive
+        @sub?.setNorevive @norevive
 
     sleeping:(game)-> @mcall game, @main.sleeping, game
     jobdone:(game)-> @mcall(game,@main.jobdone,game) && (!@sub?.jobdone? || @sub.jobdone(game)) # ジョブの場合はサブも考慮
@@ -12174,6 +12220,14 @@ class Complex
                 return isSubDead
         # seems to be alive, who knows?
         return {dead:@dead,found:@found}
+    # 複合役職でも必ずプレイヤー本体（トップレベル）を得る。
+    # 【注意】Complex は Player を継承しておらず、main 経由のプロトタイプチェーンで
+    # Player のメソッドを借りているだけなので、内側（sub等）からも使えるよう明示的に定義する。
+    getTopPlayer:(game)->
+        searchTopPlayer this, game
+    # プレイヤー本体が死亡しているかどうか（複合役職の内側から呼ばれても本体の生死で判定できる）
+    isPlayerDead:(game)->
+        @getTopPlayer(game).dead
     isJobType:(type)->
         @main.isJobType(type) || @sub?.isJobType?(type)
     isMainJobType:(type)-> @main.isMainJobType type
@@ -12282,7 +12336,7 @@ class Complex
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
         # deal with Walking Dead
-        unless @dead
+        unless @isPlayerDead game
             isPlDead = @isDead()
             if isPlDead.dead && isPlDead.found
                 @setDead isPlDead.dead,isPlDead.found
@@ -12312,6 +12366,10 @@ class Complex
         unless @dead
             # 生きている
             return
+        # 本体が蘇生を辞退している場合は、sub だけ蘇生してしまう事故を防ぐため先に確認する
+        # （sub の norevive は setNorevive で本体と同期するが、念のため本体で判定する）
+        top = game.getPlayer @id
+        return if top? && top.norevive
         # まずsubを蘇生
         if @sub?
             @sub.revive game
@@ -12321,7 +12379,7 @@ class Complex
         # 次にmainを蘇生
         @mcall game,@main.revive,game
         if @main.dead
-            # 蘇生できなかった
+            # 蘇生できなかったので、sub の蘇生も巻き戻しておく
             @setDead true, @main.found
         else
             # 蘇生できた
@@ -12406,7 +12464,7 @@ class Friend extends Complex    # 恋人
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
-        unless @dead
+        unless @isPlayerDead game
             ato=false
             if game.rule.friendssplit=="split"
                 # 独立
@@ -13077,26 +13135,40 @@ class ShadowBlacked extends Complex
     cmplType:"ShadowBlacked"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        unless shadow.dead
+        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
+        # 占いの深夜処理ごと TypeError で落ちていた。
+        if shadow? && !shadow.dead
             FortuneResult.werewolf
         else
-            super
+            # 【注意】Complex に getFortuneResult は無いので super は呼べない
+            # (呼ぶと "Cannot read property 'apply' of undefined" で落ちる)。
+            # 支配下の役職の結果に戻す。
+            @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        if shadow? && shadow.dead
+        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        if !shadow? || shadow.dead
             @uncomplex game
 
 class ShadowWhited extends Complex
     cmplType:"ShadowWhited"
     getFortuneResult:(game)->
         shadow=game.getPlayer @cmplFlag
-        unless shadow.dead
+        # 影法师が既に場にいない(退出・データ不整合など)ときは「死亡」と同じ扱いにする。
+        # 以前は shadow.dead を無条件に読んでいたため, shadow が undefined だと
+        # 占いの深夜処理ごと TypeError で落ちていた。
+        if shadow? && !shadow.dead
             FortuneResult.human
         else
-            super
+            # 【注意】Complex に getFortuneResult は無いので super は呼べない
+            # (呼ぶと "Cannot read property 'apply' of undefined" で落ちる)。
+            # 支配下の役職の結果に戻す。
+            @main.getFortuneResult game
     beforebury:(game,type,deads)->
         shadow=game.getPlayer @cmplFlag
-        if shadow? && shadow.dead
+        # 影法师が場にいない場合も複合を解除しておく(残すと毎晩同じ場所で落ちる)
+        if !shadow? || shadow.dead
             @uncomplex game
 
 # 催眠術をかけられた
@@ -13406,7 +13478,7 @@ class Fascinated extends Complex
     cmplType:"Fascinated"
     beforebury:(game,type,deads)->
         super
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
                 @die game, "fascinatesuicide"
@@ -13447,7 +13519,7 @@ class LoreleiFamilia extends Complex
             x.isJobType "Lorelei")
             .map (x)-> x.publicinfo()
     beforebury:(game,type,deads)->
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead
                 lo = game.players.filter (x)-> !x.dead && x.isJobType("Lorelei")
@@ -13490,7 +13562,7 @@ class Bonds extends Complex
     beforebury:(game,type,deads)->
         res1 = @mcall game,@main.beforebury,game,type,deads
         res2 = @sub?.beforebury? game,type,deads
-        unless @dead
+        unless @isPlayerDead game
             pl=game.getPlayer @cmplFlag
             if pl? && pl.dead && pl.isCmplType("Bonds")
                 @die game, "bonds"
@@ -13560,7 +13632,7 @@ class WomanAttracted extends Complex
     cmplType: "WomanAttracted"
     beforebury:(game, type, deads)->
         super
-        return if @dead
+        return if @isPlayerDead game
         for pl in deads
             continue unless pl.id == @cmplFlag
             continue unless pl.dead
@@ -14319,6 +14391,10 @@ module.exports.actions=(req,res,ss)->
             res i18n.t "error.common.noSuchGame"
             return
         Server.game.rooms.oneRoomS roomid,(room)->
+            # oneRoomSは部屋が存在しない場合nullを渡してくる
+            unless room?
+                res i18n.t "rooms:error.noSuchRoom"
+                return
             if room.error?
                 res room.error
                 return
@@ -15564,7 +15640,13 @@ module.exports.actions=(req,res,ss)->
             if ruleobj.rolerequest=="on" && !(query.jobrule in ["特殊ルール.闇鍋","特殊ルール.一部闇鍋","特殊ルール.量子人狼","特殊ルール.エンドレス闇鍋"])
                 # 希望役職制あり
                 # とりあえず入れなくする
-                M.rooms.update {id:roomid},{$set:{mode:"playing"}}
+                # This write is fire-and-forget (the room is updated without
+                # waiting for an acknowledgement). When the game ends right
+                # after it starts, the "end" write can reach the DB before
+                # this one and would then be overwritten, leaving the room
+                # stuck as "playing". Restrict it to rooms that are still
+                # waiting so it can never overwrite a finished room.
+                M.rooms.update {id:roomid, mode:"waiting"},{$set:{mode:"playing"}}
                 # 役職選択中
                 game.phase = Phase.rolerequesting
                 game.rolerequesttable={}
@@ -15579,7 +15661,11 @@ module.exports.actions=(req,res,ss)->
                 game.setplayers (result)->
                     unless result?
                         # プレイヤー初期化に成功
-                        M.rooms.update {id:roomid},{
+                        # Same as the role-requesting branch above: only start
+                        # a room that is still waiting. Otherwise a game that
+                        # finishes immediately could be overwritten and leave
+                        # mode stuck at "playing".
+                        M.rooms.update {id:roomid, mode:"waiting"},{
                             $set:{
                                 mode:"playing",
                                 jobrule:query.jobrule
@@ -15787,7 +15873,7 @@ module.exports.actions=(req,res,ss)->
         else
             # ルーム情報から探す
             Server.game.rooms.oneRoomS roomid,(room)=>
-                pl=room.players.filter((x)=>x.realid==req.session.userId)[0]
+                pl=room?.players?.filter((x)=>x.realid==req.session.userId)[0]
                 if pl?
                     log.name=pl.name
                 else
@@ -16236,6 +16322,14 @@ processSpeakChoice = (choices)->
 # Generate an ID for use as Player objid.
 generateObjId = ->
     "pl" + Math.random().toString(36).slice(2)
+
+# 複合役職（ケミカル人狼等）の内側（main/sub）からでも、プレイヤー本体（トップレベル）を得る。
+# ゲーム上に見つからない場合は、渡されたオブジェクト自身を返す。
+# Player#getTopPlayer / Complex#getTopPlayer の共通実装。
+searchTopPlayer = (pl, game)->
+    top = game?.getPlayer pl.id
+    if top? then top else pl
+
 
 # Check equality of player object,
 # based on cmplId and objId
