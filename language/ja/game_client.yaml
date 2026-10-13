@@ -112,7 +112,7 @@ jobinfo:
     enemies: '宿敵は{{names}}です'
     spaceWerewolfImposters: '仲間の詐欺師は{{names}}です'
 
-    princesses: '姫は{{names}}です'
+    princesses: 'プリンセスは{{names}}です'
     # 背信者と異端者は区別せず、どちらも「背信者」として表示する（意図した挙動）。
     # 表示ラベルは常に「仲間の背信者」で統一される。
     perfidious: '仲間の背信者は{{names}}'

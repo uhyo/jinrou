@@ -15985,7 +15985,7 @@ module.exports.actions=(req,res,ss)->
                 if safety.jingais || safety.jobs
                     exceptions.push "MadWolf"
                     special_exceptions.push "MadWolf"
-                # 姫は女王観戦者の安全性チェックを通した後にだけ出す
+                # プリンセスは女王観戦者の安全性チェックを通した後にだけ出す
                 if safety.jobs
                     exceptions.push "Princess"
                     special_exceptions.push "Princess"
@@ -16736,7 +16736,7 @@ module.exports.actions=(req,res,ss)->
                                     if Math.random() < 0.2
                                         initPrincessForQueen()
                                 when "Princess"
-                                    # safety.jobsでは姫単独のランダム生成はさせない
+                                    # safety.jobsではプリンセス単独のランダム生成はさせない
                                     continue
                                 when "Spy2"
                                     # スパイIIは2人いるとかわいそうなので入れない
