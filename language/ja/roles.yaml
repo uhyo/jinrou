@@ -208,13 +208,13 @@ jobname:
   Paladin: '聖騎士'
   MumouDiviner: '無謀な占い師'
   SuperFox: 'SP妖狐'
-  LastStandWolf: '最後の狼'
+  LastStandWolf: '窮地の人狼'
   Hero: '英雄'
   FoxMatchmaker: '狐の仲人'
   Elder: '長老'
   MagicalGirl: '魔法少女'
   ButaOtoko: '猪男'
-  Princess: '姫'
+  Princess: 'プリンセス'
   LandmineGirl: '地雷少女'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
@@ -1304,7 +1304,7 @@ SuperFox:
   affected: '{{name}}は呪いの影響を受け、今夜は能力を発動できません。'
 
 LastStandWolf:
-  select: '{{name}}は最後の狼の襲撃を発動しました。対象は{{target}}です。'
+  select: '{{name}}は窮地の人狼の襲撃を発動しました。対象は{{target}}です。'
 
 Hero:
   awaken: '{{name}}は英雄として覚醒しました。'
