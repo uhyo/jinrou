@@ -1,5 +1,4 @@
 # Terms for each role.
-
 # Name of all jobs.
 jobname:
   Human: '村人'
@@ -10,6 +9,7 @@ jobname:
   Guard: '狩人'
   Couple: '共有者'
   Fox: '妖狐'
+  NineTailedFox: '九尾の狐'
   Poisoner: '埋毒者'
   BigWolf: '大狼'
   TinyFox: '子狐'
@@ -195,12 +195,34 @@ jobname:
   DarkPsychic: '闇の霊媒師'
   Itako: 'イタコ'
 
+  WerewolfDescendant: '人狼の末裔'
+  MadDictator: '悪裁者'
+  SuperWerewolf: 'SP人狼'
+  SuperDiviner: 'SP占い師'
+  OldGuard: '老騎士'
+  HimeFox: '姫狐'
+  Perfidious: '背信者'
+  Heretic: '異端者'
+  MindPsychic: '念縛霊能者'
+  SuperGuard: 'SP狩人'
+  Paladin: '聖騎士'
+  MumouDiviner: '無謀な占い師'
+  SuperFox: 'SP妖狐'
+  LastStandWolf: '最後の狼'
+  Hero: '英雄'
+  FoxMatchmaker: '狐の仲人'
+  Elder: '長老'
+  MagicalGirl: '魔法少女'
+  ButaOtoko: '猪男'
+  Princess: '姫'
+  LandmineGirl: '地雷少女'
   # Name of special subjobs.
   GameMaster: 'ゲームマスター'
   Helper: 'ヘルパー'
   Waiting: '待機中'
   Watching: '観戦者'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Name of categories.
 categoryName:
   Human: '村人系'
@@ -236,6 +258,7 @@ fortune:
   pumpkin: 'かぼちゃ'
   oni: '鬼'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Psychic result.
 psychic:
   human: '村人'
@@ -246,6 +269,7 @@ psychic:
   # delimiter of multiple result in chemical.
   _delimiter: '×'
 
+  DoubleHeadedWolf: '双頭の狼'
 # Diviner
 Diviner:
   # Divine result
@@ -326,6 +350,7 @@ Merchant:
   # A kit is delivered to a player.
   delivered: '{{name}}に{{kit}}が到着しました。'
 
+# Princess
 # Liar
 Liar:
   # Result.
@@ -389,6 +414,7 @@ Priest:
   select: '{{name}}が{{target}}を聖なる力で守りました。'
   protected: '{{name}}は聖なる力で{{found}}に抵抗しました。'
 
+# Elder
 # Prince
 Prince:
   # Canceled a punishment.
@@ -1219,3 +1245,91 @@ Authority:
 
 Chemical:
   jobname: '{{left}}×{{right}}'
+
+WerewolfDescendant:
+  transform: '{{name}}は人狼の末裔として覚醒し、人狼に変化しました。'
+
+MadDictator:
+  select: '悪裁者{{name}}は{{target}}の処刑を宣言しました。'
+  sunset: '悪裁者{{name}}の宣言により、日が暮れました。'
+
+SuperWerewolf:
+  select: '人狼{{name}}がSP能力を発動しました。人狼たちは今宵、もう1人襲撃できます。'
+
+SuperDiviner:
+  # 占い結果
+  result:
+    human: '人間'
+  # 今日の占い対象は自動で選ばれる
+  auto: '{{name}}は今日、ランダムに1人を占います。'
+  # 占い対象を選択した
+  select: '{{name}}は{{target}}を占いました。'
+  SuperSelect: '{{name}}は{{target}}を追加で占いました。'
+  # 占い結果
+  resultlog: '{{name}}は{{target}}を占いました。{{target}}は{{result}}でした。'
+
+HimeFox:
+  # 生贄の対象を選択した
+  selectSacrifice: '{{name}}は{{target}}を生贄に選びました。'
+  # 生贄を捧げて念殺を行った
+  select: '{{name}}は{{sacrifice}}を生贄に捧げ、{{target}}に念殺を行いました。'
+  # 念殺が念殺の護りに阻まれた
+  nekikillBlocked: '昨夜の念殺は念殺の護りに阻まれました。'
+  # 念殺が猫又に跳ね返された
+  nekikillFailed: '猫又の力によって念殺が跳ね返されました。'
+
+MindPsychic:
+  # 霊能結果
+  result:
+    human: '人間'
+  # 念殺の護りをかけた
+  curseGuardSelect: '{{name}}は{{target}}に念殺の護りをかけました。'
+
+NineTailedFox:
+  select: '{{name}}は{{target}}を襲撃しました。'
+
+SuperGuard:
+  # 同じ人を2夜連続で護衛することはできない
+  noGuardSame: '同じ人を2夜連続で護衛することはできません。'
+  # 護衛対象を選択した
+  select: '{{name}}は{{target}}を護衛しました。'
+  SuperSelect: '{{name}}は{{target}}を追加で護衛しました。'
+  # GJ のログ
+  gj: '{{guard}}は{{name}}の護衛に成功しました。'
+
+SuperFox:
+  # 呪いの対象を選択した
+  select: '{{name}}は{{target}}に呪いをかけました。'
+  # 呪いの影響を受けた
+  affected: '{{name}}は呪いの影響を受け、今夜は能力を発動できません。'
+
+LastStandWolf:
+  select: '{{name}}は最後の狼の襲撃を発動しました。対象は{{target}}です。'
+
+Hero:
+  awaken: '{{name}}は英雄として覚醒しました。'
+  resist: '{{name}}は襲撃に耐え、自分が英雄であることに気づきました。'
+
+FoxMatchmaker:
+  select1: '{{name}}は{{target}}を1人目の恋人の候補に選びました。'
+  select: '{{name}}は{{target}}と恋人を結びました。'
+  become: '{{name}}は狐の仲人によって恋人にされました。'
+
+Elder:
+  attackerNotice: '襲撃された{{target}}は長老です。'
+
+MagicalGirl:
+  kit:
+    Diviner: '占いセット'
+    Psychic: '霊能セット'
+    Guard: '狩人セット'
+  select: '{{name}}は{{kit}}を選び、今夜その能力を獲得します。'
+
+Princess:
+  inherit: '{{name}}は女王観戦者の座を継承しました。'
+
+LandmineGirl:
+  knownWolf: '{{name}}は{{target}}が人狼であることを知りました。'
+  ready: '地雷少女{{name}}は襲撃できるようになりました。'
+  select: '愛されたい一心で、{{name}}は{{target}}を襲撃しました。'
+  counterKilled: '{{name}}は{{target}}を襲撃し、反撃されました。'

@@ -26,6 +26,13 @@ specialName:
   _Quantum_Diviner: '占い師の能力'
   _Quantum_Werewolf: '人狼の襲撃'
 
+  SuperDiviner: 'SP占い師の能力'
+  NormalDiviner: 'SP占い師の能力'
+  HimeFox: '姫狐の能力'
+  NekikillTarget: '姫狐の能力'
+  SuperGuard: 'SP狩人の能力'
+  NormalGuard: 'SP狩人の能力'
+  SuperFox: 'SP妖狐の能力'
 # Message for normal selection form.  normalMessage:
 messages:
   _day: '処刑したい人に投票してください'
@@ -141,6 +148,27 @@ messages:
   SpaceWerewolfSabotage: '妨害する対象を選択してください'
   GameMaster: 'GM用コマンド'
 
+  MadDictator: '議論を打ち切り、処刑対象を指定します'
+  SuperWerewolf: 'SP能力を発動して、今宵はもう1人襲撃する場合に選択します'
+  SuperDiviner: 'SP占いの対象を選択してください'
+  OldGuard: '護衛する対象を選択してください'
+  HimeFox:
+    sacrifice:
+      description: '生贄にする背信者か異端者を選択してください'
+      button: '生贄を選択'
+    nekikill:
+      description: '念殺する対象を選択してください'
+      button: '念殺対象を選択'
+  MindPsychic: '念殺の護りをかける対象を選択してください'
+  NineTailedFox: '襲撃する対象を選択してください'
+  SuperGuard: 'SP護衛の対象を選択してください'
+  Paladin: '護衛する対象を選択してください'
+  MumouDiviner: '占う対象を選択してください'
+  SuperFox: '呪う対象を選択してください'
+  LastStandWolf: '最後の1匹になったとき、必死の襲撃を行う場合に対象を選択してください'
+  FoxMatchmaker: '恋人にする2人を順番に選択してください'
+  MagicalGirl: '今夜獲得するセット能力を選択してください'
+  LandmineGirl: '襲撃する対象を選択してください'
 # Texts for GameMaster form.
 GameMaster:
   deadalive: '死亡/蘇生'
@@ -203,3 +231,28 @@ GachaAddicted:
   premiumButton: 'プレミアムガチャを引く'
   descriptionCommit: '役職【{{jobname}}】を所持しています'
   commitButton: '{{jobname}}に変化する'
+
+SuperDiviner:
+  # フォームの説明
+  description: '占いの対象を選択してください'
+  Superdescription: 'SP占いの対象を選択してください'
+  # ボタンのラベル
+  DivinerButton: '占う'
+  SuperDivinerUsedButton: 'SP占い（一度だけ）'
+  SuperDivinerUsedButtonUsed: 'SP占い（使用済み）'
+
+SuperGuard:
+  # フォームの説明
+  description: '護衛の対象を選択してください'
+  Superdescription: 'SP護衛の対象を選択してください'
+  # ボタンのラベル
+  GuardButton: '護衛'
+  SuperGuardUsedButton: 'SP護衛（一度だけ）'
+  SuperGuardUsedButtonUsed: 'SP護衛（使用済み）'
+
+MagicalGirl:
+  kit:
+    Diviner: '占いセット'
+    Psychic: '霊能セット'
+    Guard: '狩人セット'
+  description: '今夜獲得するセット能力を選択してください'

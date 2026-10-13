@@ -11,6 +11,14 @@ common:
   ushi: '2陣営戦'
 # Error messages
 error:
+  HimeFox:
+    invalidSacrificeTarget: '選択した対象は有効な背信者または異端者ではありません。'
+    tooManyQuantum: '人数が多すぎます。量子人狼の人数は{{count}}人以下にしてください。'
+    noChemical: 'このルールでは錬成人狼を使用できません。'
+    unknownCasting: 'その配役は存在しません。'
+    helperNotExist: '{{name}}のヘルパー対象が存在しません。'
+    categoryAllExcluded: '手動闇鍋で「{{category}}」の人数を指定しましたが、「{{category}}」の役職がすべて除外されているため、この配役では開始できません。'
+    implicitCategoryAllExcluded: '「{{category}}」の役職がすべて除外されているため、この配役では開始できません。'
   # Common error message
   common:
     ## game-related
@@ -216,6 +224,8 @@ phase:
 
 # Reason of death
 found:
+  sacrificed: '{{name}}は生贄にされたようです。'
+  nekikill: '{{name}}は念殺されたようです。'
   normal: '{{name}}は無残な姿で発見されました。'
   curse: '{{name}}は呪殺されました。'
   punish: '{{name}}は処刑されました。'
@@ -232,6 +242,8 @@ found:
 
 # Detailed reason of death
 foundDetail:
+  sacrificed: '生贄'
+  nekikill: '念殺'
   werewolf: '人狼の襲撃'
   werewolf2: '人狼の襲撃'
   trickedWerewolf: '人狼の襲撃'
@@ -279,6 +291,8 @@ foundDetail:
   fallback: '不明'
   situation: '{{name}}の死因は{{detail}}でした。'
 
+  nineTailedFox: '九尾の狐の襲撃'
+  landmineAssassinate: '✝昇天✝'
 # Result of Game
 judge:
   human: '村民達の知恵と勇気により村は平穏を取り戻しました。'
