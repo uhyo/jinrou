@@ -5,6 +5,15 @@ const path = require('path');
 const cpx = require('cpx');
 const ss = require('socketstream');
 
+// 未捕捉例外/未処理 Promise でプロセスを落とさない（DoS 緩和）。
+// 状態不整合の可能性はあるため、必ずログに残す。
+process.on('uncaughtException', (err) => {
+  console.error('uncaughtException', err && (err.stack || err));
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('unhandledRejection', reason && (reason.stack || reason));
+});
+
 ss.client.define('main', {
   view: 'app.jade',
   css: ['libs', 'app.styl'],
@@ -100,6 +109,7 @@ if (isProduction) {
 }
 //---- Middleware
 const middleware = require('./server/middleware.coffee');
+ss.http.middleware.prepend(middleware.securityheaders);
 ss.http.middleware.prepend(middleware.jsonapi);
 ss.http.middleware.prepend(middleware.manualxhr);
 ss.http.middleware.prepend(middleware.images);
@@ -117,6 +127,33 @@ if (Config.http.secure != null) {
 } else {
   server = http.createServer(ss.http.middleware);
 }
+
+// X-Forwarded-For の先頭はクライアントが自由に詐称できる。
+// 直近のリバースプロキシ（ループバック接続）が末尾に付けた実クライアント IP だけを使う。
+const isLoopbackAddress = (addr) => {
+  if (!addr) return false;
+  return (
+    addr === '127.0.0.1' ||
+    addr === '::1' ||
+    addr === '::ffff:127.0.0.1'
+  );
+};
+const sanitizeForwardedFor = (req) => {
+  const xff = req.headers['x-forwarded-for'];
+  if (!xff) return;
+  const peer = req.socket && req.socket.remoteAddress;
+  const parts = String(xff)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!isLoopbackAddress(peer) || parts.length === 0) {
+    // 直接接続、または不正な値。ソケットの実アドレスを使わせる。
+    delete req.headers['x-forwarded-for'];
+    return;
+  }
+  // 末尾（直近プロキシが付与した実クライアント IP）のみ残す
+  req.headers['x-forwarded-for'] = parts[parts.length - 1];
+};
 
 //---- prepare client-side assets
 {
@@ -173,5 +210,9 @@ function runService(server) {
     // Start application
     server.listen(Config.http.port);
     ss.start(server);
+    // engine.io は attach 時に既存の request リスナーを奪ってしまうため、
+    // attach 後に prepend して、engine.io のパスでも XFF を先に正規化する。
+    server.prependListener('request', sanitizeForwardedFor);
+    server.prependListener('upgrade', sanitizeForwardedFor);
   });
 }

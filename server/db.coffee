@@ -12,7 +12,7 @@ dbinit= (loaded)->
         cols_count= (->
           count=0
           return (cb)->
-            if ++count>=10
+            if ++count>=11
               console.log "Mongodb Connected"
               # ゲームデータ読み込みをしてもらう
               #SS.server.game.game.loadDB()
@@ -91,6 +91,15 @@ dbinit= (loaded)->
         gl1 = M.gamelogs.createIndex({"gameid": 1, "time": 1})
         gl1.then (result)->
           # console.log "Gamelogs collection indexes created"
+          cols_count()
+
+        # 自動ログイン用トークン（ハッシュのみ保存）
+        M.authtokens=DB.collection "authtokens"
+        at1 = M.authtokens.createIndex({"hash": 1}, {unique: true})
+        at2 = M.authtokens.createIndex({"userid": 1})
+        at3 = M.authtokens.createIndex({"expires": 1}, {expireAfterSeconds: 0})
+        Promise.all([at1, at2, at3]).then (results)->
+          # console.log "Authtokens collection indexes created"
           cols_count()
 
 exports.dbinit=dbinit

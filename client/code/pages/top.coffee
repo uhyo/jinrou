@@ -10,18 +10,20 @@ exports.start=->
             node: $("#top-app").get 0
             onLogin: (query)->
                 new Promise (resolve)->
-                    Index.app.login query.userId, query.password, (result)->
+                    onLoginResult = (result)->
                         if result
                             if query.rememberMe
-                                # 記憶
+                                # 記憶（パスワードは保存しない）
                                 localStorage.setItem "userid", query.userId
-                                localStorage.setItem "password", query.password
+                                if result.token?
+                                    localStorage.setItem "token", result.token
                             Index.app.showUrl "/my"
-                            resolve {}
+                            return {}
                         else
-                            resolve {
+                            return {
                                 error: "loginError"
                             }
+                    Index.app.login query.userId, query.password, ((result)-> resolve onLoginResult result), query.rememberMe
                             # $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
             onSignup: (query)->
                 q=
@@ -37,7 +39,6 @@ exports.start=->
                         Index.app.processLoginResult query.userId, result, (success)->
                             if success
                                 localStorage.setItem "userid", query.userId
-                                localStorage.setItem "password", query.password
                                 Index.app.showUrl "/my"
                         resolve {}
 

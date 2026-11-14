@@ -141,21 +141,22 @@ updateBanQuery = (userid, ip, doc)->
             id: makeBanId()
         }
     # IPアドレス
-    if Array.isArray doc.ip
-        unless ip in doc.ip
-            flag = true
-            result.$push = {
-                ip: ip
-            }
-    else
-        if ip != doc.ip
-            flag = true
-            if result.$set?
-                result.$set.ip = [doc.ip, ip]
-            else
-                result.$set = {
-                    ip: [doc.ip, ip]
+    if ip?
+        if Array.isArray doc.ip
+            unless ip in doc.ip
+                flag = true
+                result.$push = {
+                    ip: ip
                 }
+        else
+            if ip != doc.ip
+                flag = true
+                if result.$set?
+                    result.$set.ip = [doc.ip, ip]
+                else
+                    result.$set = {
+                        ip: [doc.ip, ip]
+                    }
     # ユーザーID
     if userid?
         if Array.isArray doc.userid
@@ -243,45 +244,30 @@ exports.handleBanRequest = (banid, userid, ip, cb)->
                 else
                     cb doc
             return
-        # 既存のBANから探す
-        fq = if userid? then {
-            $or: [
-                {userid: userid},
-                {ip: ip}
-            ]
-        } else {ip: ip}
-        M.blacklist.findOne fq, (err, doc)->
+        # banid が見つからない場合、新規 BAN は作成しない。
+        # （詐称 banid で任意 IP を永久 BAN させる攻撃を防ぐ）
+        unless userid?
+            cb {error: "BANが見つかりません"}
+            return
+        M.blacklist.findOne {userid: userid}, (err, doc)->
             if err?
                 cb {error: err}
                 return
-            if doc?
-                # これに追加
-                updateq = updateBanQuery userid, ip, doc
-                if updateq?
-                    M.blacklist.update {
-                        _id: doc._id
-                    }, updateq, {w: 1}, (err)->
-                        if err?
-                            cb {error: err}
-                            return
-                        cb doc
-                else
-                    cb doc
+            unless doc?
+                cb {error: "BANが見つかりません"}
                 return
-            # 既存のBAN履歴がない
-            newid = makeBanId()
-            newdoc = {
-                id: newid
-                userid: if userid? then [userid] else []
-                ip: [ip]
-                types: BANTYPES
-                reason: "Ban Request"
-            }
-            M.blacklist.insert newdoc, {w: 1}, (err)->
-                if err?
-                    cb {error: err}
-                else
-                    cb newdoc
+            # これに追加
+            updateq = updateBanQuery userid, ip, doc
+            if updateq?
+                M.blacklist.update {
+                    _id: doc._id
+                }, updateq, {w: 1}, (err)->
+                    if err?
+                        cb {error: err}
+                        return
+                    cb doc
+            else
+                cb doc
 
 # アクセス制限を確認
 exports.checkPermission = (action, ban)->

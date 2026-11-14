@@ -16,7 +16,16 @@ exports.jsonapi=(request, response, next)->
         }
         return
       response.writeHead 200,{'Content-Type':'application/json; charset=UTF-8'}
-      results.forEach (x)->delete x.password
+      results.forEach (x)->
+        delete x.password
+        delete x.quitfromtheme
+        delete x.ban
+        delete x.owner if x.blind
+        if x.players?
+          x.players.forEach (p)->
+            # 公開 API に IP / 内部 ID を出さない
+            delete p.ip
+            delete p.realid
       response.end JSON.stringify results
   else if r=request.url.match /\/json\/room\/(\d+)$/
     M.rooms.findOne {id:parseInt r[1]}, (err,doc)->
@@ -38,6 +47,13 @@ exports.jsonapi=(request, response, next)->
         return
       response.writeHead 200,{'Content-Type':'application/json; charset=UTF-8'}
       delete doc.password
+      delete doc.quitfromtheme
+      delete doc.ban
+      delete doc.owner if doc.blind
+      if doc.players?
+        doc.players.forEach (p)->
+          delete p.ip
+          delete p.realid
       response.end JSON.stringify doc
     
   else
@@ -49,9 +65,9 @@ exports.manualxhr=(request, response, next)->
     # マニュアルを送る
     fs.readFile "./manual/#{r[1]}.jade","utf-8",(err,data)->
       if err?
-        # ?
+        # エラー内容（絶対パス等）は返さない
         response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
-        response.end err.toString()
+        response.end "Not Found"
         return
       fn=jade.compile data,{}
       unless fn?
@@ -63,22 +79,40 @@ exports.manualxhr=(request, response, next)->
   else
     next()
 
+# セキュリティヘッダ（全レスポンス共通）
+exports.securityheaders=(request, response, next)->
+  response.setHeader 'X-Content-Type-Options', 'nosniff'
+  response.setHeader 'X-Frame-Options', 'SAMEORIGIN'
+  response.setHeader 'Referrer-Policy', 'strict-origin-when-cross-origin'
+  next()
+
 # public image serving
 exports.images=(request, response, next)->
+  notFound = ->
+    response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
+    response.end "Not Found"
   if r=request.url.match /^\/images\/(.+)$/
-    fs.readFile "./public/images/#{r[1]}",(err,data)->
-      if err?
-        response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
-        response.end err.toString()
+    # パストラバーサル防止: public/images 配下の通常ファイルのみ許可
+    root = path.resolve "./public/images"
+    target = path.resolve root, r[1]
+    unless target == root or target.indexOf(root + path.sep) == 0
+      notFound()
+      return
+    fs.lstat target,(err,st)->
+      if err? or !st.isFile()
+        notFound()
         return
-      response.writeHead 200,{'Content-Type':'image/png'}	# all png!! really?
-      response.end data
+      fs.readFile target,(err,data)->
+        if err?
+          notFound()
+          return
+        response.writeHead 200,{'Content-Type':'image/png'}
+        response.end data
   else if request.url=="/noIE.html"
     # なぜかページも
     fs.readFile "./public/noIE.html",(err,data)->
       if err?
-        response.writeHead 404,{'Content-Type':'text/plain; charset=UTF-8'}
-        response.end err.toString()
+        notFound()
         return
       response.writeHead 200,{'Content-Type':'text/html'}
       response.end data

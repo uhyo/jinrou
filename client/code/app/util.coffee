@@ -206,16 +206,18 @@ exports.loginWindow=(cb=->app.refresh())->
     $("#loginform").submit (je)->
         je.preventDefault()
         form=je.target
-        app.login form.elements["userid"].value, form.elements["password"].value,(result)->
+        app.login form.elements["userid"].value, form.elements["password"].value, ((result)->
             if result
                 if form.elements["remember_me"].checked
-                    # 記憶
+                    # 記憶（パスワードは保存しない）
                     localStorage.setItem "userid",form.elements["userid"].value
-                    localStorage.setItem "password", form.elements["password"].value
+                    if result.token?
+                        localStorage.setItem "token", result.token
                 cb()
                 closeWindow win
             else
                 $("#loginerror").text "ユーザーIDまたはパスワードが違います。"
+        ), form.elements["remember_me"].checked
     $("#newentryform").submit (je)->
         je.preventDefault()
         form=je.target
@@ -227,7 +229,6 @@ exports.loginWindow=(cb=->app.refresh())->
                 $("#newentryerror").text result
             else
                 localStorage.setItem "userid",q.userid
-                localStorage.setItem "password", q.password
                 closeWindow win
                 # 初期情報を入力してもらう
                 util.blindName {title:"情報入力",message:"ユーザー名を設定してください"},(obj)->

@@ -117,20 +117,10 @@ exports.init = ->
     setPhoneUI (localStorage.usePhoneUI != "false")
 
 
-    # 自動ログイン
-    if localStorage.userid && localStorage.password
-        login localStorage.userid, localStorage.password,(result)->
-            p = location.href
-            if result
-                p = location.href
-                if location.pathname == "/" then p = "/my"
-            else
-                #p="/"
-                # 無効
-                localStorage.removeItem "userid"
-                localStorage.removeItem "password"
-            showUrl p
-    else
+    # 旧バージョンが localStorage に残した平文パスワードを掃除する
+    localStorage.removeItem "password"
+    # 自動ログイン: パスワードではなくトークン（既定 3 日で失効）を使う
+    doAnonymous = ->
         ss.rpc "user.hello", {}, (e)->
             if e.banid
                 libban.saveBanData e.banid
@@ -138,8 +128,38 @@ exports.init = ->
                 libban.removeBanData()
             else
                 checkBanData()
-
         showUrl location.href
+    # セッション Cookie が生きていれば、token が無くてもログイン状態を復元する。
+    # （これが無いと my_userid が null のままになり、per-user の getjob が
+    #   channel==Index.app.userid() で全部捨てられてしまう）
+    restoreSession = ->
+        ss.rpc "user.myProfile", (me)->
+            if me?.userid
+                # セッションの userId を正とする（localStorage の古い値は使わない）
+                localStorage.setItem "userid", me.userid
+                processLoginResult me.userid, {login:true}, ->
+                    p = location.href
+                    if location.pathname == "/" then p = "/my"
+                    showUrl p
+            else
+                localStorage.removeItem "userid"
+                doAnonymous()
+    if localStorage.token
+        ss.rpc "user.loginWithToken", {token: localStorage.token}, (result)->
+            if result?.login
+                # token の持ち主を正とする（localStorage.userid が古い場合がある）
+                localStorage.setItem "userid", result.userid
+                processLoginResult result.userid, result, ->
+                    p = location.href
+                    if location.pathname == "/" then p = "/my"
+                    showUrl p
+            else
+                # 失効・期限切れ。セッションが生きていればログイン状態を維持する
+                localStorage.removeItem "token"
+                restoreSession()
+    else
+        # token が無くても、セッション Cookie でログインしている可能性がある
+        restoreSession()
 
     # 履歴の移動
     window.addEventListener "popstate",((e)->
@@ -327,10 +347,10 @@ exports.showUrl=showUrl=(url,query={},nohistory=false)->
             page "admin",null,Index.admin,null
         when "/logout"
             # ログアウト
-            ss.rpc "user.logout", ->
+            ss.rpc "user.logout", {token: localStorage.token}, ->
                 my_userid=null
                 localStorage.removeItem "userid"
-                localStorage.removeItem "password"
+                localStorage.removeItem "token"
                 $("#username").empty()
                 showUrl "/", {}, nohistory
         when "/logs"
@@ -389,9 +409,11 @@ exports.pushState=pushState=(url, query)->
 
 exports.refresh=->showUrl location.pathname, util.searchHash(location.search), true
 
-exports.login=login=(uid,ups,cb)->
-    ss.rpc "user.login", {userid:uid,password:ups},(result)->
-        processLoginResult uid, result, cb
+exports.login=login=(uid,ups,cb,rememberMe)->
+    ss.rpc "user.login", {userid:uid,password:ups,rememberMe:!!rememberMe},(result)->
+        # processLoginResult の cb は真偽値なので、トークンを含む生の result を渡す
+        processLoginResult uid, result, (success)->
+            cb? (if success then result else false)
 # Promise version of login.
 # Also it saves user into to localStorage.
 exports.loginPromise = (uid, ups)->
@@ -400,7 +422,6 @@ exports.loginPromise = (uid, ups)->
             if result
                 # succeeded to login.
                 localStorage.setItem "userid", uid
-                localStorage.setItem "password", ups
                 resolve true
             else
                 resolve false

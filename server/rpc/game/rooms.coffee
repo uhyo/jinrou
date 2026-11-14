@@ -5,6 +5,32 @@ libready = require '../../libs/ready.coffee'
 
 i18n = libi18n.getWithDefaultNS 'rooms'
 
+# パスワード付きルームの enter 試行回数制限（プロセス内・IP+room 単位）
+ENTER_MAX_FAILURES = 10
+ENTER_WINDOW_MS = 10*60*1000
+enterFailures = {}
+pruneEnterFailures = ->
+    now = Date.now()
+    for k, v of enterFailures when now - v.first > ENTER_WINDOW_MS
+        delete enterFailures[k]
+enterKey = (req, roomid)->
+    "#{req.clientIp ? req.socket?.remoteAddress ? '?'}:#{roomid}"
+enterAllowed = (key)->
+    rec = enterFailures[key]
+    return true unless rec?
+    return true if Date.now() - rec.first > ENTER_WINDOW_MS
+    rec.count < ENTER_MAX_FAILURES
+recordEnterFailure = (key)->
+    now = Date.now()
+    rec = enterFailures[key]
+    if !rec? or now - rec.first > ENTER_WINDOW_MS
+        enterFailures[key] = {first: now, count: 1}
+        pruneEnterFailures()
+    else
+        rec.count += 1
+clearEnterFailures = (key)->
+    delete enterFailures[key]
+
 ###
 room: {
   id: Number
@@ -136,10 +162,14 @@ module.exports.actions=(req,res,ss)->
                 if x.password?
                     x.needpassword=true
                     delete x.password
-                if x.blind
-                    delete x.owner
+                if x.players?
                     x.players.forEach (p)->
-                        delete p.realid
+                        # 公開 API に IP / 内部 ID を出さない
+                        delete p.ip
+                        delete p.realid if x.blind
+                delete x.owner if x.blind
+                delete x.quitfromtheme
+                delete x.ban
                 unless x.watchspeak?
                     # old rooms do not have watchspeak set.
                     # watchspeak defaults to true.
@@ -150,6 +180,11 @@ module.exports.actions=(req,res,ss)->
                         x.themeFullName = theme.name
             res results
     getMyRooms:(page)->
+        unless req.session.userId
+            res {error: i18n.t "common:error.needLogin"}
+            return
+        page = parseInt page, 10
+        page = 0 unless Number.isInteger(page) and page >= 0
         # extract user's play logs from userrawlogs
         stream = M.userrawlogs.aggregate([
             {
@@ -187,6 +222,7 @@ module.exports.actions=(req,res,ss)->
                     if p.realid == req.session.userId
                         p.me = true
                     p.realid = undefined
+                    p.ip = undefined
             results.push x
         stream.on "end", ->
             # ここで結果を返す
@@ -196,6 +232,10 @@ module.exports.actions=(req,res,ss)->
 
 
     oneRoom:(roomid)->
+        unless (typeof roomid == "number" and Number.isInteger(roomid)) or (typeof roomid == "string" and /^\d+$/.test roomid)
+            res {error: i18n.t "common:error.invalidInput"}
+            return
+        roomid = parseInt roomid, 10
         M.rooms.findOne {id:roomid},(err,result)=>
             if err?
                 res {error:err}
@@ -209,6 +249,8 @@ module.exports.actions=(req,res,ss)->
                 unless result.blind == "" || pl?.mode == "gm"
                     delete p.realid
                 delete p.ip
+            delete result.quitfromtheme
+            delete result.ban
             # ふるいかどうか
             if result.made < Date.now()-Config.rooms.fresh*3600000
                 result.old=true
@@ -232,10 +274,16 @@ module.exports.actions=(req,res,ss)->
         if query.name.length > Config.maxlength.room.name
             res {error: i18n.t "error.newRoom.nameTooLong"}
             return
-        if query.comment && query.comment.length > Config.maxlength.room.comment
+        if query.comment? && (typeof query.comment != "string" || query.comment.length > Config.maxlength.room.comment)
             res {error: i18n.t "error.newRoom.commentTooLong"}
             return
-        maxNumber = parseInt query.number, 10
+        if query.password? && typeof query.password != "string"
+            res {error: i18n.t "error.newRoom.invalidParameter"}
+            return
+        maxNumber = Number query.number
+        unless Number.isInteger(maxNumber)
+            res {error: i18n.t "error.newRoom.invalidParameter"}
+            return
         if maxNumber < 5
             res {error: i18n.t "error.newRoom.maxNumberTooSmall"}
             return
@@ -337,6 +385,10 @@ module.exports.actions=(req,res,ss)->
         unless req.session.userId
             res {error: i18n.t("common:error.needLogin"), require:"login"}    # ログインが必要
             return
+        unless (typeof roomid == "number" and Number.isInteger(roomid)) or (typeof roomid == "string" and /^\d+$/.test roomid)
+            res {error: i18n.t("common:error.invalidInput"), require:"login"}
+            return
+        roomid = parseInt roomid, 10
         unless libblacklist.checkPermission "play", req.session.ban
             # アクセス制限
             res {
@@ -349,6 +401,7 @@ module.exports.actions=(req,res,ss)->
         sanitizeName = (name)->
             return name.replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069]/g, '')
 
+        opt ?= {}
         opt.name = sanitizeName opt.name
 
         Server.game.rooms.oneRoomS roomid,(room)=>
@@ -361,6 +414,19 @@ module.exports.actions=(req,res,ss)->
             if Array.isArray(room.ban) && (req.session.userId in room.ban)
                 res error: i18n.t "error.join.kicked"
                 return
+            # パスワード付きルームは enter で認証済みのセッションのみ join を許可する
+            od=Date.now()-Config.rooms.fresh*3600000
+            if room.password? && room.mode!="end" && room.made>od
+                enteredAt = req.session.roompasswords?[roomid]
+                adminPass = if typeof Config.admin.password == "string" and Config.admin.password.length > 0
+                    Config.admin.password
+                else
+                    null
+                allowed = (enteredAt? && Date.now()-enteredAt < 10*60*1000) or
+                    (opt.password? && (opt.password==room.password || (adminPass? && opt.password==adminPass)))
+                unless allowed
+                    res {error: "此房间需要密码。", require:"password"}
+                    return
             if opt.name in (room.players.map (x)->x.name)
                 res error: i18n.t "error.join.nameUsed", {name: opt.name}
                 return
@@ -668,6 +734,14 @@ module.exports.actions=(req,res,ss)->
         #unless req.session.userId
         #   res {error:"ログインして下さい"}
         #   return
+        unless (typeof roomid == "number" and Number.isInteger(roomid)) or (typeof roomid == "string" and /^\d+$/.test roomid)
+            res {error: i18n.t "common:error.invalidInput"}
+            return
+        roomid = parseInt roomid, 10
+        key = enterKey req, roomid
+        unless enterAllowed key
+            res {error: "パスワードの試行回数が多すぎます。しばらくしてからお試しください。", require:"password"}
+            return
         Server.game.rooms.oneRoomS roomid,(room)=>
             if !room?
                 res {error: i18n.t "error.noSuchRoom"}
@@ -677,9 +751,20 @@ module.exports.actions=(req,res,ss)->
                 return
             # 古い部屋ならパスワードいらない
             od=Date.now()-Config.rooms.fresh*3600000
-            if room.password? && room.mode!="end" && room.made>od && room.password!=password && password!=Config.admin.password
+            # マスターパスワードは「空でない文字列」のときだけ有効
+            adminPass = if typeof Config.admin.password == "string" and Config.admin.password.length > 0
+                Config.admin.password
+            else
+                null
+            if room.password? && room.mode!="end" && room.made>od && room.password!=password && !(adminPass? && password==adminPass)
+                recordEnterFailure key
                 res {require:"password"}
                 return
+            # enter 済みの印（join 側で検証）
+            clearEnterFailures key
+            req.session.roompasswords ?= {}
+            req.session.roompasswords[roomid] = Date.now()
+            req.session.save()
             req.session.channel.reset()
 
             req.session.channel.subscribe "room#{roomid}"
